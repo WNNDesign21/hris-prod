@@ -23,6 +23,6 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('pages.menu.admin.index');
+        return view('pages.menu.index');
     }
 }

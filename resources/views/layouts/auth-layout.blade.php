@@ -8,11 +8,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <link rel="icon" href="{{ asset('favicon.ico') }}">
-    @php
-        $title = config('app.name');
-    @endphp
-
-    <title>{{ $title }}</title>
+    <title>@yield('title')</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -44,9 +40,9 @@
             </div>
         </div>
         @include('layouts.footer')
-        @include('layouts.control-sidebar')
+        {{-- @include('layouts.control-sidebar') --}}
     </div>
-    @include('layouts.side-panel')
+    {{-- @include('layouts.side-panel') --}}
 
     <!-- jQuery -->
     <script src="{{ asset('assets/plugins/jquery/jquery.min.js') }}"></script>
