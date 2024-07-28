@@ -12,8 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('kontraks', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id_kontrak');
+            $table->string('karyawan_id');
+            $table->enum('tipe', ['PKWT', 'MAGANG', 'THL', 'PKWTT']);
+            $table->integer('durasi');
+            $table->date('tanggal_mulai');
+            $table->date('tanggal_akhir')->nullable();
+            $table->string('attachment');
+
+            $table->softDeletes();
             $table->timestamps();
+
+            $table->foreign('karyawan_id')->references('id_karyawan')->on('karyawans')->restrictOnDelete();
         });
     }
 

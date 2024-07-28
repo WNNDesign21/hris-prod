@@ -11,13 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('organisasis', function (Blueprint $table) {
-            $table->bigIncrements("id_organisasi");
+        Schema::create('posisis', function (Blueprint $table) {
+            $table->increments('id_posisi');
+            $table->unsignedInteger('jabatan_id');
             $table->string('nama');
-            $table->string('alamat')->nullable();
-            $table->timestamps();
+            $table->integer('parent');
 
             $table->softDeletes();
+            $table->timestamps();
+
+            $table->foreign('jabatan_id')->references('id_jabatan')->on('jabatans')->restrictOnDelete();
         });
     }
 
@@ -26,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('organisasis');
+        Schema::dropIfExists('posisis');
     }
 };

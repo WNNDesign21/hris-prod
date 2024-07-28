@@ -12,8 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('departemens', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id_departemen');
+            $table->unsignedInteger('divisi_id');
+            $table->string('nama');
+
+            $table->softDeletes();
             $table->timestamps();
+
+            $table->foreign('divisi_id')->references('id_divisi')->on('divisis')->restrictOnDelete();
         });
     }
 

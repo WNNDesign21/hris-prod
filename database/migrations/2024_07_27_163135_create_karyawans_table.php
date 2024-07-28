@@ -20,7 +20,6 @@ return new class extends Migration
             $table->unsignedBigInteger('departemen_id')->nullable();
             $table->unsignedBigInteger('seksi_id')->nullable();
             $table->unsignedBigInteger('grup_id')->nullable();
-            $table->unsignedBigInteger('kontrak_id')->nullable();
             $table->string('no_ktp')->unique();
             $table->string('nik')->unique();
             $table->string('nama');
@@ -35,11 +34,12 @@ return new class extends Migration
             $table->string('npwp')->unique();
             $table->string('no_bpjs_ks')->unique();
             $table->string('no_bpjs_kt')->unique();
-            $table->enum('jenis_kontrak', ['PKWT', 'MAGANG', 'THL']);
+            $table->enum('jenis_kontrak', ['PKWT', 'MAGANG', 'THL', 'PKWTT']);
             $table->enum('status_karyawan', ['AKTIF', 'RESIGN', 'PENSIUN']);
             $table->integer('sisa_cuti');
             $table->year('tahun_masuk');
             $table->year('tahun_keluar')->nullable();
+
             $table->timestamps();
             $table->softDeletes();
 
@@ -47,11 +47,6 @@ return new class extends Migration
             $table->foreign('user_id')->references('id')->on('users')->restrictOnDelete();
             $table->foreign('organisasi_id')->references('id_organisasi')->on('organisasis')->restrictOnDelete();
             $table->foreign('posisi_id')->references('id_posisi')->on('posisis')->restrictOnDelete();
-            $table->foreign('divisi_id')->references('id_divisi')->on('divisis')->restrictOnDelete();
-            $table->foreign('departemen_id')->references('id_departemen')->on('departemens')->restrictOnDelete();
-            $table->foreign('seksi_id')->references('id_seksi')->on('seksis')->restrictOnDelete();
-            $table->foreign('grup_id')->references('id_grup')->on('grups')->restrictOnDelete();
-            $table->foreign('kontrak_id')->references('id_kontrak')->on('kontraks')->restrictOnDelete();
         });
     }
 
