@@ -2,8 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Karyawan;
 use Illuminate\Database\Seeder;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Illuminate\Support\Str;
 
 class KaryawanSeeder extends Seeder
 {
@@ -12,6 +14,50 @@ class KaryawanSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        $karyawan = [
+            [
+                'id_karyawan' => 'FL0001',
+                'nama' => 'FLAVIA DOMITELA AJENG NARISWARI',
+                'sisa_cuti' => 12,
+                'tahun_masuk' => '2024',
+                'user_id' => 1,
+                'organisasi_id' => 3,
+                'posisi_id' => 10,
+                'divisi_id' => 1,
+                'departemen_id' => 1,
+                'seksi_id' => 1,
+                'grup_id' => 1
+            ],
+            [
+                'id_karyawan' => 'IN0001',
+                'nama' => '	INDAH NADIA HAPSARI',
+                'sisa_cuti' => 12,
+                'tahun_masuk' => '2024',
+                'user_id' => 2,
+                'organisasi_id' => 3,
+                'posisi_id' => 9,
+                'divisi_id' => 1,
+                'departemen_id' => 1,
+                'seksi_id' => 1,
+                'grup_id' => 1
+            ],
+            [
+                'id_karyawan' => 'AM0001',
+                'nama' => '	AMBAR WINASTI',
+                'sisa_cuti' => 12,
+                'tahun_masuk' => '2024',
+                'user_id' => 2,
+                'organisasi_id' => 3,
+                'posisi_id' => 8,
+                'divisi_id' => 1,
+                'departemen_id' => 1,
+                'seksi_id' => 1,
+                'grup_id' => 1
+            ],
+        ];
+
+        foreach ($karyawan as $kry) {
+            Karyawan::create($kry);
+        }
     }
 }
