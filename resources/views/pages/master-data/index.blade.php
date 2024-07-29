@@ -1,7 +1,7 @@
 @extends('layouts.auth-layout')
 
 @section('title')
-    Master Data - Dashboard
+    {{ $pageTitle }}
 @endsection
 
 @section('header')

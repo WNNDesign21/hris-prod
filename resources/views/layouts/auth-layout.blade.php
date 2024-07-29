@@ -16,11 +16,11 @@
         href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('assets/vendor_plugins/fontawesome/css/all.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/vendor_components/sweetalert/sweetalert.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendor_components/sweetalert2/dist/sweetalert2.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/vendor_components/datatable/datatables.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/vendor_components/animate/animate.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/vendor_components/lightbox-master/dist/ekko-lightbox.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/vendor_plugins/select2/select2-bootstrap-5-theme.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendor_plugins/select2-theme/select2-bootstrap-5-theme.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/vendors_css.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/skin_color.css') }}">
@@ -45,7 +45,7 @@
     {{-- @include('layouts.side-panel') --}}
 
     <!-- jQuery -->
-    <script src="{{ asset('assets/plugins/jquery/jquery.min.js') }}"></script>
+    <script src="{{ asset('assets/vendor_plugins/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/vendor_components/apexcharts-bundle/dist/apexcharts.js') }}"></script>
 
     <!-- Vendor JS -->
@@ -53,7 +53,7 @@
     <script src="{{ asset('js/pages/chat-popup.js') }}"></script>
     <script src="{{ asset('assets/icons/feather-icons/feather.min.js') }}"></script>
     <script src="{{ asset('assets/vendor_components/select2/dist/js/select2.full.min.js') }}"></script>
-    <script src="{{ asset('assets/vendor_components/sweetalert/sweetalert.min.js') }}"></script>
+    <script src="{{ asset('assets/vendor_components/sweetalert2/dist/sweetalert2.min.js') }}"></script>
     <script src="{{ asset('assets/vendor_components/lightbox-master/dist/ekko-lightbox.min.js') }}"></script>
     <script src="{{ asset('assets/vendor_components/Magnific-Popup-master/dist/jquery.magnific-popup.min.js') }}"></script>
     <script src="{{ asset('assets/vendor_components/Magnific-Popup-master/dist/jquery.magnific-popup-init.js') }}">
@@ -68,12 +68,17 @@
     {{-- <script src="{{ asset('js/pages/data-table.js') }}"></script> --}}
 
     <script>
-        let base_url = "{{ route('root') }}";
+        // let base_url = "{{ route('root') }}";
+        let base_url = window.location.origin;
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
         var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl)
         })
     </script>
+
+    @if ($page == 'masterdata-organisasi')
+        @vite(['resources/js/pages/organisasi.js'])
+    @endif
 
 </body>
 
