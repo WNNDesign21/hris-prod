@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('grups', function (Blueprint $table) {
             $table->increments('id_grup');
             $table->string('nama');
-            $table->string('jam_masuk');
-            $table->string('jam_keluar');
+            $table->string('jam_masuk')->nullable();
+            $table->string('jam_keluar')->nullable();
 
             $table->softDeletes();
             $table->timestamps();

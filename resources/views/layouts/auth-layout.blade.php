@@ -92,6 +92,10 @@
         @vite(['resources/js/pages/seksi.js'])
     @endif
 
+    @if ($page == 'masterdata-grup')
+        @vite(['resources/js/pages/grup.js'])
+    @endif
+
 </body>
 
 </html>
