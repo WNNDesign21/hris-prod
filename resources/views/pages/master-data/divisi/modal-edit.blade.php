@@ -13,10 +13,10 @@
                         @csrf
                         <input type="hidden" name="id_divisi_edit" id="id_divisi_edit">
                         <label for="">Nama</label>
-                        <div class="input-group" style="width:100%;">
+                        <div class="input-group mb-2" style="width:100%;">
                             <input type="text" name="nama_divisi_edit" id="nama_divisi_edit" class="form-control">
                         </div>
-                        <div class="d-flex justify-content-end mt-2">
+                        <div class="d-flex justify-content-end">
                             <button type="submit" class="btn btn-success"><i class="fas fa-save"></i>
                                 Update</button>
                         </div>

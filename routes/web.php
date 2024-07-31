@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MasterData\DivisiController;
 use App\Http\Controllers\MasterData\DashboardController;
+use App\Http\Controllers\MasterData\DepartemenController;
 use App\Http\Controllers\MasterData\OrganisasiController;
 
 Route::get('/', function () {
@@ -30,4 +31,11 @@ Route::get('/master-data/divisi',[DivisiController::class, 'index'])->name('mast
 Route::post('/master-data/divisi/store',[DivisiController::class, 'store'])->name('master-data.divisi.store');
 Route::delete('/master-data/divisi/delete/{idDivisi}', [DivisiController::class, 'delete'])->name('master-data.divisi.delete');
 Route::patch('/master-data/divisi/update/{idDivisi}', [DivisiController::class, 'update'])->name('master-data.divisi.update');
+
+/** MASTER DATA - DEPARTEMEN */
+Route::post('/master-data/departemen/datatable', [DepartemenController::class, 'datatable']);
+Route::get('/master-data/departemen',[DepartemenController::class, 'index'])->name('master-data.departemen');
+Route::post('/master-data/departemen/store',[DepartemenController::class, 'store'])->name('master-data.departemen.store');
+Route::delete('/master-data/departemen/delete/{idDepartemen}', [DepartemenController::class, 'delete'])->name('master-data.departemen.delete');
+Route::patch('/master-data/departemen/update/{idDepartemen}', [DepartemenController::class, 'update'])->name('master-data.departemen.update');
 

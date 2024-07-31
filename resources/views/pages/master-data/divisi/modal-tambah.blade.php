@@ -12,10 +12,10 @@
                         id="form-tambah-divisi">
                         @csrf
                         <label for="">Nama</label>
-                        <div class="input-group" style="width:100%;">
+                        <div class="input-group mb-2" style="width:100%;">
                             <input type="text" name="nama_divisi" id="nama_divisi" class="form-control" required>
                         </div>
-                        <div class="d-flex justify-content-end mt-2">
+                        <div class="d-flex justify-content-end">
                             <button type="submit" class="btn btn-success"><i class="fas fa-save"></i>
                                 Tambah</button>
                         </div>

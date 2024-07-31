@@ -84,6 +84,10 @@
         @vite(['resources/js/pages/divisi.js'])
     @endif
 
+    @if ($page == 'masterdata-departemen')
+        @vite(['resources/js/pages/departemen.js'])
+    @endif
+
 </body>
 
 </html>
