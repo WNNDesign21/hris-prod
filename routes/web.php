@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MasterData\DivisiController;
 use App\Http\Controllers\MasterData\DashboardController;
 use App\Http\Controllers\MasterData\OrganisasiController;
 
@@ -22,4 +23,11 @@ Route::get('/master-data/organisasi',[OrganisasiController::class, 'index'])->na
 Route::post('/master-data/organisasi/store',[OrganisasiController::class, 'store'])->name('master-data.organisasi.store');
 Route::delete('/master-data/organisasi/delete/{idOrganisasi}', [OrganisasiController::class, 'delete'])->name('master-data.organisasi.delete');
 Route::patch('/master-data/organisasi/update/{idOrganisasi}', [OrganisasiController::class, 'update'])->name('master-data.organisasi.update');
+
+/** MASTER DATA - DIVISI */
+Route::post('/master-data/divisi/datatable', [DivisiController::class, 'datatable']);
+Route::get('/master-data/divisi',[DivisiController::class, 'index'])->name('master-data.divisi');
+Route::post('/master-data/divisi/store',[DivisiController::class, 'store'])->name('master-data.divisi.store');
+Route::delete('/master-data/divisi/delete/{idDivisi}', [DivisiController::class, 'delete'])->name('master-data.divisi.delete');
+Route::patch('/master-data/divisi/update/{idDivisi}', [DivisiController::class, 'update'])->name('master-data.divisi.update');
 

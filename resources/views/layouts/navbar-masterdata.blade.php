@@ -34,13 +34,15 @@
                                 <i class="fa fa-angle-right pull-right"></i>
                             </span>
                         </a>
-                        <ul class="treeview-menu {{ $page == 'masterdata-organisasi' ? 'active' : '' }}">
+                        <ul
+                            class="treeview-menu {{ $page == 'masterdata-organisasi' || $page == 'masterdata-divisi' ? 'active' : '' }}">
                             <li class="{{ $page == 'masterdata-organisasi' ? 'active' : '' }}"><a
                                     href="{{ route('master-data.organisasi') }}"><i class="icon-Commit"><span
                                             class="path1"></span><span class="path2"></span></i>Organisasi</a>
                             </li>
-                            <li><a href="#"><i class="icon-Commit"><span class="path1"></span><span
-                                            class="path2"></span></i>Divisi</a></li>
+                            <li class="{{ $page == 'masterdata-divisi' ? 'active' : '' }}"><a
+                                    href="{{ route('master-data.divisi') }}"><i class="icon-Commit"><span
+                                            class="path1"></span><span class="path2"></span></i>Divisi</a></li>
                             <li><a href="#"><i class="icon-Commit"><span class="path1"></span><span
                                             class="path2"></span></i>Departemen</a>
                             </li>

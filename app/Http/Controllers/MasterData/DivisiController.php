@@ -4,7 +4,7 @@ namespace App\Http\Controllers\MasterData;
 
 use Exception;
 use Throwable;
-use App\Models\Organisasi;
+use App\Models\Divisi;
 use Illuminate\Http\Request;
 use PhpParser\Node\Stmt\TryCatch;
 use Illuminate\Support\Facades\DB;
@@ -12,7 +12,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
-class OrganisasiController extends Controller
+class DivisiController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -20,21 +20,20 @@ class OrganisasiController extends Controller
     public function index()
     {
         $dataPage = [
-            'pageTitle' => "Master Data - Organisasi",
-            'page' => 'masterdata-organisasi',
+            'pageTitle' => "Master Data - Divisi",
+            'page' => 'masterdata-divisi',
         ];
-        return view('pages.master-data.organisasi.index', $dataPage);
+        return view('pages.master-data.divisi.index', $dataPage);
     }
 
     public function datatable(Request $request)
     {
         $columns = array(
-            0 => 'id_organisasi',
+            0 => 'id_divisi',
             1 => 'nama',
-            2 => 'alamat',
         );
 
-        $totalData = Organisasi::count();
+        $totalData = Divisi::count();
         $totalFiltered = $totalData;
 
         $limit = $request->input('length');
@@ -53,22 +52,21 @@ class OrganisasiController extends Controller
             $dataFilter['search'] = $search;
         }
 
-        $org = Organisasi::getData($dataFilter, $settings);
-        $totalFiltered = Organisasi::countData($dataFilter);
+        $divisi = Divisi::getData($dataFilter, $settings);
+        $totalFiltered = Divisi::countData($dataFilter);
 
         $dataTable = [];
 
-        if (!empty($org)) {
+        if (!empty($divisi)) {
             $no = $start;
-            foreach ($org as $data) {
+            foreach ($divisi as $data) {
                 $no++;
                 $nestedData['no'] = $no;
                 $nestedData['nama'] = $data->nama;
-                $nestedData['alamat'] = $data->alamat;
                 $nestedData['aksi'] = '
                 <div class="btn-group">
-                    <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" data-id="'.$data->id_organisasi.'" data-org-nama="'.$data->nama.'" data-org-alamat="'.$data->alamat.'"><i class="fas fa-edit"></i></button>
-                    <button type="button" class="waves-effect waves-light btn btn-danger btnDelete" data-id="'.$data->id_organisasi.'"><i class="fas fa-trash-alt"></i></button>
+                    <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" data-id="'.$data->id_divisi.'" data-divisi-nama="'.$data->nama.'"><i class="fas fa-edit"></i></button>
+                    <button type="button" class="waves-effect waves-light btn btn-danger btnDelete" data-id="'.$data->id_divisi.'"><i class="fas fa-trash-alt"></i></button>
                 </div>
                 ';
 
@@ -103,7 +101,7 @@ class OrganisasiController extends Controller
     public function store(Request $request)
     {
         $dataValidate = [
-            'nama_org' => ['required'],
+            'nama_divisi' => ['required'],
         ];
     
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -114,13 +112,12 @@ class OrganisasiController extends Controller
     
         DB::beginTransaction();
         try{
-            $org = Organisasi::create([
-                'nama' => $request->input('nama_org'),
-                'alamat' => $request->input('alamat_org'),
+            $divisi = Divisi::create([
+                'nama' => $request->input('nama_divisi'),
             ]);
 
             DB::commit();
-            return response()->json(['message' => 'Organisasi Ditambahkan!'],200);
+            return response()->json(['message' => 'Divisi Ditambahkan!'],200);
         } catch(Throwable $error){
             return response()->json(['message' => $error->getMessage()], 500);
         }
@@ -148,8 +145,7 @@ class OrganisasiController extends Controller
     public function update(Request $request, string $id)
     {
         $dataValidate = [
-            'nama_org_edit' => ['required'],
-            'alamat_org_edit' => ['required'],
+            'nama_divisi_edit' => ['required'],
         ];
     
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -158,15 +154,14 @@ class OrganisasiController extends Controller
             return response()->json(['message' => 'Fill your input correctly!'], 402);
         }
 
-        $org = Organisasi::find($id);
+        $divisi = Divisi::find($id);
 
         DB::beginTransaction();
         try{
-            $org->nama = $request->input('nama_org_edit');
-            $org->alamat = $request->input('alamat_org_edit');
-            $org->save();
+            $divisi->nama = $request->input('nama_divisi_edit');
+            $divisi->save();
             DB::commit();
-            return response()->json(['message' => 'Organisasi Updated!'], 200);
+            return response()->json(['message' => 'Divisi Updated!'], 200);
         } catch(\Throwable $error){
             DB::rollback();
             return response()->json(['message' => $error->getMessage()], 500);
@@ -178,23 +173,26 @@ class OrganisasiController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        
     }
 
+    /**
+     * Remove the specified resource from storage.
+     */
     public function delete(string $id)
     {
         DB::beginTransaction();
         try {
-            $org = Organisasi::findOrFail($id); 
-            $org->delete();
+            $divisi = Divisi::findOrFail($id); 
+            $divisi->delete();
             DB::commit();
-            return response()->json(['message' => 'Organisasi deleted!', 'id_organisasi' => $id], 200);
+            return response()->json(['message' => 'Divisi deleted!', 'id_divisi' => $id], 200);
         } catch (ModelNotFoundException $e) {
             DB::rollback();
             return response()->json(['message' => $e->getMessage()], 404);
         } catch (Throwable $e) {
             DB::rollback();
-            Log::error('Error deleting organisasi: ' . $e->getMessage());
+            Log::error('Error deleting divisi: ' . $e->getMessage());
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }
