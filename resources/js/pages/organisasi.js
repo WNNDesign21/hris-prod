@@ -7,6 +7,42 @@ $(function () {
 
     $.fn.modal.Constructor.prototype._enforceFocus = function () {};
 
+    //LOADING SWALL
+    let loadingSwal;
+    function loadingSwalShow() {
+        loadingSwal = Swal.fire({
+            imageHeight: 300,
+            showConfirmButton: false,
+            title: '<i class="fas fa-sync-alt fa-spin fs-80"></i>',
+            allowOutsideClick: false,
+            background: 'rgba(0, 0, 0, 0)'
+          });
+    }
+
+    function loadingSwalClose() {
+        loadingSwal.close();
+    }
+
+    //SHOW TOAST
+    function showToast(options) {
+        const toast = Swal.mixin({
+            toast: true,
+            position: "top-end",
+            showConfirmButton: false,
+            timer: 2000, 
+            timerProgressBar: true,
+            didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+            }
+        });
+
+        toast.fire({
+            icon: options.icon || "success",
+            title: options.title
+        });
+    }
+
     //DATATABLE ORGANISASI
     var columnsTable = [
         { data: "no" },
@@ -20,7 +56,7 @@ $(function () {
             return: true,
         },
         order: [[0, "DESC"]],
-        // processing: true,
+        processing: true,
         serverSide: true,
         ajax: {
             url: base_url + "/master-data/organisasi/datatable",
@@ -94,30 +130,22 @@ $(function () {
         ],
     })
 
+    //REFRESH TABLE
     function refreshTable() {
-        Swal.fire({
-            imageHeight: 300,
-            showConfirmButton: false,
-            title: '<i class="fas fa-sync-alt fa-spin fs-80"></i>',
-            allowOutsideClick: false,
-            background: 'rgba(0, 0, 0, 0)'
-          });
-
-        orgTable.one('draw', function() {
-            Swal.close();
-        });
-
         orgTable.search("").draw();
     }
 
+    //RELOAD TABLE
     $('.btnReload').on("click", function (){
         refreshTable();
     })
 
+    //OPEN MODAL TAMBAH ORG
     $('.btnAdd').on("click", function (){
         openOrg();
     })
 
+    //CLOSE MODAL TAMBAH ORG
     $('.btnClose').on("click", function (){
         closeOrg();
     })
@@ -143,6 +171,32 @@ $(function () {
         $('#alamat_org').val('');
         modalInputOrg.hide();
     }
+
+    //SUBMIT TAMBAH ORGANISASI
+    $('#form-tambah-org').on('submit', function (e){
+        e.preventDefault();
+        loadingSwalShow();
+        let url = $('#form-tambah-org').attr('action');
+
+        var formData = new FormData($('#form-tambah-org')[0]);
+        $.ajax({
+            url: url,
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (data) {
+                loadingSwalClose();
+                showToast({ title: data.message });
+                refreshTable();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        })
+    });
 
     // MODAL EDIT ORG
     var modalEditOrgOptions = {
@@ -180,19 +234,14 @@ $(function () {
         openEditOrg();
     });
 
-    //SUBMIT TAMBAH ORGANISASI
-    $('#form-tambah-org').on('submit', function (e){
-        Swal.fire({
-            imageHeight: 300,
-            showConfirmButton: false,
-            title: '<i class="fas fa-sync-alt fa-spin fs-80"></i>',
-            allowOutsideClick: false,
-            background: 'rgba(0, 0, 0, 0)'
-        });
+    //SUBMIT EDIT ORGANISASI
+    $('#form-edit-org').on('submit', function (e){
         e.preventDefault();
-        let url = $('#form-tambah-org').attr('action');
+        loadingSwalShow();
+        let idOrg = $('#id_org_edit').val();
+        let url = base_url + '/master-data/organisasi/update/' + idOrg;
 
-        var formData = new FormData($('#form-tambah-org')[0]);
+        var formData = new FormData($('#form-edit-org')[0]);
         $.ajax({
             url: url,
             data: formData,
@@ -201,39 +250,13 @@ $(function () {
             processData: false,
             dataType: "JSON",
             success: function (data) {
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: "top-end",
-                    showConfirmButton: false,
-                    timer: 2000,
-                    timerProgressBar: true,
-                    didOpen: (toast) => {
-                      toast.onmouseenter = Swal.stopTimer;
-                      toast.onmouseleave = Swal.resumeTimer;
-                      refreshTable();
-                    }
-                  });
-                  Toast.fire({
-                    icon: "success",
-                    title: data.message
-                  });
+                loadingSwalClose();
+                showToast({ title: data.message });
+                refreshTable();
             },
             error: function (jqXHR, textStatus, errorThrown) {
-                const Toast = Swal.mixin({
-                    toast: true,
-                    position: "top-end",
-                    showConfirmButton: false,
-                    timer: 2000,
-                    timerProgressBar: true,
-                    didOpen: (toast) => {
-                      toast.onmouseenter = Swal.stopTimer;
-                      toast.onmouseleave = Swal.resumeTimer;
-                    }
-                  });
-                  Toast.fire({
-                    icon: "error",
-                    title: jqXHR.responseJSON.message
-                  });
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
             },
         })
     });
@@ -261,39 +284,11 @@ $(function () {
                     },
                     dataType: "JSON",
                     success: function (data) {
-                        const Toast = Swal.mixin({
-                            toast: true,
-                            position: "top-end",
-                            showConfirmButton: false,
-                            timer: 2000,
-                            timerProgressBar: true,
-                            didOpen: (toast) => {
-                              toast.onmouseenter = Swal.stopTimer;
-                              toast.onmouseleave = Swal.resumeTimer;
-                              refreshTable();
-                            }
-                          });
-                          Toast.fire({
-                            icon: "success",
-                            title: data.message
-                          });
+                        refreshTable();
+                        showToast({ title: data.message });
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
-                        const Toast = Swal.mixin({
-                            toast: true,
-                            position: "top-end",
-                            showConfirmButton: false,
-                            timer: 2000,
-                            timerProgressBar: true,
-                            didOpen: (toast) => {
-                              toast.onmouseenter = Swal.stopTimer;
-                              toast.onmouseleave = Swal.resumeTimer;
-                            }
-                          });
-                          Toast.fire({
-                            icon: "error",
-                            title: jqXHR.responseJSON.message
-                          });
+                        showToast({ icon: "error", title: jqXHR.responseJSON.message });
                     },
                 });
             }

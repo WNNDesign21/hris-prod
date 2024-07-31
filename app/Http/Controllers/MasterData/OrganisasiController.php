@@ -147,7 +147,30 @@ class OrganisasiController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $dataValidate = [
+            'nama_org_edit' => ['required'],
+            'alamat_org_edit' => ['required'],
+        ];
+    
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Fill your input correctly!'], 402);
+        }
+
+        $org = Organisasi::find($id);
+
+        DB::beginTransaction();
+        try{
+            $org->nama = $request->input('nama_org_edit');
+            $org->alamat = $request->input('alamat_org_edit');
+            $org->save();
+            DB::commit();
+            return response()->json(['message' => 'Organisasi Updated!'], 200);
+        } catch(\Throwable $error){
+            DB::rollback();
+            return response()->json(['message' => $error->getMessage()], 500);
+        }
     }
 
     /**

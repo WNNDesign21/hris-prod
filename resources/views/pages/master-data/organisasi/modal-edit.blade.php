@@ -9,6 +9,7 @@
             <div class="modal-body">
                 <div class="form-group">
                     <form action="#" method="POST" enctype="multipart/form-data" id="form-edit-org">
+                        @method('PATCH')
                         @csrf
                         <input type="hidden" name="id_org_edit" id="id_org_edit">
                         <label for="">Nama</label>

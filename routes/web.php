@@ -21,4 +21,5 @@ Route::post('/master-data/organisasi/datatable', [OrganisasiController::class, '
 Route::get('/master-data/organisasi',[OrganisasiController::class, 'index'])->name('master-data.organisasi');
 Route::post('/master-data/organisasi/store',[OrganisasiController::class, 'store'])->name('master-data.organisasi.store');
 Route::delete('/master-data/organisasi/delete/{idOrganisasi}', [OrganisasiController::class, 'delete'])->name('master-data.organisasi.delete');
+Route::patch('/master-data/organisasi/update/{idOrganisasi}', [OrganisasiController::class, 'update'])->name('master-data.organisasi.update');
 
