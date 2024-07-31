@@ -88,6 +88,10 @@
         @vite(['resources/js/pages/departemen.js'])
     @endif
 
+    @if ($page == 'masterdata-seksi')
+        @vite(['resources/js/pages/seksi.js'])
+    @endif
+
 </body>
 
 </html>

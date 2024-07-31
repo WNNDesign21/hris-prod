@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MasterData\SeksiController;
 use App\Http\Controllers\MasterData\DivisiController;
 use App\Http\Controllers\MasterData\DashboardController;
 use App\Http\Controllers\MasterData\DepartemenController;
@@ -38,4 +39,11 @@ Route::get('/master-data/departemen',[DepartemenController::class, 'index'])->na
 Route::post('/master-data/departemen/store',[DepartemenController::class, 'store'])->name('master-data.departemen.store');
 Route::delete('/master-data/departemen/delete/{idDepartemen}', [DepartemenController::class, 'delete'])->name('master-data.departemen.delete');
 Route::patch('/master-data/departemen/update/{idDepartemen}', [DepartemenController::class, 'update'])->name('master-data.departemen.update');
+
+/** MASTER DATA - SEKSI */
+Route::post('/master-data/seksi/datatable', [SeksiController::class, 'datatable']);
+Route::get('/master-data/seksi',[SeksiController::class, 'index'])->name('master-data.seksi');
+Route::post('/master-data/seksi/store',[SeksiController::class, 'store'])->name('master-data.seksi.store');
+Route::delete('/master-data/seksi/delete/{idSeksi}', [SeksiController::class, 'delete'])->name('master-data.seksi.delete');
+Route::patch('/master-data/seksi/update/{idSeksi}', [SeksiController::class, 'update'])->name('master-data.seksi.update');
 

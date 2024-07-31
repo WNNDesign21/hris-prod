@@ -43,15 +43,15 @@ $(function () {
         });
     }
 
-    //DATATABLE DEPARTEMEN
+    //DATATABLE SEKSI
     var columnsTable = [
         { data: "no" },
         { data: "nama" },
-        { data: "divisi" },
+        { data: "departemen" },
         { data: "aksi" },
     ];
 
-    var departemenTable = $("#departemen-table").DataTable({
+    var seksiTable = $("#seksi-table").DataTable({
         search: {
             return: true,
         },
@@ -59,7 +59,7 @@ $(function () {
         processing: true,
         serverSide: true,
         ajax: {
-            url: base_url + "/master-data/departemen/datatable",
+            url: base_url + "/master-data/seksi/datatable",
             dataType: "json",
             type: "POST",
             data: function (dataFilter) {
@@ -132,7 +132,7 @@ $(function () {
 
     //REFRESH TABLE
     function refreshTable() {
-        departemenTable.search("").draw();
+        seksiTable.search("").draw();
     }
 
     //RELOAD TABLE
@@ -140,45 +140,45 @@ $(function () {
         refreshTable();
     })
 
-    //OPEN MODAL TAMBAH DEPARTEMEN
+    //OPEN MODAL TAMBAH SEKSI
     $('.btnAdd').on("click", function (){
-        openDepartemen();
+        openSeksi();
     })
 
-    //CLOSE MODAL TAMBAH DEPARTEMEN
+    //CLOSE MODAL TAMBAH SEKSI
     $('.btnClose').on("click", function (){
-        closeDepartemen();
+        closeSeksi();
     })
 
 
-    // MODAL TAMBAH DEPARTEMEN
-    var modalInputDepartemenOptions = {
+    // MODAL TAMBAH SEKSI
+    var modalInputSeksiOptions = {
         backdrop: true,
         keyboard: false,
     };
 
-    var modalInputDepartemen = new bootstrap.Modal(
-        document.getElementById("modal-input-departemen"),
-        modalInputDepartemenOptions
+    var modalInputSeksi = new bootstrap.Modal(
+        document.getElementById("modal-input-seksi"),
+        modalInputSeksiOptions
     );
 
-    function openDepartemen() {
-        modalInputDepartemen.show();
+    function openSeksi() {
+        modalInputSeksi.show();
     }
 
-    function closeDepartemen() {
-        $('#nama_departemen').val('');
-        $('#id_divisi').val('');
-        modalInputDepartemen.hide();
+    function closeSeksi() {
+        $('#nama_seksi').val('');
+        $('#id_departemen').val('');
+        modalInputSeksi.hide();
     }
 
-    //SUBMIT TAMBAH DEPARTEMEN
-    $('#form-tambah-departemen').on('submit', function (e){
+    //SUBMIT TAMBAH SEKSI
+    $('#form-tambah-seksi').on('submit', function (e){
         e.preventDefault();
         loadingSwalShow();
-        let url = $('#form-tambah-departemen').attr('action');
+        let url = $('#form-tambah-seksi').attr('action');
 
-        var formData = new FormData($('#form-tambah-departemen')[0]);
+        var formData = new FormData($('#form-tambah-seksi')[0]);
         $.ajax({
             url: url,
             data: formData,
@@ -198,50 +198,50 @@ $(function () {
         })
     });
 
-    // MODAL EDIT DEPARTEMEN
-    var modalEditDepartemenOptions = {
+    // MODAL EDIT SEKSI
+    var modalEditSeksiOptions = {
         backdrop: true,
         keyboard: false,
     };
 
-    var modalEditDepartemen = new bootstrap.Modal(
-        document.getElementById("modal-edit-departemen"),
-        modalEditDepartemenOptions
+    var modalEditSeksi = new bootstrap.Modal(
+        document.getElementById("modal-edit-seksi"),
+        modalEditSeksiOptions
     );
 
-    function openEditDepartemen() {
-        modalEditDepartemen.show();
+    function openEditSeksi() {
+        modalEditSeksi.show();
     }
 
-    function closeEditDepartemen() {
-        $('#nama_departemen_edit').val('');
-        $('#id_divisi_edit').val('');
-        modalEditDepartemen.hide();
+    function closeEditSeksi() {
+        $('#nama_seksi_edit').val('');
+        $('#id_departemen_edit').val('');
+        modalEditSeksi.hide();
     }
 
     $('.btnCloseEdit').on("click", function (){
-        closeEditDepartemen();
+        closeEditSeksi();
     })
 
-    //EDIT DEPARTEMEN
-    $('#departemen-table').on('click', '.btnEdit', function (){
-        var idDepartemen = $(this).data('id');
-        var idDivisi = $(this).data('divisi-id');
-        var nama = $(this).data('departemen-nama');
+    //EDIT SEKSI
+    $('#seksi-table').on('click', '.btnEdit', function (){
+        var idSeksi = $(this).data('id');
+        var idDepartemen = $(this).data('departemen-id');
+        var nama = $(this).data('seksi-nama');
+        $('#id_seksi_edit').val(idSeksi);
+        $('#nama_seksi_edit').val(nama);
         $('#id_departemen_edit').val(idDepartemen);
-        $('#nama_departemen_edit').val(nama);
-        $('#id_divisi_edit').val(idDivisi);
-        openEditDepartemen();
+        openEditSeksi();
     });
 
-    //SUBMIT EDIT DEPARTEMEN
-    $('#form-edit-departemen').on('submit', function (e){
+    //SUBMIT EDIT SEKSI
+    $('#form-edit-seksi').on('submit', function (e){
         e.preventDefault();
         loadingSwalShow();
-        let idDepartemen = $('#id_departemen_edit').val();
-        let url = base_url + '/master-data/departemen/update/' + idDepartemen;
+        let idSeksi = $('#id_seksi_edit').val();
+        let url = base_url + '/master-data/seksi/update/' + idSeksi;
 
-        var formData = new FormData($('#form-edit-departemen')[0]);
+        var formData = new FormData($('#form-edit-seksi')[0]);
         $.ajax({
             url: url,
             data: formData,
@@ -261,11 +261,11 @@ $(function () {
         })
     });
 
-    //DELETE DEPARTEMEN
-    $('#departemen-table').on('click', '.btnDelete', function (){
-        var idDepartemen = $(this).data('id');
+    //DELETE SEKSI
+    $('#seksi-table').on('click', '.btnDelete', function (){
+        var idSeksi = $(this).data('id');
         Swal.fire({
-            title: "Delete Departemen",
+            title: "Delete Seksi",
             text: "Apakah kamu yakin untuk menghapus departemen ini?",
             icon: "warning",
             showCancelButton: true,
@@ -275,7 +275,7 @@ $(function () {
             allowOutsideClick: false,
         }).then((result) => {
             if (result.value) {
-                var url = base_url + '/master-data/departemen/delete/' + idDepartemen;
+                var url = base_url + '/master-data/seksi/delete/' + idSeksi;
                 $.ajax({
                     url: url,
                     type: "POST",

@@ -35,7 +35,7 @@
                             </span>
                         </a>
                         <ul
-                            class="treeview-menu {{ $page == 'masterdata-organisasi' || $page == 'masterdata-divisi' || $page == 'masterdata-departemen' ? 'active' : '' }}">
+                            class="treeview-menu {{ $page == 'masterdata-organisasi' || $page == 'masterdata-divisi' || $page == 'masterdata-departemen' || $page == 'masterdata-seksi' ? 'active' : '' }}">
                             <li class="{{ $page == 'masterdata-organisasi' ? 'active' : '' }}"><a
                                     href="{{ route('master-data.organisasi') }}"><i class="icon-Commit"><span
                                             class="path1"></span><span class="path2"></span></i>Organisasi</a>
@@ -47,8 +47,9 @@
                                     href="{{ route('master-data.departemen') }}"><i class="icon-Commit"><span
                                             class="path1"></span><span class="path2"></span></i>Departemen</a>
                             </li>
-                            <li><a href="#"><i class="icon-Commit"><span class="path1"></span><span
-                                            class="path2"></span></i>Seksi</a>
+                            <li class="{{ $page == 'masterdata-seksi' ? 'active' : '' }}"><a
+                                    href="{{ route('master-data.seksi') }}"><i class="icon-Commit"><span
+                                            class="path1"></span><span class="path2"></span></i>Seksi</a>
                             </li>
                             <li><a href="#"><i class="icon-Commit"><span class="path1"></span><span
                                             class="path2"></span></i>Grup</a>
