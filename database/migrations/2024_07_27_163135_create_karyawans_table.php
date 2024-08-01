@@ -14,11 +14,6 @@ return new class extends Migration
         Schema::create('karyawans', function (Blueprint $table) {
             $table->string('id_karyawan', 6)->primary();
             $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('organisasi_id');
-            $table->unsignedBigInteger('posisi_id');
-            $table->unsignedBigInteger('divisi_id')->nullable();
-            $table->unsignedBigInteger('departemen_id')->nullable();
-            $table->unsignedBigInteger('seksi_id')->nullable();
             $table->unsignedBigInteger('grup_id')->nullable();
             $table->string('no_ktp')->unique()->nullable();
             $table->string('nik')->unique()->nullable();
@@ -45,8 +40,6 @@ return new class extends Migration
 
             // Relasi foreign key
             $table->foreign('user_id')->references('id')->on('users')->restrictOnDelete();
-            $table->foreign('organisasi_id')->references('id_organisasi')->on('organisasis')->restrictOnDelete();
-            $table->foreign('posisi_id')->references('id_posisi')->on('posisis')->restrictOnDelete();
         });
     }
 

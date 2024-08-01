@@ -21,11 +21,6 @@ class KaryawanSeeder extends Seeder
                 'sisa_cuti' => 12,
                 'tahun_masuk' => '2024',
                 'user_id' => 1,
-                'organisasi_id' => 3,
-                'posisi_id' => 10,
-                'divisi_id' => 1,
-                'departemen_id' => 1,
-                'seksi_id' => 1,
                 'grup_id' => 1
             ],
             [
@@ -34,11 +29,6 @@ class KaryawanSeeder extends Seeder
                 'sisa_cuti' => 12,
                 'tahun_masuk' => '2024',
                 'user_id' => 2,
-                'organisasi_id' => 3,
-                'posisi_id' => 9,
-                'divisi_id' => 1,
-                'departemen_id' => 1,
-                'seksi_id' => 1,
                 'grup_id' => 1
             ],
             [
@@ -47,11 +37,6 @@ class KaryawanSeeder extends Seeder
                 'sisa_cuti' => 12,
                 'tahun_masuk' => '2024',
                 'user_id' => 2,
-                'organisasi_id' => 3,
-                'posisi_id' => 8,
-                'divisi_id' => 1,
-                'departemen_id' => 1,
-                'seksi_id' => 1,
                 'grup_id' => 1
             ],
         ];
