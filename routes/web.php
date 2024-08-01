@@ -5,6 +5,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MasterData\GrupController;
 use App\Http\Controllers\MasterData\SeksiController;
 use App\Http\Controllers\MasterData\DivisiController;
+use App\Http\Controllers\MasterData\PosisiController;
 use App\Http\Controllers\MasterData\JabatanController;
 use App\Http\Controllers\MasterData\DashboardController;
 use App\Http\Controllers\MasterData\DepartemenController;
@@ -66,4 +67,11 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/master-data/jabatan/store',[JabatanController::class, 'store'])->name('master-data.jabatan.store');
     Route::delete('/master-data/jabatan/delete/{idJabatan}', [JabatanController::class, 'delete'])->name('master-data.jabatan.delete');
     Route::patch('/master-data/jabatan/update/{idJabatan}', [JabatanController::class, 'update'])->name('master-data.jabatan.update');
+
+    /** MASTER DATA - JABATAN */
+    Route::post('/master-data/posisi/datatable', [PosisiController::class, 'datatable']);
+    Route::get('/master-data/posisi',[PosisiController::class, 'index'])->name('master-data.posisi');
+    Route::post('/master-data/posisi/store',[PosisiController::class, 'store'])->name('master-data.posisi.store');
+    Route::delete('/master-data/posisi/delete/{idPosisi}', [PosisiController::class, 'delete'])->name('master-data.posisi.delete');
+    Route::patch('/master-data/posisi/update/{idPosisi}', [PosisiController::class, 'update'])->name('master-data.posisi.update');
 });

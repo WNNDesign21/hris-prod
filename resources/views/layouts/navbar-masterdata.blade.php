@@ -59,8 +59,9 @@
                                     href="{{ route('master-data.jabatan') }}"><i class="icon-Commit"><span
                                             class="path1"></span><span class="path2"></span></i>Jabatan</a>
                             </li>
-                            <li><a href="#"><i class="icon-Commit"><span class="path1"></span><span
-                                            class="path2"></span></i>Posisi</a>
+                            <li class="{{ $page == 'masterdata-posisi' ? 'active' : '' }}"><a
+                                    href="{{ route('master-data.posisi') }}"><i class="icon-Commit"><span
+                                            class="path1"></span><span class="path2"></span></i>Posisi</a>
                             </li>
                         </ul>
                     </li>

@@ -100,6 +100,10 @@
         @vite(['resources/js/pages/jabatan.js'])
     @endif
 
+    @if ($page == 'masterdata-posisi')
+        @vite(['resources/js/pages/posisi.js'])
+    @endif
+
 </body>
 
 </html>
