@@ -5,6 +5,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MasterData\GrupController;
 use App\Http\Controllers\MasterData\SeksiController;
 use App\Http\Controllers\MasterData\DivisiController;
+use App\Http\Controllers\MasterData\JabatanController;
 use App\Http\Controllers\MasterData\DashboardController;
 use App\Http\Controllers\MasterData\DepartemenController;
 use App\Http\Controllers\MasterData\OrganisasiController;
@@ -57,4 +58,12 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/master-data/grup/store',[GrupController::class, 'store'])->name('master-data.grup.store');
     Route::delete('/master-data/grup/delete/{idGrup}', [GrupController::class, 'delete'])->name('master-data.grup.delete');
     Route::patch('/master-data/grup/update/{idGrup}', [GrupController::class, 'update'])->name('master-data.grup.update');
+
+    
+    /** MASTER DATA - JABATAN */
+    Route::post('/master-data/jabatan/datatable', [JabatanController::class, 'datatable']);
+    Route::get('/master-data/jabatan',[JabatanController::class, 'index'])->name('master-data.jabatan');
+    Route::post('/master-data/jabatan/store',[JabatanController::class, 'store'])->name('master-data.jabatan.store');
+    Route::delete('/master-data/jabatan/delete/{idJabatan}', [JabatanController::class, 'delete'])->name('master-data.jabatan.delete');
+    Route::patch('/master-data/jabatan/update/{idJabatan}', [JabatanController::class, 'update'])->name('master-data.jabatan.update');
 });

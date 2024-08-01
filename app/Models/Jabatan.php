@@ -22,4 +22,36 @@ class Jabatan extends Model
     {
         return $this->hasMany(Posisi::class, 'jabatan_id', 'id_jabatan');
     }
+
+    private static function _query($dataFilter)
+    {
+
+        $data = self::select(
+            'id_jabatan',
+            'nama',
+        );
+
+        if (isset($dataFilter['search'])) {
+            $search = $dataFilter['search'];
+            $data->where(function ($query) use ($search) {
+                $query->where('nama', 'ILIKE', "%{$search}%");
+            });
+        }
+
+        $result = $data;
+        return $result;
+    }
+
+    public static function getData($dataFilter, $settings)
+    {
+        return self::_query($dataFilter)->offset($settings['start'])
+            ->limit($settings['limit'])
+            ->orderBy($settings['order'], $settings['dir'])
+            ->get();
+    }
+
+    public static function countData($dataFilter)
+    {
+        return self::_query($dataFilter)->count();
+    }
 }

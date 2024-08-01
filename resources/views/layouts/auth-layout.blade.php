@@ -96,6 +96,10 @@
         @vite(['resources/js/pages/grup.js'])
     @endif
 
+    @if ($page == 'masterdata-jabatan')
+        @vite(['resources/js/pages/jabatan.js'])
+    @endif
+
 </body>
 
 </html>
