@@ -18,7 +18,7 @@ class Jabatan extends Model
         'nama'
     ];
 
-    public function posisis()
+    public function posisi()
     {
         return $this->hasMany(Posisi::class, 'jabatan_id', 'id_jabatan');
     }

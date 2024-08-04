@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Departemen;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Divisi extends Model
 {
@@ -16,6 +17,11 @@ class Divisi extends Model
     protected $fillable = [
         'nama'
     ];
+
+    public function departemen()
+    {
+        return $this->hasMany(Departemen::class);
+    }
 
     private static function _query($dataFilter)
     {

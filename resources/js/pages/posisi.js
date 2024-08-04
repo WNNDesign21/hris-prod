@@ -7,12 +7,151 @@ $(function () {
 
     $.fn.modal.Constructor.prototype._enforceFocus = function () {};
     
-    //SELECT2 
-    $('.select2').select2({
+    //ALL ABOUT SELECT2
+    //SELECT2 GET SELECT OPTION JABATAN DARI POSISI YANG DIPILIH
+    function getDataJabatanByPosisi(idPosisi) {
+        loadingSwalShow();
+        $.ajax({
+            url: base_url + '/master-data/posisi/get-data-jabatan-by-posisi/' + idPosisi,
+            method: 'GET',
+            dataType: 'JSON',
+            success: function (data) {
+                if(data !== null){
+                    $('#input-jabatan').append('<label for="id_jabatan">Jabatan</label>');
+                    let div = $('<div class="input-group mb-2" style="width:100%;"></div>');
+                    let select = $('<select id="id_jabatan" name="id_jabatan" class="form-control select2"></select>');
+                    select.append('<option value="">Pilih Jabatan</option>');
+                    $.each(data, function (i, val){
+                        select.append('<option value="'+val.id_jabatan+'">'+val.nama+'</option>');
+                    });
+                    div.append(select)
+                    $('#input-jabatan').append(div);
+                    $(select).select2({
+                        theme: "bootstrap-5",
+                        dropdownParent: $('#modal-input-posisi')
+                    });
+                    jabatanSelect();
+                }
+                loadingSwalClose();
+            }
+        })
+    }
+
+    //SELECT2 GET DATA SELECT OPTION DARI JABATAN
+    function getDataByJabatan(idJabatan) {
+        loadingSwalShow();
+        $.ajax({
+            url: base_url + '/master-data/posisi/get-data-by-jabatan/' + idJabatan,
+            method: 'GET',
+            dataType: 'JSON',
+            success: function (data) {
+                if(data.organisasi !== null){
+                    $('#input-tambahan').append('<label for="id_organisasi">Organisasi</label>');
+                    let div = $('<div class="input-group mb-2" style="width:100%;"></div>');
+                    let select = $('<select id="id_organisasi" name="id_organisasi" class="form-control select2"></select>');
+                    select.append('<option value="">CORPORATE / ALL PLANT</option>');
+                    $.each(data.organisasi, function (i, val){
+                        select.append('<option value="'+val.id_organisasi+'">'+val.nama+'</option>');
+                    });
+                    div.append(select)
+                    $('#input-tambahan').append(div);
+                    $(select).select2({
+                        theme: "bootstrap-5",
+                        dropdownParent: $('#modal-input-posisi')
+                    });
+                }
+
+                if(data.divisi !== null){
+                    $('#input-tambahan').append('<label for="id_divisi">Divisi</label>');
+                    let div = $('<div class="input-group mb-2" style="width:100%;"></div>');
+                    let select = $('<select id="id_divisi" name="id_divisi" class="form-control select2"></select>');
+                    select.append('<option value="">Pilih Divisi</option>');
+                    $.each(data.divisi, function (i, val){
+                        select.append('<option value="'+val.id_divisi+'">'+val.nama+'</option>');
+                    });
+                    div.append(select)
+                    $('#input-tambahan').append(div);
+                    $(select).select2({
+                        theme: "bootstrap-5",
+                        dropdownParent: $('#modal-input-posisi')
+                    });
+                }
+
+                if(data.departemen !== null){
+                    $('#input-tambahan').append('<label for="id_departemen">Departemen</label>');
+                    let div = $('<div class="input-group mb-2" style="width:100%;"></div>');
+                    let select = $('<select id="id_departemen" name="id_departemen" class="form-control select2"></select>');
+                    select.append('<option value="">Pilih Departemen</option>');
+                    $.each(data.departemen, function (i, val){
+                        select.append('<option value="'+val.id_departemen+'">'+val.nama+'</option>');
+                    });
+                    div.append(select)
+                    $('#input-tambahan').append(div);
+                    $(select).select2({
+                        theme: "bootstrap-5",
+                        dropdownParent: $('#modal-input-posisi')
+                    });
+                }
+
+                if(data.seksi !== null){
+                    $('#input-tambahan').append('<label for="id_seksi">Seksi</label>');
+                    let div = $('<div class="input-group mb-2" style="width:100%;"></div>');
+                    let select = $('<select id="id_seksi" name="id_seksi" class="form-control select2"></select>');
+                    select.append('<option value="">Pilih Seksi</option>');
+                    $.each(data.seksi, function (i, val){
+                        select.append('<option value="'+val.id_seksi+'">'+val.nama+'</option>');
+                    });
+                    div.append(select)
+                    $('#input-tambahan').append(div);
+                    $(select).select2({
+                        theme: "bootstrap-5",
+                        dropdownParent: $('#modal-input-posisi')
+                    });
+                }
+                loadingSwalClose();
+            }
+        })
+    }
+
+    //SELECT2 PARENT_ID
+    $('#parent_id').select2({
         theme: "bootstrap-5",
-        dropdownParent: $('#modal-input-posisi')
+        dropdownParent: $('#modal-input-posisi'),
+        ajax: {
+            url: base_url + "/master-data/posisi/get-data-parent",
+            type: "post",
+            dataType: "json",
+            delay: 250,
+            data: function (params) {
+                return {
+                    search: params.term || "",
+                    page: params.page || 1,
+                };
+            },
+            cache: true,
+        },
+    }).on("select2:select", function (selected) {
+        var idPosisi = selected.params.data.id;
+        $('#input-jabatan').empty();
+        $('#input-tambahan').empty();
+        if(idPosisi !== ''){
+            getDataJabatanByPosisi(idPosisi);
+        }
     });
 
+    //SELECT2 JABATAN
+    function jabatanSelect(){
+        $('#id_jabatan').select2({
+            theme: "bootstrap-5",
+            dropdownParent: $('#modal-input-posisi'),
+        }).on("select2:select", function (selected) {
+            var idJabatan = selected.params.data.id;
+            $('#input-tambahan').empty();
+            getDataByJabatan(idJabatan);
+        });
+    }
+
+    //ALL ABOUT SWALL & NOTIFICATION
     //LOADING SWALL
     let loadingSwal;
     function loadingSwalShow() {
@@ -49,6 +188,7 @@ $(function () {
         });
     }
 
+    //ALL ABOUT DATATABLE & MODAL
     //DATATABLE POSISI
     var columnsTable = [
         { data: "no" },
@@ -159,7 +299,6 @@ $(function () {
     $('.btnClose').on("click", function (){
         closePosisi();
     })
-
 
     // MODAL TAMBAH DEPARTEMEN
     var modalInputPosisiOptions = {

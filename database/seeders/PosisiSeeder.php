@@ -50,21 +50,21 @@ class PosisiSeeder extends Seeder
             ],
 
             [
-                'jabatan_id' => 3,
+                'jabatan_id' => 2,
                 'parent_id' => 1,
                 'nama' => 'DIVISION HEAD ADMINISTRATION',
                 'divisi_id' => 1,
             ],
 
             [
-                'jabatan_id' => 3,
+                'jabatan_id' => 2,
                 'parent_id' => 1,
                 'nama' => 'DIVISION HEAD MARKETING & PROCUREMENT',
                 'divisi_id' => 2,
             ],
 
             [
-                'jabatan_id' => 3,
+                'jabatan_id' => 2,
                 'parent_id' => 1,
                 'nama' => 'DIVISION HEAD RESEARCH & DEVELOPMENT',
                 'divisi_id' => 3,
@@ -72,16 +72,17 @@ class PosisiSeeder extends Seeder
 
             //Departemen Head (HRGA TCF3)
             [
-                'jabatan_id' => 4,
+                'jabatan_id' => 3,
                 'parent_id' => 6,
                 'nama' => 'MANAGER HRGA',
+                'divisi_id' => 1,
                 'organisasi_id' => 3,
                 'departemen_id' => 1,
             ],
 
             //Supervisor (HRGA TCF3) 
             [
-                'jabatan_id' => 5,
+                'jabatan_id' => 4,
                 'parent_id' => 9,
                 'nama' => 'SUPERVISOR GENERAL AFFAIR',
                 'organisasi_id' => 3,
@@ -93,7 +94,7 @@ class PosisiSeeder extends Seeder
 
             //Leader (HRGA TCF3)
             [
-                'jabatan_id' => 6,
+                'jabatan_id' => 5,
                 'parent_id' => 10,
                 'nama' => 'LEADER GENERAL AFFAIR',
                 'organisasi_id' => 3,
@@ -104,7 +105,7 @@ class PosisiSeeder extends Seeder
 
             //Admin (HR & GA TCF3)
             [
-                'jabatan_id' => 7,
+                'jabatan_id' => 6,
                 'parent_id' => 11,
                 'nama' => 'ADMIN GA',
                 'organisasi_id' => 3,
@@ -113,7 +114,7 @@ class PosisiSeeder extends Seeder
                 'seksi_id' => 1,
             ],
             [
-                'jabatan_id' => 7,
+                'jabatan_id' => 6,
                 'parent_id' => 11,
                 'nama' => 'ADMIN GA',
                 'organisasi_id' => 3,

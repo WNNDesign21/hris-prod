@@ -23,6 +23,11 @@ class Seksi extends Model
         return $this->belongsTo(Departemen::class, 'departemen_id', 'id_departemen');
     }
 
+    public function divisi()
+    {
+        return $this->belongsTo(Divisi::class, 'departemen_id', 'id_divisi');
+    }
+
     private static function _query($dataFilter)
     {
 

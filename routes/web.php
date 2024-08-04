@@ -17,8 +17,13 @@ Route::get('/', function () {
 
 Auth::routes();
 
+/** MASTER DATA - AJAX */
+Route::get('/master-data/posisi/get-data-by-jabatan/{idJabatan}',[PosisiController::class, 'get_data_by_jabatan']); // GA JADI DIPAKE
+Route::get('/master-data/posisi/get-data-jabatan-by-posisi/{idPosisi}',[PosisiController::class, 'get_data_jabatan_by_posisi']); 
+Route::post('/master-data/posisi/get-data-parent',[PosisiController::class, 'get_data_parent']); 
+    
+/** MASTER DATA FEATURE */
 Route::group(['middleware' => ['auth']], function () {
-
     // MENU UTAMA
     Route::get('/home', [HomeController::class, 'index'])->name('root');
 
@@ -68,10 +73,13 @@ Route::group(['middleware' => ['auth']], function () {
     Route::delete('/master-data/jabatan/delete/{idJabatan}', [JabatanController::class, 'delete'])->name('master-data.jabatan.delete');
     Route::patch('/master-data/jabatan/update/{idJabatan}', [JabatanController::class, 'update'])->name('master-data.jabatan.update');
 
-    /** MASTER DATA - JABATAN */
+    /** MASTER DATA - POSISI */
     Route::post('/master-data/posisi/datatable', [PosisiController::class, 'datatable']);
     Route::get('/master-data/posisi',[PosisiController::class, 'index'])->name('master-data.posisi');
     Route::post('/master-data/posisi/store',[PosisiController::class, 'store'])->name('master-data.posisi.store');
     Route::delete('/master-data/posisi/delete/{idPosisi}', [PosisiController::class, 'delete'])->name('master-data.posisi.delete');
     Route::patch('/master-data/posisi/update/{idPosisi}', [PosisiController::class, 'update'])->name('master-data.posisi.update');
 });
+
+
+

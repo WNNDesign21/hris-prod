@@ -1,5 +1,5 @@
 <!-- modal Area -->
-<div class="modal fade" id="modal-input-posisi">
+<div class="modal fade" id="modal-input-posisi" style="width: 100%;">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -12,17 +12,21 @@
                         id="form-tambah-posisi">
                         @csrf
                         <label for="">Nama</label>
+                        <br>
                         <div class="input-group mb-2" style="width:100%;">
                             <input type="text" name="nama_posisi" id="nama_posisi" class="form-control" required>
                         </div>
-                        <label for="">Jabatan</label>
-                        <div class="input-group mb-2" style="width:100%;">
-                            <select name="id_jabatan" id="id_jabatan" class="form-control select2" required>
-                                <option value="">Pilih Jabatan</option>
-                                @foreach ($jabatan as $item)
-                                    <option value="{{ $item->id }}">{{ $item->nama }}</option>
-                                @endforeach
+                        <label for="">Atasan <small style="font-size:12px;opacity:.8;">(Tidak Memiliki Atasan =
+                                BOD)</small></label>
+                        <br>
+                        <div class="input-group mb-2 mt-2" style="width:100%;">
+                            <select name="parent_id" id="parent_id" class="form-control select2" required>
+                                <option value="">Tidak memiliki atasan</option>
                             </select>
+                        </div>
+                        <div id="input-jabatan">
+                        </div>
+                        <div id="input-tambahan">
                         </div>
                         <div class="d-flex justify-content-end mt-2">
                             <button type="submit" class="btn btn-success"><i class="fas fa-save"></i>

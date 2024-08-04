@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use PhpParser\Node\Stmt\TryCatch;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -24,11 +25,12 @@ class PosisiController extends Controller
      */
     public function index()
     {
-        $jabatan = Jabatan::all();
+        // $jabatan = Jabatan::whereNotIn('id_jabatan', [1,2,3])->get();
+        // $jabatan = Jabatan::all();
         $dataPage = [
             'pageTitle' => "Master Data - Posisi",
             'page' => 'masterdata-posisi',
-            'jabatan' => $jabatan,
+            // 'jabatan' => $jabatan,
         ];
         return view('pages.master-data.posisi.index', $dataPage);
     }
@@ -76,7 +78,7 @@ class PosisiController extends Controller
                 $nestedData['no'] = $no;
                 $nestedData['nama_posisi'] = $data->nama_posisi;
                 $nestedData['nama_jabatan'] = $data->nama_jabatan;
-                $nestedData['nama_organisasi'] = $data->nama_organisasi !== null ? $data->nama_organisasi : '<i class="fa fa-minus-square" aria-hidden="true"></i>';
+                $nestedData['nama_organisasi'] = $data->nama_organisasi !== null ? $data->nama_organisasi : 'CORPORATE/ALL PLANT';
                 $nestedData['nama_divisi'] = $data->nama_divisi !== null ? $data->nama_divisi : '<i class="fa fa-minus-square" aria-hidden="true"></i>';
                 $nestedData['nama_departemen'] = $data->nama_departemen !== null ? $data->nama_departemen : '<i class="fa fa-minus-square" aria-hidden="true"></i>';
                 $nestedData['nama_seksi'] = $data->nama_seksi !== null ? $data->nama_seksi : '<i class="fa fa-minus-square" aria-hidden="true"></i>';
@@ -118,20 +120,116 @@ class PosisiController extends Controller
     public function store(Request $request)
     {
         $dataValidate = [
-            'nama_jabatan' => ['required'],
+            'nama_posisi' => ['required'],
+            'id_jabatan' => ['required'],
         ];
-    
+
         $validator = Validator::make(request()->all(), $dataValidate);
     
         if ($validator->fails()) {
             return response()->json(['message' => 'Fill your input correctly!'], 402);
         }
-    
+
+        $nama_posisi = $request->nama_posisi;
+        $id_jabatan = $request->id_jabatan;
+        $id_divisi = $request->id_divisi;
+        $id_departemen = $request->id_departemen;
+        $id_seksi = $request->id_seksi;
+
         DB::beginTransaction();
         try{
-            $posisi = Posisi::create([
-                'nama' => $request->input('nama_jabatan'),
-            ]);
+            //CEK BOD
+            if($id_jabatan == 1){
+                $parent_id = 0;
+                $posisi = Posisi::create([
+                    'jabatan_id' => $id_jabatan,
+                    'nama' =>  $nama_posisi,
+                    'parent_id' => $parent_id,
+                ]);
+            //CEK DIVISION/PLANT HEAD
+            } elseif($id_jabatan == 2){
+                //CEK PLANT HEAD
+                if(isset($request->id_organisasi)){
+                    $divisi = Divisi::find($id_divisi);
+                    $posisi = Posisi::where('jabatan_id', $id_jabatan)->whereNotNull('organisasi_id')->first();
+                    if($posisi !== null){
+                        $parent_id = $posisi->parent_id;
+                        $posisi = Posisi::create([
+                            'jabatan_id' => $id_jabatan,
+                            'nama' =>  $nama_posisi,
+                            'parent_id' => $parent_id,
+                            'organisasi_id' => $id_organisasi,
+                            'divisi_id' => $divisi->id_divisi
+                        ]);
+                    } else {
+                        return response()->json(['message' => 'Failed to add posisi, Posisi doesnt Exist!'], 500);
+                    }
+                //CEK DIVISION HEAD
+                } else{
+                    $divisi = Divisi::find($id_divisi);
+                    $posisi = Posisi::where('jabatan_id', $id_jabatan)->where('organisasi_id IS NULL')->first();
+                    if($posisi !== null){
+                        $parent_id = $posisi->parent_id;
+                        $posisi = Posisi::create([
+                            'jabatan_id' => $id_jabatan,
+                            'nama' =>  $nama_posisi,
+                            'parent_id' => $parent_id,
+                            'divisi_id' => $divisi->id_divisi
+                        ]);
+                    } else {
+                        return response()->json(['message' => 'Failed to add posisi, Posisi doesnt Exist!'], 500);
+                    }
+                }
+            } elseif($id_jabatan == 3){
+                $departemen = Departemen::find($id_departemen);
+                $posisi = Posisi::where('jabatan_id', $id_jabatan)->where('divisi_id', $departemen->divisi->id_divisi)->first();
+                if($posisi !== null){
+                    $parent_id = $posisi->parent_id;
+                    $posisi = Posisi::create([
+                        'jabatan_id' => $id_jabatan,
+                        'nama' =>  $nama_posisi,
+                        'parent_id' => $parent_id,
+                        'divisi_id' => $departemen->divisi->id_divisi,
+                        'departemen_id' => $departemen->id_departemen
+                    ]);
+                } else {
+                    return response()->json(['message' => 'Failed to add posisi, Posisi doesnt Exist!'], 500);
+                }
+            } elseif ($id_jabatan == 4){
+                $seksi = Seksi::find($id_seksi);
+                $posisi = Posisi::where('jabatan_id', $id_jabatan)->where('departemen_id', $seksi->departemen->id_departemen)->first();
+                if($posisi !== null){
+                    $parent_id = $posisi->parent_id;
+                    $posisi = Posisi::create([
+                        'jabatan_id' => $id_jabatan,
+                        'nama' =>  $nama_posisi,
+                        'organisasi_id' => $id_organisasi,
+                        'parent_id' => $parent_id,
+                        'divisi_id' => $seksi->divisi->id_divisi,
+                        'departemen_id' => $seksi->departemen->id_departemen,
+                        'seksi_id' => $seksi->id_seksi
+                    ]);
+                } else {
+                    return response()->json(['message' => 'Failed to add posisi, Posisi doesnt Exist!'], 500);
+                }
+            } else {
+                $seksi = Seksi::find($id_seksi);
+                $posisi = Posisi::where('jabatan_id', $id_jabatan)->where('seksi_id', $seksi->id_seksi)->first();
+                if($posisi !== null){
+                    $parent_id = $posisi->parent_id;
+                    $posisi = Posisi::create([
+                        'jabatan_id' => $id_jabatan,
+                        'nama' =>  $nama_posisi,
+                        'organisasi_id' => $id_organisasi,
+                        'parent_id' => $parent_id,
+                        'divisi_id' => $seksi->divisi->id_divisi,
+                        'departemen_id' => $seksi->departemen->id_departemen,
+                        'seksi_id' => $seksi->id_seksi
+                    ]);
+                } else {
+                    return response()->json(['message' => 'Failed to add posisi, Posisi doesnt Exist!'], 500);
+                }
+            }
 
             DB::commit();
             return response()->json(['message' => 'Jabatan Ditambahkan!'],200);
@@ -213,4 +311,150 @@ class PosisiController extends Controller
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }
+
+    //GET DATA PARENT UNTUK SELECT2 #parent_id
+    public function get_data_parent(Request $request){
+        $search = $request->input('search');
+        $page = $request->input("page");
+        $idCats = $request->input('catsProd');
+        $adOrg = $request->input('adOrg');
+
+        $getOrg = Organisasi::select("id_organisasi as org_id", "nama as nama_org");
+        $getDivisi = Divisi::select("id_divisi as div_id", "nama as nama_div");
+        $getDepartemen = Departemen::select("id_departemen as dep_id", "nama as nama_dep");
+        $getSeksi = Seksi::select("id_seksi as sek_id", "nama as nama_sek");
+        $query = Posisi::select(
+            'id_posisi',
+            'posisis.organisasi_id',
+            'posisis.divisi_id',
+            'posisis.departemen_id',
+            'posisis.seksi_id',
+            'posisis.parent_id',
+            'posisis.nama as nama_posisi',
+            'jabatans.nama as nama_jabatan',
+            'org.nama_org as nama_organisasi',
+            'div.nama_div as nama_divisi',
+            'dep.nama_dep as nama_departemen',
+            'sek.nama_sek as nama_seksi',
+        )
+        ->leftJoin('jabatans', 'posisis.jabatan_id', 'jabatans.id_jabatan')
+        ->leftJoinSub($getOrg, 'org', function (JoinClause $joinOrg) {
+            $joinOrg->on('posisis.organisasi_id', 'org.org_id');
+        })
+        ->leftJoinSub($getDivisi, 'div', function (JoinClause $joinDivisi) {
+            $joinDivisi->on('posisis.divisi_id', 'div.div_id');
+        })
+        ->leftJoinSub($getDepartemen, 'dep', function (JoinClause $joinDepartemen) {
+            $joinDepartemen->on('posisis.departemen_id', 'dep.dep_id');
+        })
+        ->leftJoinSub($getSeksi, 'sek', function (JoinClause $joinSeksi) {
+            $joinSeksi->on('posisis.seksi_id', 'sek.sek_id');
+        });
+
+        if (!empty($search)) {
+            $query->where(function ($dat) use ($search) {
+                $dat->where('posisis.nama', 'ILIKE', "%{$search}%")
+                    ->orWhere('jabatans.nama', 'ILIKE', "%{$search}%")
+                    ->orWhere('org.nama_org', 'ILIKE', "%{$search}%")
+                    ->orWhere('div.nama_div', 'ILIKE', "%{$search}%")
+                    ->orWhere('dep.nama_dep', 'ILIKE', "%{$search}%")
+                    ->orWhere('sek.nama_sek', 'ILIKE', "%{$search}%");
+            });
+        }
+
+        $query->whereNotIn('posisis.jabatan_id', [6]);
+        $query->orderBy('posisis.nama', 'ASC');
+
+        $data = $query->simplePaginate(10);
+
+        $morePages = true;
+        $pagination_obj = json_encode($data);
+        if (empty($data->nextPageUrl())) {
+            $morePages = false;
+        }
+
+        $dataPosisi = [
+            [
+                'id' => '',
+                'text' => 'Tidak Memiliki Atasan'
+            ]
+        ];
+        foreach ($data->items() as $ps) {
+            $nama_org = $ps->nama_organisasi !== null ? $ps->nama_organisasi : 'CORPORATE/ALL PLANT';
+            $dataPosisi[] = [
+                'id' => $ps->id_posisi,
+                'text' => $ps->nama_jabatan ." - ". $ps->nama_posisi . ' - ' . $nama_org
+            ];
+        }
+
+        $results = array(
+            "results" => $dataPosisi,
+            "pagination" => array(
+                "more" => $morePages
+            )
+        );
+
+        return response()->json($results);
+    }
+
+    //GET DATA JABATAN BERDASARKAN POSISI PARENTNYA UNTUK SELECT2 #parent_id
+    public function get_data_jabatan_by_posisi(string $id)
+    {
+        $id_jabatan = Posisi::find($id)->jabatan_id;
+        $jabatan = Jabatan::where('id_jabatan', '>' , $id_jabatan)->get();
+
+        return response()->json($jabatan, 200);
+    }
+
+     //GET DATA SELECT OPTION BERDASARKAN JABATAN UNTUK SELECT2 #id_jabatan
+     public function get_data_by_jabatan(string $id_jabatan)
+     {
+         $data = [];
+ 
+         if($id_jabatan == 1){
+             $data = [
+                 'organisasi' => null,
+                 'divisi' => null,
+                 'departemen' => null,
+                 'seksi' => null,
+             ];
+         } elseif ($id_jabatan == 2){
+             $data = [
+                 'organisasi' => Organisasi::all(),
+                 'divisi' => Divisi::all(),
+                 'departemen' => null,
+                 'seksi' => null,
+             ];
+         } elseif ($id_jabatan == 3){
+             $data = [
+                 'organisasi' => Organisasi::all(),
+                 'divisi' => null,
+                 'departemen' => Departemen::with('divisi')->get(),
+                 'seksi' => null,
+             ];
+         } elseif ($id_jabatan == 4){
+             $data = [
+                 'organisasi' => Organisasi::all(),
+                 'divisi' => null,
+                 'departemen' => null,
+                 'seksi' => Seksi::with('departemen', 'divisi')->get(),
+             ];
+         } elseif ($id_jabatan == 5){
+             $data = [
+                 'organisasi' => Organisasi::all(),
+                 'divisi' => null,
+                 'departemen' => null,
+                 'seksi' => Seksi::with('departemen', 'divisi')->get(),
+             ];
+         } elseif ($id_jabatan == 6){
+             $data = [
+                 'organisasi' => Organisasi::all(),
+                 'divisi' => null,
+                 'departemen' => null,
+                 'seksi' => Seksi::with('departemen', 'divisi')->get(),
+             ];
+         }
+ 
+         return response()->json($data, 200);
+     }
 }
