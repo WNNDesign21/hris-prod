@@ -6,7 +6,6 @@ $(function () {
     "use strict";   
 
 	// Nestable
-    
         $(document).ready(function () {
             // Nestable
             var updateOutput = function (e) {

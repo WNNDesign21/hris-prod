@@ -112,4 +112,14 @@ class Posisi extends Model
     {
         return self::_query($dataFilter)->count();
     }
+
+    public function parent()
+    {
+        return $this->belongsTo(Posisi::class, 'parent_id');
+    }
+
+    public function children()
+    {
+        return $this->hasMany(Posisi::class, 'parent_id')->with('children');
+    }
 }

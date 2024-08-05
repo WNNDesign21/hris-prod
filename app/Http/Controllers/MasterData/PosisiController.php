@@ -25,12 +25,11 @@ class PosisiController extends Controller
      */
     public function index()
     {
-        // $jabatan = Jabatan::whereNotIn('id_jabatan', [1,2,3])->get();
-        // $jabatan = Jabatan::all();
+        $tree = Posisi::with('children')->where('parent_id', 0)->get();
         $dataPage = [
             'pageTitle' => "Master Data - Posisi",
             'page' => 'masterdata-posisi',
-            // 'jabatan' => $jabatan,
+            'tree' => $tree,
         ];
         return view('pages.master-data.posisi.index', $dataPage);
     }

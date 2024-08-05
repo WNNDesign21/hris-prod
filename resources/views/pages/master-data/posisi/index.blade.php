@@ -17,6 +17,29 @@
         <div class="col-12">
             <div class="box">
                 <div class="box-header d-flex justify-content-between">
+                    <h4 class="box-title">Susunan Korporasi</h4>
+                </div>
+                <div class="box-body">
+                    <div class="myadmin-dd dd" id="nestable">
+                        <ol class="dd-list">
+                            @foreach ($tree as $item)
+                                @include('pages.master-data.posisi.list', ['tree' => $item])
+                            @endforeach
+                        </ol>
+                    </div>
+                    {{-- <ul>
+                            @foreach ($tree as $item)
+                                @include('pages.master-data.posisi.list', ['tree' => $item])
+                            @endforeach
+                        </ul> --}}
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="box">
+                <div class="box-header d-flex justify-content-between">
                     <h4 class="box-title">Data Posisi</h4>
                     <div>
                         <button type="button" class="btn btn-info waves-effect btnReload"><i

@@ -438,6 +438,9 @@ $(function () {
 
     function closePosisi() {
         $('#nama_posisi').val('');
+        $('#parent_id').val('');
+        $('#input-jabatan').empty();
+        $('#input-tambahan').empty();
         modalInputPosisi.hide();
     }
 

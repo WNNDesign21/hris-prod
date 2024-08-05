@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="{{ asset('assets/vendor_components/datatable/datatables.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/vendor_components/animate/animate.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/vendor_components/lightbox-master/dist/ekko-lightbox.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendor_components/nestable/nestable.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/vendor_plugins/select2-theme/select2-bootstrap-5-theme.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/vendors_css.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
@@ -61,11 +62,12 @@
     <script src="{{ asset('assets/vendor_components/ckeditor/ckeditor.js') }}"></script>
     <script src="{{ asset('assets/vendor_components/bootstrap-tagsinput/dist/bootstrap-tagsinput.js') }}"></script>
     <script src="{{ asset('assets/vendor_components/datatable/datatables.min.js') }}"></script>
+    <script src="{{ asset('assets/vendor_components/nestable/jquery.nestable.js') }}"></script>
 
     <!-- EduAdmin App -->
     <script src="{{ asset('js/template.js') }}"></script>
     <script src="{{ asset('js/pages/dashboard4.js') }}"></script>
-    {{-- <script src="{{ asset('js/pages/data-table.js') }}"></script> --}}
+    <script src="{{ asset('js/pages/nestable.js') }}"></script>
 
     <script>
         // let base_url = "{{ route('root') }}";
