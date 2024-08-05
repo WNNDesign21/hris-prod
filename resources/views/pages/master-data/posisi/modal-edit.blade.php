@@ -16,6 +16,15 @@
                         <div class="input-group mb-2" style="width:100%;">
                             <input type="text" name="nama_posisi_edit" id="nama_posisi_edit" class="form-control">
                         </div>
+                        <label for="">Atasan</label>
+                        <div class="input-group mb-2 mt-2" style="width:100%;">
+                            <select name="parent_id_edit" id="parent_id_edit" class="form-control select2" required>
+                            </select>
+                        </div>
+                        <div id="edit-jabatan">
+                        </div>
+                        <div id="edit-tambahan">
+                        </div>
                         <div class="d-flex justify-content-end mt-2">
                             <button type="submit" class="btn btn-success"><i class="fas fa-save"></i>
                                 Update</button>

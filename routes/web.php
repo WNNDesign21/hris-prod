@@ -18,9 +18,12 @@ Route::get('/', function () {
 Auth::routes();
 
 /** MASTER DATA - AJAX */
-Route::get('/master-data/posisi/get-data-by-jabatan/{idJabatan}',[PosisiController::class, 'get_data_by_jabatan']); // GA JADI DIPAKE
+Route::get('/master-data/posisi/get-data-by-jabatan/{idJabatan}',[PosisiController::class, 'get_data_by_jabatan']);
+Route::get('/master-data/posisi/get-data-by-posisi/{idPosisi}',[PosisiController::class, 'get_data_by_posisi']);
 Route::get('/master-data/posisi/get-data-jabatan-by-posisi/{idPosisi}',[PosisiController::class, 'get_data_jabatan_by_posisi']); 
+Route::get('/master-data/posisi/get-data-jabatan-by-posisi-edit/{idPosisi}/{myPosisi}',[PosisiController::class, 'get_data_jabatan_by_posisi_edit']); 
 Route::post('/master-data/posisi/get-data-parent',[PosisiController::class, 'get_data_parent']); 
+Route::get('/master-data/posisi/get-data-parent-edit/{idParent}',[PosisiController::class, 'get_data_parent_edit']); 
     
 /** MASTER DATA FEATURE */
 Route::group(['middleware' => ['auth']], function () {

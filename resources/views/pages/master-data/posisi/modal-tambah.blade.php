@@ -20,8 +20,8 @@
                                 BOD)</small></label>
                         <br>
                         <div class="input-group mb-2 mt-2" style="width:100%;">
-                            <select name="parent_id" id="parent_id" class="form-control select2" required>
-                                <option value="">Tidak memiliki atasan</option>
+                            <select name="parent_id" id="parent_id" class="form-control select2">
+                                <option value="0">Tidak memiliki atasan</option>
                             </select>
                         </div>
                         <div id="input-jabatan">
