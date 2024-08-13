@@ -67,7 +67,7 @@
     <!-- EduAdmin App -->
     <script src="{{ asset('js/template.js') }}"></script>
     <script src="{{ asset('js/pages/dashboard4.js') }}"></script>
-    <script src="{{ asset('js/pages/nestable.js') }}"></script>
+    {{-- <script src="{{ asset('js/pages/nestable.js') }}"></script> --}}
 
     <script>
         // let base_url = "{{ route('root') }}";
@@ -104,6 +104,10 @@
 
     @if ($page == 'masterdata-posisi')
         @vite(['resources/js/pages/posisi.js'])
+    @endif
+
+    @if ($page == 'masterdata-karyawan')
+        @vite(['resources/js/pages/karyawan.js'])
     @endif
 
 </body>

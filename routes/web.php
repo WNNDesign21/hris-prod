@@ -7,6 +7,7 @@ use App\Http\Controllers\MasterData\SeksiController;
 use App\Http\Controllers\MasterData\DivisiController;
 use App\Http\Controllers\MasterData\PosisiController;
 use App\Http\Controllers\MasterData\JabatanController;
+use App\Http\Controllers\MasterData\KaryawanController;
 use App\Http\Controllers\MasterData\DashboardController;
 use App\Http\Controllers\MasterData\DepartemenController;
 use App\Http\Controllers\MasterData\OrganisasiController;
@@ -82,6 +83,13 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/master-data/posisi/store',[PosisiController::class, 'store'])->name('master-data.posisi.store');
     Route::delete('/master-data/posisi/delete/{idPosisi}', [PosisiController::class, 'delete'])->name('master-data.posisi.delete');
     Route::patch('/master-data/posisi/update/{idPosisi}', [PosisiController::class, 'update'])->name('master-data.posisi.update');
+
+    /** MASTER DATA - KARYAWAN */
+    Route::post('/master-data/karyawan/datatable', [KaryawanController::class, 'datatable']);
+    Route::get('/master-data/karyawan',[KaryawanController::class, 'index'])->name('master-data.karyawan');
+    Route::post('/master-data/karyawan/store',[KaryawanController::class, 'store'])->name('master-data.karyawan.store');
+    Route::delete('/master-data/karyawan/delete/{idPosisi}', [KaryawanController::class, 'delete'])->name('master-data.karyawan.delete');
+    Route::patch('/master-data/karyawan/update/{idPosisi}', [KaryawanController::class, 'update'])->name('master-data.karyawan.update');
 });
 
 

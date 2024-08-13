@@ -20,7 +20,8 @@
                     <h4 class="box-title">Susunan Korporasi</h4>
                 </div>
                 <div class="box-body">
-                    <div class="myadmin-dd dd" id="nestable">
+                    {{-- <div class="myadmin-dd dd" id="nestable"> --}}
+                    <div class="dd" id="nestable">
                         <ol class="dd-list">
                             @foreach ($tree as $item)
                                 @include('pages.master-data.posisi.list', ['tree' => $item])

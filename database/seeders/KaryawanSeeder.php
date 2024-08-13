@@ -25,7 +25,7 @@ class KaryawanSeeder extends Seeder
             ],
             [
                 'id_karyawan' => 'IN0001',
-                'nama' => '	INDAH NADIA HAPSARI',
+                'nama' => 'INDAH NADIA HAPSARI',
                 'sisa_cuti' => 12,
                 'tahun_masuk' => '2024',
                 'user_id' => 2,
@@ -33,7 +33,7 @@ class KaryawanSeeder extends Seeder
             ],
             [
                 'id_karyawan' => 'AM0001',
-                'nama' => '	AMBAR WINASTI',
+                'nama' => 'AMBAR WINASTI',
                 'sisa_cuti' => 12,
                 'tahun_masuk' => '2024',
                 'user_id' => 2,

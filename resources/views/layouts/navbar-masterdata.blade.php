@@ -12,17 +12,17 @@
                             <span>Dashboard</span>
                         </a>
                     </li>
-                    <li>
-                        <a href="#">
+                    <li class="{{ $page == 'masterdata-karyawan' ? 'active' : '' }}">
+                        <a href="{{ route('master-data.karyawan') }}">
                             <i class="icon-User"><span class="path1"></span><span class="path2"></span></i>
                             <span>Data Karyawan</span>
                         </a>
                     </li>
-                    <li>
-                        <a href="#">
+                    <li class="{{ $page == 'masterdata-posisi' ? 'active' : '' }}">
+                        <a href="{{ route('master-data.posisi') }}">
                             <i class="icon-File"><span class="path1"></span><span class="path2"></span><span
                                     class="path3"></span></i>
-                            <span>Susunan Korporasi</span>
+                            <span>Susunan & Posisi</span>
                         </a>
                     </li>
                     <li class="treeview">
@@ -58,10 +58,6 @@
                             <li class="{{ $page == 'masterdata-jabatan' ? 'active' : '' }}"><a
                                     href="{{ route('master-data.jabatan') }}"><i class="icon-Commit"><span
                                             class="path1"></span><span class="path2"></span></i>Jabatan</a>
-                            </li>
-                            <li class="{{ $page == 'masterdata-posisi' ? 'active' : '' }}"><a
-                                    href="{{ route('master-data.posisi') }}"><i class="icon-Commit"><span
-                                            class="path1"></span><span class="path2"></span></i>Posisi</a>
                             </li>
                         </ul>
                     </li>
