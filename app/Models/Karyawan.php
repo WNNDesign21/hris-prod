@@ -91,35 +91,32 @@ class Karyawan extends Model
     private static function _query($dataFilter)
     {
 
-        $getGrup = Grup::select("id_grup as gp_id", "nama as nama_gp");
         $data = self::select(
             'id_karyawan',
-            'karyawans.nama as nama_karyawan',
-            'users.username as username_karyawan',
-            'karyawans.user_id as user_id',
+            'karyawans.nama',
             'karyawans.email as email_karyawan',
-            'karyawans.no_telp as no_telp_karyawan',
-            'karyawans.jenis_kontrak as jenis_kontrak',
-            'karyawans.status_karyawan as status_karyawan',
-            'gp.nama_gp as nama_grup',
-            'karyawans.grup_id',
+            'karyawans.no_telp as notelp_karyawan',
+            'jenis_kontrak',
+            'status_karyawan',
+            'grups.nama as nama_grup',
+            'users.username',
+            'grup_id',
         )
         ->leftJoin('users', 'karyawans.user_id', 'users.id')
-        ->leftJoinSub($getGrup, 'gp', function (JoinClause $joinGrup) {
-            $joinGrup->on('karyawans.grup_id', 'gp.gp_id');
-        });
+        ->leftJoin('grups', 'karyawans.grup_id', 'grups.id_grup');
+        
 
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
             $data->where(function ($query) use ($search) {
-                $query->where('users.username', 'ILIKE', "%{$search}%")
-                    ->orWhere('id_karyawan', 'ILIKE', "%{$search}%")
+                $query->where('id_karyawan', 'ILIKE', "%{$search}%")
                     ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%")
                     ->orWhere('karyawans.email', 'ILIKE', "%{$search}%")
                     ->orWhere('karyawans.no_telp', 'ILIKE', "%{$search}%")
-                    ->orWhere('karyawans.jenis_kontrak', 'ILIKE', "%{$search}%")
-                    ->orWhere('karyawans.status_karyawan', 'ILIKE', "%{$search}%")
-                    ->orWhere('gp.nama_gp', 'ILIKE', "%{$search}%");
+                    ->orWhere('jenis_kontrak', 'ILIKE', "%{$search}%")
+                    ->orWhere('status_karyawan', 'ILIKE', "%{$search}%")
+                    ->orWhere('grups.nama', 'ILIKE', "%{$search}%")
+                    ->orWhere('users.username', 'ILIKE', "%{$search}%");
             });
         }
 

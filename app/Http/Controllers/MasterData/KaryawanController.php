@@ -22,14 +22,13 @@ class KaryawanController extends Controller
 
     public function datatable(Request $request)
     {
+
         $columns = array(
             0 => 'id_karyawan',
             1 => 'karyawans.nama',
-            2 => 'karyawans.email',
-            3 => 'karyawans.no_telp',
-            4 => 'grups.nama',
-            5 => 'karyawans.jenis_kontrak',
-            6 => 'karyawans.status_karyawan',
+            3 => 'grups.nama',
+            4 => 'jenis_kontrak',
+            5 => 'status_karyawan'
         );
 
         $totalData = Karyawan::count();
@@ -57,26 +56,23 @@ class KaryawanController extends Controller
         $dataTable = [];
 
         if (!empty($karyawan)) {
-            $no = $start;
             foreach ($karyawan as $data) {
                 $posisis = $data->posisi()->pluck('posisis.nama')->toArray();
-                $no++;
-                $nestedData['no'] = $no;
                 $nestedData['id_karyawan'] = $data->id_karyawan;
-                $nestedData['nama_karyawan'] = $data->nama_karyawan;
-                $nestedData['email_karyawan'] = $data->email_karyawan;
-                $nestedData['no_telp_karyawan'] = $data->no_telp_karyawan;
-                $formattedPosisis = array_map(function($posisi) {
-                    return '<span class="badge badge-info m-1">#' . $posisi . '</span>';
-                }, $posisis);
-                $nestedData['posisi_karyawan'] = implode(' ', $formattedPosisis);
-                $nestedData['nama_grup'] = $data->nama_grup;
+                $nestedData['nama'] = $data->nama;
                 $nestedData['jenis_kontrak'] = $data->jenis_kontrak;
                 $nestedData['status_karyawan'] = $data->status_karyawan;
+                $formattedPosisi = array_map(function($posisi) {
+                    return '<span class="badge badge-primary m-1">#' . $posisi . '</span>';
+                }, $posisis);
+                $nestedData['posisi'] = implode(' ', $formattedPosisi);
+                $nestedData['grup'] = $data->nama_grup;
                 $nestedData['aksi'] = '
                 <div class="btn-group">
-                    <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" data-id="'.$data->id_karyawan.'"><i class="fas fa-edit"></i></button>
-                    <button type="button" class="waves-effect waves-light btn btn-danger btnDelete" data-id="'.$data->id_karyawan.'"><i class="fas fa-trash-alt"></i></button>
+                    <button type="button" class="waves-effect waves-light btn btn-sm btn-secondary btnKontrak"><i class="fas fa-file-signature"></i></button>
+                    <button type="button" class="waves-effect waves-light btn btn-sm btn-info btnUser"><i class="fas fa-user-circle"></i></button>
+                    <button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit"><i class="fas fa-info-circle"></i></button>
+                    <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_karyawan.'"><i class="fas fa-trash-alt"></i></button>
                 </div>
                 ';
 
@@ -92,6 +88,7 @@ class KaryawanController extends Controller
             "order" => $order,
             "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
             "dir" => $dir,
+            "column"=>$request->input('order.0.column')
         );
 
         return response()->json($json_data, 200);

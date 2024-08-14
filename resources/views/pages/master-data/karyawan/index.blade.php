@@ -29,16 +29,13 @@
                         <table id="karyawan-table" class="table table-striped table-bordered display" style="width:100%">
                             <thead>
                                 <tr>
-                                    <th>No</th>
-                                    <th>ID</th>
+                                    <th>ID Karyawan</th>
                                     <th>Nama</th>
-                                    <th>Email</th>
-                                    <th>Nomor Ponsel</th>
                                     <th>Posisi</th>
                                     <th>Grup</th>
                                     <th>Jenis Kontrak</th>
                                     <th>Status Karyawan</th>
-                                    <th>Aksi</th>
+                                    <th class="text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>

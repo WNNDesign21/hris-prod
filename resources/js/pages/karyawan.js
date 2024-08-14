@@ -45,13 +45,10 @@ $(function () {
 
     //DATATABLE KARYAWAN
     var columnsTable = [
-        { data: "no" },
         { data: "id_karyawan" },
-        { data: "nama_karyawan" },
-        { data: "email_karyawan" },
-        { data: "no_telp_karyawan" },
-        { data: "posisi_karyawan" },
-        { data: "nama_grup" },
+        { data: "nama" },
+        { data: "posisi" },
+        { data: "grup" },
         { data: "jenis_kontrak" },
         { data: "status_karyawan" },
         { data: "aksi" },
@@ -69,6 +66,7 @@ $(function () {
             dataType: "json",
             type: "POST",
             data: function (dataFilter) {
+                console.log(dataFilter);
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.responseJSON.data) {
@@ -119,20 +117,14 @@ $(function () {
         columnDefs: [
             {
                 orderable: false,
-                targets: [0, -1],
+                targets: [2,-1],
             },
-            // {
-            //     targets: [],
-            //     createdCell: function (td, cellData, rowData, row, col) {
-            //         $(td).addClass("text-center");
-            //     },
-            // },
-            // {
-            //     targets: [0],
-            //     createdCell: function (td, cellData, rowData, row, col) {
-            //         $(td).addClass("text-center");
-            //     },
-            // },
+            {
+                targets: [-1],
+                createdCell: function (td, cellData, rowData, row, col) {
+                    $(td).addClass("text-center");
+                },
+            },
         ],
     })
 

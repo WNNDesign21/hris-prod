@@ -18,6 +18,8 @@ class KaryawanSeeder extends Seeder
             [
                 'id_karyawan' => 'FL0001',
                 'nama' => 'FLAVIA DOMITELA AJENG NARISWARI',
+                'jenis_kontrak' => 'PKWT',
+                'status_karyawan' => 'AKTIF',
                 'sisa_cuti' => 12,
                 'tahun_masuk' => '2024',
                 'user_id' => 1,
@@ -26,6 +28,8 @@ class KaryawanSeeder extends Seeder
             [
                 'id_karyawan' => 'IN0001',
                 'nama' => 'INDAH NADIA HAPSARI',
+                'jenis_kontrak' => 'MAGANG',
+                'status_karyawan' => 'AKTIF',
                 'sisa_cuti' => 12,
                 'tahun_masuk' => '2024',
                 'user_id' => 2,
@@ -34,6 +38,8 @@ class KaryawanSeeder extends Seeder
             [
                 'id_karyawan' => 'AM0001',
                 'nama' => 'AMBAR WINASTI',
+                'jenis_kontrak' => 'PKWTT',
+                'status_karyawan' => 'AKTIF',
                 'sisa_cuti' => 12,
                 'tahun_masuk' => '2024',
                 'user_id' => 2,
