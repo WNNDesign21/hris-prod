@@ -45,6 +45,6 @@
             </div>
         </div>
     </div>
-    {{-- @include('pages.master-data.karyawan.modal-tambah')
-    @include('pages.master-data.karyawan.modal-edit') --}}
+    @include('pages.master-data.karyawan.modal-tambah')
+    @include('pages.master-data.karyawan.modal-edit')
 @endsection

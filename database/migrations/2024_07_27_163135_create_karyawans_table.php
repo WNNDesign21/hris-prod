@@ -25,13 +25,15 @@ return new class extends Migration
             $table->string('no_telp')->unique()->nullable();
             $table->enum('gol_darah', ['A', 'B', 'AB', 'O'])->nullable();
             $table->enum('jenis_kelamin', ['L', 'P'])->nullable();
+            $table->enum('agama', ['ISLAM', 'KATOLIK', 'KRISTEN', 'KONGHUCU', 'HINDU', 'BUDHA', 'PROTESTAN', 'LAINNYA'])->nullable();
             $table->enum('status_keluarga', ['MENIKAH', 'LAJANG'])->nullable();
             $table->string('npwp')->unique()->nullable();
             $table->string('no_bpjs_ks')->unique()->nullable();
             $table->string('no_bpjs_kt')->unique()->nullable();
             $table->enum('jenis_kontrak', ['PKWT', 'MAGANG', 'THL', 'PKWTT'])->nullable();
             $table->enum('status_karyawan', ['AKTIF', 'RESIGN', 'PENSIUN'])->nullable();
-            $table->integer('sisa_cuti')->nullable();
+            $table->integer('sisa_cuti')->default(0);
+            $table->integer('hutang_cuti')->default(0);
             $table->year('tahun_masuk')->nullable();
             $table->year('tahun_keluar')->nullable();
 

@@ -24,7 +24,10 @@ Route::get('/master-data/posisi/get-data-by-posisi/{idPosisi}',[PosisiController
 Route::get('/master-data/posisi/get-data-jabatan-by-posisi/{idPosisi}',[PosisiController::class, 'get_data_jabatan_by_posisi']); 
 Route::get('/master-data/posisi/get-data-jabatan-by-posisi-edit/{idPosisi}/{myPosisi}',[PosisiController::class, 'get_data_jabatan_by_posisi_edit']); 
 Route::post('/master-data/posisi/get-data-parent',[PosisiController::class, 'get_data_parent']); 
+Route::post('/master-data/posisi/get-data-posisi',[PosisiController::class, 'get_data_posisi']); 
 Route::get('/master-data/posisi/get-data-parent-edit/{idParent}',[PosisiController::class, 'get_data_parent_edit']); 
+
+Route::post('/master-data/grup/get-data-grup',[GrupController::class, 'get_data_grup']); 
     
 /** MASTER DATA FEATURE */
 Route::group(['middleware' => ['auth']], function () {

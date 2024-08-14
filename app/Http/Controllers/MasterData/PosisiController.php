@@ -593,4 +593,79 @@ class PosisiController extends Controller
  
          return response()->json($data, 200);
      }
+
+     public function get_data_posisi(Request $request){
+        $search = $request->input('search');
+        $page = $request->input("page");
+        $idCats = $request->input('catsProd');
+        $adOrg = $request->input('adOrg');
+
+        $getOrg = Organisasi::select("id_organisasi as org_id", "nama as nama_org");
+        $getDivisi = Divisi::select("id_divisi as div_id", "nama as nama_div");
+        $getDepartemen = Departemen::select("id_departemen as dep_id", "nama as nama_dep");
+        $getSeksi = Seksi::select("id_seksi as sek_id", "nama as nama_sek");
+        $query = Posisi::select(
+            'id_posisi',
+            'posisis.organisasi_id',
+            'posisis.divisi_id',
+            'posisis.departemen_id',
+            'posisis.seksi_id',
+            'posisis.parent_id',
+            'posisis.nama as nama_posisi',
+            'jabatans.nama as nama_jabatan',
+            'org.nama_org as nama_organisasi',
+            'div.nama_div as nama_divisi',
+            'dep.nama_dep as nama_departemen',
+            'sek.nama_sek as nama_seksi',
+        )
+        ->leftJoin('jabatans', 'posisis.jabatan_id', 'jabatans.id_jabatan')
+        ->leftJoinSub($getOrg, 'org', function (JoinClause $joinOrg) {
+            $joinOrg->on('posisis.organisasi_id', 'org.org_id');
+        })
+        ->leftJoinSub($getDivisi, 'div', function (JoinClause $joinDivisi) {
+            $joinDivisi->on('posisis.divisi_id', 'div.div_id');
+        })
+        ->leftJoinSub($getDepartemen, 'dep', function (JoinClause $joinDepartemen) {
+            $joinDepartemen->on('posisis.departemen_id', 'dep.dep_id');
+        })
+        ->leftJoinSub($getSeksi, 'sek', function (JoinClause $joinSeksi) {
+            $joinSeksi->on('posisis.seksi_id', 'sek.sek_id');
+        });
+
+        if (!empty($search)) {
+            $query->where(function ($dat) use ($search) {
+                $dat->where('posisis.nama', 'ILIKE', "%{$search}%")
+                    ->orWhere('jabatans.nama', 'ILIKE', "%{$search}%")
+                    ->orWhere('org.nama_org', 'ILIKE', "%{$search}%")
+                    ->orWhere('div.nama_div', 'ILIKE', "%{$search}%")
+                    ->orWhere('dep.nama_dep', 'ILIKE', "%{$search}%")
+                    ->orWhere('sek.nama_sek', 'ILIKE', "%{$search}%");
+            });
+        }
+
+        $data = $query->simplePaginate(10);
+
+        $morePages = true;
+        $pagination_obj = json_encode($data);
+        if (empty($data->nextPageUrl())) {
+            $morePages = false;
+        }
+
+        foreach ($data->items() as $ps) {
+            $nama_org = $ps->nama_organisasi !== null ? $ps->nama_organisasi : 'CORPORATE/ALL PLANT';
+            $dataPosisi[] = [
+                'id' => $ps->id_posisi,
+                'text' => $ps->nama_jabatan ." - ". $ps->nama_posisi . ' - ' . $nama_org
+            ];
+        }
+
+        $results = array(
+            "results" => $dataPosisi,
+            "pagination" => array(
+                "more" => $morePages
+            )
+        );
+
+        return response()->json($results);
+    }
 }

@@ -196,4 +196,47 @@ class GrupController extends Controller
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }
+
+    public function get_data_grup(Request $request){
+        $search = $request->input('search');
+        $page = $request->input("page");
+        $idCats = $request->input('catsProd');
+        $adOrg = $request->input('adOrg');
+
+        $query = Grup::select(
+            'id_grup',
+            'nama',
+        );
+
+        if (isset($dataFilter['search'])) {
+            $search = $dataFilter['search'];
+            $data->where(function ($query) use ($search) {
+                $query->where('nama', 'ILIKE', "%{$search}%");
+            });
+        }
+
+        $data = $query->simplePaginate(10);
+
+        $morePages = true;
+        $pagination_obj = json_encode($data);
+        if (empty($data->nextPageUrl())) {
+            $morePages = false;
+        }
+
+        foreach ($data->items() as $grup) {
+            $dataGrup[] = [
+                'id' => $grup->id_grup,
+                'text' => $grup->nama
+            ];
+        }
+
+        $results = array(
+            "results" => $dataGrup,
+            "pagination" => array(
+                "more" => $morePages
+            )
+        );
+
+        return response()->json($results);
+    }
 }

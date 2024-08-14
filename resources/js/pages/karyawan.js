@@ -140,34 +140,69 @@ $(function () {
 
     //OPEN MODAL TAMBAH KARYAWAN
     $('.btnAdd').on("click", function (){
-        openSeksi();
+        openKaryawan();
     })
 
     //CLOSE MODAL TAMBAH KARYAWAN
     $('.btnClose').on("click", function (){
-        closeSeksi();
+        closeKaryawan();
     })
 
 
     // MODAL TAMBAH KARYAWAN
-    var modalInputSeksiOptions = {
+    var modalInputKaryawanOptions = {
         backdrop: true,
         keyboard: false,
     };
 
-    var modalInputSeksi = new bootstrap.Modal(
+    var modalInputKaryawan = new bootstrap.Modal(
         document.getElementById("modal-input-karyawan"),
-        modalInputSeksiOptions
+        modalInputKaryawanOptions
     );
 
-    function openSeksi() {
-        modalInputSeksi.show();
+    function openKaryawan() {
+        modalInputKaryawan.show();
+        $('.select2').select2({
+            dropdownParent: $('#modal-input-karyawan')
+        });
+
+        $('#grup').select2({
+            dropdownParent: $('#modal-input-karyawan'),
+            ajax: {
+                url: base_url + "/master-data/grup/get-data-grup",
+                type: "post",
+                dataType: "json",
+                delay: 250,
+                data: function (params) {
+                    return {
+                        search: params.term || "",
+                        page: params.page || 1,
+                    };
+                },
+                cache: true,
+            },
+        });
+
+        $('#posisi').select2({
+            dropdownParent: $('#modal-input-karyawan'),
+            ajax: {
+                url: base_url + "/master-data/posisi/get-data-posisi",
+                type: "post",
+                dataType: "json",
+                delay: 250,
+                data: function (params) {
+                    return {
+                        search: params.term || "",
+                        page: params.page || 1,
+                    };
+                },
+                cache: true,
+            },
+        });
     }
 
-    function closeSeksi() {
-        $('#nama_karyawan').val('');
-        $('#id_departemen').val('');
-        modalInputSeksi.hide();
+    function closeKaryawan() {
+        modalInputKaryawan.hide();
     }
 
     //SUBMIT TAMBAH KARYAWAN
@@ -197,28 +232,28 @@ $(function () {
     });
 
     // MODAL EDIT KARYAWAN
-    var modalEditSeksiOptions = {
+    var modalEditKaryawanOptions = {
         backdrop: true,
         keyboard: false,
     };
 
-    var modalEditSeksi = new bootstrap.Modal(
+    var modalEditKaryawan = new bootstrap.Modal(
         document.getElementById("modal-edit-karyawan"),
-        modalEditSeksiOptions
+        modalEditKaryawanOptions
     );
 
-    function openEditSeksi() {
-        modalEditSeksi.show();
+    function openEditKaryawan() {
+        modalEditKaryawan.show();
     }
 
-    function closeEditSeksi() {
+    function closeEditKaryawan() {
         $('#nama_karyawan_edit').val('');
         $('#id_departemen_edit').val('');
-        modalEditSeksi.hide();
+        modalEditKaryawan.hide();
     }
 
     $('.btnCloseEdit').on("click", function (){
-        closeEditSeksi();
+        closeEditKaryawan();
     })
 
     //EDIT KARYAWAN
@@ -229,7 +264,7 @@ $(function () {
         $('#id_karyawan_edit').val(idKaryawan);
         $('#nama_karyawan_edit').val(nama);
         $('#id_departemen_edit').val(idDepartemen);
-        openEditSeksi();
+        openEditKaryawan();
     });
 
     //SUBMIT EDIT KARYAWAN
@@ -263,7 +298,7 @@ $(function () {
     $('#karyawan-table').on('click', '.btnDelete', function (){
         var idKaryawan = $(this).data('id');
         Swal.fire({
-            title: "Delete Seksi",
+            title: "Delete Karyawan",
             text: "Apakah kamu yakin untuk menghapus departemen ini?",
             icon: "warning",
             showCancelButton: true,
@@ -292,5 +327,4 @@ $(function () {
             }
         });
     })
-    
 });
