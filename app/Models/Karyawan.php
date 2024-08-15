@@ -107,6 +107,7 @@ class Karyawan extends Model
             'grups.nama as nama_grup',
             'users.username',
             'grup_id',
+            'user_id',
         )
         ->leftJoin('users', 'karyawans.user_id', 'users.id')
         ->leftJoin('grups', 'karyawans.grup_id', 'grups.id_grup');

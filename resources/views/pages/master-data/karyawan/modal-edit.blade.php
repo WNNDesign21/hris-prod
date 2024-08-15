@@ -200,4 +200,5 @@
     </div>
     <!-- /.modal-dialog -->
 </div>
+</div>
 <!-- /.modal -->

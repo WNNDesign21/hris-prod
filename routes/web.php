@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\MasterData\AkunController;
 use App\Http\Controllers\MasterData\GrupController;
 use App\Http\Controllers\MasterData\SeksiController;
 use App\Http\Controllers\MasterData\DivisiController;
@@ -32,6 +33,8 @@ Route::post('/master-data/grup/get-data-grup',[GrupController::class, 'get_data_
 Route::get('/master-data/grup/get-data-all-grup',[GrupController::class, 'get_data_all_grup']); 
 Route::post('/master-data/karyawan/get-data-user',[KaryawanController::class, 'get_data_user']); 
 Route::get('/master-data/karyawan/get-data-detail-karyawan/{idKaryawan}',[KaryawanController::class, 'get_data_detail_karyawan']); 
+
+Route::get('/master-data/akun/get-data-detail-akun/{idAkun}',[AkunController::class, 'get_data_detail_akun']); 
     
 /** MASTER DATA FEATURE */
 Route::group(['middleware' => ['auth']], function () {

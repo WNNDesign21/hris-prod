@@ -499,4 +499,74 @@ $(function () {
             },
         });
     };
+
+    //AKUN KARYAWAN
+    $('.btnCloseAkun').on("click", function (){
+        closeAkun();
+    })
+
+    $('#karyawan-table').on('click', '.btnAkun', function (){
+        let idAkun = $(this).data('id');
+        let idKaryawan = $(this).data('id-karyawan');
+        let nama = $(this).data('nama');
+
+        if(idAkun !== null){
+            getDetailAkun(idAkun, idKaryawan, nama);
+        } else {
+            $('#akun-title').text('Buat Akun - ' + nama);
+            $('#id_karyawanAkunEdit').val(idKaryawan);
+            openAkun();
+        }
+    });
+
+    // MODAL TAMBAH KARYAWAN
+    var modalAkunOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalAkun = new bootstrap.Modal(
+        document.getElementById("modal-akun"),
+        modalAkunOptions
+    );
+
+    function openAkun() {
+        modalAkun.show();
+    }
+
+    function closeAkun() {
+        modalAkun.hide();
+        resetAkun();
+    }
+
+    function resetAkun(){
+        $('#id_karyawanAkunEdit').val("");
+        $('#akun-title').text("");
+        $('#username_akunEdit').val("");
+        $('#email_akunEdit').val("");
+        $('#password_akunEdit').val("");
+    };
+
+    function getDetailAkun(userId, idKaryawan, nama){
+        loadingSwalShow();
+        let url = base_url + '/master-data/akun/get-data-detail-akun/' + userId;
+        $.ajax({
+            url: url,
+            method: "GET",
+            dataType: "JSON",
+            success: function (response) {
+                let detailAkun = response.data;
+                
+                $('#id_karyawanAkunEdit').val(idKaryawan);
+                $('#akun-title').text('Edit Akun - ' + nama);
+                $('#username_akunEdit').val(detailAkun.username);
+                $('#email_akunEdit').val(detailAkun.email);
+                openAkun();
+                loadingSwalClose();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        }); 
+    }
 });

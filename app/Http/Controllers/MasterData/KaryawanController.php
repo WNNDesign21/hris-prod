@@ -76,7 +76,7 @@ class KaryawanController extends Controller
                 $nestedData['aksi'] = '
                 <div class="btn-group">
                     <button type="button" class="waves-effect waves-light btn btn-sm btn-secondary btnKontrak"><i class="fas fa-file-signature"></i> Kontrak</button>
-                    <button type="button" class="waves-effect waves-light btn btn-sm btn-info btnUser"><i class="fas fa-user-circle"></i> Akun</button>
+                    <button type="button" class="waves-effect waves-light btn btn-sm btn-info btnAkun" data-id="'.$data->user_id.'" data-id-karyawan="'.$data->id_karyawan.'" data-nama="'.$data->nama.'"><i class="fas fa-user-circle"></i> Akun</button>
                     <button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id="'.$data->id_karyawan.'"><i class="fas fa-edit"></i> Detail</button>
                     <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_karyawan.'"><i class="fas fa-trash-alt"></i> Hapus</button>
                 </div>
