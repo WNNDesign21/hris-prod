@@ -53,6 +53,7 @@
     <script src="{{ asset('js/vendors.min.js') }}"></script>
     <script src="{{ asset('js/pages/chat-popup.js') }}"></script>
     <script src="{{ asset('assets/icons/feather-icons/feather.min.js') }}"></script>
+    {{-- <script src="{{ asset('assets/vendor_components/bootstrap-select/dist/js/bootstrap-select.js') }}"></script> --}}
     <script src="{{ asset('assets/vendor_components/select2/dist/js/select2.full.min.js') }}"></script>
     <script src="{{ asset('assets/vendor_components/sweetalert2/dist/sweetalert2.min.js') }}"></script>
     <script src="{{ asset('assets/vendor_components/lightbox-master/dist/ekko-lightbox.min.js') }}"></script>
@@ -67,7 +68,7 @@
     <!-- EduAdmin App -->
     <script src="{{ asset('js/template.js') }}"></script>
     <script src="{{ asset('js/pages/dashboard4.js') }}"></script>
-    <script src="{{ asset('js/pages/advanced-form-element.js') }}"></script>
+    {{-- <script src="{{ asset('js/pages/advanced-form-element.js') }}"></script> --}}
     {{-- <script src="{{ asset('js/pages/nestable.js') }}"></script> --}}
 
     <script>

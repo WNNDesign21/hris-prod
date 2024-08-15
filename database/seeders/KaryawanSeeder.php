@@ -42,7 +42,7 @@ class KaryawanSeeder extends Seeder
                 'status_karyawan' => 'AKTIF',
                 'sisa_cuti' => 12,
                 'tahun_masuk' => '2024',
-                'user_id' => 2,
+                'user_id' => 3,
                 'grup_id' => 1
             ],
         ];

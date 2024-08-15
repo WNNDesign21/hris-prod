@@ -162,8 +162,76 @@ $(function () {
 
     function openKaryawan() {
         modalInputKaryawan.show();
-        $('.select2').select2({
-            dropdownParent: $('#modal-input-karyawan')
+        initializeSelect2();
+    }
+
+    function closeKaryawan() {
+        modalInputKaryawan.hide();
+        resetKaryawan();
+    }
+
+    function resetKaryawan() {
+        $("#nama").val("");
+        $("#no_ktp").val("");
+        $("#sisa_cuti").val("");
+        $("#tempat_lahir").val("");
+        $("#tanggal_lahir").val("");
+        $("#jenis_kelamin").val("");
+        $("#agama").val("");
+        $("#gol_darah").val("");
+        $("#status_keluarga").val("");
+        $("#alamat").val("");
+        $("#no_telp").val("");
+        $("#email").val("");
+        $("#npwp").val("");
+        $("#no_bpjs_ks").val("");
+        $("#no_bpjs_kt").val("");
+        $('#status_karyawan').val("AKTIF");
+        $('#tahun_masuk').val("");
+        $('#grup').val("");
+        $('#posisi').val("");
+    }
+
+    function initializeSelect2() {
+        $('#status_karyawan').select2({
+            dropdownParent: $('#modal-input-karyawan'),
+        });
+
+        $('#jenis_kelamin').select2({
+            dropdownParent: $('#modal-input-karyawan'),
+        });
+
+        $('#agama').select2({
+            dropdownParent: $('#modal-input-karyawan'),
+        });
+
+        $('#gol_darah').select2({
+            dropdownParent: $('#modal-input-karyawan'),
+        });
+
+        $('#status_keluarga').select2({
+            dropdownParent: $('#modal-input-karyawan'),
+        });
+
+        $('#tahun_masuk').select2({
+            dropdownParent: $('#modal-input-karyawan'),
+        });
+
+        $('#user_id').select2({
+            dropdownParent: $('#modal-input-karyawan'),
+            ajax: {
+                url: base_url + "/master-data/karyawan/get-data-user",
+                type: "post",
+                dataType: "json",
+                delay: 250,
+                data: function (params) {
+                    return {
+                        search: params.term || "",
+                        page: params.page || 1,
+                    };
+                },
+                cache: true,
+            },
         });
 
         $('#grup').select2({
@@ -182,7 +250,7 @@ $(function () {
                 cache: true,
             },
         });
-
+    
         $('#posisi').select2({
             dropdownParent: $('#modal-input-karyawan'),
             ajax: {
@@ -199,11 +267,7 @@ $(function () {
                 cache: true,
             },
         });
-    }
-
-    function closeKaryawan() {
-        modalInputKaryawan.hide();
-    }
+    };
 
     //SUBMIT TAMBAH KARYAWAN
     $('#form-tambah-karyawan').on('submit', function (e){
@@ -222,6 +286,7 @@ $(function () {
             success: function (data) {
                 loadingSwalClose();
                 showToast({ title: data.message });
+                closeKaryawan();
                 refreshTable();
             },
             error: function (jqXHR, textStatus, errorThrown) {

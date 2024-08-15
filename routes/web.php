@@ -28,6 +28,7 @@ Route::post('/master-data/posisi/get-data-posisi',[PosisiController::class, 'get
 Route::get('/master-data/posisi/get-data-parent-edit/{idParent}',[PosisiController::class, 'get_data_parent_edit']); 
 
 Route::post('/master-data/grup/get-data-grup',[GrupController::class, 'get_data_grup']); 
+Route::post('/master-data/karyawan/get-data-user',[KaryawanController::class, 'get_data_user']); 
     
 /** MASTER DATA FEATURE */
 Route::group(['middleware' => ['auth']], function () {

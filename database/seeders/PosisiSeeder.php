@@ -115,12 +115,12 @@ class PosisiSeeder extends Seeder
             ],
             [
                 'jabatan_id' => 6,
-                'parent_id' => 11,
-                'nama' => 'ADMIN GA',
+                'parent_id' => 10,
+                'nama' => 'ADMIN HR',
                 'organisasi_id' => 3,
                 'divisi_id' => 1,
                 'departemen_id' => 1,
-                'seksi_id' => 1,
+                'seksi_id' => 2,
             ],
         ];
 

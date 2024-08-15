@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('karyawans', function (Blueprint $table) {
-            $table->string('id_karyawan', 6)->primary();
-            $table->unsignedBigInteger('user_id');
+            $table->string('id_karyawan')->primary();
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('grup_id')->nullable();
             $table->string('no_ktp')->unique()->nullable();
             $table->string('nik')->unique()->nullable();
@@ -32,7 +32,7 @@ return new class extends Migration
             $table->string('no_bpjs_kt')->unique()->nullable();
             $table->enum('jenis_kontrak', ['PKWT', 'MAGANG', 'THL', 'PKWTT'])->nullable();
             $table->enum('status_karyawan', ['AKTIF', 'RESIGN', 'PENSIUN'])->nullable();
-            $table->integer('sisa_cuti')->default(0);
+            $table->integer('sisa_cuti')->default(12);
             $table->integer('hutang_cuti')->default(0);
             $table->year('tahun_masuk')->nullable();
             $table->year('tahun_keluar')->nullable();
@@ -41,7 +41,7 @@ return new class extends Migration
             $table->softDeletes();
 
             // Relasi foreign key
-            $table->foreign('user_id')->references('id')->on('users')->restrictOnDelete();
+            // $table->foreign('user_id')->references('id')->on('users')->restrictOnDelete();
         });
     }
 
