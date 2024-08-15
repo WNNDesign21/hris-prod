@@ -239,4 +239,16 @@ class GrupController extends Controller
 
         return response()->json($results);
     }
+
+    public function get_data_all_grup()
+    {
+        $data = Grup::all();
+        foreach ($data as $grup) {
+            $dataGrup[] = [
+                'id' => $grup->id_grup,
+                'text' => $grup->nama
+            ];
+        }
+        return response()->json($dataGrup);
+    }
 }

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Seksi;
 use App\Models\Divisi;
 use App\Models\Jabatan;
+use App\Models\Karyawan;
 use App\Models\Departemen;
 use App\Models\Organisasi;
 use Illuminate\Database\Eloquent\Model;
@@ -47,6 +48,11 @@ class Posisi extends Model
     public function seksi()
     {
         return $this->belongsTo(Seksi::class, 'seksi_id', 'id_seksi');
+    }
+
+    public function karyawan()
+    {
+        return $this->belongsToMany(Karyawan::class, 'karyawan_posisi', 'posisi_id', 'karyawan_id');
     }
 
     private static function _query($dataFilter)

@@ -12,15 +12,16 @@ use App\Http\Controllers\MasterData\DashboardController;
 use App\Http\Controllers\MasterData\DepartemenController;
 use App\Http\Controllers\MasterData\OrganisasiController;
 
-Route::get('/', function () {
-    return view('auth.login');
-});
 
 Auth::routes();
+Route::get('/', function () {
+    return redirect('/login');
+});
 
 /** MASTER DATA - AJAX */
 Route::get('/master-data/posisi/get-data-by-jabatan/{idJabatan}',[PosisiController::class, 'get_data_by_jabatan']);
 Route::get('/master-data/posisi/get-data-by-posisi/{idPosisi}',[PosisiController::class, 'get_data_by_posisi']);
+Route::get('/master-data/posisi/get-data-all-posisi',[PosisiController::class, 'get_data_all_posisi']);
 Route::get('/master-data/posisi/get-data-jabatan-by-posisi/{idPosisi}',[PosisiController::class, 'get_data_jabatan_by_posisi']); 
 Route::get('/master-data/posisi/get-data-jabatan-by-posisi-edit/{idPosisi}/{myPosisi}',[PosisiController::class, 'get_data_jabatan_by_posisi_edit']); 
 Route::post('/master-data/posisi/get-data-parent',[PosisiController::class, 'get_data_parent']); 
@@ -28,7 +29,9 @@ Route::post('/master-data/posisi/get-data-posisi',[PosisiController::class, 'get
 Route::get('/master-data/posisi/get-data-parent-edit/{idParent}',[PosisiController::class, 'get_data_parent_edit']); 
 
 Route::post('/master-data/grup/get-data-grup',[GrupController::class, 'get_data_grup']); 
+Route::get('/master-data/grup/get-data-all-grup',[GrupController::class, 'get_data_all_grup']); 
 Route::post('/master-data/karyawan/get-data-user',[KaryawanController::class, 'get_data_user']); 
+Route::get('/master-data/karyawan/get-data-detail-karyawan/{idKaryawan}',[KaryawanController::class, 'get_data_detail_karyawan']); 
     
 /** MASTER DATA FEATURE */
 Route::group(['middleware' => ['auth']], function () {
@@ -92,8 +95,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/master-data/karyawan/datatable', [KaryawanController::class, 'datatable']);
     Route::get('/master-data/karyawan',[KaryawanController::class, 'index'])->name('master-data.karyawan');
     Route::post('/master-data/karyawan/store',[KaryawanController::class, 'store'])->name('master-data.karyawan.store');
-    Route::delete('/master-data/karyawan/delete/{idPosisi}', [KaryawanController::class, 'delete'])->name('master-data.karyawan.delete');
-    Route::patch('/master-data/karyawan/update/{idPosisi}', [KaryawanController::class, 'update'])->name('master-data.karyawan.update');
+    Route::delete('/master-data/karyawan/delete/{idKaryawan}', [KaryawanController::class, 'delete'])->name('master-data.karyawan.delete');
+    Route::patch('/master-data/karyawan/update/{idKaryawan}', [KaryawanController::class, 'update'])->name('master-data.karyawan.update');
 });
 
 

@@ -668,4 +668,16 @@ class PosisiController extends Controller
 
         return response()->json($results);
     }
+
+    public function get_data_all_posisi()
+    {
+        $data = Posisi::all();
+        foreach ($data as $grup) {
+            $dataPosisi[] = [
+                'id' => $grup->id_posisi,
+                'text' => $grup->nama
+            ];
+        }
+        return response()->json($dataPosisi);
+    }
 }

@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreign('karyawan_id')->references("id_karyawan")->on("karyawans")->constrained()->onDelete('cascade');
             $table->foreign('posisi_id')->references("id_posisi")->on("posisis")->constrained()->onDelete('cascade');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

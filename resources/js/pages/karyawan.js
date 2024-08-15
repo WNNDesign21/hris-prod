@@ -296,6 +296,35 @@ $(function () {
         })
     });
 
+    function initializeSelect2Edit(grupId, posisi) {
+        $('#status_karyawanEdit').select2({
+            dropdownParent: $('#modal-edit-karyawan'),
+        });
+
+        $('#jenis_kelaminEdit').select2({
+            dropdownParent: $('#modal-edit-karyawan'),
+        });
+
+        $('#agamaEdit').select2({
+            dropdownParent: $('#modal-edit-karyawan'),
+        });
+
+        $('#gol_darahEdit').select2({
+            dropdownParent: $('#modal-edit-karyawan'),
+        });
+
+        $('#status_keluargaEdit').select2({
+            dropdownParent: $('#modal-edit-karyawan'),
+        });
+
+        $('#tahun_masukEdit').select2({
+            dropdownParent: $('#modal-edit-karyawan'),
+        });
+
+        selectGrupEdit(grupId);
+        selectPosisiEdit(posisi);
+    };
+
     // MODAL EDIT KARYAWAN
     var modalEditKaryawanOptions = {
         backdrop: true,
@@ -312,8 +341,6 @@ $(function () {
     }
 
     function closeEditKaryawan() {
-        $('#nama_karyawan_edit').val('');
-        $('#id_departemen_edit').val('');
         modalEditKaryawan.hide();
     }
 
@@ -321,22 +348,53 @@ $(function () {
         closeEditKaryawan();
     })
 
-    //EDIT KARYAWAN
+    //EDIT JABATAN
     $('#karyawan-table').on('click', '.btnEdit', function (){
-        var idKaryawan = $(this).data('id');
-        var idDepartemen = $(this).data('departemen-id');
-        var nama = $(this).data('karyawan-nama');
-        $('#id_karyawan_edit').val(idKaryawan);
-        $('#nama_karyawan_edit').val(nama);
-        $('#id_departemen_edit').val(idDepartemen);
-        openEditKaryawan();
+        let idKaryawan = $(this).data('id');
+        getDetailKaryawan(idKaryawan);
     });
+
+    function getDetailKaryawan(idKaryawan){
+        loadingSwalShow();
+        let url = base_url + '/master-data/karyawan/get-data-detail-karyawan/' + idKaryawan;
+        $.ajax({
+            url: url,
+            method: "GET",
+            dataType: "JSON",
+            success: function (response) {
+                let detailKaryawan = response.data;
+                $('#id_karyawanEdit').val(detailKaryawan.id_karyawan);
+                $('#namaEdit').val(detailKaryawan.nama);
+                $('#no_ktpEdit').val(detailKaryawan.no_ktp);
+                $('#sisa_cutiEdit').val(detailKaryawan.sisa_cuti);
+                $('#tempat_lahirEdit').val(detailKaryawan.tempat_lahir);
+                $('#tanggal_lahirEdit').val(detailKaryawan.tanggal_lahir);
+                $('#jenis_kelaminEdit').val(detailKaryawan.jenis_kelamin);
+                $('#agamaEdit').val(detailKaryawan.agama);
+                $('#gol_darahEdit').val(detailKaryawan.gol_darah);
+                $('#status_keluargaEdit').val(detailKaryawan.status_keluarga);
+                $('#alamatEdit').val(detailKaryawan.alamat);
+                $('#no_telpEdit').val(detailKaryawan.no_telp);
+                $('#emailEdit').val(detailKaryawan.email);
+                $('#npwpEdit').val(detailKaryawan.npwp);
+                $('#no_bpjs_ksEdit').val(detailKaryawan.no_bpjs_ks);
+                $('#no_bpjs_ktEdit').val(detailKaryawan.no_bpjs_kt);
+                $('#status_karyawanEdit').val(detailKaryawan.status_karyawan);
+                $('#tahun_masukEdit').val(detailKaryawan.tahun_masuk);
+                initializeSelect2Edit(detailKaryawan.grup_id, detailKaryawan.posisi);
+                openEditKaryawan();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        }); 
+    }
 
     //SUBMIT EDIT KARYAWAN
     $('#form-edit-karyawan').on('submit', function (e){
         e.preventDefault();
         loadingSwalShow();
-        let idKaryawan = $('#id_karyawan_edit').val();
+        let idKaryawan = $('#id_karyawanEdit').val();
         let url = base_url + '/master-data/karyawan/update/' + idKaryawan;
 
         var formData = new FormData($('#form-edit-karyawan')[0]);
@@ -350,6 +408,7 @@ $(function () {
             success: function (data) {
                 loadingSwalClose();
                 showToast({ title: data.message });
+                closeEditKaryawan();
                 refreshTable();
             },
             error: function (jqXHR, textStatus, errorThrown) {
@@ -392,4 +451,52 @@ $(function () {
             }
         });
     })
+
+
+    //SELECT GRUP EDIT
+    function selectGrupEdit(grupId =  "") {
+        $.ajax({
+            url: base_url + '/master-data/grup/get-data-all-grup',
+            type: "get",
+            success: function (data) {
+                var selectGrup = $("#grupEdit");
+                selectGrup.empty();
+                $.each(data, function (i, val){
+                    selectGrup.append('<option value="'+val.id+'">'+val.text+'</option>');
+                });
+                $('#grupEdit').val(grupId).trigger('change');
+                $('#grupEdit').select2({
+                    dropdownParent: $('#modal-edit-karyawan')
+                });
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        });
+    };
+
+    //SELECT POSISI EDIT
+    function selectPosisiEdit(posisiId =  []) {
+        $.ajax({
+            url: base_url + '/master-data/posisi/get-data-all-posisi',
+            type: "get",
+            success: function (data) {
+                var selectGrup = $("#posisiEdit");
+                selectGrup.empty();
+                $.each(data, function (i, val){
+                    selectGrup.append('<option value="'+val.id+'">'+val.text+'</option>');
+                });
+                $('#posisiEdit').val(posisiId).trigger('change');
+                $('#posisiEdit').select2({
+                    dropdownParent: $('#modal-edit-karyawan')
+                });
+                loadingSwalClose();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        });
+    };
 });

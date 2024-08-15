@@ -1,5 +1,5 @@
 <!-- modal Area -->
-<div class="modal fade" id="modal-input-karyawan" style="width: 100%;">
+<div class="modal fade" id="modal-input-karyawan">
     <div class="modal-dialog modal-fullscreen" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -248,5 +248,6 @@
         <!-- /.modal-content -->
     </div>
     <!-- /.modal-dialog -->
+</div>
 </div>
 <!-- /.modal -->
