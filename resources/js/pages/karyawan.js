@@ -557,6 +557,7 @@ $(function () {
             success: function (response) {
                 let detailAkun = response.data;
                 
+                $('#id_akunEdit').val(userId);
                 $('#id_karyawanAkunEdit').val(idKaryawan);
                 $('#akun-title').text('Edit Akun - ' + nama);
                 $('#username_akunEdit').val(detailAkun.username);
@@ -569,4 +570,30 @@ $(function () {
             },
         }); 
     }
+
+    $('#form-akun').on('submit', function (e){
+        e.preventDefault();
+        loadingSwalShow();
+        let url = $('#form-akun').attr('action');
+
+        var formData = new FormData($('#form-akun')[0]);
+        $.ajax({
+            url: url,
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (data) {
+                loadingSwalClose();
+                showToast({ title: data.message });
+                closeAkun();
+                refreshTable();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        })
+    });
 });

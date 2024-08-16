@@ -100,6 +100,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/master-data/karyawan/store',[KaryawanController::class, 'store'])->name('master-data.karyawan.store');
     Route::delete('/master-data/karyawan/delete/{idKaryawan}', [KaryawanController::class, 'delete'])->name('master-data.karyawan.delete');
     Route::patch('/master-data/karyawan/update/{idKaryawan}', [KaryawanController::class, 'update'])->name('master-data.karyawan.update');
+    Route::post('/master-data/akun/store-or-update',[AkunController::class, 'store_or_update'])->name('master-data.akun.storeUpdate');
 });
 
 
