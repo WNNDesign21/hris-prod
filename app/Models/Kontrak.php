@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Posisi;
 use App\Models\Karyawan;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\JoinClause;
@@ -20,6 +21,7 @@ class Kontrak extends Model
     protected $fillable = [
         'id_kontrak',
         'karyawan_id',
+        'posisi_id',
         'nama_posisi',
         'jenis',
         'status',
@@ -40,5 +42,10 @@ class Kontrak extends Model
     public function karyawan()
     {
         return $this->belongsTo(Karyawan::class, 'karyawan_id', 'id_karyawan');
+    }
+
+    public function posisi()
+    {
+        return $this->belongsTo(Posisi::class, 'posisi_id', 'id_posisi');
     }
 }

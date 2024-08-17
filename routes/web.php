@@ -102,13 +102,14 @@ Route::group(['middleware' => ['auth']], function () {
     Route::delete('/master-data/karyawan/delete/{idKaryawan}', [KaryawanController::class, 'delete'])->name('master-data.karyawan.delete');
     Route::patch('/master-data/karyawan/update/{idKaryawan}', [KaryawanController::class, 'update'])->name('master-data.karyawan.update');
     Route::post('/master-data/akun/store-or-update',[AkunController::class, 'store_or_update'])->name('master-data.akun.storeUpdate');
-
-     /** MASTER DATA - KONTRAK */
-     Route::post('/master-data/kontrak/datatable', [KontrakController::class, 'datatable']);
-     Route::get('/master-data/kontrak',[KontrakController::class, 'index'])->name('master-data.kontrak');
-     Route::post('/master-data/kontrak/store',[KontrakController::class, 'store'])->name('master-data.kontrak.store');
-     Route::delete('/master-data/kontrak/delete/{idKaryawan}', [KontrakController::class, 'delete'])->name('master-data.kontrak.delete');
-     Route::patch('/master-data/kontrak/update/{idKaryawan}', [KontrakController::class, 'update'])->name('master-data.kontrak.update');
+    
+    /** MASTER DATA - KONTRAK */
+    Route::post('/master-data/kontrak/datatable', [KontrakController::class, 'datatable']);
+    Route::get('/master-data/kontrak',[KontrakController::class, 'index'])->name('master-data.kontrak');
+    Route::post('/master-data/kontrak/store',[KontrakController::class, 'store'])->name('master-data.kontrak.store');
+    Route::delete('/master-data/kontrak/delete/{idKaryawan}', [KontrakController::class, 'delete'])->name('master-data.kontrak.delete');
+    Route::patch('/master-data/kontrak/update/{idKaryawan}', [KontrakController::class, 'update'])->name('master-data.kontrak.update');
+    Route::post('/master-data/kontrak/store-or-update',[KontrakController::class, 'store_or_update'])->name('master-data.kontrak.storeUpdate');
 });
 
 

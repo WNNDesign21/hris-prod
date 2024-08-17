@@ -20,13 +20,15 @@
                                 </div>
 
                                 <div class="box-body">
-                                    <form action="#" method="POST" enctype="multipart/form-data" id="form-kontrak">
+                                    <form action="{{ route('master-data.kontrak.storeUpdate') }}" method="POST"
+                                        enctype="multipart/form-data" id="form-kontrak">
                                         @csrf
                                         <div class="row p-4">
                                             <div class="col-lg-6 col-12">
                                                 <div class="form-group">
                                                     <input type="hidden" name="karyawan_id_kontrakEdit"
                                                         id="karyawan_id_kontrakEdit">
+                                                    <input type="hidden" name="id_kontrakEdit" id="id_kontrakEdit">
                                                     <label for="">Jenis Kontrak <span
                                                             class="text-danger">*</span></label>
                                                     <select name="jenis_kontrakEdit" id="jenis_kontrakEdit"
@@ -58,8 +60,8 @@
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="">Tanggal Mulai</label>
-                                                    <input type="date" name="tanggal_mulaiEdit"
-                                                        id="tanggal_mulaiEdit" class="form-control">
+                                                    <input type="date" name="tanggal_mulai_kontrakEdit"
+                                                        id="tanggal_mulai_kontrakEdit" class="form-control">
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="">Deskripsi</label>

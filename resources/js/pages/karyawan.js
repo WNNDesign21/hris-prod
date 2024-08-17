@@ -602,31 +602,44 @@ $(function () {
     })
 
     $('#karyawan-table').on('click', '.btnKontrak', function (){
+        loadingSwalShow();
         let idKaryawan = $(this).data('id');
         let namaKaryawan = $(this).data('nama');
         $('#title-kontrak').text('Kontrak - '+namaKaryawan)
-        $('#posisi_kontrakEdit').select2({
-            dropdownParent: $('#modal-kontrak'),
-            ajax: {
-                url: base_url + "/master-data/posisi/get-data-posisi",
-                type: "post",
-                dataType: "json",
-                delay: 250,
-                data: function (params) {
-                    return {
-                        search: params.term || "",
-                        page: params.page || 1,
-                    };
-                },
-                cache: true,
-            },
-        });
+        
+
         $('#jenis_kontrakEdit').select2({
             dropdownParent: $('#modal-kontrak'),
         });
+
         $('#karyawan_id_kontrakEdit').val(idKaryawan)
+
+        selectPosisiKontrak();
         openKontrak();
     });
+
+    function selectPosisiKontrak(posisiId = ''){
+        $.ajax({
+            url: base_url + '/master-data/posisi/get-data-all-posisi',
+            type: "get",
+            success: function (data) {
+                var selectPosisiKontrak = $("#posisi_kontrakEdit");
+                selectPosisiKontrak.empty();
+                $.each(data, function (i, val){
+                    selectPosisiKontrak.append('<option value="'+val.id+'">'+val.text+'</option>');
+                });
+                $('#posisi_kontrakEdit').val(posisiId).trigger('change');
+                $('#posisi_kontrakEdit').select2({
+                    dropdownParent: $('#modal-kontrak')
+                });
+                loadingSwalClose();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        });
+    }
 
     var modalKontrakOptions = {
         backdrop: true,
@@ -690,7 +703,6 @@ $(function () {
             success: function (data) {
                 loadingSwalClose();
                 showToast({ title: data.message });
-                closeAkun();
                 refreshTable();
             },
             error: function (jqXHR, textStatus, errorThrown) {
