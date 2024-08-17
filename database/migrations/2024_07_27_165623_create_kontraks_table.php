@@ -14,11 +14,16 @@ return new class extends Migration
         Schema::create('kontraks', function (Blueprint $table) {
             $table->increments('id_kontrak');
             $table->string('karyawan_id');
-            $table->enum('tipe', ['PKWT', 'MAGANG', 'THL', 'PKWTT']);
-            $table->integer('durasi');
+            $table->string('nama_posisi')->nullale();
+            $table->enum('jenis', ['PKWT', 'MAGANG', 'THL', 'PKWTT']);
+            $table->enum('status', ['WAITING', 'EXTENDED', 'CUTTOFF'])->default('WAITING');
+            $table->integer('durasi')->nullable();
+            $table->integer('salary')->nullable();
+            $table->text('deskripsi')->nullable();
             $table->date('tanggal_mulai');
-            $table->date('tanggal_akhir')->nullable();
-            $table->string('attachment');
+            $table->date('tanggal_akhir');
+            $table->enum('isAccepted', ['Y', 'N'])->nullablle();
+            $table->string('attachment')->nullable();
 
             $table->softDeletes();
             $table->timestamps();
