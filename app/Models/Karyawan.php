@@ -69,26 +69,6 @@ class Karyawan extends Model
         return $this->belongsTo(Grup::class, 'grup_id', 'id_grup');
     }
 
-    // public function organisasi()
-    // {
-    //     return $this->belongsTo(Organisasi::class, 'organisasi_id', 'id_organisasi');
-    // }
-
-    // public function divisi()
-    // {
-    //     return $this->belongsTo(Divisi::class, 'divisi_id', 'id_divisi');
-    // }
-
-    // public function departemen()
-    // {
-    //     return $this->belongsTo(Departemen::class, 'departemen_id', 'id_departemen');
-    // }
-
-    // public function seksi()
-    // {
-    //     return $this->belongsTo(Seksi::class, 'seksi_id', 'id_seksi');
-    // }
-
     public function posisi()
     {
         return $this->belongsToMany(Posisi::class, 'karyawan_posisi', 'karyawan_id', 'posisi_id');

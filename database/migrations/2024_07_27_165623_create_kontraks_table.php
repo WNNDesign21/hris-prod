@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('kontraks', function (Blueprint $table) {
-            $table->increments('id_kontrak');
+            $table->string('id_kontrak')->primary();
             $table->string('karyawan_id');
             $table->string('nama_posisi')->nullale();
             $table->enum('jenis', ['PKWT', 'MAGANG', 'THL', 'PKWTT']);
@@ -21,8 +21,8 @@ return new class extends Migration
             $table->integer('salary')->nullable();
             $table->text('deskripsi')->nullable();
             $table->date('tanggal_mulai');
-            $table->date('tanggal_akhir');
-            $table->enum('isAccepted', ['Y', 'N'])->nullablle();
+            $table->date('tanggal_selesai');
+            $table->enum('isAccepted', ['Y', 'N'])->nullable();
             $table->string('attachment')->nullable();
 
             $table->softDeletes();

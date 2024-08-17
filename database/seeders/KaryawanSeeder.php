@@ -2,10 +2,12 @@
 
 namespace Database\Seeders;
 
+use Carbon\Carbon;
+use App\Models\Kontrak;
 use App\Models\Karyawan;
+use Illuminate\Support\Str;
 use Illuminate\Database\Seeder;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Support\Str;
 
 class KaryawanSeeder extends Seeder
 {
@@ -49,6 +51,25 @@ class KaryawanSeeder extends Seeder
 
         foreach ($karyawan as $kry) {
             Karyawan::create($kry);
+        }
+
+        $karyawans = Karyawan::all();
+
+        $i = 1;
+        foreach ($karyawans as $kry) {
+            Kontrak::create([
+                'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,
+                'karyawan_id' =>  $kry->id_karyawan,
+                'nama_posisi' => 'Posisi '. $i,
+                'jenis' => 'PKWT',
+                'status' => 'EXTENDED',
+                'durasi' => 6,
+                'salary' => 5250000,
+                'deskripsi' => 'Potongan A = 3% , Potongan B = 1.5%, Potongan C = 1%',
+                'tanggal_mulai' => Carbon::now()->toDateString(),
+                'tanggal_selesai' => Carbon::now()->addMonths(6)->toDateString(),
+            ]);
+            $i++;
         }
     }
 }

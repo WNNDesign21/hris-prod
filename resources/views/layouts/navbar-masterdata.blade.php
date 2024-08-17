@@ -18,10 +18,16 @@
                             <span>Data Karyawan</span>
                         </a>
                     </li>
-                    <li class="{{ $page == 'masterdata-posisi' ? 'active' : '' }}">
-                        <a href="{{ route('master-data.posisi') }}">
+                    <li class="{{ $page == 'masterdata-kontrak' ? 'active' : '' }}">
+                        <a href="{{ route('master-data.kontrak') }}">
                             <i class="icon-File"><span class="path1"></span><span class="path2"></span><span
                                     class="path3"></span></i>
+                            <span>Kontrak Karyawan</span>
+                        </a>
+                    </li>
+                    <li class="{{ $page == 'masterdata-posisi' ? 'active' : '' }}">
+                        <a href="{{ route('master-data.posisi') }}">
+                            <i class="icon-Library"><span class="path1"></span><span class="path2"></span></i>
                             <span>Susunan & Posisi</span>
                         </a>
                     </li>

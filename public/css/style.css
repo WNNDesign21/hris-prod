@@ -23603,14 +23603,14 @@ ul.panel-actions > li {
   .panel-group-continuous .panel:first-child {
     border-radius: 0.286rem 0.286rem 0 0; }
   .panel-group-continuous .panel:last-child {
-    border-radius: 0 0 0.286rem 0.286rem; }
+    border-radius: 10px; }
   .panel-group-continuous .panel + .panel {
     margin-top: 0;
     border-top: 1px solid #cccccc; }
 
 .panel-group-simple .panel {
   background: transparent;
-  box-shadow: none; }
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2); }
   .panel-group-simple .panel + .panel {
     margin-top: 0; }
 .panel-group-simple .panel-title {
@@ -26714,8 +26714,8 @@ textarea.form-control {
   display: flex;
   -ms-flex-direction: column;
   flex-direction: column;
-  -webkit-box-shadow: 0 0 30px 0 rgba(82, 63, 105, 0.05);
-  box-shadow: 0 0 30px 0 rgba(82, 63, 105, 0.05); }
+  -webkit-box-shadow: 0 0 10px 0 rgba(82, 63, 105, 0.2);
+  box-shadow: 0 0 10px 0 rgba(82, 63, 105, 0.2); }
   .box.collapsed-box .box-body {
     display: none; }
   .box.collapsed-box .box-footer {

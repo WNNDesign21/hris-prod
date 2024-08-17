@@ -519,7 +519,6 @@ $(function () {
         }
     });
 
-    // MODAL TAMBAH KARYAWAN
     var modalAkunOptions = {
         backdrop: true,
         keyboard: false,
@@ -577,6 +576,110 @@ $(function () {
         let url = $('#form-akun').attr('action');
 
         var formData = new FormData($('#form-akun')[0]);
+        $.ajax({
+            url: url,
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (data) {
+                loadingSwalClose();
+                showToast({ title: data.message });
+                closeAkun();
+                refreshTable();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        })
+    });
+
+    //KONTRAK
+    $('.btnCloseKontrak').on("click", function (){
+        closeKontrak();
+    })
+
+    $('#karyawan-table').on('click', '.btnKontrak', function (){
+        let idKaryawan = $(this).data('id');
+        let namaKaryawan = $(this).data('nama');
+        $('#title-kontrak').text('Kontrak - '+namaKaryawan)
+        $('#posisi_kontrakEdit').select2({
+            dropdownParent: $('#modal-kontrak'),
+            ajax: {
+                url: base_url + "/master-data/posisi/get-data-posisi",
+                type: "post",
+                dataType: "json",
+                delay: 250,
+                data: function (params) {
+                    return {
+                        search: params.term || "",
+                        page: params.page || 1,
+                    };
+                },
+                cache: true,
+            },
+        });
+        $('#jenis_kontrakEdit').select2({
+            dropdownParent: $('#modal-kontrak'),
+        });
+        $('#karyawan_id_kontrakEdit').val(idKaryawan)
+        openKontrak();
+    });
+
+    var modalKontrakOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalKontrak = new bootstrap.Modal(
+        document.getElementById("modal-kontrak"),
+        modalKontrakOptions
+    );
+
+    function openKontrak() {
+        modalKontrak.show();
+    }
+
+    function closeKontrak() {
+        modalKontrak.hide();
+        // resetKontrak();
+    }
+
+    // function resetAkun(){
+    // };
+
+    // function getDetailAkun(userId, idKaryawan, nama){
+    //     loadingSwalShow();
+    //     let url = base_url + '/master-data/akun/get-data-detail-akun/' + userId;
+    //     $.ajax({
+    //         url: url,
+    //         method: "GET",
+    //         dataType: "JSON",
+    //         success: function (response) {
+    //             let detailAkun = response.data;
+                
+    //             $('#id_akunEdit').val(userId);
+    //             $('#id_karyawanAkunEdit').val(idKaryawan);
+    //             $('#akun-title').text('Edit Akun - ' + nama);
+    //             $('#username_akunEdit').val(detailAkun.username);
+    //             $('#email_akunEdit').val(detailAkun.email);
+    //             openAkun();
+    //             loadingSwalClose();
+    //         },
+    //         error: function (jqXHR, textStatus, errorThrown) {
+    //             showToast({ icon: "error", title: jqXHR.responseJSON.message });
+    //         },
+    //     }); 
+    // }
+
+    $('#form-kontrak').on('submit', function (e){
+        e.preventDefault();
+        loadingSwalShow();
+        let url = $('#form-kontrak').attr('action');
+
+        var formData = new FormData($('#form-kontrak')[0]);
         $.ajax({
             url: url,
             data: formData,
