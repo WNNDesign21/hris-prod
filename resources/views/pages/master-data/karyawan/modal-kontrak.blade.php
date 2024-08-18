@@ -13,7 +13,7 @@
                         <div class="col-12">
                             <div class="box">
                                 <div class="box-header with-border">
-                                    <h4 class="box-title ">Form Kontrak</h4>
+                                    <h4 class="box-title ">Tambah Kontrak</h4>
                                     <ul class="box-controls pull-right">
                                         <li><a class="box-btn-slide" href="#"></a></li>
                                     </ul>
@@ -49,7 +49,8 @@
                                                 <div class="form-group">
                                                     <label for="">Durasi (Dalam Bulan)</label>
                                                     <input type="number" name="durasi_kontrakEdit"
-                                                        id="durasi_kontrakEdit" class="form-control">
+                                                        id="durasi_kontrakEdit" class="form-control"
+                                                        placeholder="Note : Abaikan jika memilih PKWTT">
                                                 </div>
                                             </div>
                                             <div class="col-lg-6 col-12">

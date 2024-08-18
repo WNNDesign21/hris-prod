@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('kontraks', function (Blueprint $table) {
             $table->string('id_kontrak')->primary();
             $table->string('karyawan_id');
-            $table->unsignedInteger('posisi_id')->nullale();
-            $table->string('nama_posisi')->nullale();
+            $table->unsignedInteger('posisi_id')->nullable();
+            $table->string('nama_posisi')->nullable();
             $table->enum('jenis', ['PKWT', 'MAGANG', 'THL', 'PKWTT']);
             $table->enum('status', ['WAITING', 'EXTENDED', 'CUTTOFF'])->default('WAITING');
             $table->integer('durasi')->nullable();

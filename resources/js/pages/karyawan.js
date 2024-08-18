@@ -614,6 +614,7 @@ $(function () {
 
         $('#karyawan_id_kontrakEdit').val(idKaryawan)
 
+        getListKontrak(idKaryawan);
         selectPosisiKontrak();
         openKontrak();
     });
@@ -657,11 +658,18 @@ $(function () {
 
     function closeKontrak() {
         modalKontrak.hide();
-        // resetKontrak();
+        resetKontrak();
     }
 
-    // function resetAkun(){
-    // };
+    function resetKontrak(){
+        $('#id_kontrakEdit').val("");
+        $('#jenis_kontrakEdit').val("");
+        $('#posisi_kontrakEdit').val("");
+        $('#durasi_kontrakEdit').val("");
+        $('#tanggal_mulai_kontrakEdit').val("");
+        $('#salary_kontrakEdit').val("");
+        $('#deskripsi_kontrakEdit').val("");
+    };
 
     // function getDetailAkun(userId, idKaryawan, nama){
     //     loadingSwalShow();
@@ -687,9 +695,84 @@ $(function () {
     //     }); 
     // }
 
+    function getListKontrak(idKaryawan){
+        loadingSwalShow();
+        let url = base_url + '/master-data/kontrak/get-data-list-kontrak/' + idKaryawan;
+        $.ajax({
+            url: url,
+            method: "GET",
+            dataType: "JSON",
+            success: function (response) {
+                let detailKontrak = response.data;
+                $('#list-kontrak').empty();
+                let no = 1;
+                $.each(detailKontrak, function (i, val){
+                    $('#list-kontrak').append(`
+                        <div class="panel p-4 mb-3">
+                            <div class="panel-heading" id="kontrak-`+no+`" role="tab">
+                                <a class="panel-title" aria-controls="kontrak-content-`+no+`"
+                                    aria-expanded="true" data-bs-toggle="collapse" href="#kontrak-content-`+no+`"
+                                    data-parent="#list-kontrak">
+                                    <h5>`+val.id_kontrak+`</h5>
+                                </a>
+                            </div>
+                            <div class="panel-collapse collapse mt-2" id="kontrak-content-`+no+`"
+                                aria-labelledby="kontrak-`+no+`" role="tabpanel" data-bs-parent="#kontrak-`+no+`">
+                                <div class="panel-body">
+                                    <div class="row mt-5">
+                                        <div class="col-lg-6 col-12">
+                                            <div class="form-group">
+                                                <label for="" class="fw-light">Jenis
+                                                    Kontrak</label>
+                                                <h5>`+val.jenis+`</h5>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="" class="fw-light">Posisi</label>
+                                                <h5>`+val.nama_posisi+`</h5>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="" class="fw-light">Status</label>
+                                                <h5>`+val.status+`</h5>
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-6 col-12">
+                                            <div class="form-group">
+                                                <label for="" class="fw-light">Periode
+                                                    Kontrak</label>
+                                                <h5>`+val.tanggal_mulai+` - `+val.tanggal_selesai+`</h5>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="" class="fw-light">Salary</label>
+                                                <h5>`+val.salary+`</h5>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="" class="fw-light">Deskripsi</label>
+                                                <h5>`+val.deskripsi+`</h5>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="" class="fw-light">Soft Copy</label>
+                                                <h5><a href="#"><i class="fas fa-download"></i>
+                                                        Unduh
+                                                        Dokumen Disini</a></h5>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `);
+                    no++;
+                });
+                loadingSwalClose();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        }); 
+    }
+
     $('#form-kontrak').on('submit', function (e){
         e.preventDefault();
-        loadingSwalShow();
         let url = $('#form-kontrak').attr('action');
 
         var formData = new FormData($('#form-kontrak')[0]);
@@ -701,9 +784,12 @@ $(function () {
             processData: false,
             dataType: "JSON",
             success: function (data) {
-                loadingSwalClose();
+                let dataKontrak = data.data;
+                console.log(dataKontrak);
                 showToast({ title: data.message });
+                getListKontrak(dataKontrak.karyawan_id);
                 refreshTable();
+                resetKontrak();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 loadingSwalClose();

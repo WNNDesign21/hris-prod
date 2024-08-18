@@ -36,7 +36,9 @@ Route::post('/master-data/karyawan/get-data-user',[KaryawanController::class, 'g
 Route::get('/master-data/karyawan/get-data-detail-karyawan/{idKaryawan}',[KaryawanController::class, 'get_data_detail_karyawan']); 
 
 Route::get('/master-data/akun/get-data-detail-akun/{idAkun}',[AkunController::class, 'get_data_detail_akun']); 
-    
+
+Route::get('/master-data/kontrak/get-data-list-kontrak/{idKaryawan}',[KontrakController::class, 'get_data_list_kontrak']); 
+
 /** MASTER DATA FEATURE */
 Route::group(['middleware' => ['auth']], function () {
     // MENU UTAMA

@@ -64,14 +64,15 @@ class KontrakController extends Controller
         $karyawan_id = $request->karyawan_id_kontrakEdit;
         $jenis = $request->jenis_kontrakEdit;
         $posisi_id = $request->posisi_kontrakEdit;
-        $durasi = $request->durasi_kontrakEdit;
+        $durasi = (int)$request->durasi_kontrakEdit;
         $salary = $request->salary_kontrakEdit;
         $deskripsi = $request->deskripsi_kontrakEdit;
-        $tanggal_mulai = Carbon::parse($request->tanggal_mulai_kontrakEdit);
+        $tanggal_mulai = $request->tanggal_mulai_kontrakEdit;
         $id_kontrak = $request->id_kontrakEdit;
 
-        if($durasi){
-            $tanggal_selesai = $tanggal_mulai->addMonths($durasi)->toDateString();
+
+        if($durasi !== 0){
+            $tanggal_selesai = Carbon::parse($request->tanggal_mulai_kontrakEdit)->addMonths($durasi)->toDateString();
         } else {
             $tanggal_selesai = null;
         }
@@ -79,13 +80,19 @@ class KontrakController extends Controller
         DB::beginTransaction();
         try{
 
-            if(!id_kontrak){
+            if(!$id_kontrak){
                 if($jenis !== 'PKWTT'){
+
+                    if ($durasi === 0) {
+                        DB::commit();
+                        return response()->json(['message' => 'Durasi tidak boleh kosong!'], 402);
+                    }
+
                     $kontrak = Kontrak::create([
                         'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,
                         'karyawan_id' => $karyawan_id,
                         'posisi_id' => $posisi_id,
-                        'nama_posisi' => Posisi::find($posisi_id)->nama_posisi,
+                        'nama_posisi' => Posisi::find($posisi_id)->nama,
                         'jenis' => $jenis,
                         'durasi' => $durasi,
                         'salary' => $salary,
@@ -98,7 +105,7 @@ class KontrakController extends Controller
                         'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,
                         'karyawan_id' => $karyawan_id,
                         'posisi_id' => $posisi_id,
-                        'nama_posisi' => Posisi::find($posisi_id)->nama_posisi,
+                        'nama_posisi' => Posisi::find($posisi_id)->nama,
                         'jenis' => $jenis,
                         'durasi' => $durasi,
                         'salary' => $salary,
@@ -108,10 +115,16 @@ class KontrakController extends Controller
                 }
                 $text = 'Kontrak Berhasil Ditambahkan!';
             } else {
+
+                if ($durasi === 0 && $jenis !== 'PKWTT') {
+                    DB::commit();
+                    return response()->json(['message' => 'Durasi tidak boleh kosong!'], 402);
+                }
+
                 $kontrak = Kontrak::find($id_kontrak);
                 $kontrak->update([
                     'posisi_id' => $posisi_id,
-                    'nama_posisi' => Posisi::find($posisi_id)->nama_posisi,
+                    'nama_posisi' => Posisi::find($posisi_id)->nama,
                     'jenis' => $jenis,
                     'durasi' => $durasi,
                     'salary' => $salary,
@@ -122,7 +135,7 @@ class KontrakController extends Controller
                 $text = 'Kontrak Berhasil Diupdate!';
             }
             DB::commit();
-            return response()->json(['message' => $text],200);
+            return response()->json(['message' => $text, 'data' => $kontrak],200);
         } catch(Throwable $error){
             DB::rollBack();
             return response()->json(['message' => $error->getMessage()], 500);
@@ -165,5 +178,31 @@ class KontrakController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function get_data_list_kontrak(string $karyawan_id)
+    {
+        $kontrak = Kontrak::where('karyawan_id', $karyawan_id)->orderBy('tanggal_mulai', 'DESC')->get();
+        $list = [];
+        if($kontrak){
+            foreach($kontrak as $item){
+                $list[] = [
+                    'id_kontrak' => $item->id_kontrak,
+                    'nama_posisi' => $item->nama_posisi,
+                    'posisi_id' => $item->posisi_id,
+                    'jenis' => $item->jenis,
+                    'status' => $item->status,
+                    'durasi' => $item->durasi,
+                    'salary' => 'Rp. ' . number_format($item->salary, 0, ',', '.'),
+                    'deskripsi' => $item->deskripsi,
+                    'tanggal_mulai' => Carbon::parse($item->tanggal_mulai)->format('d M Y'),
+                    'tanggal_selesai' => Carbon::parse($item->tanggal_selesai)->format('d M Y') ? Carbon::parse($item->tanggal_selesai)->format('d M Y') : '-',
+                ];
+            }
+            return response()->json(['data' => $list], 200);
+        } else {
+            return response()->json(['message' => 'Data Karyawan tidak ditemukan!'], 404);
+        }
+
     }
 }
