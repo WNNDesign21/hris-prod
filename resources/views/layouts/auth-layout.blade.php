@@ -112,6 +112,10 @@
         @vite(['resources/js/pages/karyawan.js'])
     @endif
 
+    @if ($page == 'masterdata-kontrak')
+        @vite(['resources/js/pages/kontrak.js'])
+    @endif
+
 </body>
 
 </html>

@@ -29,7 +29,21 @@
                         <table id="kontrak-table" class="table table-striped table-bordered display" style="width:100%">
                             <thead>
                                 <tr>
-
+                                    <th>ID Kontrak</th>
+                                    <th>Nama</th>
+                                    <th>Posisi</th>
+                                    <th>No. Surat</th>
+                                    <th>Issued Date</th>
+                                    <th>Jenis Kontrak</th>
+                                    <th>Status</th>
+                                    <th>Durasi</th>
+                                    <th>Salary</th>
+                                    <th>Status Changed By</th>
+                                    <th>Status Changed Date</th>
+                                    <th>Tanggal Mulai</th>
+                                    <th>Tanggal Selesai</th>
+                                    <th>Attachment</th>
+                                    <th class="text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>

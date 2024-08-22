@@ -612,6 +612,10 @@ $(function () {
             dropdownParent: $('#modal-kontrak'),
         });
 
+        $('#tempat_administrasi_kontrakEdit').select2({
+            dropdownParent: $('#modal-kontrak'),
+        });
+
         $('#karyawan_id_kontrakEdit').val(idKaryawan)
 
         getListKontrak(idKaryawan);
@@ -664,9 +668,13 @@ $(function () {
     function resetKontrak(){
         $('#id_kontrakEdit').val("");
         $('#jenis_kontrakEdit').val("");
+        $('#no_surat_kontrakEdit').val("");
+        $('#tempat_administrasi_kontrakEdit').val("");
         $('#posisi_kontrakEdit').val("");
+        $('#issued_date_kontrakEdit').val("");
         $('#durasi_kontrakEdit').val("");
         $('#tanggal_mulai_kontrakEdit').val("");
+        $('#tanggal_selesai_kontrakEdit').val("");
         $('#salary_kontrakEdit').val("");
         $('#deskripsi_kontrakEdit').val("");
     };
@@ -696,7 +704,7 @@ $(function () {
     // }
 
     function getListKontrak(idKaryawan){
-        loadingSwalShow();
+        // loadingSwalShow();
         let url = base_url + '/master-data/kontrak/get-data-list-kontrak/' + idKaryawan;
         $.ajax({
             url: url,
@@ -707,13 +715,23 @@ $(function () {
                 $('#list-kontrak').empty();
                 let no = 1;
                 $.each(detailKontrak, function (i, val){
+                    let url_download = base_url + '/master-data/kontrak/download-kontrak-kerja/' + val.id_kontrak;
                     $('#list-kontrak').append(`
                         <div class="panel p-4 mb-3">
                             <div class="panel-heading" id="kontrak-`+no+`" role="tab">
                                 <a class="panel-title" aria-controls="kontrak-content-`+no+`"
                                     aria-expanded="true" data-bs-toggle="collapse" href="#kontrak-content-`+no+`"
                                     data-parent="#list-kontrak">
-                                    <h5>`+val.id_kontrak+`</h5>
+                                    <div class="row d-flex justify-content-between">
+                                        <div class="col flex-col">
+                                            <small>`+val.no_surat+`</small>
+                                            <h5>`+val.id_kontrak+`</h5>
+                                            <small class="mt-0">`+val.tempat_administrasi+`, `+val.issued_date_text+`</small>
+                                        </div>
+                                        <div class="col text-end">
+                                            <h5>`+val.status_badge+`</h5>
+                                        </div>
+                                    </div>
                                 </a>
                             </div>
                             <div class="panel-collapse collapse mt-2" id="kontrak-content-`+no+`"
@@ -751,7 +769,7 @@ $(function () {
                                             </div>
                                             <div class="form-group">
                                                 <label for="" class="fw-light">Soft Copy</label>
-                                                <h5><a href="#"><i class="fas fa-download"></i>
+                                                <h5><a href="`+url_download+`" target="_blank"><i class="fas fa-download"></i>
                                                         Unduh
                                                         Dokumen Disini</a></h5>
                                             </div>
@@ -763,7 +781,7 @@ $(function () {
                     `);
                     no++;
                 });
-                loadingSwalClose();
+                // loadingSwalClose();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
@@ -772,6 +790,7 @@ $(function () {
     }
 
     $('#form-kontrak').on('submit', function (e){
+        loadingSwalShow();
         e.preventDefault();
         let url = $('#form-kontrak').attr('action');
 
@@ -785,11 +804,11 @@ $(function () {
             dataType: "JSON",
             success: function (data) {
                 let dataKontrak = data.data;
-                console.log(dataKontrak);
                 showToast({ title: data.message });
                 getListKontrak(dataKontrak.karyawan_id);
                 refreshTable();
                 resetKontrak();
+                loadingSwalClose();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 loadingSwalClose();

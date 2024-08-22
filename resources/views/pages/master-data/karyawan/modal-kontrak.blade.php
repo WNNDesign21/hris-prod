@@ -12,10 +12,10 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="box">
-                                <div class="box-header with-border">
+                                <div class="box-header with-border bg-warning">
                                     <h4 class="box-title ">Tambah Kontrak</h4>
                                     <ul class="box-controls pull-right">
-                                        <li><a class="box-btn-slide" href="#"></a></li>
+                                        <li><a class="box-btn-slide text-white" href="#"></a></li>
                                     </ul>
                                 </div>
 
@@ -25,10 +25,31 @@
                                         @csrf
                                         <div class="row p-4">
                                             <div class="col-lg-6 col-12">
+                                                <input type="hidden" name="karyawan_id_kontrakEdit"
+                                                    id="karyawan_id_kontrakEdit">
+                                                <input type="hidden" name="id_kontrakEdit" id="id_kontrakEdit">
                                                 <div class="form-group">
-                                                    <input type="hidden" name="karyawan_id_kontrakEdit"
-                                                        id="karyawan_id_kontrakEdit">
-                                                    <input type="hidden" name="id_kontrakEdit" id="id_kontrakEdit">
+                                                    <label for="">No. Surat</label>
+                                                    <input type="text" name="no_surat_kontrakEdit"
+                                                        id="no_surat_kontrakEdit" class="form-control"
+                                                        placeholder="Contoh : 001">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="">Tanggal Dibuat</label>
+                                                    <input type="date" name="issued_date_kontrakEdit"
+                                                        id="issued_date_kontrakEdit" class="form-control" required
+                                                        value="{{ date('Y-m-d') }}">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="">Tempat</label>
+                                                    <select name="tempat_administrasi_kontrakEdit"
+                                                        id="tempat_administrasi_kontrakEdit"
+                                                        class="form-control select2" style="width: 100%;">
+                                                        <option value="Karawang">Karawang</option>
+                                                        <option value="Sadang">Sadang</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
                                                     <label for="">Jenis Kontrak <span
                                                             class="text-danger">*</span></label>
                                                     <select name="jenis_kontrakEdit" id="jenis_kontrakEdit"
@@ -39,6 +60,8 @@
                                                         <option value="THL">THL</option>
                                                     </select>
                                                 </div>
+                                            </div>
+                                            <div class="col-lg-6 col-12">
                                                 <div class="form-group">
                                                     <label class="form-label">Posisi <span
                                                             class="text-danger">*</span></label>
@@ -52,8 +75,6 @@
                                                         id="durasi_kontrakEdit" class="form-control"
                                                         placeholder="Note : Abaikan jika memilih PKWTT">
                                                 </div>
-                                            </div>
-                                            <div class="col-lg-6 col-12">
                                                 <div class="form-group">
                                                     <label for="">Salary</label>
                                                     <input type="text" name="salary_kontrakEdit"
@@ -63,6 +84,11 @@
                                                     <label for="">Tanggal Mulai</label>
                                                     <input type="date" name="tanggal_mulai_kontrakEdit"
                                                         id="tanggal_mulai_kontrakEdit" class="form-control">
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="">Tanggal Selesai</label>
+                                                    <input type="date" name="tanggal_selesai_kontrakEdit"
+                                                        id="tanggal_selesai_kontrakEdit" class="form-control">
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="">Deskripsi</label>
@@ -83,8 +109,8 @@
                                     <div class="panel p-4">
                                         <div class="panel-heading" id="kontrak-1" role="tab">
                                             <a class="panel-title" aria-controls="kontrak-content-1"
-                                                aria-expanded="true" data-bs-toggle="collapse" href="#kontrak-content-1"
-                                                data-parent="#list-kontrak">
+                                                aria-expanded="true" data-bs-toggle="collapse"
+                                                href="#kontrak-content-1" data-parent="#list-kontrak">
                                                 <h5>KONTRAK-2445023012</h5>
                                             </a>
                                         </div>

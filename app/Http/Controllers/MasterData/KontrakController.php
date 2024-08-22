@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Database\QueryException;
+use PhpOffice\PhpWord\TemplateProcessor;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -26,6 +27,90 @@ class KontrakController extends Controller
             'page' => 'masterdata-kontrak',
         ];
         return view('pages.master-data.kontrak.index', $dataPage);
+    }
+
+    public function datatable(Request $request)
+    {
+
+        $columns = array(
+            0 => 'id_kontrak',
+            1 => 'karyawans.nama',
+            2 => 'kontraks.nama_posisi',
+            4 => 'no_surat',
+            5 => 'issued_date',
+            6 => 'jenis',
+            7 => 'status',
+            8 => 'durasi',
+            9 => 'salary',
+            10 => 'status_change_by',
+            11 => 'status_change_date',
+            12 => 'tanggal_mulai',
+            13 => 'tanggal_selesai',
+        );
+
+        $totalData = Kontrak::count();
+        $totalFiltered = $totalData;
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = (!empty($request->input('order.0.column'))) ? $columns[$request->input('order.0.column')] : $columns[0];
+        $dir = (!empty($request->input('order.0.dir'))) ? $request->input('order.0.dir') : "DESC";
+
+        $settings['start'] = $start;
+        $settings['limit'] = $limit;
+        $settings['dir'] = $dir;
+        $settings['order'] = $order;
+
+        $dataFilter = [];
+        $search = $request->input('search.value');
+        if (!empty($search)) {
+            $dataFilter['search'] = $search;
+        }
+
+        $kontrak = Kontrak::getData($dataFilter, $settings);
+        $totalFiltered = Kontrak::countData($dataFilter);
+
+        $dataTable = [];
+
+        if (!empty($kontrak)) {
+            foreach ($kontrak as $data) {
+                $nestedData['id_kontrak'] = $data->id_kontrak;
+                $nestedData['nama'] = $data->nama_karyawan;
+                $nestedData['nama_posisi'] = $data->nama_posisi;
+                $nestedData['no_surat'] = $data->no_surat;
+                $nestedData['issued_date'] = $data->issued_date;
+                $nestedData['jenis'] = $data->jenis;
+                $nestedData['status'] = $data->status == 'WAITING' ? '<span class="badge badge-pill badge-warning">'.$data->status.'</span>' : ($data->status == 'EXTENDED' ? '<span class="badge badge-pill badge-success">'.$data->status.'</span>' : '<span class="badge badge-pill badge-danger">'.$data->status.'</span>');
+                $nestedData['durasi'] = $data->durasi.' Bulan';
+                $nestedData['salary'] = $data->salary;
+                $nestedData['status_change_by'] = $data->status_change_by;
+                $nestedData['status_change_date'] = $data->status_change_date;
+                $nestedData['tanggal_mulai'] = $data->tanggal_mulai;
+                $nestedData['tanggal_selesai'] = $data->tanggal_selesai;
+                $nestedData['attachment'] = $data->attachment ? '<a href="'.asset('storage/'.$data->attachment).'" target="_blank" class="btn btn-sm btn-primary"><i class="fas fa-download"></i> Unduh Hasil Scan</a>' : ' - ';
+                $nestedData['aksi'] = '
+                <div class="btn-group">
+                    <button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id="'.$data->id_kontrak.'"><i class="fas fa-edit"></i> Edit</button>
+                    <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_kontrak.'"><i class="fas fa-trash-alt"></i> Hapus</button>
+                </div>
+                ';
+
+                $dataTable[] = $nestedData;
+            }
+        }
+
+        $json_data = array(
+            "draw" => intval($request->input('draw')),
+            "recordsTotal" => intval($totalData),
+            "recordsFiltered" => intval($totalFiltered),
+            "data" => $dataTable,
+            "order" => $order,
+            "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
+            "dir" => $dir,
+            "column"=>$request->input('order.0.column')
+        );
+
+        return response()->json($json_data, 200);
     }
 
     /**
@@ -53,6 +138,10 @@ class KontrakController extends Controller
             'durasi_kontrakEdit' => ['numeric','nullable'],
             'salary_kontrakEdit' => ['numeric','required'],
             'tanggal_mulai_kontrakEdit' => ['required', 'date'],
+            'tanggal_selesai_kontrakEdit' => ['nullable', 'date'],
+            'issued_date_kontrakEdit' => ['required', 'date'],
+            'tempat_administrasi_kontrakEdit' => ['required'],
+            'no_surat_kontrakEdit' => ['required'],
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -68,14 +157,18 @@ class KontrakController extends Controller
         $salary = $request->salary_kontrakEdit;
         $deskripsi = $request->deskripsi_kontrakEdit;
         $tanggal_mulai = $request->tanggal_mulai_kontrakEdit;
+        $tanggal_selesai = $request->tanggal_selesai_kontrakEdit;
         $id_kontrak = $request->id_kontrakEdit;
+        $issued_date = $request->issued_date_kontrakEdit;
+        $tempat_administrasi = $request->tempat_administrasi_kontrakEdit;
+        $no_surat = $request->no_surat_kontrakEdit;
 
 
-        if($durasi !== 0){
-            $tanggal_selesai = Carbon::parse($request->tanggal_mulai_kontrakEdit)->addMonths($durasi)->toDateString();
-        } else {
-            $tanggal_selesai = null;
-        }
+        // if($durasi !== 0){
+        //     $tanggal_selesai = Carbon::parse($request->tanggal_mulai_kontrakEdit)->addMonths($durasi)->toDateString();
+        // } else {
+        //     $tanggal_selesai = null;
+        // }
 
         DB::beginTransaction();
         try{
@@ -96,6 +189,9 @@ class KontrakController extends Controller
                         'jenis' => $jenis,
                         'durasi' => $durasi,
                         'salary' => $salary,
+                        'issued_date' => $issued_date,
+                        'tempat_administrasi' => $tempat_administrasi,
+                        'no_surat' => $no_surat,
                         'deskripsi' => $deskripsi,
                         'tanggal_mulai' => $tanggal_mulai,
                         'tanggal_selesai' => $tanggal_selesai,
@@ -109,6 +205,9 @@ class KontrakController extends Controller
                         'jenis' => $jenis,
                         'durasi' => $durasi,
                         'salary' => $salary,
+                        'issued_date' => $issued_date,
+                        'no_surat' => $no_surat,
+                        'tempat_administrasi' => $tempat_administrasi,
                         'deskripsi' => $deskripsi,
                         'tanggal_mulai' => $tanggal_mulai,
                     ]);
@@ -130,7 +229,10 @@ class KontrakController extends Controller
                     'salary' => $salary,
                     'deskripsi' => $deskripsi,
                     'tanggal_mulai' => $tanggal_mulai,
+                    'tempat_administrasi' => $tempat_administrasi,
+                    'no_surat' => $no_surat,
                     'tanggal_selesai' => $jenis !== 'PKWTT' ? $tanggal_selesai : null,
+                    'issued_date' => $issued_date
                 ]);
                 $text = 'Kontrak Berhasil Diupdate!';
             }
@@ -180,23 +282,55 @@ class KontrakController extends Controller
         //
     }
 
+    public function delete(string $id)
+    {
+        DB::beginTransaction();
+        try{
+            $kontrak = Kontrak::find($id);
+            $kontrak->delete();
+            DB::commit();
+            return response()->json(['message' => 'Kontrak Berhasil Dihapus!'], 200);
+        } catch(Throwable $error){
+            DB::rollBack();
+            return response()->json(['message' => $error->getMessage()], 500);
+        } catch (QueryException $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Database error: ' . $e->getMessage()], 500);
+        } catch (ModelNotFoundException $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Model not found: ' . $e->getMessage()], 404);
+        }
+    }
+
     public function get_data_list_kontrak(string $karyawan_id)
     {
         $kontrak = Kontrak::where('karyawan_id', $karyawan_id)->orderBy('tanggal_mulai', 'DESC')->get();
         $list = [];
         if($kontrak){
             foreach($kontrak as $item){
+                if($item->status == 'WAITING'){
+                    $badge = '<span class="badge badge-pill badge-warning">'.$item->status.'</span>';
+                } elseif ($item->status == 'EXTENDED'){
+                    $badge = '<span class="badge badge-pill badge-success">'.$item->status.'</span>';
+                } else {
+                    $badge = '<span class="badge badge-pill badge-danger">'.$item->status.'</span>';
+                }
                 $list[] = [
                     'id_kontrak' => $item->id_kontrak,
                     'nama_posisi' => $item->nama_posisi,
                     'posisi_id' => $item->posisi_id,
                     'jenis' => $item->jenis,
                     'status' => $item->status,
+                    'status_badge' => $badge,
+                    'issued_date' => $item->issued_date,
+                    'issued_date_text' => Carbon::parse($item->issued_date)->format('d M Y'),
+                    'tempat_administrasi' => $item->tempat_administrasi,
                     'durasi' => $item->durasi,
-                    'salary' => 'Rp. ' . number_format($item->salary, 0, ',', '.'),
+                    'no_surat' => 'No. ' . $item->no_surat . '/'.$item->jenis.' - I/HRD-TCF3/V/' . date('Y'),
+                    'salary' => 'Rp. ' . number_format($item->salary, 0, ',', '.').' ,-',
                     'deskripsi' => $item->deskripsi,
                     'tanggal_mulai' => Carbon::parse($item->tanggal_mulai)->format('d M Y'),
-                    'tanggal_selesai' => Carbon::parse($item->tanggal_selesai)->format('d M Y') ? Carbon::parse($item->tanggal_selesai)->format('d M Y') : '-',
+                    'tanggal_selesai' => $item->tanggal_selesai !== null ? Carbon::parse($item->tanggal_selesai)->format('d M Y') : 'Unknown',
                 ];
             }
             return response()->json(['data' => $list], 200);
@@ -204,5 +338,230 @@ class KontrakController extends Controller
             return response()->json(['message' => 'Data Karyawan tidak ditemukan!'], 404);
         }
 
+    }
+
+    public function download_kontrak_kerja(string $idKontrak)
+    {
+        $kontrak = Kontrak::find($idKontrak);
+
+        $templatePath = public_path('template/kontrak_pkwt.docx');
+        $templateProcessor = new TemplateProcessor($templatePath);
+        $tanggal_lahir = Carbon::parse($kontrak->karyawan->tanggal_lahir)->locale('id')->isoFormat('LL');
+        $day = $this->get_nama_hari($kontrak->issued_date);
+        $issued_date = Carbon::parse($kontrak->issued_date)->format('d/m/Y');
+        $issued_date_format = Carbon::parse($kontrak->issued_date)->locale('id')->isoFormat('LL');
+        $issued_date_text = $this->tanggal_to_kalimat($kontrak->issued_date);
+        $tanggal_mulai = Carbon::parse($kontrak->tanggal_mulai)->format('d/m/Y');
+        $tanggal_mulai_text = $this->tanggal_to_kalimat($kontrak->tanggal_mulai);
+        $tanggal_selesai = Carbon::parse($kontrak->tanggal_selesai)->format('d/m/Y');
+        $tanggal_selesai_text = $this->tanggal_to_kalimat($kontrak->tanggal_selesai);
+        $durasi = $kontrak->durasi;
+        $durasi_text = $this->angka_to_kata($durasi);
+        $departemen = $kontrak->posisi->departemen->nama;
+        $jabatan = $kontrak->posisi->jabatan->nama;
+        $salary = $kontrak->salary;
+        $salary_rupiah = 'Rp. ' . number_format($salary, 0, ',', '.').' ,-';
+        $salary_text = $this->terbilang($salary).'Rupiah';
+
+        $templateProcessor->setValue('nama', $kontrak->karyawan->nama);
+        $templateProcessor->setValue('no_surat', $kontrak->no_surat);
+        $templateProcessor->setValue('nik', $kontrak->karyawan->nik);
+        $templateProcessor->setValue('tempat_lahir', $kontrak->karyawan->tempat_lahir);
+        $templateProcessor->setValue('jenis_kelamin', $kontrak->karyawan->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan');
+        $templateProcessor->setValue('tanggal_lahir', $tanggal_lahir);
+        $templateProcessor->setValue('alamat', $kontrak->karyawan->alamat);
+        $templateProcessor->setValue('day', $day);
+        $templateProcessor->setValue('issued_date', $issued_date);
+        $templateProcessor->setValue('issued_date_text', $issued_date_text);
+        $templateProcessor->setValue('issued_date_format', $issued_date_format);
+        $templateProcessor->setValue('durasi', $durasi);
+        $templateProcessor->setValue('durasi_text', $durasi_text);
+        $templateProcessor->setValue('jabatan', $kontrak->posisi->jabatan->nama);
+        $templateProcessor->setValue('departemen', $kontrak->posisi->jabatan->id_jabatan !== [1, 2] ? 'Departemen '.$kontrak->posisi->departemen->nama : 'Divisi '. $kontrak->posisi->divisi->nama);
+        $templateProcessor->setValue('tanggal_mulai', $tanggal_mulai);
+        $templateProcessor->setValue('tanggal_mulai_text', $tanggal_mulai_text);
+        $templateProcessor->setValue('tanggal_selesai', $tanggal_selesai);
+        $templateProcessor->setValue('tanggal_selesai_text', $tanggal_selesai_text);
+        $templateProcessor->setValue('salary', $salary_rupiah);
+        $templateProcessor->setValue('salary_text', $salary_text);
+
+        header("Content-Disposition: attachment; filename=".$kontrak->id_kontrak.".docx");
+        $templateProcessor->saveAs('php://output');
+    }
+
+    function get_nama_hari($tanggal) {
+        $tanggal = Carbon::parse($tanggal)->format('Y-m-d');
+        $date = Carbon::createFromFormat('Y-m-d', $tanggal);
+        $namaHari = $date->locale('id')->isoFormat('dddd');
+    
+        return $namaHari;
+    }
+
+    function tanggal_to_kalimat($tanggal) {
+
+        $tanggal = Carbon::parse($tanggal);
+        $bulanIndonesia = [
+            1 => 'Januari',
+            2 => 'Februari',
+            3 => 'Maret',
+            4 => 'April',
+            5 => 'Mei',
+            6 => 'Juni',
+            7 => 'Juli',
+            8 => 'Agustus',
+            9 => 'September',
+            10 => 'Oktober',
+            11 => 'November',
+            12 => 'Desember'
+        ];
+    
+        $hari = $tanggal->day;
+        $bulan = $bulanIndonesia[$tanggal->month];
+        $tahun = $tanggal->year;
+        $tahun = substr($tahun, 2);
+    
+        $angkaKeKata = [
+            '1' => 'Satu',
+            '2' => 'Dua',
+            '3' => 'Tiga',
+            '4' => 'Empat',
+            '5' => 'Lima',
+            '6' => 'Enam',
+            '7' => 'Tujuh',
+            '8' => 'Delapan',
+            '9' => 'Sembilan',
+            '10' => 'Sepuluh',
+            '11' => 'Sebelas',
+            '12' => 'Dua Belas',
+            '13' => 'Tiga Belas',
+            '14' => 'Empat Belas',
+            '15' => 'Lima Belas',
+            '16' => 'Enam Belas',
+            '17' => 'Tujuh Belas',
+            '18' => 'Delapan Belas',
+            '19' => 'Sembilan Belas',
+            '20' => 'Dua Puluh',
+            '21' => 'Dua Puluh Satu',
+            '22' => 'Dua Puluh Dua',
+            '23' => 'Dua Puluh Tiga',
+            '24' => 'Dua Puluh Empat',
+            '25' => 'Dua Puluh Lima',
+            '26' => 'Dua Puluh Enam',
+            '27' => 'Dua Puluh Tujuh',
+            '28' => 'Dua Puluh Delapan',
+            '29' => 'Dua Puluh Sembilan',
+            '30' => 'Tiga Puluh',
+            '31' => 'Tiga Puluh Satu',
+        ];
+    
+        $hariKata = $angkaKeKata[$hari];
+        $kalimatTanggal = $hariKata . ' ' . $bulan . ' ' . 'Dua Ribu ' . $angkaKeKata[$tahun];
+    
+        return $kalimatTanggal;
+    }
+
+    function angka_to_kata($angka) {
+
+        $angkaKeKata = [
+            '1' => 'Satu',
+            '2' => 'Dua',
+            '3' => 'Tiga',
+            '4' => 'Empat',
+            '5' => 'Lima',
+            '6' => 'Enam',
+            '7' => 'Tujuh',
+            '8' => 'Delapan',
+            '9' => 'Sembilan',
+            '10' => 'Sepuluh',
+            '11' => 'Sebelas',
+            '12' => 'Dua Belas',
+            '13' => 'Tiga Belas',
+            '14' => 'Empat Belas',
+            '15' => 'Lima Belas',
+            '16' => 'Enam Belas',
+            '17' => 'Tujuh Belas',
+            '18' => 'Delapan Belas',
+            '19' => 'Sembilan Belas',
+            '20' => 'Dua Puluh',
+            '21' => 'Dua Puluh Satu',
+            '22' => 'Dua Puluh Dua',
+            '23' => 'Dua Puluh Tiga',
+            '24' => 'Dua Puluh Empat',
+            '25' => 'Dua Puluh Lima',
+            '26' => 'Dua Puluh Enam',
+            '27' => 'Dua Puluh Tujuh',
+            '28' => 'Dua Puluh Delapan',
+            '29' => 'Dua Puluh Sembilan',
+            '30' => 'Tiga Puluh',
+            '31' => 'Tiga Puluh Satu',
+        ];
+        return $angkaKeKata[$angka];
+    }
+
+    function angka_to_rupiah_text($angka) {
+        $angka = (int) $angka;
+    
+        $bilangan = ['', 'Satu', 'Dua', 'Tiga', 'Empat', 'Lima', 'Enam', 'Tujuh', 'Delapan', 'Sembilan', 'Sepuluh', 'Sebelas'];
+        $cabutan = ['', 'Ribu', 'Juta', 'Miliar', 'Triliun'];
+    
+        $nilai = '';
+        if ($angka < 12) {
+            $nilai = $bilangan[$angka];
+        } else if ($angka < 20) {
+            $nilai = $bilangan[$angka - 10] . ' Belas';
+        } else {
+            $i = 0;
+            $baca = '';
+            while ($angka >= 1000) {
+                $sub_angka = $angka % 1000;
+                $angka = intdiv($angka, 1000); 
+                $baca = $this->angka_to_rupiah_text($sub_angka) . ' ' . $cabutan[$i] . ' ';
+                $i++;
+            }
+
+            if ($angka > 0 && $angka < 100) {
+                if ($angka >= 10) {
+                    $baca = $bilangan[$angka] . ' Ratus ' . $baca;
+                } else {
+                    $baca = $bilangan[$angka] . ' ' . $baca;
+                }
+            } else if ($angka > 0) {
+                $baca = $bilangan[$angka] . ' ' . $baca;
+            }
+
+            dd($baca);
+    
+            $nilai = trim($baca);
+        }
+    
+        return $nilai . ' Rupiah';
+    }
+
+    function terbilang($angka)
+    {
+        $angka = (int)$angka;
+        $bilangan = array('', 'Satu ', 'Dua ', 'Tiga ', 'Empat ', 'Lima ', 'Enam ', 'Tujuh ', 'Delapan ', 'Sembilan ', 'Sepuluh ', 'Sebelas ');
+
+        $temp = '';
+
+        if ($angka < 12) {
+            $temp = $bilangan[$angka];
+        } else if ($angka < 20) {
+            $temp = $bilangan[$angka - 10] . 'Belas ';
+        } else if ($angka < 100) {
+            $temp = self::terbilang($angka / 10) . 'Puluh ' . self::terbilang($angka % 10);
+        } else if ($angka < 200) {
+            $temp = 'Seratus' . self::terbilang($angka - 100);
+        } else if ($angka < 1000) {
+            $temp = self::terbilang($angka / 100) . 'Ratus ' . self::terbilang($angka % 100);
+        } else if ($angka < 2000) {
+            $temp = 'Seribu' . self::terbilang($angka - 1000);
+        } else if ($angka < 1000000) {
+            $temp = self::terbilang($angka / 1000) . 'Ribu ' . self::terbilang($angka % 1000);
+        } else if ($angka < 1000000000) {
+            $temp = self::terbilang($angka / 1000000) . 'Juta ' . self::terbilang($angka % 1000000);
+        }
+
+        return $temp;
     }
 }

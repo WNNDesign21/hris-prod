@@ -14,6 +14,7 @@ export default defineConfig({
                 'resources/js/pages/grup.js',
                 'resources/js/pages/jabatan.js',
                 'resources/js/pages/karyawan.js',
+                'resources/js/pages/kontrak.js',
                 'resources/js/pages/posisi.js',
                 'resources/js/pages/seksi.js',
             ],

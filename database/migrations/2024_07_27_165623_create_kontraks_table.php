@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('karyawan_id');
             $table->unsignedInteger('posisi_id')->nullable();
             $table->string('nama_posisi')->nullable();
+            $table->string('no_surat')->nullable();
             $table->enum('jenis', ['PKWT', 'MAGANG', 'THL', 'PKWTT']);
             $table->enum('status', ['WAITING', 'EXTENDED', 'CUTTOFF'])->default('WAITING');
             $table->integer('durasi')->nullable();
@@ -23,7 +24,10 @@ return new class extends Migration
             $table->text('deskripsi')->nullable();
             $table->date('tanggal_mulai');
             $table->date('tanggal_selesai')->nullable();
-            $table->enum('isAccepted', ['Y', 'N'])->nullable();
+            $table->date('issued_date')->nullable();
+            $table->string('tempat_administrasi')->nullable()->default('Karawang');
+            $table->string('status_change_by')->nullable();
+            $table->string('status_change_date')->nullable();
             $table->string('attachment')->nullable();
 
             $table->softDeletes();

@@ -11,6 +11,7 @@
         "laravel/framework": "^11.9",
         "laravel/tinker": "^2.9",
         "laravel/ui": "^4.5",
+        "phpoffice/phpword": "^1.2",
         "spatie/laravel-activitylog": "^4.8",
         "spatie/laravel-ignition": "^2.8",
         "spatie/laravel-pdf": "^1.5",
