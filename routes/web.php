@@ -40,6 +40,7 @@ Route::get('/master-data/akun/get-data-detail-akun/{idAkun}',[AkunController::cl
 
 Route::get('/master-data/kontrak/get-data-list-kontrak/{idKaryawan}',[KontrakController::class, 'get_data_list_kontrak']); 
 Route::get('/master-data/kontrak/download-kontrak-kerja/{idKontrak}',[KontrakController::class, 'download_kontrak_kerja']); 
+Route::get('/master-data/kontrak/get-data-detail-kontrak/{idKontrak}',[KontrakController::class, 'get_data_detail_kontrak']); 
 
 /** MASTER DATA FEATURE */
 Route::group(['middleware' => ['auth']], function () {

@@ -54,6 +54,5 @@
         </div>
     </div>
     @include('pages.master-data.kontrak.modal-tambah')
-    {{-- @include('pages.master-data.karyawan.modal-edit')
-    @include('pages.master-data.karyawan.modal-akun') --}}
+    @include('pages.master-data.kontrak.modal-edit')
 @endsection

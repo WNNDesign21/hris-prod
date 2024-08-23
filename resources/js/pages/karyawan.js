@@ -816,4 +816,15 @@ $(function () {
             },
         })
     });
+
+    $('#jenis_kontrakEdit').on('change', function (){
+        let jenisKontrak = $(this).val();
+        if(jenisKontrak == 'PKWTT'){
+            $('#durasi_kontrakEdit').val('').prop('readonly', true);
+            $('#tanggal_selesai_kontrakEdit').val('').prop('readonly', true);
+        } else {
+            $('#durasi_kontrakEdit').val('').prop('readonly', false);
+            $('#tanggal_selesai_kontrakEdit').val('').prop('readonly', false);
+        }
+    })
 });

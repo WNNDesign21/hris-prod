@@ -91,4 +91,5 @@
             <!-- /.modal-dialog -->
         </div>
     </div>
-    <!-- /.modal -->
+</div>
+<!-- /.modal -->

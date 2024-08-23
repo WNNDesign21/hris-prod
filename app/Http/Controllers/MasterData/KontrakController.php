@@ -196,14 +196,14 @@ class KontrakController extends Controller
                         'posisi_id' => $posisi_id,
                         'nama_posisi' => Posisi::find($posisi_id)->nama,
                         'jenis' => $jenis,
-                        'durasi' => $durasi,
+                        'durasi' => null,
                         'salary' => $salary,
                         'issued_date' => $issued_date,
                         'no_surat' => str_pad($no_surat_int, 3, '0', STR_PAD_LEFT),
                         'tempat_administrasi' => $tempat_administrasi,
                         'deskripsi' => $deskripsi,
                         'tanggal_mulai' => $tanggal_mulai,
-                        'tanggal_selesai' => $tanggal_selesai,
+                        'tanggal_selesai' => null,
                     ]);
                 }
             }
@@ -354,9 +354,86 @@ class KontrakController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id_kontrak)
     {
-        //
+        $dataValidate = [
+            'no_surat_kontrakEdit' => ['required','digits:3'],
+            'issued_date_kontrakEdit' => ['required','date'],   
+            'tempat_administrasi_kontrakEdit' => ['required'],
+            'durasi_kontrakEdit' => ['numeric','nullable'],
+            'salary_kontrakEdit' => ['numeric','required'],
+            'tanggal_mulai_kontrakEdit' => ['required','date'],
+            'tanggal_selesai_kontrakEdit' => ['nullable','date'],
+            'jenis_kontrakEdit' => ['required'],
+            'posisi_kontrakEdit' => ['required'], 
+            'status_kontrakEdit' => ['required'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Fill your input correctly!'], 402);
+        }
+
+        $no_surat = $request->no_surat_kontrakEdit;
+        $issued_date = $request->issued_date_kontrakEdit;
+        $tempat_administrasi = $request->tempat_administrasi_kontrakEdit;
+        $durasi = $request->durasi_kontrakEdit; 
+        $salary = $request->salary_kontrakEdit;
+        $tanggal_mulai = $request->tanggal_mulai_kontrakEdit;
+        $tanggal_selesai = $request->tanggal_selesai_kontrakEdit;
+        $jenis = $request->jenis_kontrakEdit;
+        $posisi = $request->posisi_kontrakEdit; 
+        $deskripsi = $request->deskripsi_kontrakEdit;
+        $status = $request->status_kontrakEdit;
+
+        DB::beginTransaction();
+        try{
+
+            if ($jenis !== 'PKWTT' && $durasi == 0){
+                DB::commit();
+                return response()->json(['message' => 'Durasi tidak boleh kosong!'], 402);
+            }
+
+            $kontrak = Kontrak::find($id_kontrak);
+            $kontrak->no_surat = $no_surat;
+            $kontrak->issued_date = $issued_date;   
+            $kontrak->tempat_administrasi = $tempat_administrasi;
+
+            if($jenis == 'PKWTT'){
+                $kontrak->durasi = null;
+                $kontrak->tanggal_selesai = null;
+            } else {
+                $kontrak->durasi = $durasi;
+                $kontrak->tanggal_selesai = $tanggal_selesai;
+            }
+            
+            $kontrak->durasi = $durasi;
+            $kontrak->salary = $salary;
+            $kontrak->tanggal_mulai = $tanggal_mulai;
+            $kontrak->jenis = $jenis;
+
+            if($kontrak->status == $status){ 
+                $kontrak->status = $status;
+            } else {
+                $kontrak->status = $status;
+                $kontrak->status_change_by = auth()->user()->karyawan->nama;
+                $kontrak->status_change_date = now()->format('Y-m-d');
+            }
+
+            $kontrak->status = $status;
+            $kontrak->posisi_id = $posisi;
+            $kontrak->nama_posisi = Posisi::find($posisi)->nama;
+            $kontrak->deskripsi = $deskripsi;
+
+            $kontrak->save();
+
+            DB::commit();
+            return response()->json(['message' => 'Kontrak Diupdate!'],200);
+        } catch(Throwable $error){
+            DB::rollBack();
+            return response()->json(['message' => $error->getMessage()], 500);
+        }
     }
 
     /**
@@ -423,6 +500,31 @@ class KontrakController extends Controller
             return response()->json(['message' => 'Data Karyawan tidak ditemukan!'], 404);
         }
 
+    }
+
+    public function get_data_detail_kontrak(string $idKontrak)
+    {
+        $kontrak = Kontrak::find($idKontrak);
+        if($kontrak){
+            $data = [
+                'id_kontrak' => $kontrak->id_kontrak,
+                'nama_karyawan' => $kontrak->karyawan->nama,
+                'posisi_id' => $kontrak->posisi_id,
+                'jenis' => $kontrak->jenis,
+                'status' => $kontrak->status,
+                'issued_date' => $kontrak->issued_date,
+                'tempat_administrasi' => $kontrak->tempat_administrasi,
+                'durasi' => $kontrak->durasi,
+                'no_surat' => $kontrak->no_surat,
+                'salary' => $kontrak->salary,
+                'deskripsi' => $kontrak->deskripsi,
+                'tanggal_mulai' => $kontrak->tanggal_mulai,
+                'tanggal_selesai' => $kontrak->tanggal_selesai,
+            ];
+            return response()->json(['data' => $data], 200);
+        } else {
+            return response()->json(['message' => 'Data Kontrak tidak ditemukan!'], 404);
+        }
     }
 
     public function download_kontrak_kerja(string $idKontrak)

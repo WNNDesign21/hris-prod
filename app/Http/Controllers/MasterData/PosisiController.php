@@ -672,10 +672,11 @@ class PosisiController extends Controller
     public function get_data_all_posisi()
     {
         $data = Posisi::all();
-        foreach ($data as $grup) {
+        foreach ($data as $posisi) {
+            $nama_org = $posisi->nama_organisasi !== null ? $posisi->nama_organisasi : 'CORPORATE/ALL PLANT';
             $dataPosisi[] = [
-                'id' => $grup->id_posisi,
-                'text' => $grup->nama
+                'id' => $posisi->id_posisi,
+                'text' => $posisi->jabatan->nama ." - ". $posisi->nama . ' - ' . $nama_org
             ];
         }
         return response()->json($dataPosisi);

@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('nama_posisi')->nullable();
             $table->string('no_surat')->nullable();
             $table->enum('jenis', ['PKWT', 'MAGANG', 'THL', 'PKWTT']);
-            $table->enum('status', ['WAITING', 'EXTENDED', 'CUTTOFF'])->default('WAITING');
+            $table->enum('status', ['WAITING', 'EXTENDED', 'CUTOFF'])->default('WAITING');
             $table->integer('durasi')->nullable();
             $table->integer('salary')->nullable();
             $table->text('deskripsi')->nullable();

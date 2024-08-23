@@ -129,7 +129,7 @@ $(function () {
         columnDefs: [
             {
                 orderable: false,
-                targets: [-1],
+                targets: [-1,-2],
             },
             {
                 targets: [-2, -1],
@@ -278,6 +278,138 @@ $(function () {
                 refreshTable();
                 closeKontrak();
                 loadingSwalClose();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        })
+    });
+
+     // MODAL TAMBAH KARYAWAN
+
+     function initializeSelect2Edit(posisiId) {
+        selectPosisiEdit(posisiId);
+
+        $('#jenis_kontrakEdit').select2({
+            dropdownParent: $('#modal-edit-kontrak'),
+        })
+
+        $('#status_kontrakEdit').select2({
+            dropdownParent: $('#modal-edit-kontrak'),
+        })
+
+        $('#tempat_administrasi_kontrakEdit').select2({
+            dropdownParent: $('#modal-edit-kontrak'),
+        })
+    }
+
+    function selectPosisiEdit(posisiId =  '') {
+        $.ajax({
+            url: base_url + '/master-data/posisi/get-data-all-posisi',
+            type: "get",
+            success: function (data) {
+                var selectPosisi = $("#posisi_kontrakEdit");
+                selectPosisi.empty();
+                $.each(data, function (i, val){
+                    selectPosisi.append('<option value="'+val.id+'">'+val.text+'</option>');
+                });
+                $('#posisi_kontrakEdit').val(posisiId).trigger('change');
+                $('#posisi_kontrakEdit').select2({
+                    dropdownParent: $('#modal-edit-kontrak')
+                });
+                loadingSwalClose();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        });
+    };
+
+     var modalEditKontrakOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalEditKontrak = new bootstrap.Modal(
+        document.getElementById("modal-edit-kontrak"),
+        modalEditKontrakOptions
+    );
+
+    function openKontrakEdit() {
+        modalEditKontrak.show();
+    }
+
+    function closeKontrakEdit() {
+        modalEditKontrak.hide();
+        resetKontrak();
+    }
+
+    function resetKontrak() {
+        $('#form-edit-kontrak').trigger("reset");
+    }
+
+    $('#jenis_kontrakEdit').on('change', function (){
+        let jenisKontrak = $(this).val();
+        if(jenisKontrak == 'PKWTT'){
+            $('#durasi_kontrakEdit').val('').prop('readonly', true);
+            $('#tanggal_selesai_kontrakEdit').val('').prop('readonly', true);
+        } else {
+            $('#durasi_kontrakEdit').val('').prop('readonly', false);
+            $('#tanggal_selesai_kontrakEdit').val('').prop('readonly', false);
+        }
+    })
+
+    $('#kontrak-table').on('click', '.btnEdit', function (){
+        loadingSwalShow();
+        var idKontrak = $(this).data('id');
+        var url = base_url + '/master-data/kontrak/get-data-detail-kontrak/' + idKontrak;
+        $.ajax({
+            url: url,
+            method: "GET",
+            dataType: "JSON",
+            success: function (data) {
+                let dataKontrak = data.data;
+                initializeSelect2Edit(dataKontrak.posisi_id);
+                $('#id_kontrakEdit').val(dataKontrak.id_kontrak);
+                $('#nama_karyawan_kontrakEdit').val(dataKontrak.nama_karyawan);
+                $('#no_surat_kontrakEdit').val(dataKontrak.no_surat);
+                $('#issued_date_kontrakEdit').val(dataKontrak.issued_date);
+                $('#jenis_kontrakEdit').val(dataKontrak.jenis).trigger('change');
+                $('#status_kontrakEdit').val(dataKontrak.status).trigger('change');
+                $('#durasi_kontrakEdit').val(dataKontrak.durasi);
+                $('#salary_kontrakEdit').val(dataKontrak.salary);
+                $('#deskripsi_kontrakEdit').val(dataKontrak.deskripsi);
+                $('#tanggal_mulai_kontrakEdit').val(dataKontrak.tanggal_mulai);
+                $('#tanggal_selesai_kontrakEdit').val(dataKontrak.tanggal_selesai);
+                openKontrakEdit();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        })
+    })
+
+    $('#form-edit-kontrak').on('submit', function (e){
+        e.preventDefault();
+        loadingSwalShow();
+        let idKontrak = $('#id_kontrakEdit').val();
+        let url = base_url + '/master-data/kontrak/update/' + idKontrak;
+
+        var formData = new FormData($('#form-edit-kontrak')[0]);
+        $.ajax({
+            url: url,
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (data) {
+                loadingSwalClose();
+                showToast({ title: data.message });
+                closeKontrakEdit();
+                refreshTable();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 loadingSwalClose();
