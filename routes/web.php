@@ -33,6 +33,7 @@ Route::get('/master-data/posisi/get-data-parent-edit/{idParent}',[PosisiControll
 Route::post('/master-data/grup/get-data-grup',[GrupController::class, 'get_data_grup']); 
 Route::get('/master-data/grup/get-data-all-grup',[GrupController::class, 'get_data_all_grup']); 
 Route::post('/master-data/karyawan/get-data-user',[KaryawanController::class, 'get_data_user']); 
+Route::post('/master-data/karyawan/get-data-karyawan',[KaryawanController::class, 'get_data_karyawan']); 
 Route::get('/master-data/karyawan/get-data-detail-karyawan/{idKaryawan}',[KaryawanController::class, 'get_data_detail_karyawan']); 
 
 Route::get('/master-data/akun/get-data-detail-akun/{idAkun}',[AkunController::class, 'get_data_detail_akun']); 

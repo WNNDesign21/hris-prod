@@ -106,6 +106,58 @@
                             <div class="col-12">
                                 <div class="panel-group panel-group-simple panel-group-continuous mb-2"
                                     id="list-kontrak" aria-multiselectable="true" role="tablist">
+                                    <div class="panel p-4">
+                                        <div class="panel-heading" id="kontrak-1" role="tab">
+                                            <a class="panel-title" aria-controls="kontrak-content-1"
+                                                aria-expanded="true" data-bs-toggle="collapse"
+                                                href="#kontrak-content-1" data-parent="#list-kontrak">
+                                                <h5>KONTRAK-2445023012</h5>
+                                            </a>
+                                        </div>
+                                        <div class="panel-collapse collapse mt-2" id="kontrak-content-1"
+                                            aria-labelledby="kontrak-1" role="tabpanel" data-bs-parent="#category-1">
+                                            <div class="panel-body">
+                                                <div class="row mt-5">
+                                                    <div class="col-lg-6 col-12">
+                                                        <div class="form-group">
+                                                            <label for="" class="fw-light">Jenis
+                                                                Kontrak</label>
+                                                            <h5>PKWT</h5>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="" class="fw-light">Posisi</label>
+                                                            <h5>PROGRAMMER</h5>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="" class="fw-light">Status</label>
+                                                            <h5>WAITING</h5>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-6 col-12">
+                                                        <div class="form-group">
+                                                            <label for="" class="fw-light">Periode
+                                                                Kontrak</label>
+                                                            <h5>25 Januari 2025 - 25 Desember 2025</h5>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="" class="fw-light">Salary</label>
+                                                            <h5>Rp 5.600.000</h5>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="" class="fw-light">Deskripsi</label>
+                                                            <h5>Deskripsi awkdmawdaiwwdawodkaowdkawodw</h5>
+                                                        </div>
+                                                        <div class="form-group">
+                                                            <label for="" class="fw-light">Soft Copy</label>
+                                                            <h5><a href=""><i class="fas fa-download"></i>
+                                                                    Unduh
+                                                                    Dokumen Disini</a></h5>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

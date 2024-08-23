@@ -129,7 +129,7 @@ $(function () {
         columnDefs: [
             {
                 orderable: false,
-                targets: [2,-1],
+                targets: [-1],
             },
             {
                 targets: [-2, -1],
@@ -148,6 +148,14 @@ $(function () {
     //RELOAD TABLE
     $('.btnReload').on("click", function (){
         refreshTable();
+    })
+
+    $('.btnAdd').on("click", function (){
+        openKontrak();
+    })
+
+    $('.btnClose').on("click", function (){
+        closeKontrak();
     })
 
     $('#kontrak-table').on('click', '.btnDelete', function (){
@@ -182,4 +190,99 @@ $(function () {
             }
         });
     })
+
+    // MODAL TAMBAH KARYAWAN
+    var modalInputKontrakOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalInputKontrak = new bootstrap.Modal(
+        document.getElementById("modal-input-kontrak"),
+        modalInputKontrakOptions
+    );
+
+    function openKontrak() {
+        modalInputKontrak.show();
+        initializeSelect2();
+    }
+
+    function closeKontrak() {
+        modalInputKontrak.hide();
+        resetKontrak();
+    }
+
+    function resetKontrak() {
+        $('#form-input-kontrak').trigger("reset");
+    }
+
+    function initializeSelect2() {
+        $('#karyawan_id').select2({
+            dropdownParent: $('#modal-input-kontrak'),
+            ajax: {
+                url: base_url + "/master-data/karyawan/get-data-karyawan",
+                type: "post",
+                dataType: "json",
+                delay: 250,
+                data: function (params) {
+                    return {
+                        search: params.term || "",
+                        page: params.page || 1,
+                    };
+                },
+                cache: true,
+            },
+        });
+
+        $('#posisi').select2({
+            dropdownParent: $('#modal-input-kontrak'),
+            ajax: {
+                url: base_url + "/master-data/posisi/get-data-posisi",
+                type: "post",
+                dataType: "json",
+                delay: 250,
+                data: function (params) {
+                    return {
+                        search: params.term || "",
+                        page: params.page || 1,
+                    };
+                },
+                cache: true,
+            },
+        });
+
+        $('#jenis').select2({
+            dropdownParent: $('#modal-input-kontrak'),
+        })
+
+        $('#tempat_administrasi').select2({
+            dropdownParent: $('#modal-input-kontrak'),
+        })
+    }
+
+    $('#form-input-kontrak').on('submit', function (e){
+        loadingSwalShow();
+        e.preventDefault();
+        let url = $('#form-input-kontrak').attr('action');
+
+        var formData = new FormData($('#form-input-kontrak')[0]);
+        $.ajax({
+            url: url,
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (data) {
+                showToast({ title: data.message });
+                refreshTable();
+                closeKontrak();
+                loadingSwalClose();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        })
+    });
 });

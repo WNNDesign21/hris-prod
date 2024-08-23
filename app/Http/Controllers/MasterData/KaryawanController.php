@@ -395,6 +395,49 @@ class KaryawanController extends Controller
         return response()->json($results);
     }
 
+    public function get_data_karyawan(Request $request){
+        $search = $request->input('search');
+        $page = $request->input("page");
+        $idCats = $request->input('catsProd');
+        $adOrg = $request->input('adOrg');
+
+        $query = Karyawan::select(
+            'id_karyawan',
+            'nama',
+        );
+
+        if (!empty($search)) {
+            $query->where(function ($dat) use ($search) {
+                $dat->where('id_karyawan', 'ILIKE', "%{$search}%")
+                    ->orWhere('nama', 'ILIKE', "%{$search}%");
+            });
+        }
+
+        $data = $query->simplePaginate(10);
+
+        $morePages = true;
+        $pagination_obj = json_encode($data);
+        if (empty($data->nextPageUrl())) {
+            $morePages = false;
+        }
+
+        foreach ($data->items() as $karyawan) {
+            $dataUser[] = [
+                'id' => $karyawan->id_karyawan,
+                'text' => $karyawan->nama
+            ];
+        }
+
+        $results = array(
+            "results" => $dataUser,
+            "pagination" => array(
+                "more" => $morePages
+            )
+        );
+
+        return response()->json($results);
+    }
+
     public function get_data_detail_karyawan(string $id_karyawan)
     {
         $karyawan = Karyawan::find($id_karyawan);
