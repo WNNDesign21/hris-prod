@@ -85,7 +85,7 @@ class KontrakController extends Controller
                 $nestedData['status'] = $data->status == 'WAITING' ? '<span class="badge badge-pill badge-warning">'.$data->status.'</span>' : ($data->status == 'EXTENDED' ? '<span class="badge badge-pill badge-success">'.$data->status.'</span>' : '<span class="badge badge-pill badge-danger">'.$data->status.'</span>');
                 $nestedData['durasi'] = $data->durasi.' Bulan';
                 $nestedData['salary'] = $data->salary;
-                $nestedData['status_change_by'] = '<small class="text-bold">'.$data->status_change_by.'</small>'.'<br>'.'<small class="text-primary">'.$data->status_change_date.'</small>';
+                $nestedData['status_change_by'] = '<small class="text-bold">'.$data->status_change_by.'</small> - '.'<br>'.'<small class="text-primary">'.$data->status_change_date.'</small>';
                 // $nestedData['status_change_date'] = $data->status_change_date;
                 $nestedData['tanggal_mulai'] = $data->tanggal_mulai;
                 $nestedData['tanggal_selesai'] = $data->tanggal_selesai;

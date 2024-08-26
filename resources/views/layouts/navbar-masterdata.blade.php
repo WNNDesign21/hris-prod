@@ -546,7 +546,12 @@
         </div>
     </section>
     <div class="sidebar-footer d-flex justify-content-center">
-        <a href="javascript:void(0)" class="link" data-bs-toggle="tooltip" title="Logout"><span
-                class="icon-Lock-overturning"><span class="path1"></span><span class="path2"></span></span></a>
+        <a href="{{ route('logout') }}"
+            onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="link"
+            data-bs-toggle="tooltip" title="Logout"><span class="icon-Lock-overturning"><span
+                    class="path1"></span><span class="path2"></span></span></a>
+        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+            @csrf
+        </form>
     </div>
 </aside>
