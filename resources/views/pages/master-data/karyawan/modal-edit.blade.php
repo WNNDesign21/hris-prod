@@ -167,6 +167,7 @@
                                         style="width: 100%;">
                                         <option value="AKTIF">AKTIF</option>
                                         <option value="RESIGN">RESIGN</option>
+                                        <option value="TERMINASI">TERMINASI</option>
                                         <option value="PENSIUN">PENSIUN</option>
                                     </select>
                                 </div>

@@ -138,18 +138,18 @@ $(function () {
                 },
             },
         ],
-        dom: 'Bfrtip',
-        buttons: [
-            {
-                extend: 'excelHtml5', 
-                text: 'Export to Excel',
-                exportOptions: {
-                    columns: ':not(:nth-child(14), :nth-child(13))',
-                    search: 'applied', 
-                    order: 'applied' 
-                }
-            },
-        ],
+        // dom: 'Bfrtip',
+        // buttons: [
+        //     {
+        //         extend: 'excelHtml5', 
+        //         text: 'Export to Excel',
+        //         exportOptions: {
+        //             columns: ':not(:nth-child(14), :nth-child(13))',
+        //             search: 'applied', 
+        //             order: 'applied' 
+        //         }
+        //     },
+        // ],
     })
 
     //REFRESH TABLE

@@ -216,6 +216,7 @@
                                         style="width: 100%;" disabled>
                                         <option value="AKTIF" selected>AKTIF</option>
                                         <option value="RESIGN">RESIGN</option>
+                                        <option value="TERMINASI">TERMINASI</option>
                                         <option value="PENSIUN">PENSIUN</option>
                                     </select>
                                 </div>

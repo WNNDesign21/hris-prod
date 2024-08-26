@@ -1,11 +1,13 @@
 <?php
 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MasterData\AkunController;
 use App\Http\Controllers\MasterData\GrupController;
 use App\Http\Controllers\MasterData\SeksiController;
 use App\Http\Controllers\MasterData\DivisiController;
+use App\Http\Controllers\MasterData\ExportController;
 use App\Http\Controllers\MasterData\PosisiController;
 use App\Http\Controllers\MasterData\JabatanController;
 use App\Http\Controllers\MasterData\KontrakController;
@@ -116,6 +118,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::patch('/master-data/kontrak/update/{idKontrak}', [KontrakController::class, 'update'])->name('master-data.kontrak.update');
     Route::post('/master-data/kontrak/store-or-update',[KontrakController::class, 'store_or_update'])->name('master-data.kontrak.storeUpdate');
     Route::post('/master-data/kontrak/upload-kontrak/{idKontrak}',[KontrakController::class, 'upload_kontrak'])->name('master-data.kontrak.uploadKontrak');
+
+    Route::get('/master-data/export',[ExportController::class, 'index'])->name('master-data.export');
+    Route::post('/master-data/export/export-master-data',[ExportController::class, 'export_master_data'])->name('master-data.export.master-data');
+    Route::post('/master-data/export/export-kontrak',[ExportController::class, 'export_kontrak'])->name('master-data.export.kontrak');
 });
 
 

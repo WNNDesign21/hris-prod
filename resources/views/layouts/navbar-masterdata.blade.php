@@ -67,6 +67,12 @@
                             </li>
                         </ul>
                     </li>
+                    <li class="{{ $page == 'masterdata-export' ? 'active' : '' }}">
+                        <a href="{{ route('master-data.export') }}">
+                            <i class="icon-Chat-check"><span class="path1"></span><span class="path2"></span></i>
+                            <span>Export Data</span>
+                        </a>
+                    </li>
                     {{-- <li class="header">Components & UI </li>
                     <li class="treeview">
                         <a href="#">

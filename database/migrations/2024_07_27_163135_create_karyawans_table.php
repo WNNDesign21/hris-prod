@@ -31,7 +31,7 @@ return new class extends Migration
             $table->string('no_bpjs_ks')->unique()->nullable();
             $table->string('no_bpjs_kt')->unique()->nullable();
             $table->enum('jenis_kontrak', ['PKWT', 'MAGANG', 'THL', 'PKWTT'])->nullable();
-            $table->enum('status_karyawan', ['AKTIF', 'RESIGN', 'PENSIUN'])->nullable();
+            $table->enum('status_karyawan', ['AKTIF', 'RESIGN', 'PENSIUN', 'TERMINASI'])->nullable();
             $table->integer('sisa_cuti')->default(12);
             $table->integer('hutang_cuti')->default(0);
             $table->year('tahun_masuk')->nullable();
