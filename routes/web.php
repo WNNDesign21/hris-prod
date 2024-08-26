@@ -115,6 +115,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::delete('/master-data/kontrak/delete/{idKontrak}', [KontrakController::class, 'delete'])->name('master-data.kontrak.delete');
     Route::patch('/master-data/kontrak/update/{idKontrak}', [KontrakController::class, 'update'])->name('master-data.kontrak.update');
     Route::post('/master-data/kontrak/store-or-update',[KontrakController::class, 'store_or_update'])->name('master-data.kontrak.storeUpdate');
+    Route::post('/master-data/kontrak/upload-kontrak/{idKontrak}',[KontrakController::class, 'upload_kontrak'])->name('master-data.kontrak.uploadKontrak');
 });
 
 

@@ -38,11 +38,10 @@
                                     <th>Status</th>
                                     <th>Durasi</th>
                                     <th>Salary</th>
-                                    <th>Status Changed By</th>
-                                    <th>Status Changed Date</th>
+                                    <th>Status Changed</th>
                                     <th>Tanggal Mulai</th>
                                     <th>Tanggal Selesai</th>
-                                    <th>Attachment</th>
+                                    <th class="text-center">Attachment</th>
                                     <th class="text-center">Aksi</th>
                                 </tr>
                             </thead>

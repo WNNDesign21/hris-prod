@@ -4,6 +4,7 @@ namespace App\Http\Controllers\MasterData;
 
 use Throwable;
 use App\Models\User;
+use App\Models\Kontrak;
 use App\Models\Karyawan;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
@@ -63,10 +64,11 @@ class KaryawanController extends Controller
 
         if (!empty($karyawan)) {
             foreach ($karyawan as $data) {
+                $kontrak = Kontrak::where('karyawan_id', $data->id_karyawan)->orderBy('tanggal_mulai', 'DESC')->pluck('jenis')->first();
                 $posisis = $data->posisi()->pluck('posisis.nama')->toArray();
                 $nestedData['id_karyawan'] = $data->id_karyawan;
                 $nestedData['nama'] = $data->nama;
-                $nestedData['jenis_kontrak'] = $data->jenis_kontrak;
+                $nestedData['jenis_kontrak'] = $kontrak ? $kontrak : $data->jenis_kontrak;
                 $nestedData['status_karyawan'] = $data->status_karyawan;
                 $formattedPosisi = array_map(function($posisi) {
                     return '<span class="badge badge-primary m-1">' . $posisi . '</span>';

@@ -55,7 +55,7 @@ $(function () {
         { data: "durasi" },
         { data: "salary" },
         { data: "status_change_by" },
-        { data: "status_change_date" },
+        // { data: "status_change_date" },
         { data: "tanggal_mulai" },
         { data: "tanggal_selesai" },
         { data: "attachment" },
@@ -189,6 +189,44 @@ $(function () {
                 });
             }
         });
+    })
+
+    //Upload Kontrak Scan
+    $('#kontrak-table').on('click', '.btn-file', function (){
+        var idKontrak = $(this).data('id')
+        let input = document.getElementById("attachment_" + idKontrak);
+        let url = base_url + '/master-data/kontrak/upload-kontrak/' + idKontrak;
+
+        if (input && input.type === 'file') {
+            input.click();
+    
+            $(input).on('change', function(event) {
+                var file = event.target.files[0];
+                loadingSwalShow(); 
+    
+                var formData = new FormData();
+                formData.append('attachment', file);
+    
+                $.ajax({
+                    url: url, 
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(data) {
+                        loadingSwalClose()
+                        showToast({ title: data.message });
+                        refreshTable();
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        loadingSwalClose();
+                        showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                    }
+                });
+            });
+        } else {
+            console.error('Element with ID "attachment_' + idKontrak + '" is not a file input.');
+        }
     })
 
     // MODAL TAMBAH KARYAWAN

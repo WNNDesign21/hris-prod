@@ -679,30 +679,6 @@ $(function () {
         $('#deskripsi_kontrakEdit').val("");
     };
 
-    // function getDetailAkun(userId, idKaryawan, nama){
-    //     loadingSwalShow();
-    //     let url = base_url + '/master-data/akun/get-data-detail-akun/' + userId;
-    //     $.ajax({
-    //         url: url,
-    //         method: "GET",
-    //         dataType: "JSON",
-    //         success: function (response) {
-    //             let detailAkun = response.data;
-                
-    //             $('#id_akunEdit').val(userId);
-    //             $('#id_karyawanAkunEdit').val(idKaryawan);
-    //             $('#akun-title').text('Edit Akun - ' + nama);
-    //             $('#username_akunEdit').val(detailAkun.username);
-    //             $('#email_akunEdit').val(detailAkun.email);
-    //             openAkun();
-    //             loadingSwalClose();
-    //         },
-    //         error: function (jqXHR, textStatus, errorThrown) {
-    //             showToast({ icon: "error", title: jqXHR.responseJSON.message });
-    //         },
-    //     }); 
-    // }
-
     function getListKontrak(idKaryawan){
         // loadingSwalShow();
         let url = base_url + '/master-data/kontrak/get-data-list-kontrak/' + idKaryawan;
@@ -768,10 +744,16 @@ $(function () {
                                                 <h5>`+val.deskripsi+`</h5>
                                             </div>
                                             <div class="form-group">
-                                                <label for="" class="fw-light">Soft Copy</label>
+                                                <label for="" class="fw-light">Template Print</label>
                                                 <h5><a href="`+url_download+`" target="_blank"><i class="fas fa-download"></i>
                                                         Unduh
-                                                        Dokumen Disini</a></h5>
+                                                        Template Disini</a></h5>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="" class="fw-light">Dokumen Asli</label>
+                                                <h5>`+(val.attachment ? `<a href="`+val.attachment+`" target="_blank"><i class="fas fa-download"></i>
+                                                        Unduh
+                                                        Dokumen Disini</a>` : '-') +`</h5>
                                             </div>
                                         </div>
                                     </div>

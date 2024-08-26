@@ -6,11 +6,13 @@ use Throwable;
 use Carbon\Carbon;
 use App\Models\Posisi;
 use App\Models\Kontrak;
+use App\Models\Karyawan;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpWord\TemplateProcessor;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -43,9 +45,9 @@ class KontrakController extends Controller
             7 => 'durasi',
             8 => 'salary',
             9 => 'status_change_by',
-            10 => 'status_change_date',
-            11 => 'tanggal_mulai',
-            12 => 'tanggal_selesai',
+            // 10 => 'status_change_date',
+            10 => 'tanggal_mulai',
+            11 => 'tanggal_selesai',
         );
 
         $totalData = Kontrak::count();
@@ -83,15 +85,17 @@ class KontrakController extends Controller
                 $nestedData['status'] = $data->status == 'WAITING' ? '<span class="badge badge-pill badge-warning">'.$data->status.'</span>' : ($data->status == 'EXTENDED' ? '<span class="badge badge-pill badge-success">'.$data->status.'</span>' : '<span class="badge badge-pill badge-danger">'.$data->status.'</span>');
                 $nestedData['durasi'] = $data->durasi.' Bulan';
                 $nestedData['salary'] = $data->salary;
-                $nestedData['status_change_by'] = $data->status_change_by;
-                $nestedData['status_change_date'] = $data->status_change_date;
+                $nestedData['status_change_by'] = '<small class="text-bold">'.$data->status_change_by.'</small>'.'<br>'.'<small class="text-primary">'.$data->status_change_date.'</small>';
+                // $nestedData['status_change_date'] = $data->status_change_date;
                 $nestedData['tanggal_mulai'] = $data->tanggal_mulai;
                 $nestedData['tanggal_selesai'] = $data->tanggal_selesai;
-                $nestedData['attachment'] = $data->attachment ? '<a href="'.asset('storage/'.$data->attachment).'" target="_blank" class="btn btn-sm btn-primary"><i class="fas fa-download"></i> Unduh Hasil Scan</a>' : ' - ';
+                $nestedData['attachment'] = $data->attachment ? '<div class="btn-group btn-group-sm"><button data-id="'.$data->id_kontrak.'" class="btn btn-sm btn-primary btn-file" type="button"><i class="fas fa-upload"></i> Change</button><input type="file" name="attachment" id="attachment_'.$data->id_kontrak.'" class="d-none"><a href="'.asset('storage/'.$data->attachment).'" target="_blank" class="btn btn-sm btn-secondary"><i class="fas fa-download"></i> Download</a></div>' : '<button data-id="'.$data->id_kontrak.'" class="btn btn-sm btn-primary btn-file" type="button"><i class="fas fa-upload"></i> Upload</button><input type="file" name="attachment" id="attachment_'.$data->id_kontrak.'" class="d-none">';
                 $nestedData['aksi'] = '
-                <div class="btn-group">
+                <div class="btn-group btn-group-sm">
                     <button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id="'.$data->id_kontrak.'"><i class="fas fa-edit"></i> Edit</button>
                     <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_kontrak.'"><i class="fas fa-trash-alt"></i> Hapus</button>
+                    <a class="waves-effect waves-light btn btn-sm btn-info" href="'.url('master-data/kontrak/download-kontrak-kerja/'.$data->id_kontrak).'" target="_blank"><i class="fas fa-download"></i> Template</a>
+                </div>
                 </div>
                 ';
 
@@ -168,6 +172,9 @@ class KontrakController extends Controller
 
                 $no_surat_int = intval($no_surat);
                 foreach ($karyawan_id as $karyawan) {
+                    $kry = Karyawan::find($karyawan);
+                    $kry->jenis_kontrak = $jenis;
+                    $kry->save();
                     $kontrak = Kontrak::create([
                         'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . (now()->timestamp + 1),
                         'karyawan_id' => $karyawan,
@@ -190,6 +197,9 @@ class KontrakController extends Controller
 
                 $no_surat_int = intval($no_surat);
                 foreach($karyawan_id as $karyawan){
+                    $kry = Karyawan::find($karyawan);
+                    $kry->jenis_kontrak = $jenis;
+                    $kry->save();
                     $kontrak = Kontrak::create([
                         'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,
                         'karyawan_id' => $karyawan,
@@ -266,6 +276,10 @@ class KontrakController extends Controller
                         return response()->json(['message' => 'Durasi tidak boleh kosong!'], 402);
                     }
 
+                    $kry = Karyawan::find($karyawan_id);
+                    $kry->jenis_kontrak = $jenis;
+                    $kry->save();
+
                     $kontrak = Kontrak::create([
                         'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,
                         'karyawan_id' => $karyawan_id,
@@ -282,6 +296,9 @@ class KontrakController extends Controller
                         'tanggal_selesai' => $tanggal_selesai,
                     ]);
                 } else {
+                    $kry = Karyawan::find($karyawan_id);
+                    $kry->jenis_kontrak = $jenis;
+                    $kry->save();
                     $kontrak = Kontrak::create([
                         'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,
                         'karyawan_id' => $karyawan_id,
@@ -304,6 +321,10 @@ class KontrakController extends Controller
                     DB::commit();
                     return response()->json(['message' => 'Durasi tidak boleh kosong!'], 402);
                 }
+
+                $kry = Karyawan::find($karyawan_id);
+                $kry->jenis_kontrak = $jenis;
+                $kry->save();
 
                 $kontrak = Kontrak::find($id_kontrak);
                 $kontrak->update([
@@ -400,6 +421,10 @@ class KontrakController extends Controller
             $kontrak->issued_date = $issued_date;   
             $kontrak->tempat_administrasi = $tempat_administrasi;
 
+            $kry = Karyawan::find($kontrak->karyawan_id);
+            $kry->jenis_kontrak = $jenis;
+            $kry->save();
+
             if($jenis == 'PKWTT'){
                 $kontrak->durasi = null;
                 $kontrak->tanggal_selesai = null;
@@ -493,6 +518,7 @@ class KontrakController extends Controller
                     'deskripsi' => $item->deskripsi,
                     'tanggal_mulai' => Carbon::parse($item->tanggal_mulai)->format('d M Y'),
                     'tanggal_selesai' => $item->tanggal_selesai !== null ? Carbon::parse($item->tanggal_selesai)->format('d M Y') : 'Unknown',
+                    'attachment' => $item->attachment ? asset('storage/'.$item->attachment) : null
                 ];
             }
             return response()->json(['data' => $list], 200);
@@ -750,5 +776,44 @@ class KontrakController extends Controller
         }
 
         return $temp;
+    }
+
+    public function upload_kontrak(Request $request, string $id_kontrak){
+        $dataValidate = [
+            'attachment' => ['required', 'file', 'max:5000', 'mimes:pdf'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            return response()->json(['message' => 'File harus bertipe PDF & Berukuran maksimal 5 mb.'], 402);
+        }
+
+        DB::beginTransaction();
+        try {
+            $kontrak = Kontrak::find($id_kontrak);
+
+            if($request->hasFile('attachment')){
+                $file = $request->file('attachment');
+                $kontrak_scan = $file->store("attachment/kontrak");
+                if($kontrak->attachment)
+                {
+                    Storage::delete($kontrak->attachment);
+                }
+                $kontrak->attachment = $kontrak_scan;
+                $kontrak->save();
+            }
+            DB::commit();
+            return response()->json(['message' => 'Upload File pada '.$id_kontrak.' Sukses!'],200);
+        } catch(Throwable $error){
+            DB::rollBack();
+            return response()->json(['message' => $error->getMessage()], 500);
+        } catch (QueryException $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Database error: ' . $e->getMessage()], 500);
+        } catch (ModelNotFoundException $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Model not found: ' . $e->getMessage()], 404);
+        }
     }
 }
