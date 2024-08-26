@@ -379,7 +379,7 @@ $(function () {
                 }
             },
         },
-
+        responsive: true,
         columns: columnsTable,
         columnDefs: [
             {
