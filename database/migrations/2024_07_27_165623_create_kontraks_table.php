@@ -27,7 +27,7 @@ return new class extends Migration
             $table->date('issued_date')->nullable();
             $table->string('tempat_administrasi')->nullable()->default('Karawang');
             $table->string('status_change_by')->nullable();
-            $table->string('status_change_date')->nullable();
+            $table->date('status_change_date')->nullable();
             $table->string('attachment')->nullable();
 
             $table->softDeletes();

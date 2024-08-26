@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers\MasterData;
 
-use App\Http\Controllers\Controller;
+use App\Models\Kontrak;
+use App\Models\Karyawan;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class DashboardController extends Controller
 {
@@ -65,5 +67,35 @@ class DashboardController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function get_data_karyawan_dashboard(){
+        $year = date('Y');
+        $month = date('m');
+        $recent_date = $year.'-'.$month;
+        $aktif = Karyawan::where('status_karyawan', 'AKTIF')->count();
+        $aktif_last_update = Kontrak::where('status','EXTENDED')->where('status_change_date','ILIKE','%'.$recent_date.'%')->latest()->first();
+
+        $terminasi = Karyawan::where('status_karyawan', 'TERMINASI')->count();
+        $terminasi_last_update = Kontrak::with('karyawan')->where('status','CUTOFF')->where('status_change_date','ILIKE','%'.$recent_date.'%')->where('karyawans.status_karyawan', 'TERMINASI')->latest()->first();
+
+        $resign = Karyawan::where('status_karyawan','RESIGN')->count();
+        $resign_last_update = Kontrak::with('karyawan')->where('status','CUTOFF')->where('status_change_date','ILIKE','%'.$recent_date.'%')->where('karyawans.status_karyawan', 'RESIGN')->latest()->first();
+
+        $pensiun = Karyawan::where('status_karyawan', 'PENSIUN')->count();
+        $pensiun_last_update = Kontrak::with('karyawan')->where('status','CUTOFF')->where('status_change_date','ILIKE','%'.$recent_date.'%')->where('karyawans.status_karyawan', 'PENSIUN')->latest()->first();
+        
+        $data = [
+            'aktif' => $aktif,
+            'terminasi' => $terminasi,
+            'resign' => $resign,
+            'pensiun' => $pensiun,
+            'aktif_last_update' => $aktif_last_update,
+            'terminasi_last_update' => $terminasi_last_update,
+            'resign_last_update' => $resign_last_update,
+            'pensiun_last_update' => $pensiun_last_update
+        ];
+
+        return response()->json(['data' => $data],200);
     }
 }

@@ -8,6 +8,7 @@ export default defineConfig({
                 'resources/sass/app.scss',
                 "resources/css/app.css",
                 'resources/js/app.js',
+                'resources/js/pages/master-data-dashboard.js',
                 'resources/js/pages/organisasi.js',
                 'resources/js/pages/departemen.js',
                 'resources/js/pages/divisi.js',

@@ -72,10 +72,11 @@
         <div class="col-xl-8 col-12 mb-4">
             <div class="box" style="height: 100%;">
                 <div class="box-body">
-                    <p class="text-fade">Hours spent</p>
-                    <h3 class="mt-0 mb-20">21 h 30 min <small class="text-danger"><i
-                                class="fa fa-arrow-down ms-25 me-5"></i> 15%</small></h3>
-                    <div id="charts_widget_1_chart"></div>
+                    <h3 class="mt-0 mb-5">Employee Turnover</h3>
+                    <p class="text-fade">Jan - Dec {{ date('Y') }}</p>
+                    {{-- <p class="text-fade">400/500 <small class="text-danger"><i class="fa fa-arrow-down"></i>
+                            15%</small></p> --}}
+                    <div id="turnover-chart"></div>
                 </div>
             </div>
         </div>

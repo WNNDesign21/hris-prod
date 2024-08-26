@@ -67,7 +67,7 @@
 
     <!-- EduAdmin App -->
     <script src="{{ asset('js/template.js') }}"></script>
-    <script src="{{ asset('js/pages/dashboard4.js') }}"></script>
+    {{-- <script src="{{ asset('js/pages/dashboard4.js') }}"></script> --}}
     {{-- <script src="{{ asset('js/pages/advanced-form-element.js') }}"></script> --}}
     {{-- <script src="{{ asset('js/pages/nestable.js') }}"></script> --}}
 
@@ -79,6 +79,10 @@
             return new bootstrap.Tooltip(tooltipTriggerEl)
         })
     </script>
+
+    @if ($page == 'masterdata-dashboard')
+        @vite(['resources/js/pages/master-data-dashboard.js'])
+    @endif
 
     @if ($page == 'masterdata-organisasi')
         @vite(['resources/js/pages/organisasi.js'])
