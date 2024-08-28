@@ -45,7 +45,6 @@ class KontrakController extends Controller
             7 => 'durasi',
             8 => 'salary',
             9 => 'status_change_by',
-            // 10 => 'status_change_date',
             10 => 'tanggal_mulai',
             11 => 'tanggal_selesai',
         );
@@ -82,18 +81,18 @@ class KontrakController extends Controller
                 $nestedData['no_surat'] = $data->no_surat;
                 $nestedData['issued_date'] = $data->issued_date;
                 $nestedData['jenis'] = $data->jenis;
-                $nestedData['status'] = $data->status == 'WAITING' ? '<span class="badge badge-pill badge-warning">'.$data->status.'</span>' : ($data->status == 'EXTENDED' ? '<span class="badge badge-pill badge-success">'.$data->status.'</span>' : '<span class="badge badge-pill badge-danger">'.$data->status.'</span>');
+                $nestedData['status'] = $data->status == 'DONE' ? '<span class="badge badge-pill badge-success">'.$data->status.'</span>' : '<span class="badge badge-pill badge-warning">'.$data->status.'</span>';
                 $nestedData['durasi'] = $data->durasi.' Bulan';
                 $nestedData['salary'] = $data->salary;
                 $nestedData['status_change_by'] = '<small class="text-bold">'.$data->status_change_by.'</small> - '.'<br>'.'<small class="text-primary">'.$data->status_change_date.'</small>';
-                // $nestedData['status_change_date'] = $data->status_change_date;
-                $nestedData['tanggal_mulai'] = $data->tanggal_mulai;
-                $nestedData['tanggal_selesai'] = $data->tanggal_selesai;
+                $nestedData['tanggal_mulai'] = $data->tanggal_mulai_kontrak;
+                $nestedData['tanggal_selesai'] = $data->tanggal_selesai_kontrak;
                 $nestedData['attachment'] = $data->attachment ? '<div class="btn-group btn-group-sm"><button data-id="'.$data->id_kontrak.'" class="btn btn-sm btn-primary btn-file" type="button"><i class="fas fa-upload"></i> Change</button><input type="file" name="attachment" id="attachment_'.$data->id_kontrak.'" class="d-none"><a href="'.asset('storage/'.$data->attachment).'" target="_blank" class="btn btn-sm btn-secondary"><i class="fas fa-download"></i> Download</a></div>' : '<button data-id="'.$data->id_kontrak.'" class="btn btn-sm btn-primary btn-file" type="button"><i class="fas fa-upload"></i> Upload</button><input type="file" name="attachment" id="attachment_'.$data->id_kontrak.'" class="d-none">';
+                $nestedData['evidence'] = $data->attachment ? '<div class="btn-group btn-group-sm"><button data-id="'.$data->id_kontrak.'" class="btn btn-sm btn-primary btn-file" type="button"><i class="fas fa-upload"></i> Change</button><input type="file" name="attachment" id="attachment_'.$data->id_kontrak.'" class="d-none"><a href="'.asset('storage/'.$data->attachment).'" target="_blank" class="btn btn-sm btn-secondary"><i class="fas fa-download"></i> Download</a></div>' : '<button data-id="'.$data->id_kontrak.'" class="btn btn-sm btn-primary btn-file" type="button"><i class="fas fa-upload"></i> Upload</button><input type="file" name="attachment" id="attachment_'.$data->id_kontrak.'" class="d-none">';
                 $nestedData['aksi'] = '
                 <div class="btn-group btn-group-sm">
                     <button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id="'.$data->id_kontrak.'"><i class="fas fa-edit"></i> Edit</button>
-                    <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_kontrak.'"><i class="fas fa-trash-alt"></i> Hapus</button>
+                    <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_kontrak.'"><i class="fas fa-trash-alt"></i> Hapus'.($data->isReactive == 'Y' ? '& Reverse' : '').'</button>
                     <a class="waves-effect waves-light btn btn-sm btn-info" href="'.url('master-data/kontrak/download-kontrak-kerja/'.$data->id_kontrak).'" target="_blank"><i class="fas fa-download"></i> Template</a>
                 </div>
                 </div>
@@ -495,13 +494,11 @@ class KontrakController extends Controller
         $list = [];
         if($kontrak){
             foreach($kontrak as $item){
-                if($item->status == 'WAITING'){
+                if($item->status == 'DONE'){
                     $badge = '<span class="badge badge-pill badge-warning">'.$item->status.'</span>';
-                } elseif ($item->status == 'EXTENDED'){
-                    $badge = '<span class="badge badge-pill badge-success">'.$item->status.'</span>';
                 } else {
-                    $badge = '<span class="badge badge-pill badge-danger">'.$item->status.'</span>';
-                }
+                    $badge = '<span class="badge badge-pill badge-success">'.$item->status.'</span>';
+                } 
                 $list[] = [
                     'id_kontrak' => $item->id_kontrak,
                     'nama_posisi' => $item->nama_posisi,

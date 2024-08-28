@@ -35,7 +35,9 @@ class KaryawanController extends Controller
             1 => 'karyawans.nama',
             3 => 'grups.nama',
             4 => 'jenis_kontrak',
-            5 => 'status_karyawan'
+            5 => 'tanggal_mulai',
+            6 => 'tanggal_selesai',
+            7 => 'status_karyawan'
         );
 
         $totalData = Karyawan::count();
@@ -69,6 +71,8 @@ class KaryawanController extends Controller
                 $nestedData['id_karyawan'] = $data->id_karyawan;
                 $nestedData['nama'] = $data->nama;
                 $nestedData['jenis_kontrak'] = $kontrak ? $kontrak : $data->jenis_kontrak;
+                $nestedData['tanggal_mulai'] = $data->tanggal_mulai;
+                $nestedData['tanggal_selesai'] = $data->tanggal_selesai;
                 $nestedData['status_karyawan'] = $data->status_karyawan;
                 $formattedPosisi = array_map(function($posisi) {
                     return '<span class="badge badge-primary m-1">' . $posisi . '</span>';
@@ -131,7 +135,6 @@ class KaryawanController extends Controller
             'npwp' => ['nullable', 'numeric'],
             'no_bpjs_ks' => ['nullable','numeric'],
             'no_bpjs_kt' => ['nullable','numeric'],
-            'tahun_masuk' => ['required'],
             'posisi.*' => ['required'],
             'grup' => ['required'],
             'sisa_cuti' => ['required','numeric'],
@@ -158,8 +161,6 @@ class KaryawanController extends Controller
         $npwp = $request->npwp;
         $no_bpjs_ks = $request->no_bpjs_ks;
         $no_bpjs_kt = $request->no_bpjs_kt;
-        $tahun_masuk = $request->tahun_masuk;
-        $status_karyawan = 'AKTIF';
         $posisi = $request->posisi;
         $grup_id = $request->grup;
         $sisa_cuti = $request->sisa_cuti;
@@ -202,8 +203,6 @@ class KaryawanController extends Controller
                 'npwp' => $npwp,
                 'no_bpjs_ks' => $no_bpjs_ks,
                 'no_bpjs_kt' => $no_bpjs_kt,
-                'tahun_masuk' => $tahun_masuk,
-                'status_karyawan' => $status_karyawan,
                 'grup_id' => $grup_id,
                 'sisa_cuti' => $sisa_cuti,
             ]);
@@ -256,7 +255,6 @@ class KaryawanController extends Controller
             'npwpEdit' => ['nullable', 'numeric'],
             'no_bpjs_ksEdit' => ['nullable','numeric'],
             'no_bpjs_ktEdit' => ['nullable','numeric'],
-            'tahun_masukEdit' => ['required'],
             'posisiEdit.*' => ['required'],
             'grupEdit' => ['required'],
             'sisa_cutiEdit' => ['required','numeric'],
@@ -284,7 +282,6 @@ class KaryawanController extends Controller
         $npwp = $request->npwpEdit;
         $no_bpjs_ks = $request->no_bpjs_ksEdit;
         $no_bpjs_kt = $request->no_bpjs_ktEdit;
-        $tahun_masuk = $request->tahun_masukEdit;
         $status_karyawan = $request->status_karyawanEdit;
         $posisi = $request->posisiEdit;
         $grup_id = $request->grupEdit;
@@ -308,7 +305,6 @@ class KaryawanController extends Controller
             $karyawan->npwp = $npwp;
             $karyawan->no_bpjs_ks = $no_bpjs_ks;
             $karyawan->no_bpjs_kt = $no_bpjs_kt;
-            $karyawan->tahun_masuk = $tahun_masuk;
             $karyawan->status_karyawan = $status_karyawan;
             $karyawan->grup_id = $grup_id;
             $karyawan->sisa_cuti = $sisa_cuti;
@@ -465,8 +461,8 @@ class KaryawanController extends Controller
                 'jenis_kontrak' => $karyawan->jenis_kontrak,
                 'status_karyawan' => $karyawan->status_karyawan,
                 'sisa_cuti' => $karyawan->sisa_cuti,
-                'tahun_masuk' => $karyawan->tahun_masuk,
-                'tahun_keluar' => $karyawan->tahun_keluar,
+                'tanggal_mulai' => $karyawan->tanggal_mulai,
+                'tanggal_selesai' => $karyawan->tanggal_selesai,
                 'posisi' => $karyawan->posisi()->pluck('posisis.id_posisi'),
                 'grup_id' => $karyawan->grup_id,
             ];

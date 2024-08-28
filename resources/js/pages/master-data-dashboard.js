@@ -2,78 +2,100 @@ $(function () {
 
     'use strict';
 
-    // $.ajax({
-    //     url: 'https://api.example.com/data',
-    //     method: 'GET',
-    //     success: function(response) {
-    //         // Handle the response data here
-    //         console.log(response);
-    //     },
-    //     error: function(error) {
-    //         console.error(error);
-    //     }
-    // });
+    let loadingSwal;
+    function loadingSwalShow() {
+        loadingSwal = Swal.fire({
+            imageHeight: 300,
+            showConfirmButton: false,
+            title: '<i class="fas fa-sync-alt fa-spin fs-80"></i>',
+            allowOutsideClick: false,
+            background: 'rgba(0, 0, 0, 0)'
+          });
+    }
 
-      var options = {
-            series: [{
-            name: 'Turnover Rate : ',
-            data: [8, 9, 2, 4, 7, 1.5, 6, 5, 3, 2]
-          }],
-            chart: {
-            foreColor:"#bac0c7",
-            type: 'bar',
-            height: 280,
-            stacked: true,
-            toolbar: {
-              show: false
-            },
-            zoom: {
-              enabled: true
-            }
+    function loadingSwalClose() {
+        loadingSwal.close();
+    }
+
+    function getDataKaryawan(){
+      let url = base_url + '/master-data/dashboard/get-data-karyawan-dashboard';
+      $.ajax({
+          url: url,
+          method: 'GET',
+          success: function(response) {
+              let dataKaryawan = response.data;
+              $('#aktif_karyawan').text(dataKaryawan.aktif);
+              $('#terminasi_karyawan').text(dataKaryawan.terminasi);
+              $('#resign_karyawan').text(dataKaryawan.resign);
+              $('#pensiun_karyawan').text(dataKaryawan.pensiun);
           },
-          responsive: [{
-            breakpoint: 480,
-            options: {
-              legend: {
-                position: 'bottom',
-                offsetX: -10,
-                offsetY: 0
-              }
-            }
-          }],		
-          grid: {
-              show: true,
-              borderColor: '#f7f7f7',      
-          },
-          colors:['#6993ff'],
-          plotOptions: {
-            bar: {
-              horizontal: false,
-              columnWidth: '30%',
-                endingShape: 'rounded',
-              colors: {
-                  backgroundBarColors: ['#f0f0f0'],
-                  backgroundBarOpacity: 0,
-              },
-            },
-          },
-          dataLabels: {
-            enabled: false
-          },
-   
-          xaxis: {
-            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
-          },
-          legend: {
-            show: true,
-          },
-          fill: {
-            opacity: 1
+          error: function(error) {
+              console.error(error);
           }
-          };
+      });
+    }
+    getDataKaryawan();
+
+      // var options = {
+      //       series: [{
+      //       name: 'Turnover Rate : ',
+      //       data: [8, 9, 2, 4, 7, 1.5, 6, 5, 3, 2]
+      //     }],
+      //       chart: {
+      //       foreColor:"#bac0c7",
+      //       type: 'bar',
+      //       height: 200,
+      //       stacked: true,
+      //       toolbar: {
+      //         show: false
+      //       },
+      //       zoom: {
+      //         enabled: true
+      //       }
+      //     },
+      //     responsive: [{
+      //       breakpoint: 480,
+      //       options: {
+      //         legend: {
+      //           position: 'bottom',
+      //           offsetX: -10,
+      //           offsetY: 0
+      //         }
+      //       }
+      //     }],		
+      //     grid: {
+      //         show: true,
+      //         borderColor: '#f7f7f7',      
+      //     },
+      //     colors:['#6993ff'],
+      //     plotOptions: {
+      //       bar: {
+      //         horizontal: false,
+      //         columnWidth: '30%',
+      //           endingShape: 'rounded',
+      //         colors: {
+      //             backgroundBarColors: ['#f0f0f0'],
+      //             backgroundBarOpacity: 0,
+      //         },
+      //       },
+      //     },
+      //     dataLabels: {
+      //       enabled: false
+      //     },
+   
+      //     xaxis: {
+      //       categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+      //     },
+      //     legend: {
+      //       show: true,
+      //     },
+      //     fill: {
+      //       opacity: 1
+      //     }
+      //     };
   
-          var chart = new ApexCharts(document.querySelector("#turnover-chart"), options);
-          chart.render();
+      //     var chart = new ApexCharts(document.querySelector("#turnover-chart"), options);
+      //     chart.render();
       
       
       

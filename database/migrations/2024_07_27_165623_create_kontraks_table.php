@@ -18,17 +18,21 @@ return new class extends Migration
             $table->string('nama_posisi')->nullable();
             $table->string('no_surat')->nullable();
             $table->enum('jenis', ['PKWT', 'MAGANG', 'THL', 'PKWTT']);
-            $table->enum('status', ['WAITING', 'EXTENDED', 'CUTOFF'])->default('WAITING');
+            $table->enum('status', ['DONE', 'ON PROGRESS'])->default('ON PROGRESS');
             $table->integer('durasi')->nullable();
             $table->integer('salary')->nullable();
             $table->text('deskripsi')->nullable();
             $table->date('tanggal_mulai');
             $table->date('tanggal_selesai')->nullable();
+            $table->date('tanggal_mulai_before')->nullable();
+            $table->date('tanggal_selesai_before')->nullable();
+            $table->enum('isReactive', ['Y', 'N'])->default('N');
             $table->date('issued_date')->nullable();
             $table->string('tempat_administrasi')->nullable()->default('Karawang');
             $table->string('status_change_by')->nullable();
             $table->date('status_change_date')->nullable();
             $table->string('attachment')->nullable();
+            $table->string('evidence')->nullable();
 
             $table->softDeletes();
             $table->timestamps();

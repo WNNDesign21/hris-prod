@@ -27,62 +27,91 @@
                 </div>
             </div>
         </div>
-        <div class="col-xl-4 col-12 mb-4">
-            <div class="box" style="height: 100%;">
+        <div class="col-xl-4 col-12">
+            <div class="box">
                 <div class="box-header with-border">
-                    <h4 class="box-title">Karyawan Data <br><small>February 2024</small></h4>
+                    <h4 class="box-title">Data Karyawan <br><small>{{ \Carbon\Carbon::now()->format('F Y') }}</small></h4>
                 </div>
-                <div class="box-body px-0 pt-0 pb-10">
+                <div class="box-body px-0 pt-0">
                     <div class="media-list media-list-hover">
                         <a class="media media-single" href="#">
-                            <h4 class="w-20 text-gray fw-500" id="aktif_karyawan">6</h4>
+                            <h4 class="w-20 text-gray fw-500" id="aktif_karyawan"><i
+                                    class="fas fa-sync-alt fa-spin fs-24"></i></h4>
                             <div class="media-body ps-15 bs-5 rounded border-success">
-                                <p>AKTIF</p>
-                                <span class="text-fade">Last Updated</span>
+                                <h5>AKTIF</h5>
                             </div>
                         </a>
 
                         <a class="media media-single" href="#">
-                            <h4 class="w-20 text-gray fw-500" id="terminasi_karyawan">1</h4>
+                            <h4 class="w-20 text-gray fw-500" id="terminasi_karyawan"><i
+                                    class="fas fa-sync-alt fa-spin fs-24"></i></h4>
                             <div class="media-body ps-15 bs-5 rounded border-primary">
-                                <p>TERMINASI</p>
-                                <span class="text-fade">Last Updated</span>
+                                <h5>TERMINASI</h5>
                             </div>
                         </a>
 
                         <a class="media media-single" href="#">
-                            <h4 class="w-20 text-gray fw-500" id="resign_karyawan">4</h4>
+                            <h4 class="w-20 text-gray fw-500" id="resign_karyawan"><i
+                                    class="fas fa-sync-alt fa-spin fs-24"></i></h4>
                             <div class="media-body ps-15 bs-5 rounded border-danger">
-                                <p>RESIGN</p>
-                                <span class="text-fade">Last Updated</span>
+                                <h5>RESIGN</h5>
                             </div>
                         </a>
 
                         <a class="media media-single" href="#">
-                            <h4 class="w-20 text-gray fw-500" id="pensiun_karyawan">3</h4>
+                            <h4 class="w-20 text-gray fw-500" id="pensiun_karyawan"><i
+                                    class="fas fa-sync-alt fa-spin fs-24"></i></h4>
                             <div class="media-body ps-15 bs-5 rounded border-info">
-                                <p>PENSIUN</p>
-                                <span class="text-fade">Last Updated</span>
+                                <h5>PENSIUN</h5>
                             </div>
                         </a>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-xl-8 col-12 mb-4">
-            <div class="box" style="height: 100%;">
+        {{-- <div class="col-xl-8 col-12">
+            <div class="box">
                 <div class="box-body">
                     <h3 class="mt-0 mb-5">Employee Turnover</h3>
                     <p class="text-fade">Jan - Dec {{ date('Y') }}</p>
-                    {{-- <p class="text-fade">400/500 <small class="text-danger"><i class="fa fa-arrow-down"></i>
-                            15%</small></p> --}}
+                    <p class="text-fade">400/500 <small class="text-danger"><i class="fa fa-arrow-down"></i>
+                            15%</small></p>
                     <div id="turnover-chart"></div>
+                </div>
+            </div>
+        </div> --}}
+        <div class="col-xl-8 col-12">
+            <div class="box">
+                <div class="box-header with-border">
+                    <h4 class="box-title">Kontrak Progress</h4>
+                    <ul class="box-controls pull-right d-md-flex d-none">
+                        <li class="dropdown">
+                            <button class="dropdown-toggle btn btn-warning-light px-10" data-bs-toggle="dropdown"
+                                href="#">Today</button>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a class="dropdown-item active" href="#">Today</a>
+                                <a class="dropdown-item" href="#">Yesterday</a>
+                                <a class="dropdown-item" href="#">Last week</a>
+                                <a class="dropdown-item" href="#">Last month</a>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="box-body pb-0">
+                    <div id="revenue5"></div>
+                    <div class="d-flex justify-content-center">
+                        <p class="d-flex align-items-center fw-600 mx-20"><span
+                                class="badge badge-xl badge-dot badge-warning me-20"></span> Progress
+                        </p>
+                        <p class="d-flex align-items-center fw-600 mx-20"><span
+                                class="badge badge-xl badge-dot badge-primary me-20"></span> Done</p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
     {{-- GRAFIK DASHBOARD --}}
-    <div class="row">
+    {{-- <div class="row">
         <div class="col-xl-3 col-12 mb-4">
             <div class="box">
                 <div class="box-header with-border">
@@ -148,5 +177,5 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 @endsection

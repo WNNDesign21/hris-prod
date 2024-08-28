@@ -33,9 +33,13 @@ class Kontrak extends Model
         'deskripsi',
         'tanggal_mulai',
         'tanggal_selesai',
+        'tanggal_mulai_before',
+        'tanggal_selesai_before',
+        'isReactive',
         'status_change_by',
         'status_change_date',
-        'attachment'
+        'attachment',
+        'evidence'
     ];
     
     protected $dates = [
@@ -69,8 +73,8 @@ class Kontrak extends Model
             'durasi',
             'salary',
             'deskripsi',
-            'tanggal_mulai',
-            'tanggal_selesai',
+            'kontraks.tanggal_mulai as tanggal_mulai_kontrak',
+            'kontraks.tanggal_selesai as tanggal_selesai_kontrak',
             'jenis',
             'status',
             'status_change_by',
@@ -89,8 +93,8 @@ class Kontrak extends Model
                 ->orWhere('status', 'ILIKE', "%{$search}%")
                 ->orWhere('status_change_by', 'ILIKE', "%{$search}%")
                 ->orWhere('salary', 'ILIKE', "%{$search}%")
-                ->orWhere('tanggal_mulai', 'ILIKE', "%{$search}%")
-                ->orWhere('tanggal_selesai', 'ILIKE', "%{$search}%")
+                ->orWhere('kontraks.tanggal_mulai', 'ILIKE', "%{$search}%")
+                ->orWhere('kontraks.tanggal_selesai', 'ILIKE', "%{$search}%")
                 ->orWhere('issued_date', 'ILIKE', "%{$search}%")
                 ->orWhere('id_kontrak', 'ILIKE', "%{$search}%")
                 ->orWhere('karyawan_id', 'ILIKE', "%{$search}%");

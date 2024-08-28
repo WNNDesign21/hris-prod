@@ -34,6 +34,8 @@
                                     <th>Posisi</th>
                                     <th>Grup</th>
                                     <th>Jenis Kontrak</th>
+                                    <th>Tanggal Mulai</th>
+                                    <th>Tanggal Selesai</th>
                                     <th>Status Karyawan</th>
                                     <th class="text-center">Aksi</th>
                                 </tr>

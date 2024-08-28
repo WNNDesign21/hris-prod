@@ -48,6 +48,15 @@
                                         <option value="THL">THL</option>
                                     </select>
                                 </div>
+                                <div class="form-group mb-0">
+                                    <input type="checkbox" id="isReactive" name="isReactive" value="Y"
+                                        class="filled-in chk-col-primary" />
+                                    <label for="isReactive">
+                                        <h5>IsReactive</h5>
+                                    </label>
+                                </div>
+                                <small>Note : Khusus untuk karyawan yang sudah keluar namun masuk
+                                    kembali.</small>
                             </div>
                             <div class="col-lg-6 col-12">
                                 <div class="form-group">

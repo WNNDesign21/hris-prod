@@ -49,14 +49,14 @@ class Karyawan extends Model
         'jenis_kontrak',
         'status_karyawan',
         'sisa_cuti',
-        'tahun_masuk',
-        'tahun_keluar',
+        'tanggal_mulai',
+        'tanggal_selesai',
     ];
     
     protected $dates = [
         'tanggal_lahir',
-        'tahun_masuk',
-        'tahun_keluar',
+        'tanggal_mulai',
+        'tanggal_selesai',
     ];
 
     public function user()

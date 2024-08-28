@@ -51,15 +51,6 @@
                                         <option value="THL">THL</option>
                                     </select>
                                 </div>
-                                <div class="form-group">
-                                    <label for="">Status <span class="text-danger">*</span></label>
-                                    <select name="status_kontrakEdit" id="status_kontrakEdit" class="form-control"
-                                        style="width: 100%;">
-                                        <option value="WAITING">WAITING</option>
-                                        <option value="EXTENDED">EXTENDED</option>
-                                        <option value="CUTOFF">CUT OFF</option>
-                                    </select>
-                                </div>
                             </div>
                             <div class="col-lg-6 col-12">
                                 <div class="form-group">

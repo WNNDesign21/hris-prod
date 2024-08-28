@@ -55,10 +55,10 @@ $(function () {
         { data: "durasi" },
         { data: "salary" },
         { data: "status_change_by" },
-        // { data: "status_change_date" },
         { data: "tanggal_mulai" },
         { data: "tanggal_selesai" },
         { data: "attachment" },
+        { data: "evidence" },
         { data: "aksi" },
     ];
 
@@ -129,7 +129,7 @@ $(function () {
         columnDefs: [
             {
                 orderable: false,
-                targets: [-1,-2],
+                targets: [-1,-2,-3],
             },
             {
                 targets: [-2, -1],

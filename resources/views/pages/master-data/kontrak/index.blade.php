@@ -42,6 +42,7 @@
                                     <th>Tanggal Mulai</th>
                                     <th>Tanggal Selesai</th>
                                     <th class="text-center">Attachment</th>
+                                    <th class="text-center">Evidence</th>
                                     <th class="text-center">Aksi</th>
                                 </tr>
                             </thead>

@@ -148,28 +148,20 @@
                                         class="form-control">
                                 </div>
                                 <div class="form-group mt-2">
-                                    <label for="">Tahun Masuk <span class="text-danger">*</span></label>
-                                    <br>
-                                    <select name="tahun_masukEdit" id="tahun_masukEdit" class="form-control"
-                                        style="width: 100%;" required>
-                                        @php
-                                            $currentYear = date('Y');
-                                        @endphp
-                                        @for ($year = 2017; $year <= $currentYear; $year++)
-                                            <option value="{{ $year }}">{{ $year }}</option>
-                                        @endfor
-                                    </select>
+                                    <label for="">Tanggal Mulai <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" name="tanggal_mulaiEdit"
+                                        id="tanggal_mulaiEdit" readonly>
+                                </div>
+                                <div class="form-group mt-2">
+                                    <label for="">Tanggal Selesai <span class="text-danger">*</span></label>
+                                    <input type="date" class="form-control" name="tanggal_selesaiEdit"
+                                        id="tanggal_selesaiEdit" readonly>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Status Karyawan <span
                                             class="text-danger">*</span></label>
-                                    <select name="status_karyawanEdit" id="status_karyawanEdit" class="form-control"
-                                        style="width: 100%;">
-                                        <option value="AKTIF">AKTIF</option>
-                                        <option value="RESIGN">RESIGN</option>
-                                        <option value="TERMINASI">TERMINASI</option>
-                                        <option value="PENSIUN">PENSIUN</option>
-                                    </select>
+                                    <input type="text" class="form-control" name="status_karyawanEdit"
+                                        id="status_karyawanEdit" readonly>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Posisi <span class="text-danger">*</span></label>

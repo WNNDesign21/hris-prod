@@ -34,8 +34,8 @@ return new class extends Migration
             $table->enum('status_karyawan', ['AKTIF', 'RESIGN', 'PENSIUN', 'TERMINASI'])->nullable();
             $table->integer('sisa_cuti')->default(12);
             $table->integer('hutang_cuti')->default(0);
-            $table->year('tahun_masuk')->nullable();
-            $table->year('tahun_keluar')->nullable();
+            $table->date('tanggal_mulai')->nullable();
+            $table->date('tanggal_selesai')->nullable();
 
             $table->timestamps();
             $table->softDeletes();

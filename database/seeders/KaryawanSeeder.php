@@ -23,7 +23,8 @@ class KaryawanSeeder extends Seeder
                 'jenis_kontrak' => 'PKWT',
                 'status_karyawan' => 'AKTIF',
                 'sisa_cuti' => 12,
-                'tahun_masuk' => '2024',
+                'tanggal_mulai' => Carbon::now()->toDateString(),
+                'tanggal_selesai' => Carbon::now()->addMonths(6)->toDateString(),
                 'user_id' => 1,
                 'grup_id' => 1
             ],
@@ -33,7 +34,8 @@ class KaryawanSeeder extends Seeder
                 'jenis_kontrak' => 'MAGANG',
                 'status_karyawan' => 'AKTIF',
                 'sisa_cuti' => 12,
-                'tahun_masuk' => '2024',
+                'tanggal_mulai' => Carbon::now()->toDateString(),
+                'tanggal_selesai' => Carbon::now()->addMonths(6)->toDateString(),
                 'user_id' => 2,
                 'grup_id' => 1
             ],
@@ -43,7 +45,8 @@ class KaryawanSeeder extends Seeder
                 'jenis_kontrak' => 'PKWTT',
                 'status_karyawan' => 'AKTIF',
                 'sisa_cuti' => 12,
-                'tahun_masuk' => '2024',
+                'tanggal_mulai' => Carbon::now()->toDateString(),
+                'tanggal_selesai' => Carbon::now()->addMonths(6)->toDateString(),
                 'user_id' => 3,
                 'grup_id' => 1
             ],
@@ -62,12 +65,13 @@ class KaryawanSeeder extends Seeder
                 'karyawan_id' =>  $kry->id_karyawan,
                 'nama_posisi' => 'Posisi '. $i,
                 'jenis' => 'PKWT',
-                'status' => 'EXTENDED',
+                'status' => 'DONE',
                 'durasi' => 6,
                 'salary' => 5250000,
                 'deskripsi' => 'Potongan A = 3% , Potongan B = 1.5%, Potongan C = 1%',
                 'tanggal_mulai' => Carbon::now()->toDateString(),
                 'tanggal_selesai' => Carbon::now()->addMonths(6)->toDateString(),
+                'isReactive' => 'N',
             ]);
             $i++;
         }

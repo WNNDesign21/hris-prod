@@ -196,30 +196,6 @@
                                     <br>
                                     <input type="text" name="no_bpjs_kt" id="no_bpjs_kt" class="form-control">
                                 </div>
-                                <div class="form-group mt-2">
-                                    <label for="">Tahun Masuk <span class="text-danger">*</span></label>
-                                    <br>
-                                    <select name="tahun_masuk" id="tahun_masuk" class="form-control"
-                                        style="width: 100%;" required>
-                                        @php
-                                            $currentYear = date('Y');
-                                        @endphp
-                                        @for ($year = 2017; $year <= $currentYear; $year++)
-                                            <option value="{{ $year }}">{{ $year }}</option>
-                                        @endfor
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Status Karyawan <span
-                                            class="text-danger">*</span></label>
-                                    <select name="status_karyawan" id="status_karyawan" class="form-control"
-                                        style="width: 100%;" disabled>
-                                        <option value="AKTIF" selected>AKTIF</option>
-                                        <option value="RESIGN">RESIGN</option>
-                                        <option value="TERMINASI">TERMINASI</option>
-                                        <option value="PENSIUN">PENSIUN</option>
-                                    </select>
-                                </div>
                                 <div class="form-group">
                                     <label class="form-label">Posisi <span class="text-danger">*</span></label>
                                     <select class="form-control" multiple="multiple" data-placeholder="Pilih Posisi"

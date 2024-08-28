@@ -51,6 +51,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     /** MASTER DATA - DASHBOARD */
     Route::get('/master-data/dashboard',[DashboardController::class, 'index'])->name('master-data.dashboard');
+    Route::get('/master-data/dashboard/get-data-karyawan-dashboard',[DashboardController::class, 'get_data_karyawan_dashboard']);
 
     /** MASTER DATA - ORGANISASI */
     Route::post('/master-data/organisasi/datatable', [OrganisasiController::class, 'datatable']);
@@ -119,6 +120,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/master-data/kontrak/store-or-update',[KontrakController::class, 'store_or_update'])->name('master-data.kontrak.storeUpdate');
     Route::post('/master-data/kontrak/upload-kontrak/{idKontrak}',[KontrakController::class, 'upload_kontrak'])->name('master-data.kontrak.uploadKontrak');
 
+    /** MASTER DATA - EXPORT */
     Route::get('/master-data/export',[ExportController::class, 'index'])->name('master-data.export');
     Route::post('/master-data/export/export-master-data',[ExportController::class, 'export_master_data'])->name('master-data.export.master-data');
     Route::post('/master-data/export/export-kontrak',[ExportController::class, 'export_kontrak'])->name('master-data.export.kontrak');

@@ -50,6 +50,8 @@ $(function () {
         { data: "posisi" },
         { data: "grup" },
         { data: "jenis_kontrak" },
+        { data: "tanggal_mulai" },
+        { data: "tanggal_selesai" },
         { data: "status_karyawan" },
         { data: "aksi" },
     ];
@@ -187,16 +189,11 @@ $(function () {
         $("#no_bpjs_ks").val("");
         $("#no_bpjs_kt").val("");
         $('#status_karyawan').val("AKTIF");
-        $('#tahun_masuk').val("");
         $('#grup').val("");
         $('#posisi').val("");
     }
 
     function initializeSelect2() {
-        $('#status_karyawan').select2({
-            dropdownParent: $('#modal-input-karyawan'),
-        });
-
         $('#jenis_kelamin').select2({
             dropdownParent: $('#modal-input-karyawan'),
         });
@@ -210,10 +207,6 @@ $(function () {
         });
 
         $('#status_keluarga').select2({
-            dropdownParent: $('#modal-input-karyawan'),
-        });
-
-        $('#tahun_masuk').select2({
             dropdownParent: $('#modal-input-karyawan'),
         });
 
@@ -297,10 +290,6 @@ $(function () {
     });
 
     function initializeSelect2Edit(grupId, posisi) {
-        $('#status_karyawanEdit').select2({
-            dropdownParent: $('#modal-edit-karyawan'),
-        });
-
         $('#jenis_kelaminEdit').select2({
             dropdownParent: $('#modal-edit-karyawan'),
         });
@@ -314,10 +303,6 @@ $(function () {
         });
 
         $('#status_keluargaEdit').select2({
-            dropdownParent: $('#modal-edit-karyawan'),
-        });
-
-        $('#tahun_masukEdit').select2({
             dropdownParent: $('#modal-edit-karyawan'),
         });
 
@@ -380,7 +365,8 @@ $(function () {
                 $('#no_bpjs_ksEdit').val(detailKaryawan.no_bpjs_ks);
                 $('#no_bpjs_ktEdit').val(detailKaryawan.no_bpjs_kt);
                 $('#status_karyawanEdit').val(detailKaryawan.status_karyawan);
-                $('#tahun_masukEdit').val(detailKaryawan.tahun_masuk);
+                $('#tanggal_mulaiEdit').val(detailKaryawan.tanggal_mulai);
+                $('#tanggal_selesaiEdit').val(detailKaryawan.tanggal_selesai);
                 initializeSelect2Edit(detailKaryawan.grup_id, detailKaryawan.posisi);
                 openEditKaryawan();
             },
@@ -620,7 +606,6 @@ $(function () {
 
         getListKontrak(idKaryawan);
         selectPosisiKontrak();
-        openKontrak();
     });
 
     function selectPosisiKontrak(posisiId = ''){
@@ -680,7 +665,6 @@ $(function () {
     };
 
     function getListKontrak(idKaryawan){
-        // loadingSwalShow();
         let url = base_url + '/master-data/kontrak/get-data-list-kontrak/' + idKaryawan;
         $.ajax({
             url: url,
@@ -763,7 +747,7 @@ $(function () {
                     `);
                     no++;
                 });
-                // loadingSwalClose();
+                openKontrak();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
