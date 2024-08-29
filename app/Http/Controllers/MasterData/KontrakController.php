@@ -91,7 +91,7 @@ class KontrakController extends Controller
                 $nestedData['evidence'] = $data->evidence ? '<div class="btn-group btn-group-sm"><button data-type="evidence" data-id="'.$data->id_kontrak.'" class="btn btn-sm btn-primary btn-file-change" type="button"><i class="fas fa-upload"></i> Change</button><input type="file" name="evidence" id="evidence_change_'.$data->id_kontrak.'" class="d-none"><a href="'.asset('storage/'.$data->evidence).'" target="_blank" class="btn btn-sm btn-secondary"><i class="fas fa-download"></i> Download</a></div>' : '<button data-id="'.$data->id_kontrak.'" data-type="evidence" class="btn btn-sm btn-primary btn-file" type="button">Upload</button><input type="file" name="evidence" id="evidence_'.$data->id_kontrak.'" class="d-none">';
                 $nestedData['aksi'] = '
                 <div class="btn-group btn-group-sm">'.
-                    ($data->attachment !== null && $data->evidence !== null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnDone" data-id="'.$data->id_kontrak.'"><i class="far fa-check-circle"></i> Done</button>' : '').
+                    ($data->attachment !== null && $data->evidence !== null && $data->status !== 'DONE' ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnDone" data-id="'.$data->id_kontrak.'" data-isreactive="'.$data->isReactive.'"><i class="far fa-check-circle"></i> Done</button>' : '').
                     ($data->status !== 'DONE' ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id="'.$data->id_kontrak.'"><i class="fas fa-edit"></i> Edit</button>' : '').
                     ($data->status !== 'DONE' ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_kontrak.'"><i class="fas fa-trash-alt"></i> Hapus </button>' : '').
                     '<a class="waves-effect waves-light btn btn-sm btn-info" href="'.url('master-data/kontrak/download-kontrak-kerja/'.$data->id_kontrak).'" target="_blank"><i class="fas fa-download"></i> Template</a>
@@ -838,6 +838,51 @@ class KontrakController extends Controller
             
             DB::commit();
             return response()->json(['message' => 'Upload File pada '.$id_kontrak.' Sukses!'],200);
+        } catch(Throwable $error){
+            DB::rollBack();
+            return response()->json(['message' => $error->getMessage()], 500);
+        } catch (QueryException $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Database error: ' . $e->getMessage()], 500);
+        } catch (ModelNotFoundException $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Model not found: ' . $e->getMessage()], 404);
+        }
+    }
+
+    public function done_kontrak(Request $request, string $id_kontrak)
+    {
+        DB::beginTransaction();
+        try{
+
+            $isReactive = $request->isReactive;
+            $kontrak = Kontrak::find($id_kontrak);
+            $karyawan = Karyawan::find($kontrak->karyawan_id);
+
+
+            //cek apakah file evidence & attachment sudah diupload
+            if($kontrak->evidence == null || $kontrak->attachment == null)
+            {
+                DB::commit();
+                return response()->json(['message' => 'Upload File Evidence & Attachment terlebih dahulu!'], 402);
+            }
+
+            //update status kontrak
+            $kontrak->status = 'DONE';
+            $kontrak->save();
+
+            //update tanggal selesai karyawan
+            if ($isReactive == 'Y') {
+                $karyawan->tanggal_mulai = $kontrak->tanggal_mulai;
+                $karyawan->tanggal_selesai = $kontrak->tanggal_selesai;
+            } else {
+                $karyawan->tanggal_selesai = $kontrak->tanggal_selesai;
+            }
+            $karyawan->jenis_kontrak = $kontrak->jenis;
+            $karyawan->save();
+            
+            DB::commit();
+            return response()->json(['message' => 'Kontrak Berhasil Selesai!'], 200);
         } catch(Throwable $error){
             DB::rollBack();
             return response()->json(['message' => $error->getMessage()], 500);

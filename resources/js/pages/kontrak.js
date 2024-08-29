@@ -282,6 +282,34 @@ $(function () {
         }
     })
 
+    //Done Kontrak
+    $('#kontrak-table').on('click', '.btnDone', function (){
+        loadingSwalShow();
+        let idKontrak = $(this).data('id');
+        let isReactive = $(this).data('isreactive');
+        let url = base_url + '/master-data/kontrak/done/' + idKontrak;
+
+        var formData = new FormData();
+        formData.append('isReactive', isReactive);
+        $.ajax({
+            url: url, 
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                loadingSwalClose()
+                showToast({ title: data.message });
+                refreshTable();
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            }
+        });
+
+    })
+
     // MODAL TAMBAH KARYAWAN
     var modalInputKontrakOptions = {
         backdrop: true,
