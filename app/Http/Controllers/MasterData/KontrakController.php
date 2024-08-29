@@ -87,14 +87,14 @@ class KontrakController extends Controller
                 $nestedData['status_change_by'] = '<small class="text-bold">'.$data->status_change_by.'</small> - '.'<br>'.'<small class="text-primary">'.$data->status_change_date.'</small>';
                 $nestedData['tanggal_mulai'] = $data->tanggal_mulai_kontrak;
                 $nestedData['tanggal_selesai'] = $data->tanggal_selesai_kontrak;
-                $nestedData['attachment'] = $data->attachment ? '<div class="btn-group btn-group-sm"><button data-id="'.$data->id_kontrak.'" class="btn btn-sm btn-primary btn-file" type="button"><i class="fas fa-upload"></i> Change</button><input type="file" name="attachment" id="attachment_'.$data->id_kontrak.'" class="d-none"><a href="'.asset('storage/'.$data->attachment).'" target="_blank" class="btn btn-sm btn-secondary"><i class="fas fa-download"></i> Download</a></div>' : '<button data-id="'.$data->id_kontrak.'" class="btn btn-sm btn-primary btn-file" type="button"><i class="fas fa-upload"></i> Upload</button><input type="file" name="attachment" id="attachment_'.$data->id_kontrak.'" class="d-none">';
-                $nestedData['evidence'] = $data->attachment ? '<div class="btn-group btn-group-sm"><button data-id="'.$data->id_kontrak.'" class="btn btn-sm btn-primary btn-file" type="button"><i class="fas fa-upload"></i> Change</button><input type="file" name="attachment" id="attachment_'.$data->id_kontrak.'" class="d-none"><a href="'.asset('storage/'.$data->attachment).'" target="_blank" class="btn btn-sm btn-secondary"><i class="fas fa-download"></i> Download</a></div>' : '<button data-id="'.$data->id_kontrak.'" class="btn btn-sm btn-primary btn-file" type="button"><i class="fas fa-upload"></i> Upload</button><input type="file" name="attachment" id="attachment_'.$data->id_kontrak.'" class="d-none">';
+                $nestedData['attachment'] = $data->attachment ? '<div class="btn-group btn-group-sm"><button data-type="attachment" data-id="'.$data->id_kontrak.'" class="btn btn-sm btn-primary btn-file-change" type="button"><i class="fas fa-upload"></i> Change</button><input type="file" name="attachment" id="attachment_change_'.$data->id_kontrak.'" class="d-none"><a href="'.asset('storage/'.$data->attachment).'" target="_blank" class="btn btn-sm btn-secondary"><i class="fas fa-download"></i> Download</a></div>' : '<button data-id="'.$data->id_kontrak.'" data-type="attachment" class="btn btn-sm btn-primary btn-file" type="button">Upload</button><input type="file" name="attachment" id="attachment_'.$data->id_kontrak.'" class="d-none">';
+                $nestedData['evidence'] = $data->evidence ? '<div class="btn-group btn-group-sm"><button data-type="evidence" data-id="'.$data->id_kontrak.'" class="btn btn-sm btn-primary btn-file-change" type="button"><i class="fas fa-upload"></i> Change</button><input type="file" name="evidence" id="evidence_change_'.$data->id_kontrak.'" class="d-none"><a href="'.asset('storage/'.$data->evidence).'" target="_blank" class="btn btn-sm btn-secondary"><i class="fas fa-download"></i> Download</a></div>' : '<button data-id="'.$data->id_kontrak.'" data-type="evidence" class="btn btn-sm btn-primary btn-file" type="button">Upload</button><input type="file" name="evidence" id="evidence_'.$data->id_kontrak.'" class="d-none">';
                 $nestedData['aksi'] = '
-                <div class="btn-group btn-group-sm">
-                    <button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id="'.$data->id_kontrak.'"><i class="fas fa-edit"></i> Edit</button>
-                    <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_kontrak.'"><i class="fas fa-trash-alt"></i> Hapus'.($data->isReactive == 'Y' ? '& Reverse' : '').'</button>
-                    <a class="waves-effect waves-light btn btn-sm btn-info" href="'.url('master-data/kontrak/download-kontrak-kerja/'.$data->id_kontrak).'" target="_blank"><i class="fas fa-download"></i> Template</a>
-                </div>
+                <div class="btn-group btn-group-sm">'.
+                    ($data->attachment !== null && $data->evidence !== null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnDone" data-id="'.$data->id_kontrak.'"><i class="far fa-check-circle"></i> Done</button>' : '').
+                    ($data->status !== 'DONE' ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id="'.$data->id_kontrak.'"><i class="fas fa-edit"></i> Edit</button>' : '').
+                    ($data->status !== 'DONE' ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_kontrak.'"><i class="fas fa-trash-alt"></i> Hapus </button>' : '').
+                    '<a class="waves-effect waves-light btn btn-sm btn-info" href="'.url('master-data/kontrak/download-kontrak-kerja/'.$data->id_kontrak).'" target="_blank"><i class="fas fa-download"></i> Template</a>
                 </div>
                 ';
 
@@ -159,9 +159,20 @@ class KontrakController extends Controller
         $issued_date = $request->issued_date;
         $tempat_administrasi = $request->tempat_administrasi;
         $no_surat = $request->no_surat;
+        $isReactive = $request->isReactive;
 
         DB::beginTransaction(); 
         try{
+
+            //CEK APAKAH DIA SUDAH ADA KONTRAK SEBELUMNYA ATAU BELUM
+            $is_kontrak_exist = Kontrak::where('karyawan_id', $karyawan_id)->where('status', 'DONE')->orderBy('tanggal_selesai', 'DESC')->first();
+            if($isReactive == 'Y'){
+                if(!$is_kontrak_exist){
+                    DB::commit();
+                    return response()->json(['message' => 'Karyawan belum memiliki Kontrak untuk memilih Reactive!'], 402);
+                }
+            }
+
             if($jenis !== 'PKWTT'){
 
                 if ($durasi == 0) {
@@ -188,6 +199,9 @@ class KontrakController extends Controller
                         'deskripsi' => $deskripsi,
                         'tanggal_mulai' => $tanggal_mulai,
                         'tanggal_selesai' => $tanggal_selesai,
+                        'isReactive' => $isReactive == 'Y' ? 'Y' : 'N',
+                        'tanggal_mulai_before' => $isReactive == 'Y' ? $kry->tanggal_mulai : null,
+                        'tanggal_selesai_before' => $isReactive == 'Y' ? $kry->tanggal_selesai : null,
                     ]);
                     $no_surat_int++;
                 }
@@ -213,6 +227,9 @@ class KontrakController extends Controller
                         'deskripsi' => $deskripsi,
                         'tanggal_mulai' => $tanggal_mulai,
                         'tanggal_selesai' => null,
+                        'isReactive' => $isReactive == 'Y' ? 'Y' : 'N',
+                        'tanggal_mulai_before' => $isReactive == 'Y' ? $kry->tanggal_mulai : null,
+                        'tanggal_selesai_before' => $isReactive == 'Y' ? $kry->tanggal_selesai : null,
                     ]);
                 }
             }
@@ -230,130 +247,131 @@ class KontrakController extends Controller
         }
     }
 
-    public function store_or_update(Request $request)
-    {
-        $dataValidate = [
-            'karyawan_id_kontrakEdit' => ['required'],
-            'jenis_kontrakEdit' => ['required'],
-            'posisi_kontrakEdit' => ['required'],
-            'durasi_kontrakEdit' => ['numeric','nullable'],
-            'salary_kontrakEdit' => ['numeric','required'],
-            'tanggal_mulai_kontrakEdit' => ['required', 'date'],
-            'tanggal_selesai_kontrakEdit' => ['nullable', 'date'],
-            'issued_date_kontrakEdit' => ['required', 'date'],
-            'tempat_administrasi_kontrakEdit' => ['required'],
-            'no_surat_kontrakEdit' => ['required'],
-        ];
+    // Tidak Dipakai Lagi
+    // public function store_or_update(Request $request)
+    // {
+    //     $dataValidate = [
+    //         'karyawan_id_kontrakEdit' => ['required'],
+    //         'jenis_kontrakEdit' => ['required'],
+    //         'posisi_kontrakEdit' => ['required'],
+    //         'durasi_kontrakEdit' => ['numeric','nullable'],
+    //         'salary_kontrakEdit' => ['numeric','required'],
+    //         'tanggal_mulai_kontrakEdit' => ['required', 'date'],
+    //         'tanggal_selesai_kontrakEdit' => ['nullable', 'date'],
+    //         'issued_date_kontrakEdit' => ['required', 'date'],
+    //         'tempat_administrasi_kontrakEdit' => ['required'],
+    //         'no_surat_kontrakEdit' => ['required'],
+    //     ];
 
-        $validator = Validator::make(request()->all(), $dataValidate);
+    //     $validator = Validator::make(request()->all(), $dataValidate);
     
-        if ($validator->fails()) {
-            return response()->json(['message' => 'Fill your input correctly!'], 402);
-        }
+    //     if ($validator->fails()) {
+    //         return response()->json(['message' => 'Fill your input correctly!'], 402);
+    //     }
 
-        $karyawan_id = $request->karyawan_id_kontrakEdit;
-        $jenis = $request->jenis_kontrakEdit;
-        $posisi_id = $request->posisi_kontrakEdit;
-        $durasi = (int)$request->durasi_kontrakEdit;
-        $salary = $request->salary_kontrakEdit;
-        $deskripsi = $request->deskripsi_kontrakEdit;
-        $tanggal_mulai = $request->tanggal_mulai_kontrakEdit;
-        $tanggal_selesai = $request->tanggal_selesai_kontrakEdit;
-        $id_kontrak = $request->id_kontrakEdit;
-        $issued_date = $request->issued_date_kontrakEdit;
-        $tempat_administrasi = $request->tempat_administrasi_kontrakEdit;
-        $no_surat = $request->no_surat_kontrakEdit;
+    //     $karyawan_id = $request->karyawan_id_kontrakEdit;
+    //     $jenis = $request->jenis_kontrakEdit;
+    //     $posisi_id = $request->posisi_kontrakEdit;
+    //     $durasi = (int)$request->durasi_kontrakEdit;
+    //     $salary = $request->salary_kontrakEdit;
+    //     $deskripsi = $request->deskripsi_kontrakEdit;
+    //     $tanggal_mulai = $request->tanggal_mulai_kontrakEdit;
+    //     $tanggal_selesai = $request->tanggal_selesai_kontrakEdit;
+    //     $id_kontrak = $request->id_kontrakEdit;
+    //     $issued_date = $request->issued_date_kontrakEdit;
+    //     $tempat_administrasi = $request->tempat_administrasi_kontrakEdit;
+    //     $no_surat = $request->no_surat_kontrakEdit;
 
-        DB::beginTransaction();
-        try{
+    //     DB::beginTransaction();
+    //     try{
 
-            if(!$id_kontrak){
-                if($jenis !== 'PKWTT'){
+    //         if(!$id_kontrak){
+    //             if($jenis !== 'PKWTT'){
 
-                    if ($durasi === 0) {
-                        DB::commit();
-                        return response()->json(['message' => 'Durasi tidak boleh kosong!'], 402);
-                    }
+    //                 if ($durasi === 0) {
+    //                     DB::commit();
+    //                     return response()->json(['message' => 'Durasi tidak boleh kosong!'], 402);
+    //                 }
 
-                    $kry = Karyawan::find($karyawan_id);
-                    $kry->jenis_kontrak = $jenis;
-                    $kry->save();
+    //                 $kry = Karyawan::find($karyawan_id);
+    //                 $kry->jenis_kontrak = $jenis;
+    //                 $kry->save();
 
-                    $kontrak = Kontrak::create([
-                        'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,
-                        'karyawan_id' => $karyawan_id,
-                        'posisi_id' => $posisi_id,
-                        'nama_posisi' => Posisi::find($posisi_id)->nama,
-                        'jenis' => $jenis,
-                        'durasi' => $durasi,
-                        'salary' => $salary,
-                        'issued_date' => $issued_date,
-                        'tempat_administrasi' => $tempat_administrasi,
-                        'no_surat' => $no_surat,
-                        'deskripsi' => $deskripsi,
-                        'tanggal_mulai' => $tanggal_mulai,
-                        'tanggal_selesai' => $tanggal_selesai,
-                    ]);
-                } else {
-                    $kry = Karyawan::find($karyawan_id);
-                    $kry->jenis_kontrak = $jenis;
-                    $kry->save();
-                    $kontrak = Kontrak::create([
-                        'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,
-                        'karyawan_id' => $karyawan_id,
-                        'posisi_id' => $posisi_id,
-                        'nama_posisi' => Posisi::find($posisi_id)->nama,
-                        'jenis' => $jenis,
-                        'durasi' => $durasi,
-                        'salary' => $salary,
-                        'issued_date' => $issued_date,
-                        'no_surat' => $no_surat,
-                        'tempat_administrasi' => $tempat_administrasi,
-                        'deskripsi' => $deskripsi,
-                        'tanggal_mulai' => $tanggal_mulai,
-                    ]);
-                }
-                $text = 'Kontrak Berhasil Ditambahkan!';
-            } else {
+    //                 $kontrak = Kontrak::create([
+    //                     'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,
+    //                     'karyawan_id' => $karyawan_id,
+    //                     'posisi_id' => $posisi_id,
+    //                     'nama_posisi' => Posisi::find($posisi_id)->nama,
+    //                     'jenis' => $jenis,
+    //                     'durasi' => $durasi,
+    //                     'salary' => $salary,
+    //                     'issued_date' => $issued_date,
+    //                     'tempat_administrasi' => $tempat_administrasi,
+    //                     'no_surat' => $no_surat,
+    //                     'deskripsi' => $deskripsi,
+    //                     'tanggal_mulai' => $tanggal_mulai,
+    //                     'tanggal_selesai' => $tanggal_selesai,
+    //                 ]);
+    //             } else {
+    //                 $kry = Karyawan::find($karyawan_id);
+    //                 $kry->jenis_kontrak = $jenis;
+    //                 $kry->save();
+    //                 $kontrak = Kontrak::create([
+    //                     'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,
+    //                     'karyawan_id' => $karyawan_id,
+    //                     'posisi_id' => $posisi_id,
+    //                     'nama_posisi' => Posisi::find($posisi_id)->nama,
+    //                     'jenis' => $jenis,
+    //                     'durasi' => $durasi,
+    //                     'salary' => $salary,
+    //                     'issued_date' => $issued_date,
+    //                     'no_surat' => $no_surat,
+    //                     'tempat_administrasi' => $tempat_administrasi,
+    //                     'deskripsi' => $deskripsi,
+    //                     'tanggal_mulai' => $tanggal_mulai,
+    //                 ]);
+    //             }
+    //             $text = 'Kontrak Berhasil Ditambahkan!';
+    //         } else {
 
-                if ($durasi === 0 && $jenis !== 'PKWTT') {
-                    DB::commit();
-                    return response()->json(['message' => 'Durasi tidak boleh kosong!'], 402);
-                }
+    //             if ($durasi === 0 && $jenis !== 'PKWTT') {
+    //                 DB::commit();
+    //                 return response()->json(['message' => 'Durasi tidak boleh kosong!'], 402);
+    //             }
 
-                $kry = Karyawan::find($karyawan_id);
-                $kry->jenis_kontrak = $jenis;
-                $kry->save();
+    //             $kry = Karyawan::find($karyawan_id);
+    //             $kry->jenis_kontrak = $jenis;
+    //             $kry->save();
 
-                $kontrak = Kontrak::find($id_kontrak);
-                $kontrak->update([
-                    'posisi_id' => $posisi_id,
-                    'nama_posisi' => Posisi::find($posisi_id)->nama,
-                    'jenis' => $jenis,
-                    'durasi' => $durasi,
-                    'salary' => $salary,
-                    'deskripsi' => $deskripsi,
-                    'tanggal_mulai' => $tanggal_mulai,
-                    'tempat_administrasi' => $tempat_administrasi,
-                    'no_surat' => $no_surat,
-                    'tanggal_selesai' => $jenis !== 'PKWTT' ? $tanggal_selesai : null,
-                    'issued_date' => $issued_date
-                ]);
-                $text = 'Kontrak Berhasil Diupdate!';
-            }
-            DB::commit();
-            return response()->json(['message' => $text, 'data' => $kontrak],200);
-        } catch(Throwable $error){
-            DB::rollBack();
-            return response()->json(['message' => $error->getMessage()], 500);
-        } catch (QueryException $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Database error: ' . $e->getMessage()], 500);
-        } catch (ModelNotFoundException $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Model not found: ' . $e->getMessage()], 404);
-        }
-    }
+    //             $kontrak = Kontrak::find($id_kontrak);
+    //             $kontrak->update([
+    //                 'posisi_id' => $posisi_id,
+    //                 'nama_posisi' => Posisi::find($posisi_id)->nama,
+    //                 'jenis' => $jenis,
+    //                 'durasi' => $durasi,
+    //                 'salary' => $salary,
+    //                 'deskripsi' => $deskripsi,
+    //                 'tanggal_mulai' => $tanggal_mulai,
+    //                 'tempat_administrasi' => $tempat_administrasi,
+    //                 'no_surat' => $no_surat,
+    //                 'tanggal_selesai' => $jenis !== 'PKWTT' ? $tanggal_selesai : null,
+    //                 'issued_date' => $issued_date
+    //             ]);
+    //             $text = 'Kontrak Berhasil Diupdate!';
+    //         }
+    //         DB::commit();
+    //         return response()->json(['message' => $text, 'data' => $kontrak],200);
+    //     } catch(Throwable $error){
+    //         DB::rollBack();
+    //         return response()->json(['message' => $error->getMessage()], 500);
+    //     } catch (QueryException $e) {
+    //         DB::rollBack();
+    //         return response()->json(['message' => 'Database error: ' . $e->getMessage()], 500);
+    //     } catch (ModelNotFoundException $e) {
+    //         DB::rollBack();
+    //         return response()->json(['message' => 'Model not found: ' . $e->getMessage()], 404);
+    //     }
+    // }
 
     /**
      * Display the specified resource.
@@ -543,6 +561,7 @@ class KontrakController extends Controller
                 'deskripsi' => $kontrak->deskripsi,
                 'tanggal_mulai' => $kontrak->tanggal_mulai,
                 'tanggal_selesai' => $kontrak->tanggal_selesai,
+                'isReactive' => $kontrak->isReactive
             ];
             return response()->json(['data' => $data], 200);
         } else {
@@ -775,9 +794,10 @@ class KontrakController extends Controller
         return $temp;
     }
 
-    public function upload_kontrak(Request $request, string $id_kontrak){
+    public function upload_kontrak(Request $request, string $type, string $id_kontrak){
         $dataValidate = [
-            'attachment' => ['required', 'file', 'max:5000', 'mimes:pdf'],
+            'attachment' => ['file', 'max:5000', 'mimes:pdf'],
+            'evidence' => ['file', 'max:5000', 'mimes:pdf'],
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -790,16 +810,32 @@ class KontrakController extends Controller
         try {
             $kontrak = Kontrak::find($id_kontrak);
 
-            if($request->hasFile('attachment')){
-                $file = $request->file('attachment');
-                $kontrak_scan = $file->store("attachment/kontrak");
-                if($kontrak->attachment)
-                {
-                    Storage::delete($kontrak->attachment);
+            if($type == 'attachment'){
+                if($request->hasFile('attachment')){
+                    $file = $request->file('attachment');
+                    $kontrak_scan = $kontrak->karyawan->nama . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $file_path = $file->storeAs("attachment/kontrak", $kontrak_scan);
+                    if($kontrak->attachment)
+                    {
+                        Storage::delete($kontrak->attachment);
+                    }
+                    $kontrak->attachment = $file_path;
+                    $kontrak->save();
                 }
-                $kontrak->attachment = $kontrak_scan;
-                $kontrak->save();
+            } else {
+                if($request->hasFile('evidence')){
+                    $file = $request->file('evidence');
+                    $evidence = $kontrak->karyawan->nama . '_' . time() . '.' . $file->getClientOriginalExtension();
+                    $file_path = $file->storeAs("attachment/evidence", $evidence);
+                    if($kontrak->evidence)
+                    {
+                        Storage::delete($kontrak->evidence);
+                    }
+                    $kontrak->evidence = $file_path;
+                    $kontrak->save();
+                }
             }
+            
             DB::commit();
             return response()->json(['message' => 'Upload File pada '.$id_kontrak.' Sukses!'],200);
         } catch(Throwable $error){

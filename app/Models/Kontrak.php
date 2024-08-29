@@ -80,6 +80,8 @@ class Kontrak extends Model
             'status_change_by',
             'status_change_date',
             'attachment',
+            'evidence',
+            'isReactive',
             'karyawans.nama as nama_karyawan',
         )
         ->leftJoin('karyawans', 'kontraks.karyawan_id', 'karyawans.id_karyawan');

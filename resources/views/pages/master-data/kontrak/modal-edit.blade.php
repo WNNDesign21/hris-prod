@@ -3,7 +3,7 @@
     <div class="modal-dialog modal-fullscreen" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title p-4">Edit Kontrak</h4>
+                <h4 class="modal-title p-4" id="modal-edit-kontrak-title">Edit Kontrak</h4>
                 <button type="button" class="btn-close btnClose" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">

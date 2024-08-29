@@ -605,31 +605,31 @@ $(function () {
         $('#karyawan_id_kontrakEdit').val(idKaryawan)
 
         getListKontrak(idKaryawan);
-        selectPosisiKontrak();
     });
 
-    function selectPosisiKontrak(posisiId = ''){
-        $.ajax({
-            url: base_url + '/master-data/posisi/get-data-all-posisi',
-            type: "get",
-            success: function (data) {
-                var selectPosisiKontrak = $("#posisi_kontrakEdit");
-                selectPosisiKontrak.empty();
-                $.each(data, function (i, val){
-                    selectPosisiKontrak.append('<option value="'+val.id+'">'+val.text+'</option>');
-                });
-                $('#posisi_kontrakEdit').val(posisiId).trigger('change');
-                $('#posisi_kontrakEdit').select2({
-                    dropdownParent: $('#modal-kontrak')
-                });
-                loadingSwalClose();
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                loadingSwalClose();
-                showToast({ icon: "error", title: jqXHR.responseJSON.message });
-            },
-        });
-    }
+    // TIDAK TERPAKAI TAPI TAKUT AKAN DIPAKAI
+    // function selectPosisiKontrak(posisiId = ''){
+    //     $.ajax({
+    //         url: base_url + '/master-data/posisi/get-data-all-posisi',
+    //         type: "get",
+    //         success: function (data) {
+    //             var selectPosisiKontrak = $("#posisi_kontrakEdit");
+    //             selectPosisiKontrak.empty();
+    //             $.each(data, function (i, val){
+    //                 selectPosisiKontrak.append('<option value="'+val.id+'">'+val.text+'</option>');
+    //             });
+    //             $('#posisi_kontrakEdit').val(posisiId).trigger('change');
+    //             $('#posisi_kontrakEdit').select2({
+    //                 dropdownParent: $('#modal-kontrak')
+    //             });
+    //             loadingSwalClose();
+    //         },
+    //         error: function (jqXHR, textStatus, errorThrown) {
+    //             loadingSwalClose();
+    //             showToast({ icon: "error", title: jqXHR.responseJSON.message });
+    //         },
+    //     });
+    // }
 
     var modalKontrakOptions = {
         backdrop: true,
@@ -647,22 +647,7 @@ $(function () {
 
     function closeKontrak() {
         modalKontrak.hide();
-        resetKontrak();
     }
-
-    function resetKontrak(){
-        $('#id_kontrakEdit').val("");
-        $('#jenis_kontrakEdit').val("");
-        $('#no_surat_kontrakEdit').val("");
-        $('#tempat_administrasi_kontrakEdit').val("");
-        $('#posisi_kontrakEdit').val("");
-        $('#issued_date_kontrakEdit').val("");
-        $('#durasi_kontrakEdit').val("");
-        $('#tanggal_mulai_kontrakEdit').val("");
-        $('#tanggal_selesai_kontrakEdit').val("");
-        $('#salary_kontrakEdit').val("");
-        $('#deskripsi_kontrakEdit').val("");
-    };
 
     function getListKontrak(idKaryawan){
         let url = base_url + '/master-data/kontrak/get-data-list-kontrak/' + idKaryawan;
@@ -748,6 +733,7 @@ $(function () {
                     no++;
                 });
                 openKontrak();
+                loadingSwalClose();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
@@ -773,7 +759,6 @@ $(function () {
                 showToast({ title: data.message });
                 getListKontrak(dataKontrak.karyawan_id);
                 refreshTable();
-                resetKontrak();
                 loadingSwalClose();
             },
             error: function (jqXHR, textStatus, errorThrown) {
