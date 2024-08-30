@@ -879,6 +879,7 @@ class KontrakController extends Controller
                 $karyawan->tanggal_selesai = $kontrak->tanggal_selesai;
             }
             $karyawan->jenis_kontrak = $kontrak->jenis;
+            $karyawan->status_karyawan = 'AKTIF';
             $karyawan->save();
             
             DB::commit();

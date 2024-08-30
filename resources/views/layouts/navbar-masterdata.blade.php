@@ -25,6 +25,12 @@
                             <span>Kontrak Karyawan</span>
                         </a>
                     </li>
+                    <li class="{{ $page == 'masterdata-turnover' ? 'active' : '' }}">
+                        <a href="{{ route('master-data.turnover') }}">
+                            <i class="icon-User"><span class="path1"></span><span class="path2"></span></i>
+                            <span>Turnover Karyawan</span>
+                        </a>
+                    </li>
                     <li class="{{ $page == 'masterdata-posisi' ? 'active' : '' }}">
                         <a href="{{ route('master-data.posisi') }}">
                             <i class="icon-Library"><span class="path1"></span><span class="path2"></span></i>

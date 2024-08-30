@@ -12,6 +12,7 @@ use App\Http\Controllers\MasterData\PosisiController;
 use App\Http\Controllers\MasterData\JabatanController;
 use App\Http\Controllers\MasterData\KontrakController;
 use App\Http\Controllers\MasterData\KaryawanController;
+use App\Http\Controllers\MasterData\TurnoverController;
 use App\Http\Controllers\MasterData\DashboardController;
 use App\Http\Controllers\MasterData\DepartemenController;
 use App\Http\Controllers\MasterData\OrganisasiController;
@@ -126,6 +127,11 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/master-data/export',[ExportController::class, 'index'])->name('master-data.export');
     Route::post('/master-data/export/export-master-data',[ExportController::class, 'export_master_data'])->name('master-data.export.master-data');
     Route::post('/master-data/export/export-kontrak',[ExportController::class, 'export_kontrak'])->name('master-data.export.kontrak');
+
+    /** MASTER DATA - TURNOVER */
+    Route::post('/master-data/turnover/datatable', [TurnoverController::class, 'datatable']);
+    Route::get('/master-data/turnover',[TurnoverController::class, 'index'])->name('master-data.turnover');
+    Route::post('/master-data/turnover/store',[TurnoverController::class, 'store'])->name('master-data.turnover.store');
 });
 
 

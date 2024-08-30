@@ -86,6 +86,8 @@ class Karyawan extends Model
             'status_karyawan',
             'grups.nama as nama_grup',
             'users.username',
+            'tanggal_mulai',
+            'tanggal_selesai',
             'grup_id',
             'user_id',
         )
@@ -103,7 +105,9 @@ class Karyawan extends Model
                     ->orWhere('jenis_kontrak', 'ILIKE', "%{$search}%")
                     ->orWhere('status_karyawan', 'ILIKE', "%{$search}%")
                     ->orWhere('grups.nama', 'ILIKE', "%{$search}%")
-                    ->orWhere('users.username', 'ILIKE', "%{$search}%");
+                    ->orWhere('users.username', 'ILIKE', "%{$search}%")
+                    ->orWhere('tanggal_mulai', 'ILIKE', "%{$search}%")
+                    ->orWhere('tanggal_selesai', 'ILIKE', "%{$search}%");
             });
         }
 
