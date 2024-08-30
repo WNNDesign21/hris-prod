@@ -69,71 +69,29 @@
                 </div>
             </div>
         </div>
-        {{-- <div class="col-xl-8 col-12">
-            <div class="box">
-                <div class="box-body">
-                    <h3 class="mt-0 mb-5">Employee Turnover</h3>
-                    <p class="text-fade">Jan - Dec {{ date('Y') }}</p>
-                    <p class="text-fade">400/500 <small class="text-danger"><i class="fa fa-arrow-down"></i>
-                            15%</small></p>
-                    <div id="turnover-chart"></div>
-                </div>
-            </div>
-        </div> --}}
         <div class="col-xl-8 col-12">
             <div class="box">
-                <div class="box-header with-border">
-                    <h4 class="box-title">Kontrak Progress</h4>
-                    <ul class="box-controls pull-right d-md-flex d-none">
-                        <li class="dropdown">
-                            <button class="dropdown-toggle btn btn-warning-light px-10" data-bs-toggle="dropdown"
-                                href="#">Today</button>
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <a class="dropdown-item active" href="#">Today</a>
-                                <a class="dropdown-item" href="#">Yesterday</a>
-                                <a class="dropdown-item" href="#">Last week</a>
-                                <a class="dropdown-item" href="#">Last month</a>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-                <div class="box-body pb-0">
-                    <div id="revenue5"></div>
-                    <div class="d-flex justify-content-center">
-                        <p class="d-flex align-items-center fw-600 mx-20"><span
-                                class="badge badge-xl badge-dot badge-warning me-20"></span> Progress
-                        </p>
-                        <p class="d-flex align-items-center fw-600 mx-20"><span
-                                class="badge badge-xl badge-dot badge-primary me-20"></span> Done</p>
+                <div class="box-body">
+                    <h3 class="mt-0 mb-5">Turnover Karyawan {{ date('Y') }}</h3>
+                    <p class="text-fade">Total Karyawan Keluar : {{ $jumlah_karyawan_keluar }}</p>
+                    <div id="turnover-chart">
                     </div>
                 </div>
             </div>
         </div>
     </div>
     {{-- GRAFIK DASHBOARD --}}
-    {{-- <div class="row">
+    <div class="row">
         <div class="col-xl-3 col-12 mb-4">
             <div class="box">
                 <div class="box-header with-border">
-                    <h4 class="box-title">Working Hours</h4>
-                    <ul class="box-controls pull-right d-md-flex d-none">
-                        <li class="dropdown">
-                            <button class="dropdown-toggle btn btn-warning-light px-10" data-bs-toggle="dropdown"
-                                href="#">Today</button>
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <a class="dropdown-item active" href="#">Today</a>
-                                <a class="dropdown-item" href="#">Yesterday</a>
-                                <a class="dropdown-item" href="#">Last week</a>
-                                <a class="dropdown-item" href="#">Last month</a>
-                            </div>
-                        </li>
-                    </ul>
+                    <h4 class="box-title">Kontrak Progress</h4>
                 </div>
                 <div class="box-body">
-                    <div id="revenue5"></div>
+                    <div id="kontrak-progress-chart"></div>
                     <div class="d-flex justify-content-center">
                         <p class="d-flex align-items-center fw-600 mx-20"><span
-                                class="badge badge-xl badge-dot badge-warning me-20"></span> Progress
+                                class="badge badge-xl badge-dot badge-warning me-20"></span> On Progress
                         </p>
                         <p class="d-flex align-items-center fw-600 mx-20"><span
                                 class="badge badge-xl badge-dot badge-primary me-20"></span> Done</p>
@@ -177,5 +135,5 @@
                 </div>
             </div>
         </div>
-    </div> --}}
+    </div>
 @endsection

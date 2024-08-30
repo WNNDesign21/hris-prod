@@ -3,6 +3,7 @@ $(function () {
     'use strict';
 
     let loadingSwal;
+    let turnoverRate;
     function loadingSwalShow() {
         loadingSwal = Swal.fire({
             imageHeight: 300,
@@ -34,70 +35,156 @@ $(function () {
           }
       });
     }
-    getDataKaryawan();
 
-      // var options = {
-      //       series: [{
-      //       name: 'Turnover Rate : ',
-      //       data: [8, 9, 2, 4, 7, 1.5, 6, 5, 3, 2]
-      //     }],
-      //       chart: {
-      //       foreColor:"#bac0c7",
-      //       type: 'bar',
-      //       height: 200,
-      //       stacked: true,
-      //       toolbar: {
-      //         show: false
-      //       },
-      //       zoom: {
-      //         enabled: true
-      //       }
-      //     },
-      //     responsive: [{
-      //       breakpoint: 480,
-      //       options: {
-      //         legend: {
-      //           position: 'bottom',
-      //           offsetX: -10,
-      //           offsetY: 0
-      //         }
-      //       }
-      //     }],		
-      //     grid: {
-      //         show: true,
-      //         borderColor: '#f7f7f7',      
-      //     },
-      //     colors:['#6993ff'],
-      //     plotOptions: {
-      //       bar: {
-      //         horizontal: false,
-      //         columnWidth: '30%',
-      //           endingShape: 'rounded',
-      //         colors: {
-      //             backgroundBarColors: ['#f0f0f0'],
-      //             backgroundBarOpacity: 0,
-      //         },
-      //       },
-      //     },
-      //     dataLabels: {
-      //       enabled: false
-      //     },
-   
-      //     xaxis: {
-      //       categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
-      //     },
-      //     legend: {
-      //       show: true,
-      //     },
-      //     fill: {
-      //       opacity: 1
-      //     }
-      //     };
-  
-      //     var chart = new ApexCharts(document.querySelector("#turnover-chart"), options);
-      //     chart.render();
+    function turnoverChart(){
+      let url = base_url + '/master-data/dashboard/get-data-turnover-monthly-dashboard';
+      $.ajax({
+          url: url,
+          method: 'GET',
+          success: function(response) {
+              let dataRate = response.data;
+              var options = {
+                series: [
+                  {
+                    name: 'Turnover Rate',
+                    data: dataRate
+                  },
+                ],
+                chart: {
+                foreColor:"#bac0c7",
+                type: 'bar',
+                height: 200,
+                stacked: true,
+                toolbar: {
+                  show: true
+                },
+                zoom: {
+                  enabled: true
+                },
+                export: {
+                  svg: {
+                    filename: undefined,
+                  },
+                  png: {
+                    filename: undefined,
+                  }
+                },
+              },
+              responsive: [{
+                breakpoint: 480,
+                options: {
+                  legend: {
+                    position: 'bottom',
+                    offsetX: -10,
+                    offsetY: 0
+                  }
+                }
+              }],		
+              grid: {
+                  show: true,
+                  borderColor: '#f7f7f7',      
+              },
+              colors:['#6993ff'],
+              plotOptions: {
+                bar: {
+                  horizontal: false,
+                  columnWidth: '30%',
+                    endingShape: 'rounded',
+                  colors: {
+                      backgroundBarColors: ['#f0f0f0'],
+                      backgroundBarOpacity: 0,
+                  },
+                },
+              },
+              dataLabels: {
+                enabled: false
+              },
+       
+              xaxis: {
+                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+              },
+              legend: {
+                show: true,
+              },
+              fill: {
+                opacity: 1
+              }
+              };
       
-      
+              var chart = new ApexCharts(document.querySelector("#turnover-chart"), options);
+              chart.render();
+              
+          },
+          error: function(error) {
+              console.error(error);
+          }
+      });
+    }
+
+    function kontrakProgressChart()
+        {
+          let url = base_url + '/master-data/dashboard/get-data-kontrak-progress-dashboard';
+          $.ajax({
+              url: url,
+              method: 'GET',
+              success: function(response) {
+                  let dataKontrakProgress = response.data;
+                  var options = {
+                    chart: {
+                      height: 180,
+                      type: "radialBar"
+                    },
+          
+                    series: [dataKontrakProgress],
+                      colors: ['#0052cc'],
+                    plotOptions: {
+                      radialBar: {
+                        hollow: {
+                          margin: 15,
+                          size: "70%"
+                        },
+                        track: {
+                          background: '#ff9920',
+                        },
+          
+                        dataLabels: {
+                          showOn: "always",
+                          name: {
+                            offsetY: -10,
+                            show: false,
+                            color: "#888",
+                            fontSize: "13px"
+                          },
+                          value: {
+                            color: "#111",
+                            fontSize: "30px",
+                            show: true
+                          }
+                        }
+                      }
+                    },
+          
+                    stroke: {
+                      lineCap: "round",
+                    },
+                    labels: ["On Progress"]
+                  };
+          
+                  var chart = new ApexCharts(document.querySelector("#kontrak-progress-chart"), options);
+                  chart.render();
+                  
+              },
+              error: function(error) {
+                  console.error(error);
+              }
+          });
+
+          
+        }
+
+    getDataKaryawan();
+    turnoverChart();
+    kontrakProgressChart();
       
       
           var options = {
@@ -132,50 +219,7 @@ $(function () {
           chart.render();
       
       
-          var options = {
-            chart: {
-              height: 180,
-              type: "radialBar"
-            },
-  
-            series: [77],
-              colors: ['#0052cc'],
-            plotOptions: {
-              radialBar: {
-                hollow: {
-                  margin: 15,
-                  size: "70%"
-                },
-                track: {
-                  background: '#ff9920',
-                },
-  
-                dataLabels: {
-                  showOn: "always",
-                  name: {
-                    offsetY: -10,
-                    show: false,
-                    color: "#888",
-                    fontSize: "13px"
-                  },
-                  value: {
-                    color: "#111",
-                    fontSize: "30px",
-                    show: true
-                  }
-                }
-              }
-            },
-  
-            stroke: {
-              lineCap: "round",
-            },
-            labels: ["Progress"]
-          };
-  
-          var chart = new ApexCharts(document.querySelector("#revenue5"), options);
-  
-          chart.render();
+        
   
       
   }); // End of use strict

@@ -53,6 +53,8 @@ Route::group(['middleware' => ['auth']], function () {
     /** MASTER DATA - DASHBOARD */
     Route::get('/master-data/dashboard',[DashboardController::class, 'index'])->name('master-data.dashboard');
     Route::get('/master-data/dashboard/get-data-karyawan-dashboard',[DashboardController::class, 'get_data_karyawan_dashboard']);
+    Route::get('/master-data/dashboard/get-data-turnover-monthly-dashboard',[DashboardController::class, 'get_data_turnover_monthly_dashboard']);
+    Route::get('/master-data/dashboard/get-data-kontrak-progress-dashboard',[DashboardController::class, 'get_data_kontrak_progress_dashboard']);
 
     /** MASTER DATA - ORGANISASI */
     Route::post('/master-data/organisasi/datatable', [OrganisasiController::class, 'datatable']);
