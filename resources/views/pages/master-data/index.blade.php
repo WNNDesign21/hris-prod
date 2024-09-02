@@ -74,7 +74,9 @@
                 <div class="box-body">
                     <h3 class="mt-0 mb-5">Turnover Karyawan {{ date('Y') }}</h3>
                     <p class="text-fade">Total Karyawan Keluar : {{ $jumlah_karyawan_keluar }}</p>
-                    <div id="turnover-chart">
+                    <div style="min-height: 198px;">
+                        <div id="turnover-chart">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -82,13 +84,26 @@
     </div>
     {{-- GRAFIK DASHBOARD --}}
     <div class="row">
-        <div class="col-xl-3 col-12 mb-4">
+        <div class="col-xl-6 col-12">
+            <div class="box">
+                <div class="box-body">
+                    <h3 class="mt-0 mb-5">Turnover Detail {{ date('Y') }}</h3>
+                    <div style="min-height: 198px;">
+                        <div id="turnover-detail-chart">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-12">
             <div class="box">
                 <div class="box-header with-border">
                     <h4 class="box-title">Kontrak Progress</h4>
                 </div>
                 <div class="box-body">
-                    <div id="kontrak-progress-chart"></div>
+                    <div style="min-height: 198px;">
+                        <div id="kontrak-progress-chart"></div>
+                    </div>
                     <div class="d-flex justify-content-center">
                         <p class="d-flex align-items-center fw-600 mx-20"><span
                                 class="badge badge-xl badge-dot badge-warning me-20"></span> On Progress
@@ -101,36 +116,12 @@
         </div>
         <div class="col-xl-3 col-12 mb-4">
             <div class="box">
-                <div class="box-body">
-                    <p class="text-fade">Total Courses</p>
-                    <h3 class="mt-0 mb-20">19 <small class="text-success"><i class="fa fa-arrow-up ms-15 me-5"></i> 2
-                            New</small></h3>
-                    <div style="min-height: 198px;">
-                        <div id="charts_widget_2_chart"></div>
-                    </div>
+                <div class="box-header with-border">
+                    <h4 class="box-title">Total Data by Status <br><small>2017 - {{ date('Y') }}</small></h4>
                 </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-12 mb-4">
-            <div class="box">
                 <div class="box-body">
-                    <p class="text-fade">Total Courses</p>
-                    <h3 class="mt-0 mb-20">19 <small class="text-success"><i class="fa fa-arrow-up ms-15 me-5"></i> 2
-                            New</small></h3>
                     <div style="min-height: 198px;">
-                        <div id="charts_widget_2_chart"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-3 col-12 mb-4">
-            <div class="box">
-                <div class="box-body">
-                    <p class="text-fade">Total Courses</p>
-                    <h3 class="mt-0 mb-20">19 <small class="text-success"><i class="fa fa-arrow-up ms-15 me-5"></i> 2
-                            New</small></h3>
-                    <div style="min-height: 198px;">
-                        <div id="charts_widget_2_chart"></div>
+                        <div id="total-data-by-status-chart"></div>
                     </div>
                 </div>
             </div>

@@ -876,7 +876,14 @@ class KontrakController extends Controller
                 $karyawan->tanggal_mulai = $kontrak->tanggal_mulai;
                 $karyawan->tanggal_selesai = $kontrak->tanggal_selesai;
             } else {
-                $karyawan->tanggal_selesai = $kontrak->tanggal_selesai;
+                $kontrak_exist = Kontrak::where('karyawan_id', $karyawan->id)->where('status', 'DONE')->orderBy('tanggal_mulai', 'DESC')->exists();
+
+                if($kontrak_exist){
+                    $karyawan->tanggal_selesai = $kontrak->tanggal_selesai;
+                } else {
+                    $karyawan->tanggal_mulai = $kontrak->tanggal_mulai;
+                    $karyawan->tanggal_selesai = $kontrak->tanggal_selesai;
+                }
             }
             $karyawan->jenis_kontrak = $kontrak->jenis;
             $karyawan->status_karyawan = 'AKTIF';
