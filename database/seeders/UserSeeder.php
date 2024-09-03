@@ -1,0 +1,74 @@
+<?php
+
+namespace Database\Seeders;
+
+use App\Models\User;
+use Illuminate\Support\Str;
+use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
+use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
+
+class UserSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+    {
+        //1
+        Role::create([
+            'name' => 'super user',
+            'guard_name' => 'web'
+        ]);
+
+        //2
+        Role::create([
+            'name' => 'personalia',
+            'guard_name' => 'web'
+        ]);
+
+        //3
+        Role::create([
+            'name' => 'user',
+            'guard_name' => 'web'
+        ]);
+
+        $personaliaUser = User::create([
+            'username' => 'PERSONALIA',
+            'email' => "personalia@tcf.com",
+            'password' => bcrypt('12345678')
+        ]);
+
+        $superUser = User::create([
+            'username' => 'SUPERUSER',
+            'email' => "superuser@tcf.com",
+            'password' => bcrypt('12345678')
+        ]);
+
+        $user1 = User::create([
+            'username' => 'FL0001',
+            'email' => "fl0001@tcf.com",
+            'password' => bcrypt('12345678')
+        ]);
+
+        $user2 = User::create([
+            'username' => 'IN0002',
+            'email' => "in0002@email.com",
+            'password' => bcrypt('12345678')
+        ]);
+
+        $user3 = User::create([
+            'username' => 'AM0003',
+            'email' => "am0003@tcf.com",
+            'password' => bcrypt('12345678')
+        ]);
+
+        $personaliaUser->assignRole('personalia');
+        $superUser->assignRole('super user');
+        $user1->assignRole('user');
+        $user2->assignRole('user');
+        $user3->assignRole('user');
+    }
+}

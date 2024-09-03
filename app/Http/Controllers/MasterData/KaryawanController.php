@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Spatie\Permission\Models\Role;
+use Spatie\Permission\Models\Permission;
 
 class KaryawanController extends Controller
 {
@@ -178,6 +180,8 @@ class KaryawanController extends Controller
                         'email' => $email_akun,
                         'password' => Hash::make($password),
                     ]); 
+
+                    $user->assignRole('user');
 
                     $user_id = $user->id;
                 }else{
