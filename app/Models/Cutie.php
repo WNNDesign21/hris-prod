@@ -3,7 +3,9 @@
 namespace App\Models;
 
 use App\Models\Karyawan;
+use App\Models\JenisCuti;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -15,14 +17,101 @@ class Cutie extends Model
     protected $primaryKey = 'id_cuti';
 
     protected $fillable = [
-        'karyawan_id', 'jenis_cuti_id', 'durasi_cuti','rencana_mulai_cuti', 'rencana_selesai_cuti',
+        'karyawan_id', 'jenis_cuti_id', 'jenis_cuti', 'durasi_cuti','rencana_mulai_cuti', 'rencana_selesai_cuti',
         'aktual_mulai_cuti','aktual_selesai_cuti','alasan_cuti','karyawan_pengganti_id','checked_at',
-        'checked_by','approved_at','approved_by','legalize_at', 'legalize_by','rejected_at','rejected_by',
-        'rejected_note','status_cuti','isCompleted','attachment'
+        'checked_by','approved_at','approved_by','legalized_at', 'legalized_by','rejected_at','rejected_by',
+        'rejected_note','status_cuti','status_dokumen','attachment'
     ];
 
     public function karyawan()
     {
         return $this->belongsTo(Karyawan::class, 'karyawan_id', 'id_karyawan');
+    }
+
+    public function karyawanPengganti()
+    {
+        return $this->belongsTo(Karyawan::class, 'karyawan_pengganti_id', 'id_karyawan');
+    }
+
+    public function jenisCuti()
+    {
+        return $this->belongsTo(JenisCuti::class, 'jenis_cuti_id', 'id_jenis_cuti');
+    }
+
+    private static function _query($dataFilter)
+    {
+
+        $getKaryawanPengganti = Karyawan::select("id_karyawan as kp_id", "nama as nama_pengganti");
+        $getJenisCuti = JenisCuti::select("id_jenis_cuti as jc_id", "jenis as jenis_cuti_khusus");
+        $data = self::select(
+            'id_cuti',
+            'rencana_mulai_cuti',
+            'rencana_selesai_cuti',
+            'aktual_mulai_cuti',
+            'aktual_selesai_cuti',
+            'durasi_cuti',
+            'jenis_cuti',
+            'alasan_cuti',
+            'checked_at',
+            'approved_at',
+            'legalized_at',
+            'status_dokumen',
+            'status_cuti',
+            'attachment',
+            'kp.nama_pengganti as nama_pengganti',
+            'jc.jenis_cuti_khusus as jenis_cuti_khusus',
+            'karyawans.nama as nama_karyawan',
+            'karyawan_id',
+            'karyawan_pengganti_id',
+            )
+            ->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+            
+            ->leftJoinSub($getKaryawanPengganti, 'kp', function (JoinClause $joinKaryawanPengganti) {
+                $joinKaryawanPengganti->on('cutis.karyawan_pengganti_id', 'kp.kp_id');
+            })
+            ->leftJoinSub($getJenisCuti, 'jc', function (JoinClause $joinJenisCuti) {
+                $joinJenisCuti->on('cutis.jenis_cuti_id', 'jc.jc_id');
+            });
+        
+        if (isset($dataFilter['karyawan_id'])) {
+            $data->where('karyawan_id', $dataFilter['karyawan_id']);
+        }
+        
+
+        if (isset($dataFilter['search'])) {
+            $search = $dataFilter['search'];
+            $data->where(function ($query) use ($search) {
+                $query->where('rencana_mulai_cuti', 'ILIKE', "%{$search}%")
+                    ->orWhere('rencana_selesai_cuti', 'ILIKE', "%{$search}%")
+                    ->orWhere('aktual_mulai_cuti', 'ILIKE', "%{$search}%")
+                    ->orWhere('aktual_selesai_cuti', 'ILIKE', "%{$search}%")
+                    ->orWhere('durasi_cuti', 'ILIKE', "%{$search}%")
+                    ->orWhere('jenis_cuti', 'ILIKE', "%{$search}%")
+                    ->orWhere('alasan_cuti', 'ILIKE', "%{$search}%")
+                    ->orWhere('checked_at', 'ILIKE', "%{$search}%")
+                    ->orWhere('approved_at', 'ILIKE', "%{$search}%")
+                    ->orWhere('status_dokumen', 'ILIKE', "%{$search}%")
+                    ->orWhere('status_cuti', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%")
+                    ->orWhere('jc.jenis_cuti_khusus', 'ILIKE', "%{$search}%")
+                    ->orWhere('kp.nama_pengganti', 'ILIKE', "%{$search}%");
+            });
+        }
+
+        $result = $data;
+        return $result;
+    }
+
+    public static function getData($dataFilter, $settings)
+    {
+        return self::_query($dataFilter)->offset($settings['start'])
+            ->limit($settings['limit'])
+            ->orderBy($settings['order'], $settings['dir'])
+            ->get();
+    }
+
+    public static function countData($dataFilter)
+    {
+        return self::_query($dataFilter)->count();
     }
 }

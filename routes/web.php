@@ -46,6 +46,8 @@ Route::get('/master-data/kontrak/get-data-list-kontrak/{idKaryawan}',[KontrakCon
 Route::get('/master-data/kontrak/download-kontrak-kerja/{idKontrak}',[KontrakController::class, 'download_kontrak_kerja']); 
 Route::get('/master-data/kontrak/get-data-detail-kontrak/{idKontrak}',[KontrakController::class, 'get_data_detail_kontrak']); 
 
+Route::get('/cutie/get-data-jenis-cuti-khusus',[CutieController::class, 'get_data_jenis_cuti_khusus']); 
+
 /** MASTER DATA FEATURE */
 Route::group(['middleware' => ['auth']], function () {
     // MENU UTAMA
@@ -142,6 +144,7 @@ Route::group(['middleware' => ['auth']], function () {
     });
 
     Route::group(['prefix' => 'cutie'], function () {
+        Route::post('/pengajuan-cuti-datatable', [CutieController::class, 'pengajuan_cuti_datatable']);
         Route::get('/dashboard',[CutieController::class, 'index'])->name('cutie.dashboard');
         Route::get('/pengajuan-cuti',[CutieController::class, 'pengajuan_cuti_view'])->name('cutie.pengajuan-cuti');
      });

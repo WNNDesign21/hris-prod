@@ -15,6 +15,8 @@ return new class extends Migration
             $table->increments('id_jenis_cuti');
             $table->string('jenis');
             $table->integer('durasi');
+
+            $table->softDeletes();
             $table->timestamps();
         });
     }

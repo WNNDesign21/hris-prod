@@ -5,7 +5,7 @@
             <div class="multinav-scroll" style="height: 100%;">
                 <!-- sidebar menu-->
                 <ul class="sidebar-menu" data-widget="tree">
-                    <li class="header">Master Data Menu</li>
+                    <li class="header">Cutie Menu</li>
                     <li class="{{ $page == 'cutie-dashboard' ? 'active' : '' }}">
                         <a href="{{ route('cutie.dashboard') }}">
                             <i class="icon-Layout-4-blocks"><span class="path1"></span><span class="path2"></span></i>
@@ -15,7 +15,7 @@
                     <li class="{{ $page == 'cutie-pengajuan-cuti' ? 'active' : '' }}">
                         <a href="{{ route('cutie.pengajuan-cuti') }}">
                             <i class="icon-User"><span class="path1"></span><span class="path2"></span></i>
-                            <span>Form Pengajuan Cuti</span>
+                            <span>Pengajuan Cuti</span>
                         </a>
                     </li>
                     {{-- <li class="{{ $page == 'cutie-kontrak' ? 'active' : '' }}">

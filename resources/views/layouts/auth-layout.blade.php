@@ -124,6 +124,18 @@
         @vite(['resources/js/pages/turnover.js'])
     @endif
 
+    @if ($page == 'cutie-dashboard')
+        @vite(['resources/js/pages/cutie-dashboard.js'])
+    @endif
+
+    @if ($page == 'cutie-pengajuan-cuti')
+        @vite(['resources/js/pages/cutie-pengajuan-cuti.js'])
+    @endif
+
+    @if ($page == 'cutie-dashboard')
+        @vite(['resources/js/pages/cutie-dashboard.js'])
+    @endif
+
 </body>
 
 </html>

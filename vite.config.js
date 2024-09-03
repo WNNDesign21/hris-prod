@@ -19,6 +19,8 @@ export default defineConfig({
                 'resources/js/pages/kontrak.js',
                 'resources/js/pages/posisi.js',
                 'resources/js/pages/seksi.js',
+                'resources/js/pages/cutie-dashboard.js',
+                'resources/js/pages/cutie-pengajuan-cuti.js',
             ],
             // refresh: true,
             refresh: ["resources/views/**", "resources/css/**", "app/Http/**"],
