@@ -14,17 +14,26 @@ return new class extends Migration
         Schema::create('cutis', function (Blueprint $table) {
             $table->increments('id_cuti');
             $table->string('karyawan_id');
-            $table->enum('jenis_cuti',['Hamil', 'Pribadi', 'Sakit', 'Nasional', 'Kedukaan', 'Tahunan']);
-            $table->integer('lama_cuti');
-            $table->date('tanggal_cuti');
+            $table->string('jenis_cuti_id')->nullable();
+            $table->integer('durasi_cuti')->default(1);
+            $table->date('rencana_mulai_cuti');
+            $table->date('rencana_selesai_cuti');
+            $table->date('aktual_mulai_cuti');
+            $table->date('aktual_selesai_cuti');
             $table->text('alasan_cuti');
             $table->unsignedInteger('karyawan_pengganti_id')->nullable();
-            $table->date('approve1_at')->nullable();
-            $table->string('approved1_by')->nullable();
-            $table->date('approve2_at')->nullable();
-            $table->string('approved2_by')->nullable();
-            $table->date('approve3_at')->nullable();
-            $table->string('approved3_by')->nullable();
+            $table->date('checked_at')->nullable();
+            $table->string('checked_by')->nullable();
+            $table->date('approved_at')->nullable();
+            $table->string('approved_by')->nullable();
+            $table->date('legalize_at')->nullable();
+            $table->string('legalize_by')->nullable();
+            $table->date('rejected_at')->nullable();
+            $table->string('rejected_by')->nullable();
+            $table->text('rejected_note')->nullable();
+            $table->enum('status_cuti', ['WAITING', 'APPROVED', 'REJECTED'])->default('WAITING');
+            $table->enum('isCompleted',['Y', 'N'])->default('N');
+            $table->string('attachment')->nullable();
 
             $table->softDeletes();
             $table->timestamps();
