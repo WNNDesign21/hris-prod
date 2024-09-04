@@ -17,20 +17,18 @@
         <div class="col-12">
             <div class="box">
                 <div class="box-header d-flex justify-content-between">
-                    <h4 class="box-title">List Data Cuti Personal</h4>
+                    <h4 class="box-title">List Data Cuti Member</h4>
                     <div>
                         <button type="button" class="btn btn-info waves-effect btnReload"><i
                                 class="fas fa-sync-alt"></i></button>
-                        <button type="button" class="btn btn-success waves-effect btnAdd"><i class="fas fa-walking"></i>
-                            Ajukan Cuti</button>
                     </div>
                 </div>
                 <div class="box-body">
                     <div class="table-responsive">
-                        <table id="personal-table" class="table table-striped table-bordered display" style="width:100%">
+                        <table id="member-table" class="table table-striped table-bordered display" style="width:100%">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
+                                    <th>Nama</th>
                                     <th>Rencana Mulai</th>
                                     <th>Rencana Selesai</th>
                                     <th>Aktual Mulai</th>
@@ -46,7 +44,6 @@
                                     <th>Status</th>
                                     <th>Created At</th>
                                     <th>Attachment</th>
-                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -56,5 +53,4 @@
             </div>
         </div>
     </div>
-    @include('pages.cuti-e.modal-pengajuan-cuti')
 @endsection

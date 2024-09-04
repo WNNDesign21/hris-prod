@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Cutie;
 use Throwable;
 use Carbon\Carbon;
 use App\Models\Cutie;
+use App\Models\Posisi;
 use App\Models\JenisCuti;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -36,6 +37,15 @@ class CutieController extends Controller
         return view('pages.cuti-e.pengajuan-cuti', $dataPage);
     }
 
+    public function member_cuti_view()
+    {
+        $dataPage = [
+            'pageTitle' => "Cutie - Member Cuti",
+            'page' => 'cutie-member-cuti',
+        ];
+        return view('pages.cuti-e.member-cuti', $dataPage);
+    }
+
     public function pengajuan_cuti_datatable(Request $request)
     {
 
@@ -48,7 +58,7 @@ class CutieController extends Controller
             5 => 'durasi_cuti',
             6 => 'jenis_cuti',
             7 => 'alasan_cuti',
-            8 => 'karyawans.nama',
+            8 => 'kp.nama_pengganti',
             9 => 'checked_at',
             10 => 'approved_at',
             11 => 'legalize_at',
@@ -88,6 +98,106 @@ class CutieController extends Controller
         if (!empty($cutie)) {
             foreach ($cutie as $data) {
                 $nestedData['no'] = $data->id_cuti;
+                $nestedData['rencana_mulai_cuti'] = Carbon::parse($data->rencana_mulai_cuti)->format('d M Y');
+                $nestedData['rencana_selesai_cuti'] = Carbon::parse($data->rencana_selesai_cuti)->format('d M Y');
+                $nestedData['aktual_mulai_cuti'] = $data->aktual_mulai_cuti ? Carbon::parse($data->aktual_selesai_cuti)->format('d M Y') : '-';
+                $nestedData['aktual_selesai_cuti'] = $data->aktual_selesai_cuti ? Carbon::parse($data->aktual_selesai_cuti)->format('d M Y') : '-';
+                $nestedData['durasi'] = $data->durasi_cuti.' Hari';
+                $nestedData['jenis'] = $data->jenis_cuti !== 'KHUSUS' ? $data->jenis_cuti : $data->jenis_cuti.' <small class="text-fade">('.$data->jenis_cuti_khusus.')</small>';
+                $nestedData['alasan'] = $data->alasan_cuti;
+                $nestedData['karyawan_pengganti'] = $data->nama_pengganti ? $data->nama_pengganti : '-';
+                $nestedData['checked'] = $data->checked_by ? $data->checked_by.'<br>'.$data->checked_at : '-';
+                $nestedData['approved'] = $data->approved_by ? $data->approved_by.'<br>'.$data->approved_at : '-';
+                $nestedData['legalized'] = $data->legalized_by ? $data->legalized_by.'<br>'.$data->legalized_at : '-';
+                $nestedData['status_dokumen'] = $data->status_dokumen == 'WAITING' ? '<span class="badge badge-pill badge-warning">'.$data->status_dokumen.'</span>' : ($data->status_dokumen == 'APPROVED' ? '<span class="badge badge-pill badge-success">'.$data->status_dokumen.'</span>' : '<span class="badge badge-pill badge-danger">'.$data->status_dokumen.'</span>');
+                $nestedData['status'] = $data->status_cuti == 'SCHEDULED' ? '<span class="badge badge-pill badge-warning">'.$data->status_cuti.'</span>' : ($data->status_cuti == 'ON LEAVE' ? '<span class="badge badge-pill badge-secondary">'.$data->status_cuti.'</span>' : '-');
+                // $nestedData['created_at'] = Carbon::parse($data->created_at)->diffForHumans() ;
+                $nestedData['created_at'] = Carbon::parse($data->created_at)->format('d M Y H:i:s');
+                $nestedData['attachment'] = $data->jenis_cuti !== 'SAKIT' ? 'No Attachment Needed' : '<a href="'.asset('storage/'.$data->attachment).'" target="_blank">Lihat</a>';
+                $nestedData['aksi'] = '
+                <div class="btn-group btn-group-sm">'.
+                    ($data->checked_by == null || $data->approved_by == null || $data->legalized_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id="'.$data->id_cuti.'"><i class="fas fa-edit"></i> Edit</button><button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button>' : '').'
+                </div>
+                ';
+
+                $dataTable[] = $nestedData;
+            }
+        }
+
+        $json_data = array(
+            "draw" => intval($request->input('draw')),
+            "recordsTotal" => intval($totalData),
+            "recordsFiltered" => intval($totalFiltered),
+            "data" => $dataTable,
+            "order" => $order,
+            "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
+            "dir" => $dir,
+            "column"=>$request->input('order.0.column')
+        );
+
+        return response()->json($json_data, 200);
+    }
+
+    public function member_cuti_datatable(Request $request)
+    {
+
+        $columns = array(
+            0 => 'karyawans.nama',
+            1 => 'rencana_mulai_cuti',
+            2 => 'rencana_selesai_cuti',
+            3 => 'aktual_mulai_cuti',
+            4 => 'aktual_selesai_cuti',
+            5 => 'durasi_cuti',
+            6 => 'jenis_cuti',
+            7 => 'alasan_cuti',
+            8 => 'kp.nama_pengganti',
+            9 => 'checked_at',
+            10 => 'approved_at',
+            11 => 'legalize_at',
+            12 => 'status_dokumen',
+            13 => 'status_cuti',
+            14 => 'created_at',
+        );
+
+        $totalData = Cutie::count();
+        $totalFiltered = $totalData;
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = (!empty($request->input('order.0.column'))) ? $columns[$request->input('order.0.column')] : $columns[0];
+        $dir = (!empty($request->input('order.0.dir'))) ? $request->input('order.0.dir') : "DESC";
+
+        $settings['start'] = $start;
+        $settings['limit'] = $limit;
+        $settings['dir'] = $dir;
+        $settings['order'] = $order;
+
+        $dataFilter = [];
+        $search = $request->input('search.value');
+        if (!empty($search)) {
+            $dataFilter['search'] = $search;
+        }
+
+
+        //MENCARI MEMBER
+        $data_posisi_member = [];
+        $posisi = auth()->user()->karyawan->posisi;
+        foreach ($posisi as $ps){
+            $id_parent = $ps->id_posisi;
+            $member = $ps->children;
+            foreach ($member as $m){
+                $data_posisi_member[] = $m->id_posisi;
+            }
+        }
+
+        $cutie = Cutie::getData($dataFilter, $settings);
+        $totalFiltered = Cutie::countData($dataFilter);
+
+        $dataTable = [];
+
+        if (!empty($cutie)) {
+            foreach ($cutie as $data) {
+                $nestedData['nama'] = $data->nama_karyawan;
                 $nestedData['rencana_mulai_cuti'] = Carbon::parse($data->rencana_mulai_cuti)->format('d M Y');
                 $nestedData['rencana_selesai_cuti'] = Carbon::parse($data->rencana_selesai_cuti)->format('d M Y');
                 $nestedData['aktual_mulai_cuti'] = $data->aktual_mulai_cuti ? Carbon::parse($data->aktual_selesai_cuti)->format('d M Y') : '-';

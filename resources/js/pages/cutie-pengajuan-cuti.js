@@ -83,7 +83,7 @@ $(function () {
         { data: "aksi" },
     ];
 
-    var cutieTable = $("#cutie-table").DataTable({
+    var cutieTable = $("#personal-table").DataTable({
         search: {
             return: true,
         },
@@ -309,7 +309,7 @@ $(function () {
         $('input[name="_method"]').val('POST');
     }
 
-    $('#cutie-table').on('click', '.btnDelete', function (){
+    $('#personal-table').on('click', '.btnDelete', function (){
         var idCuti = $(this).data('id');
         Swal.fire({
             title: "Delete Cuti",
@@ -342,7 +342,7 @@ $(function () {
         });
     })
 
-    $('#cutie-table').on('click', '.btnEdit', function (){
+    $('#personal-table').on('click', '.btnEdit', function (){
         var idCuti = $(this).data('id');
         var url = base_url + '/cutie/pengajuan-cuti/get-data-detail-cuti/' + idCuti;
         $.ajax({

@@ -18,6 +18,12 @@
                             <span>Pengajuan Cuti</span>
                         </a>
                     </li>
+                    <li class="{{ $page == 'cutie-member-cuti' ? 'active' : '' }}">
+                        <a href="{{ route('cutie.member-cuti') }}">
+                            <i class="icon-User"><span class="path1"></span><span class="path2"></span></i>
+                            <span>Member Cuti</span>
+                        </a>
+                    </li>
                     {{-- <li class="{{ $page == 'cutie-kontrak' ? 'active' : '' }}">
                         <a href="{{ route('cutie.kontrak') }}">
                             <i class="icon-File"><span class="path1"></span><span class="path2"></span><span

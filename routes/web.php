@@ -49,11 +49,12 @@ Route::get('/master-data/kontrak/get-data-detail-kontrak/{idKontrak}',[KontrakCo
 Route::get('/cutie/pengajuan-cuti/get-data-jenis-cuti-khusus',[CutieController::class, 'get_data_jenis_cuti_khusus']); 
 Route::get('/cutie/pengajuan-cuti/get-data-detail-cuti/{idCuti}',[CutieController::class, 'get_data_detail_cuti']); 
 
-/** MASTER DATA FEATURE */
+
 Route::group(['middleware' => ['auth']], function () {
     // MENU UTAMA
     Route::get('/home', [HomeController::class, 'index'])->name('root');
 
+    /** MASTER DATA FEATURE */
     Route::group(['prefix' => 'master-data'], function () {
         /** MASTER DATA - DASHBOARD */
         Route::get('/dashboard',[DashboardController::class, 'index'])->name('master-data.dashboard');
@@ -144,13 +145,25 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/turnover/store',[TurnoverController::class, 'store'])->name('master-data.turnover.store');
     });
 
+    /** CUTIE */
     Route::group(['prefix' => 'cutie'], function () {
-        Route::post('/pengajuan-cuti-datatable', [CutieController::class, 'pengajuan_cuti_datatable']);
+
+        /** DASHBOARD */
         Route::get('/dashboard',[CutieController::class, 'index'])->name('cutie.dashboard');
+
+        /** PENGAJUAN CUTI */
+        Route::post('/pengajuan-cuti-datatable', [CutieController::class, 'pengajuan_cuti_datatable']);
         Route::get('/pengajuan-cuti',[CutieController::class, 'pengajuan_cuti_view'])->name('cutie.pengajuan-cuti');
         Route::post('/pengajuan-cuti/store',[CutieController::class, 'store'])->name('cutie.pengajuan-cuti.store');
         Route::delete('/pengajuan-cuti/delete/{idCuti}',[CutieController::class, 'delete'])->name('cutie.pengajuan-cuti.delete');
         Route::patch('/pengajuan-cuti/update/{idCuti}',[CutieController::class, 'update'])->name('cutie.pengajuan-cuti.update');
+
+        /** CUTI MEMBER */
+        Route::post('/member-cuti-datatable', [CutieController::class, 'member_cuti_datatable']);
+        Route::get('/member-cuti',[CutieController::class, 'member_cuti_view'])->name('cutie.member-cuti');
+        Route::post('/member-cuti/store',[CutieController::class, 'store'])->name('cutie.member-cuti.store');
+        Route::delete('/member-cuti/delete/{idCuti}',[CutieController::class, 'delete'])->name('cutie.member-cuti.delete');
+        Route::patch('/member-cuti/update/{idCuti}',[CutieController::class, 'update'])->name('cutie.member-cuti.update');
      });
 
     

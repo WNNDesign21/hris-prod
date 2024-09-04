@@ -132,8 +132,8 @@
         @vite(['resources/js/pages/cutie-pengajuan-cuti.js'])
     @endif
 
-    @if ($page == 'cutie-dashboard')
-        @vite(['resources/js/pages/cutie-dashboard.js'])
+    @if ($page == 'cutie-member-cuti')
+        @vite(['resources/js/pages/cutie-member-cuti.js'])
     @endif
 
 </body>
