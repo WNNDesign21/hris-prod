@@ -306,6 +306,7 @@ $(function () {
         $('#durasi_cuti').val('');
         $('#jenis_cuti').val('PRIBADI').trigger('change');
         $('#form-pengajuan-cuti').attr('action', url);
+        $('input[name="_method"]').val('POST');
     }
 
     $('#cutie-table').on('click', '.btnDelete', function (){
@@ -369,6 +370,7 @@ $(function () {
                     $('#rencana_selesai_cuti').val(data.rencana_selesai_cuti).attr('min', data.rencana_mulai_cuti);
                 }
                 $('#form-pengajuan-cuti').attr('action', base_url + '/cutie/pengajuan-cuti/update/' + idCuti);
+                $('#form-pengajuan-cuti').append('<input type="hidden" name="_method" value="PATCH">');
                 openForm();
             },
             error: function (jqXHR, textStatus, errorThrown) {
