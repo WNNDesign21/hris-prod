@@ -45,6 +45,7 @@ class Cutie extends Model
         $getJenisCuti = JenisCuti::select("id_jenis_cuti as jc_id", "jenis as jenis_cuti_khusus");
         $data = self::select(
             'id_cuti',
+            'cutis.created_at',
             'rencana_mulai_cuti',
             'rencana_selesai_cuti',
             'aktual_mulai_cuti',
@@ -94,6 +95,7 @@ class Cutie extends Model
                     ->orWhere('status_cuti', 'ILIKE', "%{$search}%")
                     ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%")
                     ->orWhere('jc.jenis_cuti_khusus', 'ILIKE', "%{$search}%")
+                    ->orWhere('cutis.created_at', 'ILIKE', "%{$search}%")
                     ->orWhere('kp.nama_pengganti', 'ILIKE', "%{$search}%");
             });
         }

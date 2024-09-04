@@ -46,7 +46,8 @@ Route::get('/master-data/kontrak/get-data-list-kontrak/{idKaryawan}',[KontrakCon
 Route::get('/master-data/kontrak/download-kontrak-kerja/{idKontrak}',[KontrakController::class, 'download_kontrak_kerja']); 
 Route::get('/master-data/kontrak/get-data-detail-kontrak/{idKontrak}',[KontrakController::class, 'get_data_detail_kontrak']); 
 
-Route::get('/cutie/get-data-jenis-cuti-khusus',[CutieController::class, 'get_data_jenis_cuti_khusus']); 
+Route::get('/cutie/pengajuan-cuti/get-data-jenis-cuti-khusus',[CutieController::class, 'get_data_jenis_cuti_khusus']); 
+Route::get('/cutie/pengajuan-cuti/get-data-detail-cuti/{idCuti}',[CutieController::class, 'get_data_detail_cuti']); 
 
 /** MASTER DATA FEATURE */
 Route::group(['middleware' => ['auth']], function () {
@@ -147,6 +148,9 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/pengajuan-cuti-datatable', [CutieController::class, 'pengajuan_cuti_datatable']);
         Route::get('/dashboard',[CutieController::class, 'index'])->name('cutie.dashboard');
         Route::get('/pengajuan-cuti',[CutieController::class, 'pengajuan_cuti_view'])->name('cutie.pengajuan-cuti');
+        Route::post('/pengajuan-cuti/store',[CutieController::class, 'store'])->name('cutie.pengajuan-cuti.store');
+        Route::delete('/pengajuan-cuti/delete/{idCuti}',[CutieController::class, 'delete'])->name('cutie.pengajuan-cuti.delete');
+        Route::patch('/pengajuan-cuti/update/{idCuti}',[CutieController::class, 'update'])->name('cutie.pengajuan-cuti.update');
      });
 
     

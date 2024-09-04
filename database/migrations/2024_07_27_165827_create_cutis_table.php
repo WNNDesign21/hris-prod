@@ -19,9 +19,9 @@ return new class extends Migration
             $table->integer('durasi_cuti')->default(1);
             $table->date('rencana_mulai_cuti');
             $table->date('rencana_selesai_cuti');
-            $table->date('aktual_mulai_cuti');
-            $table->date('aktual_selesai_cuti');
-            $table->text('alasan_cuti');
+            $table->date('aktual_mulai_cuti')->nullable();
+            $table->date('aktual_selesai_cuti')->nullable();
+            $table->text('alasan_cuti')->nullable();
             $table->string('karyawan_pengganti_id')->nullable();
             $table->date('checked_at')->nullable();
             $table->string('checked_by')->nullable();
