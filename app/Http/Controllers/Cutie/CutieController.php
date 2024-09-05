@@ -87,7 +87,7 @@ class CutieController extends Controller
         }
 
         if(auth()->user()->hasRole('user')){
-            $dataFilter['karyawan_id'] = auth()->user()->id_karyawan;
+            $dataFilter['karyawan_id'] = auth()->user()->karyawan->id_karyawan;
         }
 
         $cutie = Cutie::getData($dataFilter, $settings);
@@ -180,16 +180,19 @@ class CutieController extends Controller
 
 
         //MENCARI MEMBER
-        $data_posisi_member = [];
-        $posisi = auth()->user()->karyawan->posisi;
-        foreach ($posisi as $ps){
-            $id_parent = $ps->id_posisi;
-            $member = $ps->children;
-            foreach ($member as $m){
-                $data_posisi_member[] = $m->id_posisi;
-            }
-        }
+        if(auth()->user()->hasRole('user')){
+            $data_posisi_member = [];
+            $posisi = auth()->user()->karyawan->posisi;
+            $id_posisi_members = $this->get_member_posisi($posisi);
 
+            foreach ($posisi as $ps){
+                $index = array_search($ps->id_posisi, $id_posisi_members);
+                array_splice($id_posisi_members, $index, 1);
+            }
+
+            $dataFilter['member_posisi_id'] = $id_posisi_members;
+        }
+        
         $cutie = Cutie::getData($dataFilter, $settings);
         $totalFiltered = Cutie::countData($dataFilter);
 
@@ -236,6 +239,18 @@ class CutieController extends Controller
         );
 
         return response()->json($json_data, 200);
+    }
+
+    function get_member_posisi($posisis)
+    {
+        $data = [];
+        foreach ($posisis as $ps) {
+            if ($ps->children) {
+                $data = array_merge($data, $this->get_member_posisi($ps->children));
+            }
+            $data[] = $ps->id_posisi;
+        }
+        return $data;
     }
 
     public function get_data_jenis_cuti_khusus(){

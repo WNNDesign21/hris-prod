@@ -62,23 +62,27 @@ class Cutie extends Model
             'kp.nama_pengganti as nama_pengganti',
             'jc.jenis_cuti_khusus as jenis_cuti_khusus',
             'karyawans.nama as nama_karyawan',
-            'karyawan_id',
+            'cutis.karyawan_id',
             'karyawan_pengganti_id',
             )
             ->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
-            
             ->leftJoinSub($getKaryawanPengganti, 'kp', function (JoinClause $joinKaryawanPengganti) {
                 $joinKaryawanPengganti->on('cutis.karyawan_pengganti_id', 'kp.kp_id');
             })
             ->leftJoinSub($getJenisCuti, 'jc', function (JoinClause $joinJenisCuti) {
                 $joinJenisCuti->on('cutis.jenis_cuti_id', 'jc.jc_id');
-            });
+            })
+            ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
+            ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi');
         
         if (isset($dataFilter['karyawan_id'])) {
-            $data->where('karyawan_id', $dataFilter['karyawan_id']);
+            $data->where('cutis.karyawan_id', $dataFilter['karyawan_id']);
+        }
+
+        if (isset($dataFilter['member_posisi_id'])) {
+            $data->whereIn('posisis.id_posisi', $dataFilter['member_posisi_id']);
         }
         
-
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
             $data->where(function ($query) use ($search) {
@@ -99,6 +103,7 @@ class Cutie extends Model
                     ->orWhere('kp.nama_pengganti', 'ILIKE', "%{$search}%");
             });
         }
+        $data->groupBy('id_cuti', 'cutis.created_at', 'rencana_mulai_cuti', 'rencana_selesai_cuti', 'aktual_mulai_cuti', 'aktual_selesai_cuti', 'durasi_cuti', 'jenis_cuti', 'alasan_cuti', 'checked_at', 'approved_at', 'legalized_at', 'status_dokumen', 'status_cuti', 'attachment', 'kp.nama_pengganti', 'jc.jenis_cuti_khusus', 'karyawans.nama', 'cutis.karyawan_id', 'karyawan_pengganti_id');
 
         $result = $data;
         return $result;
