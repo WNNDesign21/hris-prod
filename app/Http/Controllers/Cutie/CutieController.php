@@ -67,9 +67,6 @@ class CutieController extends Controller
             14 => 'created_at',
         );
 
-        $totalData = Cutie::count();
-        $totalFiltered = $totalData;
-
         $limit = $request->input('length');
         $start = $request->input('start');
         $order = (!empty($request->input('order.0.column'))) ? $columns[$request->input('order.0.column')] : $columns[0];
@@ -90,9 +87,10 @@ class CutieController extends Controller
             $dataFilter['karyawan_id'] = auth()->user()->karyawan->id_karyawan;
         }
 
+        $totalData = Cutie::where('karyawan_id', auth()->user()->karyawan->id_karyawan)->count();
+        $totalFiltered = $totalData;
         $cutie = Cutie::getData($dataFilter, $settings);
-        $totalFiltered = Cutie::countData($dataFilter);
-
+        $totalFiltered = $cutie->count();
         $dataTable = [];
 
         if (!empty($cutie)) {
@@ -194,7 +192,8 @@ class CutieController extends Controller
         }
         
         $cutie = Cutie::getData($dataFilter, $settings);
-        $totalFiltered = Cutie::countData($dataFilter);
+        $totalFiltered = $cutie->count();
+        // $totalFiltered = Cutie::countData($dataFilter);
 
         $dataTable = [];
 

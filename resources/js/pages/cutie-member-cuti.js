@@ -125,7 +125,7 @@ $(function () {
         columnDefs: [
             {
                 orderable: false,
-                targets: [-2,-1],
+                targets: [-1],
             },
             {
                 targets: [-1],
