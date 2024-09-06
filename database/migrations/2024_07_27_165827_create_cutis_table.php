@@ -23,8 +23,10 @@ return new class extends Migration
             $table->date('aktual_selesai_cuti')->nullable();
             $table->text('alasan_cuti')->nullable();
             $table->string('karyawan_pengganti_id')->nullable();
-            $table->date('checked_at')->nullable();
-            $table->string('checked_by')->nullable();
+            $table->date('checked1_at')->nullable();
+            $table->string('checked1_by')->nullable();
+            $table->date('checked2_at')->nullable();
+            $table->string('checked2_by')->nullable();
             $table->date('approved_at')->nullable();
             $table->string('approved_by')->nullable();
             $table->date('legalized_at')->nullable();

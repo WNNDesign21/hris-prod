@@ -54,7 +54,8 @@ $(function () {
         { data: "jenis" },
         { data: "alasan" },
         { data: "karyawan_pengganti" },
-        { data: "checked" },
+        { data: "checked_1" },
+        { data: "checked_2" },
         { data: "approved" },
         { data: "legalized" },
         { data: "status_dokumen" },
@@ -145,4 +146,71 @@ $(function () {
     $('.btnReload').on("click", function (){
         refreshTable();
     })
+
+    // MODAL REJECT
+    var modalRejectOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalReject = new bootstrap.Modal(
+        document.getElementById("modal-reject-cuti"),
+        modalRejectOptions
+    );
+
+    function openReject() {
+        modalReject.show();
+    }
+
+    function closeReject() {
+        modalReject.hide();
+        resetReject();
+    }
+
+    function resetReject(){
+        $('#alasan_reject').val('');
+        $('#id_cuti').val();
+        $('#nama_atasan').val();
+        $('#form-reject-cuti').attr('action', '#');
+    }
+
+    $('.btnClose').on('click', function (){
+        closeReject();
+    })
+
+    $('#member-table').on("click",".btnReject", function (){
+        let idCuti = $(this).data('id');
+        let namaAtasan = $(this).data('nama-atasan');
+        let url = base_url + '/cutie/member-cuti/reject/' + idCuti;
+        $('#nama_atasan').val(namaAtasan);
+        $('#id_cuti').val(idCuti);
+        $('#form-reject-cuti').attr('action', url);
+        openReject();
+    })
+
+    $('#form-reject-cuti').on('submit', function (e){
+        loadingSwalShow();
+        e.preventDefault();
+        let url = $('#form-reject-cuti').attr('action');
+
+        var formData = new FormData($('#form-reject-cuti')[0]);
+        $.ajax({
+            url: url,
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (data) {
+                showToast({ title: data.message });
+                refreshTable();
+                closeReject();
+                loadingSwalClose();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        })
+    });
 })

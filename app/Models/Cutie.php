@@ -18,8 +18,8 @@ class Cutie extends Model
 
     protected $fillable = [
         'karyawan_id', 'jenis_cuti_id', 'jenis_cuti', 'durasi_cuti','rencana_mulai_cuti', 'rencana_selesai_cuti',
-        'aktual_mulai_cuti','aktual_selesai_cuti','alasan_cuti','karyawan_pengganti_id','checked_at',
-        'checked_by','approved_at','approved_by','legalized_at', 'legalized_by','rejected_at','rejected_by',
+        'aktual_mulai_cuti','aktual_selesai_cuti','alasan_cuti','karyawan_pengganti_id','checked1_at',
+        'checked1_by','checked2_at','checked2_by','approved_at','approved_by','legalized_at', 'legalized_by','rejected_at','rejected_by',
         'rejected_note','status_cuti','status_dokumen','attachment'
     ];
 
@@ -53,9 +53,16 @@ class Cutie extends Model
             'durasi_cuti',
             'jenis_cuti',
             'alasan_cuti',
-            'checked_at',
+            'checked1_at',
+            'checked2_at',
             'approved_at',
             'legalized_at',
+            'checked1_by',
+            'checked2_by',
+            'approved_by',
+            'legalized_by',
+            'rejected_by',
+            'rejected_at',
             'status_dokumen',
             'status_cuti',
             'attachment',
@@ -93,8 +100,16 @@ class Cutie extends Model
                     ->orWhere('durasi_cuti', 'ILIKE', "%{$search}%")
                     ->orWhere('jenis_cuti', 'ILIKE', "%{$search}%")
                     ->orWhere('alasan_cuti', 'ILIKE', "%{$search}%")
-                    ->orWhere('checked_at', 'ILIKE', "%{$search}%")
+                    ->orWhere('checked1_at', 'ILIKE', "%{$search}%")
+                    ->orWhere('checked2_at', 'ILIKE', "%{$search}%")
                     ->orWhere('approved_at', 'ILIKE', "%{$search}%")
+                    ->orWhere('legalized_at', 'ILIKE', "%{$search}%")
+                    ->orWhere('checked1_by', 'ILIKE', "%{$search}%")
+                    ->orWhere('checked2_by', 'ILIKE', "%{$search}%")
+                    ->orWhere('approved_by', 'ILIKE', "%{$search}%")
+                    ->orWhere('legalized_by', 'ILIKE', "%{$search}%")
+                    ->orWhere('rejected_by', 'ILIKE', "%{$search}%")
+                    ->orWhere('rejected_at', 'ILIKE', "%{$search}%")
                     ->orWhere('status_dokumen', 'ILIKE', "%{$search}%")
                     ->orWhere('status_cuti', 'ILIKE', "%{$search}%")
                     ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%")
@@ -103,7 +118,7 @@ class Cutie extends Model
                     ->orWhere('kp.nama_pengganti', 'ILIKE', "%{$search}%");
             });
         }
-        $data->groupBy('id_cuti', 'cutis.created_at', 'rencana_mulai_cuti', 'rencana_selesai_cuti', 'aktual_mulai_cuti', 'aktual_selesai_cuti', 'durasi_cuti', 'jenis_cuti', 'alasan_cuti', 'checked_at', 'approved_at', 'legalized_at', 'status_dokumen', 'status_cuti', 'attachment', 'kp.nama_pengganti', 'jc.jenis_cuti_khusus', 'karyawans.nama', 'cutis.karyawan_id', 'karyawan_pengganti_id');
+        $data->groupBy('id_cuti', 'cutis.created_at', 'rencana_mulai_cuti', 'rencana_selesai_cuti', 'aktual_mulai_cuti', 'aktual_selesai_cuti', 'durasi_cuti', 'jenis_cuti', 'alasan_cuti', 'checked1_at', 'checked2_at',  'approved_at', 'legalized_at','checked1_by', 'checked2_by',  'approved_by', 'legalized_by', 'status_dokumen', 'status_cuti', 'attachment', 'kp.nama_pengganti', 'jc.jenis_cuti_khusus', 'karyawans.nama', 'cutis.karyawan_id', 'karyawan_pengganti_id');
 
         $result = $data;
         return $result;

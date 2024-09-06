@@ -164,6 +164,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/member-cuti/store',[CutieController::class, 'store'])->name('cutie.member-cuti.store');
         Route::delete('/member-cuti/delete/{idCuti}',[CutieController::class, 'delete'])->name('cutie.member-cuti.delete');
         Route::patch('/member-cuti/update/{idCuti}',[CutieController::class, 'update'])->name('cutie.member-cuti.update');
+        Route::patch('/member-cuti/reject/{idCuti}',[CutieController::class, 'reject'])->name('cutie.member-cuti.reject');
      });
 
     

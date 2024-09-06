@@ -287,7 +287,7 @@ class PosisiController extends Controller
                     $posisi->parent_id = $parent_id_edit;
                     $posisi->organisasi_id = $id_organisasi_edit;
                     $posisi->divisi_id = $departemen->divisi_id;
-                    $posisi->departemen_id = $departemen_id_edit;
+                    $posisi->departemen_id = $id_departemen_edit;
                     $posisi->seksi_id = null;
                 } else{
                     $posisi->jabatan_id = $id_jabatan_edit;
@@ -295,7 +295,7 @@ class PosisiController extends Controller
                     $posisi->parent_id = $parent_id_edit;
                     $posisi->organisasi_id = null;
                     $posisi->divisi_id = $departemen->divisi_id;
-                    $posisi->departemen_id = $departemen_id_edit;
+                    $posisi->departemen_id = $id_departemen_edit;
                     $posisi->seksi_id = null;
                 }
             } else {

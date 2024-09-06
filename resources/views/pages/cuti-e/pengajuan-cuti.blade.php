@@ -39,7 +39,8 @@
                                     <th>Jenis</th>
                                     <th>Alasan</th>
                                     <th>Karyawan Pengganti</th>
-                                    <th>Checked</th>
+                                    <th>Checked 1</th>
+                                    <th>Checked 2</th>
                                     <th>Approved</th>
                                     <th>Legalized</th>
                                     <th>Status Dokumen</th>
