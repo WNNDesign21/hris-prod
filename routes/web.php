@@ -151,20 +151,25 @@ Route::group(['middleware' => ['auth']], function () {
         /** DASHBOARD */
         Route::get('/dashboard',[CutieController::class, 'index'])->name('cutie.dashboard');
 
-        /** PENGAJUAN CUTI */
+        /** PERSONAL CUTI */
         Route::post('/pengajuan-cuti-datatable', [CutieController::class, 'pengajuan_cuti_datatable']);
         Route::get('/pengajuan-cuti',[CutieController::class, 'pengajuan_cuti_view'])->name('cutie.pengajuan-cuti');
         Route::post('/pengajuan-cuti/store',[CutieController::class, 'store'])->name('cutie.pengajuan-cuti.store');
         Route::delete('/pengajuan-cuti/delete/{idCuti}',[CutieController::class, 'delete'])->name('cutie.pengajuan-cuti.delete');
         Route::patch('/pengajuan-cuti/update/{idCuti}',[CutieController::class, 'update'])->name('cutie.pengajuan-cuti.update');
 
-        /** CUTI MEMBER */
+        /** MEMBER CUTI */
         Route::post('/member-cuti-datatable', [CutieController::class, 'member_cuti_datatable']);
         Route::get('/member-cuti',[CutieController::class, 'member_cuti_view'])->name('cutie.member-cuti');
         Route::post('/member-cuti/store',[CutieController::class, 'store'])->name('cutie.member-cuti.store');
         Route::delete('/member-cuti/delete/{idCuti}',[CutieController::class, 'delete'])->name('cutie.member-cuti.delete');
         Route::patch('/member-cuti/update/{idCuti}',[CutieController::class, 'update'])->name('cutie.member-cuti.update');
+        Route::patch('/member-cuti/update-dokumen-cuti/{idCuti}',[CutieController::class, 'update_dokumen_cuti'])->name('cutie.member-cuti.update-document-cuti');
         Route::patch('/member-cuti/reject/{idCuti}',[CutieController::class, 'reject'])->name('cutie.member-cuti.reject');
+
+        /** PERSONALIA CUTI */
+        Route::post('/personalia-cuti-datatable', [CutieController::class, 'personalia_cuti_datatable']);
+        Route::get('/personalia-cuti',[CutieController::class, 'personalia_cuti_view'])->name('cutie.personalia-cuti');
      });
 
     

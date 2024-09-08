@@ -136,6 +136,10 @@
         @vite(['resources/js/pages/cutie-member-cuti.js'])
     @endif
 
+    @if ($page == 'cutie-personalia-cuti')
+        @vite(['resources/js/pages/cutie-personalia-cuti.js'])
+    @endif
+
 </body>
 
 </html>

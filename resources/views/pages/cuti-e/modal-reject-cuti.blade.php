@@ -17,7 +17,7 @@
                                 <input type="hidden" id="nama_atasan" name="nama_atasan">
                                 <div class="form-group">
                                     <textarea class="form-control" name="alasan_reject" id="alasan_reject"
-                                        placeholder="Tuliskan alasan menolak pengajuan cuti member anda!" style="width: 100%;"></textarea>
+                                        placeholder="Tuliskan alasan menolak pengajuan cuti ini!" style="width: 100%;"></textarea>
                                 </div>
                                 <div class="d-flex justify-content-end mt-2">
                                     <button type="submit" class="btn btn-danger"><i class="fas fa-save"></i>

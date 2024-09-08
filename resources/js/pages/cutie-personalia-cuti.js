@@ -43,7 +43,26 @@ $(function () {
         });
     }
 
-    //DATATABLE MEMBER
+    //GET JENIS CUTI KHUSUS AND SAVE TO LOCAL STORAGE
+    // getJenisCutiKhusus();
+    // let jenisCutiKhusus;
+    // function getJenisCutiKhusus() {
+    //     loadingSwalShow();
+    //     $.ajax({
+    //         url: base_url + '/cutie/pengajuan-cuti/get-data-jenis-cuti-khusus',
+    //         type: "get",
+    //         success: function (response) {
+    //             var data = response.data;
+    //             jenisCutiKhusus = data;
+    //             loadingSwalClose();
+    //         },
+    //         error: function (jqXHR, textStatus, errorThrown) {
+    //             showToast({ icon: "error", title: jqXHR.responseJSON.message });
+    //         },
+    //     });
+    // };
+    
+    //DATATABLE KARYAWAN
     var columnsTable = [
         { data: "nama" },
         { data: "rencana_mulai_cuti" },
@@ -62,9 +81,10 @@ $(function () {
         { data: "status" },
         { data: "created_at" },
         { data: "attachment" },
+        { data: "aksi" },
     ];
 
-    var cutieTable = $("#member-table").DataTable({
+    var cutieTable = $("#personalia-table").DataTable({
         search: {
             return: true,
         },
@@ -72,7 +92,7 @@ $(function () {
         processing: true,
         serverSide: true,
         ajax: {
-            url: base_url + "/cutie/member-cuti-datatable",
+            url: base_url + "/cutie/personalia-cuti-datatable",
             dataType: "json",
             type: "POST",
             data: function (dataFilter) {
@@ -126,7 +146,7 @@ $(function () {
         columnDefs: [
             {
                 orderable: false,
-                targets: [-1],
+                targets: [-2,-1],
             },
             {
                 targets: [-1],
@@ -178,10 +198,10 @@ $(function () {
         closeReject();
     })
 
-    $('#member-table').on("click",".btnReject", function (){
+    $('#personalia-table').on("click",".btnReject", function (){
         let idCuti = $(this).data('id');
         let namaAtasan = $(this).data('nama-atasan');
-        let url = base_url + '/cutie/member-cuti/reject/' + idCuti;
+        let url = base_url + '/cutie/personalia-cuti/reject/' + idCuti;
         $('#nama_atasan').val(namaAtasan);
         $('#id_cuti').val(idCuti);
         $('#form-reject-cuti').attr('action', url);
@@ -214,7 +234,7 @@ $(function () {
         })
     });
 
-    $('#member-table').on('click', '.btnUpdateDokumen', function (){
+    $('#personalia-table').on('click', '.btnUpdateDokumen', function (){
         Swal.fire({
             title: "Update Dokumen",
             text: "Apakah kamu yakin untuk update dokumen ini?",
@@ -255,4 +275,5 @@ $(function () {
             }
         })
     })
+
 })
