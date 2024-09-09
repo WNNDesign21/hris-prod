@@ -31,9 +31,16 @@ class UserSeeder extends Seeder
 
         //3
         Role::create([
-            'name' => 'user',
+            'name' => 'atasan',
             'guard_name' => 'web'
         ]);
+
+        //4
+        Role::create([
+            'name' => 'member',
+            'guard_name' => 'web'
+        ]);
+
 
         $personaliaUser = User::create([
             'username' => 'PERSONALIA',
@@ -67,8 +74,8 @@ class UserSeeder extends Seeder
 
         $personaliaUser->assignRole('personalia');
         $superUser->assignRole('super user');
-        $user1->assignRole('user');
-        $user2->assignRole('user');
-        $user3->assignRole('user');
+        $user1->assignRole('member');
+        $user2->assignRole('atasan');
+        $user3->assignRole('atasan');
     }
 }

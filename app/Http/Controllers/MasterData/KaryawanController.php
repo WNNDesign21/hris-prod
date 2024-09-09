@@ -4,16 +4,17 @@ namespace App\Http\Controllers\MasterData;
 
 use Throwable;
 use App\Models\User;
+use App\Models\Posisi;
 use App\Models\Kontrak;
 use App\Models\Karyawan;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Illuminate\Support\Facades\Validator;
 
 class KaryawanController extends Controller
 {
@@ -181,7 +182,14 @@ class KaryawanController extends Controller
                         'password' => Hash::make($password),
                     ]); 
 
-                    $user->assignRole('user');
+                    $cek_jabatan = Posisi::find($posisi[0]);
+                    if($cek_jabatan){
+                        if($cek_jabatan->jabatan_id !== 6){
+                            $user->assignRole('atasan');
+                        } else {
+                            $user->assignRole('member');
+                        }
+                    }
 
                     $user_id = $user->id;
                 }else{
@@ -211,7 +219,17 @@ class KaryawanController extends Controller
                 'sisa_cuti' => $sisa_cuti,
             ]);
 
+            $jabatan = null;
             foreach($posisi as $posisi_id){
+                $posisi_cek = Posisi::find($posisi_id);
+                if ($posisi_cek && $jabatan !== null) {
+                    if($posisi_cek->jabatan_id !== $jabatan){
+                        DB::rollBack();
+                        return response()->json(['message' => 'Posisi yang dipilih harus memiliki jabatan yang sama!'], 500);
+                    } 
+                } else {
+                    $jabatan = $posisi_cek->jabatan_id;
+                }
                 $karyawan->posisi()->attach($posisi_id);
             }
 
@@ -262,9 +280,9 @@ class KaryawanController extends Controller
             'posisiEdit.*' => ['required'],
             'grupEdit' => ['required'],
             'sisa_cutiEdit' => ['required','numeric'],
-            'status_karyawanEdit' => ['required'],
         ];
 
+        
         $validator = Validator::make(request()->all(), $dataValidate);
     
         if ($validator->fails()) {
@@ -314,9 +332,35 @@ class KaryawanController extends Controller
             $karyawan->sisa_cuti = $sisa_cuti;
             $karyawan->posisi()->detach();
 
+            $user = $karyawan->user;
+            $jabatan_cek = Posisi::find($posisi[0]);
+            if($jabatan_cek){
+                if($jabatan_cek->jabatan_id !== 6){
+                    $user->roles()->detach();
+                    $user->assignRole('atasan');
+                } else {
+                    $user->roles()->detach();
+                    $user->assignRole('member');
+                }
+            }
+
+            $jabatan = null;
             foreach($posisi as $posisi_id){
+                $posisi_cek = Posisi::find($posisi_id);
+                if ($posisi_cek && $jabatan !== null) {
+                    if($posisi_cek->jabatan_id !== $jabatan){
+                        DB::rollBack();
+                        return response()->json(['message' => 'Posisi yang dipilih harus memiliki jabatan yang sama!'], 500);
+                    } 
+                } else {
+                    $jabatan = $posisi_cek->jabatan_id;
+                }
                 $karyawan->posisi()->attach($posisi_id);
             }
+            
+            // foreach($posisi as $posisi_id){
+            //     $karyawan->posisi()->attach($posisi_id);
+            // }
 
             $karyawan->save();
 
