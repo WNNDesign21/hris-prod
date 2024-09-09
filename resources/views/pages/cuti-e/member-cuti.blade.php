@@ -55,4 +55,5 @@
         </div>
     </div>
     @include('pages.cuti-e.modal-reject-cuti')
+    @include('pages.cuti-e.modal-karyawan-pengganti-cuti')
 @endsection

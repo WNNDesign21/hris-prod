@@ -48,6 +48,7 @@ Route::get('/master-data/kontrak/get-data-detail-kontrak/{idKontrak}',[KontrakCo
 
 Route::get('/cutie/pengajuan-cuti/get-data-jenis-cuti-khusus',[CutieController::class, 'get_data_jenis_cuti_khusus']); 
 Route::get('/cutie/pengajuan-cuti/get-data-detail-cuti/{idCuti}',[CutieController::class, 'get_data_detail_cuti']); 
+Route::get('/cutie/member-cuti/get-karyawan-pengganti/{idKaryawan}',[CutieController::class, 'get_karyawan_pengganti']);
 
 
 Route::group(['middleware' => ['auth']], function () {
@@ -167,6 +168,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::delete('/member-cuti/delete/{idCuti}',[CutieController::class, 'delete'])->name('cutie.member-cuti.delete');
         Route::patch('/member-cuti/update/{idCuti}',[CutieController::class, 'update'])->name('cutie.member-cuti.update');
         Route::patch('/member-cuti/update-dokumen-cuti/{idCuti}',[CutieController::class, 'update_dokumen_cuti'])->name('cutie.member-cuti.update-document-cuti');
+        Route::patch('/member-cuti/update-karyawan-pengganti/{idCuti}',[CutieController::class, 'update_karyawan_pengganti'])->name('cutie.member-cuti.update-karyawan-pengganti');
         Route::patch('/member-cuti/reject/{idCuti}',[CutieController::class, 'reject'])->name('cutie.member-cuti.reject');
 
         /** PERSONALIA CUTI */

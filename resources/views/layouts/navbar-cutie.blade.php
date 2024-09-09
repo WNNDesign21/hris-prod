@@ -12,24 +12,30 @@
                             <span>Dashboard</span>
                         </a>
                     </li>
-                    <li class="{{ $page == 'cutie-pengajuan-cuti' ? 'active' : '' }}">
-                        <a href="{{ route('cutie.pengajuan-cuti') }}">
-                            <i class="icon-User"><span class="path1"></span><span class="path2"></span></i>
-                            <span>Pengajuan Cuti</span>
-                        </a>
-                    </li>
-                    <li class="{{ $page == 'cutie-member-cuti' ? 'active' : '' }}">
-                        <a href="{{ route('cutie.member-cuti') }}">
-                            <i class="icon-User"><span class="path1"></span><span class="path2"></span></i>
-                            <span>Member Cuti</span>
-                        </a>
-                    </li>
-                    <li class="{{ $page == 'cutie-personalia-cuti' ? 'active' : '' }}">
-                        <a href="{{ route('cutie.personalia-cuti') }}">
-                            <i class="icon-User"><span class="path1"></span><span class="path2"></span></i>
-                            <span>List Cuti</span>
-                        </a>
-                    </li>
+                    @if (!auth()->user()->hasRole('personalia'))
+                        <li class="{{ $page == 'cutie-pengajuan-cuti' ? 'active' : '' }}">
+                            <a href="{{ route('cutie.pengajuan-cuti') }}">
+                                <i class="icon-User"><span class="path1"></span><span class="path2"></span></i>
+                                <span>Pengajuan Cuti</span>
+                            </a>
+                        </li>
+                    @endif
+                    @if (auth()->user()->hasRole('atasan'))
+                        <li class="{{ $page == 'cutie-member-cuti' ? 'active' : '' }}">
+                            <a href="{{ route('cutie.member-cuti') }}">
+                                <i class="icon-User"><span class="path1"></span><span class="path2"></span></i>
+                                <span>Member Cuti</span>
+                            </a>
+                        </li>
+                    @endif
+                    @if (auth()->user()->hasRole('personalia'))
+                        <li class="{{ $page == 'cutie-personalia-cuti' ? 'active' : '' }}">
+                            <a href="{{ route('cutie.personalia-cuti') }}">
+                                <i class="icon-User"><span class="path1"></span><span class="path2"></span></i>
+                                <span>List Cuti</span>
+                            </a>
+                        </li>
+                    @endif
                     {{-- <li class="{{ $page == 'cutie-kontrak' ? 'active' : '' }}">
                         <a href="{{ route('cutie.kontrak') }}">
                             <i class="icon-File"><span class="path1"></span><span class="path2"></span><span

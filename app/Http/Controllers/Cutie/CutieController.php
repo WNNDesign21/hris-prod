@@ -94,9 +94,7 @@ class CutieController extends Controller
             $dataFilter['search'] = $search;
         }
 
-        if(auth()->user()->hasRole('user')){
-            $dataFilter['karyawan_id'] = auth()->user()->karyawan->id_karyawan;
-        }
+        $dataFilter['karyawan_id'] = auth()->user()->karyawan->id_karyawan;
 
         $totalData = Cutie::where('karyawan_id', auth()->user()->karyawan->id_karyawan)->count();
         $totalFiltered = $totalData;
@@ -149,7 +147,7 @@ class CutieController extends Controller
                 $nestedData['durasi'] = $data->durasi_cuti.' Hari';
                 $nestedData['jenis'] = $data->jenis_cuti !== 'KHUSUS' ? $data->jenis_cuti : $data->jenis_cuti.' <small class="text-fade">('.$data->jenis_cuti_khusus.')</small>';
                 $nestedData['alasan'] = $data->alasan_cuti;
-                $nestedData['karyawan_pengganti'] = $data->nama_pengganti ? $data->nama_pengganti : '-';
+                $nestedData['karyawan_pengganti'] = $data->nama_pengganti ? '<small class="text-bold">'.$data->nama_pengganti.'</small>' : '-';
                 $nestedData['checked_1'] = $rejected == null ? $btn_group_1 : $rejected;
                 $nestedData['checked_2'] = $rejected == null ? $btn_group_2 : $rejected;
                 $nestedData['approved'] = $rejected == null ? $btn_group_3 : $rejected;
@@ -229,7 +227,7 @@ class CutieController extends Controller
 
 
         //MENCARI MEMBER
-        if(auth()->user()->hasRole('user')){
+        if(auth()->user()->hasRole('atasan')){
             $posisi = auth()->user()->karyawan->posisi;
             $id_posisi_members = $this->get_member_posisi($posisi);
 
@@ -294,14 +292,14 @@ class CutieController extends Controller
                         if($data->approved_by == null){
                             if($my_jabatan == 4 || $my_jabatan == 3){
                                 if($data->checked2_by !== null){
-                                    $approved = '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="approved"><i class="far fa-check-circle"></i> Checked</button>';
+                                    $approved = '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>';
                                     $reject3 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
                                     $btn_group_3 = '<div class="btn-group btn-sm">'.$approved.$reject3.'</div>';
                                 } else {
                                     $btn_group_3 = 'Need Checked 1 & 2';
                                 }
                             } else {
-                                $btn_group_3 = 'Need Checked 1 & 2';
+                                $btn_group_3 = 'Waiting Approved';
                             }
                         } else {
                             $btn_group_3 = '✅<br><small class="text-bold">'.$data->approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->approved_at)->diffForHumans().'</small>';
@@ -350,14 +348,14 @@ class CutieController extends Controller
                         if($data->approved_by == null){
                             if($my_jabatan == 3 || $my_jabatan == 2){
                                 if($data->checked2_by !== null){
-                                    $approved = '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'" data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="approved"><i class="far fa-check-circle"></i> Checked</button>';
+                                    $approved = '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'" data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>';
                                     $reject3 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
                                     $btn_group_3 = '<div class="btn-group btn-sm">'.$approved.$reject3.'</div>';
                                 } else {
                                     $btn_group_3 = 'Need Checked 1 & 2';
                                 }
                             } else {
-                                $btn_group_3 = 'Need Checked 1 & 2';
+                                $btn_group_3 = 'Waiting Approved';
                             }
                         } else {
                             $btn_group_3 = '✅<br><small class="text-bold">'.$data->approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->approved_at)->diffForHumans().'</small>';
@@ -407,6 +405,17 @@ class CutieController extends Controller
                 } else {
                     $rejected = '❌<br><small class="text-bold">'.$data->rejected_by.'</small><br><small class="text-fade">'.Carbon::parse($data->rejected_at)->diffForHumans().'</small>';
                 }
+                
+                //Karyawan Pengganti 
+                if ($data->nama_pengganti && $data->legalized_by == null){
+                    $btn_karyawan_pengganti = '<small class="text-bold">'.$data->nama_pengganti.'</small><br>'.'<button type="button" class="waves-effect waves-light btn btn-sm btn-secondary btnKaryawanPengganti" data-id="'.$data->id_cuti.'" data-karyawan-id="'.$data->karyawan_id.'" data-karyawan-pengganti-id="'.$data->karyawan_pengganti_id.'"><i class="fas fa-user-friends"></i> Pilih</button>';
+                } elseif($data->nama_pengganti && $data->legalized_by !== null){
+                    $btn_karyawan_pengganti = '<small class="text-bold">'.$data->nama_pengganti.'</small>';
+                } elseif ($data->nama_pengganti == null && $data->legalized_by == null){ 
+                    $btn_karyawan_pengganti = '<button type="button" class="waves-effect waves-light btn btn-sm btn-secondary btnKaryawanPengganti" data-id="'.$data->id_cuti.'" data-karyawan-id="'.$data->karyawan_id.'" data-karyawan-pengganti-id="'.$data->karyawan_pengganti_id.'"><i class="fas fa-user-friends"></i> Pilih</button>';
+                } else {
+                    $btn_karyawan_pengganti = '-';
+                }
 
                 $nestedData['nama'] = $data->nama_karyawan;
                 $nestedData['rencana_mulai_cuti'] = Carbon::parse($data->rencana_mulai_cuti)->format('d M Y');
@@ -416,7 +425,7 @@ class CutieController extends Controller
                 $nestedData['durasi'] = $data->durasi_cuti.' Hari';
                 $nestedData['jenis'] = $data->jenis_cuti !== 'KHUSUS' ? $data->jenis_cuti : $data->jenis_cuti.' <small class="text-fade">('.$data->jenis_cuti_khusus.')</small>';
                 $nestedData['alasan'] = $data->alasan_cuti;
-                $nestedData['karyawan_pengganti'] = $data->nama_pengganti ? $data->nama_pengganti : '-';
+                $nestedData['karyawan_pengganti'] = $btn_karyawan_pengganti;
                 $nestedData['checked_1'] = $rejected == null ? $btn_group_1 : $rejected;
                 $nestedData['checked_2'] = $rejected == null ? $btn_group_2 : $rejected;
                 $nestedData['approved'] = $rejected == null ? $btn_group_3 : $rejected;
@@ -523,7 +532,7 @@ class CutieController extends Controller
                     
                     if($data->legalized_by == null){
                         if($data->approved_by !== null){
-                            $legalized = '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'" data-issued-name="HRD & GA" data-type="legalized"><i class="fas fa-thumbs-up"></i> Legalized</button>';
+                            $legalized = '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'" data-issued-name="HRD & GA" data-type="legalized"><i class="fas fa-balance-scale"></i> Legalized</button>';
                             $reject = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="HRD & GA"><i class="far fa-times-circle"></i> Reject</button>';
                             $legalized = '<div class="btn-group btn-sm">'.$legalized.$reject.'</div>';
                         } else {
@@ -545,7 +554,7 @@ class CutieController extends Controller
                 $nestedData['durasi'] = $data->durasi_cuti.' Hari';
                 $nestedData['jenis'] = $data->jenis_cuti !== 'KHUSUS' ? $data->jenis_cuti : $data->jenis_cuti.' <small class="text-fade">('.$data->jenis_cuti_khusus.')</small>';
                 $nestedData['alasan'] = $data->alasan_cuti;
-                $nestedData['karyawan_pengganti'] = $data->nama_pengganti ? $data->nama_pengganti : '-';
+                $nestedData['karyawan_pengganti'] = $data->nama_pengganti ? '<small class="text-bold">'.$data->nama_pengganti.'</small>' : '-';
                 $nestedData['checked_1'] = $rejected == null ? $btn_group_1 : $rejected;
                 $nestedData['checked_2'] = $rejected == null ? $btn_group_2 : $rejected;
                 $nestedData['approved'] = $rejected == null ? $btn_group_3 : $rejected;
@@ -903,7 +912,41 @@ class CutieController extends Controller
             
             $cuti->save();
             DB::commit();
-            return response()->json(['message' => 'Reject Cuti Berhasil dilakukan!'], 200);
+            return response()->json(['message' => 'Update Dokumen Cuti Berhasil dilakukan!'], 200);
+        } catch(Throwable $error){
+            DB::rollBack();
+            return response()->json(['message' => $error->getMessage()], 500);
+        } catch (QueryException $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Database error: ' . $e->getMessage()], 500);
+        } catch (ModelNotFoundException $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Model not found: ' . $e->getMessage()], 404);
+        }
+    }
+
+    public function update_karyawan_pengganti(Request $request, string $id_cuti)
+    {
+        $karyawan_pengganti_id = $request->karyawan_pengganti_id;
+
+        $dataValidate = [
+            'karyawan_pengganti_id' => ['required'],
+        ];
+        
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => 'Pilihlah karyawan pengganti terlebih dahulu!'], 402);
+        }
+
+        DB::beginTransaction();
+        try{
+            $cuti = Cutie::find($id_cuti);
+            $cuti->karyawan_pengganti_id = $karyawan_pengganti_id;
+            $cuti->save();
+            DB::commit();
+            return response()->json(['message' => 'Update Karyawan Pengganti Berhasil dilakukan!'], 200);
         } catch(Throwable $error){
             DB::rollBack();
             return response()->json(['message' => $error->getMessage()], 500);
@@ -996,5 +1039,20 @@ class CutieController extends Controller
             DB::rollBack();
             return response()->json(['message' => $error->getMessage()], 500);
         }
+    }
+
+    public function get_karyawan_pengganti(string $id_karyawan)
+    {
+        $departemen = Karyawan::find($id_karyawan)->posisi[0]->departemen_id;
+        $karyawan = Karyawan::whereHas('posisi', function($query) use ($departemen){
+            $query->where('departemen_id', $departemen);
+        })->where('id_karyawan','!=',$id_karyawan)->get();
+        foreach ($karyawan as $k) {
+            $data[] = [
+            'id' => $k->id_karyawan,
+            'text' => $k->nama
+            ];
+        }
+        return response()->json($data, 200);
     }
 }

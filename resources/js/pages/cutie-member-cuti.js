@@ -255,4 +255,98 @@ $(function () {
             }
         })
     })
+
+    //PILIH KARYAWAN PENGGANTI
+     // MODAL REJECT
+     var modalKaryawanPenggantiOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalKaryawanPengganti = new bootstrap.Modal(
+        document.getElementById("modal-karyawan-pengganti"),
+        modalKaryawanPenggantiOptions
+    );
+
+    function openKaryawanPengganti() {
+        modalKaryawanPengganti.show();
+    }
+
+    function closeKaryawanPengganti() {
+        modalKaryawanPengganti.hide();
+        resetKaryawanPengganti();
+    }
+
+    function resetKaryawanPengganti(){
+        $('#id_cuti').val();
+        $('#form-karyawan-pengganti').attr('action', '#');
+    }
+
+    function getKaryawanPengganti(idKaryawan, idKaryawanPengganti){
+        $.ajax({
+            url: base_url + '/cutie/member-cuti/get-karyawan-pengganti/' + idKaryawan,
+            method: 'GET',
+            dataType: 'JSON',
+            success: function (data){
+                let option = '';
+                $.each(data, function (key, value){
+                    option += '<option value="'+value.id+'">'+value.text+'</option>';
+                })
+                $('#karyawan_pengganti_id').empty();
+                $('#karyawan_pengganti_id').append(option);
+                if(idKaryawanPengganti != null){
+                    $('#karyawan_pengganti_id').val(idKaryawanPengganti).trigger('change');
+                }
+                $('#karyawan_pengganti_id').select2({
+                    dropdownParent: $('#modal-karyawan-pengganti')
+                });
+            },
+            error: function (jqXHR, textStatus, errorThrown){
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            }
+        })
+    }
+
+    $('.btnClose').on('click', function (){
+        closeKaryawanPengganti();
+    })
+
+    $('#member-table').on("click",".btnKaryawanPengganti", function (){
+        let idCuti = $(this).data('id');
+        let idKaryawan = $(this).data('karyawan-id');
+        let idKaryawanPengganti = $(this).data('karyawan-pengganti-id');
+        let url = base_url + '/cutie/member-cuti/update-karyawan-pengganti/' + idCuti;
+        $('#id_cuti').val(idCuti);
+        $('#form-karyawan-pengganti').attr('action', url);
+        openKaryawanPengganti();
+        getKaryawanPengganti(idKaryawan,idKaryawanPengganti);
+    })
+
+    $('#form-karyawan-pengganti').on('submit', function (e){
+        loadingSwalShow();
+        e.preventDefault();
+        let url = $('#form-karyawan-pengganti').attr('action');
+
+        var formData = new FormData($('#form-karyawan-pengganti')[0]);
+        formData.append('_method', 'PATCH');
+        $.ajax({
+            url: url,
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (data) {
+                showToast({ title: data.message });
+                refreshTable();
+                closeKaryawanPengganti();
+                loadingSwalClose();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        })
+    });
+
 })
