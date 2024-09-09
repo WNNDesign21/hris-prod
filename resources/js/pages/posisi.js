@@ -379,7 +379,7 @@ $(function () {
                 }
             },
         },
-
+        responsive: true,
         columns: columnsTable,
         columnDefs: [
             {
@@ -462,6 +462,7 @@ $(function () {
                 loadingSwalClose();
                 showToast({ title: data.message });
                 refreshTable();
+                location.reload();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 loadingSwalClose();
@@ -568,6 +569,8 @@ $(function () {
                 loadingSwalClose();
                 showToast({ title: data.message });
                 refreshTable();
+                closeEditPosisi();
+                location.reload();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 loadingSwalClose();

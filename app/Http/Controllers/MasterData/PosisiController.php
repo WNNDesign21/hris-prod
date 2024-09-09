@@ -533,10 +533,10 @@ class PosisiController extends Controller
         $data = [
             'jabatan' => $jabatan,
             'jabatan_id' => $my_posisi->jabatan_id,
-            'organisasi_id' => $posisi->organisasi_id,
-            'divisi_id' => $posisi->divisi_id,
-            'departemen_id' => $posisi->departemen_id,
-            'seksi_id' => $posisi->seksi_id,
+            'organisasi_id' => $my_posisi->organisasi_id,
+            'divisi_id' => $my_posisi->divisi_id,
+            'departemen_id' => $my_posisi->departemen_id,
+            'seksi_id' => $my_posisi->seksi_id,
         ];
 
         return response()->json($data, 200);
