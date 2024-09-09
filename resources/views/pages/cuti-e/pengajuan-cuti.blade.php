@@ -30,7 +30,7 @@
                         <table id="personal-table" class="table table-striped table-bordered display" style="width:100%">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
+                                    <th>Action</th>
                                     <th>Rencana Mulai</th>
                                     <th>Rencana Selesai</th>
                                     <th>Aktual Mulai</th>
@@ -47,7 +47,7 @@
                                     <th>Status</th>
                                     <th>Created At</th>
                                     <th>Attachment</th>
-                                    <th>Action</th>
+                                    {{-- <th>Action</th> --}}
                                 </tr>
                             </thead>
                             <tbody></tbody>
