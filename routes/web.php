@@ -49,6 +49,9 @@ Route::get('/master-data/kontrak/get-data-detail-kontrak/{idKontrak}',[KontrakCo
 Route::get('/cutie/pengajuan-cuti/get-data-jenis-cuti-khusus',[CutieController::class, 'get_data_jenis_cuti_khusus']); 
 Route::get('/cutie/pengajuan-cuti/get-data-detail-cuti/{idCuti}',[CutieController::class, 'get_data_detail_cuti']); 
 Route::get('/cutie/member-cuti/get-karyawan-pengganti/{idKaryawan}',[CutieController::class, 'get_karyawan_pengganti']);
+Route::get('/cutie/dashboard-cuti/get-data-cuti-calendar',[CutieController::class, 'get_data_cutie_calendar']);
+Route::get('/cutie/dashboard-cuti/get-data-cuti-detail-chart',[CutieController::class, 'get_data_cuti_detail_chart']);
+Route::get('/cutie/dashboard-cuti/get-data-jenis-cuti-monthly-chart',[CutieController::class, 'get_data_jenis_cuti_monthly_chart']);
 
 
 Route::group(['middleware' => ['auth']], function () {
@@ -150,7 +153,9 @@ Route::group(['middleware' => ['auth']], function () {
     Route::group(['prefix' => 'cutie'], function () {
 
         /** DASHBOARD */
-        Route::get('/dashboard',[CutieController::class, 'index'])->name('cutie.dashboard');
+        Route::group(['middleware' => ['role:personalia|atasan']], function () {
+            Route::get('/dashboard',[CutieController::class, 'index'])->name('cutie.dashboard');
+        });
 
         /** PERSONAL CUTI */
         Route::post('/pengajuan-cuti-datatable', [CutieController::class, 'pengajuan_cuti_datatable']);

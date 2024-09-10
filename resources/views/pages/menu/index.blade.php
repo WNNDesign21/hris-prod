@@ -24,7 +24,8 @@
 
         {{-- CARD CUTI SYSTEM --}}
         <div class="col-lg-4 col-12">
-            <a href="{{ route('cutie.dashboard') }}" class="box pull-up">
+            <a href="{{ !auth()->user()->hasRole('member') ? route('cutie.dashboard') : route('cutie.pengajuan-cuti') }}"
+                class="box pull-up">
                 <div class="box-body">
                     <div class="d-flex align-items-center">
                         <div class="icon bg-primary-light rounded-circle w-60 h-60 text-center l-h-80">

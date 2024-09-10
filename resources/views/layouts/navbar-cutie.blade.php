@@ -6,12 +6,15 @@
                 <!-- sidebar menu-->
                 <ul class="sidebar-menu" data-widget="tree">
                     <li class="header">Cutie Menu</li>
-                    <li class="{{ $page == 'cutie-dashboard' ? 'active' : '' }}">
-                        <a href="{{ route('cutie.dashboard') }}">
-                            <i class="icon-Layout-4-blocks"><span class="path1"></span><span class="path2"></span></i>
-                            <span>Dashboard</span>
-                        </a>
-                    </li>
+                    @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('atasan'))
+                        <li class="{{ $page == 'cutie-dashboard' ? 'active' : '' }}">
+                            <a href="{{ route('cutie.dashboard') }}">
+                                <i class="icon-Layout-4-blocks"><span class="path1"></span><span
+                                        class="path2"></span></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                    @endif
                     @if (!auth()->user()->hasRole('personalia'))
                         <li class="{{ $page == 'cutie-pengajuan-cuti' ? 'active' : '' }}">
                             <a href="{{ route('cutie.pengajuan-cuti') }}">

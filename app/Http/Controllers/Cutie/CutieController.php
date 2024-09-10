@@ -22,9 +22,18 @@ class CutieController extends Controller
      */
     public function index()
     {
+        if (auth()->user()->hasRole('atasan')){
+            $jenis_cuti_title = 'Data Cuti by Jenis (Member) - '.Carbon::now()->format('F Y');
+            $detail_cuti_title = 'Detail Cuti (Member) - '.date('Y');
+        } else {
+            $jenis_cuti_title = 'Data Cuti by Jenis (All Karyawan) - '.Carbon::now()->format('F Y');
+            $detail_cuti_title = 'Detail Cuti (All Karyawan) - '.date('Y');
+        } 
         $dataPage = [
             'pageTitle' => "Cutie - Dashboard",
             'page' => 'cutie-dashboard',
+            'jenis_cuti_title' => $jenis_cuti_title,
+            'detail_cuti_title' => $detail_cuti_title,
         ];
         return view('pages.cuti-e.index', $dataPage);
     }
@@ -1054,5 +1063,211 @@ class CutieController extends Controller
             ];
         }
         return response()->json($data, 200);
+    }
+
+    public function get_data_cutie_calendar(){
+        $cutie = Cutie::where('status_dokumen','APPROVED');
+
+        if(auth()->user()->hasRole('atasan')){
+            $posisi = auth()->user()->karyawan->posisi;
+            $id_posisi_members = $this->get_member_posisi($posisi);
+
+            foreach ($posisi as $ps){
+                $index = array_search($ps->id_posisi, $id_posisi_members);
+                array_splice($id_posisi_members, $index, 1);
+            }
+
+            $members = $id_posisi_members;
+        }
+
+        if (isset($members)) {
+            $cutie = $cutie->whereHas('karyawan.posisi', function($query) use ($members) {
+                $query->whereIn('id_posisi', $members);
+            });
+            $cutie = $cutie->orWhere('karyawan_id', auth()->user()->karyawan->id_karyawan)->where('status_dokumen','APPROVED');
+        }
+
+        $cutie = $cutie->get();
+        
+        if($cutie !== null){
+            foreach ($cutie as $c) {
+                if($c->status_cuti == 'SCHEDULED'){
+                    $classname = 'bg-warning';
+                } elseif ($c->status_cuti == 'ON LEAVE'){
+                    $classname = 'bg-primary';
+                } else {
+                    $classname = 'bg-success';
+                }
+                $data[] = [
+                    'title' => $c->jenis_cuti.' - '.$c->karyawan->nama,
+                    'start' => $c->rencana_mulai_cuti,
+                    'end' => $c->rencana_selesai_cuti,
+                    'className' => $classname,
+                    'nama_karyawan' => $c->karyawan->nama,
+                    'karyawan_pengganti' => $c->karyawan_pengganti_id ? $c->karyawanPengganti->nama : '-',
+                    'jenis_cuti' => $c->jenis_cuti,
+                    'rencana_mulai_cuti' => Carbon::parse($c->rencana_mulai_cuti)->format('d M Y'),
+                    'rencana_selesai_cuti' => Carbon::parse($c->rencana_selesai_cuti)->format('d M Y'),
+                    'alasan_cuti' => $c->alasan_cuti,
+                    'durasi_cuti' => $c->durasi_cuti.' Hari',
+                    'status_cuti' => $c->status_cuti,
+                    'attachment' => $c->attachment ? '<a href="'.asset('storage/'.$c->attachment).'" target="_blank">Lihat</a>' : 'No Attachment Needed',
+                    'aktual_mulai_cuti' => $c->aktual_mulai_cuti,
+                    'aktual_selesai_cuti' => $c->aktual_selesai_cuti,
+                ];
+            }
+            return response()->json($data, 200);
+        } else {
+            return response()->json([], 200);
+        }
+    }
+
+    public function get_data_cuti_detail_chart(){
+        //Data Cuti Detail perbulan dalam tahun berjalan
+        $data['scheduled'] = [];
+        $data['onleave'] = [];
+        $data['completed'] = [];
+        $data['total'] = [];
+
+        $month = date('m');
+        $year = date('Y');
+        $month_array = ['01','02','03','04','05','06','07','08','09','10','11','12'];
+
+        if(auth()->user()->hasRole('atasan')){
+            $posisi = auth()->user()->karyawan->posisi;
+            $id_posisi_members = $this->get_member_posisi($posisi);
+
+            foreach ($posisi as $ps){
+                $index = array_search($ps->id_posisi, $id_posisi_members);
+                array_splice($id_posisi_members, $index, 1);
+            }
+
+            $members = $id_posisi_members;
+        }
+
+
+        for ($i = 0; $i <= 11; $i++) {
+            $scheduledCount = Cutie::where('status_cuti', 'SCHEDULED')
+                ->whereYear('rencana_mulai_cuti', $year)
+                ->whereMonth('rencana_mulai_cuti', $month_array[$i]);
+
+            if (isset($members)) {
+                $scheduledCount = $scheduledCount->whereHas('karyawan.posisi', function($query) use ($members) {
+                    $query->whereIn('id_posisi', $members);
+                });
+            }
+                
+            $scheduledCount = $scheduledCount->count();
+
+            $onleaveCount = Cutie::where('status_cuti', 'ON LEAVE')
+                ->whereYear('rencana_mulai_cuti', $year)
+                ->whereMonth('rencana_mulai_cuti', $month_array[$i]);
+
+            if (isset($members)) {
+                $onleaveCount = $onleaveCount->whereHas('karyawan.posisi', function($query) use ($members) {
+                    $query->whereIn('id_posisi', $members);
+                });
+            }
+            $onleaveCount = $onleaveCount->count();
+            
+            $completedCount = Cutie::where('status_cuti', 'COMPLETED')
+                ->whereYear('rencana_mulai_cuti', $year)
+                ->whereMonth('rencana_mulai_cuti', $month_array[$i]);
+            
+            if (isset($members)) {
+                $completedCount = $completedCount->whereHas('karyawan.posisi', function($query) use ($members) {
+                    $query->whereIn('id_posisi', $members);
+                });
+            }
+            $completedCount = $completedCount->count();
+
+            $totalCount = Cutie::whereIn('status_cuti', ['SCHEDULED','ON LEAVE','COMPLETED'])
+                ->whereYear('rencana_mulai_cuti', $year)
+                ->whereMonth('rencana_mulai_cuti', $month_array[$i]);
+
+            if (isset($members)) {
+                $totalCount = $totalCount->whereHas('karyawan.posisi', function($query) use ($members) {
+                    $query->whereIn('id_posisi', $members);
+                });
+            }
+            $totalCount = $totalCount->count();
+
+            $unlegalizedCount = Cutie::whereNull('status_cuti')
+                ->whereYear('rencana_mulai_cuti', $year)
+                ->whereMonth('rencana_mulai_cuti', $month_array[$i]);
+
+            if (isset($members)) {
+                $unlegalizedCount = $unlegalizedCount->whereHas('karyawan.posisi', function($query) use ($members) {
+                    $query->whereIn('id_posisi', $members);
+                });
+            }
+            $unlegalizedCount = $unlegalizedCount->count();
+
+            $data['scheduled'][] = $scheduledCount;
+            $data['onleave'][] = $onleaveCount;
+            $data['completed'][] = $completedCount;
+            $data['unlegalized'][] = $unlegalizedCount;
+            $data['total'][] = $totalCount;
+        }
+
+        return response()->json(['data' => $data],200);
+    }
+
+    public function get_data_jenis_cuti_monthly_chart(){
+        $month = date('m');
+        $year = date('Y');
+
+        if(auth()->user()->hasRole('atasan')){
+            $posisi = auth()->user()->karyawan->posisi;
+            $id_posisi_members = $this->get_member_posisi($posisi);
+
+            foreach ($posisi as $ps){
+                $index = array_search($ps->id_posisi, $id_posisi_members);
+                array_splice($id_posisi_members, $index, 1);
+            }
+
+            $members = $id_posisi_members;
+        }
+
+
+        $monthly_pribadi = Cutie::where('jenis_cuti', 'PRIBADI')
+            ->whereYear('rencana_mulai_cuti', $year)
+            ->whereMonth('rencana_mulai_cuti', $month)
+            ->where('status_dokumen', 'APPROVED');
+
+            if (isset($members)) {
+                $monthly_pribadi = $monthly_pribadi->whereHas('karyawan.posisi', function($query) use ($members) {
+                    $query->whereIn('id_posisi', $members);
+                });
+            }
+        $monthly_pribadi = $monthly_pribadi->count();
+
+        $monthly_khusus = Cutie::where('jenis_cuti', 'KHUSUS')
+            ->whereYear('rencana_mulai_cuti', $year)
+            ->whereMonth('rencana_mulai_cuti', $month)
+            ->where('status_dokumen', 'APPROVED');
+
+            if (isset($members)) {
+                $monthly_khusus = $monthly_khusus->whereHas('karyawan.posisi', function($query) use ($members) {
+                    $query->whereIn('id_posisi', $members);
+                });
+            }
+        $monthly_khusus = $monthly_khusus->count();
+
+        $monthly_sakit = Cutie::where('jenis_cuti', 'SAKIT')
+            ->whereYear('rencana_mulai_cuti', $year)
+            ->whereMonth('rencana_mulai_cuti', $month)
+            ->where('status_dokumen', 'APPROVED');
+
+            if (isset($members)) {
+                $monthly_sakit = $monthly_sakit->whereHas('karyawan.posisi', function($query) use ($members) {
+                    $query->whereIn('id_posisi', $members);
+                });
+            }
+        $monthly_sakit = $monthly_sakit->count();
+        
+
+        $data = [$monthly_pribadi, $monthly_khusus, $monthly_sakit];
+        return response()->json(['data' => $data], 200);
     }
 }

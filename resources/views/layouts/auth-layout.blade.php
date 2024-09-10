@@ -64,6 +64,8 @@
     <script src="{{ asset('assets/vendor_components/bootstrap-tagsinput/dist/bootstrap-tagsinput.js') }}"></script>
     <script src="{{ asset('assets/vendor_components/datatable/datatables.min.js') }}"></script>
     <script src="{{ asset('assets/vendor_components/nestable/jquery.nestable.js') }}"></script>
+    <script src="{{ asset('assets/vendor_components/moment/min/moment.min.js') }}"></script>
+    <script src="{{ asset('assets/vendor_components/fullcalendar/fullcalendar.js') }}"></script>
 
     <!-- EduAdmin App -->
     <script src="{{ asset('js/template.js') }}"></script>
@@ -138,6 +140,10 @@
 
     @if ($page == 'cutie-personalia-cuti')
         @vite(['resources/js/pages/cutie-personalia-cuti.js'])
+    @endif
+
+    @if ($page == 'cutie-dashboard')
+        @vite(['resources/js/pages/cutie-dashboard.js'])
     @endif
 
 </body>
