@@ -8,6 +8,7 @@ use App\Models\Cutie;
 use App\Models\Posisi;
 use App\Models\Karyawan;
 use App\Models\JenisCuti;
+use App\Models\Departemen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -63,6 +64,17 @@ class CutieController extends Controller
             'page' => 'cutie-personalia-cuti',
         ];
         return view('pages.cuti-e.personalia-cuti', $dataPage);
+    }
+
+    public function export_cuti_view()
+    {
+        $departemens = Departemen::all();
+        $dataPage = [
+            'pageTitle' => "Cutie - Export Data",
+            'page' => 'cutie-export',
+            'departemens' => $departemens,
+        ];
+        return view('pages.cuti-e.export-cuti', $dataPage);
     }
 
     public function pengajuan_cuti_datatable(Request $request)
@@ -1269,5 +1281,9 @@ class CutieController extends Controller
 
         $data = [$monthly_pribadi, $monthly_khusus, $monthly_sakit];
         return response()->json(['data' => $data], 200);
+    }
+
+    public function export_cuti(Request $request){
+        
     }
 }

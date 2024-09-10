@@ -153,9 +153,11 @@ Route::group(['middleware' => ['auth']], function () {
     Route::group(['prefix' => 'cutie'], function () {
 
         /** DASHBOARD */
-        Route::group(['middleware' => ['role:personalia|atasan']], function () {
-            Route::get('/dashboard',[CutieController::class, 'index'])->name('cutie.dashboard');
-        });
+        Route::get('/dashboard', [CutieController::class, 'index'])->middleware('role:personalia|atasan')->name('cutie.dashboard');
+
+        /** EXPORT */
+        Route::get('/export',[CutieController::class, 'export_cuti_view'])->name('cutie.export');
+        Route::post('/export/export-cuti',[CutieController::class, 'export_cuti'])->name('cutie.export.cuti');
 
         /** PERSONAL CUTI */
         Route::post('/pengajuan-cuti-datatable', [CutieController::class, 'pengajuan_cuti_datatable']);
@@ -168,7 +170,7 @@ Route::group(['middleware' => ['auth']], function () {
 
         /** MEMBER CUTI */
         Route::post('/member-cuti-datatable', [CutieController::class, 'member_cuti_datatable']);
-        Route::get('/member-cuti',[CutieController::class, 'member_cuti_view'])->name('cutie.member-cuti');
+        Route::get('/member-cuti',[CutieController::class, 'member_cuti_view'])->middleware('role:atasan')->name('cutie.member-cuti');
         Route::post('/member-cuti/store',[CutieController::class, 'store'])->name('cutie.member-cuti.store');
         Route::delete('/member-cuti/delete/{idCuti}',[CutieController::class, 'delete'])->name('cutie.member-cuti.delete');
         Route::patch('/member-cuti/update/{idCuti}',[CutieController::class, 'update'])->name('cutie.member-cuti.update');

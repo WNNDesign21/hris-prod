@@ -146,6 +146,10 @@
         @vite(['resources/js/pages/cutie-dashboard.js'])
     @endif
 
+    @if ($page == 'cutie-export')
+        @vite(['resources/js/pages/cutie-export.js'])
+    @endif
+
 </body>
 
 </html>
