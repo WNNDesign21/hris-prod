@@ -71,8 +71,6 @@
     <script src="{{ asset('js/template.js') }}"></script>
     {{-- <script src="{{ asset('js/pages/dashboard4.js') }}"></script> --}}
     {{-- <script src="{{ asset('js/pages/advanced-form-element.js') }}"></script> --}}
-    <script src="{{ asset('js/pages/nestable.js') }}"></script>
-
     <script>
         // let base_url = "{{ route('root') }}";
         let base_url = window.location.origin;
@@ -112,6 +110,7 @@
 
     @if ($page == 'masterdata-posisi')
         @vite(['resources/js/pages/posisi.js'])
+        <script src="{{ asset('js/pages/nestable.js') }}"></script>
     @endif
 
     @if ($page == 'masterdata-karyawan')

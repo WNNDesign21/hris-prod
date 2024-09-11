@@ -123,6 +123,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/karyawan/datatable', [KaryawanController::class, 'datatable']);
         Route::get('/karyawan',[KaryawanController::class, 'index'])->name('master-data.karyawan');
         Route::post('/karyawan/store',[KaryawanController::class, 'store'])->name('master-data.karyawan.store');
+        Route::post('/karyawan/upload-karyawan',[KaryawanController::class, 'upload_karyawan'])->name('master-data.karyawan.upload-karyawan');
         Route::delete('/karyawan/delete/{idKaryawan}', [KaryawanController::class, 'delete'])->name('master-data.karyawan.delete');
         Route::patch('/karyawan/update/{idKaryawan}', [KaryawanController::class, 'update'])->name('master-data.karyawan.update');
         Route::post('/akun/store-or-update',[AkunController::class, 'store_or_update'])->name('master-data.akun.storeUpdate');

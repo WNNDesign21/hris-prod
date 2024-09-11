@@ -18,10 +18,20 @@
             <div class="box">
                 <div class="box-header d-flex justify-content-between">
                     <h4 class="box-title">Data Karyawan</h4>
-                    <div>
+                    <div class="btn-group">
                         <button type="button" class="btn btn-info waves-effect btnReload"><i
                                 class="fas fa-sync-alt"></i></button>
-                        <button type="button" class="btn btn-success waves-effect btnAdd">Tambah Karyawan</button>
+                        <button type="button" class="btn btn-sm btn-success waves-effect btnAdd"><i
+                                class="fas fa-user-tie"></i>
+                            Tambah</button>
+                        <button type="button" class="btn btn-sm btn-dark waves-effect btnUpload"><i
+                                class="fas fa-upload"></i>
+                            Upload</button>
+                        <button type="button" class="btn btn-sm btn-light waves-effect btnUpload"><i
+                                class="fas fa-paste"></i>
+                            Template</button>
+                        <a href="#" class="d-none"></a>
+                        <input type="file" id="upload-karyawan" class="d-none">
                     </div>
                 </div>
                 <div class="box-body">

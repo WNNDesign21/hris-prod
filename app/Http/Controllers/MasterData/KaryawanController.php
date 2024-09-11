@@ -536,4 +536,63 @@ class KaryawanController extends Controller
 
         return $baseString;
     }
+
+    public function upload_karyawan(Request $request)
+    {
+        $file = $request->file('karyawan_file');
+
+        $validator = Validator::make($request->all(), [
+            'karyawan_file' => 'required|mimes:xlsx,xls'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => 'File Harus bertipe Excel!'], 400);
+        }
+
+        DB::beginTransaction();
+        try {
+
+            if($request->hasFile('karyawan_file')){
+                $karyawan_records = 'KR_' . time() . '.' . $file->getClientOriginalExtension();
+                $karyawan_file = $file->storeAs("attachment/upload-karyawan", $karyawan_records);
+            } 
+
+            if (file_exists(storage_path("app/public/".$karyawan_file))) {
+                $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load(storage_path("app/public/".$karyawan_file));
+                $worksheet = $spreadsheet->getActiveSheet();
+                $data = $worksheet->toArray();
+
+                foreach ($data as $index => $row) {
+                    if ($index === 0) {
+                        continue;
+                    }
+    
+                    Karyawan::create([
+                        'nama' => $row[0],
+                        'no_ktp' => $row[1],
+                        'nik' => $row[2],
+                        'tempat_lahir' => $row[3],
+                        'tanggal_lahir' => $row[4],
+                        'jenis_kelamin' => $row[5],
+                        'agama' => $row[6],
+                        'gol_darah' => $row[7],
+                        'status_keluarga' => $row[8],
+                        'alamat' => $row[9],
+                        'no_telp' => $row[10],
+                        'email' => $row[11],
+                        'npwp' => $row[12],
+                        'no_bpjs_ks' => $row[13],
+                        'no_bpjs_kt' => $row[14],
+                        'grup_id' => $row[15],
+                        'sisa_cuti' => $row[16],
+                    ]);
+                }
+            } else {
+                return response()->json(['message' => 'Terjadi kesalahan, silahkan upload ulang file!'], 404);
+            }
+            return response()->json(['message' => 'File uploaded and data saved successfully.'], 200);
+        } catch (Throwable $e) {
+            return response()->json(['message' => 'Error processing the file: ' . $e->getMessage()], 500);
+        }
+    }
 }

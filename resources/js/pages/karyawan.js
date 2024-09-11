@@ -68,7 +68,6 @@ $(function () {
             dataType: "json",
             type: "POST",
             data: function (dataFilter) {
-                console.log(dataFilter);
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.responseJSON.data) {
@@ -778,4 +777,43 @@ $(function () {
             $('#tanggal_selesai_kontrakEdit').val('').prop('readonly', false);
         }
     })
+
+    $('.btnUpload').on('click', function (){
+        let input = $('#upload-karyawan');
+        input.click();
+
+        input.on("change", function () {
+            Swal.fire({
+                title: "Upload Record Karyawan",
+                text: "Karyawan dengan ID yang sudah terdaftar akan terupdate sesuai dengan ID Karyawan",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, Upload it!",
+                allowOutsideClick: false,
+            }).then((result) => {
+                if (result.value) {
+                    const url = base_url + "/master-data/karyawan/upload-karyawan";
+                    let formData = new FormData();
+                    formData.append('karyawan_file', input[0].files[0]);
+
+                    $.ajax({
+                        url: url,
+                        method: "POST",
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        success: function (data) {
+                            showToast({ title: data.message });
+                            refreshTable();
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                        },
+                    })
+                } 
+            });
+        });
+    });
 });
