@@ -50,4 +50,14 @@ $(function () {
         $('#to').attr('min', from);
     });
 
+    $('#btnExport').on('click', function() {
+        let to = $('#to').val();
+
+        if(to == '') {
+            showToast({ icon: 'error', title: 'Masukkan batas tanggal data cuti!'});
+            return;
+        }
+        $('#form-export-cuti').submit();
+    });
+
 });

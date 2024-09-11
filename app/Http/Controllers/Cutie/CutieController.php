@@ -15,6 +15,13 @@ use App\Http\Controllers\Controller;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Color;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
 class CutieController extends Controller
 {
@@ -1284,6 +1291,144 @@ class CutieController extends Controller
     }
 
     public function export_cuti(Request $request){
+
+        //GET DATA CUTI BY FILTER
+        $departemen_id = $request->departemen_id;
+
+        //Jenis Cuti
+        $pribadi = $request->pribadi;
+        $khusus = $request->khusus;
+        $sakit = $request->sakit;
+
+        //Range Data Cuti
+        $start_date = $request->from;
+        $end_date = $request->to;
+
+        $cutie = Cutie::whereBetween('rencana_mulai_cuti', [$start_date, $end_date]);
+
+        if($departemen_id !== 'all'){
+            $cutie = $cutie->whereHas('karyawan.posisi', function($query) use ($departemen_id){
+                $query->where('departemen_id', $departemen_id);
+            });
+        }
         
+        $jenis_cuti = [];
+        if($pribadi == 'Y'){
+           array_push($jenis_cuti, 'PRIBADI');
+        } 
+
+        if($khusus == 'Y'){
+            array_push($jenis_cuti, 'KHUSUS');
+        }
+
+        if($sakit == 'Y'){
+            array_push($jenis_cuti, 'SAKIT');
+        }
+
+        if(!empty($jenis_cuti)){
+            $cutie = $cutie->whereIn('jenis_cuti', $jenis_cuti)->get();
+        } else {
+            $cutie = $cutie->get();
+        }
+
+        //CREATE EXCEL FILE
+        $spreadsheet = new Spreadsheet();
+
+        $fillStyle = [
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['argb' => 'FF000000'],
+                ],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_LEFT,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => [
+                    'argb' => 'FFFFFF00'
+                ]
+            ],
+            'font' => [
+                'bold' => true,
+            ],
+        ];
+        
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Data Cuti');
+        $row = 1;
+        $col = 'A';
+        $headers = [
+            'No',
+            'ID Karyawan',
+            'Nama',
+            'Departemen',
+            'Jenis Cuti',
+            'Durasi Cuti',
+            'Rencana Mulai Cuti',
+            'Rencana Selesai Cuti',
+            'Aktual Mulai Cuti',
+            'Aktual Selesai Cuti',
+            'Alasan Cuti',
+            'Karyawan Pengganti',
+            'Checked 1',
+            'Checked 2',
+            'Approved',
+            'Legalized',
+            'Status Dokumen',
+            'Status Cuti',
+            'Created At',
+        ];
+
+        foreach ($headers as $header) {
+            $sheet->setCellValue($col . '1', $header);
+            $sheet->getStyle($col . '1')->applyFromArray($fillStyle);
+            $col++;
+        }
+
+        $row = 2;
+
+        $columns = range('A', 'S');
+        foreach ($columns as $column) {
+            $sheet->getColumnDimension($column)->setWidth(35);
+        }
+        $sheet->setAutoFilter('A1:S1');
+
+        foreach ($cutie as $c) {
+            $sheet->setCellValue('A' . $row, $row - 1);
+            $sheet->setCellValue('B' . $row, $c->karyawan->id_karyawan);
+            $sheet->setCellValue('C' . $row, $c->karyawan->nama);
+            $sheet->setCellValue('D' . $row, $c->karyawan->posisi[0]->departemen->nama);
+            $sheet->setCellValue('E' . $row, $c->jenis_cuti == 'KHUSUS' ? $c->jenisCuti->nama : $c->jenis_cuti);
+            $sheet->setCellValue('F' . $row, $c->durasi_cuti);
+            $sheet->setCellValue('G' . $row, $c->rencana_mulai_cuti);
+            $sheet->setCellValue('H' . $row, $c->rencana_selesai_cuti);
+            $sheet->setCellValue('I' . $row, $c->aktual_mulai_cuti);
+            $sheet->setCellValue('J' . $row, $c->aktual_selesai_cuti);
+            $sheet->setCellValue('K' . $row, $c->alasan_cuti);
+            $sheet->setCellValue('L' . $row, $c->karyawan_pengganti_id ? $c->karyawanPengganti->nama : '-');
+            $sheet->setCellValue('M' . $row, $c->checked1_by !== null ? $c->checked1_by.' / '.(Carbon::parse($c->checked1_at)->format('d-m-Y')) : '-');
+            $sheet->setCellValue('N' . $row, $c->checked2_by !== null ? $c->checked2_by.' / '.(Carbon::parse($c->checked2_at)->format('d-m-Y')) : '-');
+            $sheet->setCellValue('O' . $row, $c->approved_by !== null ? $c->approved_by.' / '.(Carbon::parse($c->approved_at)->format('d-m-Y')) : '-');
+            $sheet->setCellValue('P' . $row, $c->legalized_by !== null ? $c->legalized_by.' / '.(Carbon::parse($c->legalized_at)->format('d-m-Y')) : '-');
+            $sheet->setCellValue('Q' . $row, $c->status_dokumen);
+            $sheet->setCellValue('R' . $row, $c->status_cuti);
+            $sheet->setCellValue('S' . $row, $c->created_at->format('d-m-Y'));
+            $row++;
+        }
+
+        $writer = new Xlsx($spreadsheet);
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename=data-cuti-export.xlsx');
+        header('Cache-Control: max-age=0');
+
+        $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $writer->save('php://output');
+        $spreadsheet->disconnectWorksheets();
+        unset($spreadsheet);
+        exit();
     }
 }

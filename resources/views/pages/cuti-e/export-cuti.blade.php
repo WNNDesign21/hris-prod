@@ -23,7 +23,8 @@
                 <div class="box-body">
                     <div class="row">
                         <div class="col-12">
-                            <form action="{{ route('cutie.export.cuti') }}" method="POST" enctype="multipart/form-data">
+                            <form action="{{ route('cutie.export.cuti') }}" method="POST" enctype="multipart/form-data"
+                                id="form-export-cuti">
                                 @csrf
                                 <h5 class="text-bold">Departemen</h5>
                                 <div class="form-group">
@@ -74,9 +75,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <hr>
-
-                                <h5 class="text-bold">Status Dokumen</h5>
+                                {{-- <h5 class="text-bold">Status Dokumen</h5>
                                 <div class="form-group">
                                     <div class="demo-checkbox">
                                         <input type="checkbox" id="waiting" name="waiting" value="Y"
@@ -117,38 +116,13 @@
                                             <h5>COMPLETED</h5>
                                         </label>
                                     </div>
-                                </div>
-                                {{-- <h5 class="text-bold">Kolom Export</h5>
-                                <div class="form-group">
-                                    <div class="demo-checkbox">
-                                        <input type="checkbox" id="nama_karyawan" name="nama_karyawan" value="Y"
-                                            class="filled-in chk-col-primary" />
-                                        <label for="nama_karyawan" class="mb-0">
-                                            <h5>NAMA</h5>
-                                        </label>
-                                        <input type="checkbox" id="karyawan_id" name="karyawan_id" value="Y"
-                                            class="filled-in chk-col-primary" />
-                                        <label for="karyawan_id" class="mb-0">
-                                            <h5>ID KARYAWAN</h5>
-                                        </label>
-                                        <input type="checkbox" id="jenis_cuti" name="jenis_cuti" value="Y"
-                                            class="filled-in chk-col-primary" />
-                                        <label for="jenis_cuti" class="mb-0">
-                                            <h5>JENIS CUTI</h5>
-                                        </label>
-                                        <input type="checkbox" id="alasan_cuti" name="alasan_cuti" value="Y"
-                                            class="filled-in chk-col-primary" />
-                                        <label for="alasan_cuti" class="mb-0">
-                                            <h5>ALASAN CUTI</h5>
-                                        </label>
-                                    </div>
                                 </div> --}}
-                                <div class="row">
-                                    <div class="col-12 d-flex justify-content-end">
-                                        <button type="submit" class="btn btn-success">Export</button>
-                                    </div>
-                                </div>
                             </form>
+                            <div class="row">
+                                <div class="col-12 d-flex justify-content-end">
+                                    <button type="button" class="btn btn-success" id="btnExport">Export</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
