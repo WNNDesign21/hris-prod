@@ -304,9 +304,13 @@ class CutieController extends Controller
                         if($data->checked2_by == null){
                             if($my_jabatan == 5 || $my_jabatan == 4){
                                 if($data->checked1_by !== null){
-                                    $checked2 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="checked_2"><i class="far fa-check-circle"></i> Checked</button>';
-                                    $reject2 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
-                                    $btn_group_2 = '<div class="btn-group btn-sm">'.$checked2.$reject2.'</div>';
+                                    if($data->checked1_by !== auth()->user()->karyawan->nama){
+                                        $checked2 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="checked_2"><i class="far fa-check-circle"></i> Checked</button>';
+                                        $reject2 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
+                                        $btn_group_2 = '<div class="btn-group btn-sm">'.$checked2.$reject2.'</div>';
+                                    } else {
+                                        $btn_group_2 = 'Need Checked';
+                                    }
                                 } else {
                                     $btn_group_2 = 'Need Checked';
                                 }
@@ -320,11 +324,15 @@ class CutieController extends Controller
                         if($data->approved_by == null){
                             if($my_jabatan == 4 || $my_jabatan == 3){
                                 if($data->checked2_by !== null){
-                                    $approved = '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>';
-                                    $reject3 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
-                                    $btn_group_3 = '<div class="btn-group btn-sm">'.$approved.$reject3.'</div>';
+                                    if($data->checked1_by !== auth()->user()->karyawan->nama && $data->checked2_by !== auth()->user()->karyawan->nama){
+                                        $approved = '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>';
+                                        $reject3 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
+                                        $btn_group_3 = '<div class="btn-group btn-sm">'.$approved.$reject3.'</div>';
+                                    } else {
+                                        $btn_group_3 = 'Waiting For Approved';
+                                    }
                                 } else {
-                                    $btn_group_3 = 'Need Checked 1 & 2';
+                                    $btn_group_3 = 'Waiting Checked 1 & 2';
                                 }
                             } else {
                                 $btn_group_3 = 'Waiting Approved';
@@ -346,7 +354,7 @@ class CutieController extends Controller
                     // JUMLAH PARENT 4
                     } elseif ($jumlah_parent >= 4){
                         if($data->checked1_by == null){
-                            if($my_jabatan == 4 || $my_jabatan == 3){
+                            if($my_jabatan == 4 || $my_jabatan == 3 || $my_jabatan == 5){
                                 $checked1 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="checked_1"><i class="far fa-check-circle"></i> Checked</button>';
                                 $reject1 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
                                 $btn_group_1 = '<div class="btn-group btn-sm">'.$checked1.$reject1.'</div>';
@@ -358,11 +366,15 @@ class CutieController extends Controller
                         } 
 
                         if($data->checked2_by == null){
-                            if($my_jabatan == 4 || $my_jabatan == 3){
+                            if($my_jabatan == 4 || $my_jabatan == 3 || $my_jabatan == 5){
                                 if($data->checked1_by !== null){
-                                    $checked2 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="checked_2"><i class="far fa-check-circle"></i> Checked</button>';
-                                    $reject2 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
-                                    $btn_group_2 = '<div class="btn-group btn-sm">'.$checked2.$reject2.'</div>';
+                                    if($data->checked1_by !== auth()->user()->karyawan->nama){
+                                        $checked2 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="checked_2"><i class="far fa-check-circle"></i> Checked</button>';
+                                        $reject2 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
+                                        $btn_group_2 = '<div class="btn-group btn-sm">'.$checked2.$reject2.'</div>';
+                                    } else {
+                                        $btn_group_2 = 'Need Checked';
+                                    }
                                 } else {
                                     $btn_group_2 = 'Need Checked';
                                 }

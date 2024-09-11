@@ -1,5 +1,5 @@
 <li class="dd-item">
-    <div class="dd-handle">{{ $tree->nama }}</div>
+    <div class="dd-handle" style="pointer-events: none">{{ $tree->jabatan->nama . ' - ' . $tree->nama }}</div>
     @if ($tree->children->count())
         <ol class="dd-list">
             @foreach ($tree->children as $child)
