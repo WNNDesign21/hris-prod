@@ -54,7 +54,7 @@ $(function () {
         { data: "status" },
         { data: "durasi" },
         { data: "salary" },
-        { data: "status_change_by" },
+        // { data: "status_change_by" },
         { data: "tanggal_mulai" },
         { data: "tanggal_selesai" },
         { data: "attachment" },

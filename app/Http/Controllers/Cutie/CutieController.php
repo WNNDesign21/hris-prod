@@ -187,7 +187,8 @@ class CutieController extends Controller
                 $nestedData['attachment'] = $data->jenis_cuti !== 'SAKIT' ? 'No Attachment Needed' : '<a href="'.asset('storage/'.$data->attachment).'" target="_blank">Lihat</a>';
                 $nestedData['aksi'] = '
                 <div class="btn-group btn-group-sm">'.
-                    ($data->checked1_by == null && $data->checked2_by == null && $data->approved_by == null && $data->legalized_by == null && $data->rejected_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id="'.$data->id_cuti.'"><i class="fas fa-edit"></i> Edit</button><button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button>' : '').
+                    // ($data->checked1_by == null && $data->checked2_by == null && $data->approved_by == null && $data->legalized_by == null && $data->rejected_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id="'.$data->id_cuti.'"><i class="fas fa-edit"></i> Edit</button><button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button>' : '').
+                    ($data->checked1_by == null && $data->checked2_by == null && $data->approved_by == null && $data->legalized_by == null && $data->rejected_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button>' : '').
                     ($data->status_cuti == 'SCHEDULED' && $data->status_dokumen == 'APPROVED' && $data->approved_by !== null && $data->aktual_mulai_cuti == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-info btnMulai" data-id="'.$data->id_cuti.'"><i class="fas fa-play-circle"></i> Mulai </button>' : '').
                     ($data->status_cuti == 'ON LEAVE' && $data->status_dokumen == 'APPROVED' && $data->approved_by !== null && $data->aktual_mulai_cuti !== null && $data->aktual_selesai_cuti == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-primary btnSelesai" data-id="'.$data->id_cuti.'"><i class="fas fa-calendar-check"></i> Selesai </button>' : '').
                     '
@@ -696,6 +697,7 @@ class CutieController extends Controller
         $alasan_cuti = $request->alasan_cuti;
         $durasi_cuti = $request->durasi_cuti;
         $karyawan_id = auth()->user()->karyawan->id_karyawan;
+        $sisa_cuti = Karyawan::find($karyawan_id)->sisa_cuti;
 
         if($jenis_cuti == 'PRIBADI'){
             $dataValidate = [
@@ -746,6 +748,16 @@ class CutieController extends Controller
                 } else {
                     return response()->json(['message' => 'Attachment tidak boleh kosong!'], 402);
                 }
+            } elseif ($jenis_cuti == 'PRIBADI') {
+                $sisa_cuti = $sisa_cuti - $durasi_cuti;
+                if($sisa_cuti < 0){
+                    return response()->json(['message' => 'Sisa cuti anda tidak mencukupi, Silahkan hubungi HRD!'], 402);
+                } else {
+                    $karyawan = Karyawan::find($karyawan_id);
+                    $karyawan->sisa_cuti = $sisa_cuti;
+                    $karyawan->save();
+                }
+                $attachment = null;
             } else {
                 $attachment = null;
             }
@@ -900,6 +912,11 @@ class CutieController extends Controller
             $cuti->rejected_note = $alasan_reject;
             $cuti->status_dokumen = 'REJECTED';
             $cuti->save();
+
+            $karyawan = Karyawan::find($cuti->karyawan_id);
+            $karyawan->sisa_cuti = $karyawan->sisa_cuti + $cuti->durasi_cuti;
+            $karyawan->save();
+
             DB::commit();
             return response()->json(['message' => 'Reject Cuti Berhasil dilakukan!'], 200);
         } catch(Throwable $error){
@@ -1072,6 +1089,13 @@ class CutieController extends Controller
         DB::beginTransaction();
         try{
             $cutie = Cutie::find($id_cuti);
+            $karyawan = Karyawan::find($cutie->karyawan_id);
+
+            if($cutie->rejected_by == null){
+                $karyawan->sisa_cuti = $karyawan->sisa_cuti + $cutie->durasi_cuti;
+                $karyawan->save();
+            }
+            
             $cutie->delete();
             DB::commit();
             return response()->json(['message' => 'Pengajuan Cuti Dihapus!'],200);
@@ -1119,8 +1143,9 @@ class CutieController extends Controller
         }
 
         $cutie = $cutie->get();
+        $data = [];
         
-        if($cutie !== null){
+        if($cutie){
             foreach ($cutie as $c) {
                 if($c->status_cuti == 'SCHEDULED'){
                     $classname = 'bg-warning';
@@ -1147,10 +1172,8 @@ class CutieController extends Controller
                     'aktual_selesai_cuti' => $c->aktual_selesai_cuti,
                 ];
             }
-            return response()->json($data, 200);
-        } else {
-            return response()->json([], 200);
-        }
+        } 
+        return response()->json($data, 200);
     }
 
     public function get_data_cuti_detail_chart(){

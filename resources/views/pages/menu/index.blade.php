@@ -41,8 +41,8 @@
             </a>
         </div>
 
-        {{-- CARD CUTI SYSTEM --}}
-        <div class="col-lg-4 col-12">
+        {{-- CARD LEMBUR SYSTEM --}}
+        {{-- <div class="col-lg-4 col-12">
             <a href="#" class="box pull-up">
                 <div class="box-body">
                     <div class="d-flex align-items-center">
@@ -57,7 +57,7 @@
                     </div>
                 </div>
             </a>
-        </div>
+        </div> --}}
 
 
         {{-- CARD PRESENSI DAN PAYROLL SYSTEM --}}

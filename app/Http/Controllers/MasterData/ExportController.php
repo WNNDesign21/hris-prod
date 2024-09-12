@@ -558,8 +558,8 @@ class ExportController extends Controller
                 'Tanggal Selesai',
                 'Issued Date',
                 'Tempat Administrasi',
-                'Approved By',
-                'Approved Date'
+                // 'Approved By',
+                // 'Approved Date'
             ];
 
             foreach ($headers as $header) {
@@ -570,11 +570,11 @@ class ExportController extends Controller
 
             $row = 2;
 
-            $columns = range('A', 'P');
+            $columns = range('A', 'N');
             foreach ($columns as $column) {
                 $sheet->getColumnDimension($column)->setWidth(35);
             }
-            $sheet->setAutoFilter('A1:P1');
+            $sheet->setAutoFilter('A1:N1');
 
             foreach ($kontrak as $data) {
 
@@ -595,8 +595,8 @@ class ExportController extends Controller
                 $sheet->setCellValue('L' . $row, $data->tanggal_selesai);
                 $sheet->setCellValue('M' . $row, $data->issued_date);
                 $sheet->setCellValue('N' . $row, $data->tempat_administrasi);
-                $sheet->setCellValue('O' . $row, Karyawan::find($data->status_change_by)?->nama);
-                $sheet->setCellValue('P' . $row, $data->status_change_date);
+                // $sheet->setCellValue('O' . $row, Karyawan::find($data->status_change_by)?->nama);
+                // $sheet->setCellValue('P' . $row, $data->status_change_date);
                 $row++;
             }
         }

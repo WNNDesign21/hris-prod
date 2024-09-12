@@ -44,9 +44,9 @@ class KontrakController extends Controller
             6 => 'status',
             7 => 'durasi',
             8 => 'salary',
-            9 => 'status_change_by',
-            10 => 'tanggal_mulai',
-            11 => 'tanggal_selesai',
+            // 9 => 'status_change_by',
+            9 => 'tanggal_mulai',
+            10 => 'tanggal_selesai',
         );
 
         $totalData = Kontrak::count();
@@ -84,7 +84,7 @@ class KontrakController extends Controller
                 $nestedData['status'] = $data->status == 'DONE' ? '<span class="badge badge-pill badge-success">'.$data->status.'</span>' : '<span class="badge badge-pill badge-warning">'.$data->status.'</span>';
                 $nestedData['durasi'] = $data->durasi.' Bulan';
                 $nestedData['salary'] = $data->salary;
-                $nestedData['status_change_by'] = '<small class="text-bold">'.$data->status_change_by.'</small> - '.'<br>'.'<small class="text-primary">'.$data->status_change_date.'</small>';
+                // $nestedData['status_change_by'] = '<small class="text-bold">'.$data->status_change_by.'</small> - '.'<br>'.'<small class="text-primary">'.$data->status_change_date.'</small>';
                 $nestedData['tanggal_mulai'] = $data->tanggal_mulai_kontrak;
                 $nestedData['tanggal_selesai'] = $data->tanggal_selesai_kontrak;
                 $nestedData['attachment'] = $data->attachment ? '<div class="btn-group btn-group-sm"><button data-type="attachment" data-id="'.$data->id_kontrak.'" class="btn btn-sm btn-primary btn-file-change" type="button"><i class="fas fa-upload"></i> Change</button><input type="file" name="attachment" id="attachment_change_'.$data->id_kontrak.'" class="d-none"><a href="'.asset('storage/'.$data->attachment).'" target="_blank" class="btn btn-sm btn-secondary"><i class="fas fa-download"></i> Download</a></div>' : '<button data-id="'.$data->id_kontrak.'" data-type="attachment" class="btn btn-sm btn-primary btn-file" type="button">Upload</button><input type="file" name="attachment" id="attachment_'.$data->id_kontrak.'" class="d-none">';
@@ -404,11 +404,10 @@ class KontrakController extends Controller
             'tanggal_selesai_kontrakEdit' => ['nullable','date'],
             'jenis_kontrakEdit' => ['required'],
             'posisi_kontrakEdit' => ['required'], 
-            'status_kontrakEdit' => ['required'],
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
-    
+
         if ($validator->fails()) {
             return response()->json(['message' => 'Fill your input correctly!'], 402);
         }
@@ -423,7 +422,6 @@ class KontrakController extends Controller
         $jenis = $request->jenis_kontrakEdit;
         $posisi = $request->posisi_kontrakEdit; 
         $deskripsi = $request->deskripsi_kontrakEdit;
-        $status = $request->status_kontrakEdit;
 
         DB::beginTransaction();
         try{
@@ -443,27 +441,15 @@ class KontrakController extends Controller
             $kry->save();
 
             if($jenis == 'PKWTT'){
-                $kontrak->durasi = null;
-                $kontrak->tanggal_selesai = null;
-            } else {
-                $kontrak->durasi = $durasi;
-                $kontrak->tanggal_selesai = $tanggal_selesai;
-            }
+                $durasi = null;
+                $tanggal_selesai = null;
+            } 
             
             $kontrak->durasi = $durasi;
             $kontrak->salary = $salary;
             $kontrak->tanggal_mulai = $tanggal_mulai;
+            $kontrak->tanggal_selesai = $tanggal_selesai;
             $kontrak->jenis = $jenis;
-
-            if($kontrak->status == $status){ 
-                $kontrak->status = $status;
-            } else {
-                $kontrak->status = $status;
-                $kontrak->status_change_by = auth()->user()->karyawan->nama;
-                $kontrak->status_change_date = now()->format('Y-m-d');
-            }
-
-            $kontrak->status = $status;
             $kontrak->posisi_id = $posisi;
             $kontrak->nama_posisi = Posisi::find($posisi)->nama;
             $kontrak->deskripsi = $deskripsi;

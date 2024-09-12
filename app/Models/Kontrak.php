@@ -36,8 +36,8 @@ class Kontrak extends Model
         'tanggal_mulai_before',
         'tanggal_selesai_before',
         'isReactive',
-        'status_change_by',
-        'status_change_date',
+        // 'status_change_by',
+        // 'status_change_date',
         'attachment',
         'evidence'
     ];
@@ -46,7 +46,7 @@ class Kontrak extends Model
         'tanggal_mulai',
         'tanggal_selesai',
         'issued_date',
-        'status_change_date'
+        // 'status_change_date'
     ];
 
     public function karyawan()
@@ -77,8 +77,8 @@ class Kontrak extends Model
             'kontraks.tanggal_selesai as tanggal_selesai_kontrak',
             'jenis',
             'status',
-            'status_change_by',
-            'status_change_date',
+            // 'status_change_by',
+            // 'status_change_date',
             'attachment',
             'evidence',
             'isReactive',
@@ -93,7 +93,7 @@ class Kontrak extends Model
                 ->orWhere('kontraks.nama_posisi', 'ILIKE', "%{$search}%")
                 ->orWhere('durasi', 'ILIKE', "%{$search}%")
                 ->orWhere('status', 'ILIKE', "%{$search}%")
-                ->orWhere('status_change_by', 'ILIKE', "%{$search}%")
+                // ->orWhere('status_change_by', 'ILIKE', "%{$search}%")
                 ->orWhere('salary', 'ILIKE', "%{$search}%")
                 ->orWhere('kontraks.tanggal_mulai', 'ILIKE', "%{$search}%")
                 ->orWhere('kontraks.tanggal_selesai', 'ILIKE', "%{$search}%")
