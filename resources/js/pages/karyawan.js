@@ -348,6 +348,7 @@ $(function () {
             success: function (response) {
                 let detailKaryawan = response.data;
                 $('#id_karyawanEdit').val(detailKaryawan.id_karyawan);
+                $('#ni_karyawanEdit').val(detailKaryawan.ni_karyawan);
                 $('#namaEdit').val(detailKaryawan.nama);
                 $('#no_ktpEdit').val(detailKaryawan.no_ktp);
                 $('#sisa_cutiEdit').val(detailKaryawan.sisa_cuti);
@@ -815,5 +816,9 @@ $(function () {
                 } 
             });
         });
+    });
+
+    $('.btnTemplate').on('click', function () {
+        window.location.href = base_url + '/template/template_upload_karyawan.xlsx';
     });
 });

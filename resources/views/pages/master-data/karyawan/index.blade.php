@@ -27,10 +27,9 @@
                         <button type="button" class="btn btn-sm btn-dark waves-effect btnUpload"><i
                                 class="fas fa-upload"></i>
                             Upload</button>
-                        <button type="button" class="btn btn-sm btn-light waves-effect btnUpload"><i
+                        <button type="button" class="btn btn-sm btn-light waves-effect btnTemplate"><i
                                 class="fas fa-paste"></i>
                             Template</button>
-                        <a href="#" class="d-none"></a>
                         <input type="file" id="upload-karyawan" class="d-none">
                     </div>
                 </div>

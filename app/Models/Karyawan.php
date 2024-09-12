@@ -25,6 +25,7 @@ class Karyawan extends Model
 
     protected $fillable = [
         'id_karyawan',
+        'ni_karyawan',
         'user_id',
         'organisasi_id',
         'posisi_id',
@@ -79,6 +80,7 @@ class Karyawan extends Model
 
         $data = self::select(
             'id_karyawan',
+            'ni_karyawan',
             'karyawans.nama',
             'karyawans.email as email_karyawan',
             'karyawans.no_telp as notelp_karyawan',
@@ -107,6 +109,7 @@ class Karyawan extends Model
                     ->orWhere('grups.nama', 'ILIKE', "%{$search}%")
                     ->orWhere('users.username', 'ILIKE', "%{$search}%")
                     ->orWhere('tanggal_mulai', 'ILIKE', "%{$search}%")
+                    ->orWhere('ni_karyawan', 'ILIKE', "%{$search}%")
                     ->orWhere('tanggal_selesai', 'ILIKE', "%{$search}%");
             });
         }

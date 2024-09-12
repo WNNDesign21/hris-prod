@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\MasterData;
 
 use Throwable;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Posisi;
 use App\Models\Kontrak;
@@ -72,7 +73,7 @@ class KaryawanController extends Controller
                 $kontrak = Kontrak::where('karyawan_id', $data->id_karyawan)->orderBy('tanggal_mulai', 'DESC')->pluck('jenis')->first();
                 $posisis = $data->posisi()->pluck('posisis.nama')->toArray();
                 $nestedData['id_karyawan'] = $data->id_karyawan;
-                $nestedData['nama'] = $data->nama;
+                $nestedData['nama'] = $data->nama.'<br> ('.$data->ni_karyawan.')';
                 $nestedData['jenis_kontrak'] = $kontrak ? $kontrak : $data->jenis_kontrak;
                 $nestedData['tanggal_mulai'] = $data->tanggal_mulai;
                 $nestedData['tanggal_selesai'] = $data->tanggal_selesai;
@@ -124,6 +125,7 @@ class KaryawanController extends Controller
     {
         $dataValidate = [
             'nama' => ['required'],
+            'ni_karyawan' => ['required'],
             'no_ktp' => ['nullable','numeric'],
             'nik' => ['nullable','numeric'],
             'tempat_lahir' => ['nullable','string'],
@@ -150,6 +152,7 @@ class KaryawanController extends Controller
         }
 
         $nama = $request->nama;
+        $ni_karyawan = $request->ni_karyawan;
         $no_ktp = $request->no_ktp;
         $nik = $request->nik;
         $tempat_lahir = $request->tempat_lahir;
@@ -199,6 +202,7 @@ class KaryawanController extends Controller
 
             $karyawan = Karyawan::create([
                 'id_karyawan' => $this->generateIdKaryawan($nama),
+                'ni_karyawan' => $ni_karyawan,
                 'user_id' => $user_id,
                 'nama' => $nama,
                 'no_ktp' => $no_ktp,
@@ -264,6 +268,7 @@ class KaryawanController extends Controller
     {
         $dataValidate = [
             'namaEdit' => ['required'],
+            'ni_karyawanEdit' => ['required'],
             'no_ktpEdit' => ['nullable','numeric'],
             'nikEdit' => ['nullable','numeric'],
             'tempat_lahirEdit' => ['nullable','string'],
@@ -290,6 +295,7 @@ class KaryawanController extends Controller
         }
 
         $nama = $request->namaEdit;
+        $ni_karyawan = $request->ni_karyawanEdit;
         $no_ktp = $request->no_ktpEdit;
         $nik = $request->nikEdit;
         $tempat_lahir = $request->tempat_lahirEdit;
@@ -313,6 +319,7 @@ class KaryawanController extends Controller
         try{
             $karyawan = Karyawan::find($id_karyawan);
             $karyawan->nama = $nama;
+            $karyawan->ni_karyawan = $ni_karyawan;
             $karyawan->no_ktp = $no_ktp;
             $karyawan->nik = $nik;
             $karyawan->tempat_lahir = $tempat_lahir;
@@ -407,7 +414,7 @@ class KaryawanController extends Controller
             'username',
         );
 
-        $query->whereDoesntHave('karyawan');
+        $query->whereDoesntHave('karyawan')->whereNotIn('username', ['PERSONALIA', 'SUPERUSER']);
 
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
@@ -491,6 +498,7 @@ class KaryawanController extends Controller
         if($karyawan){
             $detail = [
                 'id_karyawan' => $karyawan->id_karyawan,
+                'ni_karyawan' => $karyawan->ni_karyawan,
                 'nama' => $karyawan->nama,
                 'no_ktp' => $karyawan->no_ktp,
                 'nik' => $karyawan->nik,
@@ -563,35 +571,73 @@ class KaryawanController extends Controller
                 $data = $worksheet->toArray();
 
                 foreach ($data as $index => $row) {
-                    if ($index === 0) {
+                    if ($index < 1) { 
+                        continue;
+                    }
+
+                    if($row[5] !== null){
+                        $tanggal_lahir = Carbon::createFromFormat('m/d/Y', $row[5])->format('Y-m-d');
+                    } else {
+                        $tanggal_lahir = null;
+                    }
+
+                    if($row[16] > 12 || $row[16] < 0){
+                        return response()->json(['message' => 'Sisa cuti harus berupa angka dari 0-12'], 402);
+                    }
+
+                    $existingKaryawan = Karyawan::where('nama', strtoupper($row[1]))->first();
+
+                    if ($existingKaryawan) {
+                        $existingKaryawan->update([
+                            'ni_karyawan' => $row[0],
+                            'no_ktp' => $row[2],
+                            'nik' => $row[3],
+                            'tempat_lahir' => $row[4],
+                            'tanggal_lahir' => $tanggal_lahir,
+                            'alamat' => $row[6],
+                            'email' => $row[7],
+                            'no_telp' => $row[8],
+                            'gol_darah' => $row[9] !== null ? strtoupper($row[9]) : $row[9],
+                            'jenis_kelamin' => $row[10] !== null ? strtoupper($row[10]) : $row[10],
+                            'agama' => $row[11] !== null ? strtoupper($row[11]) : $row[11],
+                            'status_keluarga' => $row[12] !== null ? strtoupper($row[12]) : $row[12],
+                            'npwp' => $row[13],
+                            'no_bpjs_ks' => $row[14],
+                            'no_bpjs_kt' => $row[15],
+                            'sisa_cuti' => $row[16],
+                        ]);
                         continue;
                     }
     
                     Karyawan::create([
-                        'nama' => $row[0],
-                        'no_ktp' => $row[1],
-                        'nik' => $row[2],
-                        'tempat_lahir' => $row[3],
-                        'tanggal_lahir' => $row[4],
-                        'jenis_kelamin' => $row[5],
-                        'agama' => $row[6],
-                        'gol_darah' => $row[7],
-                        'status_keluarga' => $row[8],
-                        'alamat' => $row[9],
-                        'no_telp' => $row[10],
-                        'email' => $row[11],
-                        'npwp' => $row[12],
-                        'no_bpjs_ks' => $row[13],
-                        'no_bpjs_kt' => $row[14],
-                        'grup_id' => $row[15],
+                        'id_karyawan' => $this->generateIdKaryawan(strtoupper($row[1])),
+                        'ni_karyawan' => $row[0],
+                        'nama' => strtoupper($row[1]),
+                        'no_ktp' => $row[2],
+                        'nik' => $row[3],
+                        'tempat_lahir' => $row[4],
+                        'tanggal_lahir' => $tanggal_lahir,
+                        'alamat' => $row[6],
+                        'email' => $row[7],
+                        'no_telp' => $row[8],
+                        'gol_darah' => $row[9] !== null ? strtoupper($row[9]) : $row[9],
+                        'jenis_kelamin' => $row[10] !== null ? strtoupper($row[10]) : $row[10],
+                        'agama' => $row[11] !== null ? strtoupper($row[11]) : $row[11],
+                        'status_keluarga' => $row[12] !== null ? strtoupper($row[12]) : $row[12],
+                        'npwp' => $row[13],
+                        'no_bpjs_ks' => $row[14],
+                        'no_bpjs_kt' => $row[15],
                         'sisa_cuti' => $row[16],
                     ]);
                 }
             } else {
+                DB::rollBack();
                 return response()->json(['message' => 'Terjadi kesalahan, silahkan upload ulang file!'], 404);
             }
-            return response()->json(['message' => 'File uploaded and data saved successfully.'], 200);
+            DB::commit();
+            return response()->json(['message' => 'File berhasil di upload'], 200);
         } catch (Throwable $e) {
+            DB::rollBack();
             return response()->json(['message' => 'Error processing the file: ' . $e->getMessage()], 500);
         }
     }

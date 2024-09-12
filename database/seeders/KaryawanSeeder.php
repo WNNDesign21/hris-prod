@@ -18,8 +18,10 @@ class KaryawanSeeder extends Seeder
     {
         $karyawan = [
             [
-                'id_karyawan' => 'FL0001',
+                'id_karyawan' => 'FL96485264',
+                'ni_karyawan' => '300.010224',
                 'nama' => 'FLAVIA DOMITELA AJENG NARISWARI',
+                'jenis_kelamin' => 'P',
                 'jenis_kontrak' => 'PKWT',
                 'status_karyawan' => 'AKTIF',
                 'sisa_cuti' => 12,
@@ -29,8 +31,10 @@ class KaryawanSeeder extends Seeder
                 'grup_id' => 1
             ],
             [
-                'id_karyawan' => 'IN0001',
+                'id_karyawan' => 'IN16324875',
+                'ni_karyawan' => '200.100224',
                 'nama' => 'INDAH NADIA HAPSARI',
+                'jenis_kelamin' => 'P',
                 'jenis_kontrak' => 'MAGANG',
                 'status_karyawan' => 'AKTIF',
                 'sisa_cuti' => 12,
@@ -40,8 +44,10 @@ class KaryawanSeeder extends Seeder
                 'grup_id' => 1
             ],
             [
-                'id_karyawan' => 'AM0001',
+                'id_karyawan' => 'AM15687542',
+                'ni_karyawan' => '479.030624',
                 'nama' => 'AMBAR WINASTI',
+                'jenis_kelamin' => 'P',
                 'jenis_kontrak' => 'PKWTT',
                 'status_karyawan' => 'AKTIF',
                 'sisa_cuti' => 12,
@@ -61,6 +67,7 @@ class KaryawanSeeder extends Seeder
         $i = 1;
         foreach ($karyawans as $kry) {
             Kontrak::create([
+                'no_surat' => str_pad(mt_rand(0, 999), 3, '0', STR_PAD_LEFT),
                 'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,
                 'karyawan_id' =>  $kry->id_karyawan,
                 'nama_posisi' => 'Posisi '. $i,

@@ -14,6 +14,15 @@
                         <div class="row p-4">
                             <div class="col-lg-6 col-12">
                                 <div class="form-group">
+                                    <label for="">Nomor Induk Karyawan <span
+                                            class="text-danger">*</span></label>
+                                    <br>
+                                    <div class="input-group mb-2" style="width:100%;">
+                                        <input type="text" name="ni_karyawanEdit" id="ni_karyawanEdit"
+                                            class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
                                     <label for="">Nama <span class="text-danger">*</span></label>
                                     <br>
                                     <div class="input-group mb-2" style="width:100%;">
