@@ -606,10 +606,26 @@ class KaryawanController extends Controller
                             'no_bpjs_kt' => $row[15],
                             'sisa_cuti' => $row[16],
                         ]);
+
+                        if($row[17] !== null && $row[18] !== null && $row[19] !== null){
+                            $user = User::find($existingKaryawan->user_id);
+                            $user->update([
+                                'email' => $row[17],
+                                'username' => $row[18],
+                                'password' => Hash::make($row[19]),
+                            ]); 
+                        }
                         continue;
                     }
+
+                    $user = User::create([
+                        'email' => $row[17],
+                        'username' => $row[18],
+                        'password' => Hash::make($row[19]),
+                    ]); 
     
                     Karyawan::create([
+                        'user_id' => $user->id,
                         'id_karyawan' => $this->generateIdKaryawan(strtoupper($row[1])),
                         'ni_karyawan' => $row[0],
                         'nama' => strtoupper($row[1]),
@@ -629,6 +645,7 @@ class KaryawanController extends Controller
                         'no_bpjs_kt' => $row[15],
                         'sisa_cuti' => $row[16],
                     ]);
+                    
                 }
             } else {
                 DB::rollBack();
