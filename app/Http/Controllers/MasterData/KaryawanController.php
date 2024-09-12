@@ -74,9 +74,9 @@ class KaryawanController extends Controller
                 $posisis = $data->posisi()->pluck('posisis.nama')->toArray();
                 $nestedData['id_karyawan'] = $data->id_karyawan;
                 $nestedData['nama'] = $data->nama.'<br> ('.$data->ni_karyawan.')';
-                $nestedData['jenis_kontrak'] = $kontrak ? $kontrak : $data->jenis_kontrak;
-                $nestedData['tanggal_mulai'] = $data->tanggal_mulai;
-                $nestedData['tanggal_selesai'] = $data->tanggal_selesai;
+                $nestedData['jenis_kontrak'] = $kontrak ? $kontrak : ($data->jenis_kontrak ? $data->jenis_kontrak : 'BELUM ADA KONTRAK');
+                $nestedData['tanggal_mulai'] = $data->tanggal_mulai ? $data->tanggal_mulai : 'BELUM ADA KONTRAK';
+                $nestedData['tanggal_selesai'] = $data->tanggal_selesai ? $data->tanggal_selesai : 'BELUM ADA KONTRAK';
                 $nestedData['status_karyawan'] = $data->status_karyawan;
                 $formattedPosisi = array_map(function($posisi) {
                     return '<span class="badge badge-primary m-1">' . $posisi . '</span>';
