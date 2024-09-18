@@ -169,6 +169,7 @@ function($) {
                 let onleave = dataResponse.onleave;
                 let completed = dataResponse.completed;
                 let canceled = dataResponse.canceled;
+                let rejected = dataResponse.rejected;
                 let unlegalized = dataResponse.unlegalized;
                 let total = dataResponse.total;
 
@@ -199,13 +200,19 @@ function($) {
                             type: 'line'
                         },
                         {
+                            name: 'Rejected',
+                            data: rejected,
+                            color: '#dc3545',
+                            type: 'line'
+                        },
+                        {
                             name: 'Need Legalized',
                             data: unlegalized,
                             color: '#28a745',
                             type: 'bar'
                         },
                         {
-                            name: 'Total',
+                            name: 'Total Document',
                             data: total,
                             color: '#28a745',
                             type: 'bar'

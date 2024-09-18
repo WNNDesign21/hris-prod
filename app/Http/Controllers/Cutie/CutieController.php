@@ -1262,6 +1262,7 @@ class CutieController extends Controller
         $data['onleave'] = [];
         $data['canceled'] = [];
         $data['completed'] = [];
+        $data['rejected'] = [];
         $data['total'] = [];
 
         $month = date('m');
@@ -1282,6 +1283,8 @@ class CutieController extends Controller
 
 
         for ($i = 0; $i <= 11; $i++) {
+
+            //SCHEDULED
             $scheduledCount = Cutie::where('status_cuti', 'SCHEDULED')
                 ->whereYear('rencana_mulai_cuti', $year)
                 ->whereMonth('rencana_mulai_cuti', $month_array[$i]);
@@ -1294,7 +1297,9 @@ class CutieController extends Controller
                 
             $scheduledCount = $scheduledCount->count();
 
+            //ONLEAVE
             $onleaveCount = Cutie::where('status_cuti', 'ON LEAVE')
+                ->where('status_dokumen', 'APPROVED')
                 ->whereYear('rencana_mulai_cuti', $year)
                 ->whereMonth('rencana_mulai_cuti', $month_array[$i]);
 
@@ -1305,7 +1310,9 @@ class CutieController extends Controller
             }
             $onleaveCount = $onleaveCount->count();
             
+            //COMPLETED
             $completedCount = Cutie::where('status_cuti', 'COMPLETED')
+                ->where('status_dokumen', 'APPROVED')
                 ->whereYear('rencana_mulai_cuti', $year)
                 ->whereMonth('rencana_mulai_cuti', $month_array[$i]);
             
@@ -1316,7 +1323,9 @@ class CutieController extends Controller
             }
             $completedCount = $completedCount->count();
 
+            //CANCELED
             $canceledCount = Cutie::where('status_cuti', 'CANCELED')
+                ->where('status_dokumen', 'APPROVED')
                 ->whereYear('rencana_mulai_cuti', $year)
                 ->whereMonth('rencana_mulai_cuti', $month_array[$i]);
             
@@ -1327,18 +1336,21 @@ class CutieController extends Controller
             }
             $canceledCount = $canceledCount->count();
 
-            $totalCount = Cutie::whereIn('status_cuti', ['SCHEDULED','ON LEAVE','COMPLETED','CANCELED'])
+            //REJECTED
+            $rejectedCount = Cutie::where('status_dokumen', 'REJECTED')
                 ->whereYear('rencana_mulai_cuti', $year)
                 ->whereMonth('rencana_mulai_cuti', $month_array[$i]);
-
+            
             if (isset($members)) {
-                $totalCount = $totalCount->whereHas('karyawan.posisi', function($query) use ($members) {
+                $rejectedCount = $rejectedCount->whereHas('karyawan.posisi', function($query) use ($members) {
                     $query->whereIn('id_posisi', $members);
                 });
             }
-            $totalCount = $totalCount->count();
+            $rejectedCount = $rejectedCount->count();
 
-            $unlegalizedCount = Cutie::whereNull('status_cuti')
+            //UNLEGALIZED
+            $unlegalizedCount = Cutie::whereNull('legalized_by')
+                ->whereNull('rejected_by')
                 ->whereYear('rencana_mulai_cuti', $year)
                 ->whereMonth('rencana_mulai_cuti', $month_array[$i]);
 
@@ -1349,10 +1361,22 @@ class CutieController extends Controller
             }
             $unlegalizedCount = $unlegalizedCount->count();
 
+            //TOTAL
+            $totalCount = Cutie::whereYear('rencana_mulai_cuti', $year)
+            ->whereMonth('rencana_mulai_cuti', $month_array[$i]);
+
+            if (isset($members)) {
+                $totalCount = $totalCount->whereHas('karyawan.posisi', function($query) use ($members) {
+                    $query->whereIn('id_posisi', $members);
+                });
+            }
+            $totalCount = $totalCount->count();
+
             $data['scheduled'][] = $scheduledCount;
             $data['onleave'][] = $onleaveCount;
             $data['completed'][] = $completedCount;
             $data['canceled'][] = $canceledCount;
+            $data['rejected'][] = $rejectedCount;
             $data['unlegalized'][] = $unlegalizedCount;
             $data['total'][] = $totalCount;
         }
@@ -1507,6 +1531,8 @@ class CutieController extends Controller
             'Legalized',
             'Status Dokumen',
             'Status Cuti',
+            'Rejected',
+            'Alasan Reject',
             'Created At',
         ];
 
@@ -1518,11 +1544,11 @@ class CutieController extends Controller
 
         $row = 2;
 
-        $columns = range('A', 'S');
+        $columns = range('A', 'U');
         foreach ($columns as $column) {
             $sheet->getColumnDimension($column)->setWidth(35);
         }
-        $sheet->setAutoFilter('A1:S1');
+        $sheet->setAutoFilter('A1:U1');
 
         foreach ($cutie as $c) {
             $sheet->setCellValue('A' . $row, $row - 1);
@@ -1542,8 +1568,10 @@ class CutieController extends Controller
             $sheet->setCellValue('O' . $row, $c->approved_by !== null ? $c->approved_by.' / '.(Carbon::parse($c->approved_at)->format('d-m-Y')) : '-');
             $sheet->setCellValue('P' . $row, $c->legalized_by !== null ? $c->legalized_by.' / '.(Carbon::parse($c->legalized_at)->format('d-m-Y')) : '-');
             $sheet->setCellValue('Q' . $row, $c->status_dokumen);
-            $sheet->setCellValue('R' . $row, $c->status_cuti);
-            $sheet->setCellValue('S' . $row, $c->created_at->format('d-m-Y'));
+            $sheet->setCellValue('R' . $row, $c->rejected_by ? 'REJECTED' : ($c->status_cuti ? $c->status_cuti : '-'));
+            $sheet->setCellValue('S' . $row, $c->rejected_by !== null ? $c->rejected_by.' / '.(Carbon::parse($c->rejected_at)->format('d-m-Y')) : '-');
+            $sheet->setCellValue('T' . $row, $c->rejected_note ? $c->rejected_note : '-');
+            $sheet->setCellValue('U' . $row, $c->created_at->format('d-m-Y'));
             $row++;
         }
 
