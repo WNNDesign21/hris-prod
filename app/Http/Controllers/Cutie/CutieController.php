@@ -95,14 +95,14 @@ class CutieController extends Controller
             4 => 'aktual_selesai_cuti',
             5 => 'durasi_cuti',
             6 => 'jenis_cuti',
-            7 => 'alasan_cuti',
-            8 => 'kp.nama_pengganti',
-            9 => 'checked1_at',
-            10 => 'checked2_at',
-            11 => 'approved_at',
-            12 => 'legalize_at',
-            13 => 'status_dokumen',
-            14 => 'status_cuti',
+            7 => 'checked1_at',
+            8 => 'checked2_at',
+            9 => 'approved_at',
+            10 => 'legalize_at',
+            11 => 'status_dokumen',
+            12 => 'status_cuti',
+            13 => 'alasan_cuti',
+            14 => 'kp.nama_pengganti',
             15 => 'created_at',
         );
 
@@ -180,7 +180,7 @@ class CutieController extends Controller
                         $status_cuti = '-';
                     }
                 } else {
-                    $status_cuti = '<span class="badge badge-pill badge-danger">REJECTED</span>';
+                    $status_cuti = '<span class="badge badge-pill badge-danger btnAlasan" data-alasan="'.$data->rejected_note.'" style="cursor:pointer;">REJECTED</span>';
                 }
                     
 
@@ -191,14 +191,14 @@ class CutieController extends Controller
                 $nestedData['aktual_selesai_cuti'] = $data->aktual_selesai_cuti ? Carbon::parse($data->aktual_selesai_cuti)->format('d M Y') : '-';
                 $nestedData['durasi'] = $data->durasi_cuti.' Hari';
                 $nestedData['jenis'] = $data->jenis_cuti !== 'KHUSUS' ? $data->jenis_cuti : $data->jenis_cuti.' <small class="text-fade">('.$data->jenis_cuti_khusus.')</small>';
-                $nestedData['alasan'] = $data->alasan_cuti;
-                $nestedData['karyawan_pengganti'] = $data->nama_pengganti ? '<small class="text-bold">'.$data->nama_pengganti.'</small>' : '-';
                 $nestedData['checked_1'] = $rejected == null ? $btn_group_1 : $rejected;
                 $nestedData['checked_2'] = $rejected == null ? $btn_group_2 : $rejected;
                 $nestedData['approved'] = $rejected == null ? $btn_group_3 : $rejected;
                 $nestedData['legalized'] = $rejected == null ? $legalized : $rejected;
-                $nestedData['status_dokumen'] = $data->status_dokumen == 'WAITING' ? '<span class="badge badge-pill badge-warning">'.$data->status_dokumen.'</span>' : ($data->status_dokumen == 'APPROVED' ? '<span class="badge badge-pill badge-success">'.$data->status_dokumen.'</span>' : '<span class="badge badge-pill badge-danger">'.$data->status_dokumen.'</span>');
+                $nestedData['status_dokumen'] = $data->status_dokumen == 'WAITING' ? '<span class="badge badge-pill badge-warning">'.$data->status_dokumen.'</span>' : ($data->status_dokumen == 'APPROVED' ? '<span class="badge badge-pill badge-success">'.$data->status_dokumen.'</span>' : '<span class="badge badge-pill badge-danger btnAlasan" data-alasan="'.$data->rejected_note.'" style="cursor:pointer;">'.$data->status_dokumen.'</span>');
                 $nestedData['status'] = $status_cuti;
+                $nestedData['alasan'] = $data->alasan_cuti;
+                $nestedData['karyawan_pengganti'] = $data->nama_pengganti ? '<small class="text-bold">'.$data->nama_pengganti.'</small>' : '-';
                 // $nestedData['created_at'] = Carbon::parse($data->created_at)->diffForHumans() ;
                 $nestedData['created_at'] = Carbon::parse($data->created_at)->format('d M Y H:i:s');
                 $nestedData['attachment'] = $data->jenis_cuti !== 'SAKIT' ? 'No Attachment Needed' : '<a href="'.asset('storage/'.$data->attachment).'" target="_blank">Lihat</a>';
@@ -242,14 +242,14 @@ class CutieController extends Controller
             4 => 'aktual_selesai_cuti',
             5 => 'durasi_cuti',
             6 => 'jenis_cuti',
-            7 => 'alasan_cuti',
-            8 => 'kp.nama_pengganti',
-            9 => 'checked1_at',
-            10 => 'checked2_at',
-            11 => 'approved_at',
-            12 => 'legalize_at',
-            13 => 'status_dokumen',
-            14 => 'status_cuti',
+            7 => 'checked1_at',
+            8 => 'checked2_at',
+            9 => 'approved_at',
+            10 => 'legalize_at',
+            11 => 'status_dokumen',
+            12 => 'status_cuti',
+            13 => 'alasan_cuti',
+            14 => 'kp.nama_pengganti',
             15 => 'created_at',
         );
 
@@ -490,24 +490,7 @@ class CutieController extends Controller
                         $status_cuti = '-';
                     }
                 } else {
-                    $status_cuti = '<span class="badge badge-pill badge-danger">REJECTED</span>';
-                }
-
-                //Status Cuti
-                if($data->rejected_by == null){
-                    if($data->status_cuti == 'SCHEDULED'){
-                        $status_cuti = '<span class="badge badge-pill badge-warning">'.$data->status_cuti.'</span>';
-                    } elseif($data->status_cuti == 'ON LEAVE'){
-                        $status_cuti = '<span class="badge badge-pill badge-secondary">'.$data->status_cuti.'</span>';
-                    } elseif($data->status_cuti == 'COMPLETED'){
-                        $status_cuti = '<span class="badge badge-pill badge-success">'.$data->status_cuti.'</span>';
-                    } elseif ($data->status_cuti == 'CANCELED') {
-                        $status_cuti = '<span class="badge badge-pill badge-danger">'.$data->status_cuti.'</span>';
-                    } else {
-                        $status_cuti = '-';
-                    }
-                } else {
-                    $status_cuti = '<span class="badge badge-pill badge-danger">REJECTED</span>';
+                    $status_cuti = '<span class="badge badge-pill badge-danger btnAlasan" data-alasan="'.$data->rejected_note.'" style="cursor:pointer;">REJECTED</span>';
                 }
 
                 $nestedData['nama'] = $data->nama_karyawan;
@@ -517,14 +500,14 @@ class CutieController extends Controller
                 $nestedData['aktual_selesai_cuti'] = $data->aktual_selesai_cuti ? Carbon::parse($data->aktual_selesai_cuti)->format('d M Y') : '-';
                 $nestedData['durasi'] = $data->durasi_cuti.' Hari';
                 $nestedData['jenis'] = $data->jenis_cuti !== 'KHUSUS' ? $data->jenis_cuti : $data->jenis_cuti.' <small class="text-fade">('.$data->jenis_cuti_khusus.')</small>';
-                $nestedData['alasan'] = $data->alasan_cuti;
-                $nestedData['karyawan_pengganti'] = $btn_karyawan_pengganti;
                 $nestedData['checked_1'] = $rejected == null ? $btn_group_1 : $rejected;
                 $nestedData['checked_2'] = $rejected == null ? $btn_group_2 : $rejected;
                 $nestedData['approved'] = $rejected == null ? $btn_group_3 : $rejected;
                 $nestedData['legalized'] = $rejected == null ? $legalized : $rejected;
-                $nestedData['status_dokumen'] = $data->status_dokumen == 'WAITING' ? '<span class="badge badge-pill badge-warning">'.$data->status_dokumen.'</span>' : ($data->status_dokumen == 'APPROVED' ? '<span class="badge badge-pill badge-success">'.$data->status_dokumen.'</span>' : '<span class="badge badge-pill badge-danger">'.$data->status_dokumen.'</span>');
+                $nestedData['status_dokumen'] = $data->status_dokumen == 'WAITING' ? '<span class="badge badge-pill badge-warning">'.$data->status_dokumen.'</span>' : ($data->status_dokumen == 'APPROVED' ? '<span class="badge badge-pill badge-success">'.$data->status_dokumen.'</span>' : '<span class="badge badge-pill badge-danger btnAlasan" data-alasan="'.$data->rejected_note.'" style="cursor:pointer;">'.$data->status_dokumen.'</span>');
                 $nestedData['status'] = $status_cuti;
+                $nestedData['alasan'] = $data->alasan_cuti;
+                $nestedData['karyawan_pengganti'] = $btn_karyawan_pengganti;
                 // $nestedData['created_at'] = Carbon::parse($data->created_at)->diffForHumans() ;
                 $nestedData['created_at'] = Carbon::parse($data->created_at)->format('d M Y H:i:s');
                 $nestedData['attachment'] = $data->jenis_cuti !== 'SAKIT' ? 'No Attachment Needed' : '<a href="'.asset('storage/'.$data->attachment).'" target="_blank">Lihat</a>';
@@ -563,14 +546,14 @@ class CutieController extends Controller
             4 => 'aktual_selesai_cuti',
             5 => 'durasi_cuti',
             6 => 'jenis_cuti',
-            7 => 'alasan_cuti',
-            8 => 'kp.nama_pengganti',
-            9 => 'checked1_at',
-            10 => 'checked2_at',
-            11 => 'approved_at',
-            12 => 'legalize_at',
-            13 => 'status_dokumen',
-            14 => 'status_cuti',
+            7 => 'checked1_at',
+            8 => 'checked2_at',
+            9 => 'approved_at',
+            10 => 'legalize_at',
+            11 => 'status_dokumen',
+            12 => 'status_cuti',
+            13 => 'alasan_cuti',
+            14 => 'kp.nama_pengganti',
             15 => 'created_at',
         );
 
@@ -635,7 +618,7 @@ class CutieController extends Controller
                         $legalized = '✅<br><small class="text-bold">'.$data->legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->legalized_at)->diffForHumans().'</small>';
                     }
                 } else {
-                    $rejected = '❌<br><small class="text-bold btnAlasan" style="cursor:pointer;" data-alasan="'.$data->rejected_note.'">'.$data->rejected_by.'</small><br><small class="text-fade">'.Carbon::parse($data->rejected_at)->diffForHumans().'</small>';
+                    $rejected = '❌<br><small class="text-bold">'.$data->rejected_by.'</small><br><small class="text-fade">'.Carbon::parse($data->rejected_at)->diffForHumans().'</small>';
                 }
 
                 //Status Cuti
@@ -652,7 +635,7 @@ class CutieController extends Controller
                         $status_cuti = '-';
                     }
                 } else {
-                    $status_cuti = '<span class="badge badge-pill badge-danger">REJECTED</span>';
+                    $status_cuti = '<span class="badge badge-pill badge-danger btnAlasan" data-alasan="'.$data->rejected_note.'" style="cursor:pointer;">REJECTED</span>';
                 }
                     
 
@@ -663,16 +646,16 @@ class CutieController extends Controller
                 $nestedData['aktual_selesai_cuti'] = $data->aktual_selesai_cuti ? Carbon::parse($data->aktual_selesai_cuti)->format('d M Y') : '-';
                 $nestedData['durasi'] = $data->durasi_cuti.' Hari';
                 $nestedData['jenis'] = $data->jenis_cuti !== 'KHUSUS' ? $data->jenis_cuti : $data->jenis_cuti.' <small class="text-fade">('.$data->jenis_cuti_khusus.')</small>';
-                $nestedData['alasan'] = $data->alasan_cuti;
-                $nestedData['karyawan_pengganti'] = $data->nama_pengganti ? '<small class="text-bold">'.$data->nama_pengganti.'</small>' : '-';
                 $nestedData['checked_1'] = $rejected == null ? $btn_group_1 : $rejected;
                 $nestedData['checked_2'] = $rejected == null ? $btn_group_2 : $rejected;
                 $nestedData['approved'] = $rejected == null ? $btn_group_3 : $rejected;
                 $nestedData['legalized'] = $rejected == null ? $legalized : $rejected;
-                $nestedData['status_dokumen'] = $data->status_dokumen == 'WAITING' ? '<span class="badge badge-pill badge-warning">'.$data->status_dokumen.'</span>' : ($data->status_dokumen == 'APPROVED' ? '<span class="badge badge-pill badge-success">'.$data->status_dokumen.'</span>' : '<span class="badge badge-pill badge-danger">'.$data->status_dokumen.'</span>');
+                $nestedData['status_dokumen'] = $data->status_dokumen == 'WAITING' ? '<span class="badge badge-pill badge-warning">'.$data->status_dokumen.'</span>' : ($data->status_dokumen == 'APPROVED' ? '<span class="badge badge-pill badge-success">'.$data->status_dokumen.'</span>' : '<span class="badge badge-pill badge-danger btnAlasan"  data-alasan="'.$data->rejected_note.'" style="cursor:pointer;">'.$data->status_dokumen.'</span>');
                 $nestedData['status'] = $status_cuti;
                 // $nestedData['created_at'] = Carbon::parse($data->created_at)->diffForHumans() ;
                 $nestedData['created_at'] = Carbon::parse($data->created_at)->format('d M Y H:i:s');
+                $nestedData['alasan'] = $data->alasan_cuti;
+                $nestedData['karyawan_pengganti'] = $data->nama_pengganti ? '<small class="text-bold">'.$data->nama_pengganti.'</small>' : '-';
                 $nestedData['attachment'] = $data->jenis_cuti !== 'SAKIT' ? 'No Attachment Needed' : '<a href="'.asset('storage/'.$data->attachment).'" target="_blank">Lihat</a>';
                 $nestedData['aksi'] = '<div class="btn-group btn-group-sm"><button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button></div>';
 

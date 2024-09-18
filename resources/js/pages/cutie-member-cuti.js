@@ -52,14 +52,14 @@ $(function () {
         { data: "aktual_selesai_cuti" },
         { data: "durasi" },
         { data: "jenis" },
-        { data: "alasan" },
-        { data: "karyawan_pengganti" },
         { data: "checked_1" },
         { data: "checked_2" },
         { data: "approved" },
         { data: "legalized" },
         { data: "status_dokumen" },
         { data: "status" },
+        { data: "alasan" },
+        { data: "karyawan_pengganti" },
         { data: "created_at" },
         { data: "attachment" },
     ];
@@ -212,6 +212,25 @@ $(function () {
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
             },
         })
+    });
+
+    $('#member-table').on("click", ".btnAlasan", function () {
+        let alasan = $(this).data('alasan');
+        const toast = Swal.mixin({
+            toast: true,
+            position: "center",
+            showCloseButton: true,
+            showConfirmButton: false,
+            didOpen: (toast) => {
+            toast.onmouseenter = Swal.stopTimer;
+            toast.onmouseleave = Swal.resumeTimer;
+            }
+        });
+
+        toast.fire({
+            icon: "info",
+            title: alasan
+        });
     });
 
     $('#member-table').on('click', '.btnUpdateDokumen', function (){

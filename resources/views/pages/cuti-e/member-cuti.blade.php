@@ -35,14 +35,14 @@
                                     <th>Aktual Selesai</th>
                                     <th>Durasi</th>
                                     <th>Jenis</th>
-                                    <th>Alasan</th>
-                                    <th>Karyawan Pengganti</th>
                                     <th>Checked 1</th>
                                     <th>Checked 2</th>
                                     <th>Approved</th>
                                     <th>Legalized</th>
                                     <th>Status Dokumen</th>
                                     <th>Status</th>
+                                    <th>Alasan</th>
+                                    <th>Karyawan Pengganti</th>
                                     <th>Created At</th>
                                     <th>Attachment</th>
                                 </tr>
