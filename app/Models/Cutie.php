@@ -23,6 +23,11 @@ class Cutie extends Model
         'rejected_note','status_cuti','status_dokumen','attachment'
     ];
 
+    public function scopeActive($query)
+    {
+        return $query->where('status_cuti','!=', 'CANCELED');
+    }
+
     public function karyawan()
     {
         return $this->belongsTo(Karyawan::class, 'karyawan_id', 'id_karyawan');
@@ -63,6 +68,7 @@ class Cutie extends Model
             'legalized_by',
             'rejected_by',
             'rejected_at',
+            'rejected_note',
             'status_dokumen',
             'status_cuti',
             'attachment',

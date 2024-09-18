@@ -166,6 +166,7 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/pengajuan-cuti/store',[CutieController::class, 'store'])->name('cutie.pengajuan-cuti.store');
         Route::delete('/pengajuan-cuti/delete/{idCuti}',[CutieController::class, 'delete'])->name('cutie.pengajuan-cuti.delete');
         Route::patch('/pengajuan-cuti/update/{idCuti}',[CutieController::class, 'update'])->name('cutie.pengajuan-cuti.update');
+        Route::patch('/pengajuan-cuti/cancel/{idCuti}',[CutieController::class, 'cancel'])->name('cutie.pengajuan-cuti.cancel');
         Route::patch('/pengajuan-cuti/mulai-cuti/{idCuti}',[CutieController::class, 'mulai_cuti'])->name('cutie.pengajuan-cuti.mulai-cuti');
         Route::patch('/pengajuan-cuti/selesai-cuti/{idCuti}',[CutieController::class, 'selesai_cuti'])->name('cutie.pengajuan-cuti.selesai-cuti');
 

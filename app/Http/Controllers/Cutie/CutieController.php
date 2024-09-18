@@ -165,6 +165,23 @@ class CutieController extends Controller
                 } else {
                     $rejected = '❌<br><small class="text-bold">'.$data->rejected_by.'</small><br><small class="text-fade">'.Carbon::parse($data->rejected_at)->diffForHumans().'</small>';
                 }
+
+                //Status Cuti
+                if($data->rejected_by == null){
+                    if($data->status_cuti == 'SCHEDULED'){
+                        $status_cuti = '<span class="badge badge-pill badge-warning">'.$data->status_cuti.'</span>';
+                    } elseif($data->status_cuti == 'ON LEAVE'){
+                        $status_cuti = '<span class="badge badge-pill badge-secondary">'.$data->status_cuti.'</span>';
+                    } elseif($data->status_cuti == 'COMPLETED'){
+                        $status_cuti = '<span class="badge badge-pill badge-success">'.$data->status_cuti.'</span>';
+                    } elseif ($data->status_cuti == 'CANCELED') {
+                        $status_cuti = '<span class="badge badge-pill badge-danger">'.$data->status_cuti.'</span>';
+                    } else {
+                        $status_cuti = '-';
+                    }
+                } else {
+                    $status_cuti = '<span class="badge badge-pill badge-danger">REJECTED</span>';
+                }
                     
 
                 $nestedData['no'] = $data->id_cuti;
@@ -181,16 +198,17 @@ class CutieController extends Controller
                 $nestedData['approved'] = $rejected == null ? $btn_group_3 : $rejected;
                 $nestedData['legalized'] = $rejected == null ? $legalized : $rejected;
                 $nestedData['status_dokumen'] = $data->status_dokumen == 'WAITING' ? '<span class="badge badge-pill badge-warning">'.$data->status_dokumen.'</span>' : ($data->status_dokumen == 'APPROVED' ? '<span class="badge badge-pill badge-success">'.$data->status_dokumen.'</span>' : '<span class="badge badge-pill badge-danger">'.$data->status_dokumen.'</span>');
-                $nestedData['status'] = $data->status_cuti == 'SCHEDULED' ? '<span class="badge badge-pill badge-warning">'.$data->status_cuti.'</span>' : ($data->status_cuti == 'ON LEAVE' ? '<span class="badge badge-pill badge-secondary">'.$data->status_cuti.'</span>' : ($data->status_cuti == 'COMPLETED' ? '<span class="badge badge-pill badge-success">'.$data->status_cuti.'</span>' : '<span class="badge badge-pill badge-danger">REJECTED</span>'));
+                $nestedData['status'] = $status_cuti;
                 // $nestedData['created_at'] = Carbon::parse($data->created_at)->diffForHumans() ;
                 $nestedData['created_at'] = Carbon::parse($data->created_at)->format('d M Y H:i:s');
                 $nestedData['attachment'] = $data->jenis_cuti !== 'SAKIT' ? 'No Attachment Needed' : '<a href="'.asset('storage/'.$data->attachment).'" target="_blank">Lihat</a>';
                 $nestedData['aksi'] = '
                 <div class="btn-group btn-group-sm">'.
                     // ($data->checked1_by == null && $data->checked2_by == null && $data->approved_by == null && $data->legalized_by == null && $data->rejected_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id="'.$data->id_cuti.'"><i class="fas fa-edit"></i> Edit</button><button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button>' : '').
+                    ($data->status_dokumen == 'APPROVED' && $data->status_cuti == 'SCHEDULED' && $data->rencana_mulai_cuti <= date('Y-m-d') && $data->rejected_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnCancel" data-id="'.$data->id_cuti.'"><i class="fas fa-history"></i> Cancel </button>' : '').
                     ($data->checked1_by == null && $data->checked2_by == null && $data->approved_by == null && $data->legalized_by == null && $data->rejected_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button>' : '').
-                    ($data->status_cuti == 'SCHEDULED' && $data->status_dokumen == 'APPROVED' && $data->approved_by !== null && $data->aktual_mulai_cuti == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-info btnMulai" data-id="'.$data->id_cuti.'"><i class="fas fa-play-circle"></i> Mulai </button>' : '').
-                    ($data->status_cuti == 'ON LEAVE' && $data->status_dokumen == 'APPROVED' && $data->approved_by !== null && $data->aktual_mulai_cuti !== null && $data->aktual_selesai_cuti == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-primary btnSelesai" data-id="'.$data->id_cuti.'"><i class="fas fa-calendar-check"></i> Selesai </button>' : '').
+                    // ($data->status_cuti == 'SCHEDULED' && $data->status_dokumen == 'APPROVED' && $data->approved_by !== null && $data->aktual_mulai_cuti == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-info btnMulai" data-id="'.$data->id_cuti.'"><i class="fas fa-play-circle"></i> Mulai </button>' : '').
+                    // ($data->status_cuti == 'ON LEAVE' && $data->status_dokumen == 'APPROVED' && $data->approved_by !== null && $data->aktual_mulai_cuti !== null && $data->aktual_selesai_cuti == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-primary btnSelesai" data-id="'.$data->id_cuti.'"><i class="fas fa-calendar-check"></i> Selesai </button>' : '').
                     '
                 </div>
                 ';
@@ -448,14 +466,48 @@ class CutieController extends Controller
                 }
                 
                 //Karyawan Pengganti 
-                if ($data->nama_pengganti && $data->legalized_by == null){
+                if ($data->nama_pengganti && $data->legalized_by == null && $data->rejected_by == null){
                     $btn_karyawan_pengganti = '<small class="text-bold">'.$data->nama_pengganti.'</small><br>'.'<button type="button" class="waves-effect waves-light btn btn-sm btn-secondary btnKaryawanPengganti" data-id="'.$data->id_cuti.'" data-karyawan-id="'.$data->karyawan_id.'" data-karyawan-pengganti-id="'.$data->karyawan_pengganti_id.'"><i class="fas fa-user-friends"></i> Pilih</button>';
-                } elseif($data->nama_pengganti && $data->legalized_by !== null){
+                } elseif($data->nama_pengganti && $data->legalized_by !== null && $data->rejected_by == null){
                     $btn_karyawan_pengganti = '<small class="text-bold">'.$data->nama_pengganti.'</small>';
-                } elseif ($data->nama_pengganti == null && $data->legalized_by == null){ 
+                } elseif ($data->nama_pengganti == null && $data->legalized_by == null && $data->rejected_by == null){ 
                     $btn_karyawan_pengganti = '<button type="button" class="waves-effect waves-light btn btn-sm btn-secondary btnKaryawanPengganti" data-id="'.$data->id_cuti.'" data-karyawan-id="'.$data->karyawan_id.'" data-karyawan-pengganti-id="'.$data->karyawan_pengganti_id.'"><i class="fas fa-user-friends"></i> Pilih</button>';
                 } else {
                     $btn_karyawan_pengganti = '-';
+                }
+
+                //Status Cuti
+                if($data->rejected_by == null){
+                    if($data->status_cuti == 'SCHEDULED'){
+                        $status_cuti = '<span class="badge badge-pill badge-warning">'.$data->status_cuti.'</span>';
+                    } elseif($data->status_cuti == 'ON LEAVE'){
+                        $status_cuti = '<span class="badge badge-pill badge-secondary">'.$data->status_cuti.'</span>';
+                    } elseif($data->status_cuti == 'COMPLETED'){
+                        $status_cuti = '<span class="badge badge-pill badge-success">'.$data->status_cuti.'</span>';
+                    } elseif ($data->status_cuti == 'CANCELED') {
+                        $status_cuti = '<span class="badge badge-pill badge-danger">'.$data->status_cuti.'</span>';
+                    } else {
+                        $status_cuti = '-';
+                    }
+                } else {
+                    $status_cuti = '<span class="badge badge-pill badge-danger">REJECTED</span>';
+                }
+
+                //Status Cuti
+                if($data->rejected_by == null){
+                    if($data->status_cuti == 'SCHEDULED'){
+                        $status_cuti = '<span class="badge badge-pill badge-warning">'.$data->status_cuti.'</span>';
+                    } elseif($data->status_cuti == 'ON LEAVE'){
+                        $status_cuti = '<span class="badge badge-pill badge-secondary">'.$data->status_cuti.'</span>';
+                    } elseif($data->status_cuti == 'COMPLETED'){
+                        $status_cuti = '<span class="badge badge-pill badge-success">'.$data->status_cuti.'</span>';
+                    } elseif ($data->status_cuti == 'CANCELED') {
+                        $status_cuti = '<span class="badge badge-pill badge-danger">'.$data->status_cuti.'</span>';
+                    } else {
+                        $status_cuti = '-';
+                    }
+                } else {
+                    $status_cuti = '<span class="badge badge-pill badge-danger">REJECTED</span>';
                 }
 
                 $nestedData['nama'] = $data->nama_karyawan;
@@ -472,7 +524,7 @@ class CutieController extends Controller
                 $nestedData['approved'] = $rejected == null ? $btn_group_3 : $rejected;
                 $nestedData['legalized'] = $rejected == null ? $legalized : $rejected;
                 $nestedData['status_dokumen'] = $data->status_dokumen == 'WAITING' ? '<span class="badge badge-pill badge-warning">'.$data->status_dokumen.'</span>' : ($data->status_dokumen == 'APPROVED' ? '<span class="badge badge-pill badge-success">'.$data->status_dokumen.'</span>' : '<span class="badge badge-pill badge-danger">'.$data->status_dokumen.'</span>');
-                $nestedData['status'] = $data->status_cuti == 'SCHEDULED' ? '<span class="badge badge-pill badge-warning">'.$data->status_cuti.'</span>' : ($data->status_cuti == 'ON LEAVE' ? '<span class="badge badge-pill badge-secondary">'.$data->status_cuti.'</span>' : '-');
+                $nestedData['status'] = $status_cuti;
                 // $nestedData['created_at'] = Carbon::parse($data->created_at)->diffForHumans() ;
                 $nestedData['created_at'] = Carbon::parse($data->created_at)->format('d M Y H:i:s');
                 $nestedData['attachment'] = $data->jenis_cuti !== 'SAKIT' ? 'No Attachment Needed' : '<a href="'.asset('storage/'.$data->attachment).'" target="_blank">Lihat</a>';
@@ -583,7 +635,24 @@ class CutieController extends Controller
                         $legalized = '✅<br><small class="text-bold">'.$data->legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->legalized_at)->diffForHumans().'</small>';
                     }
                 } else {
-                    $rejected = '❌<br><small class="text-bold">'.$data->rejected_by.'</small><br><small class="text-fade">'.Carbon::parse($data->rejected_at)->diffForHumans().'</small>';
+                    $rejected = '❌<br><small class="text-bold btnAlasan" style="cursor:pointer;" data-alasan="'.$data->rejected_note.'">'.$data->rejected_by.'</small><br><small class="text-fade">'.Carbon::parse($data->rejected_at)->diffForHumans().'</small>';
+                }
+
+                //Status Cuti
+                if($data->rejected_by == null){
+                    if($data->status_cuti == 'SCHEDULED'){
+                        $status_cuti = '<span class="badge badge-pill badge-warning">'.$data->status_cuti.'</span>';
+                    } elseif($data->status_cuti == 'ON LEAVE'){
+                        $status_cuti = '<span class="badge badge-pill badge-secondary">'.$data->status_cuti.'</span>';
+                    } elseif($data->status_cuti == 'COMPLETED'){
+                        $status_cuti = '<span class="badge badge-pill badge-success">'.$data->status_cuti.'</span>';
+                    } elseif ($data->status_cuti == 'CANCELED') {
+                        $status_cuti = '<span class="badge badge-pill badge-danger">'.$data->status_cuti.'</span>';
+                    } else {
+                        $status_cuti = '-';
+                    }
+                } else {
+                    $status_cuti = '<span class="badge badge-pill badge-danger">REJECTED</span>';
                 }
                     
 
@@ -601,7 +670,7 @@ class CutieController extends Controller
                 $nestedData['approved'] = $rejected == null ? $btn_group_3 : $rejected;
                 $nestedData['legalized'] = $rejected == null ? $legalized : $rejected;
                 $nestedData['status_dokumen'] = $data->status_dokumen == 'WAITING' ? '<span class="badge badge-pill badge-warning">'.$data->status_dokumen.'</span>' : ($data->status_dokumen == 'APPROVED' ? '<span class="badge badge-pill badge-success">'.$data->status_dokumen.'</span>' : '<span class="badge badge-pill badge-danger">'.$data->status_dokumen.'</span>');
-                $nestedData['status'] = $data->status_cuti == 'SCHEDULED' ? '<span class="badge badge-pill badge-warning">'.$data->status_cuti.'</span>' : ($data->status_cuti == 'ON LEAVE' ? '<span class="badge badge-pill badge-secondary">'.$data->status_cuti.'</span>' : '-');
+                $nestedData['status'] = $status_cuti;
                 // $nestedData['created_at'] = Carbon::parse($data->created_at)->diffForHumans() ;
                 $nestedData['created_at'] = Carbon::parse($data->created_at)->format('d M Y H:i:s');
                 $nestedData['attachment'] = $data->jenis_cuti !== 'SAKIT' ? 'No Attachment Needed' : '<a href="'.asset('storage/'.$data->attachment).'" target="_blank">Lihat</a>';
@@ -1016,6 +1085,34 @@ class CutieController extends Controller
         }
     }
 
+    public function cancel(Request $request, string $id_cuti)
+    {
+        DB::beginTransaction();
+        try{
+            $cutie = Cutie::find($id_cuti);
+            $karyawan = Karyawan::find($cutie->karyawan_id);
+
+            if($cutie->rejected_by == null && $cutie->jenis_cuti == 'PRIBADI'){
+                $karyawan->sisa_cuti = $karyawan->sisa_cuti + $cutie->durasi_cuti;
+                $karyawan->save();
+            }
+
+            $cutie->status_cuti = 'CANCELED';
+            $cutie->save();
+            DB::commit();
+            return response()->json(['message' => 'Cuti Berhasil dicancel!'], 200);
+        } catch(Throwable $error){
+            DB::rollBack();
+            return response()->json(['message' => $error->getMessage()], 500);
+        } catch (QueryException $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Database error: ' . $e->getMessage()], 500);
+        } catch (ModelNotFoundException $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Model not found: ' . $e->getMessage()], 404);
+        }
+    }
+
     public function mulai_cuti(Request $request, string $id_cuti)
     {
         $cutie = Cutie::find($id_cuti);
@@ -1091,7 +1188,7 @@ class CutieController extends Controller
             $cutie = Cutie::find($id_cuti);
             $karyawan = Karyawan::find($cutie->karyawan_id);
 
-            if($cutie->rejected_by == null){
+            if($cutie->rejected_by == null && $cutie->jenis_cuti == 'PRIBADI'){
                 $karyawan->sisa_cuti = $karyawan->sisa_cuti + $cutie->durasi_cuti;
                 $karyawan->save();
             }
@@ -1142,7 +1239,7 @@ class CutieController extends Controller
             $cutie = $cutie->orWhere('karyawan_id', auth()->user()->karyawan->id_karyawan)->where('status_dokumen','APPROVED');
         }
 
-        $cutie = $cutie->get();
+        $cutie = $cutie->active()->get();
         $data = [];
         
         if($cutie){
@@ -1150,14 +1247,14 @@ class CutieController extends Controller
                 if($c->status_cuti == 'SCHEDULED'){
                     $classname = 'bg-warning';
                 } elseif ($c->status_cuti == 'ON LEAVE'){
-                    $classname = 'bg-primary';
+                    $classname = 'bg-secondary';
                 } else {
                     $classname = 'bg-success';
                 }
                 $data[] = [
                     'title' => $c->jenis_cuti.' - '.$c->karyawan->nama,
                     'start' => $c->rencana_mulai_cuti,
-                    'end' => $c->rencana_selesai_cuti,
+                    'end' => $c->rencana_selesai_cuti !== $c->rencana_mulai_cuti ? Carbon::parse($c->rencana_selesai_cuti)->addDay()->format('Y-m-d') : $c->rencana_selesai_cuti,
                     'className' => $classname,
                     'nama_karyawan' => $c->karyawan->nama,
                     'karyawan_pengganti' => $c->karyawan_pengganti_id ? $c->karyawanPengganti->nama : '-',
@@ -1168,8 +1265,8 @@ class CutieController extends Controller
                     'durasi_cuti' => $c->durasi_cuti.' Hari',
                     'status_cuti' => $c->status_cuti,
                     'attachment' => $c->attachment ? '<a href="'.asset('storage/'.$c->attachment).'" target="_blank">Lihat</a>' : 'No Attachment Needed',
-                    'aktual_mulai_cuti' => $c->aktual_mulai_cuti,
-                    'aktual_selesai_cuti' => $c->aktual_selesai_cuti,
+                    'aktual_mulai_cuti' => $c->aktual_mulai_cuti ? Carbon::parse($c->aktual_mulai_cuti)->format('d M Y') : '',
+                    'aktual_selesai_cuti' => $c->aktual_selesai_cuti ? Carbon::parse($c->aktual_selesai_cuti)->format('d M Y') : '',
                 ];
             }
         } 
@@ -1180,6 +1277,7 @@ class CutieController extends Controller
         //Data Cuti Detail perbulan dalam tahun berjalan
         $data['scheduled'] = [];
         $data['onleave'] = [];
+        $data['canceled'] = [];
         $data['completed'] = [];
         $data['total'] = [];
 
@@ -1235,7 +1333,18 @@ class CutieController extends Controller
             }
             $completedCount = $completedCount->count();
 
-            $totalCount = Cutie::whereIn('status_cuti', ['SCHEDULED','ON LEAVE','COMPLETED'])
+            $canceledCount = Cutie::where('status_cuti', 'CANCELED')
+                ->whereYear('rencana_mulai_cuti', $year)
+                ->whereMonth('rencana_mulai_cuti', $month_array[$i]);
+            
+            if (isset($members)) {
+                $canceledCount = $canceledCount->whereHas('karyawan.posisi', function($query) use ($members) {
+                    $query->whereIn('id_posisi', $members);
+                });
+            }
+            $canceledCount = $canceledCount->count();
+
+            $totalCount = Cutie::whereIn('status_cuti', ['SCHEDULED','ON LEAVE','COMPLETED','CANCELED'])
                 ->whereYear('rencana_mulai_cuti', $year)
                 ->whereMonth('rencana_mulai_cuti', $month_array[$i]);
 
@@ -1260,6 +1369,7 @@ class CutieController extends Controller
             $data['scheduled'][] = $scheduledCount;
             $data['onleave'][] = $onleaveCount;
             $data['completed'][] = $completedCount;
+            $data['canceled'][] = $canceledCount;
             $data['unlegalized'][] = $unlegalizedCount;
             $data['total'][] = $totalCount;
         }

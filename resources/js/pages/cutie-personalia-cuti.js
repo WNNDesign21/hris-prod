@@ -42,25 +42,6 @@ $(function () {
             title: options.title
         });
     }
-
-    //GET JENIS CUTI KHUSUS AND SAVE TO LOCAL STORAGE
-    // getJenisCutiKhusus();
-    // let jenisCutiKhusus;
-    // function getJenisCutiKhusus() {
-    //     loadingSwalShow();
-    //     $.ajax({
-    //         url: base_url + '/cutie/pengajuan-cuti/get-data-jenis-cuti-khusus',
-    //         type: "get",
-    //         success: function (response) {
-    //             var data = response.data;
-    //             jenisCutiKhusus = data;
-    //             loadingSwalClose();
-    //         },
-    //         error: function (jqXHR, textStatus, errorThrown) {
-    //             showToast({ icon: "error", title: jqXHR.responseJSON.message });
-    //         },
-    //     });
-    // };
     
     //DATATABLE KARYAWAN
     var columnsTable = [
@@ -206,6 +187,44 @@ $(function () {
         $('#id_cuti').val(idCuti);
         $('#form-reject-cuti').attr('action', url);
         openReject();
+    })
+
+    $('#personalia-table').on("click",".btnAlasan", function (){
+        let alasan = $(this).data('alasan');
+        console.log(alasan);
+    })
+
+    $('#personalia-table').on('click', '.btnDelete', function (){
+        var idCuti = $(this).data('id');
+        Swal.fire({
+            title: "Delete Cuti",
+            text: "Apakah kamu yakin untuk menghapus Pengajuan Cuti ini?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
+            allowOutsideClick: false,
+        }).then((result) => {
+            if (result.value) {
+                var url = base_url + '/cutie/personalia-cuti/delete/' + idCuti;
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: {
+                        _method: "delete",
+                    },
+                    dataType: "JSON",
+                    success: function (data) {
+                        refreshTable();
+                        showToast({ title: data.message });
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                    },
+                });
+            }
+        });
     })
 
     $('#form-reject-cuti').on('submit', function (e){

@@ -343,6 +343,44 @@ $(function () {
         });
     })
 
+    $('#personal-table').on('click', '.btnCancel', function (){
+        Swal.fire({
+            title: "Cancel Cuti",
+            text: "Jatah cuti akan dikembalikan dan pengajuan cuti harus dimulai dari awal?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Ya, Cancel Cuti!",
+            allowOutsideClick: false,
+        }).then((result) => {
+            if (result.value) {
+                loadingSwalShow();
+                let idCuti = $(this).data('id');
+                let url = base_url + '/cutie/pengajuan-cuti/cancel/' + idCuti;
+        
+                var formData = new FormData();
+                formData.append('_method', 'PATCH');
+                $.ajax({
+                    url: url, 
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(data) {
+                        loadingSwalClose()
+                        showToast({ title: data.message });
+                        refreshTable();
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        loadingSwalClose();
+                        showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                    }
+                });
+            }
+        })
+    })
+
     $('#personal-table').on('click', '.btnEdit', function (){
         var idCuti = $(this).data('id');
         var url = base_url + '/cutie/pengajuan-cuti/get-data-detail-cuti/' + idCuti;

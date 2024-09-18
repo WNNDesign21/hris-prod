@@ -56,6 +56,19 @@ class KaryawanSeeder extends Seeder
                 'user_id' => 5,
                 'grup_id' => 1
             ],
+            [
+                'id_karyawan' => 'FA95453155',
+                'ni_karyawan' => '480.030324',
+                'nama' => 'FATHAN PEBRILLIESTYO RIDWAN',
+                'jenis_kelamin' => 'L',
+                'jenis_kontrak' => 'PKWTT',
+                'status_karyawan' => 'AKTIF',
+                'sisa_cuti' => 12,
+                'tanggal_mulai' => Carbon::now()->toDateString(),
+                'tanggal_selesai' => Carbon::now()->addMonths(6)->toDateString(),
+                'user_id' => 6,
+                'grup_id' => 1
+            ],
         ];
 
         foreach ($karyawan as $kry) {

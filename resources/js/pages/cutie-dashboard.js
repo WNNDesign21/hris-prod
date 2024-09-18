@@ -99,6 +99,7 @@
                         center: 'title',
                         right: 'month,agendaWeek,agendaDay'
                     },
+                    nextDayThreshold: '09:00:00',
                     events: defaultEvents,
                     eventLimit: true, 
                     drop: function(date) { $this.onDrop($(this), date); },
@@ -167,6 +168,7 @@ function($) {
                 let scheduled = dataResponse.scheduled;
                 let onleave = dataResponse.onleave;
                 let completed = dataResponse.completed;
+                let canceled = dataResponse.canceled;
                 let unlegalized = dataResponse.unlegalized;
                 let total = dataResponse.total;
 
@@ -187,6 +189,12 @@ function($) {
                         {
                             name: 'Completed',
                             data: completed,
+                            color: '#dc3545',
+                            type: 'line'
+                        },
+                        {
+                            name: 'Canceled',
+                            data: canceled,
                             color: '#dc3545',
                             type: 'line'
                         },

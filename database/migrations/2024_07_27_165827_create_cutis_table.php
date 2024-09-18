@@ -35,7 +35,7 @@ return new class extends Migration
             $table->string('rejected_by')->nullable();
             $table->text('rejected_note')->nullable();
             $table->enum('status_dokumen', ['WAITING', 'APPROVED', 'REJECTED'])->default('WAITING');
-            $table->enum('status_cuti',['SCHEDULED', 'ON LEAVE' ,'COMPLETED'])->nullable();
+            $table->enum('status_cuti',['SCHEDULED', 'ON LEAVE' ,'COMPLETED', 'CANCELED'])->nullable();
             $table->string('attachment')->nullable();
 
             $table->softDeletes();
