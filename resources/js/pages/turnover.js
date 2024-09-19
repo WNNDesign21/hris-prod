@@ -175,25 +175,38 @@ $(function () {
     $('#form-input-turnover').on('submit', function (e) {
         loadingSwalShow();
         e.preventDefault();
-        let url = $('#form-input-turnover').attr('action');
-
-        var formData = new FormData($('#form-input-turnover')[0]);
-        $.ajax({
-            url: url,
-            data: formData,
-            method:"POST",
-            contentType: false,
-            processData: false,
-            dataType: "JSON",
-            success: function (data) {
-                showToast({ title: data.message });
-                refreshTable();
-                loadingSwalClose();
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                loadingSwalClose();
-                showToast({ icon: "error", title: jqXHR.responseJSON.message });
-            },
-        })
+        Swal.fire({
+            title: "Turn Over Karyawan",
+            text: "Karyawan akan menjadi non-aktif dan tidak bisa mengakses akunnya lagi. Apakah anda yakin?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Submit it!",
+            allowOutsideClick: false,
+        }).then((result) => {
+            if (result.value) {
+                loadingSwalShow();
+                let url = $('#form-input-turnover').attr('action');
+                var formData = new FormData($('#form-input-turnover')[0]);
+                $.ajax({
+                    url: url,
+                    data: formData,
+                    method:"POST",
+                    contentType: false,
+                    processData: false,
+                    dataType: "JSON",
+                    success: function (data) {
+                        showToast({ title: data.message });
+                        refreshTable();
+                        loadingSwalClose();
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        loadingSwalClose();
+                        showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                    },
+                })
+            } 
+        });
     });
 });

@@ -135,7 +135,7 @@ class TurnoverController extends Controller
             $karyawan = Karyawan::find($karyawan_id);
             $karyawan->status_karyawan = $status_karyawan;
             if($status_karyawan == 'RESIGN'){
-                $karyawan->tanggal_keluar = $tanggal_keluar;
+                $karyawan->tanggal_selesai = $tanggal_keluar;
             }
             $karyawan->save();  
 
@@ -144,7 +144,7 @@ class TurnoverController extends Controller
 
         } catch (Exception $e) {
             DB::rollBack();
-            return response()->json(['message' => 'Failed to save data!'], 402);
+            return response()->json(['message' => $e->getMessage() ], 402);
         }
         
     }

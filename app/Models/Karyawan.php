@@ -60,6 +60,11 @@ class Karyawan extends Model
         'tanggal_selesai',
     ];
 
+    public function scopeAktif($query)
+    {
+        return $query->where('status_karyawan', 'AKTIF');
+    }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');

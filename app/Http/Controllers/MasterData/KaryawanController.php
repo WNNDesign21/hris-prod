@@ -466,6 +466,8 @@ class KaryawanController extends Controller
             });
         }
 
+        $query->aktif();
+
         $data = $query->simplePaginate(10);
 
         $morePages = true;
