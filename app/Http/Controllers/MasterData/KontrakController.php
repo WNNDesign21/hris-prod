@@ -247,132 +247,6 @@ class KontrakController extends Controller
         }
     }
 
-    // Tidak Dipakai Lagi
-    // public function store_or_update(Request $request)
-    // {
-    //     $dataValidate = [
-    //         'karyawan_id_kontrakEdit' => ['required'],
-    //         'jenis_kontrakEdit' => ['required'],
-    //         'posisi_kontrakEdit' => ['required'],
-    //         'durasi_kontrakEdit' => ['numeric','nullable'],
-    //         'salary_kontrakEdit' => ['numeric','required'],
-    //         'tanggal_mulai_kontrakEdit' => ['required', 'date'],
-    //         'tanggal_selesai_kontrakEdit' => ['nullable', 'date'],
-    //         'issued_date_kontrakEdit' => ['required', 'date'],
-    //         'tempat_administrasi_kontrakEdit' => ['required'],
-    //         'no_surat_kontrakEdit' => ['required'],
-    //     ];
-
-    //     $validator = Validator::make(request()->all(), $dataValidate);
-    
-    //     if ($validator->fails()) {
-    //         return response()->json(['message' => 'Fill your input correctly!'], 402);
-    //     }
-
-    //     $karyawan_id = $request->karyawan_id_kontrakEdit;
-    //     $jenis = $request->jenis_kontrakEdit;
-    //     $posisi_id = $request->posisi_kontrakEdit;
-    //     $durasi = (int)$request->durasi_kontrakEdit;
-    //     $salary = $request->salary_kontrakEdit;
-    //     $deskripsi = $request->deskripsi_kontrakEdit;
-    //     $tanggal_mulai = $request->tanggal_mulai_kontrakEdit;
-    //     $tanggal_selesai = $request->tanggal_selesai_kontrakEdit;
-    //     $id_kontrak = $request->id_kontrakEdit;
-    //     $issued_date = $request->issued_date_kontrakEdit;
-    //     $tempat_administrasi = $request->tempat_administrasi_kontrakEdit;
-    //     $no_surat = $request->no_surat_kontrakEdit;
-
-    //     DB::beginTransaction();
-    //     try{
-
-    //         if(!$id_kontrak){
-    //             if($jenis !== 'PKWTT'){
-
-    //                 if ($durasi === 0) {
-    //                     DB::commit();
-    //                     return response()->json(['message' => 'Durasi tidak boleh kosong!'], 402);
-    //                 }
-
-    //                 $kry = Karyawan::find($karyawan_id);
-    //                 $kry->jenis_kontrak = $jenis;
-    //                 $kry->save();
-
-    //                 $kontrak = Kontrak::create([
-    //                     'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,
-    //                     'karyawan_id' => $karyawan_id,
-    //                     'posisi_id' => $posisi_id,
-    //                     'nama_posisi' => Posisi::find($posisi_id)->nama,
-    //                     'jenis' => $jenis,
-    //                     'durasi' => $durasi,
-    //                     'salary' => $salary,
-    //                     'issued_date' => $issued_date,
-    //                     'tempat_administrasi' => $tempat_administrasi,
-    //                     'no_surat' => $no_surat,
-    //                     'deskripsi' => $deskripsi,
-    //                     'tanggal_mulai' => $tanggal_mulai,
-    //                     'tanggal_selesai' => $tanggal_selesai,
-    //                 ]);
-    //             } else {
-    //                 $kry = Karyawan::find($karyawan_id);
-    //                 $kry->jenis_kontrak = $jenis;
-    //                 $kry->save();
-    //                 $kontrak = Kontrak::create([
-    //                     'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,
-    //                     'karyawan_id' => $karyawan_id,
-    //                     'posisi_id' => $posisi_id,
-    //                     'nama_posisi' => Posisi::find($posisi_id)->nama,
-    //                     'jenis' => $jenis,
-    //                     'durasi' => $durasi,
-    //                     'salary' => $salary,
-    //                     'issued_date' => $issued_date,
-    //                     'no_surat' => $no_surat,
-    //                     'tempat_administrasi' => $tempat_administrasi,
-    //                     'deskripsi' => $deskripsi,
-    //                     'tanggal_mulai' => $tanggal_mulai,
-    //                 ]);
-    //             }
-    //             $text = 'Kontrak Berhasil Ditambahkan!';
-    //         } else {
-
-    //             if ($durasi === 0 && $jenis !== 'PKWTT') {
-    //                 DB::commit();
-    //                 return response()->json(['message' => 'Durasi tidak boleh kosong!'], 402);
-    //             }
-
-    //             $kry = Karyawan::find($karyawan_id);
-    //             $kry->jenis_kontrak = $jenis;
-    //             $kry->save();
-
-    //             $kontrak = Kontrak::find($id_kontrak);
-    //             $kontrak->update([
-    //                 'posisi_id' => $posisi_id,
-    //                 'nama_posisi' => Posisi::find($posisi_id)->nama,
-    //                 'jenis' => $jenis,
-    //                 'durasi' => $durasi,
-    //                 'salary' => $salary,
-    //                 'deskripsi' => $deskripsi,
-    //                 'tanggal_mulai' => $tanggal_mulai,
-    //                 'tempat_administrasi' => $tempat_administrasi,
-    //                 'no_surat' => $no_surat,
-    //                 'tanggal_selesai' => $jenis !== 'PKWTT' ? $tanggal_selesai : null,
-    //                 'issued_date' => $issued_date
-    //             ]);
-    //             $text = 'Kontrak Berhasil Diupdate!';
-    //         }
-    //         DB::commit();
-    //         return response()->json(['message' => $text, 'data' => $kontrak],200);
-    //     } catch(Throwable $error){
-    //         DB::rollBack();
-    //         return response()->json(['message' => $error->getMessage()], 500);
-    //     } catch (QueryException $e) {
-    //         DB::rollBack();
-    //         return response()->json(['message' => 'Database error: ' . $e->getMessage()], 500);
-    //     } catch (ModelNotFoundException $e) {
-    //         DB::rollBack();
-    //         return response()->json(['message' => 'Model not found: ' . $e->getMessage()], 404);
-    //     }
-    // }
-
     /**
      * Display the specified resource.
      */
@@ -499,9 +373,9 @@ class KontrakController extends Controller
         if($kontrak){
             foreach($kontrak as $item){
                 if($item->status == 'DONE'){
-                    $badge = '<span class="badge badge-pill badge-warning">'.$item->status.'</span>';
-                } else {
                     $badge = '<span class="badge badge-pill badge-success">'.$item->status.'</span>';
+                } else {
+                    $badge = '<span class="badge badge-pill badge-warning">'.$item->status.'</span>';
                 } 
                 $list[] = [
                     'id_kontrak' => $item->id_kontrak,

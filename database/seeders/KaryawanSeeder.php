@@ -26,7 +26,7 @@ class KaryawanSeeder extends Seeder
                 'status_karyawan' => 'AKTIF',
                 'sisa_cuti' => 12,
                 'tanggal_mulai' => Carbon::now()->toDateString(),
-                'tanggal_selesai' => Carbon::now()->addMonths(6)->toDateString(),
+                'tanggal_selesai' => Carbon::now()->addMonths(1)->toDateString(),
                 'user_id' => 3,
                 'grup_id' => 1
             ],
@@ -39,7 +39,7 @@ class KaryawanSeeder extends Seeder
                 'status_karyawan' => 'AKTIF',
                 'sisa_cuti' => 12,
                 'tanggal_mulai' => Carbon::now()->toDateString(),
-                'tanggal_selesai' => Carbon::now()->addMonths(6)->toDateString(),
+                'tanggal_selesai' => Carbon::now()->addMonths(1)->toDateString(),
                 'user_id' => 4,
                 'grup_id' => 1
             ],
@@ -52,7 +52,7 @@ class KaryawanSeeder extends Seeder
                 'status_karyawan' => 'AKTIF',
                 'sisa_cuti' => 12,
                 'tanggal_mulai' => Carbon::now()->toDateString(),
-                'tanggal_selesai' => Carbon::now()->addMonths(6)->toDateString(),
+                'tanggal_selesai' => Carbon::now()->addMonths(1)->toDateString(),
                 'user_id' => 5,
                 'grup_id' => 1
             ],
@@ -65,15 +65,11 @@ class KaryawanSeeder extends Seeder
                 'status_karyawan' => 'AKTIF',
                 'sisa_cuti' => 12,
                 'tanggal_mulai' => Carbon::now()->toDateString(),
-                'tanggal_selesai' => Carbon::now()->addMonths(6)->toDateString(),
+                'tanggal_selesai' => Carbon::now()->addMonths(1)->toDateString(),
                 'user_id' => 6,
                 'grup_id' => 1
             ],
         ];
-
-        foreach ($karyawan as $kry) {
-            Karyawan::create($kry);
-        }
 
         $karyawans = Karyawan::all();
 
@@ -83,17 +79,18 @@ class KaryawanSeeder extends Seeder
                 'no_surat' => str_pad(mt_rand(0, 999), 3, '0', STR_PAD_LEFT),
                 'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,
                 'karyawan_id' =>  $kry->id_karyawan,
-                'nama_posisi' => 'Posisi '. $i,
+                'nama_posisi' => 'Initial Document',
                 'jenis' => 'PKWT',
                 'status' => 'DONE',
-                'durasi' => 6,
-                'salary' => 5250000,
-                'deskripsi' => 'Potongan A = 3% , Potongan B = 1.5%, Potongan C = 1%',
+                'durasi' => 1,
+                'salary' => 0,
+                'deskripsi' => 'Initial Contract for generate Tanggal Mulai dan Tanggal Akhir',
                 'tanggal_mulai' => Carbon::now()->toDateString(),
-                'tanggal_selesai' => Carbon::now()->addMonths(6)->toDateString(),
+                'tanggal_selesai' => Carbon::now()->addMonths(1)->toDateString(),
                 'isReactive' => 'N',
             ]);
             $i++;
         }
+
     }
 }

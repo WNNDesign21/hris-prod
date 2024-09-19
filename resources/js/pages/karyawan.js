@@ -349,6 +349,7 @@ $(function () {
                 let detailKaryawan = response.data;
                 $('#id_karyawanEdit').val(detailKaryawan.id_karyawan);
                 $('#ni_karyawanEdit').val(detailKaryawan.ni_karyawan);
+                $('#nikEdit').val(detailKaryawan.nik);
                 $('#namaEdit').val(detailKaryawan.nama);
                 $('#no_ktpEdit').val(detailKaryawan.no_ktp);
                 $('#sisa_cutiEdit').val(detailKaryawan.sisa_cuti);
@@ -607,30 +608,6 @@ $(function () {
         getListKontrak(idKaryawan);
     });
 
-    // TIDAK TERPAKAI TAPI TAKUT AKAN DIPAKAI
-    // function selectPosisiKontrak(posisiId = ''){
-    //     $.ajax({
-    //         url: base_url + '/master-data/posisi/get-data-all-posisi',
-    //         type: "get",
-    //         success: function (data) {
-    //             var selectPosisiKontrak = $("#posisi_kontrakEdit");
-    //             selectPosisiKontrak.empty();
-    //             $.each(data, function (i, val){
-    //                 selectPosisiKontrak.append('<option value="'+val.id+'">'+val.text+'</option>');
-    //             });
-    //             $('#posisi_kontrakEdit').val(posisiId).trigger('change');
-    //             $('#posisi_kontrakEdit').select2({
-    //                 dropdownParent: $('#modal-kontrak')
-    //             });
-    //             loadingSwalClose();
-    //         },
-    //         error: function (jqXHR, textStatus, errorThrown) {
-    //             loadingSwalClose();
-    //             showToast({ icon: "error", title: jqXHR.responseJSON.message });
-    //         },
-    //     });
-    // }
-
     var modalKontrakOptions = {
         backdrop: true,
         keyboard: false,
@@ -795,6 +772,7 @@ $(function () {
                 allowOutsideClick: false,
             }).then((result) => {
                 if (result.value) {
+                    loadingSwalShow();
                     const url = base_url + "/master-data/karyawan/upload-karyawan";
                     let formData = new FormData();
                     formData.append('karyawan_file', input[0].files[0]);
@@ -807,6 +785,7 @@ $(function () {
                         processData: false,
                         success: function (data) {
                             showToast({ title: data.message });
+                            loadingSwalClose();
                             refreshTable();
                         },
                         error: function (jqXHR, textStatus, errorThrown) {

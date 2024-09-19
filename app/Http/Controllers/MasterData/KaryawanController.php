@@ -279,7 +279,7 @@ class KaryawanController extends Controller
             'status_keluargaEdit' => ['nullable', 'string'],
             'alamatEdit' => ['nullable', 'string'],
             'no_telpEdit' => ['nullable','numeric'],
-            'npwpEdit' => ['nullable', 'numeric'],
+            'npwpEdit' => ['nullable'],
             'no_bpjs_ksEdit' => ['nullable','numeric'],
             'no_bpjs_ktEdit' => ['nullable','numeric'],
             'posisiEdit.*' => ['required'],
@@ -581,11 +581,51 @@ class KaryawanController extends Controller
                         $tanggal_lahir = null;
                     }
 
+                    if($row[20] !== null){
+                        $tanggal_mulai = Carbon::createFromFormat('m/d/Y', $row[20])->format('Y-m-d');
+                    } else {
+                        $tanggal_mulai = null;
+                    }
+
                     if($row[16] > 12 || $row[16] < 0){
                         return response()->json(['message' => 'Sisa cuti harus berupa angka dari 0-12'], 402);
                     }
 
-                    $existingKaryawan = Karyawan::where('nama', strtoupper($row[1]))->first();
+                    //CEK APAKAH KARYAWAN SUDAH ADA APA BELUM 
+                    $existingKaryawan = Karyawan::where('nama', 'ILIKE' ,'%'.strtoupper($row[1]).'%')->first();
+                    if (!empty($row[21])) {
+                        if (strpos($row[21], ',') !== false) {
+                            $posisis = Posisi::whereIn('nama', explode(',', $row[21]))->pluck('id_posisi')->toArray();
+                        } else {
+                            $posisis = Posisi::where('nama', $row[21])->pluck('id_posisi')->toArray();
+                        }
+                    } else {
+                        $posisis = [];
+                    }
+
+                    //VALIDASI NUMERIC
+                    if (
+                        (isset($row[14]) && !is_numeric($row[14])) ||
+                        (isset($row[15]) && !is_numeric($row[15])) ||
+                        (isset($row[16]) && !is_numeric($row[16])) ||
+                        (isset($row[2]) && !is_numeric($row[2])) ||
+                        (isset($row[3]) && !is_numeric($row[3]))
+                    ) {
+                        return response()->json(['message' => 'Kolom No BPJS KS, No BPJS KT, dan Sisa Cuti harus berupa angka!'], 402);
+                    }
+
+                    //VALIDASI EMAIL & MANDATORY
+                    if (empty($row[0]) || empty($row[1]) || empty($row[10]) || empty($row[16]) || empty($row[17]) || empty($row[18]) || empty($row[19]) || empty($row[20])) {
+                        return response()->json(['message' => 'Silahkan isi kolom mandatory yang ada pada template (header berwarna kuning)!'], 402);
+                    }
+
+                    if (!filter_var($row[17], FILTER_VALIDATE_EMAIL)) {
+                        return response()->json(['message' => 'Kolom Email harus berisi email yang valid!'], 402);
+                    }
+
+                    if (!empty($row[7]) && !filter_var($row[7], FILTER_VALIDATE_EMAIL)) {
+                        return response()->json(['message' => 'Kolom Email harus berisi email yang valid!'], 402);
+                    }
 
                     if ($existingKaryawan) {
                         $existingKaryawan->update([
@@ -597,10 +637,10 @@ class KaryawanController extends Controller
                             'alamat' => $row[6],
                             'email' => $row[7],
                             'no_telp' => $row[8],
-                            'gol_darah' => $row[9] !== null ? strtoupper($row[9]) : $row[9],
-                            'jenis_kelamin' => $row[10] !== null ? strtoupper($row[10]) : $row[10],
-                            'agama' => $row[11] !== null ? strtoupper($row[11]) : $row[11],
-                            'status_keluarga' => $row[12] !== null ? strtoupper($row[12]) : $row[12],
+                            'gol_darah' => in_array(strtoupper($row[9]), ['O', 'A', 'B', 'AB']) ? strtoupper($row[9]) : null,
+                            'jenis_kelamin' => in_array(strtoupper($row[10]), ['L', 'P']) ? strtoupper($row[10]) : null,
+                            'agama' => in_array(strtoupper($row[11]), ['ISLAM', 'KATOLIK', 'KRISTEN', 'KONGHUCU', 'HINDU', 'BUDHA', 'PROTESTAN', 'LAINNYA']) ? strtoupper($row[11]) : null,
+                            'status_keluarga' => in_array(strtoupper($row[12]), ['MENIKAH', 'LAJANG']) ? strtoupper($row[12]) : null,
                             'npwp' => $row[13],
                             'no_bpjs_ks' => $row[14],
                             'no_bpjs_kt' => $row[15],
@@ -615,6 +655,11 @@ class KaryawanController extends Controller
                                 'password' => Hash::make($row[19]),
                             ]); 
                         }
+
+                        if(!empty($posisis)){
+                            $existingKaryawan->posisi()->sync($posisis);
+                        }
+
                         continue;
                     }
 
@@ -623,10 +668,12 @@ class KaryawanController extends Controller
                         'username' => $row[18],
                         'password' => Hash::make($row[19]),
                     ]); 
+
+                    $id_karyawan = $this->generateIdKaryawan(strtoupper($row[1]));
     
-                    Karyawan::create([
+                    $karyawan = Karyawan::create([
                         'user_id' => $user->id,
-                        'id_karyawan' => $this->generateIdKaryawan(strtoupper($row[1])),
+                        'id_karyawan' => $id_karyawan,
                         'ni_karyawan' => $row[0],
                         'nama' => strtoupper($row[1]),
                         'no_ktp' => $row[2],
@@ -636,16 +683,38 @@ class KaryawanController extends Controller
                         'alamat' => $row[6],
                         'email' => $row[7],
                         'no_telp' => $row[8],
-                        'gol_darah' => $row[9] !== null ? strtoupper($row[9]) : $row[9],
-                        'jenis_kelamin' => $row[10] !== null ? strtoupper($row[10]) : $row[10],
-                        'agama' => $row[11] !== null ? strtoupper($row[11]) : $row[11],
-                        'status_keluarga' => $row[12] !== null ? strtoupper($row[12]) : $row[12],
+                        'gol_darah' => in_array(strtoupper($row[9]), ['O', 'A', 'B', 'AB']) ? strtoupper($row[9]) : null,
+                        'jenis_kelamin' => in_array(strtoupper($row[10]), ['L', 'P']) ? strtoupper($row[10]) : null,
+                        'agama' => in_array(strtoupper($row[11]), ['ISLAM', 'KATOLIK', 'KRISTEN', 'KONGHUCU', 'HINDU', 'BUDHA', 'PROTESTAN', 'LAINNYA']) ? strtoupper($row[11]) : null,
+                        'status_keluarga' => in_array(strtoupper($row[12]), ['MENIKAH', 'LAJANG']) ? strtoupper($row[12]) : null,
                         'npwp' => $row[13],
                         'no_bpjs_ks' => $row[14],
                         'no_bpjs_kt' => $row[15],
                         'sisa_cuti' => $row[16],
+                        'status_karyawan' => 'AKTIF',
+                        'tanggal_mulai' => $tanggal_mulai,
+                        'tanggal_selesai' => Carbon::now()->toDateString(),
                     ]);
-                    
+
+                    //Initial Contract
+                    Kontrak::create([
+                        'no_surat' => str_pad(mt_rand(0, 999), 3, '0', STR_PAD_LEFT),
+                        'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,
+                        'karyawan_id' =>  $id_karyawan,
+                        'nama_posisi' => 'Initial Contract',
+                        'jenis' => 'PKWT',
+                        'status' => 'DONE',
+                        'durasi' => 1,
+                        'salary' => 0,
+                        'deskripsi' => 'Initial Contract for generate Tanggal Mulai dan Tanggal Akhir',
+                        'tanggal_mulai' => $tanggal_mulai,
+                        'tanggal_selesai' => Carbon::now()->toDateString(),
+                        'isReactive' => 'N',
+                    ]);
+
+                    if(!empty($posisis)){
+                        $karyawan->posisi()->sync($posisis);
+                    }
                 }
             } else {
                 DB::rollBack();
