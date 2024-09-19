@@ -17,6 +17,11 @@ class JenisCuti extends Model
         'jenis', 'durasi'
     ];
 
+    public static function isUsed()
+    {
+        return self::hasMany(Cutie::class, 'jenis_cuti_id', 'id_jenis_cuti')->exists();
+    }
+
     private static function _query($dataFilter)
     {
 

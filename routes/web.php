@@ -52,6 +52,7 @@ Route::get('/cutie/member-cuti/get-karyawan-pengganti/{idKaryawan}',[CutieContro
 Route::get('/cutie/dashboard-cuti/get-data-cuti-calendar',[CutieController::class, 'get_data_cutie_calendar']);
 Route::get('/cutie/dashboard-cuti/get-data-cuti-detail-chart',[CutieController::class, 'get_data_cuti_detail_chart']);
 Route::get('/cutie/dashboard-cuti/get-data-jenis-cuti-monthly-chart',[CutieController::class, 'get_data_jenis_cuti_monthly_chart']);
+Route::get('/cutie/setting-cuti/get-data-detail-jenis-cuti/{idJenisCuti}',[CutieController::class, 'get_data_detail_jenis_cuti']);
 
 
 Route::group(['middleware' => ['auth']], function () {
@@ -183,6 +184,13 @@ Route::group(['middleware' => ['auth']], function () {
         /** PERSONALIA CUTI */
         Route::post('/personalia-cuti-datatable', [CutieController::class, 'personalia_cuti_datatable']);
         Route::get('/personalia-cuti',[CutieController::class, 'personalia_cuti_view'])->name('cutie.personalia-cuti');
+        
+        /** SETTING CUTI */
+        Route::post('/setting-cuti-datatable', [CutieController::class, 'setting_cuti_datatable']);
+        Route::get('/setting-cuti',[CutieController::class, 'setting_cuti_view'])->name('cutie.setting-cuti');
+        Route::delete('/setting-cuti/delete/{idCuti}',[CutieController::class, 'delete_jenis_cuti'])->name('cutie.setting-cuti.delete');
+        Route::patch('/setting-cuti/update/{idCuti}',[CutieController::class, 'update_jenis_cuti'])->name('cutie.setting-cuti.update');
+        Route::post('/setting-cuti/store',[CutieController::class, 'store_jenis_cuti'])->name('cutie.setting-cuti.store');
      });
 
     

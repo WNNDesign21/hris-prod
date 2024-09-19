@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('jenis_cutis', function (Blueprint $table) {
             $table->increments('id_jenis_cuti');
-            $table->string('jenis');
+            $table->string('jenis')->unique();
             $table->integer('durasi');
 
             $table->softDeletes();

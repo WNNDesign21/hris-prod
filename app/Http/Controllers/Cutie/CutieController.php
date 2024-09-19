@@ -13,15 +13,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Database\QueryException;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Color;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class CutieController extends Controller
 {
@@ -82,6 +83,15 @@ class CutieController extends Controller
             'departemens' => $departemens,
         ];
         return view('pages.cuti-e.export-cuti', $dataPage);
+    }
+
+    public function setting_cuti_view()
+    {
+        $dataPage = [
+            'pageTitle' => "Cutie - Setting Cuti Khusus",
+            'page' => 'cutie-setting',
+        ];
+        return view('pages.cuti-e.setting-cuti', $dataPage);
     }
 
     public function pengajuan_cuti_datatable(Request $request)
@@ -677,6 +687,64 @@ class CutieController extends Controller
         return response()->json($json_data, 200);
     }
 
+    public function setting_cuti_datatable(Request $request)
+    {
+        $columns = array(
+            0 => 'jenis',
+            1 => 'durasi',
+        );
+
+        $totalData = JenisCuti::count();
+        $totalFiltered = $totalData;
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = (!empty($request->input('order.0.column'))) ? $columns[$request->input('order.0.column')] : $columns[0];
+        $dir = (!empty($request->input('order.0.dir'))) ? $request->input('order.0.dir') : "DESC";
+
+        $settings['start'] = $start;
+        $settings['limit'] = $limit;
+        $settings['dir'] = $dir;
+        $settings['order'] = $order;
+
+        $dataFilter = [];
+        $search = $request->input('search.value');
+        if (!empty($search)) {
+            $dataFilter['search'] = $search;
+        }
+
+        
+        $jenis_cuti = JenisCuti::getData($dataFilter, $settings);
+        $totalFiltered = $jenis_cuti->count();
+        // $totalFiltered = Cutie::countData($dataFilter);
+
+        $dataTable = [];
+        
+
+        if (!empty($jenis_cuti)) {
+            foreach ($jenis_cuti as $data) {
+                $nestedData['jenis'] = $data->jenis;
+                $nestedData['durasi'] = $data->durasi.' Hari';
+                $nestedData['aksi'] = '<div class="btn-group btn-group-sm"><button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id="'.$data->id_jenis_cuti.'"><i class="fas fa-edit"></i> Edit </button><button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_jenis_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button></div>';
+
+                $dataTable[] = $nestedData;
+            }
+        }
+
+        $json_data = array(
+            "draw" => intval($request->input('draw')),
+            "recordsTotal" => intval($totalData),
+            "recordsFiltered" => intval($totalFiltered),
+            "data" => $dataTable,
+            "order" => $order,
+            "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
+            "dir" => $dir,
+            "column"=>$request->input('order.0.column')
+        );
+
+        return response()->json($json_data, 200);
+    }
+
     function get_member_posisi($posisis)
     {
         $data = [];
@@ -724,6 +792,17 @@ class CutieController extends Controller
             'rencana_selesai_cuti' => $cutie->rencana_selesai_cuti,
             'alasan_cuti' => $cutie->alasan_cuti,
             'durasi_cuti' => $cutie->durasi_cuti,
+        ];
+        return response()->json(['data' => $data], 200);
+    }
+
+    public function get_data_detail_jenis_cuti(string $id_jenis_cuti)
+    {
+        $jc = JenisCuti::find($id_jenis_cuti);
+        $data = [
+            'id_jenis_cuti' => $jc->id_jenis_cuti,
+            'jenis' => $jc->jenis,
+            'durasi' => $jc->durasi,
         ];
         return response()->json(['data' => $data], 200);
     }
@@ -980,6 +1059,108 @@ class CutieController extends Controller
         } catch (ModelNotFoundException $e) {
             DB::rollBack();
             return response()->json(['message' => 'Model not found: ' . $e->getMessage()], 404);
+        }
+    }
+
+    public function store_jenis_cuti(Request $request)
+    {
+        $jenis = $request->jenis;
+        $durasi = $request->durasi;
+
+        $dataValidate = [
+            'jenis' => ['required'],
+            'durasi' => ['required', 'numeric'],
+        ];
+        
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => 'Fill your input correctly!'], 402);
+        }
+
+        DB::beginTransaction();
+        try{
+            JenisCutie::create([
+                'jenis' => $jenis,
+                'durasi' => $durasi
+            ]);
+            DB::commit();
+            return response()->json(['message' => 'Store Jenis Cuti Khusus Berhasil dilakukan!'], 200);
+        } catch(Throwable $error){
+            DB::rollBack();
+            return response()->json(['message' => $error->getMessage()], 500);
+        } catch (QueryException $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Database error: ' . $e->getMessage()], 500);
+        } catch (ModelNotFoundException $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Model not found: ' . $e->getMessage()], 404);
+        }
+    }
+
+    public function update_jenis_cuti(Request $request, string $id_jenis_cuti)
+    {
+        $jenis = $request->jenis;
+        $durasi = $request->durasi;
+
+        $dataValidate = [
+            'jenis' => ['required'],
+            'durasi' => ['required', 'numeric'],
+        ];
+        
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => 'Fill your input correctly!'], 402);
+        }
+
+        DB::beginTransaction();
+        try{
+            $jenis_cuti = JenisCuti::find($id_jenis_cuti);
+            if($jenis_cuti){
+                $jenis_cuti->jenis = $jenis;
+                $jenis_cuti->durasi = $durasi;
+            }
+            
+            $jenis_cuti->save();
+            DB::commit();
+            return response()->json(['message' => 'Update Jenis Cuti Khusus Berhasil dilakukan!'], 200);
+        } catch(Throwable $error){
+            DB::rollBack();
+            return response()->json(['message' => $error->getMessage()], 500);
+        } catch (QueryException $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Database error: ' . $e->getMessage()], 500);
+        } catch (ModelNotFoundException $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Model not found: ' . $e->getMessage()], 404);
+        }
+    }
+
+    public function delete_jenis_cuti(string $id_jenis_cuti)
+    {
+        DB::beginTransaction();
+        try{
+            $jenis_cuti = JenisCuti::find($id_jenis_cuti);
+            if($jenis_cuti){
+                if($jenis_cuti->isUsed()){
+                    DB::commit();
+                    return response()->json(['message' => 'Jenis Cuti sudah digunakan, tidak bisa dihapus!'],400);
+                } else {
+                    $jenis_cuti->delete();
+                }
+            } else {
+                DB::commit();
+                return response()->json(['message' => 'Jenis Cuti tidak ditemukan!'],400);
+            }
+            
+            DB::commit();
+            return response()->json(['message' => 'Jenis Cuti Dihapus!'],200);
+        } catch(Throwable $error){
+            DB::rollBack();
+            return response()->json(['message' => $error->getMessage()], 500);
         }
     }
 

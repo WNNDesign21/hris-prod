@@ -38,6 +38,12 @@
                                 <span>List Cuti</span>
                             </a>
                         </li>
+                        <li class="{{ $page == 'cutie-setting' ? 'active' : '' }}">
+                            <a href="{{ route('cutie.setting-cuti') }}">
+                                <i class="icon-Tools"><span class="path1"></span><span class="path2"></span></i>
+                                <span>Setting Cuti Khusus</span>
+                            </a>
+                        </li>
                         <li class="{{ $page == 'cutie-export' ? 'active' : '' }}">
                             <a href="{{ route('cutie.export') }}">
                                 <i class="icon-Chat-check"><span class="path1"></span><span class="path2"></span></i>
