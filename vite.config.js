@@ -19,6 +19,7 @@ export default defineConfig({
                 'resources/js/pages/kontrak.js',
                 'resources/js/pages/posisi.js',
                 'resources/js/pages/seksi.js',
+                'resources/js/pages/template.js',
                 'resources/js/pages/cutie-dashboard.js',
                 'resources/js/pages/cutie-member-cuti.js',
                 'resources/js/pages/cutie-pengajuan-cuti.js',

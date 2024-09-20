@@ -13,6 +13,7 @@ use App\Http\Controllers\MasterData\PosisiController;
 use App\Http\Controllers\MasterData\JabatanController;
 use App\Http\Controllers\MasterData\KontrakController;
 use App\Http\Controllers\MasterData\KaryawanController;
+use App\Http\Controllers\MasterData\TemplateController;
 use App\Http\Controllers\MasterData\TurnoverController;
 use App\Http\Controllers\MasterData\DashboardController;
 use App\Http\Controllers\MasterData\DepartemenController;
@@ -149,6 +150,13 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/turnover/datatable', [TurnoverController::class, 'datatable']);
         Route::get('/turnover',[TurnoverController::class, 'index'])->name('master-data.turnover');
         Route::post('/turnover/store',[TurnoverController::class, 'store'])->name('master-data.turnover.store');
+
+         /** MASTER DATA - TEMPLATE */
+         Route::post('/template/datatable', [TemplateController::class, 'datatable']);
+         Route::get('/template',[TemplateController::class, 'index'])->name('master-data.template');
+         Route::post('/template/store',[TemplateController::class, 'store'])->name('master-data.template.store');
+         Route::delete('/template/delete/{idTemplate}', [TemplateController::class, 'delete'])->name('master-data.template.delete');
+         Route::patch('/template/update/{idTemplate}', [TemplateController::class, 'update'])->name('master-data.template.update');
     });
 
     /** CUTIE */

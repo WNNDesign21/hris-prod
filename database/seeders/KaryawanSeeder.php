@@ -71,6 +71,10 @@ class KaryawanSeeder extends Seeder
             ],
         ];
 
+        foreach ($karyawan as $kry) {
+            Karyawan::create($kry);
+        }
+
         $karyawans = Karyawan::all();
 
         $i = 1;

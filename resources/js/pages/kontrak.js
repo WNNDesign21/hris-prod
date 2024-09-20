@@ -379,6 +379,17 @@ $(function () {
         })
     }
 
+    $('#jenis').on('change', function (){
+        let jenisKontrak = $(this).val();
+        if(jenisKontrak == 'PKWTT'){
+            $('#durasi').val('').prop('readonly', true);
+            $('#tanggal_selesai').val('').prop('readonly', true);
+        } else {
+            $('#durasi').val('').prop('readonly', false);
+            $('#tanggal_selesai').val('').prop('readonly', false);
+        }
+    })
+
     $('#form-input-kontrak').on('submit', function (e){
         loadingSwalShow();
         e.preventDefault();

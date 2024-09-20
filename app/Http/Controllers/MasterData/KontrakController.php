@@ -7,8 +7,11 @@ use Carbon\Carbon;
 use App\Models\Posisi;
 use App\Models\Kontrak;
 use App\Models\Karyawan;
+use App\Models\Template;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use PhpOffice\PhpWord\PhpWord;
+use PhpOffice\PhpWord\IOFactory;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Database\QueryException;
@@ -432,8 +435,18 @@ class KontrakController extends Controller
     public function download_kontrak_kerja(string $idKontrak)
     {
         $kontrak = Kontrak::find($idKontrak);
+        $template = Template::active()->where('type', $kontrak->jenis)->first();
 
-        $templatePath = public_path('template/kontrak_pkwt.docx');
+        if($template){
+            $templatePath = public_path('storage/'.$template->template_path);
+        } else {
+            $templateProcessor = new PhpWord();
+            $section = $templateProcessor->addSection();
+            $section->addText('Template not found');
+            $objWriter = IOFactory::createWriter($templateProcessor, 'Word2007');
+            header("Content-Disposition: attachment; filename=Template-not-found.docx");
+            $objWriter->save('php://output');
+        }
         $templateProcessor = new TemplateProcessor($templatePath);
         $tanggal_lahir = Carbon::parse($kontrak->karyawan->tanggal_lahir)->locale('id')->isoFormat('LL');
         $day = $this->get_nama_hari($kontrak->issued_date);
@@ -442,8 +455,15 @@ class KontrakController extends Controller
         $issued_date_text = $this->tanggal_to_kalimat($kontrak->issued_date);
         $tanggal_mulai = Carbon::parse($kontrak->tanggal_mulai)->format('d/m/Y');
         $tanggal_mulai_text = $this->tanggal_to_kalimat($kontrak->tanggal_mulai);
-        $tanggal_selesai = Carbon::parse($kontrak->tanggal_selesai)->format('d/m/Y');
-        $tanggal_selesai_text = $this->tanggal_to_kalimat($kontrak->tanggal_selesai);
+
+        if($kontrak->jenis !== 'PKWTT'){
+            $tanggal_selesai = Carbon::parse($kontrak->tanggal_selesai)->format('d/m/Y');
+            $tanggal_selesai_text = $this->tanggal_to_kalimat($kontrak->tanggal_selesai);
+        } else {
+            $tanggal_selesai = null;
+            $tanggal_selesai_text = null;
+        }
+
         $durasi = $kontrak->durasi;
         $durasi_text = $this->angka_to_kata($durasi);
         $departemen = $kontrak->posisi->departemen->nama;
@@ -451,11 +471,15 @@ class KontrakController extends Controller
         $salary = $kontrak->salary;
         $salary_rupiah = 'Rp. ' . number_format($salary, 0, ',', '.').' ,-';
         $salary_text = $this->terbilang($salary).'Rupiah';
+        $tempat_administrasi = $kontrak->tempat_administrasi;
+        $year = Carbon::parse($kontrak->issued_date)->format('Y');
 
         $templateProcessor->setValue('nama', $kontrak->karyawan->nama);
         $templateProcessor->setValue('no_surat', $kontrak->no_surat);
         $templateProcessor->setValue('nik', $kontrak->karyawan->nik);
         $templateProcessor->setValue('tempat_lahir', $kontrak->karyawan->tempat_lahir);
+        $templateProcessor->setValue('tempat_administrasi', $kontrak->tempat_administrasi);
+        $templateProcessor->setValue('year', $year);
         $templateProcessor->setValue('jenis_kelamin', $kontrak->karyawan->jenis_kelamin == 'L' ? 'Laki-laki' : 'Perempuan');
         $templateProcessor->setValue('tanggal_lahir', $tanggal_lahir);
         $templateProcessor->setValue('alamat', $kontrak->karyawan->alamat);

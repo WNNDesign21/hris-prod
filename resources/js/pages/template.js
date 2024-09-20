@@ -43,22 +43,23 @@ $(function () {
         });
     }
 
-    //DATATABLE KARYAWAN
+    //DATATABLE SEKSI
     var columnsTable = [
-        { data: "jenis" },
-        { data: "durasi" },
+        { data: "nama" },
+        { data: "type" },
+        { data: "isActive" },
         { data: "aksi" },
     ];
 
-    var cutieTable = $("#setting-table").DataTable({
+    var templateTable = $("#template-table").DataTable({
         search: {
             return: true,
         },
-        order: [[1, "DESC"]],
+        order: [[0, "DESC"]],
         processing: true,
         serverSide: true,
         ajax: {
-            url: base_url + "/cutie/setting-cuti-datatable",
+            url: base_url + "/master-data/template/datatable",
             dataType: "json",
             type: "POST",
             data: function (dataFilter) {
@@ -107,25 +108,31 @@ $(function () {
                 }
             },
         },
-        responsive: true,
+
         columns: columnsTable,
         columnDefs: [
             {
                 orderable: false,
-                targets: [0,-1],
+                targets: [0, -1],
             },
-            {
-                targets: [-1],
-                createdCell: function (td, cellData, rowData, row, col) {
-                    // $(td).addClass("text-center");
-                },
-            },
+            // {
+            //     targets: [],
+            //     createdCell: function (td, cellData, rowData, row, col) {
+            //         $(td).addClass("text-center");
+            //     },
+            // },
+            // {
+            //     targets: [0],
+            //     createdCell: function (td, cellData, rowData, row, col) {
+            //         $(td).addClass("text-center");
+            //     },
+            // },
         ],
     })
 
     //REFRESH TABLE
     function refreshTable() {
-        cutieTable.search("").draw();
+        templateTable.search("").draw();
     }
 
     //RELOAD TABLE
@@ -133,74 +140,140 @@ $(function () {
         refreshTable();
     })
 
+    //OPEN MODAL TAMBAH SEKSI
     $('.btnAdd').on("click", function (){
-        openForm();
+        openTemplate();
     })
 
+    //CLOSE MODAL TAMBAH SEKSI
     $('.btnClose').on("click", function (){
-        closeForm();
+        closeTemplate();
     })
 
-    // MODAL TAMBAH KARYAWAN
-    var modalSettingCutiOptions = {
+
+    // MODAL TAMBAH SEKSI
+    var modalInputTemplateOptions = {
         backdrop: true,
         keyboard: false,
     };
 
-    var modalSettingCuti = new bootstrap.Modal(
-        document.getElementById("modal-setting-cuti"),
-        modalSettingCutiOptions
+    var modalInputTemplate = new bootstrap.Modal(
+        document.getElementById("modal-input-template"),
+        modalInputTemplateOptions
     );
 
-    function openForm() {
-        modalSettingCuti.show();
+    function openTemplate() {
+        modalInputTemplate.show();
     }
 
-    function closeForm() {
-        modalSettingCuti.hide();
-        resetForm();
+    function closeTemplate() {
+        $('#nama_template').val('');
+        $('#type_template').val('KONTRAK');
+        $('#file_template').val('');
+        modalInputTemplate.hide();
     }
 
-    function resetForm(){
-        let url = base_url + '/cutie/setting-cuti/store';
-        $('#id_jenis_cuti').val('');
-        $('.modal-title').text('Tambah Jenis Cuti Khusus')
-        $('#jenis').val('');
-        $('#durasi').val('');
-        $('#form-setting-cuti').attr('action', url);
-        $('input[name="_method"]').val('POST');
-    }
-
-    $('#setting-table').on('click', '.btnEdit', function (){
+    //SUBMIT TAMBAH SEKSI
+    $('#form-tambah-template').on('submit', function (e){
+        e.preventDefault();
         loadingSwalShow();
-        var idJenisCuti = $(this).data('id');
-        var url = base_url + '/cutie/setting-cuti/get-data-detail-jenis-cuti/' + idJenisCuti;
+        let url = $('#form-tambah-template').attr('action');
+
+        var formData = new FormData($('#form-tambah-template')[0]);
         $.ajax({
             url: url,
-            type: "GET",
-            success: function (response) {
-                var data = response.data;
-                $('#id_jenis_cuti').val(data.id_cuti);
-                $('#jenis').val(data.jenis);
-                $('#durasi').val(data.durasi);
-                $('.modal-title').text('Edit Jenis Cuti Khusus')
-
-                $('#form-setting-cuti').attr('action', base_url + '/cutie/setting-cuti/update/' + idJenisCuti);
-                $('#form-setting-cuti').append('<input type="hidden" name="_method" value="PATCH">');
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (data) {
                 loadingSwalClose();
-                openForm();
+                showToast({ title: data.message });
+                refreshTable();
+                closeTemplate();
             },
             error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
             },
-        });
+        })
+    });
+
+    // MODAL EDIT SEKSI
+    var modalEditTemplateOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalEditTemplate = new bootstrap.Modal(
+        document.getElementById("modal-edit-template"),
+        modalEditTemplateOptions
+    );
+
+    function openEditTemplate() {
+        modalEditTemplate.show();
+    }
+
+    function closeEditTemplate() {
+        $('#nama_template_edit').val('');
+        $('#type_template_edit').val('KONTRAK');
+        $('#isactive_template_edit').val('');
+        $('#file_template_edit').val('');
+        modalEditTemplate.hide();
+    }
+
+    $('.btnCloseEdit').on("click", function (){
+        closeEditTemplate();
     })
 
-    $('#setting-table').on('click', '.btnDelete', function (){
-        var idJenisCuti = $(this).data('id');
+    //EDIT SEKSI
+    $('#template-table').on('click', '.btnEdit', function (){
+        var idTemplate = $(this).data('id');
+        var type = $(this).data('type');
+        var nama = $(this).data('template-nama');
+        var isActive = $(this).data('isactive');
+        $('#id_template_edit').val(idTemplate);
+        $('#nama_template_edit').val(nama);
+        $('#type_template_edit').val(type);
+        $('#isactive_template_edit').val(isActive);
+        openEditTemplate();
+    });
+
+    //SUBMIT EDIT SEKSI
+    $('#form-edit-template').on('submit', function (e){
+        e.preventDefault();
+        loadingSwalShow();
+        let idTemplate = $('#id_template_edit').val();
+        let url = base_url + '/master-data/template/update/' + idTemplate;
+
+        var formData = new FormData($('#form-edit-template')[0]);
+        $.ajax({
+            url: url,
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (data) {
+                loadingSwalClose();
+                showToast({ title: data.message });
+                refreshTable();
+                closeEditTemplate();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        })
+    });
+
+    //DELETE SEKSI
+    $('#template-table').on('click', '.btnDelete', function (){
+        var idTemplate = $(this).data('id');
         Swal.fire({
-            title: "Delete Jenis Cuti Khusus",
-            text: "Apakah kamu yakin untuk menghapus Pengajuan Jenis Cuti Khusus ini?",
+            title: "Delete Template",
+            text: "Apakah kamu yakin untuk menghapus template ini?",
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
@@ -209,7 +282,7 @@ $(function () {
             allowOutsideClick: false,
         }).then((result) => {
             if (result.value) {
-                var url = base_url + '/cutie/setting-cuti/delete/' + idJenisCuti;
+                var url = base_url + '/master-data/template/delete/' + idTemplate;
                 $.ajax({
                     url: url,
                     type: "POST",
@@ -228,30 +301,5 @@ $(function () {
             }
         });
     })
-
-    $('#form-setting-cuti').on('submit', function (e){
-        loadingSwalShow();
-        e.preventDefault();
-        let url = $('#form-setting-cuti').attr('action');
-
-        var formData = new FormData($('#form-setting-cuti')[0]);
-        $.ajax({
-            url: url,
-            data: formData,
-            method:"POST",
-            contentType: false,
-            processData: false,
-            dataType: "JSON",
-            success: function (data) {
-                showToast({ title: data.message });
-                refreshTable();
-                closeForm();
-                loadingSwalClose();
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                loadingSwalClose();
-                showToast({ icon: "error", title: jqXHR.responseJSON.message });
-            },
-        })
-    });
+    
 });

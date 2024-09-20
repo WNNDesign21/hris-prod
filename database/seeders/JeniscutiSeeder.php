@@ -31,10 +31,6 @@ class JeniscutiSeeder extends Seeder
                 'durasi' => 2,
             ],
             [
-                'jenis' => 'Baptis Anak Kandung',
-                'durasi' => 2,
-            ],
-            [
                 'jenis' => 'Suami/Istri/Orangtua/Mertua/Anak/Menantu/Kakek/Nenek Meninggal',
                 'durasi' => 2,
             ],
