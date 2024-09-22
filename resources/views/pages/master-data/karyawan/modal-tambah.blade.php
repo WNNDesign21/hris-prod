@@ -167,8 +167,25 @@
                                     <select name="status_keluarga" id="status_keluarga" class="form-control"
                                         style="width: 100%;">
                                         <option value="">Pilih Status Keluarga</option>
-                                        <option value="MENIKAH">Menikah</option>
-                                        <option value="LAJANG">Lajang</option>
+                                        <option value="MENIKAH">MENIKAH</option>
+                                        <option value="BELUM MENIKAH">BELUM MENIKAH</option>
+                                        <option value="CERAI">CERAI</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Kategori Keluarga</label>
+                                    <br>
+                                    <select name="kategori_keluarga" id="kategori_keluarga" class="form-control"
+                                        style="width: 100%;">
+                                        <option value="">Pilih Kategori Keluarga</option>
+                                        <option value="TK0">TK0</option>
+                                        <option value="TK1">TK1</option>
+                                        <option value="TK2">TK2</option>
+                                        <option value="TK3">TK3</option>
+                                        <option value="K0">K0</option>
+                                        <option value="K1">K1</option>
+                                        <option value="K2">K2</option>
+                                        <option value="K3">K3</option>
                                     </select>
                                 </div>
                                 <div class="form-group">

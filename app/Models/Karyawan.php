@@ -52,8 +52,14 @@ class Karyawan extends Model
         'sisa_cuti',
         'tanggal_mulai',
         'tanggal_selesai',
+        'no_rekening',
+        'nama_rekening',
+        'nama_ibu_kandung',
+        'jenjang_pendidikan',
+        'jurusan_pendidikan',
+        'no_telp_darurat'
     ];
-    
+
     protected $dates = [
         'tanggal_lahir',
         'tanggal_mulai',

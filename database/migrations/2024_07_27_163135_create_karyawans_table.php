@@ -27,7 +27,8 @@ return new class extends Migration
             $table->enum('gol_darah', ['A', 'B', 'AB', 'O'])->nullable();
             $table->enum('jenis_kelamin', ['L', 'P'])->nullable();
             $table->enum('agama', ['ISLAM', 'KATOLIK', 'KRISTEN', 'KONGHUCU', 'HINDU', 'BUDHA', 'PROTESTAN', 'LAINNYA'])->nullable();
-            $table->enum('status_keluarga', ['MENIKAH', 'LAJANG'])->nullable();
+            $table->enum('status_keluarga', ['MENIKAH', 'BELUM MENIKAH', 'CERAI'])->nullable();
+            $table->enum('kategori_keluarga', ['TK0', 'TK1', 'TK2' , 'TK3', 'K0', 'K1', 'K2', 'K3'])->nullable();
             $table->string('npwp')->unique()->nullable();
             $table->string('no_bpjs_ks')->unique()->nullable();
             $table->string('no_bpjs_kt')->unique()->nullable();
@@ -35,6 +36,12 @@ return new class extends Migration
             $table->enum('status_karyawan', ['AKTIF', 'RESIGN', 'PENSIUN', 'TERMINASI'])->nullable();
             $table->integer('sisa_cuti')->default(12);
             $table->integer('hutang_cuti')->default(0);
+            $table->integer('no_rekening')->nullable();
+            $table->string('nama_rekening')->nullable();
+            $table->string('nama_ibu_kandung')->nullable();
+            $table->enum('jenjang_pendidikan',['SD', 'SMP', 'SMA', 'D1', 'D2', 'D3', 'D4', 'S1', 'S2', 'S3'])->nullable();
+            $table->string('jurusan_pendidikan')->nullable();
+            $table->string('no_telp_darurat')->nullable();
             $table->date('tanggal_mulai')->nullable();
             $table->date('tanggal_selesai')->nullable();
 

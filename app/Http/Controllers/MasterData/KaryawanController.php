@@ -594,7 +594,7 @@ class KaryawanController extends Controller
                     }
 
                     //CEK APAKAH KARYAWAN SUDAH ADA APA BELUM 
-                    $existingKaryawan = Karyawan::where('nama', 'ILIKE' ,'%'.strtoupper($row[1]).'%')->first();
+                    $existingKaryawan = Karyawan::where('ni_karyawan', $row[0])->first();
                     if (!empty($row[21])) {
                         if (strpos($row[21], ',') !== false) {
                             $posisis = Posisi::whereIn('nama', explode(',', $row[21]))->pluck('id_posisi')->toArray();
