@@ -33,10 +33,10 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="">No. KTP <span class="text-danger">*</span></label>
+                                    <label for="">No. KK <span class="text-danger">*</span></label>
                                     <br>
                                     <div class="input-group mb-2" style="width:100%;">
-                                        <input type="text" name="no_ktpEdit" id="no_ktpEdit" class="form-control"
+                                        <input type="text" name="no_kkEdit" id="no_kkEdit" class="form-control"
                                             required>
                                     </div>
                                 </div>

@@ -126,7 +126,7 @@ class KaryawanController extends Controller
         $dataValidate = [
             'nama' => ['required'],
             'ni_karyawan' => ['required'],
-            'no_ktp' => ['required','numeric'],
+            'no_kk' => ['required','numeric'],
             'nik' => ['required','numeric'],
             'tempat_lahir' => ['required','string'],
             'tanggal_lahir' => ['required','date_format:Y-m-d'],
@@ -160,7 +160,7 @@ class KaryawanController extends Controller
 
         $nama = $request->nama;
         $ni_karyawan = $request->ni_karyawan;
-        $no_ktp = $request->no_ktp;
+        $no_kk = $request->no_kk;
         $nik = $request->nik;
         $tempat_lahir = $request->tempat_lahir;
         $tanggal_lahir = $request->tanggal_lahir;
@@ -219,7 +219,7 @@ class KaryawanController extends Controller
                 'ni_karyawan' => $ni_karyawan,
                 'user_id' => $user_id,
                 'nama' => $nama,
-                'no_ktp' => $no_ktp,
+                'no_kk' => $no_kk,
                 'nik' => $nik,
                 'tempat_lahir' => $tempat_lahir,
                 'tanggal_lahir' => $tanggal_lahir,
@@ -290,7 +290,7 @@ class KaryawanController extends Controller
         $dataValidate = [
             'namaEdit' => ['required'],
             'ni_karyawanEdit' => ['required'],
-            'no_ktpEdit' => ['required','numeric'],
+            'no_kkEdit' => ['required','numeric'],
             'nikEdit' => ['required','numeric'],
             'tempat_lahirEdit' => ['required','string'],
             'tanggal_lahirEdit' => ['required','date_format:Y-m-d'],
@@ -324,7 +324,7 @@ class KaryawanController extends Controller
 
         $nama = $request->namaEdit;
         $ni_karyawan = $request->ni_karyawanEdit;
-        $no_ktp = $request->no_ktpEdit;
+        $no_kk = $request->no_kkEdit;
         $nik = $request->nikEdit;
         $tempat_lahir = $request->tempat_lahirEdit;
         $tanggal_lahir = $request->tanggal_lahirEdit;
@@ -355,7 +355,7 @@ class KaryawanController extends Controller
             $karyawan = Karyawan::find($id_karyawan);
             $karyawan->nama = $nama;
             $karyawan->ni_karyawan = $ni_karyawan;
-            $karyawan->no_ktp = $no_ktp;
+            $karyawan->no_kk = $no_kk;
             $karyawan->nik = $nik;
             $karyawan->tempat_lahir = $tempat_lahir;
             $karyawan->tanggal_lahir = $tanggal_lahir;
@@ -544,7 +544,7 @@ class KaryawanController extends Controller
                 'id_karyawan' => $karyawan->id_karyawan,
                 'ni_karyawan' => $karyawan->ni_karyawan,
                 'nama' => $karyawan->nama,
-                'no_ktp' => $karyawan->no_ktp,
+                'no_kk' => $karyawan->no_kk,
                 'nik' => $karyawan->nik,
                 'tempat_lahir' => $karyawan->tempat_lahir,
                 'tanggal_lahir' => $karyawan->tanggal_lahir,
@@ -683,7 +683,7 @@ class KaryawanController extends Controller
                     if ($existingKaryawan) {
                         $existingKaryawan->update([
                             'ni_karyawan' => $row[0],
-                            'no_ktp' => $row[2],
+                            'no_kk' => $row[2],
                             'nik' => $row[3],
                             'tempat_lahir' => $row[4],
                             'tanggal_lahir' => $tanggal_lahir,
@@ -729,7 +729,7 @@ class KaryawanController extends Controller
                         'id_karyawan' => $id_karyawan,
                         'ni_karyawan' => $row[0],
                         'nama' => strtoupper($row[1]),
-                        'no_ktp' => $row[2],
+                        'no_kk' => $row[2],
                         'nik' => $row[3],
                         'tempat_lahir' => $row[4],
                         'tanggal_lahir' => $tanggal_lahir,

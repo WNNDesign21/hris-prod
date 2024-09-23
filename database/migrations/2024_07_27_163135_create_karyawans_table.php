@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('ni_karyawan')->unique()->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('grup_id')->nullable();
-            $table->string('no_ktp')->unique()->nullable();
+            $table->string('no_kk')->nullable();
             $table->string('nik')->unique()->nullable();
             $table->string('nama')->nullable();
             $table->string('tempat_lahir')->nullable();

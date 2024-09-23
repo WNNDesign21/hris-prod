@@ -173,7 +173,7 @@ $(function () {
 
     function resetKaryawan() {
         $("#nama").val("");
-        $("#no_ktp").val("");
+        $("#no_kk").val("");
         $("#sisa_cuti").val("");
         $("#tempat_lahir").val("");
         $("#tanggal_lahir").val("");
@@ -376,7 +376,7 @@ $(function () {
                 $('#ni_karyawanEdit').val(detailKaryawan.ni_karyawan);
                 $('#nikEdit').val(detailKaryawan.nik);
                 $('#namaEdit').val(detailKaryawan.nama);
-                $('#no_ktpEdit').val(detailKaryawan.no_ktp);
+                $('#no_kkEdit').val(detailKaryawan.no_kk);
                 $('#sisa_cutiEdit').val(detailKaryawan.sisa_cuti);
                 $('#hutang_cutiEdit').val(detailKaryawan.hutang_cuti);
                 $('#tempat_lahirEdit').val(detailKaryawan.tempat_lahir);
