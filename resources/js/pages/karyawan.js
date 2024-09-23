@@ -181,13 +181,20 @@ $(function () {
         $("#agama").val("");
         $("#gol_darah").val("");
         $("#status_keluarga").val("");
+        $("#kategori_keluarga").val("");
         $("#alamat").val("");
         $("#no_telp").val("");
         $("#email").val("");
         $("#npwp").val("");
         $("#no_bpjs_ks").val("");
         $("#no_bpjs_kt").val("");
-        $('#status_karyawan').val("AKTIF");
+        $("#no_rekening").val("");
+        $("#nama_rekening").val("");
+        $("#nama_ibu_kandung").val("");
+        $("#jurusan_pendidikan").val("");
+        $("#jenjang_pendidikan").val("");
+        $("#no_telp_darurat").val("");
+        $('#status_karyawan').val("");
         $('#grup').val("");
         $('#posisi').val("");
     }
@@ -206,6 +213,14 @@ $(function () {
         });
 
         $('#status_keluarga').select2({
+            dropdownParent: $('#modal-input-karyawan'),
+        });
+
+        $('#kategori_keluarga').select2({
+            dropdownParent: $('#modal-input-karyawan'),
+        });
+
+        $('#jenjang_pendidikan').select2({
             dropdownParent: $('#modal-input-karyawan'),
         });
 
@@ -305,6 +320,15 @@ $(function () {
             dropdownParent: $('#modal-edit-karyawan'),
         });
 
+        
+        $('#kategori_keluargaEdit').select2({
+            dropdownParent: $('#modal-edit-karyawan'),
+        });
+        
+        $('#jenjang_pendidikanEdit').select2({
+            dropdownParent: $('#modal-edit-karyawan'),
+        });
+
         selectGrupEdit(grupId);
         selectPosisiEdit(posisi);
     };
@@ -353,18 +377,26 @@ $(function () {
                 $('#namaEdit').val(detailKaryawan.nama);
                 $('#no_ktpEdit').val(detailKaryawan.no_ktp);
                 $('#sisa_cutiEdit').val(detailKaryawan.sisa_cuti);
+                $('#hutang_cutiEdit').val(detailKaryawan.hutang_cuti);
                 $('#tempat_lahirEdit').val(detailKaryawan.tempat_lahir);
                 $('#tanggal_lahirEdit').val(detailKaryawan.tanggal_lahir);
                 $('#jenis_kelaminEdit').val(detailKaryawan.jenis_kelamin);
                 $('#agamaEdit').val(detailKaryawan.agama);
                 $('#gol_darahEdit').val(detailKaryawan.gol_darah);
                 $('#status_keluargaEdit').val(detailKaryawan.status_keluarga);
+                $('#kategori_keluargaEdit').val(detailKaryawan.kategori_keluarga);
                 $('#alamatEdit').val(detailKaryawan.alamat);
                 $('#no_telpEdit').val(detailKaryawan.no_telp);
+                $('#no_telp_daruratEdit').val(detailKaryawan.no_telp_darurat);
                 $('#emailEdit').val(detailKaryawan.email);
                 $('#npwpEdit').val(detailKaryawan.npwp);
                 $('#no_bpjs_ksEdit').val(detailKaryawan.no_bpjs_ks);
                 $('#no_bpjs_ktEdit').val(detailKaryawan.no_bpjs_kt);
+                $('#no_rekeningEdit').val(detailKaryawan.no_rekening);
+                $('#nama_rekeningEdit').val(detailKaryawan.nama_rekening);
+                $('#nama_ibu_kandungEdit').val(detailKaryawan.nama_ibu_kandung);
+                $('#jenjang_pendidikanEdit').val(detailKaryawan.jenjang_pendidikan);
+                $('#jurusan_pendidikanEdit').val(detailKaryawan.jurusan_pendidikan);
                 $('#status_karyawanEdit').val(detailKaryawan.status_karyawan);
                 $('#tanggal_mulaiEdit').val(detailKaryawan.tanggal_mulai);
                 $('#tanggal_selesaiEdit').val(detailKaryawan.tanggal_selesai);

@@ -33,37 +33,40 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="">No. KTP</label>
+                                    <label for="">No. KTP <span class="text-danger">*</span></label>
                                     <br>
                                     <div class="input-group mb-2" style="width:100%;">
-                                        <input type="text" name="no_ktpEdit" id="no_ktpEdit" class="form-control">
+                                        <input type="text" name="no_ktpEdit" id="no_ktpEdit" class="form-control"
+                                            required>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="">NIK</label>
+                                    <label for="">NIK <span class="text-danger">*</span></label>
                                     <br>
                                     <div class="input-group mb-2" style="width:100%;">
-                                        <input type="text" name="nikEdit" id="nikEdit" class="form-control">
+                                        <input type="text" name="nikEdit" id="nikEdit" class="form-control"
+                                            required>
                                     </div>
                                 </div>
                                 <div class="row">
                                     <div class="col-6">
                                         <div class="form-group">
-                                            <label for="">Kota Lahir</label>
+                                            <label for="">Kota Lahir <span class="text-danger">*</span></label>
                                             <br>
                                             <div class="input-group mb-2" style="width:100%;">
                                                 <input type="text" name="tempat_lahirEdit" id="tempat_lahirEdit"
-                                                    class="form-control">
+                                                    class="form-control" required>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-6">
                                         <div class="form-group">
-                                            <label for="">Tanggal Lahir</label>
+                                            <label for="">Tanggal Lahir <span
+                                                    class="text-danger">*</span></label>
                                             <br>
                                             <div class="input-group mb-2" style="width:100%;">
                                                 <input type="date" name="tanggal_lahirEdit" id="tanggal_lahirEdit"
-                                                    class="form-control">
+                                                    class="form-control" required>
                                             </div>
                                         </div>
                                     </div>
@@ -80,28 +83,28 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="">Agama</label>
+                                    <label for="">Agama <span class="text-danger">*</span></label>
                                     <br>
                                     <div class="input-group mb-2" style="width:100%;">
                                         <select name="agamaEdit" id="agamaEdit" class="form-control"
-                                            style="width: 100%;">
+                                            style="width: 100%;" required>
                                             <option value="">Pilih Agama (Boleh Kosong)</option>
-                                            <option value="ISLAM">Islam</option>
-                                            <option value="KRISTEN">Kristen</option>
-                                            <option value="PROTESTAN">Protestan</option>
-                                            <option value="KONGHUCU">Konghucu</option>
-                                            <option value="HINDU">Hindu</option>
-                                            <option value="BUDHA">Budha</option>
-                                            <option value="LAINNYA">Lainnya</option>
+                                            <option value="ISLAM">ISLAM</option>
+                                            <option value="KRISTEN">KRISTEN</option>
+                                            <option value="PROTESTAN">PROTESTAN</option>
+                                            <option value="KONGHUCU">KONGHUCU</option>
+                                            <option value="HINDU">HINDU</option>
+                                            <option value="BUDHA">BUDHA</option>
+                                            <option value="LAINNYA">LAINNYA</option>
                                         </select>
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="">Gol. Darah</label>
+                                    <label for="">Gol. Darah <span class="text-danger">*</span></label>
                                     <br>
                                     <div class="input-group mb-2" style="width:100%;">
                                         <select name="gol_darahEdit" id="gol_darahEdit" class="form-control"
-                                            style="width: 100%;">
+                                            style="width: 100%;" required>
                                             <option value="">Pilih Golongan Darah (Boleh Kosong)</option>
                                             <option value="A">A</option>
                                             <option value="B">B</option>
@@ -111,26 +114,94 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="">Status Keluarga</label>
+                                    <label for="">Status Keluarga <span class="text-danger">*</span></label>
                                     <br>
                                     <select name="status_keluargaEdit" id="status_keluargaEdit" class="form-control"
-                                        style="width: 100%;">
+                                        style="width: 100%;" required>
                                         <option value="">Pilih Status Keluarga</option>
-                                        <option value="MENIKAH">Menikah</option>
-                                        <option value="LAJANG">Lajang</option>
+                                        <option value="MENIKAH">MENIKAH</option>
+                                        <option value="BELUM MENIKAH">BELUM MENIKAH</option>
+                                        <option value="CERAI">CERAI</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label for="">Alamat</label>
+                                    <label for="">Kategori Keluarga <span class="text-danger">*</span></label>
                                     <br>
-                                    <textarea name="alamatEdit" id="alamatEdit" class="form-control"></textarea>
+                                    <select name="kategori_keluargaEdit" id="kategori_keluargaEdit"
+                                        class="form-control" style="width: 100%;" required>
+                                        <option value="">Pilih Kategori Keluarga</option>
+                                        <option value="TK0">TK0</option>
+                                        <option value="TK1">TK1</option>
+                                        <option value="TK2">TK2</option>
+                                        <option value="TK3">TK3</option>
+                                        <option value="K0">K0</option>
+                                        <option value="K1">K1</option>
+                                        <option value="K2">K2</option>
+                                        <option value="K3">K3</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Alamat <span class="text-danger">*</span></label>
+                                    <br>
+                                    <textarea name="alamatEdit" id="alamatEdit" class="form-control" required></textarea>
+                                </div>
+                                <div class="form-group mt-2">
+                                    <label for="">No. Rekening <span class="text-danger">*</span></label>
+                                    <br>
+                                    <input type="text" name="no_rekeningEdit" id="no_rekeningEdit"
+                                        class="form-control" required>
+                                </div>
+                                <div class="form-group mt-2">
+                                    <label for="">Atas Nama Rekening <span
+                                            class="text-danger">*</span></label>
+                                    <br>
+                                    <input type="text" name="nama_rekeningEdit" id="nama_rekeningEdit"
+                                        class="form-control" required>
                                 </div>
                             </div>
                             <div class="col-lg-6 col-12">
-                                <div class="form-group">
-                                    <label for="">No. Telepon</label>
+                                <div class="form-group mt-2">
+                                    <label for="">Nama Ibu Kandung <span class="text-danger">*</span></label>
                                     <br>
-                                    <input type="text" name="no_telpEdit" id="no_telpEdit" class="form-control">
+                                    <input type="text" name="nama_ibu_kandungEdit" id="nama_ibu_kandungEdit"
+                                        class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Jenjang Pendidikan Terakhir <span
+                                            class="text-danger">*</span></label>
+                                    <br>
+                                    <select name="jenjang_pendidikanEdit" id="jenjang_pendidikanEdit"
+                                        class="form-control" style="width: 100%;" required>
+                                        <option value="">Pilih Jenjang Pendidikan Terakhir</option>
+                                        <option value="SD">SD</option>
+                                        <option value="SMP">SMP</option>
+                                        <option value="SMA">SMA</option>
+                                        <option value="D1">D1</option>
+                                        <option value="D2">D2</option>
+                                        <option value="D3">D3</option>
+                                        <option value="S1">S1</option>
+                                        <option value="S2">S2</option>
+                                        <option value="S3">S3</option>
+                                    </select>
+                                </div>
+                                <div class="form-group mt-2">
+                                    <label for="">Jurusan Pendidikan Terakhir <span
+                                            class="text-danger">*</span></label>
+                                    <br>
+                                    <input type="text" name="jurusan_pendidikanEdit" id="jurusan_pendidikanEdit"
+                                        class="form-control" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="">No. Telepon <span class="text-danger">*</span></label>
+                                    <br>
+                                    <input type="text" name="no_telpEdit" id="no_telpEdit" class="form-control"
+                                        required>
+                                </div>
+                                <div class="form-group mt-2">
+                                    <label for="">No.Telp Darurat <span class="text-danger">*</span></label>
+                                    <br>
+                                    <input type="text" name="no_telp_daruratEdit" id="no_telp_daruratEdit"
+                                        class="form-control" required>
                                 </div>
                                 <div class="form-group mt-2">
                                     <label for="">Email</label>
@@ -140,21 +211,24 @@
                                     <input type="email" name="emailEdit" id="emailEdit" class="form-control">
                                 </div>
                                 <div class="form-group mt-2">
-                                    <label for="">NPWP</label>
+                                    <label for="">NPWP <span class="text-danger">*</span></label>
                                     <br>
-                                    <input type="text" name="npwpEdit" id="npwpEdit" class="form-control">
+                                    <input type="text" name="npwpEdit" id="npwpEdit" class="form-control"
+                                        required>
                                 </div>
                                 <div class="form-group mt-2">
-                                    <label for="">No. BPJS Kesehatan</label>
+                                    <label for="">No. BPJS Kesehatan <span
+                                            class="text-danger">*</span></label>
                                     <br>
                                     <input type="text" name="no_bpjs_ksEdit" id="no_bpjs_ksEdit"
-                                        class="form-control">
+                                        class="form-control" required>
                                 </div>
                                 <div class="form-group mt-2">
-                                    <label for="">No. BPJS Ketenagakerjaan</label>
+                                    <label for="">No. BPJS Ketenagakerjaan <span
+                                            class="text-danger">*</span></label>
                                     <br>
                                     <input type="text" name="no_bpjs_ktEdit" id="no_bpjs_ktEdit"
-                                        class="form-control">
+                                        class="form-control" required>
                                 </div>
                                 <div class="form-group mt-2">
                                     <label for="">Tanggal Mulai <span class="text-danger">*</span></label>
@@ -184,10 +258,21 @@
                                         required>
                                     </select>
                                 </div>
-                                <div class="form-group">
-                                    <label class="form-label">Jatah Cuti <span class="text-danger">*</span></label>
-                                    <input type="number" name="sisa_cutiEdit" id="sisa_cutiEdit"
-                                        class="form-control" min='0' max='12' required>
+                                <div class="row">
+                                    <div class="col-lg-6 col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">Jatah Cuti</label>
+                                            <input type="number" name="sisa_cutiEdit" id="sisa_cutiEdit"
+                                                class="form-control" min='0' max='12' required readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">Hutang Cuti</label>
+                                            <input type="number" name="hutang_cutiEdit" id="hutang_cutiEdit"
+                                                class="form-control" min='0' max='12' required readonly>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="d-flex justify-content-end mt-2">

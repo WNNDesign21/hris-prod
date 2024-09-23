@@ -180,7 +180,7 @@ class DashboardController extends Controller
     public function get_data_kontrak_progress_dashboard(){
         $total_kontrak = Kontrak::count();
         $kontrak_done = Kontrak::where('status', 'DONE')->count();
-        $presentase_kontrak_done = ($kontrak_done / $total_kontrak) * 100;
+        $presentase_kontrak_done = round(($kontrak_done / $total_kontrak) * 100, 2);
 
         return response()->json(['data' => $presentase_kontrak_done], 200);
     }
