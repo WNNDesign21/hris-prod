@@ -67,9 +67,16 @@ class JabatanController extends Controller
                 $nestedData['aksi'] = '
                 <div class="btn-group">
                     <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" data-id="'.$data->id_jabatan.'" data-jabatan-nama="'.$data->nama.'"><i class="fas fa-edit"></i></button>
-                    <button type="button" class="waves-effect waves-light btn btn-danger btnDelete" data-id="'.$data->id_jabatan.'"><i class="fas fa-trash-alt"></i></button>
                 </div>
                 ';
+
+                //Ada delete aksi
+                // $nestedData['aksi'] = '
+                // <div class="btn-group">
+                //     <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" data-id="'.$data->id_jabatan.'" data-jabatan-nama="'.$data->nama.'"><i class="fas fa-edit"></i></button>
+                //     <button type="button" class="waves-effect waves-light btn btn-danger btnDelete" data-id="'.$data->id_jabatan.'"><i class="fas fa-trash-alt"></i></button>
+                // </div>
+                // ';
 
                 $dataTable[] = $nestedData;
             }

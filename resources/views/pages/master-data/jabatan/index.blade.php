@@ -21,7 +21,7 @@
                     <div>
                         <button type="button" class="btn btn-info waves-effect btnReload"><i
                                 class="fas fa-sync-alt"></i></button>
-                        <button type="button" class="btn btn-success waves-effect btnAdd">Tambah Jabatan</button>
+                        {{-- <button type="button" class="btn btn-success waves-effect btnAdd">Tambah Jabatan</button> --}}
                     </div>
                 </div>
                 <div class="box-body">

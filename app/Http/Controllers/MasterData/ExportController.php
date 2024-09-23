@@ -135,14 +135,17 @@ class ExportController extends Controller
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
                 'startColor' => [
-                    'argb' => 'FFFFFF00'
+                    'argb' => 'FF000000'
                 ]
             ],
             'font' => [
                 'bold' => true,
+                'color' => ['argb' => 'FFFFFFFF'],
+                'size' => 12,
             ],
         ];
 
+        //NEW TEMPLATE KARYAWAN
         if(!empty($karyawan)){
             $sheet = $spreadsheet->createSheet();
             $sheet->setTitle('Karyawan');
@@ -151,28 +154,38 @@ class ExportController extends Controller
             $col = 'A';
 
             $headers = [
-                'ID Karyawan',
-                'Posisi',
-                'Username',
-                'Nama',
-                'No KTP',
+                'NO',
                 'NIK',
-                'Tempat Lahir',
-                'Tanggal Lahir',
-                'Alamat',
-                'Email',
-                'No Telp',
-                'Golongan Darah',
-                'Jenis Kelamin',
-                'Status Keluarga',
+                'POSISI',
+                'DEPARTEMEN',
+                'JABATAN',
+                'NAMA',
+                'KONTRAK',
+                'JENIS KELAMIN',
+                'ALAMAT KTP',
+                'DOMISILI',
+                'TEMPAT LAHIR',
+                'TANGGAL LAHIR',
+                'STATUS KELUARGA',
+                'KATEGORI KELUARGA',
+                'AGAMA',
+                'NO KK',
+                'NIK KTP',
                 'NPWP',
-                'No BPJS Kesehatan',
-                'No BPJS Ketenagakerjaan',
-                'Jenis Kontrak',
-                'Status Karyawan',
-                'Sisa Cuti',
-                'Tahun Masuk',
-                'Tahun Keluar',
+                'NO BPJS KETENAGAKERJAAN',
+                'NO BPJS KESEHATAN',
+                'NO HP',
+                'TANGGAL BERGABUNG',
+                'PENDIDIKAN TERAKHIR (TINGKAT)',
+                'JURUSAN',
+                'NAMA IBU KANDUNG',
+                'NAMA BANK',
+                'NO REKENING',
+                'ATAS NAMA REKENING',
+                'NO TELP DARURAT',
+                'GOLONGAN DARAH',
+                'EMAIL',
+                'EMAIL CORPORATE',
             ];
 
             foreach ($headers as $header) {
@@ -183,42 +196,74 @@ class ExportController extends Controller
 
             $row = 2;
 
-            $columns = range('A', 'V');
+            $columns = [];
+            for ($i = 'A'; $i !== 'AG'; $i++) {
+                $columns[] = $i;
+            }
             foreach ($columns as $column) {
                 $sheet->getColumnDimension($column)->setWidth(35);
             }
-            $sheet->setAutoFilter('A1:V1');
+            $sheet->setAutoFilter('A1:AF1');
 
+            $i = 1;
             foreach ($karyawan as $data) {
-                $posisis = $data->posisi()->pluck('posisis.nama')->toArray();
-                $formattedPosisi = array_map(function($posisi) {
-                    return $posisi;
-                }, $posisis);
-                $posisi_merge = implode(' , ', $formattedPosisi);
+                $email_corporate = $data->user->email;
+                $dataPosisis = $data->posisi();
+                $jabatan_merge = $dataPosisis->first()->jabatan->nama;
+                $posisis = $dataPosisis->pluck('posisis.nama')->toArray();
+                if(!empty($posisis)){
+                    $formattedPosisi = array_map(function($posisi) {
+                        return $posisi;
+                    }, $posisis);
+                    $posisi_merge = implode(' , ', $formattedPosisi);
+                    $departemens = [];
+                    foreach ($dataPosisis->get() as $item){
+                        $departemens = [$item->departemen->nama];
+                    }
+                    $formattedDepartemen = array_map(function($departemen) {
+                        return $departemen;
+                    }, $departemens);
+                    $departemen_merge = implode(' , ', $formattedDepartemen);
+                } else {
+                    $posisi_merge = '-';
+                    $departemen_merge = '-';
+                    $jabatan_merge = '-';
+                }
         
-                $sheet->setCellValue('A' . $row, $data->id_karyawan);
-                $sheet->setCellValue('B' . $row, $posisi_merge);
-                $sheet->setCellValue('C' . $row, $data->user->username);
-                $sheet->setCellValue('D' . $row, $data->nama);
-                $sheet->setCellValue('E' . $row, $data->no_ktp);
-                $sheet->setCellValue('F' . $row, $data->nik);
-                $sheet->setCellValue('G' . $row, $data->tempat_lahir);
-                $sheet->setCellValue('H' . $row, $data->tanggal_lahir);
+                $sheet->setCellValue('A' . $row, $i);
+                $sheet->setCellValue('B' . $row, $data->ni_karyawan);
+                $sheet->setCellValue('C' . $row, $posisi_merge);
+                $sheet->setCellValue('D' . $row, $departemen_merge);
+                $sheet->setCellValue('E' . $row, $jabatan_merge);
+                $sheet->setCellValue('F' . $row, $data->nama);
+                $sheet->setCellValue('G' . $row, $data->jenis_kontrak);
+                $sheet->setCellValue('H' . $row, $data->jenis_kelamin);
                 $sheet->setCellValue('I' . $row, $data->alamat);
-                $sheet->setCellValue('J' . $row, $data->email);
-                $sheet->setCellValue('K' . $row, $data->no_telp);
-                $sheet->setCellValue('L' . $row, $data->gol_darah);
-                $sheet->setCellValue('M' . $row, $data->jenis_kelamin);
-                $sheet->setCellValue('N' . $row, $data->status_keluarga);
-                $sheet->setCellValue('O' . $row, $data->npwp);
-                $sheet->setCellValue('P' . $row, $data->no_bpjs_ks);
-                $sheet->setCellValue('Q' . $row, $data->no_bpjs_kt);
-                $sheet->setCellValue('R' . $row, $data->jenis_kontrak);
-                $sheet->setCellValue('S' . $row, $data->status_karyawan);
-                $sheet->setCellValue('T' . $row, $data->sisa_cuti);
-                $sheet->setCellValue('U' . $row, $data->tahun_masuk);
-                $sheet->setCellValue('V' . $row, $data->tahun_keluar);
+                $sheet->setCellValue('J' . $row, $data->domisili);
+                $sheet->setCellValue('K' . $row, $data->tempat_lahir);
+                $sheet->setCellValue('L' . $row, $data->tanggal_lahir);
+                $sheet->setCellValue('M' . $row, $data->status_keluarga);
+                $sheet->setCellValue('N' . $row, $data->kategori_keluarga);
+                $sheet->setCellValue('O' . $row, $data->agama);
+                $sheet->setCellValue('P' . $row, $data->no_kk);
+                $sheet->setCellValue('Q' . $row, $data->nik);
+                $sheet->setCellValue('R' . $row, $data->npwp);
+                $sheet->setCellValue('S' . $row, $data->no_bpjs_kt);
+                $sheet->setCellValue('T' . $row, $data->no_bpjs_ks);
+                $sheet->setCellValue('U' . $row, $data->no_telp);
+                $sheet->setCellValue('V' . $row, $data->tanggal_mulai);
+                $sheet->setCellValue('W' . $row, $data->jenjang_pendidikan);
+                $sheet->setCellValue('X' . $row, $data->jurusan_pendidikan);
+                $sheet->setCellValue('Y' . $row, $data->nama_ibu_kandung);
+                $sheet->setCellValue('Z' . $row, $data->nama_bank);
+                $sheet->setCellValue('AA' . $row, $data->no_rekening);
+                $sheet->setCellValue('AB' . $row, $data->nama_rekening);
+                $sheet->setCellValue('AC' . $row, $data->no_telp_darurat);
+                $sheet->setCellValue('AD' . $row, $data->gol_darah);
+                $sheet->setCellValue('AE' . $row, $data->email);
+                $sheet->setCellValue('AF' . $row, $email_corporate);
                 $row++;
+                $i++;
             }
         }
 

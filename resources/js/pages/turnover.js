@@ -155,7 +155,7 @@ $(function () {
     //Karyawan Select2
     $('#karyawan_id').select2({
         ajax: {
-            url: base_url + "/master-data/karyawan/get-data-karyawan",
+            url: base_url + "/master-data/karyawan/get-data-karyawan?status=aktif",
             type: "post",
             dataType: "json",
             delay: 250,

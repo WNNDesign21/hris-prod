@@ -30,7 +30,7 @@ class JabatanSeeder extends Seeder
                 'nama' => 'LEADER',
             ],
             [
-                'nama' => 'STAFF',
+                'nama' => 'STAFF/OPERATOR',
             ],
         ];
 
