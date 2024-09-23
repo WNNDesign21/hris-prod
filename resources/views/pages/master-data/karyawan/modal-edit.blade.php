@@ -163,6 +163,19 @@
                                     <input type="text" name="nama_rekeningEdit" id="nama_rekeningEdit"
                                         class="form-control" required>
                                 </div>
+                                <div class="form-group">
+                                    <label for="">Nama Bank <span class="text-danger">*</span></label>
+                                    <br>
+                                    <select name="nama_bankEdit" id="nama_bankEdit" class="form-control"
+                                        style="width: 100%;" required>
+                                        <option value="">Pilih Bank Rekening</option>
+                                        <option value="MANDIRI">MANDIRI</option>
+                                        <option value="BRI">BRI</option>
+                                        <option value="BNI">BNI</option>
+                                        <option value="BCA">BCA</option>
+                                        <option value="BSI">BSI</option>
+                                    </select>
+                                </div>
                             </div>
                             <div class="col-lg-6 col-12">
                                 <div class="form-group mt-2">

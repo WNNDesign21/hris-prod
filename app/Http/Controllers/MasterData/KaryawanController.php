@@ -145,6 +145,7 @@ class KaryawanController extends Controller
             'no_bpjs_kt' => ['required','numeric'],
             'no_rekening' => ['required', 'numeric'],
             'nama_rekening' => ['required', 'string'],
+            'nama_bank' => ['required', 'string'],
             'nama_ibu_kandung' => ['required', 'string'],
             'jenjang_pendidikan' => ['required', 'string'],
             'jurusan_pendidikan' => ['required', 'string'],
@@ -179,6 +180,7 @@ class KaryawanController extends Controller
         $no_bpjs_kt = $request->no_bpjs_kt;
         $no_rekening = $request->no_rekening;
         $nama_rekening = $request->nama_rekening;
+        $nama_bank = $request->nama_bank;
         $nama_ibu_kandung = $request->nama_ibu_kandung;
         $jenjang_pendidikan = $request->jenjang_pendidikan;
         $jurusan_pendidikan = $request->jurusan_pendidikan;
@@ -238,6 +240,7 @@ class KaryawanController extends Controller
                 'no_bpjs_kt' => $no_bpjs_kt,
                 'no_rekening' => $no_rekening,
                 'nama_rekening' => $nama_rekening,
+                'nama_bank' => $nama_bank,
                 'nama_ibu_kandung' => $nama_ibu_kandung,
                 'jenjang_pendidikan' => $jenjang_pendidikan,
                 'jurusan_pendidikan' => $jurusan_pendidikan,
@@ -308,6 +311,7 @@ class KaryawanController extends Controller
             'no_bpjs_ktEdit' => ['required','numeric'],
             'no_rekeningEdit' => ['required','numeric'],
             'nama_rekeningEdit' => ['required','string'],
+            'nama_bankEdit' => ['required','string'],
             'nama_ibu_kandungEdit' => ['required','string'],
             'jenjang_pendidikanEdit' => ['required','string'],
             'jurusan_pendidikanEdit' => ['required','string'],
@@ -343,6 +347,7 @@ class KaryawanController extends Controller
         $no_bpjs_kt = $request->no_bpjs_ktEdit;
         $no_rekening = $request->no_rekeningEdit;
         $nama_rekening = $request->nama_rekeningEdit;
+        $nama_bank = $request->nama_bankEdit;
         $nama_ibu_kandung = $request->nama_ibu_kandungEdit;
         $jenjang_pendidikan = $request->jenjang_pendidikanEdit;
         $jurusan_pendidikan = $request->jurusan_pendidikanEdit;
@@ -374,6 +379,7 @@ class KaryawanController extends Controller
             $karyawan->no_bpjs_kt = $no_bpjs_kt;
             $karyawan->no_rekening = $no_rekening;
             $karyawan->nama_rekening = $nama_rekening;
+            $karyawan->nama_bank = $nama_bank;
             $karyawan->nama_ibu_kandung = $nama_ibu_kandung;
             $karyawan->jenjang_pendidikan = $jenjang_pendidikan;
             $karyawan->jurusan_pendidikan = $jurusan_pendidikan;
@@ -563,6 +569,7 @@ class KaryawanController extends Controller
                 'no_bpjs_kt' => $karyawan->no_bpjs_kt,
                 'no_rekening' => $karyawan->no_rekening,
                 'nama_rekening' => $karyawan->nama_rekening,
+                'nama_bank' => $karyawan->nama_bank,
                 'nama_ibu_kandung' => $karyawan->nama_ibu_kandung,
                 'jenjang_pendidikan' => $karyawan->jenjang_pendidikan,
                 'jurusan_pendidikan' => $karyawan->jurusan_pendidikan,

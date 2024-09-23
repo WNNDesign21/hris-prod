@@ -217,6 +217,19 @@
                                     <input type="text" name="nama_rekening" id="nama_rekening"
                                         class="form-control" required>
                                 </div>
+                                <div class="form-group">
+                                    <label for="">Nama Bank <span class="text-danger">*</span></label>
+                                    <br>
+                                    <select name="nama_bank" id="nama_bank" class="form-control"
+                                        style="width: 100%;" required>
+                                        <option value="">Pilih Bank Rekening</option>
+                                        <option value="MANDIRI">MANDIRI</option>
+                                        <option value="BRI">BRI</option>
+                                        <option value="BNI">BNI</option>
+                                        <option value="BCA">BCA</option>
+                                        <option value="BSI">BSI</option>
+                                    </select>
+                                </div>
                                 <div class="form-group mt-2">
                                     <label for="">Nama Ibu Kandung <span class="text-danger">*</span></label>
                                     <br>

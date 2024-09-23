@@ -191,6 +191,7 @@ $(function () {
         $("#no_bpjs_kt").val("");
         $("#no_rekening").val("");
         $("#nama_rekening").val("");
+        $("#nama_bank").val("");
         $("#nama_ibu_kandung").val("");
         $("#jurusan_pendidikan").val("");
         $("#jenjang_pendidikan").val("");
@@ -218,6 +219,10 @@ $(function () {
         });
 
         $('#kategori_keluarga').select2({
+            dropdownParent: $('#modal-input-karyawan'),
+        });
+
+        $('#nama_bank').select2({
             dropdownParent: $('#modal-input-karyawan'),
         });
 
@@ -321,7 +326,10 @@ $(function () {
             dropdownParent: $('#modal-edit-karyawan'),
         });
 
-        
+        $('#nama_bankEdit').select2({
+            dropdownParent: $('#modal-edit-karyawan'),
+        });
+
         $('#kategori_keluargaEdit').select2({
             dropdownParent: $('#modal-edit-karyawan'),
         });
@@ -396,6 +404,7 @@ $(function () {
                 $('#no_bpjs_ktEdit').val(detailKaryawan.no_bpjs_kt);
                 $('#no_rekeningEdit').val(detailKaryawan.no_rekening);
                 $('#nama_rekeningEdit').val(detailKaryawan.nama_rekening);
+                $('#nama_bankEdit').val(detailKaryawan.nama_bank);
                 $('#nama_ibu_kandungEdit').val(detailKaryawan.nama_ibu_kandung);
                 $('#jenjang_pendidikanEdit').val(detailKaryawan.jenjang_pendidikan);
                 $('#jurusan_pendidikanEdit').val(detailKaryawan.jurusan_pendidikan);

@@ -39,6 +39,7 @@ return new class extends Migration
             $table->integer('hutang_cuti')->default(0);
             $table->integer('no_rekening')->nullable();
             $table->string('nama_rekening')->nullable();
+            $table->string('nama_bank')->nullable();
             $table->string('nama_ibu_kandung')->nullable();
             $table->enum('jenjang_pendidikan',['SD', 'SMP', 'SMA', 'D1', 'D2', 'D3', 'D4', 'S1', 'S2', 'S3'])->nullable();
             $table->string('jurusan_pendidikan')->nullable();
