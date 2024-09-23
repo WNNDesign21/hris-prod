@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('tempat_lahir')->nullable();
             $table->date('tanggal_lahir')->nullable();
             $table->text('alamat')->nullable();
+            $table->text('domisili')->nullable();
             $table->string('email')->unique()->nullable();
             $table->string('no_telp')->unique()->nullable();
             $table->enum('gol_darah', ['A', 'B', 'AB', 'O'])->nullable();

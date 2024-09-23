@@ -183,6 +183,7 @@ $(function () {
         $("#status_keluarga").val("");
         $("#kategori_keluarga").val("");
         $("#alamat").val("");
+        $("#domisili").val("");
         $("#no_telp").val("");
         $("#email").val("");
         $("#npwp").val("");
@@ -386,6 +387,7 @@ $(function () {
                 $('#status_keluargaEdit').val(detailKaryawan.status_keluarga);
                 $('#kategori_keluargaEdit').val(detailKaryawan.kategori_keluarga);
                 $('#alamatEdit').val(detailKaryawan.alamat);
+                $('#domisiliEdit').val(detailKaryawan.domisili);
                 $('#no_telpEdit').val(detailKaryawan.no_telp);
                 $('#no_telp_daruratEdit').val(detailKaryawan.no_telp_darurat);
                 $('#emailEdit').val(detailKaryawan.email);

@@ -141,9 +141,14 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label for="">Alamat <span class="text-danger">*</span></label>
+                                    <label for="">Alamat KTP <span class="text-danger">*</span></label>
                                     <br>
                                     <textarea name="alamatEdit" id="alamatEdit" class="form-control" required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Domisili <span class="text-danger">*</span></label>
+                                    <br>
+                                    <textarea name="domisiliEdit" id="domisiliEdit" class="form-control" required></textarea>
                                 </div>
                                 <div class="form-group mt-2">
                                     <label for="">No. Rekening <span class="text-danger">*</span></label>

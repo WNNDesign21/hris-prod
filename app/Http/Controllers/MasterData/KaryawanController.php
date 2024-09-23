@@ -136,6 +136,7 @@ class KaryawanController extends Controller
             'status_keluarga' => ['required', 'string'],
             'kategori_keluarga' => ['required', 'string'],
             'alamat' => ['required', 'string'],
+            'domisili' => ['required', 'string'],
             'no_telp' => ['required','numeric'],
             'no_telp_darurat' => ['required','numeric'],
             'email' => ['required', 'email', 'unique:karyawans,email'],
@@ -169,6 +170,7 @@ class KaryawanController extends Controller
         $status_keluarga = $request->status_keluarga;
         $kategori_keluarga = $request->kategori_keluarga;
         $alamat = $request->alamat;
+        $domisili = $request->domisili;
         $no_telp = $request->no_telp;
         $no_telp_darurat = $request->no_telp_darurat;
         $email = $request->email;
@@ -227,6 +229,7 @@ class KaryawanController extends Controller
                 'status_keluarga' => $status_keluarga,
                 'kategori_keluarga' => $kategori_keluarga,
                 'alamat' => $alamat,
+                'domisili' => $domisili,
                 'no_telp' => $no_telp,
                 'no_telp_darurat' => $no_telp_darurat,
                 'email' => $email,
@@ -297,6 +300,7 @@ class KaryawanController extends Controller
             'status_keluargaEdit' => ['required', 'string'],
             'kategori_keluargaEdit' => ['required', 'string'],
             'alamatEdit' => ['required', 'string'],
+            'domisiliEdit' => ['required', 'string'],
             'no_telpEdit' => ['required','numeric'],
             'no_telp_daruratEdit' => ['required','numeric'],
             'npwpEdit' => ['required'],
@@ -330,6 +334,7 @@ class KaryawanController extends Controller
         $status_keluarga = $request->status_keluargaEdit;
         $kategori_keluarga = $request->kategori_keluargaEdit;
         $alamat = $request->alamatEdit;
+        $domisili = $request->domisiliEdit;
         $no_telp = $request->no_telpEdit;
         $no_telp_darurat = $request->no_telp_daruratEdit;
         $email = $request->emailEdit;
@@ -360,6 +365,7 @@ class KaryawanController extends Controller
             $karyawan->status_keluarga = $status_keluarga;
             $karyawan->kategori_keluarga = $kategori_keluarga;
             $karyawan->alamat = $alamat;    
+            $karyawan->domisili = $domisili;    
             $karyawan->no_telp = $no_telp;
             $karyawan->no_telp_darurat = $no_telp_darurat;
             $karyawan->email = $email;
@@ -548,6 +554,7 @@ class KaryawanController extends Controller
                 'status_keluarga' => $karyawan->status_keluarga,
                 'kategori_keluarga' => $karyawan->kategori_keluarga,
                 'alamat' => $karyawan->alamat,
+                'domisili' => $karyawan->domisili,
                 'no_telp' => $karyawan->no_telp,
                 'no_telp_darurat' => $karyawan->no_telp_darurat,
                 'email' => $karyawan->email,

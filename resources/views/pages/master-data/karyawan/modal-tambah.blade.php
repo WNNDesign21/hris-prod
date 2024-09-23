@@ -193,9 +193,14 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label for="">Alamat <span class="text-danger">*</span></label>
+                                    <label for="">Alamat KTP <span class="text-danger">*</span></label>
                                     <br>
                                     <textarea name="alamat" id="alamat" class="form-control" required></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Domisili <span class="text-danger">*</span></label>
+                                    <br>
+                                    <textarea name="domisili" id="domisili" class="form-control" required></textarea>
                                 </div>
                             </div>
                             <div class="col-lg-6 col-12">
