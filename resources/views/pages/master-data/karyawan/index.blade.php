@@ -40,12 +40,36 @@
                                 <tr>
                                     <th>ID Karyawan</th>
                                     <th>Nama</th>
+                                    <th>Departemen</th>
                                     <th>Posisi</th>
                                     <th>Grup</th>
                                     <th>Jenis Kontrak</th>
                                     <th>Tanggal Mulai</th>
                                     <th>Tanggal Selesai</th>
                                     <th>Status Karyawan</th>
+                                    <th>NIK KTP</th>
+                                    <th>No. KK</th>
+                                    <th>Tempat Lahir</th>
+                                    <th>Tanggal Lahir</th>
+                                    <th>Jenis Kelamin</th>
+                                    <th>Agama</th>
+                                    <th>Alamat</th>
+                                    <th>Domisili</th>
+                                    <th>No. NPWP</th>
+                                    <th>No. BPJS Kesehatan</th>
+                                    <th>No. BPJS Ketenagakerjaan</th>
+                                    <th>No. HP</th>
+                                    <th>Email</th>
+                                    <th>Nama Bank</th>
+                                    <th>No. Rekening</th>
+                                    <th>Atas Nama Rekening</th>
+                                    <th>Nama Ibu Kandung</th>
+                                    <th>Pendidikan Terakhir</th>
+                                    <th>Jurusan</th>
+                                    <th>Nomor Darurat</th>
+                                    <th>Golongan Darah</th>
+                                    <th>Jatah Cuti</th>
+                                    <th>Hutang Cuti</th>
                                     <th class="text-center">Aksi</th>
                                 </tr>
                             </thead>

@@ -93,40 +93,129 @@ class Karyawan extends Model
 
     private static function _query($dataFilter)
     {
-
         $data = self::select(
-            'id_karyawan',
-            'ni_karyawan',
+            'karyawans.id_karyawan',
+            'karyawans.ni_karyawan',
             'karyawans.nama',
             'karyawans.email as email_karyawan',
             'karyawans.no_telp as notelp_karyawan',
-            'jenis_kontrak',
-            'status_karyawan',
+            'karyawans.jenis_kontrak',
+            'karyawans.status_karyawan',
             'grups.nama as nama_grup',
             'users.username',
-            'tanggal_mulai',
-            'tanggal_selesai',
-            'grup_id',
-            'user_id',
+            'karyawans.tanggal_mulai',
+            'karyawans.tanggal_selesai',
+            'karyawans.grup_id',
+            'karyawans.user_id',
+            'karyawans.ni_karyawan',
+            'karyawans.tanggal_lahir',
+            'karyawans.alamat',
+            'karyawans.domisili',
+            'karyawans.no_kk',
+            'karyawans.nik',
+            'karyawans.tempat_lahir',
+            'karyawans.agama',
+            'karyawans.gol_darah',
+            'karyawans.jenis_kelamin',
+            'karyawans.status_keluarga',
+            'karyawans.kategori_keluarga',
+            'karyawans.npwp',
+            'karyawans.no_bpjs_ks',
+            'karyawans.no_bpjs_kt',
+            'karyawans.sisa_cuti',
+            'karyawans.hutang_cuti',
+            'karyawans.no_rekening',
+            'karyawans.nama_rekening',
+            'karyawans.nama_bank',
+            'karyawans.nama_ibu_kandung',
+            'karyawans.jenjang_pendidikan',
+            'karyawans.jurusan_pendidikan',
+            'karyawans.no_telp_darurat',
+            'departemens.nama as nama_departemen'
         )
         ->leftJoin('users', 'karyawans.user_id', 'users.id')
-        ->leftJoin('grups', 'karyawans.grup_id', 'grups.id_grup');
-        
+        ->leftJoin('grups', 'karyawans.grup_id', 'grups.id_grup')
+        ->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
+        ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+        ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
+        ->groupBy(
+            'karyawans.id_karyawan',
+            'karyawans.ni_karyawan',
+            'karyawans.nama',
+            'karyawans.email',
+            'karyawans.no_telp',
+            'karyawans.jenis_kontrak',
+            'karyawans.status_karyawan',
+            'grups.nama',
+            'users.username',
+            'karyawans.tanggal_mulai',
+            'karyawans.tanggal_selesai',
+            'karyawans.grup_id',
+            'karyawans.user_id',
+            'karyawans.ni_karyawan',
+            'karyawans.tanggal_lahir',
+            'karyawans.alamat',
+            'karyawans.domisili',
+            'karyawans.no_kk',
+            'karyawans.nik',
+            'karyawans.tempat_lahir',
+            'karyawans.agama',
+            'karyawans.gol_darah',
+            'karyawans.jenis_kelamin',
+            'karyawans.status_keluarga',
+            'karyawans.kategori_keluarga',
+            'karyawans.npwp',
+            'karyawans.no_bpjs_ks',
+            'karyawans.no_bpjs_kt',
+            'karyawans.sisa_cuti',
+            'karyawans.hutang_cuti',
+            'karyawans.no_rekening',
+            'karyawans.nama_rekening',
+            'karyawans.nama_bank',
+            'karyawans.nama_ibu_kandung',
+            'karyawans.jenjang_pendidikan',
+            'karyawans.jurusan_pendidikan',
+            'karyawans.no_telp_darurat',
+            'departemens.nama'
+        );
 
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
             $data->where(function ($query) use ($search) {
-                $query->where('id_karyawan', 'ILIKE', "%{$search}%")
+                $query->where('karyawans.id_karyawan', 'ILIKE', "%{$search}%")
                     ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%")
                     ->orWhere('karyawans.email', 'ILIKE', "%{$search}%")
                     ->orWhere('karyawans.no_telp', 'ILIKE', "%{$search}%")
-                    ->orWhere('jenis_kontrak', 'ILIKE', "%{$search}%")
-                    ->orWhere('status_karyawan', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.jenis_kontrak', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.status_karyawan', 'ILIKE', "%{$search}%")
                     ->orWhere('grups.nama', 'ILIKE', "%{$search}%")
                     ->orWhere('users.username', 'ILIKE', "%{$search}%")
-                    ->orWhere('tanggal_mulai', 'ILIKE', "%{$search}%")
-                    ->orWhere('ni_karyawan', 'ILIKE', "%{$search}%")
-                    ->orWhere('tanggal_selesai', 'ILIKE', "%{$search}%");
+                    ->orWhere('karyawans.tanggal_mulai', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.ni_karyawan', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.tanggal_selesai', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.alamat', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.domisili', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.no_kk', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.nik', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.tempat_lahir', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.agama', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.gol_darah', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.jenis_kelamin', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.status_keluarga', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.kategori_keluarga', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.npwp', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.no_bpjs_ks', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.no_bpjs_kt', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.sisa_cuti', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.hutang_cuti', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.no_rekening', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.nama_rekening', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.nama_bank', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.nama_ibu_kandung', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.jenjang_pendidikan', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.jurusan_pendidikan', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.no_telp_darurat', 'ILIKE', "%{$search}%")
+                    ->orWhere('departemens.nama', 'ILIKE', "%{$search}%");
             });
         }
 
