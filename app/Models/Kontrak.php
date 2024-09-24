@@ -112,6 +112,10 @@ class Kontrak extends Model
             $data->where('departemens.id_departemen', $dataFilter['departemen']);
         }
 
+        if(isset($dataFilter['noSurat'])) {
+            $data->where('kontraks.no_surat', $dataFilter['noSurat']);
+        }
+
         if(isset($dataFilter['nama'])) {
             $data->where('karyawans.nama', $dataFilter['nama']);
         }

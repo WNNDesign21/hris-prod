@@ -75,6 +75,7 @@ $(function () {
             type: "POST",
             data: function (dataFilter) {
                 var nama = $("#filterNama").val();
+                var noSurat = $("#filterNosurat").val();
                 var departemen = $("#filterDepartemen").val();
                 var jenisKontrak = $("#filterJeniskontrak").val();
                 var statusKontrak = $("#filterStatuskontrak").val();
@@ -85,6 +86,7 @@ $(function () {
                 var evidence = $("#filterEvidence").val();
 
                 dataFilter.nama = nama;
+                dataFilter.noSurat = noSurat;
                 dataFilter.departemen = departemen;
                 dataFilter.jenisKontrak = jenisKontrak;
                 dataFilter.statusKontrak = statusKontrak;
@@ -172,6 +174,16 @@ $(function () {
 
     //REFRESH TABLE
     function refreshTable() {
+        $("#filterNama").val("");
+        $("#filterNosurat").val("");
+        $("#filterDepartemen").val("");
+        $("#filterJeniskontrak").val("");
+        $("#filterStatuskontrak").val("");
+        $("#filterNamaposisi").val("");
+        $("#filterTanggalmulaistart").val("");
+        $("#filterTanggalmulaiend").val("");
+        $("#filterAttachment").val("");
+        $("#filterEvidence").val("");
         kontrakTable.search("").draw();
     }
 
@@ -622,7 +634,7 @@ $(function () {
     }
 
     function closeFilter() {
-        modalFilterKaryawan.hide();
+        modalFilterKontrak.hide();
     }
 
     $(".btnSubmitFilter").on("click", function () {

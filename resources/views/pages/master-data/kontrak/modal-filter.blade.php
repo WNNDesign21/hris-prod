@@ -12,6 +12,11 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="form-group">
+                                <label for="">No Surat/Perjanjian</label>
+                                <input type="text" name="filterNosurat" id="filterNosurat" class="form-control"
+                                    placeholder="Masukkan No Surat atau Perjanjian" style="width: 100%;">
+                            </div>
+                            <div class="form-group">
                                 <label for="">Nama</label>
                                 <input type="text" name="filterNama" id="filterNama" class="form-control"
                                     placeholder="Masukkan Nama Karyawan" style="width: 100%;">

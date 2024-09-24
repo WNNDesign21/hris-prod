@@ -78,6 +78,10 @@ class KontrakController extends Controller
             $dataFilter['nama'] = $request->input('nama');
         }
 
+        if (!empty($request->input('noSurat'))) {
+            $dataFilter['noSurat'] = $request->input('noSurat');
+        }
+
         if (!empty($request->input('departemen'))) {
             $dataFilter['departemen'] = $request->input('departemen');
         }
