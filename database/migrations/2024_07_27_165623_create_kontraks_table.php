@@ -12,13 +12,27 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('kontraks', function (Blueprint $table) {
-            $table->increments('id_kontrak');
+            $table->string('id_kontrak')->primary();
             $table->string('karyawan_id');
-            $table->enum('tipe', ['PKWT', 'MAGANG', 'THL', 'PKWTT']);
-            $table->integer('durasi');
+            $table->unsignedInteger('posisi_id')->nullable();
+            $table->string('nama_posisi')->nullable();
+            $table->string('no_surat')->nullable();
+            $table->enum('jenis', ['PKWT', 'MAGANG', 'THL', 'PKWTT']);
+            $table->enum('status', ['DONE', 'ON PROGRESS'])->default('ON PROGRESS');
+            $table->integer('durasi')->nullable();
+            $table->integer('salary')->nullable();
+            $table->text('deskripsi')->nullable();
             $table->date('tanggal_mulai');
-            $table->date('tanggal_akhir')->nullable();
-            $table->string('attachment');
+            $table->date('tanggal_selesai')->nullable();
+            $table->date('tanggal_mulai_before')->nullable();
+            $table->date('tanggal_selesai_before')->nullable();
+            $table->enum('isReactive', ['Y', 'N'])->default('N');
+            $table->date('issued_date')->nullable();
+            $table->string('tempat_administrasi')->nullable()->default('Karawang');
+            $table->string('status_change_by')->nullable();
+            $table->date('status_change_date')->nullable();
+            $table->string('attachment')->nullable();
+            $table->string('evidence')->nullable();
 
             $table->softDeletes();
             $table->timestamps();

@@ -18,10 +18,7 @@ class JabatanSeeder extends Seeder
                 'nama' => 'BOD',
             ],
             [
-                'nama' => 'PLANT HEAD',
-            ],
-            [
-                'nama' => 'DIVISION HEAD',
+                'nama' => 'DIVISION/PLANT HEAD',
             ],
             [
                 'nama' => 'DEPARTEMEN HEAD',
@@ -33,7 +30,7 @@ class JabatanSeeder extends Seeder
                 'nama' => 'LEADER',
             ],
             [
-                'nama' => 'STAFF',
+                'nama' => 'STAFF/OPERATOR',
             ],
         ];
 

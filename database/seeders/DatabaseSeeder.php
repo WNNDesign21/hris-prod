@@ -17,22 +17,24 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         //TRIAL 3 ACCOUNT USER
-        User::factory()->create([
-            'username' => 'FL0001',
-            'email' => 'fl0001@email.com',
-            'password' =>  Hash::make('password')
-          ])->create([
-            'username' => 'IN0002',
-            'email' => 'in0002@email.com',
-            'password' =>  Hash::make('password')
-          ])->create([
-            'username' => 'AM0003',
-            'email' => 'am0003@email.com',
-            'password' =>  Hash::make('password')
-          ]);
+        // User::factory()->create([
+        //     'username' => 'FL0001',
+        //     'email' => 'fl0001@email.com',
+        //     'password' =>  Hash::make('password')
+        //   ])->create([
+        //     'username' => 'IN0002',
+        //     'email' => 'in0002@email.com',
+        //     'password' =>  Hash::make('password')
+        //   ])->create([
+        //     'username' => 'AM0003',
+        //     'email' => 'am0003@email.com',
+        //     'password' =>  Hash::make('password')
+        //   ]);
           
 
         $this->call([
+            JeniscutiSeeder::class,
+            UserSeeder::class,
             OrganisasiSeeder::class,
             JabatanSeeder::class,
             PosisiSeeder::class,
@@ -41,8 +43,6 @@ class DatabaseSeeder extends Seeder
             SeksiSeeder::class,
             GrupSeeder::class,
             KaryawanSeeder::class
-            
-            // DestructivelineSeeder::class,
         ]);
     }
 }

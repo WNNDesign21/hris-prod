@@ -16,11 +16,11 @@ class SeksiSeeder extends Seeder
         $seksi = [
             [
                 'departemen_id' => 1,
-                'nama' => 'People Development',
+                'nama' => 'GENERAL AFFAIR',
             ],
             [
                 'departemen_id' => 1,
-                'nama' => 'General Affairs',
+                'nama' => 'HR DEVELOPMENT',
             ],
         ];
 

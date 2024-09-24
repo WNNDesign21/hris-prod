@@ -14,8 +14,12 @@ return new class extends Migration
         Schema::create('posisis', function (Blueprint $table) {
             $table->increments('id_posisi');
             $table->unsignedInteger('jabatan_id');
+            $table->unsignedInteger('organisasi_id')->nullable();
+            $table->unsignedInteger('divisi_id')->nullable();
+            $table->unsignedInteger('departemen_id')->nullable();
+            $table->unsignedInteger('seksi_id')->nullable();
             $table->string('nama');
-            $table->integer('parent');
+            $table->integer('parent_id');
 
             $table->softDeletes();
             $table->timestamps();
