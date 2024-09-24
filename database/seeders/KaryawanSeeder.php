@@ -168,7 +168,7 @@ class KaryawanSeeder extends Seeder
         $i = 1;
         foreach ($karyawans as $kry) {
             Kontrak::create([
-                'no_surat' => str_pad(mt_rand(0, 999), 3, '0', STR_PAD_LEFT),
+                'no_surat' => 'No. 001/PKWT-I/HRD-TCF3/2024',
                 'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,
                 'karyawan_id' =>  $kry->id_karyawan,
                 'nama_posisi' => 'Initial Document',

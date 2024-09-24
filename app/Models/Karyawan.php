@@ -16,7 +16,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Karyawan extends Model
 {
     use HasFactory, SoftDeletes;
-
     
     protected $table = 'karyawans';
     
@@ -84,6 +83,11 @@ class Karyawan extends Model
     public function grup()
     {
         return $this->belongsTo(Grup::class, 'grup_id', 'id_grup');
+    }
+
+    public function kontrak()
+    {
+        return $this->hasMany(Kontrak::class, 'karyawan_id', 'id_karyawan');
     }
 
     public function posisi()

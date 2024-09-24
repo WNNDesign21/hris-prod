@@ -47,6 +47,7 @@ $(function () {
     var columnsTable = [
         { data: "id_kontrak" },
         { data: "nama" },
+        { data: "departemen" },
         { data: "nama_posisi" },
         { data: "no_surat" },
         { data: "issued_date" },
@@ -54,7 +55,6 @@ $(function () {
         { data: "status" },
         { data: "durasi" },
         { data: "salary" },
-        // { data: "status_change_by" },
         { data: "tanggal_mulai" },
         { data: "tanggal_selesai" },
         { data: "attachment" },
@@ -74,7 +74,25 @@ $(function () {
             dataType: "json",
             type: "POST",
             data: function (dataFilter) {
-                console.log(dataFilter);
+                var nama = $("#filterNama").val();
+                var departemen = $("#filterDepartemen").val();
+                var jenisKontrak = $("#filterJeniskontrak").val();
+                var statusKontrak = $("#filterStatuskontrak").val();
+                var namaPosisi = $("#filterNamaposisi").val();
+                var tanggalMulaistart = $("#filterTanggalmulaistart").val();
+                var tanggalMulaiend = $("#filterTanggalmulaiend").val();
+                var attachment = $("#filterAttachment").val();
+                var evidence = $("#filterEvidence").val();
+
+                dataFilter.nama = nama;
+                dataFilter.departemen = departemen;
+                dataFilter.jenisKontrak = jenisKontrak;
+                dataFilter.statusKontrak = statusKontrak;
+                dataFilter.namaPosisi = namaPosisi;
+                dataFilter.tanggalMulaistart = tanggalMulaistart;
+                dataFilter.tanggalMulaiend = tanggalMulaiend;
+                dataFilter.attachment = attachment;
+                dataFilter.evidence = evidence;
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.responseJSON.data) {
@@ -511,6 +529,7 @@ $(function () {
                 $('#status_kontrakEdit').val(dataKontrak.status).trigger('change');
                 $('#durasi_kontrakEdit').val(dataKontrak.durasi);
                 $('#salary_kontrakEdit').val(dataKontrak.salary);
+                $('#nama_posisi_kontrakEdit').val(dataKontrak.nama_posisi);
                 $('#deskripsi_kontrakEdit').val(dataKontrak.deskripsi);
                 $('#tanggal_mulai_kontrakEdit').val(dataKontrak.tanggal_mulai);
                 $('#tanggal_selesai_kontrakEdit').val(dataKontrak.tanggal_selesai);
@@ -548,5 +567,66 @@ $(function () {
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
             },
         })
+    });
+
+    //FILTER KONTRAK
+    $('.btnFilter').on("click", function (){
+        openFilter();
+    })
+
+    $('.btnCloseFilter').on("click", function (){
+        closeFilter();
+    })
+
+    $('.btnResetFilter').on("click", function (){
+        $('#filterDepartemen').val("").trigger('change');   
+        $('#filterJeniskontrak').val("").trigger('change');   
+        $('#filterStatuskontrak').val("").trigger('change');   
+        $('#filterAttachment').val("").trigger('change');   
+        $('#filterEvidence').val("").trigger('change');   
+        $('#filterNama').val("");
+        $('#filterNamaposisi').val("");
+        $('#filterTanggalmulaistart').val("");
+        $('#filterTanggalmulaiend').val("");
+    })
+
+
+    // MODAL TAMBAH KARYAWAN
+    var modalFilterKontrakOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalFilterKontrak = new bootstrap.Modal(
+        document.getElementById("modal-filter"),
+        modalFilterKontrakOptions
+    );
+
+    function openFilter() {
+        modalFilterKontrak.show();
+        $('#filterDepartemen').select2({
+            dropdownParent: $('#modal-filter'),
+        });
+        $('#filterJeniskontrak').select2({
+            dropdownParent: $('#modal-filter'),
+        });
+        $('#filterStatuskontrak').select2({
+            dropdownParent: $('#modal-filter'),
+        });
+        $('#filterAttachment').select2({
+            dropdownParent: $('#modal-filter'),
+        });
+        $('#filterEvidence').select2({
+            dropdownParent: $('#modal-filter'),
+        });
+    }
+
+    function closeFilter() {
+        modalFilterKaryawan.hide();
+    }
+
+    $(".btnSubmitFilter").on("click", function () {
+        kontrakTable.draw();
+        closeFilter();
     });
 });

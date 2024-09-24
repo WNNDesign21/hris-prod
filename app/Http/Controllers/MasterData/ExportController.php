@@ -90,9 +90,13 @@ class ExportController extends Controller
         //Karyawan
         if($request->karyawan_aktif == 'Y') {
             $karyawan = Karyawan::where('status_karyawan', 'AKTIF')->get();
-        } elseif($request->karyawan_nonaktif == 'Y'){
-            $karyawan = Karyawan::whereIn('status_karyawan',['RESIGN','TERMINASI','PENSIUN'])->get();
-        } elseif ($request->karyawan_aktif == 'Y' && $request->karyawan_nonaktif == 'Y'){
+        } 
+        
+        if($request->karyawan_nonaktif == 'Y'){
+            $karyawan = Karyawan::whereIn('status_karyawan',['RESIGN','TERMINASI','PENSIUN'])->orWhereNull('status_karyawan')->get();
+        } 
+        
+        if ($request->karyawan_aktif == 'Y' && $request->karyawan_nonaktif == 'Y'){
             $karyawan = Karyawan::all();
         } else {
             $karyawan = [];
@@ -186,6 +190,8 @@ class ExportController extends Controller
                 'GOLONGAN DARAH',
                 'EMAIL',
                 'EMAIL CORPORATE',
+                'JATAH CUTI',
+                'HUTANG CUTI'
             ];
 
             foreach ($headers as $header) {
@@ -197,13 +203,13 @@ class ExportController extends Controller
             $row = 2;
 
             $columns = [];
-            for ($i = 'A'; $i !== 'AG'; $i++) {
+            for ($i = 'A'; $i !== 'AI'; $i++) {
                 $columns[] = $i;
             }
             foreach ($columns as $column) {
                 $sheet->getColumnDimension($column)->setWidth(35);
             }
-            $sheet->setAutoFilter('A1:AF1');
+            $sheet->setAutoFilter('A1:AH1');
 
             $i = 1;
             foreach ($karyawan as $data) {
@@ -262,6 +268,8 @@ class ExportController extends Controller
                 $sheet->setCellValue('AD' . $row, $data->gol_darah);
                 $sheet->setCellValue('AE' . $row, $data->email);
                 $sheet->setCellValue('AF' . $row, $email_corporate);
+                $sheet->setCellValue('AG' . $row, $data->sisa_cuti);
+                $sheet->setCellValue('AH' . $row, $data->hutang_cuti);
                 $row++;
                 $i++;
             }
@@ -545,11 +553,13 @@ class ExportController extends Controller
         $kontrak = Kontrak::query();
 
         if ($kontrak_from) {
-            $kontrak->where('tanggal_mulai', 'ILIKE', '%' . $kontrak_from . '%');
+            $kontrak->whereYear('tanggal_mulai', '>=', Carbon::parse($kontrak_from)->year)
+                ->whereMonth('tanggal_mulai', '>=', Carbon::parse($kontrak_from)->month);
         }
 
         if ($kontrak_to) {
-            $kontrak->where('tanggal_selesai', 'ILIKE', '%' . $kontrak_to . '%');
+            $kontrak->whereYear('tanggal_selesai', '<=', Carbon::parse($kontrak_to)->year)
+                ->whereMonth('tanggal_selesai', '<=', Carbon::parse($kontrak_to)->month);
         }
 
         if($durasi) {
@@ -593,7 +603,7 @@ class ExportController extends Controller
                 'ID Karyawan',
                 'Nama Karyawan',
                 'Posisi',
-                'No Surat',
+                'No Perjanjian',
                 'Jenis',
                 'Status',
                 'Durasi',

@@ -35,7 +35,7 @@
                                     <select name="tempat_administrasi" id="tempat_administrasi" class="form-control"
                                         style="width: 100%;">
                                         <option value="Karawang">Karawang</option>
-                                        <option value="Sadang">Sadang</option>
+                                        <option value="Purwakarta">Purwakarta</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -60,9 +60,20 @@
                             <div class="col-lg-6 col-12">
                                 <div class="form-group">
                                     <label class="form-label">Posisi <span class="text-danger">*</span></label>
-                                    <select class="form-control" id="posisi" name="posisi" style="width: 100%;">
+                                    <select class="form-control" id="posisi" name="posisi" style="width: 100%;"
+                                        required>
                                     </select>
                                 </div>
+                                <hr>
+                                <div class="form-group">
+                                    <label for="">Nama Posisi</label>
+                                    <br>
+                                    <small>Note : Jika mengisi ini, maka nama posisi ini yang akan muncul di Template
+                                        Kontrak, namun jika kosong, maka akan mengikuti bawaan dari Master Data
+                                        Posisi</small>
+                                    <input type="text" name="nama_posisi" id="nama_posisi" class="form-control">
+                                </div>
+                                <hr>
                                 <div class="form-group">
                                     <label for="">Durasi (Dalam Bulan)</label>
                                     <input type="number" name="durasi" id="durasi" class="form-control"

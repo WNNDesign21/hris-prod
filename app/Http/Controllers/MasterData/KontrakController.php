@@ -8,6 +8,7 @@ use App\Models\Posisi;
 use App\Models\Kontrak;
 use App\Models\Karyawan;
 use App\Models\Template;
+use App\Models\Departemen;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use PhpOffice\PhpWord\PhpWord;
@@ -27,9 +28,11 @@ class KontrakController extends Controller
      */
     public function index()
     {
+        $departemen = Departemen::all();
         $dataPage = [
             'pageTitle' => "Master Data - Kontrak",
             'page' => 'masterdata-kontrak',
+            'departemen' => $departemen
         ];
         return view('pages.master-data.kontrak.index', $dataPage);
     }
@@ -40,16 +43,16 @@ class KontrakController extends Controller
         $columns = array(
             0 => 'id_kontrak',
             1 => 'karyawans.nama',
-            2 => 'kontraks.nama_posisi',
-            3 => 'no_surat',
-            4 => 'issued_date',
-            5 => 'jenis',
-            6 => 'status',
-            7 => 'durasi',
-            8 => 'salary',
-            // 9 => 'status_change_by',
-            9 => 'tanggal_mulai',
-            10 => 'tanggal_selesai',
+            2 => 'departemens.nama',
+            3 => 'kontraks.nama_posisi',
+            4 => 'no_surat',
+            5 => 'issued_date',
+            6 => 'jenis',
+            7 => 'status',
+            8 => 'durasi',
+            9 => 'salary',
+            10 => 'tanggal_mulai',
+            11 => 'tanggal_selesai',
         );
 
         $totalData = Kontrak::count();
@@ -71,6 +74,40 @@ class KontrakController extends Controller
             $dataFilter['search'] = $search;
         }
 
+        if (!empty($request->input('nama'))) {
+            $dataFilter['nama'] = $request->input('nama');
+        }
+
+        if (!empty($request->input('departemen'))) {
+            $dataFilter['departemen'] = $request->input('departemen');
+        }
+
+        if (!empty($request->input('jenisKontrak'))) {
+            $dataFilter['jenisKontrak'] = $request->input('jenisKontrak');
+        }
+        if (!empty($request->input('statusKontrak'))) {
+            $dataFilter['statusKontrak'] = $request->input('statusKontrak');
+        }
+
+        if (!empty($request->input('namaPosisi'))) {
+            $dataFilter['namaPosisi'] = $request->input('namaPosisi');
+        }
+
+        if (!empty($request->input('tanggalMulaistart'))) {
+            $dataFilter['tanggalMulaistart'] = $request->input('tanggalMulaistart');
+        }
+        if (!empty($request->input('tanggalMulaiend'))) {
+            $dataFilter['tanggalMulaiend'] = $request->input('tanggalMulaiend');
+        }
+
+        if (!empty($request->input('attachment'))) {
+            $dataFilter['attachment'] = $request->input('attachment');
+        }
+
+        if (!empty($request->input('evidence'))) {
+            $dataFilter['evidence'] = $request->input('evidence');
+        }
+
         $kontrak = Kontrak::getData($dataFilter, $settings);
         $totalFiltered = Kontrak::countData($dataFilter);
 
@@ -80,6 +117,7 @@ class KontrakController extends Controller
             foreach ($kontrak as $data) {
                 $nestedData['id_kontrak'] = $data->id_kontrak;
                 $nestedData['nama'] = $data->nama_karyawan;
+                $nestedData['departemen'] = $data->nama_departemen;
                 $nestedData['nama_posisi'] = $data->nama_posisi;
                 $nestedData['no_surat'] = $data->no_surat;
                 $nestedData['issued_date'] = $data->issued_date;
@@ -154,6 +192,7 @@ class KontrakController extends Controller
         $karyawan_id = $request->karyawan_id;
         $jenis = $request->jenis;
         $posisi_id = $request->posisi;
+        $nama_posisi = $request->nama_posisi;
         $durasi = $request->durasi;
         $salary = $request->salary;
         $deskripsi = $request->deskripsi;
@@ -177,7 +216,7 @@ class KontrakController extends Controller
             }
 
             if($jenis !== 'PKWTT'){
-
+                
                 if ($durasi == 0) {
                     DB::commit();
                     return response()->json(['message' => 'Durasi tidak boleh kosong!'], 402);
@@ -186,19 +225,28 @@ class KontrakController extends Controller
                 $no_surat_int = intval($no_surat);
                 foreach ($karyawan_id as $karyawan) {
                     $kry = Karyawan::find($karyawan);
+                    $kontrak_karyawan = $kry->kontrak()->where('status', 'DONE')->count() + 1;
+
+                    //No Surat Text
                     $kry->jenis_kontrak = $jenis;
+                    $bulan_romawi = $this->angka_to_romawi(Carbon::parse($tanggal_mulai)->month);
+                    $hrd = $tempat_administrasi == 'Karawang' ? 'HRD-TCF3' : 'HRD-TCF2';
+                    $jenis_on_surat = $jenis.'-'.$this->angka_to_romawi($kontrak_karyawan);
+                    $tahun = Carbon::parse($tanggal_mulai)->format('Y');
+                    $no_surat_text = 'No. ' . str_pad($no_surat_int, 3, '0', STR_PAD_LEFT) . '/' . $jenis_on_surat . '/' . $hrd . '/'.$bulan_romawi.'/' . $tahun;
+
                     $kry->save();
                     $kontrak = Kontrak::create([
                         'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . (now()->timestamp + 1),
                         'karyawan_id' => $karyawan,
                         'posisi_id' => $posisi_id,
-                        'nama_posisi' => Posisi::find($posisi_id)->nama,
+                        'nama_posisi' => $nama_posisi ? $nama_posisi : Posisi::find($posisi_id)->nama,
                         'jenis' => $jenis,
                         'durasi' => $durasi,
                         'salary' => $salary,
                         'issued_date' => $issued_date,
                         'tempat_administrasi' => $tempat_administrasi,
-                        'no_surat' => str_pad($no_surat_int, 3, '0', STR_PAD_LEFT),
+                        'no_surat' => $no_surat_text,
                         'deskripsi' => $deskripsi,
                         'tanggal_mulai' => $tanggal_mulai,
                         'tanggal_selesai' => $tanggal_selesai,
@@ -214,18 +262,26 @@ class KontrakController extends Controller
                 $no_surat_int = intval($no_surat);
                 foreach($karyawan_id as $karyawan){
                     $kry = Karyawan::find($karyawan);
+                    $kontrak_karyawan = $kry->kontrak()->where('status', 'DONE')->count() + 1;
+
+                    //No Surat Text
                     $kry->jenis_kontrak = $jenis;
+                    $bulan_romawi = $this->angka_to_romawi(Carbon::parse($tanggal_mulai)->month);
+                    $hrd = $tempat_administrasi == 'Karawang' ? 'HRD-TCF3' : 'HRD-TCF2';
+                    $jenis_on_surat = $jenis.'-'.$this->angka_to_romawi($kontrak_karyawan);
+                    $tahun = Carbon::parse($tanggal_mulai)->format('Y');
+                    $no_surat_text = 'No. ' . str_pad($no_surat_int, 3, '0', STR_PAD_LEFT) . '/' . $jenis_on_surat . '/' . $hrd . '/'.$bulan_romawi.'/' . $tahun;
                     $kry->save();
                     $kontrak = Kontrak::create([
                         'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,
                         'karyawan_id' => $karyawan,
                         'posisi_id' => $posisi_id,
-                        'nama_posisi' => Posisi::find($posisi_id)->nama,
+                        'nama_posisi' => $nama_posisi ? $nama_posisi : Posisi::find($posisi_id)->nama,
                         'jenis' => $jenis,
                         'durasi' => null,
                         'salary' => $salary,
                         'issued_date' => $issued_date,
-                        'no_surat' => str_pad($no_surat_int, 3, '0', STR_PAD_LEFT),
+                        'no_surat' => $no_surat_text,
                         'tempat_administrasi' => $tempat_administrasi,
                         'deskripsi' => $deskripsi,
                         'tanggal_mulai' => $tanggal_mulai,
@@ -248,6 +304,34 @@ class KontrakController extends Controller
             DB::rollBack();
             return response()->json(['message' => 'Model not found: ' . $e->getMessage()], 404);
         }
+    }
+
+    //Buatkan saya sebuah fungsi untuk merubah bulan dalam tanggal menjadi sebuah angka romawi I-XII
+    function angka_to_romawi($angka) {
+        $romawi = [
+            1 => 'I',
+            2 => 'II',
+            3 => 'III',
+            4 => 'IV',
+            5 => 'V',
+            6 => 'VI',
+            7 => 'VII',
+            8 => 'VIII',
+            9 => 'IX',
+            10 => 'X',
+            11 => 'XI',
+            12 => 'XII',
+            13 => 'XIII',
+            14 => 'XIV',
+            15 => 'XV',
+            16 => 'XVI',
+            17 => 'XVII',
+            18 => 'XVIII',
+            19 => 'XIX',
+            20 => 'XX'
+        ];
+
+        return $romawi[$angka] ?? null;
     }
 
     /**
@@ -298,6 +382,7 @@ class KontrakController extends Controller
         $tanggal_selesai = $request->tanggal_selesai_kontrakEdit;
         $jenis = $request->jenis_kontrakEdit;
         $posisi = $request->posisi_kontrakEdit; 
+        $nama_posisi = $request->nama_posisi_kontrakEdit;
         $deskripsi = $request->deskripsi_kontrakEdit;
 
         DB::beginTransaction();
@@ -307,9 +392,19 @@ class KontrakController extends Controller
                 DB::commit();
                 return response()->json(['message' => 'Durasi tidak boleh kosong!'], 402);
             }
+            
 
             $kontrak = Kontrak::find($id_kontrak);
-            $kontrak->no_surat = $no_surat;
+            $kontrak_karyawan = Kontrak::where('karyawan_id',$kontrak->karyawan_id)->where('status', 'DONE')->count() + 1;
+
+            //No Surat Text
+            $bulan_romawi = $this->angka_to_romawi(Carbon::parse($tanggal_mulai)->month);
+            $hrd = $tempat_administrasi == 'Karawang' ? 'HRD-TCF3' : 'HRD-TCF2';
+            $jenis_on_surat = $jenis.'-'.$this->angka_to_romawi($kontrak_karyawan);
+            $tahun = Carbon::parse($tanggal_mulai)->format('Y');
+            $no_surat_text = 'No. ' . str_pad($no_surat, 3, '0', STR_PAD_LEFT) . '/' . $jenis_on_surat . '/' . $hrd . '/'.$bulan_romawi.'/' . $tahun;
+            
+            $kontrak->no_surat = $no_surat_text;
             $kontrak->issued_date = $issued_date;   
             $kontrak->tempat_administrasi = $tempat_administrasi;
 
@@ -328,7 +423,7 @@ class KontrakController extends Controller
             $kontrak->tanggal_selesai = $tanggal_selesai;
             $kontrak->jenis = $jenis;
             $kontrak->posisi_id = $posisi;
-            $kontrak->nama_posisi = Posisi::find($posisi)->nama;
+            $kontrak->nama_posisi = $nama_posisi !== Posisi::find($posisi)->nama ? $nama_posisi : Posisi::find($posisi)->nama;
             $kontrak->deskripsi = $deskripsi;
 
             $kontrak->save();
@@ -409,17 +504,19 @@ class KontrakController extends Controller
     public function get_data_detail_kontrak(string $idKontrak)
     {
         $kontrak = Kontrak::find($idKontrak);
+        $no_surat_numeric = substr($kontrak->no_surat, 4, 6 - 4 + 1);
         if($kontrak){
             $data = [
                 'id_kontrak' => $kontrak->id_kontrak,
                 'nama_karyawan' => $kontrak->karyawan->nama,
                 'posisi_id' => $kontrak->posisi_id,
+                'nama_posisi' => $kontrak->nama_posisi == $kontrak->posisi->nama ? '' : $kontrak->nama_posisi ,
                 'jenis' => $kontrak->jenis,
                 'status' => $kontrak->status,
                 'issued_date' => $kontrak->issued_date,
                 'tempat_administrasi' => $kontrak->tempat_administrasi,
                 'durasi' => $kontrak->durasi,
-                'no_surat' => $kontrak->no_surat,
+                'no_surat' => $no_surat_numeric,
                 'salary' => $kontrak->salary,
                 'deskripsi' => $kontrak->deskripsi,
                 'tanggal_mulai' => $kontrak->tanggal_mulai,

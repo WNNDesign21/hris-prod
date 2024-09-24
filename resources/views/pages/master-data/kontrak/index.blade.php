@@ -19,9 +19,14 @@
                 <div class="box-header d-flex justify-content-between">
                     <h4 class="box-title">Data Kontrak Karyawan</h4>
                     <div>
-                        <button type="button" class="btn btn-info waves-effect btnReload"><i
-                                class="fas fa-sync-alt"></i></button>
-                        <button type="button" class="btn btn-success waves-effect btnAdd">Tambah Kontrak</button>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-info waves-effect btnReload"><i
+                                    class="fas fa-sync-alt"></i></button>
+                            <button type="button" class="btn btn-warning waves-effect btnFilter"><i
+                                    class="fas fa-filter"></i></button>
+                            <button type="button" class="btn btn-success waves-effect btnAdd"><i
+                                    class="fas fa-plus"></i></button>
+                        </div>
                     </div>
                 </div>
                 <div class="box-body">
@@ -31,14 +36,14 @@
                                 <tr>
                                     <th>ID Kontrak</th>
                                     <th>Nama</th>
+                                    <th>Departemen</th>
                                     <th>Posisi</th>
-                                    <th>No. Surat</th>
+                                    <th>No. Perjanjian</th>
                                     <th>Issued Date</th>
                                     <th>Jenis Kontrak</th>
                                     <th>Status</th>
                                     <th>Durasi</th>
                                     <th>Salary</th>
-                                    {{-- <th>Status Changed</th> --}}
                                     <th>Tanggal Mulai</th>
                                     <th>Tanggal Selesai</th>
                                     <th class="text-center">Attachment</th>
@@ -55,4 +60,5 @@
     </div>
     @include('pages.master-data.kontrak.modal-tambah')
     @include('pages.master-data.kontrak.modal-edit')
+    @include('pages.master-data.kontrak.modal-filter')
 @endsection

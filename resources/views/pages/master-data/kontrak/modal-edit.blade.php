@@ -38,7 +38,7 @@
                                     <select name="tempat_administrasi_kontrakEdit" id="tempat_administrasi_kontrakEdit"
                                         class="form-control" style="width: 100%;">
                                         <option value="Karawang">Karawang</option>
-                                        <option value="Sadang">Sadang</option>
+                                        <option value="Purwakarta">Purwakarta</option>
                                     </select>
                                 </div>
                                 <div class="form-group">
@@ -58,6 +58,18 @@
                                         style="width: 100%;">
                                     </select>
                                 </div>
+                                <hr>
+                                <div class="form-group">
+                                    <label for="">Nama Posisi</label>
+                                    <br>
+                                    <small>Note : Jika mengisi ini, maka nama posisi ini yang akan muncul di Template
+                                        Kontrak, namun jika kosong, maka akan mengikuti bawaan dari Master Data
+                                        Posisi</small>
+                                    <input type="text" name="nama_posisi_kontrakEdit" id="nama_posisi_kontrakEdit"
+                                        class="form-control"
+                                        placeholder="Note :  Abaikan jika mengikuti master data posisi">
+                                </div>
+                                <hr>
                                 <div class="form-group">
                                     <label for="">Durasi (Dalam Bulan)</label>
                                     <input type="number" name="durasi_kontrakEdit" id="durasi_kontrakEdit"
