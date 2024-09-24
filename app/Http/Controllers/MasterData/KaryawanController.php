@@ -5,10 +5,12 @@ namespace App\Http\Controllers\MasterData;
 use Exception;
 use Throwable;
 use Carbon\Carbon;
+use App\Models\Grup;
 use App\Models\User;
 use App\Models\Posisi;
 use App\Models\Kontrak;
 use App\Models\Karyawan;
+use App\Models\Departemen;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -26,9 +28,14 @@ class KaryawanController extends Controller
      */
     public function index()
     {
+        $departemen = Departemen::all();
+        $posisi = Posisi::all();
+        $grup = Grup::all();
         $dataPage = [
             'pageTitle' => "Master Data - Karyawan",
             'page' => 'masterdata-karyawan',
+            'departemen' => $departemen,
+            'grup' => $grup,
         ];
         return view('pages.master-data.karyawan.index', $dataPage);
     }
@@ -91,6 +98,57 @@ class KaryawanController extends Controller
         $search = $request->input('search.value');
         if (!empty($search)) {
             $dataFilter['search'] = $search;
+        }
+
+
+        //FILTER DATA
+        $departemenFilter = $request->input('departemen');
+        if (!empty($departemenFilter)) {
+            $dataFilter['departemen'] = $departemenFilter;
+        }
+        $grupFilter = $request->input('grup');
+        if (!empty($grupFilter)) {
+            $dataFilter['grup'] = $grupFilter;
+        }
+        $jeniskontrakFilter = $request->input('jenisKontrak');
+        if (!empty($jeniskontrakFilter)) {
+            $dataFilter['jenisKontrak'] = $jeniskontrakFilter;
+        }
+        $statuskaryawanFilter = $request->input('statusKaryawan');
+        if (!empty($statuskaryawanFilter)) {
+            $dataFilter['statusKaryawan'] = $statuskaryawanFilter;
+        }
+        $jeniskelaminFilter = $request->input('jenisKelamin');
+        if (!empty($jeniskelaminFilter)) {
+            $dataFilter['jenisKelamin'] = $jeniskelaminFilter;
+        }
+        $agamaFilter = $request->input('agama');
+        if (!empty($agamaFilter)) {
+            $dataFilter['agama'] = $agamaFilter;
+        }
+        $golongandarahFilter = $request->input('golonganDarah');
+        if (!empty($golongandarahFilter)) {
+            $dataFilter['golonganDarah'] = $golongandarahFilter;
+        }
+        $statuskeluargaFilter = $request->input('statusKeluarga');
+        if (!empty($statuskeluargaFilter)) {
+            $dataFilter['statusKeluarga'] = $statuskeluargaFilter;
+        }
+        $kategorikeluargaFilter = $request->input('kategoriKeluarga');
+        if (!empty($kategorikeluargaFilter)) {
+            $dataFilter['kategoriKeluarga'] = $kategorikeluargaFilter;
+        }
+        $namabankFilter = $request->input('namaBank');
+        if (!empty($namabankFilter)) {
+            $dataFilter['namaBank'] = $namabankFilter;
+        }
+        $namaFilter = $request->input('nama');
+        if (!empty($namaFilter)) {
+            $dataFilter['nama'] = $namaFilter;
+        }
+        $nikFilter = $request->input('nik');
+        if (!empty($nikFilter)) {
+            $dataFilter['nik'] = $nikFilter;
         }
 
         $karyawan = Karyawan::getData($dataFilter, $settings);

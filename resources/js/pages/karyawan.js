@@ -92,6 +92,31 @@ $(function () {
             dataType: "json",
             type: "POST",
             data: function (dataFilter) {
+                var departemen = $('#filterDepartemen').val();
+                var grup = $('#filterGrup').val();
+                var jenisKontrak = $('#filterJeniskontrak').val();
+                var statusKaryawan = $('#filterStatuskaryawan').val();
+                var jenisKelamin = $('#filterJeniskelamin').val();
+                var agama = $('#filterAgama').val();
+                var golonganDarah = $('#filterGolongandarah').val();
+                var statusKeluarga = $('#filterStatuskeluarga').val();
+                var kategoriKeluarga = $('#filterKategorikeluarga').val();
+                var namaBank = $('#filterNamabank').val();
+                var nama = $('#filterNama').val();
+                var nik = $('#filterNik').val();
+
+                dataFilter.departemen = departemen;
+                dataFilter.grup = grup;
+                dataFilter.jenisKontrak = jenisKontrak;
+                dataFilter.statusKaryawan = statusKaryawan;
+                dataFilter.jenisKelamin = jenisKelamin;
+                dataFilter.agama = agama;
+                dataFilter.golonganDarah = golonganDarah;
+                dataFilter.statusKeluarga = statusKeluarga;
+                dataFilter.kategoriKeluarga = kategoriKeluarga;
+                dataFilter.namaBank = namaBank;
+                dataFilter.nama = nama;
+                dataFilter.nik = nik;
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.responseJSON.data) {
@@ -142,7 +167,7 @@ $(function () {
         columnDefs: [
             {
                 orderable: false,
-                targets: [2,-1],
+                targets: [3,-1],
             },
             {
                 targets: [-1],
@@ -155,6 +180,18 @@ $(function () {
 
     //REFRESH TABLE
     function refreshTable() {
+        $('#filterDepartemen').val('').trigger('change');
+        $('#filterGrup').val('').trigger('change');
+        $('#filterJeniskontrak').val('').trigger('change');
+        $('#filterStatuskaryawan').val('').trigger('change');
+        $('#filterJeniskelamin').val('').trigger('change');
+        $('#filterAgama').val('').trigger('change');
+        $('#filterGolongandarah').val('').trigger('change');
+        $('#filterStatuskeluarga').val('').trigger('change');
+        $('#filterKategorikeluarga').val('').trigger('change');
+        $('#filterNamabank').val('').trigger('change');
+        $('#filterNama').val('');
+        $('#filterNik').val('');
         karyawanTable.search("").draw();
     }
 
@@ -866,5 +903,93 @@ $(function () {
 
     $('.btnTemplate').on('click', function () {
         window.location.href = base_url + '/template/template_upload_karyawan.xlsx';
+    });
+
+    //FILTER KARYAWAN
+    $('.btnFilter').on("click", function (){
+        openFilter();
+    })
+
+    $('.btnCloseFilter').on("click", function (){
+        closeFilter();
+    })
+
+    $('.btnResetFilter').on("click", function (){
+        $('#filterDepartemen').val("").trigger('change');   
+        $('#filterGrup').val("").trigger('change');
+        $('#filterJeniskontrak').val("").trigger('change');
+        $('#filterStatuskaryawan').val("").trigger('change');
+        $('#filterJeniskelamin').val("").trigger('change');
+        $('#filterAgama').val("").trigger('change');
+        $('#filterGolongandarah').val("").trigger('change');
+        $('#filterStatuskeluarga').val("").trigger('change');
+        $('#filterKategorikeluarga').val("").trigger('change');
+        $('#filterNamabank').val("").trigger('change');
+        $('#filterNama').val("");
+        $('#filterNik').val("");
+    })
+
+
+    // MODAL TAMBAH KARYAWAN
+    var modalFilterKaryawanOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalFilterKaryawan = new bootstrap.Modal(
+        document.getElementById("modal-filter"),
+        modalFilterKaryawanOptions
+    );
+
+    function openFilter() {
+        modalFilterKaryawan.show();
+        $('#filterDepartemen').select2({
+            dropdownParent: $('#modal-filter'),
+        });
+
+        $('#filterGrup').select2({
+            dropdownParent: $('#modal-filter'),
+        });
+
+        $('#filterJeniskontrak').select2({
+            dropdownParent: $('#modal-filter'),
+        });
+
+        $('#filterStatuskaryawan').select2({
+            dropdownParent: $('#modal-filter'),
+        });
+
+        $('#filterJeniskelamin').select2({
+            dropdownParent: $('#modal-filter'),
+        });
+
+        $('#filterAgama').select2({
+            dropdownParent: $('#modal-filter'),
+        });
+
+        $('#filterGolongandarah').select2({
+            dropdownParent: $('#modal-filter'),
+        });
+
+        $('#filterStatuskeluarga').select2({
+            dropdownParent: $('#modal-filter'),
+        });
+
+        $('#filterKategorikeluarga').select2({
+            dropdownParent: $('#modal-filter'),
+        });
+
+        $('#filterNamabank').select2({
+            dropdownParent: $('#modal-filter'),
+        });
+    }
+
+    function closeFilter() {
+        modalFilterKaryawan.hide();
+    }
+
+    $(".btnSubmitFilter").on("click", function () {
+        karyawanTable.draw();
+        closeFilter();
     });
 });

@@ -132,8 +132,57 @@ class Karyawan extends Model
             'karyawans.jurusan_pendidikan',
             'karyawans.no_telp_darurat',
             'departemens.nama as nama_departemen'
-        )
-        ->leftJoin('users', 'karyawans.user_id', 'users.id')
+        );
+
+        if(isset($dataFilter['departemen'])) {
+            $data->where('departemens.id_departemen', $dataFilter['departemen']);
+        }
+
+        if(isset($dataFilter['grup'])) {
+            $data->where('grups.id_grup', $dataFilter['grup']);
+        }
+
+        if(isset($dataFilter['jenisKontrak'])) {
+            $data->where('karyawans.jenis_kontrak', $dataFilter['jenisKontrak']);
+        }
+
+        if(isset($dataFilter['statusKaryawan'])) {
+            $data->where('karyawans.status_karyawan', $dataFilter['statusKaryawan']);
+        }
+
+        if(isset($dataFilter['jenisKelamin'])) {
+            $data->where('karyawans.jenis_kelamin', $dataFilter['jenisKelamin']);
+        }
+
+        if(isset($dataFilter['agama'])) {
+            $data->where('karyawans.agama', $dataFilter['agama']);
+        }
+
+        if(isset($dataFilter['golonganDarah'])) {
+            $data->where('karyawans.gol_darah', $dataFilter['golonganDarah']);
+        }
+
+        if(isset($dataFilter['statusKeluarga'])) {
+            $data->where('karyawans.status_keluarga', $dataFilter['statusKeluarga']);
+        }
+
+        if(isset($dataFilter['kategoriKeluarga'])) {
+            $data->where('karyawans.kategori_keluarga', $dataFilter['kategoriKeluarga']);
+        }
+
+        if(isset($dataFilter['namaBank'])) {
+            $data->where('karyawans.nama_bank', $dataFilter['namaBank']);
+        }
+
+        if(isset($dataFilter['nama'])) {
+            $data->where('karyawans.nama', 'ILIKE', '%'.$dataFilter['nama'].'%');
+        }
+
+        if(isset($dataFilter['nik'])) {
+            $data->where('karyawans.ni_karyawan', $dataFilter['nik']);
+        }
+        
+        $data->leftJoin('users', 'karyawans.user_id', 'users.id')
         ->leftJoin('grups', 'karyawans.grup_id', 'grups.id_grup')
         ->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
         ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')

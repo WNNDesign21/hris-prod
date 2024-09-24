@@ -21,17 +21,16 @@
                     <div class="btn-group">
                         <button type="button" class="btn btn-info waves-effect btnReload"><i
                                 class="fas fa-sync-alt"></i></button>
-                        <button type="button" class="btn btn-sm btn-success waves-effect btnAdd"><i
-                                class="fas fa-user-tie"></i>
-                            Tambah</button>
-                        <button type="button" class="btn btn-sm btn-dark waves-effect btnUpload"><i
-                                class="fas fa-upload"></i>
-                            Upload</button>
-                        <button type="button" class="btn btn-sm btn-light waves-effect btnTemplate"><i
-                                class="fas fa-paste"></i>
-                            Template</button>
-                        <input type="file" id="upload-karyawan" class="d-none">
+                        <button type="button" class="btn btn-warning waves-effect btnFilter"><i
+                                class="fas fa-filter"></i></button>
+                        <button type="button" class="btn btn-success waves-effect btnAdd"><i
+                                class="fas fa-plus"></i></button>
+                        <button type="button" class="btn btn-dark waves-effect btnUpload"><i
+                                class="fas fa-upload"></i></button>
+                        <button type="button" class="btn btn-light waves-effect btnTemplate"><i
+                                class="fas fa-file-excel"></i></button>
                     </div>
+                    <input type="file" id="upload-karyawan" class="d-none">
                 </div>
                 <div class="box-body">
                     <div class="table-responsive">
@@ -84,4 +83,5 @@
     @include('pages.master-data.karyawan.modal-edit')
     @include('pages.master-data.karyawan.modal-akun')
     @include('pages.master-data.karyawan.modal-kontrak')
+    @include('pages.master-data.karyawan.modal-filter')
 @endsection
