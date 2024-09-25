@@ -28,7 +28,100 @@
             </ul>
         </div>
         <div class="navbar-custom-menu r-side">
-            <ul class="nav navbar-nav">
+            <ul class="nav navbar-nav gap-1">
+                <!-- Notifications -->
+                <li class="dropdown notifications-menu">
+                    <a href="#" class="btn btn-primary dropdown-toggle position-relative"
+                        data-bs-toggle="dropdown" title="Notifications">
+                        <i class="icon-Notifications"><span class="path1"></span><span class="path2"></span></i>
+                        @if ($notification['count_tenggang_karyawan'] > 0)
+                            <span
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                style="font-size: 1rem;z-index:2;">
+                                {{ $notification['count_tenggang_karyawan'] }}
+                            </span>
+                        @endif
+                    </a>
+                    <ul class="dropdown-menu animated bounceIn" style="max-width: none;min-width:250px;">
+                        <li class="header">
+                            <div class="p-20">
+                                <div class="flexbox">
+                                    <div>
+                                        <h4 class="mb-0 mt-0">Notifications</h4>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <!-- inner menu: contains the actual data -->
+                            <ul class="menu sm-scroll">
+                                @if (!empty($notification['list']))
+                                    @foreach ($notification['list'] as $list)
+                                        <li>
+                                            <a href="{{ route('master-data.kontrak') }}">
+                                                <i class="fa fa-user text-danger"></i> {{ $list->nama }} memiliki
+                                                sisa
+                                                <strong>{{ $list->jumlah_hari }}</strong> sebelum masa
+                                                <strong>TERMINASI</strong>.
+                                            </a>
+                                        </li>
+                                    @endforeach
+                                @else
+                                    <li>
+                                        <a href="#" class="text-center">
+                                            Everything is just Fine 👌
+                                        </a>
+                                    </li>
+                                @endif
+
+                                {{-- <li>
+                                    <a href="#">
+                                        <i class="fa fa-users text-info"></i> Curabitur id eros quis nunc
+                                        suscipit blandit.
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#">
+                                        <i class="fa fa-warning text-warning"></i> Duis malesuada justo eu
+                                        sapien elementum, in semper diam posuere.
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#">
+                                        <i class="fa fa-users text-danger"></i> Donec at nisi sit amet tortor
+                                        commodo porttitor pretium a erat.
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#">
+                                        <i class="fa fa-shopping-cart text-success"></i> In gravida mauris et
+                                        nisi
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#">
+                                        <i class="fa fa-user text-danger"></i> Praesent eu lacus in libero
+                                        dictum fermentum.
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#">
+                                        <i class="fa fa-user text-primary"></i> Nunc fringilla lorem
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="#">
+                                        <i class="fa fa-user text-success"></i> Nullam euismod dolor ut quam
+                                        interdum, at scelerisque ipsum imperdiet.
+                                    </a>
+                                </li> --}}
+                            </ul>
+                        </li>
+                        <li class="footer">
+                            <a href="#">View all</a>
+                        </li>
+                    </ul>
+                </li>
                 <li class="btn-group nav-item d-lg-inline-flex">
                     <a href="{{ route('root') }}" class="waves-effect waves-light nav-link" title="Back to Menu">
                         <i class="fa fa-fw fa-arrow-right"></i>

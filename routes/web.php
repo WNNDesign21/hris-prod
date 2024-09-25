@@ -56,7 +56,7 @@ Route::get('/cutie/dashboard-cuti/get-data-jenis-cuti-monthly-chart',[CutieContr
 Route::get('/cutie/setting-cuti/get-data-detail-jenis-cuti/{idJenisCuti}',[CutieController::class, 'get_data_detail_jenis_cuti']);
 
 
-Route::group(['middleware' => ['auth']], function () {
+Route::group(['middleware' => ['auth', 'notifikasi']], function () {
     // MENU UTAMA
     Route::get('/home', [HomeController::class, 'index'])->name('root');
 

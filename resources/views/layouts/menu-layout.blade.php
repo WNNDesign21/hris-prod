@@ -25,6 +25,65 @@
         <nav class="navbar m-0 navbar-static-top justify-content-end">
             <div class="navbar-custom-menu r-side">
                 <ul class="nav navbar-nav">
+                    <li class="dropdown notifications-menu">
+                        <a href="#" class="btn btn-primary dropdown-toggle position-relative"
+                            data-bs-toggle="dropdown" title="Notifications">
+                            <i class="icon-Notifications"><span class="path1"></span><span class="path2"></span></i>
+                            @if ($notification['count_tenggang_karyawan'] > 0)
+                                <span
+                                    class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                    style="font-size: 1rem;z-index:2;">
+                                    {{ $notification['count_tenggang_karyawan'] }}
+                                </span>
+                            @endif
+                        </a>
+                        <ul class="dropdown-menu animated bounceIn" style="max-width: none;min-width:250px;">
+                            <li class="header">
+                                <div class="p-20">
+                                    <div class="flexbox">
+                                        <div>
+                                            <h4 class="mb-0 mt-0">Notifications</h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <li>
+                                <!-- inner menu: contains the actual data -->
+                                <ul class="menu sm-scroll">
+                                    @if (!empty($notification['list']))
+                                        @foreach ($notification['list'] as $list)
+                                            <li>
+                                                @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('super user') || auth()->user()->hasRole('atasan'))
+                                                    <a href="{{ route('master-data.kontrak') }}">
+                                                        <i class="fa fa-user text-danger"></i> {{ $list->nama }}
+                                                        memiliki
+                                                        sisa
+                                                        <strong>{{ $list->jumlah_hari }}</strong> sebelum masa
+                                                        <strong>TERMINASI</strong>.
+                                                    </a>
+                                                @else
+                                                    <a href="#" style="pointer-events: none; cursor: default;">
+                                                        <i class="fa fa-user text-danger"></i> Anda memiliki sisa
+                                                        <strong>{{ $list->jumlah_hari }}</strong> sebelum masa
+                                                        <strong>TERMINASI</strong>, segera hubungi atasan anda.
+                                                    </a>
+                                                @endif
+                                            </li>
+                                        @endforeach
+                                    @else
+                                        <li>
+                                            <a href="#" class="text-center">
+                                                Everything is just Fine 👌
+                                            </a>
+                                        </li>
+                                    @endif
+                                </ul>
+                            </li>
+                            <li class="footer">
+                                <a href="#">View all</a>
+                            </li>
+                        </ul>
+                    </li>
                     <!-- User Account-->
                     <li class="dropdown user user-menu">
                         <a href="#" class="waves-effect waves-light dropdown-toggle" data-bs-toggle="dropdown"
