@@ -21,8 +21,10 @@
                         <h4 class="box-title">List Data Cuti Personal</h4>
                         <br>
                         <br>
-                        <small>Jatah Cuti Pribadi Total ({{ date('Y') }}) : {{ auth()->user()->karyawan->sisa_cuti }}
-                            <br> Hutang Cuti ({{ date('Y') }}) : {{ auth()->user()->karyawan->hutang_cuti }}</small>
+                        <small>Jatah Cuti Pribadi Total ({{ date('Y') }}) : <span class="text-bold"
+                                id="sisa_cuti_display">{{ auth()->user()->karyawan->sisa_cuti }} Hari</span>
+                            <br> Hutang Cuti ({{ date('Y') }}) : <span class="text-bold"
+                                id="hutang_cuti_display">{{ auth()->user()->karyawan->hutang_cuti }} Hari</span></small>
                     </div>
                     <div>
                         <div class="btn-group">
