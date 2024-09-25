@@ -31,8 +31,8 @@
             <ul class="nav navbar-nav gap-1">
                 <!-- Notifications -->
                 <li class="dropdown notifications-menu">
-                    <a href="#" class="btn btn-primary dropdown-toggle position-relative"
-                        data-bs-toggle="dropdown" title="Notifications">
+                    <a href="#" class="btn btn-light dropdown-toggle position-relative" data-bs-toggle="dropdown"
+                        title="Notifications">
                         <i class="icon-Notifications"><span class="path1"></span><span class="path2"></span></i>
                         @if ($notification['count_tenggang_karyawan'] > 0)
                             <span
@@ -63,13 +63,13 @@
                                                     <i class="fa fa-user text-danger"></i> {{ $list->nama }}
                                                     memiliki
                                                     sisa
-                                                    <strong>{{ $list->jumlah_hari }}</strong> sebelum masa
+                                                    <strong>{{ $list->jumlah_hari }} Hari</strong> sebelum masa
                                                     <strong>TERMINASI</strong>.
                                                 </a>
                                             @else
                                                 <a href="#" style="pointer-events: none; cursor: default;">
                                                     <i class="fa fa-user text-danger"></i> Anda memiliki sisa
-                                                    <strong>{{ $list->jumlah_hari }}</strong> sebelum masa
+                                                    <strong>{{ $list->jumlah_hari }} Hari</strong> sebelum masa
                                                     <strong>TERMINASI</strong>, segera hubungi atasan anda.
                                                 </a>
                                             @endif
@@ -126,9 +126,9 @@
                                 </li> --}}
                             </ul>
                         </li>
-                        <li class="footer">
+                        {{-- <li class="footer">
                             <a href="#">View all</a>
-                        </li>
+                        </li> --}}
                     </ul>
                 </li>
                 <li class="btn-group nav-item d-lg-inline-flex">

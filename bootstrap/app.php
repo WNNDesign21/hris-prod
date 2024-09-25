@@ -23,6 +23,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withSchedule(function (Schedule $schedule) {
         $schedule->command('cutie:update-status-onleave')->everyMinute()->runInBackground();
         $schedule->command('cutie:update-status-completed')->everyFiveMinutes()->between('22:30', '23:59')->runInBackground();
+        $schedule->command('cutie:automatic-reject-cuti')->hourly()->runInBackground();
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

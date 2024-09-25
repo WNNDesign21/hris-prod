@@ -47,8 +47,10 @@
                                 <div class="form-group">
                                     <label for="">Rencana Selesai</label>
                                     <br>
-                                    <small>Note : Jika rencana selesai jatuh pada hari sabtu/minggu, maka sisa durasi
-                                        tersebut otomatis akan dialihkan pada hari kerja berikutnya.</small>
+                                    <small>Note : Jika rencana selesai jatuh pada hari sabtu/minggu, maka
+                                        sisa durasi
+                                        tersebut otomatis akan dialihkan pada hari kerja berikutnya (Cuti Khusus)
+                                    </small>
                                     <input type="date" name="rencana_selesai_cuti" id="rencana_selesai_cuti"
                                         class="form-control" required>
                                 </div>
