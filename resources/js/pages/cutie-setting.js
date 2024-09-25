@@ -47,6 +47,7 @@ $(function () {
     var columnsTable = [
         { data: "jenis" },
         { data: "durasi" },
+        { data: "isUrgent" },
         { data: "aksi" },
     ];
 
@@ -167,6 +168,7 @@ $(function () {
         $('.modal-title').text('Tambah Jenis Cuti Khusus')
         $('#jenis').val('');
         $('#durasi').val('');
+        $('#isUrgent').val('Y');
         $('#form-setting-cuti').attr('action', url);
         $('input[name="_method"]').val('POST');
     }
@@ -183,6 +185,7 @@ $(function () {
                 $('#id_jenis_cuti').val(data.id_cuti);
                 $('#jenis').val(data.jenis);
                 $('#durasi').val(data.durasi);
+                $('#isUrgent').val(data.isUrgent);
                 $('.modal-title').text('Edit Jenis Cuti Khusus')
 
                 $('#form-setting-cuti').attr('action', base_url + '/cutie/setting-cuti/update/' + idJenisCuti);

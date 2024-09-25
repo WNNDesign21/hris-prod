@@ -202,13 +202,16 @@ $(function () {
     
     $('#jenis_cuti').on('change', function() {
         let jenisCuti = $(this).val();
+
+        $('#rencana_mulai_cuti').attr('min', minDate.toISOString().split('T')[0]);
+        $('#rencana_mulai_cuti').val('');
         if (jenisCuti == 'KHUSUS') {
             var conditionalField = $('#conditional_field');
             conditionalField.empty();
             conditionalField.append('<label for="jenis_cuti_khusus">Jenis Cuti Khusus</label>');
             var selectField = $('<select style="width:100%;"></select>').attr('id', 'jenis_cuti_khusus').attr('name', 'jenis_cuti_khusus');
             $.each(jenisCutiKhusus, function (i, val){
-                selectField.append('<option value="'+val.id+'" data-durasi="'+val.durasi+'">'+val.text+'</option>');
+                selectField.append('<option value="'+val.id+'" data-durasi="'+val.durasi+'" data-isurgent="'+val.isurgent+'">'+val.text+'</option>');
             });
             conditionalField.append(selectField);
             $('#rencana_selesai_cuti').val('');
@@ -220,6 +223,13 @@ $(function () {
             $('#jenis_cuti_khusus').on('change', function() {
                 $('#rencana_mulai_cuti').val('');
                 $('#rencana_selesai_cuti').val('');
+                var isUrgent = $(this).find('option:selected').data('isurgent');
+                console.log(isUrgent)
+                if(isUrgent == 'Y'){
+                    $('#rencana_mulai_cuti').removeAttr('min');
+                } else {
+                    $('#rencana_mulai_cuti').attr('min', minDate.toISOString().split('T')[0]);
+                }
             });
 
             $('#rencana_mulai_cuti').on('change', function() {
@@ -227,13 +237,23 @@ $(function () {
                 var durasi = $('#jenis_cuti_khusus').find('option:selected').data('durasi');
                 $('#durasi_cuti').val(durasi);
                 var rencanaSelesaiCuti = new Date(rencanaMulaiCuti);
-                rencanaSelesaiCuti.setDate(rencanaSelesaiCuti.getDate() + durasi - 1); 
+                
+                //Logic mengecek hari sabtu dan minggu, jika durasi cuti jatuh pada hari sabtu dan minggu, 
+                // maka akan di skip dan dilanjutkan di hari kerja berikutnya
+                for (var i = 0; i < durasi - 1; i++) {
+                    rencanaSelesaiCuti.setDate(rencanaSelesaiCuti.getDate() + 1);
+                    if (rencanaSelesaiCuti.getDay() === 6) { // Saturday
+                        rencanaSelesaiCuti.setDate(rencanaSelesaiCuti.getDate() + 2);
+                    } else if (rencanaSelesaiCuti.getDay() === 0) { // Sunday
+                        rencanaSelesaiCuti.setDate(rencanaSelesaiCuti.getDate() + 1);
+                    }
+                }
+
                 var year = rencanaSelesaiCuti.getFullYear();
                 var month = ("0" + (rencanaSelesaiCuti.getMonth() + 1)).slice(-2);
                 var day = ("0" + rencanaSelesaiCuti.getDate()).slice(-2);
                 var formattedDate = year + "-" + month + "-" + day;
                 $('#rencana_selesai_cuti').val(formattedDate);
-                console.log(formattedDate);
             });
         } else if (jenisCuti == 'SAKIT') {
             var conditionalField = $('#conditional_field');
@@ -276,6 +296,10 @@ $(function () {
             },
         })
     });
+
+    let minDate = new Date();
+    minDate.setDate(minDate.getDate() + 7);
+    $('#rencana_mulai_cuti').attr('min', minDate.toISOString().split('T')[0]);
 
     $('#rencana_mulai_cuti').change(function() {
         var selesaiCutiInput = $('#rencana_selesai_cuti');

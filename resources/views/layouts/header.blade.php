@@ -58,12 +58,21 @@
                                 @if (!empty($notification['list']))
                                     @foreach ($notification['list'] as $list)
                                         <li>
-                                            <a href="{{ route('master-data.kontrak') }}">
-                                                <i class="fa fa-user text-danger"></i> {{ $list->nama }} memiliki
-                                                sisa
-                                                <strong>{{ $list->jumlah_hari }}</strong> sebelum masa
-                                                <strong>TERMINASI</strong>.
-                                            </a>
+                                            @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('super user') || auth()->user()->hasRole('atasan'))
+                                                <a href="{{ route('master-data.kontrak') }}">
+                                                    <i class="fa fa-user text-danger"></i> {{ $list->nama }}
+                                                    memiliki
+                                                    sisa
+                                                    <strong>{{ $list->jumlah_hari }}</strong> sebelum masa
+                                                    <strong>TERMINASI</strong>.
+                                                </a>
+                                            @else
+                                                <a href="#" style="pointer-events: none; cursor: default;">
+                                                    <i class="fa fa-user text-danger"></i> Anda memiliki sisa
+                                                    <strong>{{ $list->jumlah_hari }}</strong> sebelum masa
+                                                    <strong>TERMINASI</strong>, segera hubungi atasan anda.
+                                                </a>
+                                            @endif
                                         </li>
                                     @endforeach
                                 @else

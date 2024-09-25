@@ -15,6 +15,7 @@ return new class extends Migration
             $table->increments('id_jenis_cuti');
             $table->string('jenis')->unique();
             $table->integer('durasi');
+            $table->enum('isUrgent', ['Y', 'N'])->default('N');
 
             $table->softDeletes();
             $table->timestamps();

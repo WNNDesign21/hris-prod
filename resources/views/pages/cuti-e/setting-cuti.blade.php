@@ -19,10 +19,12 @@
                 <div class="box-header d-flex justify-content-between">
                     <h4 class="box-title">List Cuti Khusus</h4>
                     <div>
-                        <button type="button" class="btn btn-info waves-effect btnReload"><i
-                                class="fas fa-sync-alt"></i></button>
-                        <button type="button" class="btn btn-success waves-effect btnAdd"><i class="fas fa-plus"></i>
-                            Tambah Cuti Khusus</button>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-info waves-effect btnReload"><i
+                                    class="fas fa-sync-alt"></i></button>
+                            <button type="button" class="btn btn-success waves-effect btnAdd"><i
+                                    class="fas fa-plus"></i></button>
+                        </div>
                     </div>
                 </div>
                 <div class="box-body">
@@ -32,6 +34,7 @@
                                 <tr>
                                     <th>Jenis Cuti</th>
                                     <th>Durasi</th>
+                                    <th>isUrgent</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>

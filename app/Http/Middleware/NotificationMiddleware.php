@@ -19,6 +19,7 @@ class NotificationMiddleware
         $notification = [];
         $today = date('Y-m-d');
         $user = auth()->user();
+        $tenggang_karyawans = [];
 
         if($user->hasRole('personalia') || $user->hasRole('super user')){
             $tenggang_karyawans = Karyawan::where('status_karyawan', 'AKTIF')
@@ -49,7 +50,7 @@ class NotificationMiddleware
         }
 
         $notification = [
-            'count_tenggang_karyawan' => $tenggang_karyawans->count(),
+            'count_tenggang_karyawan' => $tenggang_karyawans?->count(),
             'list' => $tenggang_karyawans
         ];
         view()->share('notification', $notification);
