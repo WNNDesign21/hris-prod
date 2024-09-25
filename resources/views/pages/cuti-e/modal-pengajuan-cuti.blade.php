@@ -19,7 +19,6 @@
                                     <label for="">Jenis Cuti<span class="text-danger">*</span></label>
                                     <select name="jenis_cuti" id="jenis_cuti" class="form-control" style="width: 100%;">
                                         <option value="PRIBADI">PRIBADI</option>
-                                        <option value="SAKIT">SAKIT</option>
                                         <option value="KHUSUS">KHUSUS</option>
                                     </select>
                                 </div>

@@ -125,6 +125,10 @@
         @vite(['resources/js/pages/turnover.js'])
     @endif
 
+    @if ($page == 'masterdata-export')
+        @vite(['resources/js/pages/export.js'])
+    @endif
+
     @if ($page == 'masterdata-template')
         @vite(['resources/js/pages/template.js'])
     @endif
