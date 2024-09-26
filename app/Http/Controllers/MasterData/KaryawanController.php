@@ -76,7 +76,6 @@ class KaryawanController extends Controller
             31 => 'jurusan_pendidikan',
             32 => 'no_telp_darurat',
             33 => 'gol_darah',
-            34 => 'sisa_cuti',
             35 => 'hutang_cuti',
             
         );
@@ -196,7 +195,7 @@ class KaryawanController extends Controller
                 $nestedData['jurusan_pendidikan'] = $data->jurusan_pendidikan;
                 $nestedData['no_telp_darurat'] = $data->no_telp_darurat;
                 $nestedData['gol_darah'] = $data->gol_darah;
-                $nestedData['sisa_cuti'] = $data->sisa_cuti;
+                $nestedData['sisa_cuti'] = 'Cuti Pribadi : '.$data->sisa_cuti_pribadi.'<br> Cuti Bersama : '. $data->sisa_cuti_bersama;
                 $nestedData['hutang_cuti'] = $data->hutang_cuti;
                 $nestedData['aksi'] = '
                 <div class="btn-group">
@@ -695,7 +694,8 @@ class KaryawanController extends Controller
                 'jurusan_pendidikan' => $karyawan->jurusan_pendidikan,
                 'jenis_kontrak' => $karyawan->jenis_kontrak,
                 'status_karyawan' => $karyawan->status_karyawan,
-                'sisa_cuti' => $karyawan->sisa_cuti,
+                'sisa_cuti_pribadi' => $karyawan->sisa_cuti_pribadi,
+                'sisa_cuti_bersama' => $karyawan->sisa_cuti_bersama,
                 'hutang_cuti' => $karyawan->hutang_cuti,
                 'tanggal_mulai' => $karyawan->tanggal_mulai,
                 'tanggal_selesai' => $karyawan->tanggal_selesai,

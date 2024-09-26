@@ -312,24 +312,6 @@
                                         required>
                                     </select>
                                 </div>
-                                {{-- <div class="row">
-                                    <div class="col-lg-6 col-12">
-                                        <div class="form-group">
-                                            <label class="form-label">Jatah Cuti <span
-                                                    class="text-danger">*</span></label>
-                                            <input type="number" name="sisa_cuti" id="sisa_cuti"
-                                                class="form-control" min='0' max='12' required>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6 col-12">
-                                        <div class="form-group">
-                                            <label class="form-label">Hutang Cuti <span
-                                                    class="text-danger">*</span></label>
-                                            <input type="number" name="hutang_cuti" id="hutang_cuti"
-                                                class="form-control" min='0' max='12' required>
-                                        </div>
-                                    </div>
-                                </div> --}}
                             </div>
                             <div class="d-flex justify-content-end mt-2">
                                 <button type="submit" class="btn btn-success"><i class="fas fa-save"></i>

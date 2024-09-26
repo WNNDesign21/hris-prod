@@ -22,7 +22,8 @@
                         <br>
                         <br>
                         <small>Jatah Cuti Pribadi Total ({{ date('Y') }}) : <span class="text-bold"
-                                id="sisa_cuti_display">{{ auth()->user()->karyawan->sisa_cuti }} Hari</span>
+                                id="sisa_cuti_total_display">{{ auth()->user()->karyawan->sisa_cuti_pribadi + auth()->user()->karyawan->sisa_cuti_bersama }}
+                                Hari</span>
                             <br> Hutang Cuti ({{ date('Y') }}) : <span class="text-bold"
                                 id="hutang_cuti_display">{{ auth()->user()->karyawan->hutang_cuti }} Hari</span></small>
                     </div>

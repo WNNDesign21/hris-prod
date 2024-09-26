@@ -41,11 +41,11 @@ class AutomaticRejectCuti extends Command
 
             foreach ($data_cuti as $ct) {
                 $karyawan = Karyawan::find($ct->karyawan_id);
-                $total_sisa_cuti = $karyawan->sisa_cuti + $ct->durasi_cuti;
-                if ($total_sisa_cuti > 12) {
-                    $karyawan->sisa_cuti = 12;
+                $total_sisa_cuti_pribadi = $karyawan->sisa_cuti_pribadi + $ct->durasi_cuti;
+                if ($total_sisa_cuti_pribadi > 6) {
+                    $karyawan->sisa_cuti_pribadi = 6;
                 } else {
-                    $karyawan->sisa_cuti = $total_sisa_cuti;
+                    $karyawan->sisa_cuti_pribadi = $total_sisa_cuti_pribadi;
                 }
                 $karyawan->save();
             }

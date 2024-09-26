@@ -309,7 +309,7 @@ class ExportController extends Controller
                 $sheet->setCellValue('AD' . $row, $data->gol_darah);
                 $sheet->setCellValue('AE' . $row, $data->email);
                 $sheet->setCellValue('AF' . $row, $email_corporate);
-                $sheet->setCellValue('AG' . $row, $data->sisa_cuti);
+                $sheet->setCellValue('AG' . $row, $data->sisa_cuti_pribadi + $data->sisa_cuti_bersama);
                 $sheet->setCellValue('AH' . $row, $data->hutang_cuti);
                 $row++;
                 $i++;

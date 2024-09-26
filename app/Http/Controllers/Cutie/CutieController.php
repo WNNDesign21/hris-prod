@@ -831,7 +831,7 @@ class CutieController extends Controller
         $alasan_cuti = $request->alasan_cuti;
         $durasi_cuti = $request->durasi_cuti;
         $karyawan_id = auth()->user()->karyawan->id_karyawan;
-        $sisa_cuti = Karyawan::find($karyawan_id)->sisa_cuti;
+        $sisa_cuti_pribadi = Karyawan::find($karyawan_id)->sisa_cuti_pribadi;
 
         if($jenis_cuti == 'PRIBADI'){
             $dataValidate = [
@@ -883,15 +883,15 @@ class CutieController extends Controller
                     return response()->json(['message' => 'Attachment tidak boleh kosong!'], 402);
                 }
             } elseif ($jenis_cuti == 'PRIBADI') {
-                $jatah_cuti = $sisa_cuti - $durasi_cuti;
-                if($sisa_cuti <= 6){
+                $jatah_cuti = $sisa_cuti_pribadi - $durasi_cuti;
+                if($sisa_cuti_pribadi < 0){
                     return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Hubungi HRD untuk informasi lebih lanjut!'], 402);
                 } else {
-                    if($jatah_cuti < 6){
+                    if($jatah_cuti < 0){
                         return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Silahkan baca ketentuan pembagian cuti pribadi lagi!'], 402);
                     } else {
                         $karyawan = Karyawan::find($karyawan_id);
-                        $karyawan->sisa_cuti = $jatah_cuti;
+                        $karyawan->sisa_cuti_pribadi = $jatah_cuti;
                         $karyawan->save();
                     }
                 }
@@ -911,7 +911,7 @@ class CutieController extends Controller
                 'durasi_cuti' => $durasi_cuti,
             ]);
             DB::commit();
-            return response()->json(['message' => 'Pengajuan cuti berhasil dibuat, konfirmasi ke atasan untuk melakukan approval!', 'data' => $jatah_cuti], 200);
+            return response()->json(['message' => 'Pengajuan cuti berhasil dibuat, konfirmasi ke atasan untuk melakukan approval!', 'data' => $jatah_cuti + $karyawan->sisa_cuti_bersama], 200);
         } catch(Throwable $error){
             DB::rollBack();
             return response()->json(['message' => $error->getMessage()], 500);
@@ -1013,7 +1013,7 @@ class CutieController extends Controller
             $cuti->durasi_cuti = $durasi_cuti;
             $cuti->save();
             DB::commit();
-            return response()->json(['message' => 'Pengajuan cuti berhasil diubah, konfirmasi ke atasan untuk melakukan approval!', 'data' => $karyawan->sisa_cuti], 200);
+            return response()->json(['message' => 'Pengajuan cuti berhasil diubah, konfirmasi ke atasan untuk melakukan approval!', 'data' => $karyawan->sisa_cuti_pribadi + $karyawan->sisa_cuti_bersama], 200);
         } catch(Throwable $error){
             DB::rollBack();
             return response()->json(['message' => $error->getMessage()], 500);
@@ -1053,7 +1053,7 @@ class CutieController extends Controller
             $cuti->save();
 
             $karyawan = Karyawan::find($cuti->karyawan_id);
-            $karyawan->sisa_cuti = $karyawan->sisa_cuti + $cuti->durasi_cuti;
+            $karyawan->sisa_cuti_pribadi = $karyawan->sisa_cuti_pribadi + $cuti->durasi_cuti;
             $karyawan->save();
 
             DB::commit();
@@ -1271,7 +1271,7 @@ class CutieController extends Controller
             $karyawan = Karyawan::find($cutie->karyawan_id);
 
             if($cutie->rejected_by == null && $cutie->jenis_cuti == 'PRIBADI'){
-                $karyawan->sisa_cuti = $karyawan->sisa_cuti + $cutie->durasi_cuti;
+                $karyawan->sisa_cuti_pribadi = $karyawan->sisa_cuti_pribadi + $cutie->durasi_cuti;
                 $karyawan->save();
             }
 
@@ -1367,13 +1367,13 @@ class CutieController extends Controller
             $karyawan = Karyawan::find($cutie->karyawan_id);
 
             if($cutie->rejected_by == null && $cutie->jenis_cuti == 'PRIBADI'){
-                $karyawan->sisa_cuti = $karyawan->sisa_cuti + $cutie->durasi_cuti;
+                $karyawan->sisa_cuti_pribadi = $karyawan->sisa_cuti_pribadi + $cutie->durasi_cuti;
                 $karyawan->save();
             }
             
             $cutie->delete();
             DB::commit();
-            return response()->json(['message' => 'Pengajuan Cuti Dihapus!', 'data' => $karyawan->sisa_cuti],200);
+            return response()->json(['message' => 'Pengajuan Cuti Dihapus!', 'data' => $karyawan->sisa_cuti_pribadi + $karyawan->sisa_cuti_bersama],200);
         } catch(Throwable $error){
             DB::rollBack();
             return response()->json(['message' => $error->getMessage()], 500);

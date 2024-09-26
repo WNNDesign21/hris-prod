@@ -235,7 +235,8 @@ $(function () {
     function resetKaryawan() {
         $("#nama").val("");
         $("#no_kk").val("");
-        $("#sisa_cuti").val("");
+        $("#sisa_cuti_pribadi").val("");
+        $("#sisa_cuti_bersama").val("");
         $("#tempat_lahir").val("");
         $("#tanggal_lahir").val("");
         $("#jenis_kelamin").val("");
@@ -446,7 +447,8 @@ $(function () {
                 $('#nikEdit').val(detailKaryawan.nik);
                 $('#namaEdit').val(detailKaryawan.nama);
                 $('#no_kkEdit').val(detailKaryawan.no_kk);
-                $('#sisa_cutiEdit').val(detailKaryawan.sisa_cuti);
+                $('#sisa_cuti_pribadiEdit').val(detailKaryawan.sisa_cuti_pribadi);
+                $('#sisa_cuti_bersamaEdit').val(detailKaryawan.sisa_cuti_bersama);
                 $('#hutang_cutiEdit').val(detailKaryawan.hutang_cuti);
                 $('#tempat_lahirEdit').val(detailKaryawan.tempat_lahir);
                 $('#tanggal_lahirEdit').val(detailKaryawan.tanggal_lahir);

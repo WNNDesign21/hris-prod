@@ -279,9 +279,18 @@
                                 <div class="row">
                                     <div class="col-lg-6 col-12">
                                         <div class="form-group">
-                                            <label class="form-label">Jatah Cuti</label>
-                                            <input type="number" name="sisa_cutiEdit" id="sisa_cutiEdit"
-                                                class="form-control" min='0' max='12' required readonly>
+                                            <label class="form-label">Jatah Cuti Pribadi</label>
+                                            <input type="number" name="sisa_cuti_pribadiEdit"
+                                                id="sisa_cuti_pribadiEdit" class="form-control" min='0'
+                                                max='12' required readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">Jatah Cuti Bersama</label>
+                                            <input type="number" name="sisa_cuti_bersamaEdit"
+                                                id="sisa_cuti_bersamaEdit" class="form-control" min='0'
+                                                max='12' required readonly>
                                         </div>
                                     </div>
                                     <div class="col-lg-6 col-12">

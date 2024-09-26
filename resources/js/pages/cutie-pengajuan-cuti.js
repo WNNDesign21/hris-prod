@@ -285,7 +285,7 @@ $(function () {
             processData: false,
             dataType: "JSON",
             success: function (data) {
-                $('#sisa_cuti_display').text(data.data+' Hari');
+                $('#sisa_cuti_total_display').text(data.data+' Hari');
                 showToast({ title: data.message });
                 refreshTable();
                 closeForm();
@@ -357,7 +357,7 @@ $(function () {
                     },
                     dataType: "JSON",
                     success: function (data) {
-                        $('#sisa_cuti_display').text(data.data+' Hari');
+                        $('#sisa_cuti_total_display').text(data.data+' Hari');
                         refreshTable();
                         showToast({ title: data.message });
                     },
