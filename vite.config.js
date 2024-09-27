@@ -21,6 +21,7 @@ export default defineConfig({
                 'resources/js/pages/seksi.js',
                 'resources/js/pages/export.js',
                 'resources/js/pages/template.js',
+                'resources/js/pages/event.js',
                 'resources/js/pages/cutie-dashboard.js',
                 'resources/js/pages/cutie-member-cuti.js',
                 'resources/js/pages/cutie-pengajuan-cuti.js',

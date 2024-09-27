@@ -73,6 +73,12 @@
                             </li>
                         </ul>
                     </li>
+                    <li class="{{ $page == 'masterdata-event' ? 'active' : '' }}">
+                        <a href="{{ route('master-data.event') }}">
+                            <i class="icon-Building"><span class="path1"></span><span class="path2"></span></i>
+                            <span>Kalender Perusahaan</span>
+                        </a>
+                    </li>
                     <li class="{{ $page == 'masterdata-template' ? 'active' : '' }}">
                         <a href="{{ route('master-data.template') }}">
                             <i class="icon-Tools"><span class="path1"></span><span class="path2"></span></i>

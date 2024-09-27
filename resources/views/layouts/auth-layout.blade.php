@@ -133,6 +133,10 @@
         @vite(['resources/js/pages/template.js'])
     @endif
 
+    @if ($page == 'masterdata-event')
+        @vite(['resources/js/pages/event.js'])
+    @endif
+
     @if ($page == 'cutie-dashboard')
         @vite(['resources/js/pages/cutie-dashboard.js'])
     @endif
