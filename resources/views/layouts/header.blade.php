@@ -34,11 +34,11 @@
                     <a href="#" class="btn btn-light dropdown-toggle position-relative" data-bs-toggle="dropdown"
                         title="Notifications">
                         <i class="icon-Notifications"><span class="path1"></span><span class="path2"></span></i>
-                        @if ($notification['count_tenggang_karyawan'] > 0)
+                        @if ($notification['count_notif'] > 0)
                             <span
                                 class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
                                 style="font-size: 1rem;z-index:2;">
-                                {{ $notification['count_tenggang_karyawan'] }}
+                                {{ $notification['count_notif'] }}
                             </span>
                         @endif
                     </a>
@@ -60,75 +60,85 @@
                                         <li>
                                             @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('super user') || auth()->user()->hasRole('atasan'))
                                                 <a href="{{ route('master-data.kontrak') }}">
-                                                    <i class="fa fa-user text-danger"></i> {{ $list->nama }}
+                                                    <i class="fa fa-user text-danger"></i> {{ $list['nama'] }}
                                                     memiliki
                                                     sisa
-                                                    <strong>{{ $list->jumlah_hari }} Hari</strong> sebelum masa
+                                                    <strong>{{ $list['jumlah_hari'] }} Hari</strong> sebelum masa
                                                     <strong>TERMINASI</strong>.
                                                 </a>
                                             @else
                                                 <a href="#" style="pointer-events: none; cursor: default;">
                                                     <i class="fa fa-user text-danger"></i> Anda memiliki sisa
-                                                    <strong>{{ $list->jumlah_hari }} Hari</strong> sebelum masa
+                                                    <strong>{{ $list['jumlah_hari'] }} Hari</strong> sebelum masa
                                                     <strong>TERMINASI</strong>, segera hubungi atasan anda.
                                                 </a>
                                             @endif
                                         </li>
                                     @endforeach
-                                @else
+                                @endif
+                                @if (!empty($notification['cutie_approval']))
+                                    @foreach ($notification['cutie_approval'] as $cutie_approval)
+                                        <li>
+                                            @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('super user'))
+                                                <a href="{{ route('cutie.personalia-cuti') }}">
+                                                    <i class="fa fa-user text-danger"></i>Pengajuan Cuti
+                                                    {{ $cutie_approval['nama'] }}
+                                                    menunggu Legalized oleh HRD
+                                                    <br>
+                                                    <strong>{{ $cutie_approval['jumlah_hari'] }} Hari</strong> sebelum
+                                                    otomatis
+                                                    <strong>REJECTED</strong>.
+                                                </a>
+                                            @elseif (auth()->user()->hasRole('atasan'))
+                                                <a href="{{ route('cutie.member-cuti') }}">
+                                                    <i class="fa fa-user text-danger"></i>Pengajuan Cuti
+                                                    {{ $cutie_approval['nama'] }}
+                                                    menunggu Check / Approve oleh Atasan
+                                                    <br>
+                                                    <strong>{{ $cutie_approval['jumlah_hari'] }} Hari</strong> sebelum
+                                                    otomatis
+                                                    <strong>REJECTED</strong>.
+                                                </a>
+                                            @else
+                                                <a href="{{ route('cutie.pengajuan-cuti') }}">
+                                                    <i class="fa fa-user text-danger"></i>Pengajuan Cuti
+                                                    {{ $cutie_approval['jenis_cuti'] }} dengan durasi
+                                                    {{ $cutie_approval['durasi_cuti'] }} Hari, masih menunggu
+                                                    persetujuan,<br> segera follow-up atasan & HRD untuk
+                                                    menindaklanjuti!
+                                                    <br>
+                                                    <strong>{{ $cutie_approval['jumlah_hari'] }} Hari</strong> sebelum
+                                                    otomatis
+                                                    <strong>REJECTED</strong>.
+                                                </a>
+                                            @endif
+                                        </li>
+                                    @endforeach
+                                @endif
+                                @if (!empty($notification['rejected_cuti']))
+                                    @foreach ($notification['rejected_cuti'] as $rejected_cuti)
+                                        <li>
+                                            <a href="{{ route('cutie.pengajuan-cuti') }}">
+                                                <i class="fa fa-user text-danger"></i>Pengajuan Cuti
+                                                {{ $rejected_cuti['jenis_cuti'] }} dengan durasi
+                                                {{ $cutie_approval['durasi_cuti'] }} Hari
+                                                <strong>DITOLAK</strong> pada
+                                                {{ \Carbon\Carbon::parse($rejected_cuti['rejected_at'])->format('Y-m-d H:i:s') }}
+                                                <br>
+                                                Pesan ini akan otomatis terhapus H+3 sejak Rencana Mulai Cuti
+                                            </a>
+                                        </li>
+                                    @endforeach
+                                @endif
+                                @if (empty($notification['list'] && empty($notification['cutie_approval']) && empty($notification['rejected_cuti'])))
                                     <li>
                                         <a href="#" class="text-center">
                                             Everything is just Fine 👌
                                         </a>
                                     </li>
                                 @endif
-
-                                {{-- <li>
-                                    <a href="#">
-                                        <i class="fa fa-users text-info"></i> Curabitur id eros quis nunc
-                                        suscipit blandit.
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <i class="fa fa-warning text-warning"></i> Duis malesuada justo eu
-                                        sapien elementum, in semper diam posuere.
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <i class="fa fa-users text-danger"></i> Donec at nisi sit amet tortor
-                                        commodo porttitor pretium a erat.
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <i class="fa fa-shopping-cart text-success"></i> In gravida mauris et
-                                        nisi
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <i class="fa fa-user text-danger"></i> Praesent eu lacus in libero
-                                        dictum fermentum.
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <i class="fa fa-user text-primary"></i> Nunc fringilla lorem
-                                    </a>
-                                </li>
-                                <li>
-                                    <a href="#">
-                                        <i class="fa fa-user text-success"></i> Nullam euismod dolor ut quam
-                                        interdum, at scelerisque ipsum imperdiet.
-                                    </a>
-                                </li> --}}
                             </ul>
                         </li>
-                        {{-- <li class="footer">
-                            <a href="#">View all</a>
-                        </li> --}}
                     </ul>
                 </li>
                 <li class="btn-group nav-item d-lg-inline-flex">
