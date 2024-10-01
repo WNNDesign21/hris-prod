@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use App\Models\Karyawan;
 use App\Models\JenisCuti;
 use Illuminate\Database\Eloquent\Model;
@@ -77,6 +78,7 @@ class Cutie extends Model
             'karyawans.nama as nama_karyawan',
             'cutis.karyawan_id',
             'karyawan_pengganti_id',
+            'departemens.nama as nama_departemen'
             )
             ->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
             ->leftJoinSub($getKaryawanPengganti, 'kp', function (JoinClause $joinKaryawanPengganti) {
@@ -86,7 +88,8 @@ class Cutie extends Model
                 $joinJenisCuti->on('cutis.jenis_cuti_id', 'jc.jc_id');
             })
             ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
-            ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi');
+            ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+            ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen');
         
         if (isset($dataFilter['karyawan_id'])) {
             $data->where('cutis.karyawan_id', $dataFilter['karyawan_id']);
@@ -94,6 +97,35 @@ class Cutie extends Model
 
         if (isset($dataFilter['member_posisi_id'])) {
             $data->whereIn('posisis.id_posisi', $dataFilter['member_posisi_id']);
+        }
+
+        if(isset($dataFilter['departemen'])) {
+            $data->where('departemens.id_departemen', $dataFilter['departemen']);
+        }
+
+        if(isset($dataFilter['jenisCuti'])) {
+            $data->where('jenis_cuti', $dataFilter['jenisCuti']);
+        }
+
+        if(isset($dataFilter['durasi'])) {
+            $data->where('durasi_cuti', $dataFilter['durasi']);
+        }
+
+        if(isset($dataFilter['statusCuti'])) {
+            $data->where('status_cuti', $dataFilter['statusCuti']);
+        }
+
+        if(isset($dataFilter['statusDokumen'])) {
+            $data->where('status_dokumen', $dataFilter['statusDokumen']);
+        }
+
+        if(isset($dataFilter['nama'])) {
+            $data->where('karyawans.nama', 'ILIKE' , '%'.$dataFilter['nama'].'%');
+        }
+
+        if(isset($dataFilter['rencanaMulai'])) {
+            $data->whereYear('rencana_mulai_cuti', Carbon::parse($dataFilter['rencanaMulai'])->year)
+                ->whereMonth('rencana_mulai_cuti', Carbon::parse($dataFilter['rencanaMulai'])->month);
         }
         
         if (isset($dataFilter['search'])) {
@@ -116,10 +148,11 @@ class Cutie extends Model
                     ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%")
                     ->orWhere('jc.jenis_cuti_khusus', 'ILIKE', "%{$search}%")
                     ->orWhere('cutis.created_at', 'ILIKE', "%{$search}%")
+                    ->orWhere('departemens.nama', 'ILIKE', "%{$search}%")
                     ->orWhere('kp.nama_pengganti', 'ILIKE', "%{$search}%");
             });
         }
-        $data->groupBy('id_cuti', 'cutis.created_at', 'rencana_mulai_cuti', 'rencana_selesai_cuti', 'aktual_mulai_cuti', 'aktual_selesai_cuti', 'durasi_cuti', 'jenis_cuti', 'alasan_cuti', 'checked1_at', 'checked2_at',  'approved_at', 'legalized_at','checked1_by', 'checked2_by',  'approved_by', 'legalized_by', 'status_dokumen', 'status_cuti', 'attachment', 'kp.nama_pengganti', 'jc.jenis_cuti_khusus', 'karyawans.nama', 'cutis.karyawan_id', 'karyawan_pengganti_id');
+        $data->groupBy('id_cuti', 'cutis.created_at', 'rencana_mulai_cuti', 'rencana_selesai_cuti', 'aktual_mulai_cuti', 'aktual_selesai_cuti', 'durasi_cuti', 'jenis_cuti', 'alasan_cuti', 'checked1_at', 'checked2_at',  'approved_at', 'legalized_at','checked1_by', 'checked2_by',  'approved_by', 'legalized_by', 'status_dokumen', 'status_cuti', 'attachment', 'kp.nama_pengganti', 'jc.jenis_cuti_khusus', 'karyawans.nama', 'cutis.karyawan_id', 'karyawan_pengganti_id','departemens.nama');
 
         $result = $data;
         return $result;

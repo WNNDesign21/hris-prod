@@ -46,6 +46,7 @@ $(function () {
     //DATATABLE KARYAWAN
     var columnsTable = [
         { data: "nama" },
+        { data: "departemen" },
         { data: "rencana_mulai_cuti" },
         { data: "rencana_selesai_cuti" },
         { data: "aktual_mulai_cuti" },
@@ -77,6 +78,21 @@ $(function () {
             dataType: "json",
             type: "POST",
             data: function (dataFilter) {
+                var departemen = $('#filterDepartemen').val();
+                var jenisCuti = $('#filterJenisCuti').val();
+                var nama = $('#filterNama').val();
+                var durasi = $('#filterDurasi').val();
+                var rencanaMulai = $('#filterRencanaMulai').val();
+                var statusCuti = $('#filterStatusCuti').val();
+                var statusDokumen = $('#filterStatusDokumen').val();
+
+                dataFilter.departemen = departemen;
+                dataFilter.jenisCuti = jenisCuti;
+                dataFilter.durasi = durasi;
+                dataFilter.rencanaMulai = rencanaMulai;
+                dataFilter.nama = nama;
+                dataFilter.statusCuti = statusCuti;
+                dataFilter.statusDokumen = statusDokumen;
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.responseJSON.data) {
@@ -308,5 +324,61 @@ $(function () {
             }
         })
     })
+
+    //FILTER CUTI
+    $('.btnFilter').on("click", function (){
+        openFilter();
+    })
+
+    $('.btnCloseFilter').on("click", function (){
+        closeFilter();
+    })
+
+    $('.btnResetFilter').on("click", function (){
+        $('#filterDepartemen').val("").trigger('change');   
+        $('#filterJenisCuti').val("").trigger('change');   
+        $('#filterStatusCuti').val("").trigger('change');   
+        $('#filterStatusDokumen').val("").trigger('change');   
+        $('#filterNama').val("");
+        $('#filterDurasi').val("");
+        $('#filterRencanaMulai').val("");
+    })
+
+
+    // MODAL FILTER CUTI
+    var modalFilterCutiOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalFilterCuti = new bootstrap.Modal(
+        document.getElementById("modal-filter"),
+        modalFilterCutiOptions
+    );
+
+    function openFilter() {
+        modalFilterCuti.show();
+        $('#filterDepartemen').select2({
+            dropdownParent: $('#modal-filter'),
+        });
+        $('#filterJenisCuti').select2({
+            dropdownParent: $('#modal-filter'),
+        });
+        $('#filterStatusCuti').select2({
+            dropdownParent: $('#modal-filter'),
+        });
+        $('#filterStatusDokumen').select2({
+            dropdownParent: $('#modal-filter'),
+        });
+    }
+
+    function closeFilter() {
+        modalFilterCuti.hide();
+    }
+
+    $(".btnSubmitFilter").on("click", function () {
+        cutieTable.draw();
+        closeFilter();
+    });
 
 })

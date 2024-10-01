@@ -58,29 +58,32 @@ class CutieController extends Controller
 
     public function member_cuti_view()
     {
+        $departemens = Departemen::all();
+
         $dataPage = [
             'pageTitle' => "Cutie - Member Cuti",
             'page' => 'cutie-member-cuti',
+            'departemen' => $departemens
         ];
         return view('pages.cuti-e.member-cuti', $dataPage);
     }
 
     public function personalia_cuti_view()
     {
+        $departemens = Departemen::all();
         $dataPage = [
             'pageTitle' => "Cutie - Personalia",
             'page' => 'cutie-personalia-cuti',
+            'departemen' => $departemens,
         ];
         return view('pages.cuti-e.personalia-cuti', $dataPage);
     }
 
     public function export_cuti_view()
     {
-        $departemens = Departemen::all();
         $dataPage = [
             'pageTitle' => "Cutie - Export Data",
             'page' => 'cutie-export',
-            'departemens' => $departemens,
         ];
         return view('pages.cuti-e.export-cuti', $dataPage);
     }
@@ -246,21 +249,22 @@ class CutieController extends Controller
 
         $columns = array(
             0 => 'karyawans.nama',
-            1 => 'rencana_mulai_cuti',
-            2 => 'rencana_selesai_cuti',
-            3 => 'aktual_mulai_cuti',
-            4 => 'aktual_selesai_cuti',
-            5 => 'durasi_cuti',
-            6 => 'jenis_cuti',
-            7 => 'checked1_at',
-            8 => 'checked2_at',
-            9 => 'approved_at',
-            10 => 'legalize_at',
-            11 => 'status_dokumen',
-            12 => 'status_cuti',
-            13 => 'alasan_cuti',
-            14 => 'kp.nama_pengganti',
-            15 => 'created_at',
+            1 => 'departemens.nama',
+            2 => 'rencana_mulai_cuti',
+            3 => 'rencana_selesai_cuti',
+            4 => 'aktual_mulai_cuti',
+            5 => 'aktual_selesai_cuti',
+            6 => 'durasi_cuti',
+            7 => 'jenis_cuti',
+            8 => 'checked1_at',
+            9 => 'checked2_at',
+            10 => 'approved_at',
+            11 => 'legalize_at',
+            12 => 'status_dokumen',
+            13 => 'status_cuti',
+            14 => 'alasan_cuti',
+            15 => 'kp.nama_pengganti',
+            16 => 'created_at',
         );
 
         $totalData = Cutie::count();
@@ -280,6 +284,42 @@ class CutieController extends Controller
         $search = $request->input('search.value');
         if (!empty($search)) {
             $dataFilter['search'] = $search;
+        }
+
+        //FILTER DATA
+        $departemenFilter = $request->input('departemen');
+        if (!empty($departemenFilter)) {
+            $dataFilter['departemen'] = $departemenFilter;
+        }
+
+        $jenisCutiFilter = $request->input('jenisCuti');
+        if (!empty($jenisCutiFilter)) {
+            $dataFilter['jenisCuti'] = $jenisCutiFilter;
+        }
+
+        $statusCutiFilter = $request->input('statusCuti');
+        if (!empty($statusCutiFilter)) {
+            $dataFilter['statusCuti'] = $statusCutiFilter;
+        }
+
+        $statusDokumenFilter = $request->input('statusDokumen');
+        if (!empty($statusDokumenFilter)) {
+            $dataFilter['statusDokumen'] = $statusDokumenFilter;
+        }
+
+        $namaFilter = $request->input('nama');
+        if (!empty($namaFilter)) {
+            $dataFilter['nama'] = $namaFilter;
+        }
+
+        $durasiFilter = $request->input('durasi');
+        if (!empty($durasiFilter)) {
+            $dataFilter['durasi'] = $durasiFilter;
+        }
+
+        $rencanamulaiFilter = $request->input('rencanaMulai');
+        if (!empty($rencanamulaiFilter)) {
+            $dataFilter['rencanaMulai'] = $rencanamulaiFilter;
         }
 
 
@@ -504,6 +544,7 @@ class CutieController extends Controller
                 }
 
                 $nestedData['nama'] = $data->nama_karyawan;
+                $nestedData['departemen'] = $data->nama_departemen;
                 $nestedData['rencana_mulai_cuti'] = Carbon::parse($data->rencana_mulai_cuti)->format('d M Y');
                 $nestedData['rencana_selesai_cuti'] = Carbon::parse($data->rencana_selesai_cuti)->format('d M Y');
                 $nestedData['aktual_mulai_cuti'] = $data->aktual_mulai_cuti ? Carbon::parse($data->aktual_selesai_cuti)->format('d M Y') : '-';
@@ -550,21 +591,22 @@ class CutieController extends Controller
 
         $columns = array(
             0 => 'karyawans.nama',
-            1 => 'rencana_mulai_cuti',
-            2 => 'rencana_selesai_cuti',
-            3 => 'aktual_mulai_cuti',
-            4 => 'aktual_selesai_cuti',
-            5 => 'durasi_cuti',
-            6 => 'jenis_cuti',
-            7 => 'checked1_at',
-            8 => 'checked2_at',
-            9 => 'approved_at',
-            10 => 'legalize_at',
-            11 => 'status_dokumen',
-            12 => 'status_cuti',
-            13 => 'alasan_cuti',
-            14 => 'kp.nama_pengganti',
-            15 => 'created_at',
+            1 => 'departemens.nama',
+            2 => 'rencana_mulai_cuti',
+            3 => 'rencana_selesai_cuti',
+            4 => 'aktual_mulai_cuti',
+            5 => 'aktual_selesai_cuti',
+            6 => 'durasi_cuti',
+            7 => 'jenis_cuti',
+            8 => 'checked1_at',
+            9 => 'checked2_at',
+            10 => 'approved_at',
+            11 => 'legalize_at',
+            12 => 'status_dokumen',
+            13 => 'status_cuti',
+            14 => 'alasan_cuti',
+            15 => 'kp.nama_pengganti',
+            16 => 'created_at',
         );
 
         $totalData = Cutie::count();
@@ -586,6 +628,41 @@ class CutieController extends Controller
             $dataFilter['search'] = $search;
         }
 
+        //FILTER DATA
+        $departemenFilter = $request->input('departemen');
+        if (!empty($departemenFilter)) {
+            $dataFilter['departemen'] = $departemenFilter;
+        }
+
+        $jenisCutiFilter = $request->input('jenisCuti');
+        if (!empty($jenisCutiFilter)) {
+            $dataFilter['jenisCuti'] = $jenisCutiFilter;
+        }
+
+        $statusCutiFilter = $request->input('statusCuti');
+        if (!empty($statusCutiFilter)) {
+            $dataFilter['statusCuti'] = $statusCutiFilter;
+        }
+
+        $statusDokumenFilter = $request->input('statusDokumen');
+        if (!empty($statusDokumenFilter)) {
+            $dataFilter['statusDokumen'] = $statusDokumenFilter;
+        }
+
+        $namaFilter = $request->input('nama');
+        if (!empty($namaFilter)) {
+            $dataFilter['nama'] = $namaFilter;
+        }
+
+        $durasiFilter = $request->input('durasi');
+        if (!empty($durasiFilter)) {
+            $dataFilter['durasi'] = $durasiFilter;
+        }
+
+        $rencanamulaiFilter = $request->input('rencanaMulai');
+        if (!empty($rencanamulaiFilter)) {
+            $dataFilter['rencanaMulai'] = $rencanamulaiFilter;
+        }
         
         $cutie = Cutie::getData($dataFilter, $settings);
         $totalFiltered = $cutie->count();
@@ -650,6 +727,7 @@ class CutieController extends Controller
                     
 
                 $nestedData['nama'] = $data->nama_karyawan;
+                $nestedData['departemen'] = $data->nama_departemen;
                 $nestedData['rencana_mulai_cuti'] = Carbon::parse($data->rencana_mulai_cuti)->format('d M Y');
                 $nestedData['rencana_selesai_cuti'] = Carbon::parse($data->rencana_selesai_cuti)->format('d M Y');
                 $nestedData['aktual_mulai_cuti'] = $data->aktual_mulai_cuti ? Carbon::parse($data->aktual_selesai_cuti)->format('d M Y') : '-';

@@ -79,9 +79,9 @@
                                     @endif
                                 </ul>
                             </li>
-                            <li class="footer">
+                            {{-- <li class="footer">
                                 <a href="#">View all</a>
-                            </li>
+                            </li> --}}
                         </ul>
                     </li>
                     <!-- User Account-->

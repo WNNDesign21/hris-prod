@@ -18,9 +18,11 @@
             <div class="box">
                 <div class="box-header d-flex justify-content-between">
                     <h4 class="box-title">List Data Cuti Member</h4>
-                    <div>
+                    <div class="btn-group">
                         <button type="button" class="btn btn-info waves-effect btnReload"><i
                                 class="fas fa-sync-alt"></i></button>
+                        <button type="button" class="btn btn-warning waves-effect btnFilter"><i
+                                class="fas fa-filter"></i></button>
                     </div>
                 </div>
                 <div class="box-body">
@@ -29,6 +31,7 @@
                             <thead>
                                 <tr>
                                     <th>Nama</th>
+                                    <th>Departemen</th>
                                     <th>Rencana Mulai</th>
                                     <th>Rencana Selesai</th>
                                     <th>Aktual Mulai</th>
@@ -56,4 +59,5 @@
     </div>
     @include('pages.cuti-e.modal-reject-cuti')
     @include('pages.cuti-e.modal-karyawan-pengganti-cuti')
+    @include('pages.cuti-e.modal-filter')
 @endsection
