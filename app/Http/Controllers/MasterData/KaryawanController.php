@@ -164,7 +164,7 @@ class KaryawanController extends Controller
                 $nestedData['nama'] = $data->nama.'<br> ('.$data->ni_karyawan.')';
                 $nestedData['jenis_kontrak'] = $kontrak ? $kontrak : ($data->jenis_kontrak ? $data->jenis_kontrak : 'BELUM ADA KONTRAK');
                 $nestedData['tanggal_mulai'] = $data->tanggal_mulai ? $data->tanggal_mulai : 'BELUM ADA KONTRAK';
-                $nestedData['tanggal_selesai'] = $data->tanggal_selesai ? $data->tanggal_selesai : 'BELUM ADA KONTRAK';
+                $nestedData['tanggal_selesai'] = $data->tanggal_selesai ? $data->tanggal_selesai : ($kontrak == 'PKWTT' || $data->jenis_kontrak == 'PKWTT' ? '-' : 'BELUM ADA KONTRAK');
                 $nestedData['status_karyawan'] = $data->status_karyawan;
                 $formattedPosisi = array_map(function($posisi) {
                     return '<span class="badge badge-primary m-1">' . $posisi . '</span>';
@@ -903,21 +903,6 @@ class KaryawanController extends Controller
                         'tanggal_mulai' => $tanggal_mulai,
                         'gol_darah' => in_array(strtoupper($row[25]), ['O', 'A', 'B', 'AB']) ? strtoupper($row[25]) : null,
                     ]);
-
-                    $existingCutiBersama = Event::whereDate('tanggal_mulai', '<=', $tanggal_mulai)->where('jenis_event', 'CB')->get();
-                    if($existingCutiBersama){
-                        foreach($existingCutiBersama as $cutiBersama){
-                            $jatah_cuti_bersama = $karyawan->sisa_cuti_bersama - $cutiBersama->durasi;
-                            if($jatah_cuti_bersama >= 0){
-                                $karyawan->sisa_cuti_bersama = $jatah_cuti_bersama;
-                                $karyawan->save();
-                            } else {
-                                $karyawan->sisa_cuti_bersama = 0;
-                                $karyawan->hutang_cuti = abs($jatah_cuti_bersama);
-                                $karyawan->save();
-                            }
-                        }
-                    }
 
                     // Initial Contract
                     // Kontrak::create([
