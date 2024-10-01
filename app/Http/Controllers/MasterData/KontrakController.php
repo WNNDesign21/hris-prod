@@ -490,7 +490,7 @@ class KontrakController extends Controller
                     'issued_date_text' => Carbon::parse($item->issued_date)->format('d M Y'),
                     'tempat_administrasi' => $item->tempat_administrasi,
                     'durasi' => $item->durasi,
-                    'no_surat' => 'No. ' . $item->no_surat . '/'.$item->jenis.' - I/HRD-TCF3/V/' . date('Y'),
+                    'no_surat' => $item->no_surat,
                     'salary' => 'Rp. ' . number_format($item->salary, 0, ',', '.').' ,-',
                     'deskripsi' => $item->deskripsi,
                     'tanggal_mulai' => Carbon::parse($item->tanggal_mulai)->format('d M Y'),
@@ -862,8 +862,9 @@ class KontrakController extends Controller
                 $karyawan->tanggal_selesai = $kontrak->tanggal_selesai;
             } else {
                 $kontrak_exist = Kontrak::where('karyawan_id', $karyawan->id)->where('status', 'DONE')->orderBy('tanggal_mulai', 'DESC')->exists();
-
-                if($kontrak_exist){
+                $new_data = $karyawan->whereNotNull('tanggal_mulai')->whereNull('tanggal_selesai')->exists();
+                
+                if($kontrak_exist || $new_data){
                     $karyawan->tanggal_selesai = $kontrak->tanggal_selesai;
                 } else {
                     $karyawan->tanggal_mulai = $kontrak->tanggal_mulai;

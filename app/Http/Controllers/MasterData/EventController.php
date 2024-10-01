@@ -62,7 +62,7 @@ class EventController extends Controller
 
         if (!empty($event)) {
             foreach ($event as $data) {
-                $nestedData['jenis_event'] = $data->jenis_event;
+                $nestedData['jenis_event'] = $data->jenis_event == 'EP' ? 'Event Perusahaan' : 'Cuti Bersama';
                 $nestedData['keterangan'] = $data->keterangan;
                 $nestedData['durasi'] = $data->durasi.' Hari';
                 $nestedData['tanggal_mulai'] = Carbon::parse($data->tanggal_mulai)->format('d-m-Y');
@@ -124,9 +124,9 @@ class EventController extends Controller
 
         $jenis_event = $request->jenis_event;
         $keterangan = $request->keterangan;
-        $durasi = Carbon::parse($tanggal_mulai)->diffInDays($tanggal_selesai) + 1;
         $tanggal_mulai = $request->tanggal_mulai;
         $tanggal_selesai = $request->tanggal_selesai;
+        $durasi = Carbon::parse($tanggal_mulai)->diffInDays($tanggal_selesai) + 1;
     
         DB::beginTransaction();
         try{

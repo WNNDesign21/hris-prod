@@ -301,6 +301,14 @@
                                         required>
                                 </div>
                                 <div class="form-group">
+                                    <label for="">Tanggal Mulai <span class="text-danger">*</span></label>
+                                    <br>
+                                    <div class="input-group mb-2" style="width:100%;">
+                                        <input type="date" name="tanggal_mulai" id="tanggal_mulai"
+                                            class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
                                     <label class="form-label">Posisi <span class="text-danger">*</span></label>
                                     <select class="form-control" multiple="multiple" data-placeholder="Pilih Posisi"
                                         id="posisi" name="posisi[]" style="width: 100%;" required>

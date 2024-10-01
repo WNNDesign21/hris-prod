@@ -7,6 +7,7 @@ use Throwable;
 use Carbon\Carbon;
 use App\Models\Grup;
 use App\Models\User;
+use App\Models\Event;
 use App\Models\Posisi;
 use App\Models\Kontrak;
 use App\Models\Karyawan;
@@ -263,6 +264,7 @@ class KaryawanController extends Controller
             'nama_ibu_kandung' => ['required', 'string'],
             'jenjang_pendidikan' => ['required', 'string'],
             'jurusan_pendidikan' => ['required', 'string'],
+            'tanggal_mulai' => ['required', 'date_format:Y-m-d'],
             'posisi.*' => ['required'],
             'grup' => ['required'],
         ];
@@ -299,6 +301,7 @@ class KaryawanController extends Controller
         $jenjang_pendidikan = $request->jenjang_pendidikan;
         $jurusan_pendidikan = $request->jurusan_pendidikan;
         $posisi = $request->posisi;
+        $tanggal_mulai = $request->tanggal_mulai;
         $grup_id = $request->grup;
         $user_id = $request->user_id;
         $email_akun = $request->email_akun;
@@ -359,6 +362,7 @@ class KaryawanController extends Controller
                 'jenjang_pendidikan' => $jenjang_pendidikan,
                 'jurusan_pendidikan' => $jurusan_pendidikan,
                 'grup_id' => $grup_id,
+                'tanggal_mulai' => $tanggal_mulai,
             ]);
 
             $jabatan = null;
@@ -896,10 +900,26 @@ class KaryawanController extends Controller
                         'nama_rekening' => $row[22],
                         'no_rekening' => $row[23],
                         'email' => $row[24],
+                        'tanggal_mulai' => $tanggal_mulai,
                         'gol_darah' => in_array(strtoupper($row[25]), ['O', 'A', 'B', 'AB']) ? strtoupper($row[25]) : null,
                     ]);
 
-                    //Initial Contract
+                    $existingCutiBersama = Event::whereDate('tanggal_mulai', '<=', $tanggal_mulai)->where('jenis_event', 'CB')->get();
+                    if($existingCutiBersama){
+                        foreach($existingCutiBersama as $cutiBersama){
+                            $jatah_cuti_bersama = $karyawan->sisa_cuti_bersama - $cutiBersama->durasi;
+                            if($jatah_cuti_bersama >= 0){
+                                $karyawan->sisa_cuti_bersama = $jatah_cuti_bersama;
+                                $karyawan->save();
+                            } else {
+                                $karyawan->sisa_cuti_bersama = 0;
+                                $karyawan->hutang_cuti = abs($jatah_cuti_bersama);
+                                $karyawan->save();
+                            }
+                        }
+                    }
+
+                    // Initial Contract
                     // Kontrak::create([
                     //     'no_surat' => str_pad(mt_rand(0, 999), 3, '0', STR_PAD_LEFT),
                     //     'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,
