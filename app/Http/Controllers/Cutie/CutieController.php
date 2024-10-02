@@ -1496,7 +1496,7 @@ class CutieController extends Controller
             $cutie = $cutie->orWhere('karyawan_id', auth()->user()->karyawan->id_karyawan)->where('status_dokumen','APPROVED');
         }
 
-        $event = Event::all();
+        $event = Event::where('jenis_event', 'CB')->get();
         $cutie = $cutie->active()->get();
         $data = [];
 
