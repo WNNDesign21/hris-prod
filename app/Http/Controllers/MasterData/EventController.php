@@ -237,4 +237,38 @@ class EventController extends Controller
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }
+
+    public function get_data_event_calendar(){
+        $event = Event::all();
+        $data = [];
+
+        if($event){
+            foreach ($event as $e) {
+                if($e->jenis_event == 'CB'){
+                    $className = 'bg-primary';
+                } else {
+                    $className = 'bg-info';
+                }
+                $data[] = [
+                    'title' => $e->keterangan,
+                    'start' => $e->tanggal_mulai,
+                    'end' => $e->tanggal_selesai !== $e->tanggal_mulai ? Carbon::parse($e->tanggal_selesai)->addDay()->format('Y-m-d') : $e->tanggal_selesai,
+                    'className' => $className,
+                    'nama_karyawan' => 'Seluruh Karyawan',
+                    'karyawan_pengganti' => '-',
+                    'jenis_cuti' => $e->jenis_event == 'CB' ? 'CUTI BERSAMA' : 'EVENT PERUSAHAAN',
+                    'rencana_mulai_cuti' => Carbon::parse($e->tanggal_mulai)->format('d M Y'),
+                    'rencana_selesai_cuti' => Carbon::parse($e->tanggal_selesai)->format('d M Y'),
+                    'alasan_cuti' => $e->keterangan,
+                    'durasi_cuti' => $e->durasi.' Hari',
+                    'status_cuti' => $e->tanggal_mulai > now() ? 'SCHEDULED' : 'COMPLETED',
+                    'attachment' => 'No Attachment Needed',
+                    'aktual_mulai_cuti' => $e->tanggal_mulai > now() ? '-' : Carbon::parse($e->tanggal_mulai)->format('d M Y'),
+                    'aktual_selesai_cuti' => $e->tanggal_selesai > now() ? '-' : Carbon::parse($e->tanggal_selesai)->format('d M Y'),
+                ];
+            }
+        }
+        
+        return response()->json($data, 200);
+    }
 }

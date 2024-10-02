@@ -42,7 +42,7 @@
                             </span>
                         @endif
                     </a>
-                    <ul class="dropdown-menu animated bounceIn" style="max-width: none;min-width:250px;">
+                    <ul class="dropdown-menu animated bounceIn" style="min-width:300px;max-width:350px;">
                         <li class="header">
                             <div class="p-20">
                                 <div class="flexbox">
@@ -59,7 +59,8 @@
                                     @foreach ($notification['list'] as $list)
                                         <li>
                                             @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('super user') || auth()->user()->hasRole('atasan'))
-                                                <a href="{{ route('master-data.kontrak') }}">
+                                                <a href="{{ route('master-data.kontrak') }}"
+                                                    style="white-space: normal;">
                                                     <i class="fa fa-user text-danger"></i> {{ $list['nama'] }}
                                                     memiliki
                                                     sisa
@@ -67,7 +68,8 @@
                                                     <strong>TERMINASI</strong>.
                                                 </a>
                                             @else
-                                                <a href="#" style="pointer-events: none; cursor: default;">
+                                                <a href="#"
+                                                    style="pointer-events: none; cursor: default;white-space: normal;">
                                                     <i class="fa fa-user text-danger"></i> Anda memiliki sisa
                                                     <strong>{{ $list['jumlah_hari'] }} Hari</strong> sebelum masa
                                                     <strong>TERMINASI</strong>, segera hubungi atasan anda.
@@ -80,34 +82,40 @@
                                     @foreach ($notification['cutie_approval'] as $cutie_approval)
                                         <li>
                                             @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('super user'))
-                                                <a href="{{ route('cutie.personalia-cuti') }}">
+                                                <a href="{{ route('cutie.personalia-cuti') }}"
+                                                    style="white-space: normal;">
                                                     <i class="fa fa-user text-danger"></i>Pengajuan Cuti
                                                     {{ $cutie_approval['nama'] }}
                                                     menunggu Legalized oleh HRD
                                                     <br>
-                                                    <strong>{{ $cutie_approval['jumlah_hari'] }} Hari</strong> sebelum
+                                                    <strong>{{ $cutie_approval['jumlah_hari'] }} Hari</strong>
+                                                    sebelum
                                                     otomatis
                                                     <strong>REJECTED</strong>.
                                                 </a>
                                             @elseif (auth()->user()->hasRole('atasan'))
-                                                <a href="{{ route('cutie.member-cuti') }}">
+                                                <a href="{{ route('cutie.member-cuti') }}"
+                                                    style="white-space: normal;">
                                                     <i class="fa fa-user text-danger"></i>Pengajuan Cuti
                                                     {{ $cutie_approval['nama'] }}
                                                     menunggu Check / Approve oleh Atasan
                                                     <br>
-                                                    <strong>{{ $cutie_approval['jumlah_hari'] }} Hari</strong> sebelum
+                                                    <strong>{{ $cutie_approval['jumlah_hari'] }} Hari</strong>
+                                                    sebelum
                                                     otomatis
                                                     <strong>REJECTED</strong>.
                                                 </a>
                                             @else
-                                                <a href="{{ route('cutie.pengajuan-cuti') }}">
+                                                <a href="{{ route('cutie.pengajuan-cuti') }}"
+                                                    style="white-space: normal;">
                                                     <i class="fa fa-user text-danger"></i>Pengajuan Cuti
                                                     {{ $cutie_approval['jenis_cuti'] }} dengan durasi
                                                     {{ $cutie_approval['durasi_cuti'] }} Hari, masih menunggu
                                                     persetujuan,<br> segera follow-up atasan & HRD untuk
                                                     menindaklanjuti!
                                                     <br>
-                                                    <strong>{{ $cutie_approval['jumlah_hari'] }} Hari</strong> sebelum
+                                                    <strong>{{ $cutie_approval['jumlah_hari'] }} Hari</strong>
+                                                    sebelum
                                                     otomatis
                                                     <strong>REJECTED</strong>.
                                                 </a>
@@ -118,7 +126,7 @@
                                 @if (!empty($notification['rejected_cuti']))
                                     @foreach ($notification['rejected_cuti'] as $rejected_cuti)
                                         <li>
-                                            <a href="{{ route('cutie.pengajuan-cuti') }}">
+                                            <a href="{{ route('cutie.pengajuan-cuti') }}" style="white-space: normal;">
                                                 <i class="fa fa-user text-danger"></i>Pengajuan Cuti
                                                 {{ $rejected_cuti['jenis_cuti'] }} dengan durasi
                                                 {{ $cutie_approval['durasi_cuti'] }} Hari
@@ -130,7 +138,7 @@
                                         </li>
                                     @endforeach
                                 @endif
-                                @if (empty($notification['list'] && empty($notification['cutie_approval']) && empty($notification['rejected_cuti'])))
+                                @if (empty($notification['list']) && empty($notification['cutie_approval']) && empty($notification['rejected_cuti']))
                                     <li>
                                         <a href="#" class="text-center">
                                             Everything is just Fine 👌

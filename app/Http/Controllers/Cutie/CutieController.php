@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Cutie;
 use Throwable;
 use Carbon\Carbon;
 use App\Models\Cutie;
+use App\Models\Event;
 use App\Models\Posisi;
 use App\Models\Karyawan;
 use App\Models\JenisCuti;
@@ -1495,8 +1496,36 @@ class CutieController extends Controller
             $cutie = $cutie->orWhere('karyawan_id', auth()->user()->karyawan->id_karyawan)->where('status_dokumen','APPROVED');
         }
 
+        $event = Event::all();
         $cutie = $cutie->active()->get();
         $data = [];
+
+        if($event){
+            foreach ($event as $e) {
+                if($e->jenis_event == 'CB'){
+                    $className = 'bg-primary';
+                } else {
+                    $className = 'bg-info';
+                }
+                $data[] = [
+                    'title' => $e->keterangan,
+                    'start' => $e->tanggal_mulai,
+                    'end' => $e->tanggal_selesai !== $e->tanggal_mulai ? Carbon::parse($e->tanggal_selesai)->addDay()->format('Y-m-d') : $e->tanggal_selesai,
+                    'className' => $className,
+                    'nama_karyawan' => 'Seluruh Karyawan',
+                    'karyawan_pengganti' => '-',
+                    'jenis_cuti' => $e->jenis_event == 'CB' ? 'CUTI BERSAMA' : 'EVENT PERUSAHAAN',
+                    'rencana_mulai_cuti' => Carbon::parse($e->tanggal_mulai)->format('d M Y'),
+                    'rencana_selesai_cuti' => Carbon::parse($e->tanggal_selesai)->format('d M Y'),
+                    'alasan_cuti' => $e->keterangan,
+                    'durasi_cuti' => $e->durasi.' Hari',
+                    'status_cuti' => $e->tanggal_mulai > now() ? 'SCHEDULED' : 'COMPLETED',
+                    'attachment' => 'No Attachment Needed',
+                    'aktual_mulai_cuti' => $e->tanggal_mulai > now() ? '-' : Carbon::parse($e->tanggal_mulai)->format('d M Y'),
+                    'aktual_selesai_cuti' => $e->tanggal_selesai > now() ? '-' : Carbon::parse($e->tanggal_selesai)->format('d M Y'),
+                ];
+            }
+        }
         
         if($cutie){
             foreach ($cutie as $c) {
@@ -1507,6 +1536,7 @@ class CutieController extends Controller
                 } else {
                     $classname = 'bg-success';
                 }
+
                 $data[] = [
                     'title' => $c->jenis_cuti.' - '.$c->karyawan->nama,
                     'start' => $c->rencana_mulai_cuti,
@@ -1514,7 +1544,7 @@ class CutieController extends Controller
                     'className' => $classname,
                     'nama_karyawan' => $c->karyawan->nama,
                     'karyawan_pengganti' => $c->karyawan_pengganti_id ? $c->karyawanPengganti->nama : '-',
-                    'jenis_cuti' => $c->jenis_cuti,
+                    'jenis_cuti' => 'CUTI '.$c->jenis_cuti,
                     'rencana_mulai_cuti' => Carbon::parse($c->rencana_mulai_cuti)->format('d M Y'),
                     'rencana_selesai_cuti' => Carbon::parse($c->rencana_selesai_cuti)->format('d M Y'),
                     'alasan_cuti' => $c->alasan_cuti,

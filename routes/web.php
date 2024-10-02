@@ -161,6 +161,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
 
          /** MASTER DATA - KALENDER PERUSAHAAN*/
          Route::post('/event/datatable', [EventController::class, 'datatable']);
+         Route::get('/event/get-data-event-calendar',[EventController::class, 'get_data_event_calendar']);
          Route::get('/event',[EventController::class, 'index'])->name('master-data.event');
          Route::post('/event/store',[EventController::class, 'store'])->name('master-data.event.store');
          Route::delete('/event/delete/{idEvent}', [EventController::class, 'delete'])->name('master-data.event.delete');
