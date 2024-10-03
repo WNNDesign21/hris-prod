@@ -397,7 +397,7 @@ class CutieController extends Controller
                         if($data->approved_by == null){
                             if($my_jabatan == 4 || $my_jabatan == 3){
                                 if($data->checked2_by !== null){
-                                    if($data->checked1_by !== auth()->user()->karyawan->nama && $data->checked2_by !== auth()->user()->karyawan->nama){
+                                    if($data->checked1_by !== auth()->user()->karyawan->nama){
                                         $approved = '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>';
                                         $reject3 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
                                         $btn_group_3 = '<div class="btn-group btn-sm">'.$approved.$reject3.'</div>';

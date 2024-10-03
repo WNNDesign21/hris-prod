@@ -33,22 +33,44 @@ class AutomaticRejectCuti extends Command
             $cuti = Cutie::where('status_dokumen', 'WAITING')->whereDate('rencana_mulai_cuti', $today);
             $data_cuti = $cuti->get();
 
-            $cuti->update([
-                'status_dokumen' => 'REJECTED',
-                'rejected_at' => now(),
-                'rejected_by' => 'SYSTEM',
-                'rejected_note' => 'Cuti otomatis dibatalkan system karena tidak ada persetujuan dari atasan sampai hari H rencana cuti'
-            ]);
-
             foreach ($data_cuti as $ct) {
-                $karyawan = Karyawan::find($ct->karyawan_id);
-                $total_sisa_cuti_pribadi = $karyawan->sisa_cuti_pribadi + $ct->durasi_cuti;
-                if ($total_sisa_cuti_pribadi > 6) {
-                    $karyawan->sisa_cuti_pribadi = 6;
-                } else {
-                    $karyawan->sisa_cuti_pribadi = $total_sisa_cuti_pribadi;
+
+                //KONDISI JIKA ADA SALAH SATU YANG SUDAH DISETUJUI
+                if($ct->checked1_by !== null || $ct->checked2_by !== null || $ct->checked3_by !== null){
+                    if($ct->checked1_by == null){
+                        $ct->checked1_by = 'SYSTEM';
+                        $ct->checked1_at = now();
+                    } elseif($ct->checked2_by == null){
+                        $ct->checked2_by = 'SYSTEM';
+                        $ct->checked2_at = now();
+                    } elseif($ct->approved_by == null){
+                        $ct->approved_by = 'SYSTEM';
+                        $ct->approved_at = now();
+                    }
+                    $ct->status_dokumen = 'APPROVED';
+                    $ct->status_cuti = 'SCHEDULED';
+                    $ct->legalized_by = 'HRD & GA (SYSTEM)';
+                    $ct->legalized_at = now();
+                    $ct->save();
+
+                //KONDISI JIKA TIDAK ADA YANG DISETUJUI
+                } elseif ($ct->checked1_by == null && $ct->checked2_by == null && $ct->checked3_by == null){
+                    $ct->update([
+                        'status_dokumen' => 'REJECTED',
+                        'rejected_at' => now(),
+                        'rejected_by' => 'SYSTEM',
+                        'rejected_note' => 'Cuti otomatis dibatalkan system karena tidak ada persetujuan dari atasan sampai hari H rencana cuti'
+                    ]);
+                    
+                    $karyawan = Karyawan::find($ct->karyawan_id);
+                    $total_sisa_cuti_pribadi = $karyawan->sisa_cuti_pribadi + $ct->durasi_cuti;
+                    if ($total_sisa_cuti_pribadi > 6) {
+                        $karyawan->sisa_cuti_pribadi = 6;
+                    } else {
+                        $karyawan->sisa_cuti_pribadi = $total_sisa_cuti_pribadi;
+                    }
+                    $karyawan->save();
                 }
-                $karyawan->save();
             }
             DB::commit();
             $this->info('Sisa cuti karyawan berhasil dikembalikan dan pengajuan cuti ditolak otomatis');
