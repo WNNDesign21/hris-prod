@@ -11,11 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('jenis_cutis', function (Blueprint $table) {
-            $table->increments('id_jenis_cuti');
-            $table->string('jenis')->unique();
-            $table->integer('durasi');
-            $table->enum('isUrgent', ['Y', 'N'])->default('N');
+        Schema::create('reset_cutis', function (Blueprint $table) {
+            $table->increments('id_reset_cuti');
+            $table->datetime('reset_at');
 
             $table->softDeletes();
             $table->timestamps();
@@ -27,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('jenis_cutis');
+        Schema::dropIfExists('reset_cutis');
     }
 };

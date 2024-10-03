@@ -131,6 +131,7 @@ class TemplateController extends Controller
             DB::commit();
             return response()->json(['message' => 'Template Ditambahkan!'],200);
         } catch(Throwable $error){
+            DB::rollBack();
             return response()->json(['message' => $error->getMessage()], 500);
         }
     }

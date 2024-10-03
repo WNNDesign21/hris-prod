@@ -7,6 +7,7 @@ use Throwable;
 use Carbon\Carbon;
 use App\Models\Grup;
 use App\Models\User;
+use App\Models\Event;
 use App\Models\Posisi;
 use App\Models\Kontrak;
 use App\Models\Karyawan;
@@ -76,7 +77,6 @@ class KaryawanController extends Controller
             31 => 'jurusan_pendidikan',
             32 => 'no_telp_darurat',
             33 => 'gol_darah',
-            34 => 'sisa_cuti',
             35 => 'hutang_cuti',
             
         );
@@ -164,7 +164,7 @@ class KaryawanController extends Controller
                 $nestedData['nama'] = $data->nama.'<br> ('.$data->ni_karyawan.')';
                 $nestedData['jenis_kontrak'] = $kontrak ? $kontrak : ($data->jenis_kontrak ? $data->jenis_kontrak : 'BELUM ADA KONTRAK');
                 $nestedData['tanggal_mulai'] = $data->tanggal_mulai ? $data->tanggal_mulai : 'BELUM ADA KONTRAK';
-                $nestedData['tanggal_selesai'] = $data->tanggal_selesai ? $data->tanggal_selesai : 'BELUM ADA KONTRAK';
+                $nestedData['tanggal_selesai'] = $data->tanggal_selesai ? $data->tanggal_selesai : ($kontrak == 'PKWTT' || $data->jenis_kontrak == 'PKWTT' ? '-' : 'BELUM ADA KONTRAK');
                 $nestedData['status_karyawan'] = $data->status_karyawan;
                 $formattedPosisi = array_map(function($posisi) {
                     return '<span class="badge badge-primary m-1">' . $posisi . '</span>';
@@ -196,7 +196,7 @@ class KaryawanController extends Controller
                 $nestedData['jurusan_pendidikan'] = $data->jurusan_pendidikan;
                 $nestedData['no_telp_darurat'] = $data->no_telp_darurat;
                 $nestedData['gol_darah'] = $data->gol_darah;
-                $nestedData['sisa_cuti'] = $data->sisa_cuti;
+                $nestedData['sisa_cuti'] = 'Cuti Pribadi : '.$data->sisa_cuti_pribadi.'<br> Cuti Bersama : '. $data->sisa_cuti_bersama;
                 $nestedData['hutang_cuti'] = $data->hutang_cuti;
                 $nestedData['aksi'] = '
                 <div class="btn-group">
@@ -264,6 +264,7 @@ class KaryawanController extends Controller
             'nama_ibu_kandung' => ['required', 'string'],
             'jenjang_pendidikan' => ['required', 'string'],
             'jurusan_pendidikan' => ['required', 'string'],
+            'tanggal_mulai' => ['required', 'date_format:Y-m-d'],
             'posisi.*' => ['required'],
             'grup' => ['required'],
         ];
@@ -300,6 +301,7 @@ class KaryawanController extends Controller
         $jenjang_pendidikan = $request->jenjang_pendidikan;
         $jurusan_pendidikan = $request->jurusan_pendidikan;
         $posisi = $request->posisi;
+        $tanggal_mulai = $request->tanggal_mulai;
         $grup_id = $request->grup;
         $user_id = $request->user_id;
         $email_akun = $request->email_akun;
@@ -360,6 +362,7 @@ class KaryawanController extends Controller
                 'jenjang_pendidikan' => $jenjang_pendidikan,
                 'jurusan_pendidikan' => $jurusan_pendidikan,
                 'grup_id' => $grup_id,
+                'tanggal_mulai' => $tanggal_mulai,
             ]);
 
             $jabatan = null;
@@ -695,7 +698,8 @@ class KaryawanController extends Controller
                 'jurusan_pendidikan' => $karyawan->jurusan_pendidikan,
                 'jenis_kontrak' => $karyawan->jenis_kontrak,
                 'status_karyawan' => $karyawan->status_karyawan,
-                'sisa_cuti' => $karyawan->sisa_cuti,
+                'sisa_cuti_pribadi' => $karyawan->sisa_cuti_pribadi,
+                'sisa_cuti_bersama' => $karyawan->sisa_cuti_bersama,
                 'hutang_cuti' => $karyawan->hutang_cuti,
                 'tanggal_mulai' => $karyawan->tanggal_mulai,
                 'tanggal_selesai' => $karyawan->tanggal_selesai,
@@ -896,10 +900,11 @@ class KaryawanController extends Controller
                         'nama_rekening' => $row[22],
                         'no_rekening' => $row[23],
                         'email' => $row[24],
+                        'tanggal_mulai' => $tanggal_mulai,
                         'gol_darah' => in_array(strtoupper($row[25]), ['O', 'A', 'B', 'AB']) ? strtoupper($row[25]) : null,
                     ]);
 
-                    //Initial Contract
+                    // Initial Contract
                     // Kontrak::create([
                     //     'no_surat' => str_pad(mt_rand(0, 999), 3, '0', STR_PAD_LEFT),
                     //     'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,

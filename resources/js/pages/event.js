@@ -43,23 +43,25 @@ $(function () {
         });
     }
 
-    //DATATABLE KARYAWAN
+    //DATATABLE EVENT
     var columnsTable = [
-        { data: "jenis" },
+        { data: "jenis_event" },
+        { data: "keterangan" },
         { data: "durasi" },
-        { data: "isUrgent" },
+        { data: "tanggal_mulai" },
+        { data: "tanggal_selesai" },
         { data: "aksi" },
     ];
 
-    var cutieTable = $("#setting-table").DataTable({
+    var eventTable = $("#event-table").DataTable({
         search: {
             return: true,
         },
-        order: [[1, "DESC"]],
+        order: [[0, "DESC"]],
         processing: true,
         serverSide: true,
         ajax: {
-            url: base_url + "/cutie/setting-cuti-datatable",
+            url: base_url + "/master-data/event/datatable",
             dataType: "json",
             type: "POST",
             data: function (dataFilter) {
@@ -108,25 +110,19 @@ $(function () {
                 }
             },
         },
-        responsive: true,
+
         columns: columnsTable,
         columnDefs: [
             {
                 orderable: false,
-                targets: [0,-1],
-            },
-            {
                 targets: [-1],
-                createdCell: function (td, cellData, rowData, row, col) {
-                    // $(td).addClass("text-center");
-                },
             },
         ],
     })
 
     //REFRESH TABLE
     function refreshTable() {
-        cutieTable.search("").draw();
+        eventTable.search("").draw();
     }
 
     //RELOAD TABLE
@@ -134,76 +130,91 @@ $(function () {
         refreshTable();
     })
 
+    //OPEN MODAL TAMBAH EVENT
     $('.btnAdd').on("click", function (){
-        openForm();
+        openEvent();
     })
 
+    //CLOSE MODAL TAMBAH EVENT
     $('.btnClose').on("click", function (){
-        closeForm();
+        closeEvent();
     })
 
-    // MODAL TAMBAH KARYAWAN
-    var modalSettingCutiOptions = {
+    // MODAL TAMBAH EVENT
+    var modalInputEventOptions = {
         backdrop: true,
         keyboard: false,
     };
 
-    var modalSettingCuti = new bootstrap.Modal(
-        document.getElementById("modal-setting-cuti"),
-        modalSettingCutiOptions
+    var modalInputEvent = new bootstrap.Modal(
+        document.getElementById("modal-input-event"),
+        modalInputEventOptions
     );
 
-    function openForm() {
-        modalSettingCuti.show();
+    function openEvent() {
+        modalInputEvent.show();
     }
 
-    function closeForm() {
-        modalSettingCuti.hide();
-        resetForm();
+    function closeEvent() {
+        $('#jenis_event').val('');
+        $('#keterangan').val('');
+        $('#tanggal_mulai').val('');
+        $('#tanggal_selesai').val('');
+        modalInputEvent.hide();
     }
 
-    function resetForm(){
-        let url = base_url + '/cutie/setting-cuti/store';
-        $('#id_jenis_cuti').val('');
-        $('.modal-title').text('Tambah Jenis Cuti Khusus')
-        $('#jenis').val('');
-        $('#durasi').val('');
-        $('#isUrgent').val('Y');
-        $('#form-setting-cuti').attr('action', url);
-        $('input[name="_method"]').val('POST');
-    }
+    //MODAL TAMBAH EVENT DATE CONFIG
+    let currentYear = new Date().getFullYear();
+    let minDate = new Date(currentYear, 0, 1);
+    let maxDate = new Date(currentYear, 11, 31);
 
-    $('#setting-table').on('click', '.btnEdit', function (){
+    $('#jenis_event').select2({
+        dropdownParent: $('#modal-input-event'),
+    });
+    $('#tanggal_mulai').attr('min', minDate.toISOString().split('T')[0]);
+    $('#tanggal_mulai').attr('max', maxDate.toISOString().split('T')[0]);
+
+    $('#tanggal_mulai').on('change', function() {
+        let startDate = new Date($(this).val());
+
+        $('#tanggal_selesai').val('');
+        $('#tanggal_selesai').attr('min', startDate.toISOString().split('T')[0]);
+    });
+
+
+    //SUBMIT TAMBAH EVENT
+    $('#form-tambah-event').on('submit', function (e){
+        e.preventDefault();
         loadingSwalShow();
-        var idJenisCuti = $(this).data('id');
-        var url = base_url + '/cutie/setting-cuti/get-data-detail-jenis-cuti/' + idJenisCuti;
+        let url = $('#form-tambah-event').attr('action');
+
+        var formData = new FormData($('#form-tambah-event')[0]);
         $.ajax({
             url: url,
-            type: "GET",
-            success: function (response) {
-                var data = response.data;
-                $('#id_jenis_cuti').val(data.id_cuti);
-                $('#jenis').val(data.jenis);
-                $('#durasi').val(data.durasi);
-                $('#isUrgent').val(data.isUrgent);
-                $('.modal-title').text('Edit Jenis Cuti Khusus')
-
-                $('#form-setting-cuti').attr('action', base_url + '/cutie/setting-cuti/update/' + idJenisCuti);
-                $('#form-setting-cuti').append('<input type="hidden" name="_method" value="PATCH">');
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (data) {
                 loadingSwalClose();
-                openForm();
+                showToast({ title: data.message });
+                refreshTable();
+                closeEvent();
             },
             error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
             },
-        });
-    })
+        })
+    });
 
-    $('#setting-table').on('click', '.btnDelete', function (){
-        var idJenisCuti = $(this).data('id');
+    //DELETE EVENT
+    $('#event-table').on('click', '.btnDelete', function (){
+        var idEvent = $(this).data('id');
         Swal.fire({
-            title: "Delete Jenis Cuti Khusus",
-            text: "Apakah kamu yakin untuk menghapus Pengajuan Jenis Cuti Khusus ini?",
+            title: "Delete Event",
+            text: "Apakah kamu yakin untuk menghapus event ini?",
             icon: "warning",
             showCancelButton: true,
             confirmButtonColor: "#3085d6",
@@ -212,7 +223,7 @@ $(function () {
             allowOutsideClick: false,
         }).then((result) => {
             if (result.value) {
-                var url = base_url + '/cutie/setting-cuti/delete/' + idJenisCuti;
+                var url = base_url + '/master-data/event/delete/' + idEvent;
                 $.ajax({
                     url: url,
                     type: "POST",
@@ -231,30 +242,5 @@ $(function () {
             }
         });
     })
-
-    $('#form-setting-cuti').on('submit', function (e){
-        loadingSwalShow();
-        e.preventDefault();
-        let url = $('#form-setting-cuti').attr('action');
-
-        var formData = new FormData($('#form-setting-cuti')[0]);
-        $.ajax({
-            url: url,
-            data: formData,
-            method:"POST",
-            contentType: false,
-            processData: false,
-            dataType: "JSON",
-            success: function (data) {
-                showToast({ title: data.message });
-                refreshTable();
-                closeForm();
-                loadingSwalClose();
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                loadingSwalClose();
-                showToast({ icon: "error", title: jqXHR.responseJSON.message });
-            },
-        })
-    });
+    
 });

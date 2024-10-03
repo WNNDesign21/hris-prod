@@ -6,6 +6,7 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Cutie\CutieController;
 use App\Http\Controllers\MasterData\AkunController;
 use App\Http\Controllers\MasterData\GrupController;
+use App\Http\Controllers\MasterData\EventController;
 use App\Http\Controllers\MasterData\SeksiController;
 use App\Http\Controllers\MasterData\DivisiController;
 use App\Http\Controllers\MasterData\ExportController;
@@ -56,7 +57,7 @@ Route::get('/cutie/dashboard-cuti/get-data-jenis-cuti-monthly-chart',[CutieContr
 Route::get('/cutie/setting-cuti/get-data-detail-jenis-cuti/{idJenisCuti}',[CutieController::class, 'get_data_detail_jenis_cuti']);
 
 
-Route::group(['middleware' => ['auth']], function () {
+Route::group(['middleware' => ['auth', 'notifikasi']], function () {
     // MENU UTAMA
     Route::get('/home', [HomeController::class, 'index'])->name('root');
 
@@ -157,6 +158,13 @@ Route::group(['middleware' => ['auth']], function () {
          Route::post('/template/store',[TemplateController::class, 'store'])->name('master-data.template.store');
          Route::delete('/template/delete/{idTemplate}', [TemplateController::class, 'delete'])->name('master-data.template.delete');
          Route::patch('/template/update/{idTemplate}', [TemplateController::class, 'update'])->name('master-data.template.update');
+
+         /** MASTER DATA - KALENDER PERUSAHAAN*/
+         Route::post('/event/datatable', [EventController::class, 'datatable']);
+         Route::get('/event/get-data-event-calendar',[EventController::class, 'get_data_event_calendar']);
+         Route::get('/event',[EventController::class, 'index'])->name('master-data.event');
+         Route::post('/event/store',[EventController::class, 'store'])->name('master-data.event.store');
+         Route::delete('/event/delete/{idEvent}', [EventController::class, 'delete'])->name('master-data.event.delete');
     });
 
     /** CUTIE */

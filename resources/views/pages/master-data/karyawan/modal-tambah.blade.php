@@ -301,6 +301,14 @@
                                         required>
                                 </div>
                                 <div class="form-group">
+                                    <label for="">Tanggal Mulai <span class="text-danger">*</span></label>
+                                    <br>
+                                    <div class="input-group mb-2" style="width:100%;">
+                                        <input type="date" name="tanggal_mulai" id="tanggal_mulai"
+                                            class="form-control" required>
+                                    </div>
+                                </div>
+                                <div class="form-group">
                                     <label class="form-label">Posisi <span class="text-danger">*</span></label>
                                     <select class="form-control" multiple="multiple" data-placeholder="Pilih Posisi"
                                         id="posisi" name="posisi[]" style="width: 100%;" required>
@@ -312,24 +320,6 @@
                                         required>
                                     </select>
                                 </div>
-                                {{-- <div class="row">
-                                    <div class="col-lg-6 col-12">
-                                        <div class="form-group">
-                                            <label class="form-label">Jatah Cuti <span
-                                                    class="text-danger">*</span></label>
-                                            <input type="number" name="sisa_cuti" id="sisa_cuti"
-                                                class="form-control" min='0' max='12' required>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-6 col-12">
-                                        <div class="form-group">
-                                            <label class="form-label">Hutang Cuti <span
-                                                    class="text-danger">*</span></label>
-                                            <input type="number" name="hutang_cuti" id="hutang_cuti"
-                                                class="form-control" min='0' max='12' required>
-                                        </div>
-                                    </div>
-                                </div> --}}
                             </div>
                             <div class="d-flex justify-content-end mt-2">
                                 <button type="submit" class="btn btn-success"><i class="fas fa-save"></i>

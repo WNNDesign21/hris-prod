@@ -125,8 +125,16 @@
         @vite(['resources/js/pages/turnover.js'])
     @endif
 
+    @if ($page == 'masterdata-export')
+        @vite(['resources/js/pages/export.js'])
+    @endif
+
     @if ($page == 'masterdata-template')
         @vite(['resources/js/pages/template.js'])
+    @endif
+
+    @if ($page == 'masterdata-event')
+        @vite(['resources/js/pages/event.js'])
     @endif
 
     @if ($page == 'cutie-dashboard')

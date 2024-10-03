@@ -23,6 +23,13 @@
                                     <input type="number" class="form-control" id="durasi" name="durasi"
                                         min="1" required>
                                 </div>
+                                <div class="form-group">
+                                    <label for="isUrgent">isUrgent</label>
+                                    <select name="isUrgent" id="isUrgent" class="form-control">
+                                        <option value="Y">YES</option>
+                                        <option value="N">NO</option>
+                                    </select>
+                                </div>
                                 <div class="d-flex justify-content-end mt-2">
                                     <button type="submit" class="btn btn-success"><i class="fas fa-save"></i>
                                         Submit</button>

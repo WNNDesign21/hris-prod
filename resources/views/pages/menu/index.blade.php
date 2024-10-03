@@ -1,67 +1,80 @@
 @extends('layouts.menu-layout')
 
 @section('content')
-    <div class="row d-flex justify-content-center p-5">
-        {{-- CARD MANAJEMEN MASTER DATA --}}
-        @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('super user'))
-            <div class="col-lg-4 col-12">
-                <a href="{{ route('master-data.dashboard') }}" class="box pull-up">
-                    <div class="box-body">
-                        <div class="d-flex align-items-center">
-                            <div class="icon bg-primary-light rounded-circle w-60 h-60 text-center l-h-80">
-                                <span class="fs-30 icon-Bulb1"><span class="path1"></span><span class="path2"></span><span
-                                        class="path3"></span><span class="path4"></span></span>
-                            </div>
-                            <div class="ms-15">
-                                <h5 class="mb-0">Master Data Management</h5>
-                                <p class="text-fade fs-12 mb-0">Sistem Manajemen Data Master</p>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        @endif
-
-        {{-- CARD CUTI SYSTEM --}}
+    <div class="row d-flex justify-content-center p-5" style="margin-top: var(--dynamic-margin, 6.25rem);">
         <div class="col-lg-4 col-12">
-            <a href="{{ !auth()->user()->hasRole('member') ? route('cutie.dashboard') : route('cutie.pengajuan-cuti') }}"
-                class="box pull-up">
-                <div class="box-body">
-                    <div class="d-flex align-items-center">
-                        <div class="icon bg-primary-light rounded-circle w-60 h-60 text-center l-h-80">
-                            <span class="fs-30 icon-Bulb1"><span class="path1"></span><span class="path2"></span><span
-                                    class="path3"></span><span class="path4"></span></span>
-                        </div>
-                        <div class="ms-15">
-                            <h5 class="mb-0">Cuti-e</h5>
-                            <p class="text-fade fs-12 mb-0">Sistem Penjadwalan dan Pengajuan Cuti Karyawan</p>
-                        </div>
-                    </div>
+            <div class="box-body p-2">
+                <div class="box no-shadow mb-0">
+                    <div id="calendarEvent" class="dask evt-cal min-h-400"></div>
                 </div>
-            </a>
+            </div>
         </div>
-
-        {{-- CARD LEMBUR SYSTEM --}}
-        {{-- <div class="col-lg-4 col-12">
-            <a href="#" class="box pull-up">
-                <div class="box-body">
-                    <div class="d-flex align-items-center">
-                        <div class="icon bg-primary-light rounded-circle w-60 h-60 text-center l-h-80">
-                            <span class="fs-30 icon-Bulb1"><span class="path1"></span><span class="path2"></span><span
-                                    class="path3"></span><span class="path4"></span></span>
-                        </div>
-                        <div class="ms-15">
-                            <h5 class="mb-0">Lembure</h5>
-                            <p class="text-fade fs-12 mb-0">Sistem Pengajuan dan Penjadwalan Lembur Karyawan</p>
-                        </div>
+        <div class="col-lg-8 col-12">
+            <div class="row d-flex justify-content-center p-5">
+                {{-- CARD MANAJEMEN MASTER DATA --}}
+                @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('super user'))
+                    <div class="col-lg-6 col-12">
+                        <a href="{{ route('master-data.dashboard') }}" class="box pull-up">
+                            <div class="box-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon bg-primary-light rounded-circle w-60 h-60 text-center l-h-80">
+                                        <span class="fs-30 icon-Bulb1"><span class="path1"></span><span
+                                                class="path2"></span><span class="path3"></span><span
+                                                class="path4"></span></span>
+                                    </div>
+                                    <div class="ms-15">
+                                        <h5 class="mb-0">Master Data Management</h5>
+                                        <p class="text-fade fs-12 mb-0">Sistem Manajemen Data Master</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
                     </div>
+                @endif
+
+                {{-- CARD CUTI SYSTEM --}}
+                <div class="col-lg-6 col-12">
+                    <a href="{{ !auth()->user()->hasRole('member') ? route('cutie.dashboard') : route('cutie.pengajuan-cuti') }}"
+                        class="box pull-up">
+                        <div class="box-body">
+                            <div class="d-flex align-items-center">
+                                <div class="icon bg-primary-light rounded-circle w-60 h-60 text-center l-h-80">
+                                    <span class="fs-30 icon-Bulb1"><span class="path1"></span><span
+                                            class="path2"></span><span class="path3"></span><span
+                                            class="path4"></span></span>
+                                </div>
+                                <div class="ms-15">
+                                    <h5 class="mb-0">Cuti-e</h5>
+                                    <p class="text-fade fs-12 mb-0">Sistem Penjadwalan dan Pengajuan Cuti Karyawan</p>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
                 </div>
-            </a>
-        </div> --}}
 
+                {{-- CARD LEMBUR SYSTEM --}}
+                {{-- <div class="col-lg-6 col-12">
+                    <a href="#" class="box pull-up">
+                        <div class="box-body">
+                            <div class="d-flex align-items-center">
+                                <div class="icon bg-primary-light rounded-circle w-60 h-60 text-center l-h-80">
+                                    <span class="fs-30 icon-Bulb1"><span class="path1"></span><span
+                                            class="path2"></span><span class="path3"></span><span
+                                            class="path4"></span></span>
+                                </div>
+                                <div class="ms-15">
+                                    <h5 class="mb-0">Lembure</h5>
+                                    <p class="text-fade fs-12 mb-0">Sistem Pengajuan dan Penjadwalan Lembur Karyawan</p>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div> --}}
+            </div>
 
-        {{-- CARD PRESENSI DAN PAYROLL SYSTEM --}}
-        {{-- <div class="col-lg-4 col-12">
+            {{-- CARD PRESENSI DAN PAYROLL SYSTEM --}}
+            {{-- <div class="col-lg-4 col-12">
         <a href="#" class="box pull-up">
             <div class="box-body">
                 <div class="d-flex align-items-center">
@@ -77,8 +90,8 @@
         </a>
     </div> --}}
 
-        {{-- MONITORING TRANSAKSI SYSTEM --}}
-        {{-- <div class="col-lg-4 col-12">
+            {{-- MONITORING TRANSAKSI SYSTEM --}}
+            {{-- <div class="col-lg-4 col-12">
         <a href="#" class="box pull-up">
             <div class="box-body">
                 <div class="d-flex align-items-center">
@@ -94,5 +107,5 @@
             </div>
         </a>
     </div> --}}
-    </div>
-@endsection
+        </div>
+    @endsection

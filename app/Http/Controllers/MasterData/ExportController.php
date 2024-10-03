@@ -15,6 +15,7 @@ use App\Models\Departemen;
 use App\Models\Organisasi;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Color;
@@ -30,9 +31,11 @@ class ExportController extends Controller
      */
     public function index()
     {
+        $departemen = Departemen::all();
         $dataPage = [
             'pageTitle' => "Master Data - Export",
             'page' => 'masterdata-export',
+            'departemen' => $departemen
         ];
         return view('pages.master-data.export.index', $dataPage);
     }
@@ -87,17 +90,40 @@ class ExportController extends Controller
 
     public function export_master_data(Request $request){
 
+        $departemen_karyawan = $request->departemen_karyawan;
+
         //Karyawan
         if($request->karyawan_aktif == 'Y') {
-            $karyawan = Karyawan::where('status_karyawan', 'AKTIF')->get();
+            if($departemen_karyawan){
+                $karyawan = Karyawan::whereHas('posisi', function ($query) use ($request) {
+                                $query->where('departemen_id', $request->departemen_karyawan);
+                            })->where('status_karyawan', 'AKTIF')->get();
+            } else {
+                $karyawan = Karyawan::where('status_karyawan', 'AKTIF')->get();
+            }
         } 
         
         if($request->karyawan_nonaktif == 'Y'){
-            $karyawan = Karyawan::whereIn('status_karyawan',['RESIGN','TERMINASI','PENSIUN'])->orWhereNull('status_karyawan')->get();
+            if($departemen_karyawan){
+                $karyawan = Karyawan::whereHas('posisi', function ($query) use ($request) {
+                    $query->where('departemen_id', $request->departemen_karyawan);
+                })->where(function ($query) {
+                    $query->whereIn('status_karyawan', ['RESIGN', 'TERMINASI', 'PENSIUN'])
+                          ->orWhereNull('status_karyawan');
+                })->get();
+            } else {
+                $karyawan = Karyawan::whereIn('status_karyawan',['RESIGN','TERMINASI','PENSIUN'])->orWhereNull('status_karyawan')->get();
+            }
         } 
         
         if ($request->karyawan_aktif == 'Y' && $request->karyawan_nonaktif == 'Y'){
-            $karyawan = Karyawan::all();
+            if($departemen_karyawan){
+                $karyawan = Karyawan::whereHas('posisi', function ($query) use ($request) {
+                    $query->where('departemen_id', $request->departemen_karyawan);
+                })->get();
+            } else {
+                $karyawan = Karyawan::all();
+            }
         } else {
             $karyawan = [];
         }
@@ -122,6 +148,21 @@ class ExportController extends Controller
         
         //Organisasi
         $request->organisasi == 'Y' ? $organisasi = Organisasi::all() : $organisasi = [];
+
+        if(empty($karyawan) && empty($posisi) && empty($divisi) && empty($departemen) && empty($seksi) && empty($grup) && empty($jabatan) && empty($organisasi)){
+            $spreadsheet = new Spreadsheet();
+            $writer = new Xlsx($spreadsheet);
+
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment;filename=data-not-found.xlsx');
+            header('Cache-Control: max-age=0');
+
+            $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+            $writer->save('php://output');
+            $spreadsheet->disconnectWorksheets();
+            unset($spreadsheet);
+            exit();
+        }
 
         $spreadsheet = new Spreadsheet();
 
@@ -268,7 +309,7 @@ class ExportController extends Controller
                 $sheet->setCellValue('AD' . $row, $data->gol_darah);
                 $sheet->setCellValue('AE' . $row, $data->email);
                 $sheet->setCellValue('AF' . $row, $email_corporate);
-                $sheet->setCellValue('AG' . $row, $data->sisa_cuti);
+                $sheet->setCellValue('AG' . $row, $data->sisa_cuti_pribadi + $data->sisa_cuti_bersama);
                 $sheet->setCellValue('AH' . $row, $data->hutang_cuti);
                 $row++;
                 $i++;
@@ -537,7 +578,7 @@ class ExportController extends Controller
         header('Content-Disposition: attachment;filename=master-data-export.xlsx');
         header('Cache-Control: max-age=0');
 
-        $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
         $writer->save('php://output');
         $spreadsheet->disconnectWorksheets();
         unset($spreadsheet);
@@ -549,19 +590,86 @@ class ExportController extends Controller
         $kontrak_from = $request->kontrak_from;
         $kontrak_to = $request->kontrak_to;
         $durasi = $request->durasi;
+        $departemen = $request->departemen_kontrak;
+        $status = $request->status_kontrak;
+        $jenis_kontrak = $request->jenis_kontrak;
 
-        $kontrak = Kontrak::query();
+        $kontrak = Kontrak::select(
+            'kontraks.id_kontrak',
+            'kontraks.karyawan_id',
+            'kontraks.posisi_id',
+            'kontraks.nama_posisi',
+            'kontraks.no_surat',
+            'kontraks.tempat_administrasi',
+            'kontraks.issued_date',
+            'kontraks.durasi',
+            'kontraks.salary',
+            'kontraks.deskripsi',
+            'kontraks.tanggal_mulai as tanggal_mulai_kontrak',
+            'kontraks.tanggal_selesai as tanggal_selesai_kontrak',
+            'kontraks.jenis',
+            'kontraks.status',
+            'kontraks.attachment',
+            'kontraks.evidence',
+            'kontraks.isReactive',
+            'karyawans.nama as nama_karyawan',
+            'karyawans.ni_karyawan as nik_karyawan',
+            'departemens.nama as nama_departemen'
+        )
+        ->leftJoin('karyawans', 'kontraks.karyawan_id', 'karyawans.id_karyawan')
+        ->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
+        ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+        ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
+        ->groupBy(
+            'kontraks.id_kontrak',
+            'kontraks.karyawan_id',
+            'kontraks.posisi_id',
+            'kontraks.nama_posisi',
+            'kontraks.no_surat',
+            'kontraks.tempat_administrasi',
+            'kontraks.issued_date',
+            'kontraks.durasi',
+            'kontraks.salary',
+            'kontraks.deskripsi',
+            'kontraks.tanggal_mulai',
+            'kontraks.tanggal_selesai',
+            'kontraks.jenis',
+            'kontraks.status',
+            'kontraks.attachment',
+            'kontraks.evidence',
+            'kontraks.isReactive',
+            'karyawans.nama',
+            'karyawans.ni_karyawan',
+            'departemens.nama'
+        );
+
+        //Menghitung jumlah hari kerja
+        $kontrak->selectRaw('
+            (kontraks.tanggal_selesai::date - kontraks.tanggal_mulai::date + 1) -
+            (SELECT COUNT(*) FROM generate_series(kontraks.tanggal_mulai, kontraks.tanggal_selesai, interval \'1 day\') AS series
+            WHERE EXTRACT(DOW FROM series) IN (0, 6)) as jumlah_hari
+        ');
+
+        if($departemen) {
+            $kontrak->where('departemens.id_departemen', $departemen);
+        }
+
+        if($status) {
+            $kontrak->where('kontraks.status', $status);
+        }
+
+        if($jenis_kontrak) {
+            $kontrak->where('kontraks.jenis', $jenis_kontrak);
+        }
 
         if ($kontrak_from) {
-            $kontrak->whereYear('tanggal_mulai', '>=', Carbon::parse($kontrak_from)->year)
-                ->whereMonth('tanggal_mulai', '>=', Carbon::parse($kontrak_from)->month);
+            $kontrak->whereYear('kontraks.tanggal_mulai', '>=', Carbon::parse($kontrak_from)->year)
+                ->whereMonth('kontraks.tanggal_mulai', '>=', Carbon::parse($kontrak_from)->month);
         }
-
         if ($kontrak_to) {
-            $kontrak->whereYear('tanggal_selesai', '<=', Carbon::parse($kontrak_to)->year)
-                ->whereMonth('tanggal_selesai', '<=', Carbon::parse($kontrak_to)->month);
+            $kontrak->whereYear('kontraks.tanggal_selesai', '<=', Carbon::parse($kontrak_to)->year)
+                ->whereMonth('kontraks.tanggal_selesai', '<=', Carbon::parse($kontrak_to)->month);
         }
-
         if($durasi) {
             $kontrak->where('durasi', $durasi);
         };
@@ -583,11 +691,13 @@ class ExportController extends Controller
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
                 'startColor' => [
-                    'argb' => 'FFFFFF00'
+                    'argb' => 'FF000000'
                 ]
             ],
             'font' => [
                 'bold' => true,
+                'color' => ['argb' => 'FFFFFFFF'],
+                'size' => 12,
             ],
         ];
 
@@ -599,22 +709,22 @@ class ExportController extends Controller
             $col = 'A';
 
             $headers = [
-                'ID Kontrak',
-                'ID Karyawan',
-                'Nama Karyawan',
-                'Posisi',
-                'No Perjanjian',
-                'Jenis',
-                'Status',
-                'Durasi',
-                'Salary',
-                'Deskripsi',
-                'Tanggal Mulai',
-                'Tanggal Selesai',
-                'Issued Date',
-                'Tempat Administrasi',
-                // 'Approved By',
-                // 'Approved Date'
+                'ID KONTRAK',
+                'NIK',
+                'DEPARTEMEN',
+                'POSISI',
+                'NAMA',
+                'NO PERJANJIAN',
+                'HARI',
+                'AWAL',
+                'AKHIR',
+                'JENIS',
+                'TEMPAT ADMINISTRASI',
+                'STATUS',
+                'DURASI',
+                'SALARY',
+                'DESKRIPSI',
+                'DOCUMENT CREATED',
             ];
 
             foreach ($headers as $header) {
@@ -625,11 +735,11 @@ class ExportController extends Controller
 
             $row = 2;
 
-            $columns = range('A', 'N');
+            $columns = range('A', 'P');
             foreach ($columns as $column) {
                 $sheet->getColumnDimension($column)->setWidth(35);
             }
-            $sheet->setAutoFilter('A1:N1');
+            $sheet->setAutoFilter('A1:P1');
 
             foreach ($kontrak as $data) {
 
@@ -637,21 +747,21 @@ class ExportController extends Controller
                 $year = $carbonDate->year;
 
                 $sheet->setCellValue('A' . $row, $data->id_kontrak);
-                $sheet->setCellValue('B' . $row, $data->karyawan_id);
-                $sheet->setCellValue('C' . $row, $data->karyawan->nama);
+                $sheet->setCellValue('B' . $row, $data->nik_karyawan);
+                $sheet->setCellValue('C' . $row, $data->nama_departemen);
                 $sheet->setCellValue('D' . $row, $data->nama_posisi);
-                $sheet->setCellValue('E' . $row, 'No.'.$data->no_surat.'/'.$data->jenis.'-I'.'/HRD-'.($data->tempat_administrasi == 'Karawang' ? 'TCF3' : 'TCF2')."/V"."/".$year);
-                $sheet->setCellValue('F' . $row, $data->jenis);
-                $sheet->setCellValue('G' . $row, $data->status);
-                $sheet->setCellValue('H' . $row, $data->durasi);
-                $sheet->setCellValue('I' . $row, $data->salary);
-                $sheet->setCellValue('J' . $row, $data->deskripsi);
-                $sheet->setCellValue('K' . $row, $data->tanggal_mulai);
-                $sheet->setCellValue('L' . $row, $data->tanggal_selesai);
-                $sheet->setCellValue('M' . $row, $data->issued_date);
-                $sheet->setCellValue('N' . $row, $data->tempat_administrasi);
-                // $sheet->setCellValue('O' . $row, Karyawan::find($data->status_change_by)?->nama);
-                // $sheet->setCellValue('P' . $row, $data->status_change_date);
+                $sheet->setCellValue('E' . $row, $data->nama_karyawan);
+                $sheet->setCellValue('F' . $row, $data->no_surat);
+                $sheet->setCellValue('G' . $row, $data->jumlah_hari);
+                $sheet->setCellValue('H' . $row, $data->tanggal_mulai_kontrak);
+                $sheet->setCellValue('I' . $row, $data->tanggal_selesai_kontrak);
+                $sheet->setCellValue('J' . $row, $data->jenis);
+                $sheet->setCellValue('K' . $row, $data->tempat_administrasi);
+                $sheet->setCellValue('L' . $row, $data->status);
+                $sheet->setCellValue('M' . $row, $data->durasi);
+                $sheet->setCellValue('N' . $row, $data->salary);
+                $sheet->setCellValue('O' . $row, $data->deskripsi);
+                $sheet->setCellValue('P' . $row, $data->issued_date);
                 $row++;
             }
         }

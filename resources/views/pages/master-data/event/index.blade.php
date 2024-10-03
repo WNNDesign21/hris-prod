@@ -9,7 +9,7 @@
 @endsection
 
 @section('navbar')
-    @include('layouts.navbar-cutie')
+    @include('layouts.navbar-masterdata')
 @endsection
 
 @section('content')
@@ -17,12 +17,12 @@
         <div class="col-12">
             <div class="box">
                 <div class="box-header d-flex justify-content-between">
-                    <h4 class="box-title">List Cuti Khusus <br><small>Note : isUrgent merupakan flag/ciri pada cuti khusus
-                            yang boleh diajukan diluar ketentuan H-7 sebelum melaksanakan cuti,<br> hal ini biasanya
-                            digunakan
-                            untuk cuti yang tidak bisa di prediksi seperti saudara meninggal atau keguguran dll(boleh
-                            dadakan dan back
-                            date)</small></h4>
+                    <h4 class="box-title">List Event<br><small>Note : Ketika menginput event dengan
+                            jenis cuti bersama, jatah
+                            cuti
+                            bersama seluruh karyawan akan otomatis terpotong dan berkurang,<br> jika karyawan belum memiliki
+                            jatah cuti bersama, maka akan masuk kedalam hutang cuti yang harus dibayar pada tahun
+                            berikutnya <br> (Cuti bersama akan muncul pada kalender cuti dashboard)</small></h4>
                     <div>
                         <div class="btn-group">
                             <button type="button" class="btn btn-info waves-effect btnReload"><i
@@ -34,12 +34,14 @@
                 </div>
                 <div class="box-body">
                     <div class="table-responsive">
-                        <table id="setting-table" class="table table-striped table-bordered display" style="width:100%">
+                        <table id="event-table" class="table table-striped table-bordered display" style="width:100%">
                             <thead>
                                 <tr>
-                                    <th>Jenis Cuti</th>
+                                    <th>Jenis Event</th>
+                                    <th>Keterangan</th>
                                     <th>Durasi</th>
-                                    <th>isUrgent</th>
+                                    <th>Tanggal Mulai</th>
+                                    <th>Tanggal Selesai</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -50,5 +52,5 @@
             </div>
         </div>
     </div>
-    @include('pages.cuti-e.modal-setting-cuti')
+    @include('pages.master-data.event.modal-input')
 @endsection

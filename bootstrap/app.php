@@ -2,6 +2,7 @@
 
 use Illuminate\Foundation\Application;
 use Illuminate\Console\Scheduling\Schedule;
+use App\Http\Middleware\NotificationMiddleware;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 
@@ -16,11 +17,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+            'notifikasi' => NotificationMiddleware::class,
         ]);
     })
     ->withSchedule(function (Schedule $schedule) {
         $schedule->command('cutie:update-status-onleave')->everyMinute()->runInBackground();
         $schedule->command('cutie:update-status-completed')->everyFiveMinutes()->between('22:30', '23:59')->runInBackground();
+        $schedule->command('cutie:automatic-reject-cuti')->hourly()->runInBackground();
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

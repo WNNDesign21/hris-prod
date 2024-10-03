@@ -17,12 +17,23 @@
         <div class="col-12">
             <div class="box">
                 <div class="box-header d-flex justify-content-between">
-                    <h4 class="box-title">List Data Cuti Personal</h4>
+                    <div class="row">
+                        <h4 class="box-title">List Data Cuti Personal</h4>
+                        <br>
+                        <br>
+                        <small>Jatah Cuti Pribadi Total ({{ date('Y') }}) : <span class="text-bold"
+                                id="sisa_cuti_total_display">{{ auth()->user()->karyawan->sisa_cuti_pribadi + auth()->user()->karyawan->sisa_cuti_bersama }}
+                                Hari</span>
+                            <br> Hutang Cuti ({{ date('Y') }}) : <span class="text-bold"
+                                id="hutang_cuti_display">{{ auth()->user()->karyawan->hutang_cuti }} Hari</span></small>
+                    </div>
                     <div>
-                        <button type="button" class="btn btn-info waves-effect btnReload"><i
-                                class="fas fa-sync-alt"></i></button>
-                        <button type="button" class="btn btn-success waves-effect btnAdd"><i class="fas fa-walking"></i>
-                            Ajukan Cuti</button>
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-info waves-effect btnReload"><i
+                                    class="fas fa-sync-alt"></i></button>
+                            <button type="button" class="btn btn-success waves-effect btnAdd"><i
+                                    class="fas fa-plus"></i></button>
+                        </div>
                     </div>
                 </div>
                 <div class="box-body">

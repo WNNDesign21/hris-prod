@@ -6,38 +6,37 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class JenisCuti extends Model
+class Event extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'jenis_cutis';
-    protected $primaryKey = 'id_jenis_cuti';
+    protected $table = 'events';
+    protected $primaryKey = 'id_event';
 
     protected $fillable = [
-        'jenis', 'durasi', 'isUrgent'
+        'jenis_event','keterangan','durasi','tanggal_mulai','tanggal_selesai'
     ];
-
-    public static function isUsed()
-    {
-        return self::hasMany(Cutie::class, 'jenis_cuti_id', 'id_jenis_cuti')->exists();
-    }
 
     private static function _query($dataFilter)
     {
 
         $data = self::select(
-            'id_jenis_cuti',
-            'jenis',
+            'id_event',
+            'jenis_event',
+            'keterangan',
             'durasi',
-            'isUrgent'
+            'tanggal_mulai',
+            'tanggal_selesai',
         );
 
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
             $data->where(function ($query) use ($search) {
-                $query->where('jenis', 'ILIKE', "%{$search}%")
-                ->orWhere('durasi', 'ILIKE', "%{$search}%")
-                ->orWhere('isUrgent', 'ILIKE', "%{$search}%");
+                $query->where('jenis_event', 'ILIKE', "%{$search}%")
+                    ->orWhere('keterangan', 'ILIKE', "%{$search}%")
+                    ->orWhere('tanggal_mulai', 'ILIKE', "%{$search}%")
+                    ->orWhere('tanggal_selesai', 'ILIKE', "%{$search}%")
+                    ->orWhere('durasi', 'ILIKE', "%{$search}%");
             });
         }
 

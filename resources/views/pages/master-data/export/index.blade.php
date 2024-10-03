@@ -26,6 +26,18 @@
                             <form action="{{ route('master-data.export.master-data') }}" method="POST"
                                 enctype="multipart/form-data">
                                 @csrf
+                                <h5 class="text-bold">Departemen</h5>
+                                <div class="form-group">
+                                    <select name="departemen_karyawan" id="departemen_karyawan" class="form-control"
+                                        style="width: 100%;">
+                                        <option value="">Pilih Departemen</option>
+                                        @foreach ($departemen as $dp)
+                                            <option value="{{ $dp->id_departemen }}">{{ $dp->nama }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <hr>
+
                                 <h5 class="text-bold">Karyawan</h5>
                                 <div class="form-group">
                                     <div class="demo-checkbox">
@@ -103,6 +115,35 @@
                                 @csrf
                                 <h5 class="text-bold">Kontrak <br><small>Note : Abaikan seluruh filter jika ingin
                                         mengeksport semua data.</small></h5>
+                                <div class="form-group">
+                                    <label for="">Departemen</label>
+                                    <select name="departemen_kontrak" id="departemen_kontrak" class="form-control"
+                                        style="width: 100%;">
+                                        <option value="">Pilih Departemen</option>
+                                        @foreach ($departemen as $dp)
+                                            <option value="{{ $dp->id_departemen }}">{{ $dp->nama }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Jenis Kontrak</label>
+                                    <select name="jenis_kontrak" id="jenis_kontrak" class="form-control"
+                                        style="width: 100%;">
+                                        <option value="">Pilih Jenis Kontrak</option>
+                                        <option value="PKWT">PKWT</option>
+                                        <option value="MAGANG">MAGANG</option>
+                                        <option value="PKWTT">PKWTT</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Status Kontrak</label>
+                                    <select name="status_kontrak" id="status_kontrak" class="form-control"
+                                        style="width: 100%;">
+                                        <option value="">Pilih Status Kontrak</option>
+                                        <option value="DONE">DONE</option>
+                                        <option value="ON PROGRESS">ON PROGRESS</option>
+                                    </select>
+                                </div>
                                 <div class="form-group">
                                     <div class="row">
                                         <div class="col-lg-6 col-12">

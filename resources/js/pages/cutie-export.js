@@ -42,21 +42,10 @@ $(function () {
     }
 
     $('#departemen_id').select2();
-    $('#to').attr('readonly', true);
-
-    $('#from').on('change', function() {
-        let from = $(this).val();
-        $('#to').attr('readonly', false);
-        $('#to').attr('min', from);
-    });
+    $('#tahun').select2();
+    $('#bulan').select2();
 
     $('#btnExport').on('click', function() {
-        let to = $('#to').val();
-
-        if(to == '') {
-            showToast({ icon: 'error', title: 'Masukkan batas tanggal data cuti!'});
-            return;
-        }
         $('#form-export-cuti').submit();
     });
 

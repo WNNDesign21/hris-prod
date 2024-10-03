@@ -51,7 +51,8 @@ class Karyawan extends Model
         'no_bpjs_kt',
         'jenis_kontrak',
         'status_karyawan',
-        'sisa_cuti',
+        'sisa_cuti_pribadi',
+        'sisa_cuti_bersama',
         'hutang_cuti',
         'tanggal_mulai',
         'tanggal_selesai',
@@ -126,7 +127,8 @@ class Karyawan extends Model
             'karyawans.npwp',
             'karyawans.no_bpjs_ks',
             'karyawans.no_bpjs_kt',
-            'karyawans.sisa_cuti',
+            'karyawans.sisa_cuti_pribadi',
+            'karyawans.sisa_cuti_bersama',
             'karyawans.hutang_cuti',
             'karyawans.no_rekening',
             'karyawans.nama_rekening',
@@ -220,7 +222,8 @@ class Karyawan extends Model
             'karyawans.npwp',
             'karyawans.no_bpjs_ks',
             'karyawans.no_bpjs_kt',
-            'karyawans.sisa_cuti',
+            'karyawans.sisa_cuti_pribadi',
+            'karyawans.sisa_cuti_bersama',
             'karyawans.hutang_cuti',
             'karyawans.no_rekening',
             'karyawans.nama_rekening',
@@ -259,7 +262,6 @@ class Karyawan extends Model
                     ->orWhere('karyawans.npwp', 'ILIKE', "%{$search}%")
                     ->orWhere('karyawans.no_bpjs_ks', 'ILIKE', "%{$search}%")
                     ->orWhere('karyawans.no_bpjs_kt', 'ILIKE', "%{$search}%")
-                    ->orWhere('karyawans.sisa_cuti', 'ILIKE', "%{$search}%")
                     ->orWhere('karyawans.hutang_cuti', 'ILIKE', "%{$search}%")
                     ->orWhere('karyawans.no_rekening', 'ILIKE', "%{$search}%")
                     ->orWhere('karyawans.nama_rekening', 'ILIKE', "%{$search}%")

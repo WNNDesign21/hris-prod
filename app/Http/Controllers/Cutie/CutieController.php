@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Cutie;
 use Throwable;
 use Carbon\Carbon;
 use App\Models\Cutie;
+use App\Models\Event;
 use App\Models\Posisi;
 use App\Models\Karyawan;
 use App\Models\JenisCuti;
@@ -14,6 +15,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Storage;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -58,18 +60,23 @@ class CutieController extends Controller
 
     public function member_cuti_view()
     {
+        $departemens = Departemen::all();
+
         $dataPage = [
             'pageTitle' => "Cutie - Member Cuti",
             'page' => 'cutie-member-cuti',
+            'departemen' => $departemens
         ];
         return view('pages.cuti-e.member-cuti', $dataPage);
     }
 
     public function personalia_cuti_view()
     {
+        $departemens = Departemen::all();
         $dataPage = [
             'pageTitle' => "Cutie - Personalia",
             'page' => 'cutie-personalia-cuti',
+            'departemen' => $departemens,
         ];
         return view('pages.cuti-e.personalia-cuti', $dataPage);
     }
@@ -80,7 +87,7 @@ class CutieController extends Controller
         $dataPage = [
             'pageTitle' => "Cutie - Export Data",
             'page' => 'cutie-export',
-            'departemens' => $departemens,
+            'departemen' => $departemens,
         ];
         return view('pages.cuti-e.export-cuti', $dataPage);
     }
@@ -246,21 +253,22 @@ class CutieController extends Controller
 
         $columns = array(
             0 => 'karyawans.nama',
-            1 => 'rencana_mulai_cuti',
-            2 => 'rencana_selesai_cuti',
-            3 => 'aktual_mulai_cuti',
-            4 => 'aktual_selesai_cuti',
-            5 => 'durasi_cuti',
-            6 => 'jenis_cuti',
-            7 => 'checked1_at',
-            8 => 'checked2_at',
-            9 => 'approved_at',
-            10 => 'legalize_at',
-            11 => 'status_dokumen',
-            12 => 'status_cuti',
-            13 => 'alasan_cuti',
-            14 => 'kp.nama_pengganti',
-            15 => 'created_at',
+            1 => 'departemens.nama',
+            2 => 'rencana_mulai_cuti',
+            3 => 'rencana_selesai_cuti',
+            4 => 'aktual_mulai_cuti',
+            5 => 'aktual_selesai_cuti',
+            6 => 'durasi_cuti',
+            7 => 'jenis_cuti',
+            8 => 'checked1_at',
+            9 => 'checked2_at',
+            10 => 'approved_at',
+            11 => 'legalize_at',
+            12 => 'status_dokumen',
+            13 => 'status_cuti',
+            14 => 'alasan_cuti',
+            15 => 'kp.nama_pengganti',
+            16 => 'created_at',
         );
 
         $totalData = Cutie::count();
@@ -280,6 +288,42 @@ class CutieController extends Controller
         $search = $request->input('search.value');
         if (!empty($search)) {
             $dataFilter['search'] = $search;
+        }
+
+        //FILTER DATA
+        $departemenFilter = $request->input('departemen');
+        if (!empty($departemenFilter)) {
+            $dataFilter['departemen'] = $departemenFilter;
+        }
+
+        $jenisCutiFilter = $request->input('jenisCuti');
+        if (!empty($jenisCutiFilter)) {
+            $dataFilter['jenisCuti'] = $jenisCutiFilter;
+        }
+
+        $statusCutiFilter = $request->input('statusCuti');
+        if (!empty($statusCutiFilter)) {
+            $dataFilter['statusCuti'] = $statusCutiFilter;
+        }
+
+        $statusDokumenFilter = $request->input('statusDokumen');
+        if (!empty($statusDokumenFilter)) {
+            $dataFilter['statusDokumen'] = $statusDokumenFilter;
+        }
+
+        $namaFilter = $request->input('nama');
+        if (!empty($namaFilter)) {
+            $dataFilter['nama'] = $namaFilter;
+        }
+
+        $durasiFilter = $request->input('durasi');
+        if (!empty($durasiFilter)) {
+            $dataFilter['durasi'] = $durasiFilter;
+        }
+
+        $rencanamulaiFilter = $request->input('rencanaMulai');
+        if (!empty($rencanamulaiFilter)) {
+            $dataFilter['rencanaMulai'] = $rencanamulaiFilter;
         }
 
 
@@ -504,6 +548,7 @@ class CutieController extends Controller
                 }
 
                 $nestedData['nama'] = $data->nama_karyawan;
+                $nestedData['departemen'] = $data->nama_departemen;
                 $nestedData['rencana_mulai_cuti'] = Carbon::parse($data->rencana_mulai_cuti)->format('d M Y');
                 $nestedData['rencana_selesai_cuti'] = Carbon::parse($data->rencana_selesai_cuti)->format('d M Y');
                 $nestedData['aktual_mulai_cuti'] = $data->aktual_mulai_cuti ? Carbon::parse($data->aktual_selesai_cuti)->format('d M Y') : '-';
@@ -550,21 +595,22 @@ class CutieController extends Controller
 
         $columns = array(
             0 => 'karyawans.nama',
-            1 => 'rencana_mulai_cuti',
-            2 => 'rencana_selesai_cuti',
-            3 => 'aktual_mulai_cuti',
-            4 => 'aktual_selesai_cuti',
-            5 => 'durasi_cuti',
-            6 => 'jenis_cuti',
-            7 => 'checked1_at',
-            8 => 'checked2_at',
-            9 => 'approved_at',
-            10 => 'legalize_at',
-            11 => 'status_dokumen',
-            12 => 'status_cuti',
-            13 => 'alasan_cuti',
-            14 => 'kp.nama_pengganti',
-            15 => 'created_at',
+            1 => 'departemens.nama',
+            2 => 'rencana_mulai_cuti',
+            3 => 'rencana_selesai_cuti',
+            4 => 'aktual_mulai_cuti',
+            5 => 'aktual_selesai_cuti',
+            6 => 'durasi_cuti',
+            7 => 'jenis_cuti',
+            8 => 'checked1_at',
+            9 => 'checked2_at',
+            10 => 'approved_at',
+            11 => 'legalize_at',
+            12 => 'status_dokumen',
+            13 => 'status_cuti',
+            14 => 'alasan_cuti',
+            15 => 'kp.nama_pengganti',
+            16 => 'created_at',
         );
 
         $totalData = Cutie::count();
@@ -586,6 +632,41 @@ class CutieController extends Controller
             $dataFilter['search'] = $search;
         }
 
+        //FILTER DATA
+        $departemenFilter = $request->input('departemen');
+        if (!empty($departemenFilter)) {
+            $dataFilter['departemen'] = $departemenFilter;
+        }
+
+        $jenisCutiFilter = $request->input('jenisCuti');
+        if (!empty($jenisCutiFilter)) {
+            $dataFilter['jenisCuti'] = $jenisCutiFilter;
+        }
+
+        $statusCutiFilter = $request->input('statusCuti');
+        if (!empty($statusCutiFilter)) {
+            $dataFilter['statusCuti'] = $statusCutiFilter;
+        }
+
+        $statusDokumenFilter = $request->input('statusDokumen');
+        if (!empty($statusDokumenFilter)) {
+            $dataFilter['statusDokumen'] = $statusDokumenFilter;
+        }
+
+        $namaFilter = $request->input('nama');
+        if (!empty($namaFilter)) {
+            $dataFilter['nama'] = $namaFilter;
+        }
+
+        $durasiFilter = $request->input('durasi');
+        if (!empty($durasiFilter)) {
+            $dataFilter['durasi'] = $durasiFilter;
+        }
+
+        $rencanamulaiFilter = $request->input('rencanaMulai');
+        if (!empty($rencanamulaiFilter)) {
+            $dataFilter['rencanaMulai'] = $rencanamulaiFilter;
+        }
         
         $cutie = Cutie::getData($dataFilter, $settings);
         $totalFiltered = $cutie->count();
@@ -650,6 +731,7 @@ class CutieController extends Controller
                     
 
                 $nestedData['nama'] = $data->nama_karyawan;
+                $nestedData['departemen'] = $data->nama_departemen;
                 $nestedData['rencana_mulai_cuti'] = Carbon::parse($data->rencana_mulai_cuti)->format('d M Y');
                 $nestedData['rencana_selesai_cuti'] = Carbon::parse($data->rencana_selesai_cuti)->format('d M Y');
                 $nestedData['aktual_mulai_cuti'] = $data->aktual_mulai_cuti ? Carbon::parse($data->aktual_selesai_cuti)->format('d M Y') : '-';
@@ -692,6 +774,7 @@ class CutieController extends Controller
         $columns = array(
             0 => 'jenis',
             1 => 'durasi',
+            2 => 'isUrgent'
         );
 
         $totalData = JenisCuti::count();
@@ -716,7 +799,6 @@ class CutieController extends Controller
         
         $jenis_cuti = JenisCuti::getData($dataFilter, $settings);
         $totalFiltered = $jenis_cuti->count();
-        // $totalFiltered = Cutie::countData($dataFilter);
 
         $dataTable = [];
         
@@ -725,6 +807,7 @@ class CutieController extends Controller
             foreach ($jenis_cuti as $data) {
                 $nestedData['jenis'] = $data->jenis;
                 $nestedData['durasi'] = $data->durasi.' Hari';
+                $nestedData['isUrgent'] = $data->isUrgent == 'N' ? '❌' : '✅';
                 $nestedData['aksi'] = '<div class="btn-group btn-group-sm"><button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id="'.$data->id_jenis_cuti.'"><i class="fas fa-edit"></i> Edit </button><button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_jenis_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button></div>';
 
                 $dataTable[] = $nestedData;
@@ -774,7 +857,8 @@ class CutieController extends Controller
             $dataJenisCutiKhusus[] = [
                 'id' => $jc->id_jenis_cuti,
                 'text' => $jc->jenis,
-                'durasi' => $jc->durasi
+                'durasi' => $jc->durasi,
+                'isurgent' => $jc->isUrgent
             ];
         }
         return response()->json(['data' => $dataJenisCutiKhusus],200);
@@ -803,6 +887,7 @@ class CutieController extends Controller
             'id_jenis_cuti' => $jc->id_jenis_cuti,
             'jenis' => $jc->jenis,
             'durasi' => $jc->durasi,
+            'isUrgent' => $jc->isUrgent
         ];
         return response()->json(['data' => $data], 200);
     }
@@ -828,7 +913,7 @@ class CutieController extends Controller
         $alasan_cuti = $request->alasan_cuti;
         $durasi_cuti = $request->durasi_cuti;
         $karyawan_id = auth()->user()->karyawan->id_karyawan;
-        $sisa_cuti = Karyawan::find($karyawan_id)->sisa_cuti;
+        $sisa_cuti_pribadi = Karyawan::find($karyawan_id)->sisa_cuti_pribadi;
 
         if($jenis_cuti == 'PRIBADI'){
             $dataValidate = [
@@ -880,13 +965,17 @@ class CutieController extends Controller
                     return response()->json(['message' => 'Attachment tidak boleh kosong!'], 402);
                 }
             } elseif ($jenis_cuti == 'PRIBADI') {
-                $sisa_cuti = $sisa_cuti - $durasi_cuti;
-                if($sisa_cuti < 0){
-                    return response()->json(['message' => 'Sisa cuti anda tidak mencukupi, Silahkan hubungi HRD!'], 402);
+                $jatah_cuti = $sisa_cuti_pribadi - $durasi_cuti;
+                if($sisa_cuti_pribadi < 0){
+                    return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Hubungi HRD untuk informasi lebih lanjut!'], 402);
                 } else {
-                    $karyawan = Karyawan::find($karyawan_id);
-                    $karyawan->sisa_cuti = $sisa_cuti;
-                    $karyawan->save();
+                    if($jatah_cuti < 0){
+                        return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Silahkan baca ketentuan pembagian cuti pribadi lagi!'], 402);
+                    } else {
+                        $karyawan = Karyawan::find($karyawan_id);
+                        $karyawan->sisa_cuti_pribadi = $jatah_cuti;
+                        $karyawan->save();
+                    }
                 }
                 $attachment = null;
             } else {
@@ -904,7 +993,7 @@ class CutieController extends Controller
                 'durasi_cuti' => $durasi_cuti,
             ]);
             DB::commit();
-            return response()->json(['message' => 'Pengajuan cuti berhasil dibuat, konfirmasi ke atasan untuk melakukan approval!'], 200);
+            return response()->json(['message' => 'Pengajuan cuti berhasil dibuat, konfirmasi ke atasan untuk melakukan approval!', 'data' => $jatah_cuti + $karyawan->sisa_cuti_bersama], 200);
         } catch(Throwable $error){
             DB::rollBack();
             return response()->json(['message' => $error->getMessage()], 500);
@@ -944,6 +1033,7 @@ class CutieController extends Controller
         $rencana_selesai_cuti = $request->rencana_selesai_cuti;
         $alasan_cuti = $request->alasan_cuti;
         $durasi_cuti = $request->durasi_cuti;
+        $karyawan = auth()->user()->karyawan;
 
         if($jenis_cuti == 'PRIBADI'){
             $dataValidate = [
@@ -1005,7 +1095,7 @@ class CutieController extends Controller
             $cuti->durasi_cuti = $durasi_cuti;
             $cuti->save();
             DB::commit();
-            return response()->json(['message' => 'Pengajuan cuti berhasil diubah, konfirmasi ke atasan untuk melakukan approval!'], 200);
+            return response()->json(['message' => 'Pengajuan cuti berhasil diubah, konfirmasi ke atasan untuk melakukan approval!', 'data' => $karyawan->sisa_cuti_pribadi + $karyawan->sisa_cuti_bersama], 200);
         } catch(Throwable $error){
             DB::rollBack();
             return response()->json(['message' => $error->getMessage()], 500);
@@ -1045,7 +1135,7 @@ class CutieController extends Controller
             $cuti->save();
 
             $karyawan = Karyawan::find($cuti->karyawan_id);
-            $karyawan->sisa_cuti = $karyawan->sisa_cuti + $cuti->durasi_cuti;
+            $karyawan->sisa_cuti_pribadi = $karyawan->sisa_cuti_pribadi + $cuti->durasi_cuti;
             $karyawan->save();
 
             DB::commit();
@@ -1066,10 +1156,12 @@ class CutieController extends Controller
     {
         $jenis = $request->jenis;
         $durasi = $request->durasi;
+        $isUrgent = $request->isUrgent;
 
         $dataValidate = [
             'jenis' => ['required'],
-            'durasi' => ['required', 'numeric'],
+            'durasi' => ['required', 'numeric', 'min:1'],
+            'isUrgent' => ['required', 'string', 'in:Y,N'],
         ];
         
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -1083,7 +1175,8 @@ class CutieController extends Controller
         try{
             JenisCutie::create([
                 'jenis' => $jenis,
-                'durasi' => $durasi
+                'durasi' => $durasi,
+                'isUrgent' => $isUrgent,
             ]);
             DB::commit();
             return response()->json(['message' => 'Store Jenis Cuti Khusus Berhasil dilakukan!'], 200);
@@ -1103,10 +1196,12 @@ class CutieController extends Controller
     {
         $jenis = $request->jenis;
         $durasi = $request->durasi;
+        $isUrgent = $request->isUrgent;
 
         $dataValidate = [
             'jenis' => ['required'],
-            'durasi' => ['required', 'numeric'],
+            'durasi' => ['required', 'numeric', 'min:1'],
+            'isUrgent' => ['required', 'string', 'in:Y,N'],
         ];
         
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -1122,6 +1217,7 @@ class CutieController extends Controller
             if($jenis_cuti){
                 $jenis_cuti->jenis = $jenis;
                 $jenis_cuti->durasi = $durasi;
+                $jenis_cuti->isUrgent = $isUrgent;
             }
             
             $jenis_cuti->save();
@@ -1257,7 +1353,7 @@ class CutieController extends Controller
             $karyawan = Karyawan::find($cutie->karyawan_id);
 
             if($cutie->rejected_by == null && $cutie->jenis_cuti == 'PRIBADI'){
-                $karyawan->sisa_cuti = $karyawan->sisa_cuti + $cutie->durasi_cuti;
+                $karyawan->sisa_cuti_pribadi = $karyawan->sisa_cuti_pribadi + $cutie->durasi_cuti;
                 $karyawan->save();
             }
 
@@ -1353,13 +1449,13 @@ class CutieController extends Controller
             $karyawan = Karyawan::find($cutie->karyawan_id);
 
             if($cutie->rejected_by == null && $cutie->jenis_cuti == 'PRIBADI'){
-                $karyawan->sisa_cuti = $karyawan->sisa_cuti + $cutie->durasi_cuti;
+                $karyawan->sisa_cuti_pribadi = $karyawan->sisa_cuti_pribadi + $cutie->durasi_cuti;
                 $karyawan->save();
             }
             
             $cutie->delete();
             DB::commit();
-            return response()->json(['message' => 'Pengajuan Cuti Dihapus!'],200);
+            return response()->json(['message' => 'Pengajuan Cuti Dihapus!', 'data' => $karyawan->sisa_cuti_pribadi + $karyawan->sisa_cuti_bersama],200);
         } catch(Throwable $error){
             DB::rollBack();
             return response()->json(['message' => $error->getMessage()], 500);
@@ -1403,8 +1499,36 @@ class CutieController extends Controller
             $cutie = $cutie->orWhere('karyawan_id', auth()->user()->karyawan->id_karyawan)->where('status_dokumen','APPROVED');
         }
 
+        $event = Event::where('jenis_event', 'CB')->get();
         $cutie = $cutie->active()->get();
         $data = [];
+
+        if($event){
+            foreach ($event as $e) {
+                if($e->jenis_event == 'CB'){
+                    $className = 'bg-primary';
+                } else {
+                    $className = 'bg-info';
+                }
+                $data[] = [
+                    'title' => $e->keterangan,
+                    'start' => $e->tanggal_mulai,
+                    'end' => $e->tanggal_selesai !== $e->tanggal_mulai ? Carbon::parse($e->tanggal_selesai)->addDay()->format('Y-m-d') : $e->tanggal_selesai,
+                    'className' => $className,
+                    'nama_karyawan' => 'Seluruh Karyawan',
+                    'karyawan_pengganti' => '-',
+                    'jenis_cuti' => $e->jenis_event == 'CB' ? 'CUTI BERSAMA' : 'EVENT PERUSAHAAN',
+                    'rencana_mulai_cuti' => Carbon::parse($e->tanggal_mulai)->format('d M Y'),
+                    'rencana_selesai_cuti' => Carbon::parse($e->tanggal_selesai)->format('d M Y'),
+                    'alasan_cuti' => $e->keterangan,
+                    'durasi_cuti' => $e->durasi.' Hari',
+                    'status_cuti' => $e->tanggal_mulai > now() ? 'SCHEDULED' : 'COMPLETED',
+                    'attachment' => 'No Attachment Needed',
+                    'aktual_mulai_cuti' => $e->tanggal_mulai > now() ? '-' : Carbon::parse($e->tanggal_mulai)->format('d M Y'),
+                    'aktual_selesai_cuti' => $e->tanggal_selesai > now() ? '-' : Carbon::parse($e->tanggal_selesai)->format('d M Y'),
+                ];
+            }
+        }
         
         if($cutie){
             foreach ($cutie as $c) {
@@ -1415,6 +1539,7 @@ class CutieController extends Controller
                 } else {
                     $classname = 'bg-success';
                 }
+
                 $data[] = [
                     'title' => $c->jenis_cuti.' - '.$c->karyawan->nama,
                     'start' => $c->rencana_mulai_cuti,
@@ -1422,7 +1547,7 @@ class CutieController extends Controller
                     'className' => $classname,
                     'nama_karyawan' => $c->karyawan->nama,
                     'karyawan_pengganti' => $c->karyawan_pengganti_id ? $c->karyawanPengganti->nama : '-',
-                    'jenis_cuti' => $c->jenis_cuti,
+                    'jenis_cuti' => 'CUTI '.$c->jenis_cuti,
                     'rencana_mulai_cuti' => Carbon::parse($c->rencana_mulai_cuti)->format('d M Y'),
                     'rencana_selesai_cuti' => Carbon::parse($c->rencana_selesai_cuti)->format('d M Y'),
                     'alasan_cuti' => $c->alasan_cuti,
@@ -1631,16 +1756,16 @@ class CutieController extends Controller
         //Jenis Cuti
         $pribadi = $request->pribadi;
         $khusus = $request->khusus;
-        $sakit = $request->sakit;
+        // $sakit = $request->sakit;
 
         //Range Data Cuti
-        $start_date = $request->from;
-        $end_date = $request->to;
+        $tahun = $request->tahun;
+        $bulan = $request->bulan;
 
-        $cutie = Cutie::whereBetween('rencana_mulai_cuti', [$start_date, $end_date]);
+        $cutie = Cutie::whereYear('rencana_mulai_cuti', $tahun);
 
         if($departemen_id !== 'all'){
-            $cutie = $cutie->whereHas('karyawan.posisi', function($query) use ($departemen_id){
+            $cutie->whereHas('karyawan.posisi', function($query) use ($departemen_id){
                 $query->where('departemen_id', $departemen_id);
             });
         }
@@ -1654,14 +1779,12 @@ class CutieController extends Controller
             array_push($jenis_cuti, 'KHUSUS');
         }
 
-        if($sakit == 'Y'){
-            array_push($jenis_cuti, 'SAKIT');
-        }
+        // if($sakit == 'Y'){
+        //     array_push($jenis_cuti, 'SAKIT');
+        // }
 
         if(!empty($jenis_cuti)){
-            $cutie = $cutie->whereIn('jenis_cuti', $jenis_cuti)->get();
-        } else {
-            $cutie = $cutie->get();
+            $cutie->whereIn('jenis_cuti', $jenis_cuti);
         }
 
         //CREATE EXCEL FILE
@@ -1689,71 +1812,147 @@ class CutieController extends Controller
             ],
         ];
         
-        $sheet = $spreadsheet->getActiveSheet();
-        $sheet->setTitle('Data Cuti');
-        $row = 1;
-        $col = 'A';
-        $headers = [
-            'No',
-            'ID Karyawan',
-            'Nama',
-            'Departemen',
-            'Jenis Cuti',
-            'Durasi Cuti',
-            'Rencana Mulai Cuti',
-            'Rencana Selesai Cuti',
-            'Aktual Mulai Cuti',
-            'Aktual Selesai Cuti',
-            'Alasan Cuti',
-            'Karyawan Pengganti',
-            'Checked 1',
-            'Checked 2',
-            'Approved',
-            'Legalized',
-            'Status Dokumen',
-            'Status Cuti',
-            'Rejected',
-            'Alasan Reject',
-            'Created At',
-        ];
+        if($bulan){
+            $monthlyCutie = $cutie->whereMonth('rencana_mulai_cuti', $bulan);
+            $sheet = $spreadsheet->getActiveSheet();
+            $sheet->setTitle(Carbon::createFromFormat('m', $bulan)->format('F Y'));
+            $row = 1;
+            $col = 'A';
+            $headers = [
+                'No',
+                'ID Karyawan',
+                'Nama',
+                'Departemen',
+                'Jenis Cuti',
+                'Durasi Cuti',
+                'Rencana Mulai Cuti',
+                'Rencana Selesai Cuti',
+                'Aktual Mulai Cuti',
+                'Aktual Selesai Cuti',
+                'Alasan Cuti',
+                'Karyawan Pengganti',
+                'Checked 1',
+                'Checked 2',
+                'Approved',
+                'Legalized',
+                'Status Dokumen',
+                'Status Cuti',
+                'Rejected',
+                'Alasan Reject',
+                'Created At',
+            ];
 
-        foreach ($headers as $header) {
-            $sheet->setCellValue($col . '1', $header);
-            $sheet->getStyle($col . '1')->applyFromArray($fillStyle);
-            $col++;
-        }
+            foreach ($headers as $header) {
+                $sheet->setCellValue($col . '1', $header);
+                $sheet->getStyle($col . '1')->applyFromArray($fillStyle);
+                $col++;
+            }
 
-        $row = 2;
+            $row = 2;
 
-        $columns = range('A', 'U');
-        foreach ($columns as $column) {
-            $sheet->getColumnDimension($column)->setWidth(35);
-        }
-        $sheet->setAutoFilter('A1:U1');
+            $columns = range('A', 'U');
+            foreach ($columns as $column) {
+                $sheet->getColumnDimension($column)->setWidth(35);
+            }
+            $sheet->setAutoFilter('A1:U1');
 
-        foreach ($cutie as $c) {
-            $sheet->setCellValue('A' . $row, $row - 1);
-            $sheet->setCellValue('B' . $row, $c->karyawan->id_karyawan);
-            $sheet->setCellValue('C' . $row, $c->karyawan->nama);
-            $sheet->setCellValue('D' . $row, $c->karyawan->posisi[0]->departemen->nama);
-            $sheet->setCellValue('E' . $row, $c->jenis_cuti == 'KHUSUS' ? $c->jenisCuti->nama : $c->jenis_cuti);
-            $sheet->setCellValue('F' . $row, $c->durasi_cuti);
-            $sheet->setCellValue('G' . $row, $c->rencana_mulai_cuti);
-            $sheet->setCellValue('H' . $row, $c->rencana_selesai_cuti);
-            $sheet->setCellValue('I' . $row, $c->aktual_mulai_cuti);
-            $sheet->setCellValue('J' . $row, $c->aktual_selesai_cuti);
-            $sheet->setCellValue('K' . $row, $c->alasan_cuti);
-            $sheet->setCellValue('L' . $row, $c->karyawan_pengganti_id ? $c->karyawanPengganti->nama : '-');
-            $sheet->setCellValue('M' . $row, $c->checked1_by !== null ? $c->checked1_by.' / '.(Carbon::parse($c->checked1_at)->format('d-m-Y')) : '-');
-            $sheet->setCellValue('N' . $row, $c->checked2_by !== null ? $c->checked2_by.' / '.(Carbon::parse($c->checked2_at)->format('d-m-Y')) : '-');
-            $sheet->setCellValue('O' . $row, $c->approved_by !== null ? $c->approved_by.' / '.(Carbon::parse($c->approved_at)->format('d-m-Y')) : '-');
-            $sheet->setCellValue('P' . $row, $c->legalized_by !== null ? $c->legalized_by.' / '.(Carbon::parse($c->legalized_at)->format('d-m-Y')) : '-');
-            $sheet->setCellValue('Q' . $row, $c->status_dokumen);
-            $sheet->setCellValue('R' . $row, $c->rejected_by ? 'REJECTED' : ($c->status_cuti ? $c->status_cuti : '-'));
-            $sheet->setCellValue('S' . $row, $c->rejected_by !== null ? $c->rejected_by.' / '.(Carbon::parse($c->rejected_at)->format('d-m-Y')) : '-');
-            $sheet->setCellValue('T' . $row, $c->rejected_note ? $c->rejected_note : '-');
-            $sheet->setCellValue('U' . $row, $c->created_at->format('d-m-Y'));
-            $row++;
+            foreach ($monthlyCutie->get() as $c) {
+                $sheet->setCellValue('A' . $row, $row - 1);
+                $sheet->setCellValue('B' . $row, $c->karyawan->id_karyawan);
+                $sheet->setCellValue('C' . $row, $c->karyawan->nama);
+                $sheet->setCellValue('D' . $row, $c->karyawan->posisi[0]->departemen->nama);
+                $sheet->setCellValue('E' . $row, $c->jenis_cuti == 'KHUSUS' ? $c->jenisCuti->nama : $c->jenis_cuti);
+                $sheet->setCellValue('F' . $row, $c->durasi_cuti);
+                $sheet->setCellValue('G' . $row, $c->rencana_mulai_cuti);
+                $sheet->setCellValue('H' . $row, $c->rencana_selesai_cuti);
+                $sheet->setCellValue('I' . $row, $c->aktual_mulai_cuti);
+                $sheet->setCellValue('J' . $row, $c->aktual_selesai_cuti);
+                $sheet->setCellValue('K' . $row, $c->alasan_cuti);
+                $sheet->setCellValue('L' . $row, $c->karyawan_pengganti_id ? $c->karyawanPengganti->nama : '-');
+                $sheet->setCellValue('M' . $row, $c->checked1_by !== null ? $c->checked1_by.' / '.(Carbon::parse($c->checked1_at)->format('d-m-Y')) : '-');
+                $sheet->setCellValue('N' . $row, $c->checked2_by !== null ? $c->checked2_by.' / '.(Carbon::parse($c->checked2_at)->format('d-m-Y')) : '-');
+                $sheet->setCellValue('O' . $row, $c->approved_by !== null ? $c->approved_by.' / '.(Carbon::parse($c->approved_at)->format('d-m-Y')) : '-');
+                $sheet->setCellValue('P' . $row, $c->legalized_by !== null ? $c->legalized_by.' / '.(Carbon::parse($c->legalized_at)->format('d-m-Y')) : '-');
+                $sheet->setCellValue('Q' . $row, $c->status_dokumen);
+                $sheet->setCellValue('R' . $row, $c->rejected_by ? 'REJECTED' : ($c->status_cuti ? $c->status_cuti : '-'));
+                $sheet->setCellValue('S' . $row, $c->rejected_by !== null ? $c->rejected_by.' / '.(Carbon::parse($c->rejected_at)->format('d-m-Y')) : '-');
+                $sheet->setCellValue('T' . $row, $c->rejected_note ? $c->rejected_note : '-');
+                $sheet->setCellValue('U' . $row, $c->created_at->format('d-m-Y'));
+                $row++;
+            }
+
+        } else {
+            for($i = 1; $i <= 12; $i++){
+                $i = str_pad($i, 2, '0', STR_PAD_LEFT);
+                $monthlyCutie = clone $cutie;
+                $monthlyCutie = $monthlyCutie->whereMonth('rencana_mulai_cuti', Carbon::createFromFormat('m', $i)->format('m'));
+                $sheet = $spreadsheet->createSheet($i - 1);
+                $sheet->setTitle(Carbon::createFromFormat('m', $i)->format('F Y'));
+                $row = 1;
+                $col = 'A';
+                $headers = [
+                    'No',
+                    'ID Karyawan',
+                    'Nama',
+                    'Departemen',
+                    'Jenis Cuti',
+                    'Durasi Cuti',
+                    'Rencana Mulai Cuti',
+                    'Rencana Selesai Cuti',
+                    'Aktual Mulai Cuti',
+                    'Aktual Selesai Cuti',
+                    'Alasan Cuti',
+                    'Karyawan Pengganti',
+                    'Checked 1',
+                    'Checked 2',
+                    'Approved',
+                    'Legalized',
+                    'Status Dokumen',
+                    'Status Cuti',
+                    'Rejected',
+                    'Alasan Reject',
+                    'Created At',
+                ];
+
+                foreach ($headers as $header) {
+                    $sheet->setCellValue($col . '1', $header);
+                    $sheet->getStyle($col . '1')->applyFromArray($fillStyle);
+                    $col++;
+                }
+
+                $row = 2;
+
+                $columns = range('A', 'U');
+                foreach ($columns as $column) {
+                    $sheet->getColumnDimension($column)->setWidth(35);
+                }
+                $sheet->setAutoFilter('A1:U1');
+
+                foreach ($monthlyCutie->get() as $c) {
+                    $sheet->setCellValue('A' . $row, $row - 1);
+                    $sheet->setCellValue('B' . $row, $c->karyawan->id_karyawan);
+                    $sheet->setCellValue('C' . $row, $c->karyawan->nama);
+                    $sheet->setCellValue('D' . $row, $c->karyawan->posisi[0]->departemen->nama);
+                    $sheet->setCellValue('E' . $row, $c->jenis_cuti == 'KHUSUS' ? $c->jenisCuti->nama : $c->jenis_cuti);
+                    $sheet->setCellValue('F' . $row, $c->durasi_cuti);
+                    $sheet->setCellValue('G' . $row, $c->rencana_mulai_cuti);
+                    $sheet->setCellValue('H' . $row, $c->rencana_selesai_cuti);
+                    $sheet->setCellValue('I' . $row, $c->aktual_mulai_cuti);
+                    $sheet->setCellValue('J' . $row, $c->aktual_selesai_cuti);
+                    $sheet->setCellValue('K' . $row, $c->alasan_cuti);
+                    $sheet->setCellValue('L' . $row, $c->karyawan_pengganti_id ? $c->karyawanPengganti->nama : '-');
+                    $sheet->setCellValue('M' . $row, $c->checked1_by !== null ? $c->checked1_by.' / '.(Carbon::parse($c->checked1_at)->format('d-m-Y')) : '-');
+                    $sheet->setCellValue('N' . $row, $c->checked2_by !== null ? $c->checked2_by.' / '.(Carbon::parse($c->checked2_at)->format('d-m-Y')) : '-');
+                    $sheet->setCellValue('O' . $row, $c->approved_by !== null ? $c->approved_by.' / '.(Carbon::parse($c->approved_at)->format('d-m-Y')) : '-');
+                    $sheet->setCellValue('P' . $row, $c->legalized_by !== null ? $c->legalized_by.' / '.(Carbon::parse($c->legalized_at)->format('d-m-Y')) : '-');
+                    $sheet->setCellValue('Q' . $row, $c->status_dokumen);
+                    $sheet->setCellValue('R' . $row, $c->rejected_by ? 'REJECTED' : ($c->status_cuti ? $c->status_cuti : '-'));
+                    $sheet->setCellValue('S' . $row, $c->rejected_by !== null ? $c->rejected_by.' / '.(Carbon::parse($c->rejected_at)->format('d-m-Y')) : '-');
+                    $sheet->setCellValue('T' . $row, $c->rejected_note ? $c->rejected_note : '-');
+                    $sheet->setCellValue('U' . $row, $c->created_at->format('d-m-Y'));
+                    $row++;
+                }
+            }
         }
 
         $writer = new Xlsx($spreadsheet);
@@ -1762,7 +1961,7 @@ class CutieController extends Controller
         header('Content-Disposition: attachment;filename=data-cuti-export.xlsx');
         header('Cache-Control: max-age=0');
 
-        $writer = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
         $writer->save('php://output');
         $spreadsheet->disconnectWorksheets();
         unset($spreadsheet);
