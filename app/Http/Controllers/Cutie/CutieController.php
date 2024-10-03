@@ -1801,14 +1801,16 @@ class CutieController extends Controller
                 'horizontal' => Alignment::HORIZONTAL_LEFT,
                 'vertical' => Alignment::VERTICAL_CENTER,
             ],
-            'fill' => [
+           'fill' => [
                 'fillType' => Fill::FILL_SOLID,
                 'startColor' => [
-                    'argb' => 'FFFFFF00'
+                    'argb' => 'FF000000'
                 ]
             ],
             'font' => [
                 'bold' => true,
+                'color' => ['argb' => 'FFFFFFFF'],
+                'size' => 12,
             ],
         ];
         
@@ -1852,7 +1854,7 @@ class CutieController extends Controller
 
             $columns = range('A', 'U');
             foreach ($columns as $column) {
-                $sheet->getColumnDimension($column)->setWidth(35);
+                $sheet->getColumnDimension($column)->setAutoSize(true);
             }
             $sheet->setAutoFilter('A1:U1');
 
@@ -1924,7 +1926,7 @@ class CutieController extends Controller
 
                 $columns = range('A', 'U');
                 foreach ($columns as $column) {
-                    $sheet->getColumnDimension($column)->setWidth(35);
+                    $sheet->getColumnDimension($column)->setAutoSize(true);
                 }
                 $sheet->setAutoFilter('A1:U1');
 

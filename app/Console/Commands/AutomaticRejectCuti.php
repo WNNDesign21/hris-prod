@@ -50,7 +50,6 @@ class AutomaticRejectCuti extends Command
                 }
                 $karyawan->save();
             }
-            activity('automatic_reject_cuti')->withProperties($karyawan)->performedOn($karyawan)->log('Reject Cuti Otomatis per tanggal -'. $today);
             DB::commit();
             $this->info('Sisa cuti karyawan berhasil dikembalikan dan pengajuan cuti ditolak otomatis');
         } catch (Exception $e) {

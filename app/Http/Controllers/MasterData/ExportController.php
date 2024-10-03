@@ -248,7 +248,7 @@ class ExportController extends Controller
                 $columns[] = $i;
             }
             foreach ($columns as $column) {
-                $sheet->getColumnDimension($column)->setWidth(35);
+                $sheet->getColumnDimension($column)->setAutoSize(true);
             }
             $sheet->setAutoFilter('A1:AH1');
 
@@ -345,7 +345,7 @@ class ExportController extends Controller
 
             $columns = range('A', 'I');
             foreach ($columns as $column) {
-                $sheet->getColumnDimension($column)->setWidth(35);
+                $sheet->getColumnDimension($column)->setAutoSize(true);
             }
             $sheet->setAutoFilter('A1:I1');
 
@@ -422,7 +422,7 @@ class ExportController extends Controller
 
             $columns = range('A', 'I');
             foreach ($columns as $column) {
-                $sheet->getColumnDimension($column)->setWidth(35);
+                $sheet->getColumnDimension($column)->setAutoSize(true);
             }
             $sheet->setAutoFilter('A1:B1');
 
@@ -456,7 +456,7 @@ class ExportController extends Controller
 
             $columns = range('A', 'C');
             foreach ($columns as $column) {
-                $sheet->getColumnDimension($column)->setWidth(35);
+                $sheet->getColumnDimension($column)->setAutoSize(true);
             }
             $sheet->setAutoFilter('A1:C1');
 
@@ -492,7 +492,7 @@ class ExportController extends Controller
 
             $columns = range('A', 'D');
             foreach ($columns as $column) {
-                $sheet->getColumnDimension($column)->setWidth(35);
+                $sheet->getColumnDimension($column)->setAutoSize(true);
             }
             $sheet->setAutoFilter('A1:D1');
 
@@ -527,7 +527,7 @@ class ExportController extends Controller
 
             $columns = range('A', 'B');
             foreach ($columns as $column) {
-                $sheet->getColumnDimension($column)->setWidth(35);
+                $sheet->getColumnDimension($column)->setAutoSize(true);
             }
             $sheet->setAutoFilter('A1:B1');
 
@@ -560,7 +560,7 @@ class ExportController extends Controller
 
             $columns = range('A', 'B');
             foreach ($columns as $column) {
-                $sheet->getColumnDimension($column)->setWidth(35);
+                $sheet->getColumnDimension($column)->setAutoSize(true);
             }
             $sheet->setAutoFilter('A1:B1');
 
@@ -737,7 +737,7 @@ class ExportController extends Controller
 
             $columns = range('A', 'P');
             foreach ($columns as $column) {
-                $sheet->getColumnDimension($column)->setWidth(35);
+                $sheet->getColumnDimension($column)->setAutoSize(true);
             }
             $sheet->setAutoFilter('A1:P1');
 

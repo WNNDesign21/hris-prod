@@ -60,6 +60,7 @@ Route::get('/cutie/setting-cuti/get-data-detail-jenis-cuti/{idJenisCuti}',[Cutie
 Route::group(['middleware' => ['auth', 'notifikasi']], function () {
     // MENU UTAMA
     Route::get('/home', [HomeController::class, 'index'])->name('root');
+    Route::get('/get-notification', [HomeController::class, 'get_notification']);
 
     /** MASTER DATA FEATURE */
     Route::group(['prefix' => 'master-data'], function () {

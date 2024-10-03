@@ -43,6 +43,16 @@ $(function () {
         });
     }
 
+    function updateNotification(){
+        $.ajax({
+            url: base_url + '/get-notification',
+            method: 'GET',
+            success: function(response){
+                $('.notifications-menu').html(response.data);
+            }
+        })
+    }
+
     //DATATABLE KARYAWAN
     var columnsTable = [
         { data: "id_turnover" },
@@ -197,6 +207,7 @@ $(function () {
                     processData: false,
                     dataType: "JSON",
                     success: function (data) {
+                        updateNotification();
                         showToast({ title: data.message });
                         refreshTable();
                         loadingSwalClose();

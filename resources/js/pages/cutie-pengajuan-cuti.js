@@ -61,6 +61,16 @@ $(function () {
             },
         });
     };
+
+    function updateNotification(){
+        $.ajax({
+            url: base_url + '/get-notification',
+            method: 'GET',
+            success: function(response){
+                $('.notifications-menu').html(response.data);
+            }
+        })
+    }
     
     //DATATABLE KARYAWAN
     var columnsTable = [
@@ -286,6 +296,7 @@ $(function () {
             dataType: "JSON",
             success: function (data) {
                 $('#sisa_cuti_total_display').text(data.data+' Hari');
+                updateNotification();
                 showToast({ title: data.message });
                 refreshTable();
                 closeForm();
@@ -358,6 +369,7 @@ $(function () {
                     dataType: "JSON",
                     success: function (data) {
                         $('#sisa_cuti_total_display').text(data.data+' Hari');
+                        updateNotification();
                         refreshTable();
                         showToast({ title: data.message });
                     },
@@ -413,6 +425,7 @@ $(function () {
                     processData: false,
                     contentType: false,
                     success: function(data) {
+                        updateNotification();
                         loadingSwalClose()
                         showToast({ title: data.message });
                         refreshTable();

@@ -1,7 +1,7 @@
 @extends('layouts.menu-layout')
 
 @section('content')
-    <div class="row d-flex justify-content-center p-5" style="margin-top: var(--dynamic-margin, 6.25rem);">
+    <div class="row d-flex justify-content-center p-5">
         <div class="col-lg-4 col-12">
             <div class="box-body p-2">
                 <div class="box no-shadow mb-0">
@@ -10,7 +10,7 @@
             </div>
         </div>
         <div class="col-lg-8 col-12">
-            <div class="row d-flex justify-content-center p-5">
+            <div class="row d-flex justify-content-start p-5">
                 {{-- CARD MANAJEMEN MASTER DATA --}}
                 @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('super user'))
                     <div class="col-lg-6 col-12">
