@@ -84,13 +84,6 @@ class AutomaticResetCuti extends Command
                         'reset_count' => $reset_count
                     ]);
                 }
-
-                if(!$reset_cuti_yesterday){
-                    ResetCuti::create([
-                        'reset_at' =>  date('Y-m-d H:i:s', strtotime($yesterday . ' 23:59:59')),
-                        'reset_count' => $reset_count
-                    ]);
-                }
                 
                 DB::commit();
                 $this->info('Sisa cuti karyawan berhasil direset');
