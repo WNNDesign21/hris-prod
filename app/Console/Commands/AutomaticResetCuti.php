@@ -40,7 +40,7 @@ class AutomaticResetCuti extends Command
                 foreach ($karyawan as $kry){
                     $jatah_cuti_pribadi = 6;
                     $jatah_cuti_bersama = 6;
-                    if(($kry->tanggal_mulai == $today && !reset_cuti_today) || ($kry->tanggal_mulai == $yesterday && !reset_cuti_yesterday)){
+                    if(($kry->tanggal_mulai == $today && !$reset_cuti_today) || ($kry->tanggal_mulai == $yesterday && !$reset_cuti_yesterday)){
 
                         //JIKA KARYAWAN PUNYA HUTANG CUTI ATAU HUTANG CUTI > 0
                         if($kry->hutang_cuti > 0){
