@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class UpdateStatusOnleave extends Command
 {
@@ -27,12 +28,20 @@ class UpdateStatusOnleave extends Command
     {
         $today = date('Y-m-d');
 
-        Cutie::where('status_cuti', 'SCHEDULED')
-            ->whereDate('rencana_mulai_cuti', $today)
-            ->update([
-            'status_cuti' => 'ON LEAVE',
-            'aktual_mulai_cuti' => $today
+        DB::beginTransaction();
+        try {
+            $cuti = Cutie::where('status_cuti', 'SCHEDULED')
+                ->whereDate('rencana_mulai_cuti', $today)
+                ->update([
+                'status_cuti' => 'ON LEAVE',
+                'aktual_mulai_cuti' => $today
             ]);
-        $this->info('Status cuti karyawan berhasil diperbarui');
+            activity('update_status_onleave')->withProperties($cuti)->performedOn($cuti)->log('Update Status Onleave Cuti Otomatis per tanggal -'. $today);
+            DB::commit();
+            $this->info('Status cuti karyawan berhasil diperbarui');
+        } catch (Exception $e) {
+            DB::rollBack();
+            $this->error('Gagal memperbarui status cuti karyawan');
+        }
     }
 }

@@ -2,8 +2,10 @@
 
 namespace App\Console\Commands;
 
+use Exception;
 use App\Models\Cutie;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 class UpdateStatusCompleted extends Command
 {
@@ -28,13 +30,20 @@ class UpdateStatusCompleted extends Command
     {
         $today = date('Y-m-d');
         
-        Cutie::where('status_cuti', 'ON LEAVE')
-            ->whereDate('rencana_selesai_cuti', $today)
-            ->update([
-            'status_cuti' => 'COMPLETED',
-            'aktual_selesai_cuti' => $today
+        DB::beginTransaction();
+        try {
+            $cuti = Cutie::where('status_cuti', 'ON LEAVE')
+                ->whereDate('rencana_selesai_cuti', $today)
+                ->update([
+                'status_cuti' => 'COMPLETED',
+                'aktual_selesai_cuti' => $today
             ]);
-
-        $this->info('Status cuti karyawan berhasil diperbarui');
+            activity('update_status_completed')->withProperties($cuti)->performedOn($cuti)->log('Update Status Completed Cuti Otomatis per tanggal -'. $today);
+            DB::commit();
+            $this->info('Status cuti karyawan berhasil diperbarui');
+        } catch (Exception $e) {
+            DB::rollBack();
+            $this->error('Gagal memperbarui status cuti karyawan');
+        }
     }
 }
