@@ -12,7 +12,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <link rel="icon" href="{{ asset('favicon.ico') }}">
-    <title>{{ $title }} - Menu </title>
+    <title>{{ $pageTitle }}</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="{{ asset('css/vendors_css.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
@@ -36,9 +36,12 @@
                         </a>
                         <ul class="dropdown-menu animated flipInX">
                             <li class="user-body">
-                                <a class="dropdown-item" href="#"><i class="ti-user text-muted me-2"></i>
-                                    Profile</a>
-                                <div class="dropdown-divider"></div>
+                                @hasanyrole(['atasan', 'member'])
+                                    <a class="dropdown-item btnProfile" href="#"><i
+                                            class="ti-user text-muted me-2"></i>
+                                        Profile</a>
+                                    <div class="dropdown-divider"></div>
+                                @endhasanyrole
                                 <a class="dropdown-item" href="{{ route('logout') }}"
                                     onclick="event.preventDefault();
                                                 document.getElementById('logout-form').submit();">
@@ -64,6 +67,7 @@
             </div>
         </div>
         @include('pages.cuti-e.modal-event-cuti')
+        @include('pages.menu.modal-profile')
     </div>
 
 
