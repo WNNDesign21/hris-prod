@@ -239,7 +239,8 @@ class EventController extends Controller
     }
 
     public function get_data_event_calendar(){
-        $event = Event::all();
+        $organisasi_id = auth()->user()->organisasi_id;
+        $event = Event::organisasi($organisasi_id)->get();
         $data = [];
 
         if($event){

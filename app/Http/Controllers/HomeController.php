@@ -116,14 +116,15 @@ class HomeController extends Controller
         $today = date('Y-m-d');
         $user = auth()->user();
         $tenggang_karyawans = [];
+        $organisasi_id = auth()->user()->organisasi_id;
 
         if($user->hasRole('personalia') || $user->hasRole('super user')){
-            $tenggang_karyawans = Karyawan::where('status_karyawan', 'AT')
+            $tenggang_karyawans = Karyawan::organisasi($organisasi_id)->where('status_karyawan', 'AT')
                 ->whereRaw('(tanggal_selesai - ?) <= 30', [$today])
                 ->selectRaw('*, (tanggal_selesai - ?) as jumlah_hari', [$today])
                 ->get();
 
-            $cutie_approval = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari',[$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+            $cutie_approval = Cutie::organisasi($organisasi_id)->selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari',[$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
                 ->where('status_dokumen', 'WAITING')
                 ->whereNotNull('approved_by')
                 ->whereNull('legalized_by')
