@@ -19,6 +19,7 @@ class KaryawanSeeder extends Seeder
         $karyawan = [
             [
                 'id_karyawan' => 'FL96485264',
+                'organisasi_id' => 3,
                 'ni_karyawan' => '300.010224',
                 'nik' => '32150116274715',
                 'no_kk' => '3215011620002',
@@ -55,6 +56,7 @@ class KaryawanSeeder extends Seeder
             ],
             [
                 'id_karyawan' => 'IN16324875',
+                'organisasi_id' => 3,
                 'ni_karyawan' => '200.100224',
                 'nik' => '32150116274522',
                 'no_kk' => '3215011620018',
@@ -91,6 +93,7 @@ class KaryawanSeeder extends Seeder
             ],
             [
                 'id_karyawan' => 'AM15687542',
+                'organisasi_id' => 3,
                 'ni_karyawan' => '479.030624',
                 'nik' => '32150116274999',
                 'no_kk' => '3215011620059',
@@ -127,6 +130,7 @@ class KaryawanSeeder extends Seeder
             ],
             [
                 'id_karyawan' => 'FA95453155',
+                'organisasi_id' => 3,
                 'ni_karyawan' => '480.030324',
                 'nik' => '32150116200045',
                 'no_kk' => '3215011620017',
@@ -174,6 +178,7 @@ class KaryawanSeeder extends Seeder
             Kontrak::create([
                 'no_surat' => 'No. 001/PKWT-I/HRD-TCF3/2024',
                 'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,
+                'organisasi_id' => 3,
                 'karyawan_id' =>  $kry->id_karyawan,
                 'nama_posisi' => 'Initial Document',
                 'jenis' => 'PKWT',

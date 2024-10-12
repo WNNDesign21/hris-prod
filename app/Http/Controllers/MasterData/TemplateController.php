@@ -19,7 +19,7 @@ class TemplateController extends Controller
     public function index()
     {
         $dataPage = [
-            'pageTitle' => "Master Data - Template Setting",
+            'pageTitle' => "Master Data - Template Surat",
             'page' => 'masterdata-template',
         ];
         return view('pages.master-data.template.index', $dataPage);

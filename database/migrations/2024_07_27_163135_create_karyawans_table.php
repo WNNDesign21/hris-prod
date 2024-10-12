@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('ni_karyawan')->unique()->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('grup_id')->nullable();
+            $table->unsignedBigInteger('organisasi_id')->nullable();
             $table->string('no_kk')->nullable();
             $table->string('nik')->unique()->nullable();
             $table->string('nama')->nullable();
@@ -37,6 +38,7 @@ return new class extends Migration
             $table->enum('status_karyawan', ['AKTIF', 'RESIGN', 'PENSIUN', 'TERMINASI'])->nullable();
             $table->integer('sisa_cuti_pribadi')->default(0);
             $table->integer('sisa_cuti_bersama')->default(0);
+            $table->integer('sisa_cuti_tahun_lalu')->default(0);
             $table->integer('hutang_cuti')->default(0);
             $table->integer('no_rekening')->nullable();
             $table->string('nama_rekening')->nullable();

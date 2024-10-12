@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('templates', function (Blueprint $table) {
             $table->increments('id_template');
+            $table->unsignedInteger('organisasi_id')->nullable();
             $table->string('nama')->unique();
             $table->string('type');
             $table->string('template_path');

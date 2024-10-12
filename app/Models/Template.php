@@ -14,7 +14,7 @@ class Template extends Model
     protected $primaryKey = 'id_template';
 
     protected $fillable = [
-        'nama','type', 'template_path', 'isActive'
+        'nama','type', 'template_path', 'isActive', 'organisasi_id'
     ];
 
     public function scopeActive($query)
