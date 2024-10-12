@@ -667,6 +667,11 @@ class CutieController extends Controller
         if (!empty($rencanamulaiFilter)) {
             $dataFilter['rencanaMulai'] = $rencanamulaiFilter;
         }
+
+        $organisasi_id = auth()->user()->karyawan->organisasi_id;
+        if (organisasi_id) {
+            $dataFilter['organisasi_id'] = $organisasi_id;
+        }
         
         $cutie = Cutie::getData($dataFilter, $settings);
         $totalFiltered = $cutie->count();
@@ -749,7 +754,10 @@ class CutieController extends Controller
                 $nestedData['alasan'] = $data->alasan_cuti;
                 $nestedData['karyawan_pengganti'] = $data->nama_pengganti ? '<small class="text-bold">'.$data->nama_pengganti.'</small>' : '-';
                 $nestedData['attachment'] = $data->jenis_cuti !== 'SAKIT' ? 'No Attachment Needed' : '<a href="'.asset('storage/'.$data->attachment).'" target="_blank">Lihat</a>';
-                $nestedData['aksi'] = '<div class="btn-group btn-group-sm"><button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button></div>';
+                $nestedData['aksi'] = '<div class="btn-group btn-group-sm">
+                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button>
+                '.(date('Y-m-d') <= Carbon::parse($data->rencana_mulai_cuti)->addDays(7)->format('Y-m-d') ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnCancel" data-id="'.$data->id_cuti.'"><i class="fas fa-history"></i> Cancel </button>' : '').'
+                </div>';
 
                 $dataTable[] = $nestedData;
             }
@@ -953,6 +961,8 @@ class CutieController extends Controller
             return response()->json(['message' => $err_text], 402);
         }
 
+        $organisasi_id = auth()->user()->organisasi_id;
+
         DB::beginTransaction();
         try{
 
@@ -984,6 +994,7 @@ class CutieController extends Controller
 
             $cuti = Cutie::create([
                 'karyawan_id' => $karyawan_id,
+                'organisasi_id' => $organisasi_id,
                 'jenis_cuti' => $jenis_cuti,
                 'jenis_cuti_id' => $jenis_cuti_id,
                 'attachment' => $attachment,
@@ -1478,6 +1489,7 @@ class CutieController extends Controller
     }
 
     public function get_data_cutie_calendar(){
+        $organisasi_id = auth()->user()->organisasi_id;
         $cutie = Cutie::where('status_dokumen','APPROVED');
 
         if(auth()->user()->hasRole('atasan')){
@@ -1497,9 +1509,11 @@ class CutieController extends Controller
                 $query->whereIn('id_posisi', $members);
             });
             $cutie = $cutie->orWhere('karyawan_id', auth()->user()->karyawan->id_karyawan)->where('status_dokumen','APPROVED');
+        } else {
+            $cutie = $cutie->organisasi($organisasi_id);
         }
 
-        $event = Event::where('jenis_event', 'CB')->get();
+        $event = Event::organisasi($organisasi_id)->where('jenis_event', 'CB')->get();
         $cutie = $cutie->active()->get();
         $data = [];
 
@@ -1536,8 +1550,10 @@ class CutieController extends Controller
                     $classname = 'bg-warning';
                 } elseif ($c->status_cuti == 'ON LEAVE'){
                     $classname = 'bg-secondary';
-                } else {
+                } elseif ($c->status_cuti == 'COMPLETED'){
                     $classname = 'bg-success';
+                } else {
+                    $classname = 'bg-danger';
                 }
 
                 $data[] = [
@@ -1563,6 +1579,8 @@ class CutieController extends Controller
     }
 
     public function get_data_cuti_detail_chart(){
+        $organisasi_id = auth()->user()->organisasi_id;
+
         //Data Cuti Detail perbulan dalam tahun berjalan
         $data['scheduled'] = [];
         $data['onleave'] = [];
@@ -1599,6 +1617,8 @@ class CutieController extends Controller
                 $scheduledCount = $scheduledCount->whereHas('karyawan.posisi', function($query) use ($members) {
                     $query->whereIn('id_posisi', $members);
                 });
+            } else {
+                $scheduledCount = $scheduledCount->organisasi($organisasi_id);
             }
                 
             $scheduledCount = $scheduledCount->count();
@@ -1613,6 +1633,8 @@ class CutieController extends Controller
                 $onleaveCount = $onleaveCount->whereHas('karyawan.posisi', function($query) use ($members) {
                     $query->whereIn('id_posisi', $members);
                 });
+            } else {
+                $onleaveCount = $onleaveCount->organisasi($organisasi_id);
             }
             $onleaveCount = $onleaveCount->count();
             
@@ -1626,6 +1648,8 @@ class CutieController extends Controller
                 $completedCount = $completedCount->whereHas('karyawan.posisi', function($query) use ($members) {
                     $query->whereIn('id_posisi', $members);
                 });
+            } else {
+                $completedCount = $completedCount->organisasi($organisasi_id);
             }
             $completedCount = $completedCount->count();
 
@@ -1639,6 +1663,8 @@ class CutieController extends Controller
                 $canceledCount = $canceledCount->whereHas('karyawan.posisi', function($query) use ($members) {
                     $query->whereIn('id_posisi', $members);
                 });
+            } else {
+                $canceledCount = $canceledCount->organisasi($organisasi_id);
             }
             $canceledCount = $canceledCount->count();
 
@@ -1651,6 +1677,8 @@ class CutieController extends Controller
                 $rejectedCount = $rejectedCount->whereHas('karyawan.posisi', function($query) use ($members) {
                     $query->whereIn('id_posisi', $members);
                 });
+            } else {
+                $rejectedCount = $rejectedCount->organisasi($organisasi_id);
             }
             $rejectedCount = $rejectedCount->count();
 
@@ -1664,6 +1692,8 @@ class CutieController extends Controller
                 $unlegalizedCount = $unlegalizedCount->whereHas('karyawan.posisi', function($query) use ($members) {
                     $query->whereIn('id_posisi', $members);
                 });
+            } else {
+                $unlegalizedCount = $unlegalizedCount->organisasi($organisasi_id);
             }
             $unlegalizedCount = $unlegalizedCount->count();
 
@@ -1675,6 +1705,8 @@ class CutieController extends Controller
                 $totalCount = $totalCount->whereHas('karyawan.posisi', function($query) use ($members) {
                     $query->whereIn('id_posisi', $members);
                 });
+            } else {
+                $totalCount = $totalCount->organisasi($organisasi_id);
             }
             $totalCount = $totalCount->count();
 
@@ -1693,6 +1725,7 @@ class CutieController extends Controller
     public function get_data_jenis_cuti_monthly_chart(){
         $month = date('m');
         $year = date('Y');
+        $organisasi_id = auth()->user()->organisasi_id;
 
         if(auth()->user()->hasRole('atasan')){
             $posisi = auth()->user()->karyawan->posisi;
@@ -1716,6 +1749,8 @@ class CutieController extends Controller
                 $monthly_pribadi = $monthly_pribadi->whereHas('karyawan.posisi', function($query) use ($members) {
                     $query->whereIn('id_posisi', $members);
                 });
+            } else{
+                $monthly_pribadi = $monthly_pribadi->organisasi($organisasi_id);
             }
         $monthly_pribadi = $monthly_pribadi->count();
 
@@ -1728,6 +1763,8 @@ class CutieController extends Controller
                 $monthly_khusus = $monthly_khusus->whereHas('karyawan.posisi', function($query) use ($members) {
                     $query->whereIn('id_posisi', $members);
                 });
+            } else {
+                $monthly_khusus = $monthly_khusus->organisasi($organisasi_id);
             }
         $monthly_khusus = $monthly_khusus->count();
 
@@ -1740,6 +1777,8 @@ class CutieController extends Controller
                 $monthly_sakit = $monthly_sakit->whereHas('karyawan.posisi', function($query) use ($members) {
                     $query->whereIn('id_posisi', $members);
                 });
+            } else {
+                $monthly_sakit = $monthly_sakit->organisasi($organisasi_id);
             }
         $monthly_sakit = $monthly_sakit->count();
         
@@ -1752,6 +1791,7 @@ class CutieController extends Controller
 
         //GET DATA CUTI BY FILTER
         $departemen_id = $request->departemen_id;
+        $organisasi_id = auth()->user()->organisasi_id;
 
         //Jenis Cuti
         $pribadi = $request->pribadi;
@@ -1761,8 +1801,9 @@ class CutieController extends Controller
         //Range Data Cuti
         $tahun = $request->tahun;
         $bulan = $request->bulan;
+        
 
-        $cutie = Cutie::whereYear('rencana_mulai_cuti', $tahun);
+        $cutie = Cutie::organisasi($organisasi_id)->whereYear('rencana_mulai_cuti', $tahun);
 
         if($departemen_id !== 'all'){
             $cutie->whereHas('karyawan.posisi', function($query) use ($departemen_id){

@@ -91,28 +91,29 @@ class ExportController extends Controller
     public function export_master_data(Request $request){
 
         $departemen_karyawan = $request->departemen_karyawan;
+        $organisasi_id = auth()->user()->organisasi_id;
 
         //Karyawan
         if($request->karyawan_aktif == 'Y') {
             if($departemen_karyawan){
-                $karyawan = Karyawan::whereHas('posisi', function ($query) use ($request) {
+                $karyawan = Karyawan::organisasi($organisasi_id)->whereHas('posisi', function ($query) use ($request) {
                                 $query->where('departemen_id', $request->departemen_karyawan);
                             })->where('status_karyawan', 'AT')->get();
             } else {
-                $karyawan = Karyawan::where('status_karyawan', 'AT')->get();
+                $karyawan = Karyawan::organisasi($organisasi_id)->where('status_karyawan', 'AT')->get();
             }
         } 
         
         if($request->karyawan_nonaktif == 'Y'){
             if($departemen_karyawan){
-                $karyawan_nonaktif = Karyawan::whereHas('posisi', function ($query) use ($request) {
+                $karyawan_nonaktif = Karyawan::organisasi($organisasi_id)->whereHas('posisi', function ($query) use ($request) {
                     $query->where('departemen_id', $request->departemen_karyawan);
                 })->where(function ($query) {
                     $query->whereIn('status_karyawan', ['MD', 'HK', 'PS', 'TM'])
                           ->orWhereNull('status_karyawan');
                 })->get();
             } else {
-                $karyawan_nonaktif = Karyawan::whereIn('status_karyawan',['MD','HK','PS','TM'])->orWhereNull('status_karyawan')->get();
+                $karyawan_nonaktif = Karyawan::organisasi($organisasi_id)->whereIn('status_karyawan',['MD','HK','PS','TM'])->orWhereNull('status_karyawan')->get();
             }
         } 
         
@@ -714,6 +715,7 @@ class ExportController extends Controller
         $departemen = $request->departemen_kontrak;
         $status = $request->status_kontrak;
         $jenis_kontrak = $request->jenis_kontrak;
+        $organisasi_id = auth()->user()->organisasi_id;
 
         $kontrak = Kontrak::select(
             'kontraks.id_kontrak',
@@ -773,6 +775,10 @@ class ExportController extends Controller
 
         if($departemen) {
             $kontrak->where('departemens.id_departemen', $departemen);
+        }
+
+        if($organisasi_id){
+            $kontrak->where('kontraks.organisasi_id', $organisasi_id);
         }
 
         if($status) {

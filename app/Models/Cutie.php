@@ -31,7 +31,11 @@ class Cutie extends Model
 
     public function scopeOrganisasi($query, $organisasi)
     {
-        return $query->where('organisasi_id', $organisasi);
+        if($organisasi){
+            return $query->where('organisasi_id', $organisasi);
+        } else {
+            return $query;
+        }
     }
 
     public function karyawan()
@@ -96,10 +100,9 @@ class Cutie extends Model
             ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
             ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen');
         
-        // $organisasi_id = auth()->user()->organisasi_id;
-        // if ($organisasi_id) {
-        //     $data->where('cutis.organisasi_id', $organisasi_id);
-        // }
+        if (isset($dataFilter['organisasi_id'])) {
+            $data->where('cutis.organisasi_id', $dataFilter['organisasi_id']);
+        }
 
         if (isset($dataFilter['karyawan_id'])) {
             $data->where('cutis.karyawan_id', $dataFilter['karyawan_id']);

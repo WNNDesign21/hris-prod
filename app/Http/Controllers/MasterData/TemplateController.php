@@ -112,6 +112,8 @@ class TemplateController extends Controller
         if ($validator->fails()) {
             return response()->json(['message' => 'Pastikan nama template tidak sama dan file berformat Docx/Doc!'], 402);
         }
+
+        $organisasi_id = auth()->user()->organisasi_id;
     
         DB::beginTransaction();
         try{
@@ -125,6 +127,7 @@ class TemplateController extends Controller
             $template = Template::create([
                 'nama' => $request->nama_template,
                 'type' => $request->type_template,
+                'organisasi_id' => $organisasi_id,
                 'template_path' => $file_path
             ]);
 

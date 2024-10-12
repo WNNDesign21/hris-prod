@@ -16,7 +16,8 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        $jumlah_karyawan_keluar = Turnover::whereIN('status_karyawan', ['MD', 'PS', 'HK', 'TM'])
+        $organisasi_id = auth()->user()->organisasi_id;
+        $jumlah_karyawan_keluar = Turnover::organisasi($organisasi_id)->whereIN('status_karyawan', ['MD', 'PS', 'HK', 'TM'])
             ->whereYear('tanggal_keluar', date('Y'))
             ->count();
         $dataPage = [
@@ -76,13 +77,14 @@ class DashboardController extends Controller
     }
 
     public function get_data_karyawan_dashboard(){
+        $organisasi_id = auth()->user()->organisasi_id;
         $year = date('Y');
         $month = date('m');
-        $aktif = Karyawan::where('status_karyawan', 'AT')->count();
-        $habis_kontrak = Turnover::where('status_karyawan', 'HK')->whereYear('tanggal_keluar', $year)->whereMonth('tanggal_keluar', $month)->count();
-        $mengundurkan_diri = Turnover::where('status_karyawan', 'MD')->whereYear('tanggal_keluar', $year)->whereMonth('tanggal_keluar', $month)->count();
-        $pensiun = Turnover::where('status_karyawan', 'PS')->whereYear('tanggal_keluar', $year)->whereMonth('tanggal_keluar', $month)->count();
-        $terminasi = Turnover::where('status_karyawan', 'TM')->whereYear('tanggal_keluar', $year)->whereMonth('tanggal_keluar', $month)->count();
+        $aktif = Karyawan::organisasi($organisasi_id)->where('status_karyawan', 'AT')->count();
+        $habis_kontrak = Turnover::organisasi($organisasi_id)->where('status_karyawan', 'HK')->whereYear('tanggal_keluar', $year)->whereMonth('tanggal_keluar', $month)->count();
+        $mengundurkan_diri = Turnover::organisasi($organisasi_id)->where('status_karyawan', 'MD')->whereYear('tanggal_keluar', $year)->whereMonth('tanggal_keluar', $month)->count();
+        $pensiun = Turnover::organisasi($organisasi_id)->where('status_karyawan', 'PS')->whereYear('tanggal_keluar', $year)->whereMonth('tanggal_keluar', $month)->count();
+        $terminasi = Turnover::organisasi($organisasi_id)->where('status_karyawan', 'TM')->whereYear('tanggal_keluar', $year)->whereMonth('tanggal_keluar', $month)->count();
         
         $data = [
             'aktif' => $aktif,
@@ -96,6 +98,7 @@ class DashboardController extends Controller
     }
 
     public function get_data_turnover_monthly_dashboard(string $year = ''){
+        $organisasi_id = auth()->user()->organisasi_id;
         //Data Turnover perbulan dalam tahun berjalan
         $query = "
         WITH KaryawanKeluar AS (
@@ -106,6 +109,7 @@ class DashboardController extends Controller
                     turnovers
                 WHERE
                     status_karyawan IN ('MD', 'HK', 'PS', 'TM')
+                    AND organisasi_id = $organisasi_id
                     AND EXTRACT(YEAR FROM tanggal_keluar) = EXTRACT(YEAR FROM NOW())
                 GROUP BY
                     bulan
@@ -152,25 +156,27 @@ class DashboardController extends Controller
         $year = date('Y');
         $month_array = ['01','02','03','04','05','06','07','08','09','10','11','12'];
 
+        $organisasi_id = auth()->user()->organisasi_id;
+
 
         for ($i = 0; $i <= 11; $i++) {
-            $mengundurkan_diriCount = Turnover::where('status_karyawan', 'MD')
+            $mengundurkan_diriCount = Turnover::organisasi($organisasi_id)->where('status_karyawan', 'MD')
                 ->whereYear('tanggal_keluar', $year)
                 ->whereMonth('tanggal_keluar', $month_array[$i])
                 ->count();
-            $habis_kontrakCount = Turnover::where('status_karyawan', 'HK')
+            $habis_kontrakCount = Turnover::organisasi($organisasi_id)->where('status_karyawan', 'HK')
                 ->whereYear('tanggal_keluar', $year)
                 ->whereMonth('tanggal_keluar', $month_array[$i])
                 ->count();
-            $pensiunCount = Turnover::where('status_karyawan', 'PS')
+            $pensiunCount = Turnover::organisasi($organisasi_id)->where('status_karyawan', 'PS')
                 ->whereYear('tanggal_keluar', $year)
                 ->whereMonth('tanggal_keluar', $month_array[$i])
                 ->count();
-            $terminasiCount = Turnover::where('status_karyawan', 'TM')
+            $terminasiCount = Turnover::organisasi($organisasi_id)->where('status_karyawan', 'TM')
                 ->whereYear('tanggal_keluar', $year)
                 ->whereMonth('tanggal_keluar', $month_array[$i])
                 ->count();
-            $masukCount = Karyawan::where('status_karyawan', 'AT')
+            $masukCount = Karyawan::organisasi($organisasi_id)->where('status_karyawan', 'AT')
                 ->whereYear('tanggal_mulai', $year)
                 ->whereMonth('tanggal_mulai', $month_array[$i])
                 ->count();
@@ -186,8 +192,9 @@ class DashboardController extends Controller
     }
 
     public function get_data_kontrak_progress_dashboard(){
-        $total_kontrak = Kontrak::count();
-        $kontrak_done = Kontrak::where('status', 'DONE')->count();
+        $organisasi_id = auth()->user()->organisasi_id;
+        $total_kontrak = Kontrak::organisasi($organisasi_id)->count();
+        $kontrak_done = Kontrak::organisasi($organisasi_id)->where('status', 'DONE')->count();
         $presentase_kontrak_done = round(($kontrak_done / $total_kontrak) * 100, 2);
 
         return response()->json(['data' => $presentase_kontrak_done], 200);
@@ -195,6 +202,7 @@ class DashboardController extends Controller
 
     public function get_data_keluar_masuk_karyawan_dashboard()
     {
+        $organisasi_id = auth()->user()->organisasi_id;
         $year = date('Y');
          $query = "
             WITH SemuaBulan AS (
@@ -214,6 +222,7 @@ class DashboardController extends Controller
                         turnovers
                     WHERE
                         status_karyawan IN ('MD', 'PS', 'HK', 'TM')
+                        AND organisasi_id = $organisasi_id
                         AND EXTRACT(YEAR FROM tanggal_keluar) = $year
                     GROUP BY
                         bulan
@@ -226,6 +235,7 @@ class DashboardController extends Controller
                         karyawans
                     WHERE
                         status_karyawan = 'AT'
+                        AND organisasi_id = $organisasi_id
                         AND EXTRACT(YEAR FROM tanggal_mulai) = $year
                     GROUP BY
                         bulan
@@ -244,11 +254,12 @@ class DashboardController extends Controller
     }
 
     public function get_total_data_karyawan_by_status_karyawan_dashboard(){
-        $total_karyawan_reactive = Kontrak::where('status', 'DONE')->where('isReactive', 'Y')->count();
-        $total_karyawan_habis_kontrak = Turnover::where('status_karyawan', 'HK')->count();
-        $total_karyawan_mengundurkan_diri = Turnover::where('status_karyawan', 'MD')->count();
-        $total_karyawan_pensiun = Turnover::where('status_karyawan', 'PS')->count();
-        $total_karyawan_terminasi = Turnover::where('status_karyawan', 'TM')->count();
+        $organisasi_id = auth()->user()->organisasi_id;
+        $total_karyawan_reactive = Kontrak::organisasi($organisasi_id)->where('status', 'DONE')->where('isReactive', 'Y')->count();
+        $total_karyawan_habis_kontrak = Turnover::organisasi($organisasi_id)->where('status_karyawan', 'HK')->count();
+        $total_karyawan_mengundurkan_diri = Turnover::organisasi($organisasi_id)->where('status_karyawan', 'MD')->count();
+        $total_karyawan_pensiun = Turnover::organisasi($organisasi_id)->where('status_karyawan', 'PS')->count();
+        $total_karyawan_terminasi = Turnover::organisasi($organisasi_id)->where('status_karyawan', 'TM')->count();
 
         $data = [$total_karyawan_reactive, $total_karyawan_habis_kontrak, $total_karyawan_mengundurkan_diri, $total_karyawan_pensiun, $total_karyawan_terminasi];
         return response()->json(['data' => $data], 200);

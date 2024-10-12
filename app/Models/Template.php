@@ -38,6 +38,11 @@ class Template extends Model
             'template_path'
         );
 
+        $organisasi_id = auth()->user()->organisasi_id;
+        if($organisasi_id){
+            $data->where('organisasi_id', $organisasi_id);
+        }
+
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
             $data->where(function ($query) use ($search) {

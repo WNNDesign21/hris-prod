@@ -55,13 +55,6 @@
                                 </div>
                                 <hr>
 
-                                <input type="checkbox" id="posisi" name="posisi" value="Y"
-                                    class="filled-in chk-col-primary" />
-                                <label for="posisi">
-                                    <h5 class="text-bold">Posisi</h5>
-                                </label>
-                                <hr>
-
                                 <input type="checkbox" id="organisasi" name="organisasi" value="Y"
                                     class="filled-in chk-col-primary" />
                                 <label for="organisasi">
@@ -101,6 +94,13 @@
                                     class="filled-in chk-col-primary" />
                                 <label for="jabatan">
                                     <h5 class="text-bold">Jabatan</h5>
+                                </label>
+                                <hr>
+
+                                <input type="checkbox" id="posisi" name="posisi" value="Y"
+                                    class="filled-in chk-col-primary" />
+                                <label for="posisi">
+                                    <h5 class="text-bold">Posisi</h5>
                                 </label>
                                 <div class="row">
                                     <div class="col-12 d-flex justify-content-end">

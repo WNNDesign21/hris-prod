@@ -118,7 +118,8 @@ class TurnoverController extends Controller
         $status_karyawan = $request->status_karyawan;   
         $tanggal_keluar = $request->tanggal_keluar; 
         $keterangan = $request->keterangan;
-        $jumlah_aktif_karyawan_terakhir = Karyawan::where('status_karyawan', 'AT')->count();
+        $organisasi_id = auth()->user()->organisasi_id;
+        $jumlah_aktif_karyawan_terakhir = Karyawan::organisasi($organisasi_id)->where('status_karyawan', 'AT')->count();
 
         DB::beginTransaction();
 
@@ -129,6 +130,7 @@ class TurnoverController extends Controller
                 'status_karyawan' => $status_karyawan,
                 'tanggal_keluar' => $tanggal_keluar,
                 'keterangan' => $keterangan,
+                'organisasi_id' => $organisasi_id,
                 'jumlah_aktif_karyawan_terakhir' => $jumlah_aktif_karyawan_terakhir,
             ]);
 

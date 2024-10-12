@@ -17,10 +17,15 @@ class Turnover extends Model
     protected $fillable = [
         'karyawan_id', 'status_karyawan',
         'tanggal_keluar', 'keterangan',
-        'jumlah_aktif_karyawan_terakhir'
+        'jumlah_aktif_karyawan_terakhir', 'organisasi_id'
     ];
 
     protected $dates = ['tanggal_keluar'];
+
+    public function scopeOrganisasi($query, $organisasi)
+    {
+        return $query->where('organisasi_id', $organisasi);
+    }
 
     public function karyawan()
     {
@@ -41,6 +46,10 @@ class Turnover extends Model
         )
         ->leftJoin('karyawans', 'turnovers.karyawan_id', 'karyawans.id_karyawan');
         
+        $organisasi_id = auth()->user()->organisasi_id;
+        if($organisasi_id){
+            $data->where('turnovers.organisasi_id', $organisasi_id);
+        }
 
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
