@@ -295,7 +295,8 @@ $(function () {
             processData: false,
             dataType: "JSON",
             success: function (data) {
-                $('#sisa_cuti_total_display').text(data.data+' Hari');
+                $('#sisa_cuti_total_display').text(data.data.sisa_cuti_tahunan+' Hari');
+                $('#sisa_cuti_pribadi').text(data.data.sisa_cuti_pribadi+' Hari')
                 updateNotification();
                 showToast({ title: data.message });
                 refreshTable();
@@ -368,7 +369,8 @@ $(function () {
                     },
                     dataType: "JSON",
                     success: function (data) {
-                        $('#sisa_cuti_total_display').text(data.data+' Hari');
+                        $('#sisa_cuti_total_display').text(data.data.sisa_cuti_tahunan+' Hari');
+                        $('#sisa_cuti_pribadi').text(data.data.sisa_cuti_pribadi+' Hari');
                         updateNotification();
                         refreshTable();
                         showToast({ title: data.message });

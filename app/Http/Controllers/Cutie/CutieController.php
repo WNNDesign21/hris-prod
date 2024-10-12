@@ -1003,8 +1003,14 @@ class CutieController extends Controller
                 'alasan_cuti' => $alasan_cuti,
                 'durasi_cuti' => $durasi_cuti,
             ]);
+
+            $data = [
+                'sisa_cuti_tahunan' => $jatah_cuti + $karyawan->sisa_cuti_bersama,
+                'sisa_cuti_pribadi' => $karyawan->sisa_cuti_pribadi,
+                'sisa_cuti_tahun_lalu' => $karyawan->sisa_cuti_tahun_lalu
+            ];
             DB::commit();
-            return response()->json(['message' => 'Pengajuan cuti berhasil dibuat, konfirmasi ke atasan untuk melakukan approval!', 'data' => $jatah_cuti + $karyawan->sisa_cuti_bersama], 200);
+            return response()->json(['message' => 'Pengajuan cuti berhasil dibuat, konfirmasi ke atasan untuk melakukan approval!', 'data' => $data], 200);
         } catch(Throwable $error){
             DB::rollBack();
             return response()->json(['message' => $error->getMessage()], 500);
@@ -1465,8 +1471,13 @@ class CutieController extends Controller
             }
             
             $cutie->delete();
+            $data = [
+                'sisa_cuti_tahunan' => $karyawan->sisa_cuti_pribadi + $karyawan->sisa_cuti_bersama,
+                'sisa_cuti_pribadi' => $karyawan->sisa_cuti_pribadi,
+                'sisa_cuti_tahun_lalu' => $karyawan->sisa_cuti_tahun_lalu
+            ];
             DB::commit();
-            return response()->json(['message' => 'Pengajuan Cuti Dihapus!', 'data' => $karyawan->sisa_cuti_pribadi + $karyawan->sisa_cuti_bersama],200);
+            return response()->json(['message' => 'Pengajuan Cuti Dihapus!', 'data' => $data],200);
         } catch(Throwable $error){
             DB::rollBack();
             return response()->json(['message' => $error->getMessage()], 500);

@@ -33,7 +33,7 @@ class EventSeeder extends Seeder
             ],
             [
                 'jenis_event' => 'EP',
-                'organisasi_id' => null,
+                'organisasi_id' => 2,
                 'keterangan' => 'TCF Job Fair',
                 'durasi' => 2,
                 'tanggal_mulai' =>  '2024-11-24',

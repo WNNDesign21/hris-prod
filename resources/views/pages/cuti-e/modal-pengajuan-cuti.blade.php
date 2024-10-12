@@ -17,8 +17,8 @@
                                 <input type="hidden" id="durasi_cuti" name="durasi_cuti">
                                 <div class="form-group">
                                     <label for="">Jenis Cuti<span class="text-danger">*</span></label>
-                                    <br>
-                                    <small>Note : Jatah cuti pribadi setiap karyawan maksimal 12 hari kerja (Reset
+                                    {{-- <br> --}}
+                                    {{-- <small>Note : Jatah cuti pribadi setiap karyawan maksimal 12 hari kerja (Reset
                                         mengikuti tanggal bergabung pada kontrak) <br> Cuti bersama
                                         diambil dari jatah cuti pribadi sebanyak 6 Hari (Lebaran & Natal) <br> Jika
                                         masa kerja karyawan masih < 12 bulan (Belum memiliki hak cuti), maka cuti
@@ -28,14 +28,13 @@
                                             hutang cuti, maka akan terjadi pemotongan gaji pada gaji kontrak terakhir,
                                             maka dari itu setiap karyawan hanya memiliki jatah cuti pribadi (selain cuti
                                             bersama) maksimal 6 Hari dan akan hangus jika tidak dipakai (cuti bersama
-                                            tidak perlu diinput)</small>
-                                            <br>
-                                            <br>
-                                            <select name="jenis_cuti" id="jenis_cuti" class="form-control"
-                                                style="width: 100%;">
-                                                <option value="PRIBADI">PRIBADI</option>
-                                                <option value="KHUSUS">KHUSUS</option>
-                                            </select>
+                                            tidak perlu diinput)</small> --}}
+                                    <br>
+                                    <br>
+                                    <select name="jenis_cuti" id="jenis_cuti" class="form-control" style="width: 100%;">
+                                        <option value="PRIBADI">PRIBADI</option>
+                                        <option value="KHUSUS">KHUSUS</option>
+                                    </select>
                                 </div>
                                 <div class="form-group" id="conditional_field">
                                 </div>
