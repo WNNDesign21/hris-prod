@@ -307,6 +307,7 @@ class KaryawanController extends Controller
         $email_akun = $request->email_akun;
         $username = $request->username;
         $password = $request->password;
+        $organisasi_id = auth()->user()->organisasi_id;
 
         DB::beginTransaction();
         try{
@@ -316,6 +317,7 @@ class KaryawanController extends Controller
                         'username' => $username,
                         'email' => $email_akun,
                         'password' => Hash::make($password),
+                        'organisasi_id' => $organisasi_id,
                     ]); 
 
                     $cek_jabatan = Posisi::find($posisi[0]);
@@ -335,6 +337,7 @@ class KaryawanController extends Controller
 
             $karyawan = Karyawan::create([
                 'id_karyawan' => $this->generateIdKaryawan($nama),
+                'organisasi_id' => $organisasi_id,
                 'ni_karyawan' => $ni_karyawan,
                 'user_id' => $user_id,
                 'nama' => $nama,
@@ -579,8 +582,13 @@ class KaryawanController extends Controller
             'id',
             'username',
         );
-
+        
         $query->whereDoesntHave('karyawan')->whereNotIn('username', ['PERSONALIA', 'SUPERUSER']);
+
+        $organisasi_id = auth()->user()->organisasi_id;
+        if($organisasi_id){
+            $query->organisasi($organisasi_id);
+        }
 
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
@@ -624,6 +632,11 @@ class KaryawanController extends Controller
             'id_karyawan',
             'nama',
         );
+
+        $organisasi_id = auth()->user()->organisasi_id;
+        if($organisasi_id){
+            $query->organisasi($organisasi_id);
+        }
 
         if (!empty($search)) {
             $query->where(function ($dat) use ($search) {
@@ -732,7 +745,8 @@ class KaryawanController extends Controller
     public function upload_karyawan(Request $request)
     {
         $file = $request->file('karyawan_file');
-
+        $organisasi_id = auth()->user()->organisasi_id;
+        
         $validator = Validator::make($request->all(), [
             'karyawan_file' => 'required|mimes:xlsx,xls'
         ]);
@@ -823,6 +837,7 @@ class KaryawanController extends Controller
                     if ($existingKaryawan) {
                         $existingKaryawan->update([
                             'ni_karyawan' => $row[0],
+                            'organisasi_id' => $organisasi_id,
                             'nama' => $row[2],
                             'jenis_kelamin' => in_array(strtoupper($row[3]), ['L', 'P']) ? strtoupper($row[3]) : null,
                             'alamat' => $row[4],
@@ -855,6 +870,7 @@ class KaryawanController extends Controller
                                 'email' => $row[26],
                                 'username' => $row[27],
                                 'password' => Hash::make($row[28]),
+                                'organisasi_id' => $organisasi_id,
                             ]); 
                         }
 
@@ -869,12 +885,14 @@ class KaryawanController extends Controller
                         'email' => $row[26],
                         'username' => $row[27],
                         'password' => Hash::make($row[28]),
+                        'organisasi_id' => $organisasi_id,
                     ]); 
 
                     $id_karyawan = $this->generateIdKaryawan(strtoupper($row[2]));
     
                     $karyawan = Karyawan::create([
                         'user_id' => $user->id,
+                        'organisasi_id' => $organisasi_id,
                         'id_karyawan' => $id_karyawan,
                         'ni_karyawan' => $row[0],
                         'nama' => $row[2],

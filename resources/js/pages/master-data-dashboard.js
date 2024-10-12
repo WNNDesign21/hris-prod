@@ -26,9 +26,10 @@ $(function () {
           success: function(response) {
               let dataKaryawan = response.data;
               $('#aktif_karyawan').text(dataKaryawan.aktif);
-              $('#terminasi_karyawan').text(dataKaryawan.terminasi);
-              $('#resign_karyawan').text(dataKaryawan.resign);
+              $('#habis_kontrak_karyawan').text(dataKaryawan.habis_kontrak);
+              $('#mengundurkan_diri_karyawan').text(dataKaryawan.mengundurkan_diri);
               $('#pensiun_karyawan').text(dataKaryawan.pensiun);
+              $('#terminasi_karyawan').text(dataKaryawan.terminasi);
           },
           error: function(error) {
               console.error(error);
@@ -129,9 +130,10 @@ $(function () {
           success: function(response) {
               let dataResponse = response.data;
               let masuk = dataResponse.masuk;
-              let terminasi = dataResponse.terminasi;
-              let resign = dataResponse.resign;
+              let habis_kontrak = dataResponse.habis_kontrak;
+              let mengundurkan_diri = dataResponse.mengundurkan_diri;
               let pensiun = dataResponse.pensiun;
+              let terminasi = dataResponse.terminasi;
 
               var options = {
                 series: [
@@ -141,20 +143,25 @@ $(function () {
                     color: '#007bff'
                   },
                   {
-                    name: 'Terminasi',
-                    data: terminasi,
+                    name: 'Habis Kontrak',
+                    data: habis_kontrak,
                     color: '#dc3545'
 
                   },
                   {
-                    name: 'Resign',
-                    data: resign,
+                    name: 'Mengundurkan Diri',
+                    data: mengundurkan_diri,
                     color: '#6c757d'
                   },
                   {
                     name: 'Pensiun',
                     data: pensiun,
                     color: '#28a745'
+                  },
+                  {
+                    name: 'Terminasi',
+                    data: terminasi,
+                    color: '#9467bd'
                   },
                 ],
                 chart: {
@@ -296,7 +303,7 @@ $(function () {
               let dataTotalKaryawanByStatus = response.data;
               var options = {
                 series: dataTotalKaryawanByStatus,
-                labels: ['Re-Active', 'Terminasi', 'Resign', 'Pensiun'],
+                labels: ['Re-Active', 'Terminasi', 'Resign', 'Pensiun', 'Terminasi'],
                 chart: {
                 height:230,
                 type: 'donut',
@@ -318,7 +325,7 @@ $(function () {
                   }
                 }
               }],
-              colors:['#04a08b', '#6993ff', '#ff9920', '#bac0c7'],
+              colors:['#04a08b', '#6993ff', '#ff9920', '#bac0c7', '#9467bd'],
               legend: {
                 position: 'bottom',
                   horizontalAlign: 'center',
@@ -340,13 +347,5 @@ $(function () {
     kontrakProgressChart();
     totalDataKaryawanByStatus();
     turnoverDetailChart();
-
-    
-          
-      
-      
-        
-  
-      
   }); // End of use strict
   

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->increments('id_turnover');
             $table->string('karyawan_id');
             $table->unsignedInteger('organisasi_id')->nullable();
-            $table->enum('status_karyawan', ['RESIGN', 'PENSIUN', 'TERMINASI']);
+            $table->enum('status_karyawan', ['MD', 'PS', 'HK', 'TM']);
             $table->date('tanggal_keluar')->nullable();
             $table->text('keterangan')->nullable();
             $table->integer('jumlah_aktif_karyawan_terakhir')->nullable();

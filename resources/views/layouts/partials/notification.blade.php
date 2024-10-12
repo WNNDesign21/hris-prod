@@ -29,13 +29,13 @@
                                 memiliki
                                 sisa
                                 <strong>{{ $list['jumlah_hari'] }} Hari</strong> sebelum masa
-                                <strong>TERMINASI</strong>.
+                                <strong>HK</strong>.
                             </a>
                         @else
                             <a href="#" style="pointer-events: none; cursor: default;white-space: normal;">
                                 <i class="fa fa-user text-danger"></i>Anda memiliki sisa
                                 <strong>{{ $list['jumlah_hari'] }} Hari</strong> sebelum masa
-                                <strong>TERMINASI</strong>, segera hubungi atasan anda.
+                                <strong>HK</strong>, segera hubungi atasan anda.
                             </a>
                         @endif
                     </li>

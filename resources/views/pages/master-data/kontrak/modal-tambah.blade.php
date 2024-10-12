@@ -39,7 +39,8 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label for="">Jenis Kontrak <span class="text-danger">*</span></label>
+                                    <label for="">Jenis Perjanjian Kerja <span
+                                            class="text-danger">*</span></label>
                                     <select name="jenis" id="jenis" class="form-control select2"
                                         style="width: 100%;">
                                         <option value="PKWT">PKWT</option>

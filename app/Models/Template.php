@@ -22,6 +22,11 @@ class Template extends Model
         return $query->where('isActive', 'Y');
     }
 
+    public function scopeOrganisasi($query, $organisasi)
+    {
+        return $query->where('organisasi_id', $organisasi);
+    }
+
     private static function _query($dataFilter)
     {
 

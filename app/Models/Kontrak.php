@@ -21,6 +21,7 @@ class Kontrak extends Model
     protected $fillable = [
         'id_kontrak',
         'karyawan_id',
+        'organisasi_id',
         'posisi_id',
         'nama_posisi',
         'no_surat',
@@ -48,6 +49,11 @@ class Kontrak extends Model
         'issued_date',
         // 'status_change_date'
     ];
+
+    public function scopeOrganisasi($query, $organisasi)
+    {
+        return $query->where('organisasi_id', $organisasi);
+    }
 
     public function karyawan()
     {
@@ -107,6 +113,11 @@ class Kontrak extends Model
             'karyawans.nama',
             'departemens.nama'
         );
+
+        $organisasi_id = auth()->user()->organisasi_id;
+        if ($organisasi_id) {
+            $data->where('kontraks.organisasi_id', $organisasi_id);
+        }
 
         if(isset($dataFilter['departemen'])) {
             $data->where('departemens.id_departemen', $dataFilter['departemen']);

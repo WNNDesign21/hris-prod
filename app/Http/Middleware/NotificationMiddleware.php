@@ -24,7 +24,7 @@ class NotificationMiddleware
         $tenggang_karyawans = [];
 
         if($user->hasRole('personalia') || $user->hasRole('super user')){
-            $tenggang_karyawans = Karyawan::where('status_karyawan', 'AKTIF')
+            $tenggang_karyawans = Karyawan::where('status_karyawan', 'AT')
                 ->whereRaw('(tanggal_selesai - ?) <= 30', [$today])
                 ->selectRaw('*, (tanggal_selesai - ?) as jumlah_hari', [$today])
                 ->get();
@@ -49,7 +49,7 @@ class NotificationMiddleware
 
             $members = $id_posisi_members;
 
-            $tenggang_karyawans = Karyawan::where('status_karyawan', 'AKTIF')
+            $tenggang_karyawans = Karyawan::where('status_karyawan', 'AT')
                 ->whereRaw('(tanggal_selesai - ?) <= 30', [$today])
                 ->whereHas('posisi', function($query) use ($members) {
                     $query->whereIn('posisi_id', $members);
@@ -95,7 +95,7 @@ class NotificationMiddleware
             ->whereRaw('DATE(rejected_at) <= (rencana_mulai_cuti + INTERVAL \'3 days\')')
             ->get()->toArray();
 
-            $tenggang_karyawans = Karyawan::where('status_karyawan', 'AKTIF')->where('id_karyawan', $user->karyawan->id_karyawan)
+            $tenggang_karyawans = Karyawan::where('status_karyawan', 'AT')->where('id_karyawan', $user->karyawan->id_karyawan)
                 ->whereRaw('(tanggal_selesai - ?) <= 30', [$today])
                 ->selectRaw('*, (tanggal_selesai - ?) as jumlah_hari', [$today])
                 ->get();

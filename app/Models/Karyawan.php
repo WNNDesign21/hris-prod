@@ -73,7 +73,12 @@ class Karyawan extends Model
 
     public function scopeAktif($query)
     {
-        return $query->where('status_karyawan', 'AKTIF');
+        return $query->where('status_karyawan', 'AT');
+    }
+
+    public function scopeOrganisasi($query, $organisasi)
+    {
+        return $query->where('organisasi_id', $organisasi);
     }
 
     public function user()
@@ -139,6 +144,11 @@ class Karyawan extends Model
             'karyawans.no_telp_darurat',
             'departemens.nama as nama_departemen'
         );
+
+        $organisasi_id = auth()->user()->organisasi_id;
+        if ($organisasi_id) {
+            $data->where('karyawans.organisasi_id', $organisasi_id);
+        }
 
         if(isset($dataFilter['departemen'])) {
             $data->where('departemens.id_departemen', $dataFilter['departemen']);

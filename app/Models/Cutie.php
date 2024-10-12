@@ -18,7 +18,7 @@ class Cutie extends Model
     protected $primaryKey = 'id_cuti';
 
     protected $fillable = [
-        'karyawan_id', 'jenis_cuti_id', 'jenis_cuti', 'durasi_cuti','rencana_mulai_cuti', 'rencana_selesai_cuti',
+        'karyawan_id', 'organisasi_id',  'jenis_cuti_id', 'jenis_cuti', 'durasi_cuti','rencana_mulai_cuti', 'rencana_selesai_cuti',
         'aktual_mulai_cuti','aktual_selesai_cuti','alasan_cuti','karyawan_pengganti_id','checked1_at',
         'checked1_by','checked2_at','checked2_by','approved_at','approved_by','legalized_at', 'legalized_by','rejected_at','rejected_by',
         'rejected_note','status_cuti','status_dokumen','attachment'
@@ -27,6 +27,11 @@ class Cutie extends Model
     public function scopeActive($query)
     {
         return $query->where('status_cuti','!=', 'CANCELED');
+    }
+
+    public function scopeOrganisasi($query, $organisasi)
+    {
+        return $query->where('organisasi_id', $organisasi);
     }
 
     public function karyawan()
@@ -91,6 +96,11 @@ class Cutie extends Model
             ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
             ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen');
         
+        // $organisasi_id = auth()->user()->organisasi_id;
+        // if ($organisasi_id) {
+        //     $data->where('cutis.organisasi_id', $organisasi_id);
+        // }
+
         if (isset($dataFilter['karyawan_id'])) {
             $data->where('cutis.karyawan_id', $dataFilter['karyawan_id']);
         }

@@ -97,9 +97,9 @@ class ExportController extends Controller
             if($departemen_karyawan){
                 $karyawan = Karyawan::whereHas('posisi', function ($query) use ($request) {
                                 $query->where('departemen_id', $request->departemen_karyawan);
-                            })->where('status_karyawan', 'AKTIF')->get();
+                            })->where('status_karyawan', 'AT')->get();
             } else {
-                $karyawan = Karyawan::where('status_karyawan', 'AKTIF')->get();
+                $karyawan = Karyawan::where('status_karyawan', 'AT')->get();
             }
         } 
         
@@ -108,11 +108,11 @@ class ExportController extends Controller
                 $karyawan_nonaktif = Karyawan::whereHas('posisi', function ($query) use ($request) {
                     $query->where('departemen_id', $request->departemen_karyawan);
                 })->where(function ($query) {
-                    $query->whereIn('status_karyawan', ['RESIGN', 'TERMINASI', 'PENSIUN'])
+                    $query->whereIn('status_karyawan', ['MD', 'HK', 'PS', 'TM'])
                           ->orWhereNull('status_karyawan');
                 })->get();
             } else {
-                $karyawan_nonaktif = Karyawan::whereIn('status_karyawan',['RESIGN','TERMINASI','PENSIUN'])->orWhereNull('status_karyawan')->get();
+                $karyawan_nonaktif = Karyawan::whereIn('status_karyawan',['MD','HK','PS','TM'])->orWhereNull('status_karyawan')->get();
             }
         } 
         

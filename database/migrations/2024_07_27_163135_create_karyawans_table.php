@@ -34,8 +34,8 @@ return new class extends Migration
             $table->string('npwp')->unique()->nullable();
             $table->string('no_bpjs_ks')->unique()->nullable();
             $table->string('no_bpjs_kt')->unique()->nullable();
-            $table->enum('jenis_kontrak', ['PKWT', 'MAGANG', 'THL', 'PKWTT'])->nullable();
-            $table->enum('status_karyawan', ['AKTIF', 'RESIGN', 'PENSIUN', 'TERMINASI'])->nullable();
+            $table->enum('jenis_kontrak', ['PKWT', 'MAGANG', 'PKWTT'])->nullable();
+            $table->enum('status_karyawan', ['AT', 'MD', 'PS', 'HK', 'TM'])->nullable();
             $table->integer('sisa_cuti_pribadi')->default(0);
             $table->integer('sisa_cuti_bersama')->default(0);
             $table->integer('sisa_cuti_tahun_lalu')->default(0);

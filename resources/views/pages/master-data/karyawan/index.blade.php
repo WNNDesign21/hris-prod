@@ -42,7 +42,7 @@
                                     <th>Departemen</th>
                                     <th>Posisi</th>
                                     <th>Grup</th>
-                                    <th>Jenis Kontrak</th>
+                                    <th>Jenis Perjanjian Kerja</th>
                                     <th>Tanggal Mulai</th>
                                     <th>Tanggal Selesai</th>
                                     <th>Status Karyawan</th>

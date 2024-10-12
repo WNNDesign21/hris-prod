@@ -53,10 +53,10 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="filterJeniskontrak">Jenis Kontrak</label>
+                                <label for="filterJeniskontrak">Jenis Perjanjian Kerja</label>
                                 <select name="filterJeniskontrak" id="filterJeniskontrak" class="form-control"
                                     style="width: 100%;">
-                                    <option value="">Pilih Jenis Kontrak</option>
+                                    <option value="">Pilih Jenis Perjanjian Kerja</option>
                                     <option value="PKWT">PKWT</option>
                                     <option value="PKWTT">PKWTT</option>
                                     <option value="MAGANG">MAGANG</option>
@@ -65,10 +65,10 @@
                             <div class="row">
                                 <div class="col-lg-6 col-12">
                                     <div class="form-group">
-                                        <label for="filterAttachment">Attachment</label>
+                                        <label for="filterAttachment">Attachment (Perjanjian Kerja)</label>
                                         <select name="filterAttachment" id="filterAttachment" class="form-control"
                                             style="width: 100%;">
-                                            <option value="">Pilih Attachment</option>
+                                            <option value="">Pilih Attachment (Perjanjian Kerja)</option>
                                             <option value="Y">YES</option>
                                             <option value="N">NO</option>
                                         </select>
@@ -76,10 +76,10 @@
                                 </div>
                                 <div class="col-lg-6 col-12">
                                     <div class="form-group">
-                                        <label for="filterEvidence">Evidence</label>
+                                        <label for="filterEvidence">Evidence (KSK)</label>
                                         <select name="filterEvidence" id="filterEvidence" class="form-control"
                                             style="width: 100%;">
-                                            <option value="">Pilih Evidence</option>
+                                            <option value="">Pilih Evidence (KSK)</option>
                                             <option value="Y">YES</option>
                                             <option value="N">NO</option>
                                         </select>
