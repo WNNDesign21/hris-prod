@@ -69,7 +69,7 @@
                         <a class="media media-single" href="#">
                             <h4 class="w-20 text-gray fw-500" id="terminasi_karyawan"><i
                                     class="fas fa-sync-alt fa-spin fs-24"></i></h4>
-                            <div class="media-body ps-15 bs-5 rounded border-info">
+                            <div class="media-body ps-15 bs-5 rounded border-warning">
                                 <h5>TERMINASI</h5>
                             </div>
                         </a>

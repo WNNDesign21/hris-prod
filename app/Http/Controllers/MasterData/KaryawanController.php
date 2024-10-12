@@ -158,6 +158,19 @@ class KaryawanController extends Controller
 
         if (!empty($karyawan)) {
             foreach ($karyawan as $data) {
+                if($data->status_karyawan == 'AT'){
+                    $status_karyawan_text = 'AKTIF';
+                } elseif ($data->status_karyawan == 'MD') {
+                    $status_karyawan_text = 'MENGUNDURKAN DIRI';
+                } elseif ($data->status_karyawan == 'HK') {
+                    $status_karyawan_text = 'HABIS KONTRAK';
+                } elseif ($data->status_karyawan == 'PS') {
+                    $status_karyawan_text = 'PENSIUN';
+                } elseif ($data->status_karyawan == 'TM') {
+                    $status_karyawan_text = 'TERMINASI';
+                } else {
+                    $status_karyawan_text = '-';
+                }
                 $kontrak = Kontrak::where('karyawan_id', $data->id_karyawan)->orderBy('tanggal_mulai', 'DESC')->pluck('jenis')->first();
                 $posisis = $data->posisi()->pluck('posisis.nama')->toArray();
                 $nestedData['id_karyawan'] = $data->id_karyawan;
@@ -165,7 +178,7 @@ class KaryawanController extends Controller
                 $nestedData['jenis_kontrak'] = $kontrak ? $kontrak : ($data->jenis_kontrak ? $data->jenis_kontrak : 'BELUM ADA KONTRAK');
                 $nestedData['tanggal_mulai'] = $data->tanggal_mulai ? $data->tanggal_mulai : 'BELUM ADA KONTRAK';
                 $nestedData['tanggal_selesai'] = $data->tanggal_selesai ? $data->tanggal_selesai : ($kontrak == 'PKWTT' || $data->jenis_kontrak == 'PKWTT' ? '-' : 'BELUM ADA KONTRAK');
-                $nestedData['status_karyawan'] = $data->status_karyawan;
+                $nestedData['status_karyawan'] = $status_karyawan_text;
                 $formattedPosisi = array_map(function($posisi) {
                     return '<span class="badge badge-primary m-1">' . $posisi . '</span>';
                 }, $posisis);
