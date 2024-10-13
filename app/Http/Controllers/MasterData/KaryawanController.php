@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\Validator;
@@ -280,6 +281,7 @@ class KaryawanController extends Controller
             'tanggal_mulai' => ['required', 'date_format:Y-m-d'],
             'posisi.*' => ['required'],
             'grup' => ['required'],
+            'foto' => ['image', 'mimes:jpeg,png,jpg', 'max:2048'],
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -320,10 +322,13 @@ class KaryawanController extends Controller
         $email_akun = $request->email_akun;
         $username = $request->username;
         $password = $request->password;
+        $foto = $request->file('foto');
         $organisasi_id = auth()->user()->organisasi_id;
 
         DB::beginTransaction();
         try{
+            $id_karyawan = $this->generateIdKaryawan($nama);
+
             if($user_id == null){
                 if($username !== null && $email_akun !== null && $password !== null){
                     $user = User::create([
@@ -348,8 +353,16 @@ class KaryawanController extends Controller
                 }
             } 
 
+            if($request->hasFile('foto')){
+                $foto_karyawan = $id_karyawan . '_' . time() . '.' . $foto->getClientOriginalExtension();
+                $file_path = $foto->storeAs("attachment/foto_karyawan", $foto_karyawan);
+            } else {
+                $file_path = null;
+            }
+
             $karyawan = Karyawan::create([
-                'id_karyawan' => $this->generateIdKaryawan($nama),
+                'id_karyawan' => $id_karyawan,
+                'foto' => $file_path,
                 'organisasi_id' => $organisasi_id,
                 'ni_karyawan' => $ni_karyawan,
                 'user_id' => $user_id,
@@ -451,6 +464,7 @@ class KaryawanController extends Controller
             'jurusan_pendidikanEdit' => ['required','string'],
             'posisiEdit.*' => ['required'],
             'grupEdit' => ['required'],
+            'fotoEdit' => ['image', 'mimes:jpeg,png,jpg', 'max:2048']
         ];
 
         
@@ -488,6 +502,7 @@ class KaryawanController extends Controller
         $status_karyawan = $request->status_karyawanEdit;
         $posisi = $request->posisiEdit;
         $grup_id = $request->grupEdit;
+        $foto = $request->file('fotoEdit');
 
         DB::beginTransaction();
         try{
@@ -545,6 +560,15 @@ class KaryawanController extends Controller
                     $jabatan = $posisi_cek->jabatan_id;
                 }
                 $karyawan->posisi()->attach($posisi_id);
+            }
+
+            if($request->hasFile('fotoEdit')){
+                $foto_karyawan = $id_karyawan . '_' . time() . '.' . $foto->getClientOriginalExtension();
+                $file_path = $foto->storeAs("attachment/foto_karyawan", $foto_karyawan);
+                if($karyawan->foto){
+                    Storage::delete($karyawan->foto);
+                }
+                $karyawan->foto = $file_path;
             }
             
             // foreach($posisi as $posisi_id){
@@ -698,6 +722,7 @@ class KaryawanController extends Controller
             $detail = [
                 'id_karyawan' => $karyawan->id_karyawan,
                 'ni_karyawan' => $karyawan->ni_karyawan,
+                'foto' => $karyawan->foto ? asset('storage/'.$karyawan->foto) : asset('img/no-image.png'),
                 'nama' => $karyawan->nama,
                 'no_kk' => $karyawan->no_kk,
                 'nik' => $karyawan->nik,

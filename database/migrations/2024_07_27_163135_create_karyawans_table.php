@@ -49,6 +49,7 @@ return new class extends Migration
             $table->string('no_telp_darurat')->nullable();
             $table->date('tanggal_mulai')->nullable();
             $table->date('tanggal_selesai')->nullable();
+            $table->string('foto')->nullable();
 
             $table->timestamps();
             $table->softDeletes();

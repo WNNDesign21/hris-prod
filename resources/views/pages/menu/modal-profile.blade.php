@@ -12,6 +12,13 @@
                     <div class="row p-4">
                         <div class="col-lg-6 col-12">
                             <div class="form-group">
+                                <a id="link_foto_profile" href="{{ $profile['foto'] }}" data-title="Foto Karyawan"
+                                    class="image-popup-vertical-fit">
+                                    <img id="image_review_profile" src="{{ $profile['foto'] }}" alt="Foto Karyawan"
+                                        style="width: 150px;height: 150px;" class="img-thumbnail img-fluid">
+                                </a>
+                            </div>
+                            <div class="form-group">
                                 <label for="">Nomor Induk Karyawan <span class="text-danger">*</span></label>
                                 <br>
                                 <div class="input-group mb-2" style="width:100%;">
@@ -73,9 +80,11 @@
                                 <div class="input-group mb-2" style="width:100%;">
                                     <select name="jenis_kelamin" id="jenis_kelamin" class="form-control"
                                         style="width: 100%;" disabled>
-                                        <option value="L" {{ $profile['jenis_kelamin'] == 'L' ? 'selected' : '' }}>
+                                        <option value="L"
+                                            {{ $profile['jenis_kelamin'] == 'L' ? 'selected' : '' }}>
                                             Laki-laki</option>
-                                        <option value="P" {{ $profile['jenis_kelamin'] == 'P' ? 'selected' : '' }}>
+                                        <option value="P"
+                                            {{ $profile['jenis_kelamin'] == 'P' ? 'selected' : '' }}>
                                             Perempuan</option>
                                     </select>
                                 </div>

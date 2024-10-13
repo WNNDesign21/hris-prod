@@ -30,6 +30,7 @@ class HomeController extends Controller
         if($profile){
             $data = [
                 'ni_karyawan' => $profile->ni_karyawan,
+                'foto' => $profile->foto ? asset('storage/'.$profile->foto) : asset('img/no-image.png'),  
                 'nama' => $profile->nama,
                 'no_kk' => $profile->no_kk,
                 'nik' => $profile->nik,
@@ -67,6 +68,7 @@ class HomeController extends Controller
         } else {
             $data = [
                 'ni_karyawan' => null,
+                'foto' => asset('img/no-image.png'),
                 'nama' => null,
                 'no_kk' => null,
                 'nik' => null,

@@ -67,12 +67,24 @@
                                 {{-- END USER TAB --}}
                                 <h5>Data Karyawan</h5>
                                 <div class="form-group">
+                                    <a id="link_foto" href="{{ asset('img/no-image.png') }}" data-title="Foto Karyawan"
+                                        class="image-popup-vertical-fit">
+                                        <img id="image_review" src="{{ asset('img/no-image.png') }}" alt="Foto Karyawan"
+                                            style="width: 150px;height: 150px;" class="img-thumbnail img-fluid">
+                                    </a>
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Foto</label>
+                                    <input type="file" name="foto" type="file" id="foto"
+                                        class="form-control">
+                                </div>
+                                <div class="form-group">
                                     <label for="">Nomor Induk Karyawan <span
                                             class="text-danger">*</span></label>
                                     <br>
                                     <div class="input-group mb-2" style="width:100%;">
-                                        <input type="text" name="ni_karyawan" id="ni_karyawan" class="form-control"
-                                            required>
+                                        <input type="text" name="ni_karyawan" id="ni_karyawan"
+                                            class="form-control" required>
                                     </div>
                                 </div>
                                 <div class="form-group">

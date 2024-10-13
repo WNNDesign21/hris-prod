@@ -14,6 +14,18 @@
                         <div class="row p-4">
                             <div class="col-lg-6 col-12">
                                 <div class="form-group">
+                                    <a id="link_fotoEdit" href="{{ asset('img/no-image.png') }}"
+                                        data-title="Foto Karyawan" class="image-popup-vertical-fit">
+                                        <img id="image_reviewEdit" src="{{ asset('img/no-image.png') }}"
+                                            alt="Foto Karyawan" style="width: 150px;height: 150px;"
+                                            class="img-thumbnail img-fluid">
+                                    </a>
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Foto</label>
+                                    <input type="file" name="fotoEdit" id="fotoEdit" class="form-control">
+                                </div>
+                                <div class="form-group">
                                     <label for="">Nomor Induk Karyawan <span
                                             class="text-danger">*</span></label>
                                     <br>

@@ -51,7 +51,7 @@ class KaryawanSeeder extends Seeder
                 'sisa_cuti_bersama' => 6,
                 'tanggal_mulai' => Carbon::now()->toDateString(),
                 'tanggal_selesai' => Carbon::now()->addMonths(1)->toDateString(),
-                'user_id' => 3,
+                'user_id' => 6,
                 'grup_id' => 1
             ],
             [
@@ -88,7 +88,7 @@ class KaryawanSeeder extends Seeder
                 'sisa_cuti_bersama' => 6,
                 'tanggal_mulai' => Carbon::now()->toDateString(),
                 'tanggal_selesai' => Carbon::now()->addMonths(1)->toDateString(),
-                'user_id' => 4,
+                'user_id' => 7,
                 'grup_id' => 1
             ],
             [
@@ -125,7 +125,7 @@ class KaryawanSeeder extends Seeder
                 'sisa_cuti_bersama' => 6,
                 'tanggal_mulai' => Carbon::now()->toDateString(),
                 'tanggal_selesai' => Carbon::now()->addMonths(1)->toDateString(),
-                'user_id' => 5,
+                'user_id' => 8,
                 'grup_id' => 1
             ],
             [
@@ -162,7 +162,7 @@ class KaryawanSeeder extends Seeder
                 'sisa_cuti_bersama' => 6,
                 'tanggal_mulai' => Carbon::now()->toDateString(),
                 'tanggal_selesai' => Carbon::now()->addMonths(1)->toDateString(),
-                'user_id' => 6,
+                'user_id' => 9,
                 'grup_id' => 1
             ],
         ];

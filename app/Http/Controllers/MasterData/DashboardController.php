@@ -102,37 +102,43 @@ class DashboardController extends Controller
         //Data Turnover perbulan dalam tahun berjalan
         $query = "
         WITH KaryawanKeluar AS (
-                SELECT
-                    EXTRACT(MONTH FROM tanggal_keluar) AS bulan,
-                    COUNT(*) AS jumlah_karyawan_keluar
-                FROM
-                    turnovers
-                WHERE
-                    status_karyawan IN ('MD', 'HK', 'PS', 'TM')
-                    AND organisasi_id = $organisasi_id
-                    AND EXTRACT(YEAR FROM tanggal_keluar) = EXTRACT(YEAR FROM NOW())
-                GROUP BY
-                    bulan
+            SELECT
+                EXTRACT(MONTH FROM tanggal_keluar) AS bulan,
+                COUNT(*) AS jumlah_karyawan_keluar
+            FROM
+                turnovers
+            WHERE
+                status_karyawan IN ('MD', 'HK', 'PS', 'TM')
+                AND organisasi_id = $organisasi_id
+                AND EXTRACT(YEAR FROM tanggal_keluar) = EXTRACT(YEAR FROM NOW())
+            GROUP BY
+                bulan
             ),
             RataRataKaryawan AS (
-                SELECT
-                    (
-                        (SELECT CAST(jumlah_aktif_karyawan_terakhir AS DECIMAL) FROM turnovers ORDER BY tanggal_keluar DESC LIMIT 1) +
-                        (SELECT CAST(jumlah_aktif_karyawan_terakhir AS DECIMAL) FROM turnovers ORDER BY tanggal_keluar ASC LIMIT 1)
-                    ) / 2.0 AS rata_rata_karyawan
+            SELECT
+                CASE
+                WHEN (
+                    (SELECT CAST(jumlah_aktif_karyawan_terakhir AS DECIMAL) FROM turnovers ORDER BY tanggal_keluar DESC LIMIT 1) +
+                    (SELECT CAST(jumlah_aktif_karyawan_terakhir AS DECIMAL) FROM turnovers ORDER BY tanggal_keluar ASC LIMIT 1)
+                ) / 2.0 = 0 THEN 1
+                ELSE (
+                    (SELECT CAST(jumlah_aktif_karyawan_terakhir AS DECIMAL) FROM turnovers ORDER BY tanggal_keluar DESC LIMIT 1) +
+                    (SELECT CAST(jumlah_aktif_karyawan_terakhir AS DECIMAL) FROM turnovers ORDER BY tanggal_keluar ASC LIMIT 1)
+                ) / 2.0
+                END AS rata_rata_karyawan
             ),
             SemuaBulan AS (
-			  SELECT generate_series(1, 12) AS bulans
-			)
-			SELECT
-			  sb.bulans,
-			  COALESCE(CAST(k.jumlah_karyawan_keluar AS DECIMAL) / r.rata_rata_karyawan * 100.0, 0) AS turnover
-			FROM
-			  SemuaBulan sb
-			  LEFT JOIN KaryawanKeluar k ON sb.bulans = k.bulan
-			  CROSS JOIN RataRataKaryawan r
-			ORDER BY
-			  sb.bulans;
+                  SELECT generate_series(1, 12) AS bulans
+                )
+                SELECT
+                  sb.bulans,
+                  COALESCE(CAST(k.jumlah_karyawan_keluar AS DECIMAL) / r.rata_rata_karyawan * 100.0, 0) AS turnover
+                FROM
+                  SemuaBulan sb
+                  LEFT JOIN KaryawanKeluar k ON sb.bulans = k.bulan
+                  CROSS JOIN RataRataKaryawan r
+                ORDER BY
+                  sb.bulans;
         ";
 
         $results = DB::select($query);
@@ -193,7 +199,7 @@ class DashboardController extends Controller
 
     public function get_data_kontrak_progress_dashboard(){
         $organisasi_id = auth()->user()->organisasi_id;
-        $total_kontrak = Kontrak::organisasi($organisasi_id)->count();
+        $total_kontrak = Kontrak::organisasi($organisasi_id)->count() > 0 ? Kontrak::organisasi($organisasi_id)->count() : 1;
         $kontrak_done = Kontrak::organisasi($organisasi_id)->where('status', 'DONE')->count();
         $presentase_kontrak_done = round(($kontrak_done / $total_kontrak) * 100, 2);
 

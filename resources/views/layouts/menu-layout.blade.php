@@ -17,7 +17,9 @@
     <link rel="stylesheet" href="{{ asset('css/vendors_css.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/skin_color.css') }}">
-    {{-- @vite(['resources/js/app.js', 'resources/sass/app.scss', 'resources/css/app.css']) --}}
+    <link rel="stylesheet" href="{{ asset('assets/vendor_components/animate/animate.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendor_components/lightbox-master/dist/ekko-lightbox.min.css') }}">
+    @vite(['resources/css/app.css'])
 </head>
 
 <body class="hold-transition light-skin sidebar-mini theme-primary fixed">
@@ -77,6 +79,11 @@
     <script src="{{ asset('js/vendors.min.js') }}"></script>
     <script src="{{ asset('js/pages/chat-popup.js') }}"></script>
     <script src="{{ asset('assets/icons/feather-icons/feather.min.js') }}"></script>
+    </script>
+
+    <script src="{{ asset('assets/vendor_components/lightbox-master/dist/ekko-lightbox.min.js') }}"></script>
+    <script src="{{ asset('assets/vendor_components/Magnific-Popup-master/dist/jquery.magnific-popup.min.js') }}"></script>
+    <script src="{{ asset('assets/vendor_components/Magnific-Popup-master/dist/jquery.magnific-popup-init.js') }}">
     </script>
     <script src="{{ asset('assets/vendor_components/moment/min/moment.min.js') }}"></script>
     <script src="{{ asset('assets/vendor_components/fullcalendar/fullcalendar.js') }}"></script>

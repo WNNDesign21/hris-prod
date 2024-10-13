@@ -62,7 +62,8 @@ class Karyawan extends Model
         'nama_ibu_kandung',
         'jenjang_pendidikan',
         'jurusan_pendidikan',
-        'no_telp_darurat'
+        'no_telp_darurat',
+        'foto',
     ];
 
     protected $dates = [
@@ -71,6 +72,17 @@ class Karyawan extends Model
         'tanggal_selesai',
     ];
 
+    //ACCESSOR / GETTER
+    // public function getFotoAttribute($value)
+    // {
+    //     if ($value) {
+    //         return $value;
+    //     } else {
+    //         return asset('img/no-image.png');
+    //     }
+    // }
+
+    //SCOPE
     public function scopeAktif($query)
     {
         return $query->where('status_karyawan', 'AT');
