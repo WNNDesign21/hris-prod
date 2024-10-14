@@ -307,6 +307,22 @@
                                     </div>
                                     <div class="col-lg-6 col-12">
                                         <div class="form-group">
+                                            <label class="form-label">Jatah Cuti Tahun Lalu</label>
+                                            <input type="number" name="sisa_cuti_tahun_laluEdit"
+                                                id="sisa_cuti_tahun_laluEdit" class="form-control" min='0'
+                                                max='12' required readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">Expired Date Cuti Tahun Lalu</label>
+                                            <input type="number" name="expired_date_cuti_tahun_laluEdit"
+                                                id="expired_date_cuti_tahun_laluEdit" class="form-control"
+                                                min='0' max='12' required readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-12">
+                                        <div class="form-group">
                                             <label class="form-label">Hutang Cuti</label>
                                             <input type="number" name="hutang_cutiEdit" id="hutang_cutiEdit"
                                                 class="form-control" min='0' max='12' required readonly>

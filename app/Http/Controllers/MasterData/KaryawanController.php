@@ -751,6 +751,8 @@ class KaryawanController extends Controller
                 'status_karyawan' => $karyawan->status_karyawan,
                 'sisa_cuti_pribadi' => $karyawan->sisa_cuti_pribadi,
                 'sisa_cuti_bersama' => $karyawan->sisa_cuti_bersama,
+                'sisa_cuti_tahun_lalu' => $karyawan->sisa_cuti_tahun_lalu,
+                'expired_date_cuti_tahun_lalu' => $karyawan->expired_date_cuti_tahun_lalu,
                 'hutang_cuti' => $karyawan->hutang_cuti,
                 'tanggal_mulai' => $karyawan->tanggal_mulai,
                 'tanggal_selesai' => $karyawan->tanggal_selesai,

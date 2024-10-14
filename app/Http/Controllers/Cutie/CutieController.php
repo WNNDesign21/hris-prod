@@ -1855,6 +1855,7 @@ class CutieController extends Controller
             //UNLEGALIZED
             $unlegalizedCount = Cutie::whereNull('legalized_by')
                 ->whereNull('rejected_by')
+                ->where('status_cuti', '!=', 'CANCELED')
                 ->whereYear('rencana_mulai_cuti', $year)
                 ->whereMonth('rencana_mulai_cuti', $month_array[$i]);
 
@@ -1913,6 +1914,7 @@ class CutieController extends Controller
         $monthly_pribadi = Cutie::where('jenis_cuti', 'PRIBADI')
             ->whereYear('rencana_mulai_cuti', $year)
             ->whereMonth('rencana_mulai_cuti', $month)
+            ->where('status_cuti', '!=' ,'CANCELED')
             ->where('status_dokumen', 'APPROVED');
 
             if (isset($members)) {
@@ -1927,6 +1929,7 @@ class CutieController extends Controller
         $monthly_khusus = Cutie::where('jenis_cuti', 'KHUSUS')
             ->whereYear('rencana_mulai_cuti', $year)
             ->whereMonth('rencana_mulai_cuti', $month)
+            ->where('status_cuti', '!=' ,'CANCELED')
             ->where('status_dokumen', 'APPROVED');
 
             if (isset($members)) {
@@ -1938,22 +1941,23 @@ class CutieController extends Controller
             }
         $monthly_khusus = $monthly_khusus->count();
 
-        $monthly_sakit = Cutie::where('jenis_cuti', 'SAKIT')
-            ->whereYear('rencana_mulai_cuti', $year)
-            ->whereMonth('rencana_mulai_cuti', $month)
-            ->where('status_dokumen', 'APPROVED');
+        // $monthly_sakit = Cutie::where('jenis_cuti', 'SAKIT')
+        //     ->whereYear('rencana_mulai_cuti', $year)
+        //     ->whereMonth('rencana_mulai_cuti', $month)
+        //     ->where('status_cuti', '!=' ,'CANCELED')
+        //     ->where('status_dokumen', 'APPROVED');
 
-            if (isset($members)) {
-                $monthly_sakit = $monthly_sakit->whereHas('karyawan.posisi', function($query) use ($members) {
-                    $query->whereIn('id_posisi', $members);
-                });
-            } else {
-                $monthly_sakit = $monthly_sakit->organisasi($organisasi_id);
-            }
-        $monthly_sakit = $monthly_sakit->count();
+        //     if (isset($members)) {
+        //         $monthly_sakit = $monthly_sakit->whereHas('karyawan.posisi', function($query) use ($members) {
+        //             $query->whereIn('id_posisi', $members);
+        //         });
+        //     } else {
+        //         $monthly_sakit = $monthly_sakit->organisasi($organisasi_id);
+        //     }
+        // $monthly_sakit = $monthly_sakit->count();
         
 
-        $data = [$monthly_pribadi, $monthly_khusus, $monthly_sakit];
+        $data = [$monthly_pribadi, $monthly_khusus];
         return response()->json(['data' => $data], 200);
     }
 
@@ -2037,6 +2041,7 @@ class CutieController extends Controller
                 'Nama',
                 'Departemen',
                 'Jenis Cuti',
+                'Penggunaan Jatah Cuti',
                 'Durasi Cuti',
                 'Rencana Mulai Cuti',
                 'Rencana Selesai Cuti',
@@ -2063,11 +2068,11 @@ class CutieController extends Controller
 
             $row = 2;
 
-            $columns = range('A', 'U');
+            $columns = range('A', 'V');
             foreach ($columns as $column) {
                 $sheet->getColumnDimension($column)->setAutoSize(true);
             }
-            $sheet->setAutoFilter('A1:U1');
+            $sheet->setAutoFilter('A1:V1');
 
             foreach ($monthlyCutie->get() as $c) {
                 $sheet->setCellValue('A' . $row, $row - 1);
@@ -2075,22 +2080,23 @@ class CutieController extends Controller
                 $sheet->setCellValue('C' . $row, $c->karyawan->nama);
                 $sheet->setCellValue('D' . $row, $c->karyawan->posisi[0]->departemen->nama);
                 $sheet->setCellValue('E' . $row, $c->jenis_cuti == 'KHUSUS' ? $c->jenisCuti->nama : $c->jenis_cuti);
-                $sheet->setCellValue('F' . $row, $c->durasi_cuti);
-                $sheet->setCellValue('G' . $row, $c->rencana_mulai_cuti);
-                $sheet->setCellValue('H' . $row, $c->rencana_selesai_cuti);
-                $sheet->setCellValue('I' . $row, $c->aktual_mulai_cuti);
-                $sheet->setCellValue('J' . $row, $c->aktual_selesai_cuti);
-                $sheet->setCellValue('K' . $row, $c->alasan_cuti);
-                $sheet->setCellValue('L' . $row, $c->karyawan_pengganti_id ? $c->karyawanPengganti->nama : '-');
-                $sheet->setCellValue('M' . $row, $c->checked1_by !== null ? $c->checked1_by.' / '.(Carbon::parse($c->checked1_at)->format('d-m-Y')) : '-');
-                $sheet->setCellValue('N' . $row, $c->checked2_by !== null ? $c->checked2_by.' / '.(Carbon::parse($c->checked2_at)->format('d-m-Y')) : '-');
-                $sheet->setCellValue('O' . $row, $c->approved_by !== null ? $c->approved_by.' / '.(Carbon::parse($c->approved_at)->format('d-m-Y')) : '-');
-                $sheet->setCellValue('P' . $row, $c->legalized_by !== null ? $c->legalized_by.' / '.(Carbon::parse($c->legalized_at)->format('d-m-Y')) : '-');
-                $sheet->setCellValue('Q' . $row, $c->status_dokumen);
-                $sheet->setCellValue('R' . $row, $c->rejected_by ? 'REJECTED' : ($c->status_cuti ? $c->status_cuti : '-'));
-                $sheet->setCellValue('S' . $row, $c->rejected_by !== null ? $c->rejected_by.' / '.(Carbon::parse($c->rejected_at)->format('d-m-Y')) : '-');
-                $sheet->setCellValue('T' . $row, $c->rejected_note ? $c->rejected_note : '-');
-                $sheet->setCellValue('U' . $row, $c->created_at->format('d-m-Y'));
+                $sheet->setCellValue('F' . $row, $c->penggunaan_jenis_cuti == 'TB' ? 'TAHUN BERJALAN '.$created_at->format('Y') : 'TAHUN LALU '.$created_at->format('Y')-1);
+                $sheet->setCellValue('G' . $row, $c->durasi_cuti);
+                $sheet->setCellValue('H' . $row, $c->rencana_mulai_cuti);
+                $sheet->setCellValue('I' . $row, $c->rencana_selesai_cuti);
+                $sheet->setCellValue('J' . $row, $c->aktual_mulai_cuti);
+                $sheet->setCellValue('K' . $row, $c->aktual_selesai_cuti);
+                $sheet->setCellValue('L' . $row, $c->alasan_cuti);
+                $sheet->setCellValue('M' . $row, $c->karyawan_pengganti_id ? $c->karyawanPengganti->nama : '-');
+                $sheet->setCellValue('N' . $row, $c->checked1_by !== null ? $c->checked1_by.' / '.(Carbon::parse($c->checked1_at)->format('d-m-Y')) : '-');
+                $sheet->setCellValue('O' . $row, $c->checked2_by !== null ? $c->checked2_by.' / '.(Carbon::parse($c->checked2_at)->format('d-m-Y')) : '-');
+                $sheet->setCellValue('P' . $row, $c->approved_by !== null ? $c->approved_by.' / '.(Carbon::parse($c->approved_at)->format('d-m-Y')) : '-');
+                $sheet->setCellValue('Q' . $row, $c->legalized_by !== null ? $c->legalized_by.' / '.(Carbon::parse($c->legalized_at)->format('d-m-Y')) : '-');
+                $sheet->setCellValue('R' . $row, $c->status_dokumen);
+                $sheet->setCellValue('S' . $row, $c->rejected_by ? 'REJECTED' : ($c->status_cuti ? $c->status_cuti : '-'));
+                $sheet->setCellValue('T' . $row, $c->rejected_by !== null ? $c->rejected_by.' / '.(Carbon::parse($c->rejected_at)->format('d-m-Y')) : '-');
+                $sheet->setCellValue('U' . $row, $c->rejected_note ? $c->rejected_note : '-');
+                $sheet->setCellValue('V' . $row, $c->created_at->format('d-m-Y'));
                 $row++;
             }
 
@@ -2109,6 +2115,7 @@ class CutieController extends Controller
                     'Nama',
                     'Departemen',
                     'Jenis Cuti',
+                    'Penggunaan Jatah Cuti',
                     'Durasi Cuti',
                     'Rencana Mulai Cuti',
                     'Rencana Selesai Cuti',
@@ -2135,11 +2142,11 @@ class CutieController extends Controller
 
                 $row = 2;
 
-                $columns = range('A', 'U');
+                $columns = range('A', 'V');
                 foreach ($columns as $column) {
                     $sheet->getColumnDimension($column)->setAutoSize(true);
                 }
-                $sheet->setAutoFilter('A1:U1');
+                $sheet->setAutoFilter('A1:V1');
 
                 foreach ($monthlyCutie->get() as $c) {
                     $sheet->setCellValue('A' . $row, $row - 1);
@@ -2147,22 +2154,23 @@ class CutieController extends Controller
                     $sheet->setCellValue('C' . $row, $c->karyawan->nama);
                     $sheet->setCellValue('D' . $row, $c->karyawan->posisi[0]->departemen->nama);
                     $sheet->setCellValue('E' . $row, $c->jenis_cuti == 'KHUSUS' ? $c->jenisCuti->nama : $c->jenis_cuti);
-                    $sheet->setCellValue('F' . $row, $c->durasi_cuti);
-                    $sheet->setCellValue('G' . $row, $c->rencana_mulai_cuti);
-                    $sheet->setCellValue('H' . $row, $c->rencana_selesai_cuti);
-                    $sheet->setCellValue('I' . $row, $c->aktual_mulai_cuti);
-                    $sheet->setCellValue('J' . $row, $c->aktual_selesai_cuti);
-                    $sheet->setCellValue('K' . $row, $c->alasan_cuti);
-                    $sheet->setCellValue('L' . $row, $c->karyawan_pengganti_id ? $c->karyawanPengganti->nama : '-');
-                    $sheet->setCellValue('M' . $row, $c->checked1_by !== null ? $c->checked1_by.' / '.(Carbon::parse($c->checked1_at)->format('d-m-Y')) : '-');
-                    $sheet->setCellValue('N' . $row, $c->checked2_by !== null ? $c->checked2_by.' / '.(Carbon::parse($c->checked2_at)->format('d-m-Y')) : '-');
-                    $sheet->setCellValue('O' . $row, $c->approved_by !== null ? $c->approved_by.' / '.(Carbon::parse($c->approved_at)->format('d-m-Y')) : '-');
-                    $sheet->setCellValue('P' . $row, $c->legalized_by !== null ? $c->legalized_by.' / '.(Carbon::parse($c->legalized_at)->format('d-m-Y')) : '-');
-                    $sheet->setCellValue('Q' . $row, $c->status_dokumen);
-                    $sheet->setCellValue('R' . $row, $c->rejected_by ? 'REJECTED' : ($c->status_cuti ? $c->status_cuti : '-'));
-                    $sheet->setCellValue('S' . $row, $c->rejected_by !== null ? $c->rejected_by.' / '.(Carbon::parse($c->rejected_at)->format('d-m-Y')) : '-');
-                    $sheet->setCellValue('T' . $row, $c->rejected_note ? $c->rejected_note : '-');
-                    $sheet->setCellValue('U' . $row, $c->created_at->format('d-m-Y'));
+                    $sheet->setCellValue('F' . $row, $c->penggunaan_jenis_cuti == 'TB' ? 'TAHUN BERJALAN '.$created_at->format('Y') : 'TAHUN LALU '.$created_at->format('Y')-1);
+                    $sheet->setCellValue('G' . $row, $c->durasi_cuti);
+                    $sheet->setCellValue('H' . $row, $c->rencana_mulai_cuti);
+                    $sheet->setCellValue('I' . $row, $c->rencana_selesai_cuti);
+                    $sheet->setCellValue('J' . $row, $c->aktual_mulai_cuti);
+                    $sheet->setCellValue('K' . $row, $c->aktual_selesai_cuti);
+                    $sheet->setCellValue('L' . $row, $c->alasan_cuti);
+                    $sheet->setCellValue('M' . $row, $c->karyawan_pengganti_id ? $c->karyawanPengganti->nama : '-');
+                    $sheet->setCellValue('N' . $row, $c->checked1_by !== null ? $c->checked1_by.' / '.(Carbon::parse($c->checked1_at)->format('d-m-Y')) : '-');
+                    $sheet->setCellValue('O' . $row, $c->checked2_by !== null ? $c->checked2_by.' / '.(Carbon::parse($c->checked2_at)->format('d-m-Y')) : '-');
+                    $sheet->setCellValue('P' . $row, $c->approved_by !== null ? $c->approved_by.' / '.(Carbon::parse($c->approved_at)->format('d-m-Y')) : '-');
+                    $sheet->setCellValue('Q' . $row, $c->legalized_by !== null ? $c->legalized_by.' / '.(Carbon::parse($c->legalized_at)->format('d-m-Y')) : '-');
+                    $sheet->setCellValue('R' . $row, $c->status_dokumen);
+                    $sheet->setCellValue('S' . $row, $c->rejected_by ? 'REJECTED' : ($c->status_cuti ? $c->status_cuti : '-'));
+                    $sheet->setCellValue('T' . $row, $c->rejected_by !== null ? $c->rejected_by.' / '.(Carbon::parse($c->rejected_at)->format('d-m-Y')) : '-');
+                    $sheet->setCellValue('U' . $row, $c->rejected_note ? $c->rejected_note : '-');
+                    $sheet->setCellValue('V' . $row, $c->created_at->format('d-m-Y'));
                     $row++;
                 }
             }

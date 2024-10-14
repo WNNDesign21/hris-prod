@@ -451,6 +451,8 @@ $(function () {
                 $('#no_kkEdit').val(detailKaryawan.no_kk);
                 $('#sisa_cuti_pribadiEdit').val(detailKaryawan.sisa_cuti_pribadi);
                 $('#sisa_cuti_bersamaEdit').val(detailKaryawan.sisa_cuti_bersama);
+                $('#sisa_cuti_tahun_laluEdit').val(detailKaryawan.sisa_cuti_tahun_lalu);
+                $('#expired_date_cuti_tahun_laluEdit').val(detailKaryawan.expired_date_cuti_tahun_lalu);
                 $('#hutang_cutiEdit').val(detailKaryawan.hutang_cuti);
                 $('#tempat_lahirEdit').val(detailKaryawan.tempat_lahir);
                 $('#tanggal_lahirEdit').val(detailKaryawan.tanggal_lahir);

@@ -191,6 +191,7 @@ class KaryawanSeeder extends Seeder
                 'tanggal_mulai' => Carbon::now()->toDateString(),
                 'tanggal_selesai' => Carbon::now()->addMonths(1)->toDateString(),
                 'isReactive' => 'N',
+                'issued_date' => date('Y-m-d')
             ]);
             $i++;
         }
