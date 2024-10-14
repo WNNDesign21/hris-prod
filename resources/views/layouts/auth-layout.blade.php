@@ -165,6 +165,10 @@
         @vite(['resources/js/pages/cutie-setting.js'])
     @endif
 
+    @if ($page == 'cutie-bypass-cuti')
+        @vite(['resources/js/pages/cutie-bypass-cuti.js'])
+    @endif
+
 </body>
 
 </html>

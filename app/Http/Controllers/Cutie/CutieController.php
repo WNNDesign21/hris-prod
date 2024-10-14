@@ -92,6 +92,15 @@ class CutieController extends Controller
         return view('pages.cuti-e.export-cuti', $dataPage);
     }
 
+    public function bypass_cuti_view()
+    {
+        $dataPage = [
+            'pageTitle' => "Cutie - Bypass Cuti",
+            'page' => 'cutie-bypass-cuti',
+        ];
+        return view('pages.cuti-e.bypass-cuti', $dataPage);
+    }
+
     public function setting_cuti_view()
     {
         $dataPage = [
@@ -1160,6 +1169,115 @@ class CutieController extends Controller
             DB::rollBack();
             return response()->json(['message' => 'Model not found: ' . $e->getMessage()], 404);
         }
+    }
+
+    public function bypass_store(Request $request)
+    {
+        $dataValidate = [
+            'id_karyawan' => ['required'],
+            'penggunaan_sisa_cuti' => ['required','in:TL,TB'],
+            'rencana_mulai_cuti' => ['date','required'],
+            'rencana_selesai_cuti' => ['date','required', 'after_or_equal:rencana_mulai_cuti'],
+            'alasan_cuti' => ['required'],
+            'durasi_cuti' => ['numeric','required'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+        
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $id_karyawan = $request->id_karyawan;
+        $karyawan = Karyawan::find($id_karyawan);
+        $sisa_cuti_pribadi = $karyawan->sisa_cuti_pribadi;
+        $sisa_cuti_tahun_lalu = $karyawan->sisa_cuti_tahun_lalu;
+        $expired_date_cuti_tahun_lalu = $karyawan->expired_date_cuti_tahun_lalu;
+
+        $penggunaan_sisa_cuti = $request->penggunaan_sisa_cuti;
+        $rencana_mulai_cuti = $request->rencana_mulai_cuti;
+        $rencana_selesai_cuti = $request->rencana_selesai_cuti;
+        $alasan_cuti = $request->alasan_cuti;
+        $durasi_cuti = $request->durasi_cuti;
+
+        DB::beginTransaction();
+        try{
+
+            if($penggunaan_sisa_cuti == 'TB'){
+                $jatah_cuti = $sisa_cuti_pribadi - $durasi_cuti;
+                if($sisa_cuti_pribadi < 0){
+                    DB::rollback();
+                    return response()->json(['message' => 'Sisa cuti pribadi karyawan tidak mencukupi, Hubungi HRD untuk informasi lebih lanjut!'], 402);
+                } else {
+                    if($jatah_cuti < 0){
+                        DB::rollback();
+                        return response()->json(['message' => 'Sisa cuti pribadi karyawan tidak mencukupi, Silahkan baca ketentuan pembagian cuti pribadi lagi!'], 402);
+                    } else {
+                        $karyawan->sisa_cuti_pribadi = $jatah_cuti;
+                        $karyawan->save();
+                    }
+                }
+            } else {
+                $jatah_cuti = $sisa_cuti_tahun_lalu - $durasi_cuti;
+                if($sisa_cuti_tahun_lalu < 0){
+                    DB::rollback();
+                    return response()->json(['message' => 'Karyawan tidak memiliki sisa cuti tahun lalu!, Silahkan input menggunakan sisa cuti tahun berjalan karyawan!'], 402);
+                } else {
+                    if($jatah_cuti < 0){
+                        DB::rollback();
+                        return response()->json(['message' => 'Sisa cuti tahun lalu karyawan tidak mencukupi, Silahkan input menggunakan sisa cuti tahun berjalan karyawan!!'], 402);
+                    } else {
+                        $karyawan->sisa_cuti_tahun_lalu = $jatah_cuti;
+                        $karyawan->save();
+                    }
+                }
+            }
+
+            $today = Carbon::now();
+            if ($today->between(Carbon::parse($rencana_mulai_cuti), Carbon::parse($rencana_selesai_cuti))) {
+                $status_cuti = 'ON LEAVE';
+                $aktual_mulai_cuti = $rencana_mulai_cuti;
+            } elseif (Carbon::parse($rencana_selesai_cuti)->lt($today)) {
+                $status_cuti = 'COMPLETED';
+                $aktual_mulai_cuti = $rencana_mulai_cuti;
+                $aktual_selesai_cuti = $rencana_selesai_cuti;
+            } else {
+                $status_cuti = 'SCHEDULED';
+                $aktual_mulai_cuti = null;
+                $aktual_selesai_cuti = null;
+            }
+
+            $cuti = Cutie::create([
+                'karyawan_id' => $id_karyawan,
+                'organisasi_id' => $karyawan->user->organisasi_id,
+                'jenis_cuti' => 'PRIBADI',
+                'attachment' => null,
+                'rencana_mulai_cuti' => $rencana_mulai_cuti,
+                'rencana_selesai_cuti' => $rencana_selesai_cuti,
+                'aktual_mulai_cuti' => $aktual_mulai_cuti,
+                'aktual_selesai_cuti' => $aktual_selesai_cuti,
+                'alasan_cuti' => $alasan_cuti,
+                'durasi_cuti' => $durasi_cuti,
+                'penggunaan_sisa_cuti' => $penggunaan_sisa_cuti,
+                'status_cuti' => $status_cuti,
+                'status_dokumen' => 'APPROVED',
+                'checked1_by' => 'HRD & GA (BYPASS SYSTEM)',
+                'checked1_at' => Carbon::now(),
+                'checked2_by' => 'HRD & GA (BYPASS SYSTEM)',
+                'checked2_at' => Carbon::now(),
+                'approved_by' => 'HRD & GA (BYPASS SYSTEM)',
+                'approved_at' => Carbon::now(),
+                'legalized_by' => 'HRD & GA (BYPASS SYSTEM)',
+                'legalized_at' => Carbon::now(),
+            ]);
+
+            DB::commit();
+            return response()->json(['message' => 'Bypass Cuti Berhasil Dilakukan!'], 200);
+        } catch(Throwable $error){
+            DB::rollBack();
+            return response()->json(['message' => $error->getMessage()], 500);
+        } 
     }
 
     /**

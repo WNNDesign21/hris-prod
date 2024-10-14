@@ -108,7 +108,6 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         Route::delete('/grup/delete/{idGrup}', [GrupController::class, 'delete'])->name('master-data.grup.delete');
         Route::patch('/grup/update/{idGrup}', [GrupController::class, 'update'])->name('master-data.grup.update');
 
-        
         /** MASTER DATA - JABATAN */
         Route::post('/jabatan/datatable', [JabatanController::class, 'datatable']);
         Route::get('/jabatan',[JabatanController::class, 'index'])->name('master-data.jabatan');
@@ -208,6 +207,10 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         Route::delete('/setting-cuti/delete/{idCuti}',[CutieController::class, 'delete_jenis_cuti'])->name('cutie.setting-cuti.delete');
         Route::patch('/setting-cuti/update/{idCuti}',[CutieController::class, 'update_jenis_cuti'])->name('cutie.setting-cuti.update');
         Route::post('/setting-cuti/store',[CutieController::class, 'store_jenis_cuti'])->name('cutie.setting-cuti.store');
+
+        /** BYPASS CUTI */
+        Route::get('/bypass-cuti',[CutieController::class, 'bypass_cuti_view'])->name('cutie.bypass-cuti');
+        Route::post('/bypass-cuti/store',[CutieController::class, 'bypass_store'])->name('cutie.bypass-cuti.store');
      });
 
     
