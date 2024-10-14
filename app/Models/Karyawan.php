@@ -53,6 +53,8 @@ class Karyawan extends Model
         'status_karyawan',
         'sisa_cuti_pribadi',
         'sisa_cuti_bersama',
+        'sisa_cuti_tahun_lalu',
+        'expired_date_cuti_tahun_lalu',
         'hutang_cuti',
         'tanggal_mulai',
         'tanggal_selesai',

@@ -29,11 +29,22 @@
                                             maka dari itu setiap karyawan hanya memiliki jatah cuti pribadi (selain cuti
                                             bersama) maksimal 6 Hari dan akan hangus jika tidak dipakai (cuti bersama
                                             tidak perlu diinput)</small> --}}
-                                    <br>
-                                    <br>
                                     <select name="jenis_cuti" id="jenis_cuti" class="form-control" style="width: 100%;">
                                         <option value="PRIBADI">PRIBADI</option>
                                         <option value="KHUSUS">KHUSUS</option>
+                                    </select>
+                                </div>
+                                <div class="form-group" id="penggunaan_sisa_cuti_field">
+                                    <label for="">Penggunaan Sisa Cuti</label>
+                                    <br>
+                                    <small>Note : Jika hendak cuti sebanyak 2 hari, dan memiliki sisa cuti tahun lalu
+                                        hanya sebanyak 1 hari, maka jika tetap ingin mengambil 2 hari, karyawan harus
+                                        membuat 2 dokumen cuti dengan memilih cuti tahun berjalan 1 hari, dan cuti tahun
+                                        lalu 1 hari</small>
+                                    <select name="penggunaan_sisa_cuti" id="penggunaan_sisa_cuti" class="form-control"
+                                        style="width: 100%;">
+                                        <option value="TB">TAHUN BERJALAN ({{ date('Y') }})</option>
+                                        <option value="TL">TAHUN LALU ({{ date('Y') - 1 }})</option>
                                     </select>
                                 </div>
                                 <div class="form-group" id="conditional_field">

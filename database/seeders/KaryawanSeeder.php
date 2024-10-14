@@ -49,6 +49,8 @@ class KaryawanSeeder extends Seeder
                 'jurusan_pendidikan' => 'Psikologi',
                 'sisa_cuti_pribadi' => 6,
                 'sisa_cuti_bersama' => 6,
+                'sisa_cuti_tahun_lalu'=> 1,
+                'expired_date_cuti_tahun_lalu' => '2024-10-15',
                 'tanggal_mulai' => Carbon::now()->toDateString(),
                 'tanggal_selesai' => Carbon::now()->addMonths(1)->toDateString(),
                 'user_id' => 6,

@@ -31,6 +31,10 @@ class NotificationMiddleware
 
             $cutie_approval = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari',[$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
                 ->where('status_dokumen', 'WAITING')
+                ->where(function($query) {
+                $query->where('status_cuti', '!=', 'CANCELED')
+                      ->orWhereNull('status_cuti');
+            })
                 ->whereNotNull('approved_by')
                 ->whereNull('legalized_by')
                 ->get();
@@ -63,6 +67,10 @@ class NotificationMiddleware
             ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
             ->where('status_dokumen', 'WAITING')
             ->where(function($query) {
+                $query->where('status_cuti', '!=', 'CANCELED')
+                      ->orWhereNull('status_cuti');
+            })
+            ->where(function($query) {
                 $query->orWhereNull('approved_by')
                         ->orWhereNull('checked1_by')
                         ->orWhereNull('checked2_by');
@@ -84,6 +92,10 @@ class NotificationMiddleware
             $cutie_approval = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari',[$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
             ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
             ->where('status_dokumen', 'WAITING')
+            ->where(function($query) {
+                $query->where('status_cuti', '!=', 'CANCELED')
+                      ->orWhereNull('status_cuti');
+            })
             ->where('cutis.karyawan_id', $me->id_karyawan)
             ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
             ->get();

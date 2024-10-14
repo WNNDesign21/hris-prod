@@ -39,6 +39,7 @@ return new class extends Migration
             $table->integer('sisa_cuti_pribadi')->default(0);
             $table->integer('sisa_cuti_bersama')->default(0);
             $table->integer('sisa_cuti_tahun_lalu')->default(0);
+            $table->date('expired_date_cuti_tahun_lalu')->nullable();
             $table->integer('hutang_cuti')->default(0);
             $table->integer('no_rekening')->nullable();
             $table->string('nama_rekening')->nullable();

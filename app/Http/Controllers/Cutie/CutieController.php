@@ -199,6 +199,27 @@ class CutieController extends Controller
                 } else {
                     $status_cuti = '<span class="badge badge-pill badge-danger btnAlasan" data-alasan="'.$data->rejected_note.'" style="cursor:pointer;">REJECTED</span>';
                 }
+
+
+                if($data->status_cuti == 'CANCELED'){
+                    if($data->checked1_by == null){
+                        $btn_group_1 = '<span class="badge badge-pill badge-danger">CANCELED</span>';
+                    } 
+                    
+                    if($data->checked2_by == null){
+                        $btn_group_2 = '<span class="badge badge-pill badge-danger">CANCELED</span>';
+                    } 
+                    
+                    if($data->approved_by == null){
+                        $btn_group_3 = '<span class="badge badge-pill badge-danger">CANCELED</span>';
+                    }
+                    
+                    if ($data->legalized_by == null){
+                        $legalized = '<span class="badge badge-pill badge-danger">CANCELED</span>';
+                    }
+                    
+                    $btn_karyawan_pengganti = '-';
+                }
                     
 
                 $nestedData['no'] = $data->id_cuti;
@@ -222,7 +243,7 @@ class CutieController extends Controller
                 $nestedData['aksi'] = '
                 <div class="btn-group btn-group-sm">'.
                     // ($data->checked1_by == null && $data->checked2_by == null && $data->approved_by == null && $data->legalized_by == null && $data->rejected_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id="'.$data->id_cuti.'"><i class="fas fa-edit"></i> Edit</button><button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button>' : '').
-                    ($data->status_dokumen == 'APPROVED' && $data->status_cuti == 'SCHEDULED' && $data->rencana_mulai_cuti <= date('Y-m-d') && $data->rejected_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnCancel" data-id="'.$data->id_cuti.'"><i class="fas fa-history"></i> Cancel </button>' : '').
+                    ($data->status_cuti !== 'CANCELED'  && date('Y-m-d') <= $data->rencana_mulai_cuti && $data->rejected_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnCancel" data-id="'.$data->id_cuti.'"><i class="fas fa-history"></i> Cancel </button>' : '').
                     ($data->checked1_by == null && $data->checked2_by == null && $data->approved_by == null && $data->legalized_by == null && $data->rejected_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button>' : '').
                     // ($data->status_cuti == 'SCHEDULED' && $data->status_dokumen == 'APPROVED' && $data->approved_by !== null && $data->aktual_mulai_cuti == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-info btnMulai" data-id="'.$data->id_cuti.'"><i class="fas fa-play-circle"></i> Mulai </button>' : '').
                     // ($data->status_cuti == 'ON LEAVE' && $data->status_dokumen == 'APPROVED' && $data->approved_by !== null && $data->aktual_mulai_cuti !== null && $data->aktual_selesai_cuti == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-primary btnSelesai" data-id="'.$data->id_cuti.'"><i class="fas fa-calendar-check"></i> Selesai </button>' : '').
@@ -547,6 +568,27 @@ class CutieController extends Controller
                     $status_cuti = '<span class="badge badge-pill badge-danger btnAlasan" data-alasan="'.$data->rejected_note.'" style="cursor:pointer;">REJECTED</span>';
                 }
 
+                //JIKA CANCEL
+                if($data->status_cuti == 'CANCELED'){
+                    if($data->checked1_by == null){
+                        $btn_group_1 = '<span class="badge badge-pill badge-danger">CANCELED</span>';
+                    } 
+                    
+                    if($data->checked2_by == null){
+                        $btn_group_2 = '<span class="badge badge-pill badge-danger">CANCELED</span>';
+                    } 
+                    
+                    if($data->approved_by == null){
+                        $btn_group_3 = '<span class="badge badge-pill badge-danger">CANCELED</span>';
+                    }
+                    
+                    if ($data->legalized_by == null){
+                        $legalized = '<span class="badge badge-pill badge-danger">CANCELED</span>';
+                    }
+
+                    $btn_karyawan_pengganti = '-';
+                }
+
                 $nestedData['nama'] = $data->nama_karyawan;
                 $nestedData['departemen'] = $data->nama_departemen;
                 $nestedData['rencana_mulai_cuti'] = Carbon::parse($data->rencana_mulai_cuti)->format('d M Y');
@@ -668,8 +710,8 @@ class CutieController extends Controller
             $dataFilter['rencanaMulai'] = $rencanamulaiFilter;
         }
 
-        $organisasi_id = auth()->user()->karyawan->organisasi_id;
-        if (organisasi_id) {
+        $organisasi_id = auth()->user()->organisasi_id;
+        if ($organisasi_id) {
             $dataFilter['organisasi_id'] = $organisasi_id;
         }
         
@@ -733,6 +775,27 @@ class CutieController extends Controller
                 } else {
                     $status_cuti = '<span class="badge badge-pill badge-danger btnAlasan" data-alasan="'.$data->rejected_note.'" style="cursor:pointer;">REJECTED</span>';
                 }
+
+                //JIKA CANCEL
+                if($data->status_cuti == 'CANCELED'){
+                    if($data->checked1_by == null){
+                        $btn_group_1 = '<span class="badge badge-pill badge-danger">CANCELED</span>';
+                    } 
+                    
+                    if($data->checked2_by == null){
+                        $btn_group_2 = '<span class="badge badge-pill badge-danger">CANCELED</span>';
+                    } 
+                    
+                    if($data->approved_by == null){
+                        $btn_group_3 = '<span class="badge badge-pill badge-danger">CANCELED</span>';
+                    }
+                    
+                    if ($data->legalized_by == null){
+                        $legalized = '<span class="badge badge-pill badge-danger">CANCELED</span>';
+                    }
+                    
+                    $btn_karyawan_pengganti = '-';
+                }
                     
 
                 $nestedData['nama'] = $data->nama_karyawan;
@@ -754,10 +817,10 @@ class CutieController extends Controller
                 $nestedData['alasan'] = $data->alasan_cuti;
                 $nestedData['karyawan_pengganti'] = $data->nama_pengganti ? '<small class="text-bold">'.$data->nama_pengganti.'</small>' : '-';
                 $nestedData['attachment'] = $data->jenis_cuti !== 'SAKIT' ? 'No Attachment Needed' : '<a href="'.asset('storage/'.$data->attachment).'" target="_blank">Lihat</a>';
-                $nestedData['aksi'] = '<div class="btn-group btn-group-sm">
+                $nestedData['aksi'] = $data->status_cuti !== 'CANCELED' && $data->status_dokumen !== 'REJECTED' ? '<div class="btn-group btn-group-sm">
                 <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button>
                 '.(date('Y-m-d') <= Carbon::parse($data->rencana_mulai_cuti)->addDays(7)->format('Y-m-d') ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnCancel" data-id="'.$data->id_cuti.'"><i class="fas fa-history"></i> Cancel </button>' : '').'
-                </div>';
+                </div>' : '-';
 
                 $dataTable[] = $nestedData;
             }
@@ -920,8 +983,12 @@ class CutieController extends Controller
         $rencana_selesai_cuti = $request->rencana_selesai_cuti;
         $alasan_cuti = $request->alasan_cuti;
         $durasi_cuti = $request->durasi_cuti;
+        $penggunaan_sisa_cuti = $request->penggunaan_sisa_cuti;
         $karyawan_id = auth()->user()->karyawan->id_karyawan;
-        $sisa_cuti_pribadi = Karyawan::find($karyawan_id)->sisa_cuti_pribadi;
+        $kry = Karyawan::find($karyawan_id);
+        $sisa_cuti_pribadi = $kry->sisa_cuti_pribadi;
+        $sisa_cuti_tahun_lalu = $kry->sisa_cuti_tahun_lalu;
+        $expired_date_cuti_tahun_lalu = $kry->expired_date_cuti_tahun_lalu;
 
         if($jenis_cuti == 'PRIBADI'){
             $dataValidate = [
@@ -930,6 +997,7 @@ class CutieController extends Controller
                 'rencana_selesai_cuti' => ['date','required'],
                 'alasan_cuti' => ['required'],
                 'durasi_cuti' => ['numeric','required'],
+                'penggunaan_sisa_cuti' => ['required','in:TL,TB']
             ];
 
             $err_text = 'Periksa Form Dengan Benar!';
@@ -967,6 +1035,7 @@ class CutieController extends Controller
         try{
 
             if($jenis_cuti == 'SAKIT'){
+
                 if($request->hasFile('attachment')){
                     $file = $request->file('attachment');
                     $surat_dokter = 'SD_' . time() . '.' . $file->getClientOriginalExtension();
@@ -974,22 +1043,91 @@ class CutieController extends Controller
                 } else {
                     return response()->json(['message' => 'Attachment tidak boleh kosong!'], 402);
                 }
+
             } elseif ($jenis_cuti == 'PRIBADI') {
-                $jatah_cuti = $sisa_cuti_pribadi - $durasi_cuti;
-                if($sisa_cuti_pribadi < 0){
-                    return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Hubungi HRD untuk informasi lebih lanjut!'], 402);
-                } else {
-                    if($jatah_cuti < 0){
-                        return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Silahkan baca ketentuan pembagian cuti pribadi lagi!'], 402);
+
+                // if($expired_date_cuti_tahun_lalu){
+                //     if($sisa_cuti_tahun_lalu <= 0 || ($sisa_cuti_tahun_lalu > 0 && $expired_date_cuti_tahun_lalu < date('Y-m-d'))){
+                //         $jatah_cuti = $sisa_cuti_pribadi - $durasi_cuti;
+                //         if($sisa_cuti_pribadi < 0){
+                //             return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Hubungi HRD untuk informasi lebih lanjut!'], 402);
+                //         } else {
+                //             if($jatah_cuti < 0){
+                //                 return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Silahkan baca ketentuan pembagian cuti pribadi lagi!'], 402);
+                //             } else {
+                //                 $karyawan = Karyawan::find($karyawan_id);
+                //                 $karyawan->sisa_cuti_pribadi = $jatah_cuti;
+                //                 $karyawan->save();
+                //             }
+                //         }
+    
+                //     } else {
+                //         $jatah_cuti = $sisa_cuti_tahun_lalu - $durasi_cuti;
+                //         $jatah_cuti_pengurangan_final =  $jatah_cuti + $sisa_cuti_pribadi;
+    
+                //         if($jatah_cuti_pengurangan_final < 0 ){
+                //             return response()->json(['message' => 'Sisa cuti pribadi + Sisa cuti tahun lalu masih belum memenuhi jumlah durasi cuti yang diajukan!'], 402);
+                //         } else {
+                //             if($jatah_cuti < 0){
+                //                 $karyawan = Karyawan::find($karyawan_id);
+                //                 $karyawan->sisa_cuti_tahun_lalu = 0;
+                //                 $karyawan->sisa_cuti_pribadi = $jatah_cuti_pengurangan_final;
+                //                 $karyawan->save();
+                //             } else {
+                //                 $karyawan = Karyawan::find($karyawan_id);
+                //                 $karyawan->sisa_cuti_tahun_lalu = $jatah_cuti;
+                //                 $karyawan->save();
+                //             }
+                //         }
+                //     }
+                // } else {
+                //     $jatah_cuti = $sisa_cuti_pribadi - $durasi_cuti;
+                //     if($sisa_cuti_pribadi < 0){
+                //         return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Hubungi HRD untuk informasi lebih lanjut!'], 402);
+                //     } else {
+                //         if($jatah_cuti < 0){
+                //             return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Silahkan baca ketentuan pembagian cuti pribadi lagi!'], 402);
+                //         } else {
+                //             $karyawan = Karyawan::find($karyawan_id);
+                //             $karyawan->sisa_cuti_pribadi = $jatah_cuti;
+                //             $karyawan->save();
+                //         }
+                //     }
+                // }
+
+                if($penggunaan_sisa_cuti == 'TB'){
+                    $jatah_cuti = $sisa_cuti_pribadi - $durasi_cuti;
+                    if($sisa_cuti_pribadi < 0){
+                        return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Hubungi HRD untuk informasi lebih lanjut!'], 402);
                     } else {
-                        $karyawan = Karyawan::find($karyawan_id);
-                        $karyawan->sisa_cuti_pribadi = $jatah_cuti;
-                        $karyawan->save();
+                        if($jatah_cuti < 0){
+                            return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Silahkan baca ketentuan pembagian cuti pribadi lagi!'], 402);
+                        } else {
+                            $karyawan = Karyawan::find($karyawan_id);
+                            $karyawan->sisa_cuti_pribadi = $jatah_cuti;
+                            $karyawan->save();
+                        }
+                    }
+                } else {
+                    $jatah_cuti = $sisa_cuti_tahun_lalu - $durasi_cuti;
+                    if($sisa_cuti_tahun_lalu < 0){
+                        return response()->json(['message' => 'Ada tidak memiliki sisa cuti tahun lalu!, Silahkan ajukan menggunakan sisa cuti tahun berjalan anda!'], 402);
+                    } else {
+                        if($jatah_cuti < 0){
+                            return response()->json(['message' => 'Sisa cuti tahun lalu anda tidak mencukupi, Silahkan ajukan menggunakan sisa cuti tahun berjalan anda!!'], 402);
+                        } else {
+                            $karyawan = Karyawan::find($karyawan_id);
+                            $karyawan->sisa_cuti_tahun_lalu = $jatah_cuti;
+                            $karyawan->save();
+                        }
                     }
                 }
+
+
                 $attachment = null;
             } else {
                 $attachment = null;
+                $penggunaan_sisa_cuti = 'TB';
             }
 
             $cuti = Cutie::create([
@@ -1002,10 +1140,11 @@ class CutieController extends Controller
                 'rencana_selesai_cuti' => $rencana_selesai_cuti,
                 'alasan_cuti' => $alasan_cuti,
                 'durasi_cuti' => $durasi_cuti,
+                'penggunaan_sisa_cuti' => $penggunaan_sisa_cuti
             ]);
 
             $data = [
-                'sisa_cuti_tahunan' => $jatah_cuti + $karyawan->sisa_cuti_bersama,
+                'sisa_cuti_tahunan' => $karyawan->sisa_cuti_pribadi + $karyawan->sisa_cuti_bersama,
                 'sisa_cuti_pribadi' => $karyawan->sisa_cuti_pribadi,
                 'sisa_cuti_tahun_lalu' => $karyawan->sisa_cuti_tahun_lalu
             ];
@@ -1152,8 +1291,15 @@ class CutieController extends Controller
             $cuti->save();
 
             $karyawan = Karyawan::find($cuti->karyawan_id);
-            $karyawan->sisa_cuti_pribadi = $karyawan->sisa_cuti_pribadi + $cuti->durasi_cuti;
-            $karyawan->save();
+
+            if($cuti->jenis_cuti == 'PRIBADI'){
+                if($cuti->penggunaan_sisa_cuti == 'TB'){
+                    $karyawan->sisa_cuti_pribadi = $karyawan->sisa_cuti_pribadi + $cuti->durasi_cuti;
+                } else {
+                    $karyawan->sisa_cuti_tahun_lalu = $karyawan->sisa_cuti_tahun_lalu + $cuti->durasi_cuti;
+                }
+                $karyawan->save();
+            }
 
             DB::commit();
             return response()->json(['message' => 'Reject Cuti Berhasil dilakukan!'], 200);
@@ -1370,14 +1516,24 @@ class CutieController extends Controller
             $karyawan = Karyawan::find($cutie->karyawan_id);
 
             if($cutie->rejected_by == null && $cutie->jenis_cuti == 'PRIBADI'){
-                $karyawan->sisa_cuti_pribadi = $karyawan->sisa_cuti_pribadi + $cutie->durasi_cuti;
+                if($cutie->penggunaan_sisa_cuti == 'TB'){
+                    $karyawan->sisa_cuti_pribadi = $karyawan->sisa_cuti_pribadi + $cutie->durasi_cuti;
+                } else {
+                    $karyawan->sisa_cuti_tahun_lalu = $karyawan->sisa_cuti_tahun_lalu + $cutie->durasi_cuti;
+                }
                 $karyawan->save();
             }
+
+            $data = [
+                'sisa_cuti_tahunan' => $karyawan->sisa_cuti_pribadi + $karyawan->sisa_cuti_bersama,
+                'sisa_cuti_pribadi' => $karyawan->sisa_cuti_pribadi,
+                'sisa_cuti_tahun_lalu' => $karyawan->sisa_cuti_tahun_lalu
+            ];
 
             $cutie->status_cuti = 'CANCELED';
             $cutie->save();
             DB::commit();
-            return response()->json(['message' => 'Cuti Berhasil dicancel!'], 200);
+            return response()->json(['message' => 'Cuti Berhasil dicancel!', 'data' => $data ], 200);
         } catch(Throwable $error){
             DB::rollBack();
             return response()->json(['message' => $error->getMessage()], 500);
@@ -1466,7 +1622,11 @@ class CutieController extends Controller
             $karyawan = Karyawan::find($cutie->karyawan_id);
 
             if($cutie->rejected_by == null && $cutie->jenis_cuti == 'PRIBADI'){
-                $karyawan->sisa_cuti_pribadi = $karyawan->sisa_cuti_pribadi + $cutie->durasi_cuti;
+                if($cutie->penggunaan_sisa_cuti == 'TB'){
+                    $karyawan->sisa_cuti_pribadi = $karyawan->sisa_cuti_pribadi + $cutie->durasi_cuti;
+                } else {
+                    $karyawan->sisa_cuti_tahun_lalu = $karyawan->sisa_cuti_tahun_lalu + $cutie->durasi_cuti;
+                }
                 $karyawan->save();
             }
             
@@ -1666,7 +1826,6 @@ class CutieController extends Controller
 
             //CANCELED
             $canceledCount = Cutie::where('status_cuti', 'CANCELED')
-                ->where('status_dokumen', 'APPROVED')
                 ->whereYear('rencana_mulai_cuti', $year)
                 ->whereMonth('rencana_mulai_cuti', $month_array[$i]);
             
