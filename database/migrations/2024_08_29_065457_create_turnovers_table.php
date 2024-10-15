@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('turnovers', function (Blueprint $table) {
             $table->increments('id_turnover');
             $table->string('karyawan_id');
-            $table->enum('status_karyawan', ['RESIGN', 'PENSIUN', 'TERMINASI']);
+            $table->unsignedInteger('organisasi_id')->nullable();
+            $table->enum('status_karyawan', ['MD', 'PS', 'HK', 'TM']);
             $table->date('tanggal_keluar')->nullable();
             $table->text('keterangan')->nullable();
             $table->integer('jumlah_aktif_karyawan_terakhir')->nullable();

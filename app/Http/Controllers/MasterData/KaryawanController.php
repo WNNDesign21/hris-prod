@@ -18,6 +18,7 @@ use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\Validator;
@@ -158,6 +159,19 @@ class KaryawanController extends Controller
 
         if (!empty($karyawan)) {
             foreach ($karyawan as $data) {
+                if($data->status_karyawan == 'AT'){
+                    $status_karyawan_text = 'AKTIF';
+                } elseif ($data->status_karyawan == 'MD') {
+                    $status_karyawan_text = 'MENGUNDURKAN DIRI';
+                } elseif ($data->status_karyawan == 'HK') {
+                    $status_karyawan_text = 'HABIS KONTRAK';
+                } elseif ($data->status_karyawan == 'PS') {
+                    $status_karyawan_text = 'PENSIUN';
+                } elseif ($data->status_karyawan == 'TM') {
+                    $status_karyawan_text = 'TERMINASI';
+                } else {
+                    $status_karyawan_text = '-';
+                }
                 $kontrak = Kontrak::where('karyawan_id', $data->id_karyawan)->orderBy('tanggal_mulai', 'DESC')->pluck('jenis')->first();
                 $posisis = $data->posisi()->pluck('posisis.nama')->toArray();
                 $nestedData['id_karyawan'] = $data->id_karyawan;
@@ -165,7 +179,7 @@ class KaryawanController extends Controller
                 $nestedData['jenis_kontrak'] = $kontrak ? $kontrak : ($data->jenis_kontrak ? $data->jenis_kontrak : 'BELUM ADA KONTRAK');
                 $nestedData['tanggal_mulai'] = $data->tanggal_mulai ? $data->tanggal_mulai : 'BELUM ADA KONTRAK';
                 $nestedData['tanggal_selesai'] = $data->tanggal_selesai ? $data->tanggal_selesai : ($kontrak == 'PKWTT' || $data->jenis_kontrak == 'PKWTT' ? '-' : 'BELUM ADA KONTRAK');
-                $nestedData['status_karyawan'] = $data->status_karyawan;
+                $nestedData['status_karyawan'] = $status_karyawan_text;
                 $formattedPosisi = array_map(function($posisi) {
                     return '<span class="badge badge-primary m-1">' . $posisi . '</span>';
                 }, $posisis);
@@ -267,6 +281,7 @@ class KaryawanController extends Controller
             'tanggal_mulai' => ['required', 'date_format:Y-m-d'],
             'posisi.*' => ['required'],
             'grup' => ['required'],
+            'foto' => ['image', 'mimes:jpeg,png,jpg', 'max:2048'],
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -307,15 +322,20 @@ class KaryawanController extends Controller
         $email_akun = $request->email_akun;
         $username = $request->username;
         $password = $request->password;
+        $foto = $request->file('foto');
+        $organisasi_id = auth()->user()->organisasi_id;
 
         DB::beginTransaction();
         try{
+            $id_karyawan = $this->generateIdKaryawan($nama);
+
             if($user_id == null){
                 if($username !== null && $email_akun !== null && $password !== null){
                     $user = User::create([
                         'username' => $username,
                         'email' => $email_akun,
                         'password' => Hash::make($password),
+                        'organisasi_id' => $organisasi_id,
                     ]); 
 
                     $cek_jabatan = Posisi::find($posisi[0]);
@@ -333,8 +353,17 @@ class KaryawanController extends Controller
                 }
             } 
 
+            if($request->hasFile('foto')){
+                $foto_karyawan = $id_karyawan . '_' . time() . '.' . $foto->getClientOriginalExtension();
+                $file_path = $foto->storeAs("attachment/foto_karyawan", $foto_karyawan);
+            } else {
+                $file_path = null;
+            }
+
             $karyawan = Karyawan::create([
-                'id_karyawan' => $this->generateIdKaryawan($nama),
+                'id_karyawan' => $id_karyawan,
+                'foto' => $file_path,
+                'organisasi_id' => $organisasi_id,
                 'ni_karyawan' => $ni_karyawan,
                 'user_id' => $user_id,
                 'nama' => $nama,
@@ -435,6 +464,7 @@ class KaryawanController extends Controller
             'jurusan_pendidikanEdit' => ['required','string'],
             'posisiEdit.*' => ['required'],
             'grupEdit' => ['required'],
+            'fotoEdit' => ['image', 'mimes:jpeg,png,jpg', 'max:2048']
         ];
 
         
@@ -472,6 +502,7 @@ class KaryawanController extends Controller
         $status_karyawan = $request->status_karyawanEdit;
         $posisi = $request->posisiEdit;
         $grup_id = $request->grupEdit;
+        $foto = $request->file('fotoEdit');
 
         DB::beginTransaction();
         try{
@@ -530,6 +561,15 @@ class KaryawanController extends Controller
                 }
                 $karyawan->posisi()->attach($posisi_id);
             }
+
+            if($request->hasFile('fotoEdit')){
+                $foto_karyawan = $id_karyawan . '_' . time() . '.' . $foto->getClientOriginalExtension();
+                $file_path = $foto->storeAs("attachment/foto_karyawan", $foto_karyawan);
+                if($karyawan->foto){
+                    Storage::delete($karyawan->foto);
+                }
+                $karyawan->foto = $file_path;
+            }
             
             // foreach($posisi as $posisi_id){
             //     $karyawan->posisi()->attach($posisi_id);
@@ -579,8 +619,13 @@ class KaryawanController extends Controller
             'id',
             'username',
         );
-
+        
         $query->whereDoesntHave('karyawan')->whereNotIn('username', ['PERSONALIA', 'SUPERUSER']);
+
+        $organisasi_id = auth()->user()->organisasi_id;
+        if($organisasi_id){
+            $query->organisasi($organisasi_id);
+        }
 
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
@@ -624,6 +669,11 @@ class KaryawanController extends Controller
             'id_karyawan',
             'nama',
         );
+
+        $organisasi_id = auth()->user()->organisasi_id;
+        if($organisasi_id){
+            $query->organisasi($organisasi_id);
+        }
 
         if (!empty($search)) {
             $query->where(function ($dat) use ($search) {
@@ -672,6 +722,7 @@ class KaryawanController extends Controller
             $detail = [
                 'id_karyawan' => $karyawan->id_karyawan,
                 'ni_karyawan' => $karyawan->ni_karyawan,
+                'foto' => $karyawan->foto ? asset('storage/'.$karyawan->foto) : asset('img/no-image.png'),
                 'nama' => $karyawan->nama,
                 'no_kk' => $karyawan->no_kk,
                 'nik' => $karyawan->nik,
@@ -700,6 +751,8 @@ class KaryawanController extends Controller
                 'status_karyawan' => $karyawan->status_karyawan,
                 'sisa_cuti_pribadi' => $karyawan->sisa_cuti_pribadi,
                 'sisa_cuti_bersama' => $karyawan->sisa_cuti_bersama,
+                'sisa_cuti_tahun_lalu' => $karyawan->sisa_cuti_tahun_lalu,
+                'expired_date_cuti_tahun_lalu' => $karyawan->expired_date_cuti_tahun_lalu,
                 'hutang_cuti' => $karyawan->hutang_cuti,
                 'tanggal_mulai' => $karyawan->tanggal_mulai,
                 'tanggal_selesai' => $karyawan->tanggal_selesai,
@@ -732,7 +785,8 @@ class KaryawanController extends Controller
     public function upload_karyawan(Request $request)
     {
         $file = $request->file('karyawan_file');
-
+        $organisasi_id = auth()->user()->organisasi_id;
+        
         $validator = Validator::make($request->all(), [
             'karyawan_file' => 'required|mimes:xlsx,xls'
         ]);
@@ -823,6 +877,7 @@ class KaryawanController extends Controller
                     if ($existingKaryawan) {
                         $existingKaryawan->update([
                             'ni_karyawan' => $row[0],
+                            'organisasi_id' => $organisasi_id,
                             'nama' => $row[2],
                             'jenis_kelamin' => in_array(strtoupper($row[3]), ['L', 'P']) ? strtoupper($row[3]) : null,
                             'alamat' => $row[4],
@@ -855,6 +910,7 @@ class KaryawanController extends Controller
                                 'email' => $row[26],
                                 'username' => $row[27],
                                 'password' => Hash::make($row[28]),
+                                'organisasi_id' => $organisasi_id,
                             ]); 
                         }
 
@@ -869,12 +925,14 @@ class KaryawanController extends Controller
                         'email' => $row[26],
                         'username' => $row[27],
                         'password' => Hash::make($row[28]),
+                        'organisasi_id' => $organisasi_id,
                     ]); 
 
                     $id_karyawan = $this->generateIdKaryawan(strtoupper($row[2]));
     
                     $karyawan = Karyawan::create([
                         'user_id' => $user->id,
+                        'organisasi_id' => $organisasi_id,
                         'id_karyawan' => $id_karyawan,
                         'ni_karyawan' => $row[0],
                         'nama' => $row[2],

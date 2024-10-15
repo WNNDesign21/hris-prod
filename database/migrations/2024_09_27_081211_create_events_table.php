@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('events', function (Blueprint $table) {
             $table->increments('id_event');
+            $table->unsignedInteger('organisasi_id')->nullable();
             $table->string('jenis_event', 2);
             $table->string('keterangan');
             $table->integer('durasi');

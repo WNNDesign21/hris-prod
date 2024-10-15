@@ -40,14 +40,14 @@
                                     <th>Posisi</th>
                                     <th>No. Perjanjian</th>
                                     <th>Issued Date</th>
-                                    <th>Jenis Kontrak</th>
+                                    <th>Jenis Perjanjian Kerja</th>
                                     <th>Status</th>
                                     <th>Durasi</th>
                                     <th>Salary</th>
                                     <th>Tanggal Mulai</th>
                                     <th>Tanggal Selesai</th>
-                                    <th class="text-center">Attachment</th>
-                                    <th class="text-center">Evidence</th>
+                                    <th class="text-center">Attachment (Perjanjian Kerja)</th>
+                                    <th class="text-center">Evidence (KSK)</th>
                                     <th class="text-center">Aksi</th>
                                 </tr>
                             </thead>

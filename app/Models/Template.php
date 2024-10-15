@@ -14,12 +14,17 @@ class Template extends Model
     protected $primaryKey = 'id_template';
 
     protected $fillable = [
-        'nama','type', 'template_path', 'isActive'
+        'nama','type', 'template_path', 'isActive', 'organisasi_id'
     ];
 
     public function scopeActive($query)
     {
         return $query->where('isActive', 'Y');
+    }
+
+    public function scopeOrganisasi($query, $organisasi)
+    {
+        return $query->where('organisasi_id', $organisasi);
     }
 
     private static function _query($dataFilter)
@@ -32,6 +37,11 @@ class Template extends Model
             'isActive',
             'template_path'
         );
+
+        $organisasi_id = auth()->user()->organisasi_id;
+        if($organisasi_id){
+            $data->where('organisasi_id', $organisasi_id);
+        }
 
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];

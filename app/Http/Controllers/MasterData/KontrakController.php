@@ -207,6 +207,7 @@ class KontrakController extends Controller
         $tempat_administrasi = $request->tempat_administrasi;
         $no_surat = $request->no_surat;
         $isReactive = $request->isReactive;
+        $organisasi_id = $request->organisasi_id;
 
         DB::beginTransaction(); 
         try{
@@ -244,6 +245,7 @@ class KontrakController extends Controller
                     $kontrak = Kontrak::create([
                         'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . (now()->timestamp + 1),
                         'karyawan_id' => $karyawan,
+                        'organisasi_id' => $organisasi_id,
                         'posisi_id' => $posisi_id,
                         'nama_posisi' => $nama_posisi ? $nama_posisi : Posisi::find($posisi_id)->nama,
                         'jenis' => $jenis,
@@ -280,6 +282,7 @@ class KontrakController extends Controller
                     $kontrak = Kontrak::create([
                         'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,
                         'karyawan_id' => $karyawan,
+                        'organisasi_id' => $organisasi_id,
                         'posisi_id' => $posisi_id,
                         'nama_posisi' => $nama_posisi ? $nama_posisi : Posisi::find($posisi_id)->nama,
                         'jenis' => $jenis,
@@ -389,6 +392,7 @@ class KontrakController extends Controller
         $posisi = $request->posisi_kontrakEdit; 
         $nama_posisi = $request->nama_posisi_kontrakEdit;
         $deskripsi = $request->deskripsi_kontrakEdit;
+        $organisasi_id = auth()->user()->organisasi_id;
 
         DB::beginTransaction();
         try{
@@ -422,6 +426,7 @@ class KontrakController extends Controller
                 $tanggal_selesai = null;
             } 
             
+            $kontrak->organisasi_id = $organisasi_id;
             $kontrak->durasi = $durasi;
             $kontrak->salary = $salary;
             $kontrak->tanggal_mulai = $tanggal_mulai;
@@ -536,8 +541,9 @@ class KontrakController extends Controller
 
     public function download_kontrak_kerja(string $idKontrak)
     {
+        $organisasi_id = auth()->user()->organisasi_id;
         $kontrak = Kontrak::find($idKontrak);
-        $template = Template::active()->where('type', $kontrak->jenis)->first();
+        $template = Template::active()->organisasi($organisasi_id)->where('type', $kontrak->jenis)->first();
 
         if($template){
             $templatePath = public_path('storage/'.$template->template_path);
@@ -843,7 +849,6 @@ class KontrakController extends Controller
             $kontrak = Kontrak::find($id_kontrak);
             $karyawan = Karyawan::find($kontrak->karyawan_id);
 
-
             //cek apakah file evidence & attachment sudah diupload
             if($kontrak->evidence == null || $kontrak->attachment == null)
             {
@@ -888,7 +893,7 @@ class KontrakController extends Controller
             }
             
             $karyawan->jenis_kontrak = $kontrak->jenis;
-            $karyawan->status_karyawan = 'AKTIF';
+            $karyawan->status_karyawan = 'AT';
             $karyawan->save();
             
             DB::commit();

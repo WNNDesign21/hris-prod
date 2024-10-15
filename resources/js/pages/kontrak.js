@@ -43,6 +43,16 @@ $(function () {
         });
     }
 
+    function updateNotification(){
+        $.ajax({
+            url: base_url + '/get-notification',
+            method: 'GET',
+            success: function(response){
+                $('.notifications-menu').html(response.data);
+            }
+        })
+    }
+
     //DATATABLE KARYAWAN
     var columnsTable = [
         { data: "id_kontrak" },
@@ -328,6 +338,7 @@ $(function () {
             processData: false,
             contentType: false,
             success: function(data) {
+                updateNotification();
                 loadingSwalClose()
                 showToast({ title: data.message });
                 refreshTable();

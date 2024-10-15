@@ -19,13 +19,14 @@ class KaryawanSeeder extends Seeder
         $karyawan = [
             [
                 'id_karyawan' => 'FL96485264',
+                'organisasi_id' => 3,
                 'ni_karyawan' => '300.010224',
                 'nik' => '32150116274715',
                 'no_kk' => '3215011620002',
                 'nama' => 'FLAVIA DOMITELA AJENG NARISWARI',
                 'jenis_kelamin' => 'P',
                 'jenis_kontrak' => 'PKWT',
-                'status_karyawan' => 'AKTIF',
+                'status_karyawan' => 'AT',
                 'status_keluarga' => 'MENIKAH',
                 'kategori_keluarga' => 'K1',
                 'tempat_lahir' => 'Purwakarta',
@@ -48,20 +49,23 @@ class KaryawanSeeder extends Seeder
                 'jurusan_pendidikan' => 'Psikologi',
                 'sisa_cuti_pribadi' => 6,
                 'sisa_cuti_bersama' => 6,
+                'sisa_cuti_tahun_lalu'=> 1,
+                'expired_date_cuti_tahun_lalu' => '2024-10-15',
                 'tanggal_mulai' => Carbon::now()->toDateString(),
                 'tanggal_selesai' => Carbon::now()->addMonths(1)->toDateString(),
-                'user_id' => 3,
+                'user_id' => 6,
                 'grup_id' => 1
             ],
             [
                 'id_karyawan' => 'IN16324875',
+                'organisasi_id' => 3,
                 'ni_karyawan' => '200.100224',
                 'nik' => '32150116274522',
                 'no_kk' => '3215011620018',
                 'nama' => 'INDAH NADIA HAPSARI',
                 'jenis_kelamin' => 'P',
                 'jenis_kontrak' => 'PKWT',
-                'status_karyawan' => 'AKTIF',
+                'status_karyawan' => 'AT',
                 'status_keluarga' => 'MENIKAH',
                 'kategori_keluarga' => 'K2',
                 'tempat_lahir' => 'Jakarta',
@@ -86,18 +90,19 @@ class KaryawanSeeder extends Seeder
                 'sisa_cuti_bersama' => 6,
                 'tanggal_mulai' => Carbon::now()->toDateString(),
                 'tanggal_selesai' => Carbon::now()->addMonths(1)->toDateString(),
-                'user_id' => 4,
+                'user_id' => 7,
                 'grup_id' => 1
             ],
             [
                 'id_karyawan' => 'AM15687542',
+                'organisasi_id' => 3,
                 'ni_karyawan' => '479.030624',
                 'nik' => '32150116274999',
                 'no_kk' => '3215011620059',
                 'nama' => 'AMBAR WINASTI',
                 'jenis_kelamin' => 'P',
                 'jenis_kontrak' => 'PKWT',
-                'status_karyawan' => 'AKTIF',
+                'status_karyawan' => 'AT',
                 'status_keluarga' => 'MENIKAH',
                 'kategori_keluarga' => 'K2',
                 'tempat_lahir' => 'Karawang',
@@ -122,18 +127,19 @@ class KaryawanSeeder extends Seeder
                 'sisa_cuti_bersama' => 6,
                 'tanggal_mulai' => Carbon::now()->toDateString(),
                 'tanggal_selesai' => Carbon::now()->addMonths(1)->toDateString(),
-                'user_id' => 5,
+                'user_id' => 8,
                 'grup_id' => 1
             ],
             [
                 'id_karyawan' => 'FA95453155',
+                'organisasi_id' => 3,
                 'ni_karyawan' => '480.030324',
                 'nik' => '32150116200045',
                 'no_kk' => '3215011620017',
                 'nama' => 'FATHAN PEBRILLIESTYO RIDWAN',
                 'jenis_kelamin' => 'L',
                 'jenis_kontrak' => 'PKWT',
-                'status_karyawan' => 'AKTIF',
+                'status_karyawan' => 'AT',
                 'status_keluarga' => 'BELUM MENIKAH',
                 'kategori_keluarga' => 'TK0',
                 'tempat_lahir' => 'Karawang',
@@ -158,7 +164,7 @@ class KaryawanSeeder extends Seeder
                 'sisa_cuti_bersama' => 6,
                 'tanggal_mulai' => Carbon::now()->toDateString(),
                 'tanggal_selesai' => Carbon::now()->addMonths(1)->toDateString(),
-                'user_id' => 6,
+                'user_id' => 9,
                 'grup_id' => 1
             ],
         ];
@@ -174,6 +180,7 @@ class KaryawanSeeder extends Seeder
             Kontrak::create([
                 'no_surat' => 'No. 001/PKWT-I/HRD-TCF3/2024',
                 'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,
+                'organisasi_id' => 3,
                 'karyawan_id' =>  $kry->id_karyawan,
                 'nama_posisi' => 'Initial Document',
                 'jenis' => 'PKWT',
@@ -184,6 +191,7 @@ class KaryawanSeeder extends Seeder
                 'tanggal_mulai' => Carbon::now()->toDateString(),
                 'tanggal_selesai' => Carbon::now()->addMonths(1)->toDateString(),
                 'isReactive' => 'N',
+                'issued_date' => date('Y-m-d')
             ]);
             $i++;
         }

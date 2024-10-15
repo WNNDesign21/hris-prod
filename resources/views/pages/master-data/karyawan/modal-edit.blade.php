@@ -14,6 +14,18 @@
                         <div class="row p-4">
                             <div class="col-lg-6 col-12">
                                 <div class="form-group">
+                                    <a id="link_fotoEdit" href="{{ asset('img/no-image.png') }}"
+                                        data-title="Foto Karyawan" class="image-popup-vertical-fit">
+                                        <img id="image_reviewEdit" src="{{ asset('img/no-image.png') }}"
+                                            alt="Foto Karyawan" style="width: 150px;height: 150px;"
+                                            class="img-thumbnail img-fluid">
+                                    </a>
+                                </div>
+                                <div class="form-group">
+                                    <label for="">Foto</label>
+                                    <input type="file" name="fotoEdit" id="fotoEdit" class="form-control">
+                                </div>
+                                <div class="form-group">
                                     <label for="">Nomor Induk Karyawan <span
                                             class="text-danger">*</span></label>
                                     <br>
@@ -291,6 +303,22 @@
                                             <input type="number" name="sisa_cuti_bersamaEdit"
                                                 id="sisa_cuti_bersamaEdit" class="form-control" min='0'
                                                 max='12' required readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">Jatah Cuti Tahun Lalu</label>
+                                            <input type="number" name="sisa_cuti_tahun_laluEdit"
+                                                id="sisa_cuti_tahun_laluEdit" class="form-control" min='0'
+                                                max='12' required readonly>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-6 col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">Expired Date Cuti Tahun Lalu</label>
+                                            <input type="number" name="expired_date_cuti_tahun_laluEdit"
+                                                id="expired_date_cuti_tahun_laluEdit" class="form-control"
+                                                min='0' max='12' required readonly>
                                         </div>
                                     </div>
                                     <div class="col-lg-6 col-12">

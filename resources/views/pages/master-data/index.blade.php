@@ -43,18 +43,18 @@
                         </a>
 
                         <a class="media media-single" href="#">
-                            <h4 class="w-20 text-gray fw-500" id="terminasi_karyawan"><i
+                            <h4 class="w-20 text-gray fw-500" id="habis_kontrak_karyawan"><i
                                     class="fas fa-sync-alt fa-spin fs-24"></i></h4>
                             <div class="media-body ps-15 bs-5 rounded border-primary">
-                                <h5>TERMINASI</h5>
+                                <h5>HABIS KONTRAK</h5>
                             </div>
                         </a>
 
                         <a class="media media-single" href="#">
-                            <h4 class="w-20 text-gray fw-500" id="resign_karyawan"><i
+                            <h4 class="w-20 text-gray fw-500" id="mengundurkan_diri_karyawan"><i
                                     class="fas fa-sync-alt fa-spin fs-24"></i></h4>
                             <div class="media-body ps-15 bs-5 rounded border-danger">
-                                <h5>RESIGN</h5>
+                                <h5>MENGUNDURKAN DIRI</h5>
                             </div>
                         </a>
 
@@ -63,6 +63,14 @@
                                     class="fas fa-sync-alt fa-spin fs-24"></i></h4>
                             <div class="media-body ps-15 bs-5 rounded border-info">
                                 <h5>PENSIUN</h5>
+                            </div>
+                        </a>
+
+                        <a class="media media-single" href="#">
+                            <h4 class="w-20 text-gray fw-500" id="terminasi_karyawan"><i
+                                    class="fas fa-sync-alt fa-spin fs-24"></i></h4>
+                            <div class="media-body ps-15 bs-5 rounded border-warning">
+                                <h5>TERMINASI</h5>
                             </div>
                         </a>
                     </div>

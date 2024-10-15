@@ -14,8 +14,13 @@ class Event extends Model
     protected $primaryKey = 'id_event';
 
     protected $fillable = [
-        'jenis_event','keterangan','durasi','tanggal_mulai','tanggal_selesai'
+        'jenis_event','keterangan', 'organisasi_id' ,'durasi', 'tanggal_mulai', 'tanggal_selesai'
     ];
+
+    public function scopeOrganisasi($query, $organisasi)
+    {
+        return $query->where('organisasi_id', $organisasi);
+    }
 
     private static function _query($dataFilter)
     {

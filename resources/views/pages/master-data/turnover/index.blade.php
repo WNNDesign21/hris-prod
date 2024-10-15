@@ -17,7 +17,7 @@
         <div class="col-12">
             <div class="box">
                 <div class="box-header d-flex justify-content-between">
-                    <h4 class="box-title">Turnover Karyawan</h4>
+                    <h4 class="box-title">Karyawan Keluar</h4>
                 </div>
                 <div class="box-body">
                     <form action="{{ route('master-data.turnover.store') }}" method="POST" enctype="multipart/form-data"
@@ -25,7 +25,7 @@
                         @csrf
                         <div class="row p-4">
                             <div class="col-lg-4 col-12">
-                                <h5>Form Turnover Karyawan</h5>
+                                <h5>Form Karyawan Keluar</h5>
                                 <hr>
                                 <div class="form-group">
                                     <label for="">Karyawan <span class="text-danger">*</span></label>
@@ -37,9 +37,10 @@
                                     <label for="">Status Karyawan <span class="text-danger">*</span></label>
                                     <select name="status_karyawan" id="status_karyawan" class="form-control"
                                         style="width: 100%;">
-                                        <option value="RESIGN">RESIGN</option>
-                                        <option value="TERMINASI">TERMINASI</option>
-                                        <option value="PENSIUN">PENSIUN</option>
+                                        <option value="MD">MENGUNDURKAN DIRI</option>
+                                        <option value="HK">HABIS KONTRAK</option>
+                                        <option value="PS">PENSIUN</option>
+                                        <option value="TM">TERMINASI</option>
                                     </select>
                                 </div>
                                 <div class="form-group">

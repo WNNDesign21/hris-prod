@@ -91,40 +91,33 @@ class ExportController extends Controller
     public function export_master_data(Request $request){
 
         $departemen_karyawan = $request->departemen_karyawan;
+        $organisasi_id = auth()->user()->organisasi_id;
 
         //Karyawan
         if($request->karyawan_aktif == 'Y') {
             if($departemen_karyawan){
-                $karyawan = Karyawan::whereHas('posisi', function ($query) use ($request) {
+                $karyawan = Karyawan::organisasi($organisasi_id)->whereHas('posisi', function ($query) use ($request) {
                                 $query->where('departemen_id', $request->departemen_karyawan);
-                            })->where('status_karyawan', 'AKTIF')->get();
+                            })->where('status_karyawan', 'AT')->get();
             } else {
-                $karyawan = Karyawan::where('status_karyawan', 'AKTIF')->get();
+                $karyawan = Karyawan::organisasi($organisasi_id)->where('status_karyawan', 'AT')->get();
             }
         } 
         
         if($request->karyawan_nonaktif == 'Y'){
             if($departemen_karyawan){
-                $karyawan = Karyawan::whereHas('posisi', function ($query) use ($request) {
+                $karyawan_nonaktif = Karyawan::organisasi($organisasi_id)->whereHas('posisi', function ($query) use ($request) {
                     $query->where('departemen_id', $request->departemen_karyawan);
                 })->where(function ($query) {
-                    $query->whereIn('status_karyawan', ['RESIGN', 'TERMINASI', 'PENSIUN'])
+                    $query->whereIn('status_karyawan', ['MD', 'HK', 'PS', 'TM'])
                           ->orWhereNull('status_karyawan');
                 })->get();
             } else {
-                $karyawan = Karyawan::whereIn('status_karyawan',['RESIGN','TERMINASI','PENSIUN'])->orWhereNull('status_karyawan')->get();
+                $karyawan_nonaktif = Karyawan::organisasi($organisasi_id)->whereIn('status_karyawan',['MD','HK','PS','TM'])->orWhereNull('status_karyawan')->get();
             }
         } 
         
-        if ($request->karyawan_aktif == 'Y' && $request->karyawan_nonaktif == 'Y'){
-            if($departemen_karyawan){
-                $karyawan = Karyawan::whereHas('posisi', function ($query) use ($request) {
-                    $query->where('departemen_id', $request->departemen_karyawan);
-                })->get();
-            } else {
-                $karyawan = Karyawan::all();
-            }
-        } else {
+        if ($request->karyawan_aktif !== 'Y' && $request->karyawan_nonaktif !== 'Y'){
             $karyawan = [];
         }
 
@@ -149,7 +142,7 @@ class ExportController extends Controller
         //Organisasi
         $request->organisasi == 'Y' ? $organisasi = Organisasi::all() : $organisasi = [];
 
-        if(empty($karyawan) && empty($posisi) && empty($divisi) && empty($departemen) && empty($seksi) && empty($grup) && empty($jabatan) && empty($organisasi)){
+        if(empty($karyawan) && empty($karyawan_nonaktif) && empty($posisi) && empty($divisi) && empty($departemen) && empty($seksi) && empty($grup) && empty($jabatan) && empty($organisasi)){
             $spreadsheet = new Spreadsheet();
             $writer = new Xlsx($spreadsheet);
 
@@ -201,6 +194,7 @@ class ExportController extends Controller
             $headers = [
                 'NO',
                 'NIK',
+                'STATUS',
                 'POSISI',
                 'DEPARTEMEN',
                 'JABATAN',
@@ -244,13 +238,13 @@ class ExportController extends Controller
             $row = 2;
 
             $columns = [];
-            for ($i = 'A'; $i !== 'AI'; $i++) {
+            for ($i = 'A'; $i !== 'AJ'; $i++) {
                 $columns[] = $i;
             }
             foreach ($columns as $column) {
-                $sheet->getColumnDimension($column)->setWidth(35);
+                $sheet->getColumnDimension($column)->setAutoSize(true);
             }
-            $sheet->setAutoFilter('A1:AH1');
+            $sheet->setAutoFilter('A1:AI1');
 
             $i = 1;
             foreach ($karyawan as $data) {
@@ -279,38 +273,166 @@ class ExportController extends Controller
         
                 $sheet->setCellValue('A' . $row, $i);
                 $sheet->setCellValue('B' . $row, $data->ni_karyawan);
-                $sheet->setCellValue('C' . $row, $posisi_merge);
-                $sheet->setCellValue('D' . $row, $departemen_merge);
-                $sheet->setCellValue('E' . $row, $jabatan_merge);
-                $sheet->setCellValue('F' . $row, $data->nama);
-                $sheet->setCellValue('G' . $row, $data->jenis_kontrak);
-                $sheet->setCellValue('H' . $row, $data->jenis_kelamin);
-                $sheet->setCellValue('I' . $row, $data->alamat);
-                $sheet->setCellValue('J' . $row, $data->domisili);
-                $sheet->setCellValue('K' . $row, $data->tempat_lahir);
-                $sheet->setCellValue('L' . $row, $data->tanggal_lahir);
-                $sheet->setCellValue('M' . $row, $data->status_keluarga);
-                $sheet->setCellValue('N' . $row, $data->kategori_keluarga);
-                $sheet->setCellValue('O' . $row, $data->agama);
-                $sheet->setCellValue('P' . $row, $data->no_kk);
-                $sheet->setCellValue('Q' . $row, $data->nik);
-                $sheet->setCellValue('R' . $row, $data->npwp);
-                $sheet->setCellValue('S' . $row, $data->no_bpjs_kt);
-                $sheet->setCellValue('T' . $row, $data->no_bpjs_ks);
-                $sheet->setCellValue('U' . $row, $data->no_telp);
-                $sheet->setCellValue('V' . $row, $data->tanggal_mulai);
-                $sheet->setCellValue('W' . $row, $data->jenjang_pendidikan);
-                $sheet->setCellValue('X' . $row, $data->jurusan_pendidikan);
-                $sheet->setCellValue('Y' . $row, $data->nama_ibu_kandung);
-                $sheet->setCellValue('Z' . $row, $data->nama_bank);
-                $sheet->setCellValue('AA' . $row, $data->no_rekening);
-                $sheet->setCellValue('AB' . $row, $data->nama_rekening);
-                $sheet->setCellValue('AC' . $row, $data->no_telp_darurat);
-                $sheet->setCellValue('AD' . $row, $data->gol_darah);
-                $sheet->setCellValue('AE' . $row, $data->email);
-                $sheet->setCellValue('AF' . $row, $email_corporate);
-                $sheet->setCellValue('AG' . $row, $data->sisa_cuti_pribadi + $data->sisa_cuti_bersama);
-                $sheet->setCellValue('AH' . $row, $data->hutang_cuti);
+                $sheet->setCellValue('C' . $row, $data->status_karyawan);
+                $sheet->setCellValue('D' . $row, $posisi_merge);
+                $sheet->setCellValue('E' . $row, $departemen_merge);
+                $sheet->setCellValue('F' . $row, $jabatan_merge);
+                $sheet->setCellValue('G' . $row, $data->nama);
+                $sheet->setCellValue('H' . $row, $data->jenis_kontrak);
+                $sheet->setCellValue('I' . $row, $data->jenis_kelamin);
+                $sheet->setCellValue('J' . $row, $data->alamat);
+                $sheet->setCellValue('K' . $row, $data->domisili);
+                $sheet->setCellValue('L' . $row, $data->tempat_lahir);
+                $sheet->setCellValue('M' . $row, $data->tanggal_lahir);
+                $sheet->setCellValue('N' . $row, $data->status_keluarga);
+                $sheet->setCellValue('O' . $row, $data->kategori_keluarga);
+                $sheet->setCellValue('P' . $row, $data->agama);
+                $sheet->setCellValue('Q' . $row, $data->no_kk);
+                $sheet->setCellValue('R' . $row, $data->nik);
+                $sheet->setCellValue('S' . $row, $data->npwp);
+                $sheet->setCellValue('T' . $row, $data->no_bpjs_kt);
+                $sheet->setCellValue('U' . $row, $data->no_bpjs_ks);
+                $sheet->setCellValue('V' . $row, $data->no_telp);
+                $sheet->setCellValue('W' . $row, $data->tanggal_mulai);
+                $sheet->setCellValue('X' . $row, $data->jenjang_pendidikan);
+                $sheet->setCellValue('Y' . $row, $data->jurusan_pendidikan);
+                $sheet->setCellValue('Z' . $row, $data->nama_ibu_kandung);
+                $sheet->setCellValue('AA' . $row, $data->nama_bank);
+                $sheet->setCellValue('AB' . $row, $data->no_rekening);
+                $sheet->setCellValue('AC' . $row, $data->nama_rekening);
+                $sheet->setCellValue('AD' . $row, $data->no_telp_darurat);
+                $sheet->setCellValue('AE' . $row, $data->gol_darah);
+                $sheet->setCellValue('AF' . $row, $data->email);
+                $sheet->setCellValue('AG' . $row, $email_corporate);
+                $sheet->setCellValue('AH' . $row, $data->sisa_cuti_pribadi + $data->sisa_cuti_bersama);
+                $sheet->setCellValue('AI' . $row, $data->hutang_cuti);
+                $row++;
+                $i++;
+            }
+        }
+
+        if(!empty($karyawan_nonaktif)){
+            $sheet = $spreadsheet->createSheet();
+            $sheet->setTitle('Karyawan Non-Aktif');
+
+            $row = 1;
+            $col = 'A';
+
+            $headers = [
+                'NO',
+                'NIK',
+                'STATUS',
+                'POSISI',
+                'DEPARTEMEN',
+                'JABATAN',
+                'NAMA',
+                'KONTRAK',
+                'JENIS KELAMIN',
+                'ALAMAT KTP',
+                'DOMISILI',
+                'TEMPAT LAHIR',
+                'TANGGAL LAHIR',
+                'STATUS KELUARGA',
+                'KATEGORI KELUARGA',
+                'AGAMA',
+                'NO KK',
+                'NIK KTP',
+                'NPWP',
+                'NO BPJS KETENAGAKERJAAN',
+                'NO BPJS KESEHATAN',
+                'NO HP',
+                'TANGGAL BERGABUNG',
+                'PENDIDIKAN TERAKHIR (TINGKAT)',
+                'JURUSAN',
+                'NAMA IBU KANDUNG',
+                'NAMA BANK',
+                'NO REKENING',
+                'ATAS NAMA REKENING',
+                'NO TELP DARURAT',
+                'GOLONGAN DARAH',
+                'EMAIL',
+                'EMAIL CORPORATE',
+                'JATAH CUTI',
+                'HUTANG CUTI'
+            ];
+
+            foreach ($headers as $header) {
+                $sheet->setCellValue($col . '1', $header);
+                $sheet->getStyle($col . '1')->applyFromArray($fillStyle);
+                $col++;
+            }
+
+            $row = 2;
+
+            $columns = [];
+            for ($i = 'A'; $i !== 'AJ'; $i++) {
+                $columns[] = $i;
+            }
+            foreach ($columns as $column) {
+                $sheet->getColumnDimension($column)->setAutoSize(true);
+            }
+            $sheet->setAutoFilter('A1:AI1');
+
+            $i = 1;
+            foreach ($karyawan_nonaktif as $data) {
+                $email_corporate = $data->user->email;
+                $dataPosisis = $data->posisi();
+                $jabatan_merge = $dataPosisis->first()->jabatan->nama;
+                $posisis = $dataPosisis->pluck('posisis.nama')->toArray();
+                if(!empty($posisis)){
+                    $formattedPosisi = array_map(function($posisi) {
+                        return $posisi;
+                    }, $posisis);
+                    $posisi_merge = implode(' , ', $formattedPosisi);
+                    $departemens = [];
+                    foreach ($dataPosisis->get() as $item){
+                        $departemens = [$item->departemen->nama];
+                    }
+                    $formattedDepartemen = array_map(function($departemen) {
+                        return $departemen;
+                    }, $departemens);
+                    $departemen_merge = implode(' , ', $formattedDepartemen);
+                } else {
+                    $posisi_merge = '-';
+                    $departemen_merge = '-';
+                    $jabatan_merge = '-';
+                }
+        
+                $sheet->setCellValue('A' . $row, $i);
+                $sheet->setCellValue('B' . $row, $data->ni_karyawan);
+                $sheet->setCellValue('C' . $row, $data->status_karyawan);
+                $sheet->setCellValue('D' . $row, $posisi_merge);
+                $sheet->setCellValue('E' . $row, $departemen_merge);
+                $sheet->setCellValue('F' . $row, $jabatan_merge);
+                $sheet->setCellValue('G' . $row, $data->nama);
+                $sheet->setCellValue('H' . $row, $data->jenis_kontrak);
+                $sheet->setCellValue('I' . $row, $data->jenis_kelamin);
+                $sheet->setCellValue('J' . $row, $data->alamat);
+                $sheet->setCellValue('K' . $row, $data->domisili);
+                $sheet->setCellValue('L' . $row, $data->tempat_lahir);
+                $sheet->setCellValue('M' . $row, $data->tanggal_lahir);
+                $sheet->setCellValue('N' . $row, $data->status_keluarga);
+                $sheet->setCellValue('O' . $row, $data->kategori_keluarga);
+                $sheet->setCellValue('P' . $row, $data->agama);
+                $sheet->setCellValue('Q' . $row, $data->no_kk);
+                $sheet->setCellValue('R' . $row, $data->nik);
+                $sheet->setCellValue('S' . $row, $data->npwp);
+                $sheet->setCellValue('T' . $row, $data->no_bpjs_kt);
+                $sheet->setCellValue('U' . $row, $data->no_bpjs_ks);
+                $sheet->setCellValue('V' . $row, $data->no_telp);
+                $sheet->setCellValue('W' . $row, $data->tanggal_mulai);
+                $sheet->setCellValue('X' . $row, $data->jenjang_pendidikan);
+                $sheet->setCellValue('Y' . $row, $data->jurusan_pendidikan);
+                $sheet->setCellValue('Z' . $row, $data->nama_ibu_kandung);
+                $sheet->setCellValue('AA' . $row, $data->nama_bank);
+                $sheet->setCellValue('AB' . $row, $data->no_rekening);
+                $sheet->setCellValue('AC' . $row, $data->nama_rekening);
+                $sheet->setCellValue('AD' . $row, $data->no_telp_darurat);
+                $sheet->setCellValue('AE' . $row, $data->gol_darah);
+                $sheet->setCellValue('AF' . $row, $data->email);
+                $sheet->setCellValue('AG' . $row, $email_corporate);
+                $sheet->setCellValue('AH' . $row, $data->sisa_cuti_pribadi + $data->sisa_cuti_bersama);
+                $sheet->setCellValue('AI' . $row, $data->hutang_cuti);
                 $row++;
                 $i++;
             }
@@ -345,7 +467,7 @@ class ExportController extends Controller
 
             $columns = range('A', 'I');
             foreach ($columns as $column) {
-                $sheet->getColumnDimension($column)->setWidth(35);
+                $sheet->getColumnDimension($column)->setAutoSize(true);
             }
             $sheet->setAutoFilter('A1:I1');
 
@@ -422,7 +544,7 @@ class ExportController extends Controller
 
             $columns = range('A', 'I');
             foreach ($columns as $column) {
-                $sheet->getColumnDimension($column)->setWidth(35);
+                $sheet->getColumnDimension($column)->setAutoSize(true);
             }
             $sheet->setAutoFilter('A1:B1');
 
@@ -456,7 +578,7 @@ class ExportController extends Controller
 
             $columns = range('A', 'C');
             foreach ($columns as $column) {
-                $sheet->getColumnDimension($column)->setWidth(35);
+                $sheet->getColumnDimension($column)->setAutoSize(true);
             }
             $sheet->setAutoFilter('A1:C1');
 
@@ -492,7 +614,7 @@ class ExportController extends Controller
 
             $columns = range('A', 'D');
             foreach ($columns as $column) {
-                $sheet->getColumnDimension($column)->setWidth(35);
+                $sheet->getColumnDimension($column)->setAutoSize(true);
             }
             $sheet->setAutoFilter('A1:D1');
 
@@ -527,7 +649,7 @@ class ExportController extends Controller
 
             $columns = range('A', 'B');
             foreach ($columns as $column) {
-                $sheet->getColumnDimension($column)->setWidth(35);
+                $sheet->getColumnDimension($column)->setAutoSize(true);
             }
             $sheet->setAutoFilter('A1:B1');
 
@@ -560,7 +682,7 @@ class ExportController extends Controller
 
             $columns = range('A', 'B');
             foreach ($columns as $column) {
-                $sheet->getColumnDimension($column)->setWidth(35);
+                $sheet->getColumnDimension($column)->setAutoSize(true);
             }
             $sheet->setAutoFilter('A1:B1');
 
@@ -593,6 +715,7 @@ class ExportController extends Controller
         $departemen = $request->departemen_kontrak;
         $status = $request->status_kontrak;
         $jenis_kontrak = $request->jenis_kontrak;
+        $organisasi_id = auth()->user()->organisasi_id;
 
         $kontrak = Kontrak::select(
             'kontraks.id_kontrak',
@@ -652,6 +775,10 @@ class ExportController extends Controller
 
         if($departemen) {
             $kontrak->where('departemens.id_departemen', $departemen);
+        }
+
+        if($organisasi_id){
+            $kontrak->where('kontraks.organisasi_id', $organisasi_id);
         }
 
         if($status) {
@@ -737,7 +864,7 @@ class ExportController extends Controller
 
             $columns = range('A', 'P');
             foreach ($columns as $column) {
-                $sheet->getColumnDimension($column)->setWidth(35);
+                $sheet->getColumnDimension($column)->setAutoSize(true);
             }
             $sheet->setAutoFilter('A1:P1');
 

@@ -14,6 +14,8 @@ return new class extends Migration
         Schema::create('cutis', function (Blueprint $table) {
             $table->increments('id_cuti');
             $table->string('karyawan_id');
+            $table->unsignedInteger('organisasi_id')->nullable();
+            $table->string('penggunaan_sisa_cuti', 2)->default('TB');
             $table->string('jenis_cuti')->nullable();
             $table->integer('jenis_cuti_id')->nullable();
             $table->integer('durasi_cuti')->default(1);

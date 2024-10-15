@@ -38,7 +38,7 @@ class LoginController extends Controller
             if ($authenticatedUser->hasAnyRole(['admin','personalia'])) {
                 return true;
             } else {
-                if ($authenticatedUser->karyawan->status_karyawan === 'AKTIF') {
+                if ($authenticatedUser->karyawan->status_karyawan === 'AT') {
                     return true;
                 } else {
                     $this->guard()->logout();

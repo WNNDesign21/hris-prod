@@ -53,6 +53,8 @@ class Karyawan extends Model
         'status_karyawan',
         'sisa_cuti_pribadi',
         'sisa_cuti_bersama',
+        'sisa_cuti_tahun_lalu',
+        'expired_date_cuti_tahun_lalu',
         'hutang_cuti',
         'tanggal_mulai',
         'tanggal_selesai',
@@ -62,7 +64,8 @@ class Karyawan extends Model
         'nama_ibu_kandung',
         'jenjang_pendidikan',
         'jurusan_pendidikan',
-        'no_telp_darurat'
+        'no_telp_darurat',
+        'foto',
     ];
 
     protected $dates = [
@@ -71,9 +74,25 @@ class Karyawan extends Model
         'tanggal_selesai',
     ];
 
+    //ACCESSOR / GETTER
+    // public function getFotoAttribute($value)
+    // {
+    //     if ($value) {
+    //         return $value;
+    //     } else {
+    //         return asset('img/no-image.png');
+    //     }
+    // }
+
+    //SCOPE
     public function scopeAktif($query)
     {
-        return $query->where('status_karyawan', 'AKTIF');
+        return $query->where('status_karyawan', 'AT');
+    }
+
+    public function scopeOrganisasi($query, $organisasi)
+    {
+        return $query->where('organisasi_id', $organisasi);
     }
 
     public function user()
@@ -139,6 +158,11 @@ class Karyawan extends Model
             'karyawans.no_telp_darurat',
             'departemens.nama as nama_departemen'
         );
+
+        $organisasi_id = auth()->user()->organisasi_id;
+        if ($organisasi_id) {
+            $data->where('karyawans.organisasi_id', $organisasi_id);
+        }
 
         if(isset($dataFilter['departemen'])) {
             $data->where('departemens.id_departemen', $dataFilter['departemen']);

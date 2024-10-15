@@ -42,43 +42,76 @@ class UserSeeder extends Seeder
         ]);
 
 
-        $personaliaUser = User::create([
-            'username' => 'PERSONALIA',
-            'email' => "personalia@tcf.com",
-            'password' => bcrypt('12345678')
+        //PERSONALIA
+        $personalia1_tcf2 = User::create([
+            'username' => 'P1TCF2',
+            'email' => "personalia1@tcf2.com",
+            'password' => bcrypt('12345678'),
+            'organisasi_id' => 2
         ]);
 
+        $personalia2_tcf2 = User::create([
+            'username' => 'P2TCF2',
+            'email' => "personalia2@tcf2.com",
+            'password' => bcrypt('12345678'),
+            'organisasi_id' => 2
+        ]);
+
+        $personalia1_tcf3 = User::create([
+            'username' => 'P1TCF3',
+            'email' => "personalia1@tcf3.com",
+            'password' => bcrypt('12345678'),
+            'organisasi_id' => 3
+        ]);
+
+        $personalia2_tcf3 = User::create([
+            'username' => 'P2TCF3',
+            'email' => "personalia2@tcf3.com",
+            'password' => bcrypt('12345678'),
+            'organisasi_id' => 3
+        ]);
+
+        //SUPER USER
         $superUser = User::create([
             'username' => 'SUPERUSER',
             'email' => "superuser@tcf.com",
             'password' => bcrypt('12345678')
         ]);
 
+
+        //USER
         $user1 = User::create([
             'username' => 'FL0001',
             'email' => "fl0001@tcf.com",
-            'password' => bcrypt('12345678')
+            'password' => bcrypt('12345678'),
+            'organisasi_id' => 3
         ]);
 
         $user2 = User::create([
             'username' => 'IN0002',
             'email' => "in0002@email.com",
-            'password' => bcrypt('12345678')
+            'password' => bcrypt('12345678'),
+            'organisasi_id' => 3
         ]);
 
         $user3 = User::create([
             'username' => 'AM0003',
             'email' => "am0003@tcf.com",
-            'password' => bcrypt('12345678')
+            'password' => bcrypt('12345678'),
+            'organisasi_id' => 3
         ]);
 
         $user4 = User::create([
             'username' => 'FA1722',
             'email' => "fathan@tcf.com",
-            'password' => bcrypt('12345678')
+            'password' => bcrypt('12345678'),
+            'organisasi_id' => 3
         ]);
 
-        $personaliaUser->assignRole('personalia');
+        $personalia1_tcf2->assignRole('personalia');
+        $personalia2_tcf2->assignRole('personalia');
+        $personalia1_tcf3->assignRole('personalia');
+        $personalia2_tcf3->assignRole('personalia');
         $superUser->assignRole('super user');
         $user1->assignRole('member');
         $user2->assignRole('atasan');

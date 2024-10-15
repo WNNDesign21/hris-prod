@@ -45,14 +45,14 @@
                                 <select name="filterStatuskaryawan" id="filterStatuskaryawan" class="form-control"
                                     style="width: 100%;">
                                     <option value="">Pilih Status Karyawan</option>
-                                    <option value="AKTIF">AKTIF</option>
-                                    <option value="RESIGN">RESIGN</option>
-                                    <option value="TERMINASI">TERMINASI</option>
-                                    <option value="PENSIUN">PENSIUN</option>
+                                    <option value="AT">AT</option>
+                                    <option value="MD">MD</option>
+                                    <option value="HK">HK</option>
+                                    <option value="PS">PS</option>
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label for="filterJeniskontrak">Jenis Kontrak</label>
+                                <label for="filterJeniskontrak">Jenis Perjanjian Kerja</label>
                                 <select name="filterJeniskontrak" id="filterJeniskontrak" class="form-control"
                                     style="width: 100%;">
                                     <option value="">Pilih Jenis Kontrak</option>

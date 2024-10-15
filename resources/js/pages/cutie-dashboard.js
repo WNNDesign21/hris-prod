@@ -294,7 +294,7 @@ function($) {
                 let jenisCutiMonthly = response.data;
                 var options = {
                   series: jenisCutiMonthly,
-                  labels: ['PRIBADI', 'KHUSUS', 'SAKIT'],
+                  labels: ['PRIBADI', 'KHUSUS'],
                   chart: {
                   height:230,
                   type: 'donut',

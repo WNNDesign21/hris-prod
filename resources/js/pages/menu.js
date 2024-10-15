@@ -1,41 +1,6 @@
 !function($) {
     "use strict";
 
-    let loadingSwal;
-    function loadingSwalShow() {
-        loadingSwal = Swal.fire({
-            imageHeight: 300,
-            showConfirmButton: false,
-            title: '<i class="fas fa-sync-alt fa-spin fs-80"></i>',
-            allowOutsideClick: false,
-            background: 'rgba(0, 0, 0, 0)'
-          });
-    }
-
-    function loadingSwalClose() {
-        loadingSwal.close();
-    }
-
-    //SHOW TOAST
-    function showToast(options) {
-        const toast = Swal.mixin({
-            toast: true,
-            position: "top-end",
-            showConfirmButton: false,
-            timer: 2000, 
-            timerProgressBar: true,
-            didOpen: (toast) => {
-            toast.onmouseenter = Swal.stopTimer;
-            toast.onmouseleave = Swal.resumeTimer;
-            }
-        });
-
-        toast.fire({
-            icon: options.icon || "success",
-            title: options.title
-        });
-    }
-
     // MODAL DETAIL CUTI
     var modalEventCutiOptions = {
         backdrop: true,
@@ -155,5 +120,31 @@
 function($) {
     "use strict";
     $.CalendarApp.init()
-	
+
+	 // MODAL PROFILE
+     var modalProfileOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalProfile = new bootstrap.Modal(
+        document.getElementById("modal-profile"),
+        modalProfileOptions
+    );
+
+    function openProfile() {
+        modalProfile.show();
+    }
+
+    function closeProfile() {
+        modalProfile.hide();
+    }
+
+    $('.btnCloseProfile').on('click', function (){
+        closeProfile();
+    })
+
+    $('.btnProfile').on('click', function (){
+        openProfile();
+    })
 }(window.jQuery);

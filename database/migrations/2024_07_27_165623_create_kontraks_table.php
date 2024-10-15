@@ -15,9 +15,10 @@ return new class extends Migration
             $table->string('id_kontrak')->primary();
             $table->string('karyawan_id');
             $table->unsignedInteger('posisi_id')->nullable();
+            $table->unsignedInteger('organisasi_id')->nullable();
             $table->string('nama_posisi')->nullable();
             $table->string('no_surat')->nullable();
-            $table->enum('jenis', ['PKWT', 'MAGANG', 'THL', 'PKWTT']);
+            $table->enum('jenis', ['PKWT', 'MAGANG', 'PKWTT']);
             $table->enum('status', ['DONE', 'ON PROGRESS'])->default('ON PROGRESS');
             $table->integer('durasi')->nullable();
             $table->integer('salary')->nullable();

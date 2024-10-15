@@ -444,11 +444,15 @@ $(function () {
                 let detailKaryawan = response.data;
                 $('#id_karyawanEdit').val(detailKaryawan.id_karyawan);
                 $('#ni_karyawanEdit').val(detailKaryawan.ni_karyawan);
+                $('#link_fotoEdit').attr('href', detailKaryawan.foto);
+                $('#image_reviewEdit').attr('src', detailKaryawan.foto);
                 $('#nikEdit').val(detailKaryawan.nik);
                 $('#namaEdit').val(detailKaryawan.nama);
                 $('#no_kkEdit').val(detailKaryawan.no_kk);
                 $('#sisa_cuti_pribadiEdit').val(detailKaryawan.sisa_cuti_pribadi);
                 $('#sisa_cuti_bersamaEdit').val(detailKaryawan.sisa_cuti_bersama);
+                $('#sisa_cuti_tahun_laluEdit').val(detailKaryawan.sisa_cuti_tahun_lalu);
+                $('#expired_date_cuti_tahun_laluEdit').val(detailKaryawan.expired_date_cuti_tahun_lalu);
                 $('#hutang_cutiEdit').val(detailKaryawan.hutang_cuti);
                 $('#tempat_lahirEdit').val(detailKaryawan.tempat_lahir);
                 $('#tanggal_lahirEdit').val(detailKaryawan.tanggal_lahir);
@@ -994,4 +998,33 @@ $(function () {
         karyawanTable.draw();
         closeFilter();
     });
+
+    $("#foto").on("change", function () {
+        var review = "image_review";
+        var linkFoto = "link_foto";
+        loadingSwalShow();
+        readURL(this, review, linkFoto);
+    });
+
+    $("#fotoEdit").on("change", function () {
+        var review = "image_reviewEdit";
+        var linkFoto = "link_fotoEdit";
+        loadingSwalShow();
+        readURL(this, review, linkFoto);
+    });
+
+    function readURL(input, review, linkFoto) {
+        if (input.files && input.files[0]) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                $("#" + linkFoto).attr("href", e.target.result);
+                $("#" + review).attr("src", e.target.result);
+                $(input).next(".custom-file-label").html(input.files[0].name);
+            };
+
+            reader.readAsDataURL(input.files[0]); 
+        }
+        loadingSwalClose();
+    }
 });

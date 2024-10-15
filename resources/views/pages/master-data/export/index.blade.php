@@ -55,13 +55,6 @@
                                 </div>
                                 <hr>
 
-                                <input type="checkbox" id="posisi" name="posisi" value="Y"
-                                    class="filled-in chk-col-primary" />
-                                <label for="posisi">
-                                    <h5 class="text-bold">Posisi</h5>
-                                </label>
-                                <hr>
-
                                 <input type="checkbox" id="organisasi" name="organisasi" value="Y"
                                     class="filled-in chk-col-primary" />
                                 <label for="organisasi">
@@ -102,6 +95,13 @@
                                 <label for="jabatan">
                                     <h5 class="text-bold">Jabatan</h5>
                                 </label>
+                                <hr>
+
+                                <input type="checkbox" id="posisi" name="posisi" value="Y"
+                                    class="filled-in chk-col-primary" />
+                                <label for="posisi">
+                                    <h5 class="text-bold">Posisi</h5>
+                                </label>
                                 <div class="row">
                                     <div class="col-12 d-flex justify-content-end">
                                         <button type="submit" class="btn btn-success">Export</button>
@@ -126,10 +126,10 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label for="">Jenis Kontrak</label>
+                                    <label for="">Jenis Perjanjian Kerja</label>
                                     <select name="jenis_kontrak" id="jenis_kontrak" class="form-control"
                                         style="width: 100%;">
-                                        <option value="">Pilih Jenis Kontrak</option>
+                                        <option value="">Pilih Jenis Perjanjian Kerja</option>
                                         <option value="PKWT">PKWT</option>
                                         <option value="MAGANG">MAGANG</option>
                                         <option value="PKWTT">PKWTT</option>

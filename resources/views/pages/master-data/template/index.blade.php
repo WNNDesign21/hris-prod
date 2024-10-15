@@ -17,7 +17,7 @@
         <div class="col-12">
             <div class="box">
                 <div class="box-header d-flex justify-content-between">
-                    <h4 class="box-title">Template Setting</h4>
+                    <h4 class="box-title">Template Surat</h4>
                     <div>
                         <button type="button" class="btn btn-info waves-effect btnReload"><i
                                 class="fas fa-sync-alt"></i></button>

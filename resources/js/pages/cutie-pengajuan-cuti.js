@@ -61,6 +61,16 @@ $(function () {
             },
         });
     };
+
+    function updateNotification(){
+        $.ajax({
+            url: base_url + '/get-notification',
+            method: 'GET',
+            success: function(response){
+                $('.notifications-menu').html(response.data);
+            }
+        })
+    }
     
     //DATATABLE KARYAWAN
     var columnsTable = [
@@ -199,6 +209,10 @@ $(function () {
     $('#jenis_cuti').select2({
         dropdownParent: $('#modal-pengajuan-cuti'),
     });
+
+    $('#penggunaan_sisa_cuti').select2({
+        dropdownParent: $('#modal-pengajuan-cuti'),
+    });
     
     $('#jenis_cuti').on('change', function() {
         let jenisCuti = $(this).val();
@@ -206,6 +220,7 @@ $(function () {
         $('#rencana_mulai_cuti').attr('min', minDate.toISOString().split('T')[0]);
         $('#rencana_mulai_cuti').val('');
         if (jenisCuti == 'KHUSUS') {
+            $('#penggunaan_sisa_cuti_field').css('display', 'none');
             var conditionalField = $('#conditional_field');
             conditionalField.empty();
             conditionalField.append('<label for="jenis_cuti_khusus">Jenis Cuti Khusus</label>');
@@ -264,10 +279,14 @@ $(function () {
             $('#rencana_selesai_cuti').val('');
             $('#rencana_selesai_cuti').prop('readonly', false);
         } else {
+            $('#penggunaan_sisa_cuti_field').css('display', 'block');
             var conditionalField = $('#conditional_field');
             conditionalField.empty();
             $('#rencana_selesai_cuti').val('');
             $('#rencana_selesai_cuti').prop('readonly', false);
+            $('#penggunaan_sisa_cuti').select2({
+                dropdownParent: $('#modal-pengajuan-cuti'),
+            });
         }
     });
 
@@ -285,7 +304,10 @@ $(function () {
             processData: false,
             dataType: "JSON",
             success: function (data) {
-                $('#sisa_cuti_total_display').text(data.data+' Hari');
+                $('#sisa_cuti_total_display').text(data.data.sisa_cuti_tahunan+' Hari');
+                $('#sisa_cuti_pribadi').text(data.data.sisa_cuti_pribadi+' Hari');
+                $('#sisa_cuti_tahun_lalu').text(data.data.sisa_cuti_tahun_lalu+' Hari');
+                updateNotification();
                 showToast({ title: data.message });
                 refreshTable();
                 closeForm();
@@ -331,6 +353,7 @@ $(function () {
         $('#alasan_cuti').val('');
         $('#durasi_cuti').val('');
         $('#jenis_cuti').val('PRIBADI').trigger('change');
+        $('#penggunaan_sisa_cuti').val('TB').trigger('change');
         $('#form-pengajuan-cuti').attr('action', url);
         $('input[name="_method"]').val('POST');
     }
@@ -357,7 +380,10 @@ $(function () {
                     },
                     dataType: "JSON",
                     success: function (data) {
-                        $('#sisa_cuti_total_display').text(data.data+' Hari');
+                        $('#sisa_cuti_total_display').text(data.data.sisa_cuti_tahunan+' Hari');
+                        $('#sisa_cuti_pribadi').text(data.data.sisa_cuti_pribadi+' Hari');
+                        $('#sisa_cuti_tahun_lalu').text(data.data.sisa_cuti_tahun_lalu+' Hari');
+                        updateNotification();
                         refreshTable();
                         showToast({ title: data.message });
                     },
@@ -413,6 +439,10 @@ $(function () {
                     processData: false,
                     contentType: false,
                     success: function(data) {
+                        $('#sisa_cuti_total_display').text(data.data.sisa_cuti_tahunan+' Hari');
+                        $('#sisa_cuti_pribadi').text(data.data.sisa_cuti_pribadi+' Hari');
+                        $('#sisa_cuti_tahun_lalu').text(data.data.sisa_cuti_tahun_lalu+' Hari');
+                        updateNotification();
                         loadingSwalClose()
                         showToast({ title: data.message });
                         refreshTable();

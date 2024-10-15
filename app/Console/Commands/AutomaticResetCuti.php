@@ -70,6 +70,12 @@ class AutomaticResetCuti extends Command
                             //ATUR SISA CUTI PRIBADI
                             $jatah_cuti_pribadi_after = $kry->sisa_cuti_pribadi + $jatah_cuti_pribadi;
                             $jatah_cuti_pribadi_after > 6 ? ($kry->sisa_cuti_pribadi = 6) : ($kry->sisa_cuti_pribadi = $jatah_cuti_pribadi_after);
+
+                            //ATUR SISA CUTI TAHUN LALU
+                            if($kry->sisa_cuti_pribadi > 0){
+                                $kry->sisa_cuti_tahun_lalu = $kry->sisa_cuti_pribadi; 
+                                $kry->expired_date_cuti_tahun_lalu = now()->addMonths(3);
+                            }
                         }
                         $reset_count++;
                     } 

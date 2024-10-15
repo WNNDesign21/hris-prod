@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="{{ asset('css/vendors_css.css') }}">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/skin_color.css') }}">
-
+    @vite(['resources/css/app.css'])
 </head>
 
 <body class="hold-transition light-skin sidebar-mini theme-primary fixed">
@@ -163,6 +163,10 @@
 
     @if ($page == 'cutie-setting')
         @vite(['resources/js/pages/cutie-setting.js'])
+    @endif
+
+    @if ($page == 'cutie-bypass-cuti')
+        @vite(['resources/js/pages/cutie-bypass-cuti.js'])
     @endif
 
 </body>

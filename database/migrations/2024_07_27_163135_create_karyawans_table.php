@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('ni_karyawan')->unique()->nullable();
             $table->unsignedBigInteger('user_id')->nullable();
             $table->unsignedBigInteger('grup_id')->nullable();
+            $table->unsignedBigInteger('organisasi_id')->nullable();
             $table->string('no_kk')->nullable();
             $table->string('nik')->unique()->nullable();
             $table->string('nama')->nullable();
@@ -33,10 +34,12 @@ return new class extends Migration
             $table->string('npwp')->unique()->nullable();
             $table->string('no_bpjs_ks')->unique()->nullable();
             $table->string('no_bpjs_kt')->unique()->nullable();
-            $table->enum('jenis_kontrak', ['PKWT', 'MAGANG', 'THL', 'PKWTT'])->nullable();
-            $table->enum('status_karyawan', ['AKTIF', 'RESIGN', 'PENSIUN', 'TERMINASI'])->nullable();
+            $table->enum('jenis_kontrak', ['PKWT', 'MAGANG', 'PKWTT'])->nullable();
+            $table->enum('status_karyawan', ['AT', 'MD', 'PS', 'HK', 'TM'])->nullable();
             $table->integer('sisa_cuti_pribadi')->default(0);
             $table->integer('sisa_cuti_bersama')->default(0);
+            $table->integer('sisa_cuti_tahun_lalu')->default(0);
+            $table->date('expired_date_cuti_tahun_lalu')->nullable();
             $table->integer('hutang_cuti')->default(0);
             $table->integer('no_rekening')->nullable();
             $table->string('nama_rekening')->nullable();
@@ -47,6 +50,7 @@ return new class extends Migration
             $table->string('no_telp_darurat')->nullable();
             $table->date('tanggal_mulai')->nullable();
             $table->date('tanggal_selesai')->nullable();
+            $table->string('foto')->nullable();
 
             $table->timestamps();
             $table->softDeletes();
