@@ -207,7 +207,7 @@ class KontrakController extends Controller
         $tempat_administrasi = $request->tempat_administrasi;
         $no_surat = $request->no_surat;
         $isReactive = $request->isReactive;
-        $organisasi_id = $request->organisasi_id;
+        $organisasi_id = auth()->user()->organisasi_id;
 
         DB::beginTransaction(); 
         try{
