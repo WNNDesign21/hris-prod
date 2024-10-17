@@ -3,8 +3,8 @@
 @section('content')
     <div class="row d-flex justify-content-center p-5">
         <div class="col-lg-4 col-12">
-            <div class="box-body p-2">
-                <div class="box no-shadow mb-0">
+            <div class="box no-shadow mb-0" id="menu-calendar">
+                <div class="box-body p-2">
                     <div id="calendarEvent" class="dask evt-cal min-h-400"></div>
                 </div>
             </div>

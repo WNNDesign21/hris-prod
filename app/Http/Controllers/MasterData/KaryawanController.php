@@ -210,7 +210,7 @@ class KaryawanController extends Controller
                 $nestedData['jurusan_pendidikan'] = $data->jurusan_pendidikan;
                 $nestedData['no_telp_darurat'] = $data->no_telp_darurat;
                 $nestedData['gol_darah'] = $data->gol_darah;
-                $nestedData['sisa_cuti'] = 'Cuti Pribadi : '.$data->sisa_cuti_pribadi.'<br> Cuti Bersama : '. $data->sisa_cuti_bersama;
+                $nestedData['sisa_cuti'] = 'Cuti Pribadi : '.$data->sisa_cuti_pribadi.'<br> Cuti Bersama : '. $data->sisa_cuti_bersama.'<br> Cuti Tahun Lalu : '. $data->sisa_cuti_tahun_lalu.'<br> Expired Cuti Tahun Lalu : '. $data->expired_date_cuti_tahun_lalu;
                 $nestedData['hutang_cuti'] = $data->hutang_cuti;
                 $nestedData['aksi'] = '
                 <div class="btn-group">
@@ -464,7 +464,10 @@ class KaryawanController extends Controller
             'jurusan_pendidikanEdit' => ['required','string'],
             'posisiEdit.*' => ['required'],
             'grupEdit' => ['required'],
-            'fotoEdit' => ['image', 'mimes:jpeg,png,jpg', 'max:2048']
+            'fotoEdit' => ['image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'sisa_cuti_pribadiEdit' => ['required','numeric'],
+            'sisa_cuti_bersamaEdit' => ['required','numeric'],
+            'sisa_cuti_tahun_laluEdit' => ['required','numeric'],
         ];
 
         
@@ -503,6 +506,10 @@ class KaryawanController extends Controller
         $posisi = $request->posisiEdit;
         $grup_id = $request->grupEdit;
         $foto = $request->file('fotoEdit');
+        $sisa_cuti_pribadi = $request->sisa_cuti_pribadiEdit;
+        $sisa_cuti_bersama = $request->sisa_cuti_bersamaEdit;
+        $sisa_cuti_tahun_lalu = $request->sisa_cuti_tahun_laluEdit;
+        $expired_date_cuti_tahun_lalu = $request->expired_date_cuti_tahun_laluEdit;
 
         DB::beginTransaction();
         try{
@@ -534,6 +541,10 @@ class KaryawanController extends Controller
             $karyawan->jurusan_pendidikan = $jurusan_pendidikan;
             $karyawan->status_karyawan = $status_karyawan;
             $karyawan->grup_id = $grup_id;
+            $karyawan->sisa_cuti_pribadi = $sisa_cuti_pribadi;
+            $karyawan->sisa_cuti_bersama = $sisa_cuti_bersama;
+            $karyawan->sisa_cuti_tahun_lalu = $sisa_cuti_tahun_lalu;
+            $karyawan->expired_date_cuti_tahun_lalu = $expired_date_cuti_tahun_lalu;
             $karyawan->posisi()->detach();
 
             $user = $karyawan->user;
@@ -807,77 +818,162 @@ class KaryawanController extends Controller
                 $spreadsheet = IOFactory::load(storage_path("app/public/".$karyawan_file));
                 $worksheet = $spreadsheet->getActiveSheet();
                 $data = $worksheet->toArray();
+                $chunkSize = 100;
 
-                foreach ($data as $index => $row) {
-                    if ($index < 1) { 
-                        continue;
-                    }
-
-                    //Pengecekan isi pada kolom
-                    for ($i = 0; $i <= 29; $i++) {
-                        if($i == 1){
+                //Chunck data agar tidak terlalu banyak
+                for ($i = 1; $i <= count($data); $i += $chunkSize) {
+                    $chunk = array_slice($data, $i - 1, $chunkSize);
+                    foreach ($chunk as $index => $row) {
+                        if ($index < 1) { 
                             continue;
                         }
 
-                        if (!isset($row[$i])) { 
-                            return response()->json(['message' => 'Pastikan tidak ada kolom yang kosong!'], 402);
-                        }
-                    }
-                    
-                    //Convert tanggal lahir ke format Ymd jika ada
-                    if($row[7] !== null){
-                        try {
-                            $tanggal_lahir = Carbon::createFromFormat('m/d/Y', $row[7])->format('Y-m-d');
-                        } catch (Exception $e) {
-                            return response()->json(['message' => 'Format tanggal lahir salah!'], 402);
-                        }
-                    } 
-
-                    //Convert tanggal bergabung/mulai ke format Ymd jika ada
-                    if($row[17] !== null){
-                        try {
-                            $tanggal_mulai = Carbon::createFromFormat('m/d/Y', $row[17])->format('Y-m-d');
-                        } catch (Exception $e) {
-                            return response()->json(['message' => 'Format tanggal bergabung salah!'], 402);
-                        }
-
-                    } 
-
-                    //Validasi Kolom Numeric
-                    if (!is_numeric($row[11]) || !is_numeric($row[12]) || !is_numeric($row[14]) || !is_numeric($row[15]) || !is_numeric($row[16]) || !is_numeric($row[23]) || !is_numeric($row[29])) {
-                        return response()->json(['message' => 'Kolom No KK, NIK KTP, No BPJS, No Hp, No Darurat, No. Rekening harus berupa angka!'], 402);
-                    }
-
-                    //Cek apakah karyawan sudah ada atau belum
-                    $existingKaryawan = Karyawan::where('ni_karyawan', $row[0])->first();
-                    if (isset($row[1])) {
-                        try {
-                            if (strpos($row[1], ',') !== false) {
-                                $posisis = Posisi::whereIn('nama',explode(',', $row[1]))->pluck('id_posisi')->toArray();
-                            } else {
-                                $posisis = Posisi::where('nama', $row[1])->pluck('id_posisi')->toArray();
+                        //Pengecekan isi pada kolom
+                        for ($i = 0; $i <= 29; $i++) {
+                            if($i == 1){
+                                continue;
                             }
-                        } catch (Exception $e) {
-                            return response()->json(['message' => 'Format Posisi tidak sesuai template atau Posisi tidak tersedia!'], 402);
+
+                            if (!isset($row[$i])) { 
+                                return response()->json(['message' => 'Pastikan tidak ada kolom yang kosong!'], 402);
+                            }
                         }
-                    } else {
-                        $posisis = [];
-                    }
+                        
+                        //Convert tanggal lahir ke format Ymd jika ada
+                        if($row[7] !== null){
+                            try {
+                                $tanggal_lahir = Carbon::createFromFormat('m/d/Y', $row[7])->format('Y-m-d');
+                            } catch (Exception $e) {
+                                return response()->json(['message' => 'Format tanggal lahir salah!'], 402);
+                            }
+                        } 
+
+                        //Convert tanggal bergabung/mulai ke format Ymd jika ada
+                        if($row[17] !== null){
+                            try {
+                                $tanggal_mulai = Carbon::createFromFormat('m/d/Y', $row[17])->format('Y-m-d');
+                            } catch (Exception $e) {
+                                return response()->json(['message' => 'Format tanggal bergabung salah!'], 402);
+                            }
+
+                        } 
+
+                        if($row[33] !== null){
+                            try {
+                                $expired_date_cuti_tahun_lalu = Carbon::createFromFormat('m/d/Y', $row[33])->format('Y-m-d');
+                            } catch (Exception $e) {
+                                return response()->json(['message' => 'Format tanggal expired cuti tahun lalu salah!'], 402);
+                            }
+
+                        } 
+
+                        //Validasi Kolom Numeric
+                        if (!is_numeric($row[11]) || $row[11] < 0 || 
+                            !is_numeric($row[12]) || $row[12] < 0 || 
+                            !is_numeric($row[14]) || $row[14] < 0 || 
+                            !is_numeric($row[15]) || $row[15] < 0 || 
+                            !is_numeric($row[16]) || $row[16] < 0 || 
+                            !is_numeric($row[23]) || $row[23] < 0 || 
+                            !is_numeric($row[29]) || $row[29] < 0 || 
+                            !is_numeric($row[30]) || $row[30] < 0 || 
+                            !is_numeric($row[31]) || $row[31] < 0 || 
+                            !is_numeric($row[32]) || $row[32] < 0 || 
+                            !is_numeric($row[34]) || $row[34] < 0) {
+                            return response()->json(['message' => 'Kolom No KK, NIK KTP, No BPJS, No Hp, No Darurat, No. Rekening dan Seluruh Jatah serta Hutang Cuti harus berupa angka positif!'], 402);
+                        }
+
+                        //Cek apakah karyawan sudah ada atau belum
+                        $existingKaryawan = Karyawan::where('ni_karyawan', $row[0])->first();
+                        if (isset($row[1])) {
+                            try {
+                                if (strpos($row[1], ',') !== false) {
+                                    $posisis = Posisi::whereIn('nama',explode(',', $row[1]))->pluck('id_posisi')->toArray();
+                                } else {
+                                    $posisis = Posisi::where('nama', $row[1])->pluck('id_posisi')->toArray();
+                                }
+                            } catch (Exception $e) {
+                                return response()->json(['message' => 'Format Posisi tidak sesuai template atau Posisi tidak tersedia!'], 402);
+                            }
+                        } else {
+                            $posisis = [];
+                        }
 
 
-                    //VALIDASI EMAIL
-                    if (!filter_var($row[24], FILTER_VALIDATE_EMAIL)) {
-                        return response()->json(['message' => 'Email pribadi harus berformat sebuah Email!'], 402);
-                    }
+                        //VALIDASI EMAIL
+                        if (!filter_var($row[24], FILTER_VALIDATE_EMAIL)) {
+                            return response()->json(['message' => 'Email pribadi harus berformat sebuah Email!'], 402);
+                        }
 
-                    if (!filter_var($row[26], FILTER_VALIDATE_EMAIL)) {
-                        return response()->json(['message' => 'Email perusahaan harus berformat sebuah Email!'], 402);
-                    }
+                        if (!filter_var($row[26], FILTER_VALIDATE_EMAIL)) {
+                            return response()->json(['message' => 'Email perusahaan harus berformat sebuah Email!'], 402);
+                        }
 
-                    if ($existingKaryawan) {
-                        $existingKaryawan->update([
-                            'ni_karyawan' => $row[0],
+                        if ($existingKaryawan) {
+                            $existingKaryawan->update([
+                                'ni_karyawan' => $row[0],
+                                'organisasi_id' => $organisasi_id,
+                                'nama' => $row[2],
+                                'jenis_kelamin' => in_array(strtoupper($row[3]), ['L', 'P']) ? strtoupper($row[3]) : null,
+                                'alamat' => $row[4],
+                                'domisili' => $row[5],
+                                'tempat_lahir' => $row[6],
+                                'tanggal_lahir' => $tanggal_lahir,
+                                'status_keluarga' => in_array(strtoupper($row[8]), ['MENIKAH', 'BELUM MENIKAH', 'CERAI']) ? strtoupper($row[8]) : null,
+                                'kategori_keluarga' => in_array(strtoupper($row[9]), ['TK0', 'TK1', 'TK2', 'TK3', 'K0', 'K1', 'K2', 'K3']) ? strtoupper($row[9]) : null,
+                                'agama' => in_array(strtoupper($row[10]), ['ISLAM', 'KATOLIK', 'KRISTEN', 'KONGHUCU', 'HINDU', 'BUDHA', 'PROTESTAN', 'LAINNYA']) ? strtoupper($row[10]) : null,
+                                'no_kk' => $row[11],
+                                'nik' => $row[12],
+                                'npwp' => $row[13],
+                                'no_bpjs_ks' => $row[14],
+                                'no_bpjs_kt' => $row[15],
+                                'no_telp' => $row[16],
+                                'no_telp_darurat' => $row[29],
+                                'jenjang_pendidikan' => in_array(strtoupper($row[18]), ['SD', 'SMP', 'SMA', 'D1', 'D2', 'D3', 'S1', 'S2', 'S3']) ? strtoupper($row[18]) : null,
+                                'jurusan_pendidikan' => $row[19],
+                                'nama_ibu_kandung' => $row[20],
+                                'nama_bank' => $row[21],
+                                'nama_rekening' => $row[22],
+                                'no_rekening' => $row[23],
+                                'email' => $row[24],
+                                'gol_darah' => in_array(strtoupper($row[25]), ['O', 'A', 'B', 'AB']) ? strtoupper($row[25]) : null,
+                                'sisa_cuti_pribadi' => $row[30],
+                                'sisa_cuti_bersama' => $row[31],
+                                'sisa_cuti_tahun_lalu' => $row[32],
+                                'expired_date_cuti_tahun_lalu' => $expired_date_cuti_tahun_lalu,
+                                'hutang_cuti' => $row[34],
+                            ]);
+
+                            if(isset($row[26]) && isset($row[27]) && isset($row[28])){
+                                $user = User::find($existingKaryawan->user_id);
+                                $user->update([
+                                    'email' => $row[26],
+                                    'username' => $row[27],
+                                    'password' => Hash::make($row[28]),
+                                    'organisasi_id' => $organisasi_id,
+                                ]); 
+                            }
+
+                            if(!empty($posisis)){
+                                $existingKaryawan->posisi()->sync($posisis);
+                            }
+
+                            continue;
+                        }
+
+                        $user = User::create([
+                            'email' => $row[26],
+                            'username' => $row[27],
+                            'password' => Hash::make($row[28]),
                             'organisasi_id' => $organisasi_id,
+                        ]); 
+
+                        $id_karyawan = $this->generateIdKaryawan(strtoupper($row[2]));
+        
+                        $karyawan = Karyawan::create([
+                            'user_id' => $user->id,
+                            'organisasi_id' => $organisasi_id,
+                            'id_karyawan' => $id_karyawan,
+                            'ni_karyawan' => $row[0],
                             'nama' => $row[2],
                             'jenis_kelamin' => in_array(strtoupper($row[3]), ['L', 'P']) ? strtoupper($row[3]) : null,
                             'alamat' => $row[4],
@@ -901,85 +997,34 @@ class KaryawanController extends Controller
                             'nama_rekening' => $row[22],
                             'no_rekening' => $row[23],
                             'email' => $row[24],
+                            'tanggal_mulai' => $tanggal_mulai,
                             'gol_darah' => in_array(strtoupper($row[25]), ['O', 'A', 'B', 'AB']) ? strtoupper($row[25]) : null,
+                            'sisa_cuti_pribadi' => $row[30],
+                            'sisa_cuti_bersama' => $row[31],
+                            'sisa_cuti_tahun_lalu' => $row[32],
+                            'expired_date_cuti_tahun_lalu' => $expired_date_cuti_tahun_lalu,
+                            'hutang_cuti' => $row[34],
                         ]);
 
-                        if(isset($row[26]) && isset($row[27]) && isset($row[28])){
-                            $user = User::find($existingKaryawan->user_id);
-                            $user->update([
-                                'email' => $row[26],
-                                'username' => $row[27],
-                                'password' => Hash::make($row[28]),
-                                'organisasi_id' => $organisasi_id,
-                            ]); 
-                        }
+                        // Initial Contract
+                        // Kontrak::create([
+                        //     'no_surat' => str_pad(mt_rand(0, 999), 3, '0', STR_PAD_LEFT),
+                        //     'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,
+                        //     'karyawan_id' =>  $id_karyawan,
+                        //     'nama_posisi' => 'Initial Contract',
+                        //     'jenis' => 'PKWT',
+                        //     'status' => 'DONE',
+                        //     'durasi' => 1,
+                        //     'salary' => 0,
+                        //     'deskripsi' => 'Initial Contract for generate Tanggal Mulai dan Tanggal Akhir',
+                        //     'tanggal_mulai' => $tanggal_mulai,
+                        //     'tanggal_selesai' => Carbon::parse($tanggal_mulai)->addMonth()->toDateString(),
+                        //     'isReactive' => 'N',
+                        // ]);
 
                         if(!empty($posisis)){
-                            $existingKaryawan->posisi()->sync($posisis);
+                            $karyawan->posisi()->sync($posisis);
                         }
-
-                        continue;
-                    }
-
-                    $user = User::create([
-                        'email' => $row[26],
-                        'username' => $row[27],
-                        'password' => Hash::make($row[28]),
-                        'organisasi_id' => $organisasi_id,
-                    ]); 
-
-                    $id_karyawan = $this->generateIdKaryawan(strtoupper($row[2]));
-    
-                    $karyawan = Karyawan::create([
-                        'user_id' => $user->id,
-                        'organisasi_id' => $organisasi_id,
-                        'id_karyawan' => $id_karyawan,
-                        'ni_karyawan' => $row[0],
-                        'nama' => $row[2],
-                        'jenis_kelamin' => in_array(strtoupper($row[3]), ['L', 'P']) ? strtoupper($row[3]) : null,
-                        'alamat' => $row[4],
-                        'domisili' => $row[5],
-                        'tempat_lahir' => $row[6],
-                        'tanggal_lahir' => $tanggal_lahir,
-                        'status_keluarga' => in_array(strtoupper($row[8]), ['MENIKAH', 'BELUM MENIKAH', 'CERAI']) ? strtoupper($row[8]) : null,
-                        'kategori_keluarga' => in_array(strtoupper($row[9]), ['TK0', 'TK1', 'TK2', 'TK3', 'K0', 'K1', 'K2', 'K3']) ? strtoupper($row[9]) : null,
-                        'agama' => in_array(strtoupper($row[10]), ['ISLAM', 'KATOLIK', 'KRISTEN', 'KONGHUCU', 'HINDU', 'BUDHA', 'PROTESTAN', 'LAINNYA']) ? strtoupper($row[10]) : null,
-                        'no_kk' => $row[11],
-                        'nik' => $row[12],
-                        'npwp' => $row[13],
-                        'no_bpjs_ks' => $row[14],
-                        'no_bpjs_kt' => $row[15],
-                        'no_telp' => $row[16],
-                        'no_telp_darurat' => $row[29],
-                        'jenjang_pendidikan' => in_array(strtoupper($row[18]), ['SD', 'SMP', 'SMA', 'D1', 'D2', 'D3', 'S1', 'S2', 'S3']) ? strtoupper($row[18]) : null,
-                        'jurusan_pendidikan' => $row[19],
-                        'nama_ibu_kandung' => $row[20],
-                        'nama_bank' => $row[21],
-                        'nama_rekening' => $row[22],
-                        'no_rekening' => $row[23],
-                        'email' => $row[24],
-                        'tanggal_mulai' => $tanggal_mulai,
-                        'gol_darah' => in_array(strtoupper($row[25]), ['O', 'A', 'B', 'AB']) ? strtoupper($row[25]) : null,
-                    ]);
-
-                    // Initial Contract
-                    // Kontrak::create([
-                    //     'no_surat' => str_pad(mt_rand(0, 999), 3, '0', STR_PAD_LEFT),
-                    //     'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,
-                    //     'karyawan_id' =>  $id_karyawan,
-                    //     'nama_posisi' => 'Initial Contract',
-                    //     'jenis' => 'PKWT',
-                    //     'status' => 'DONE',
-                    //     'durasi' => 1,
-                    //     'salary' => 0,
-                    //     'deskripsi' => 'Initial Contract for generate Tanggal Mulai dan Tanggal Akhir',
-                    //     'tanggal_mulai' => $tanggal_mulai,
-                    //     'tanggal_selesai' => Carbon::parse($tanggal_mulai)->addMonth()->toDateString(),
-                    //     'isReactive' => 'N',
-                    // ]);
-
-                    if(!empty($posisis)){
-                        $karyawan->posisi()->sync($posisis);
                     }
                 }
             } else {
