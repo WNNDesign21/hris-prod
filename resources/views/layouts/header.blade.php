@@ -6,11 +6,16 @@
                     class="path3"></span></span>
         </a>
         <!-- Logo -->
-        <a href="index.html" class="logo">
+        <a href="{{ route('root') }}" class="logo">
             <!-- logo-->
             <div class="logo-lg">
-                <span class="light-logo">Hai, {{ auth()->user()->username }}</span>
-                <span class="dark-logo">Hai, {{ auth()->user()->username }}</span>
+                @if (auth()->user()->hasRole('personalia'))
+                    <span class="light-logo">PERSONALIA</span>
+                    <span class="dark-logo">PERSONALIA</span>
+                @else
+                    <span class="light-logo">Hai, {{ auth()->user()->karyawan->nama }}</span>
+                    <span class="dark-logo">Hai, {{ auth()->user()->karyawan->nama }}</span>
+                @endif
             </div>
         </a>
     </div>

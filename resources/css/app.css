@@ -9,3 +9,13 @@
 .mfp-container{
     z-index: 10000;
 }
+
+#menu-calendar {
+    padding-top: 100px;
+}
+
+@media (min-width: 992px) {
+    #menu-calendar {
+        padding-top: 0px;
+    }
+}

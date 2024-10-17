@@ -303,7 +303,7 @@ $(function () {
               let dataTotalKaryawanByStatus = response.data;
               var options = {
                 series: dataTotalKaryawanByStatus,
-                labels: ['Re-Active', 'Terminasi', 'Resign', 'Pensiun', 'Terminasi'],
+                labels: ['Re-Active', 'Habis Kontrak', 'Mengundurkan Diri', 'Pensiun', 'Terminasi'],
                 chart: {
                 height:230,
                 type: 'donut',

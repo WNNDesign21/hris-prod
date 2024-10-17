@@ -225,7 +225,10 @@ class ExportController extends Controller
                 'GOLONGAN DARAH',
                 'EMAIL',
                 'EMAIL CORPORATE',
-                'JATAH CUTI',
+                'JATAH CUTI PRIBADI',
+                'JATAH CUTI BERSAMA',
+                'JATAH CUTI TAHUN LALU',
+                'EXPIRED DATE CUTI TAHUN LALU',
                 'HUTANG CUTI'
             ];
 
@@ -238,13 +241,13 @@ class ExportController extends Controller
             $row = 2;
 
             $columns = [];
-            for ($i = 'A'; $i !== 'AJ'; $i++) {
+            for ($i = 'A'; $i !== 'AM'; $i++) {
                 $columns[] = $i;
             }
             foreach ($columns as $column) {
                 $sheet->getColumnDimension($column)->setAutoSize(true);
             }
-            $sheet->setAutoFilter('A1:AI1');
+            $sheet->setAutoFilter('A1:AL1');
 
             $i = 1;
             foreach ($karyawan as $data) {
@@ -304,8 +307,11 @@ class ExportController extends Controller
                 $sheet->setCellValue('AE' . $row, $data->gol_darah);
                 $sheet->setCellValue('AF' . $row, $data->email);
                 $sheet->setCellValue('AG' . $row, $email_corporate);
-                $sheet->setCellValue('AH' . $row, $data->sisa_cuti_pribadi + $data->sisa_cuti_bersama);
-                $sheet->setCellValue('AI' . $row, $data->hutang_cuti);
+                $sheet->setCellValue('AH' . $row, $data->sisa_cuti_pribadi);
+                $sheet->setCellValue('AI' . $row, $data->sisa_cuti_bersama);
+                $sheet->setCellValue('AJ' . $row, $data->sisa_cuti_tahun_lalu);
+                $sheet->setCellValue('AK' . $row, $data->expired_date_cuti_tahun_lalu);
+                $sheet->setCellValue('AL' . $row, $data->hutang_cuti);
                 $row++;
                 $i++;
             }
@@ -352,7 +358,10 @@ class ExportController extends Controller
                 'GOLONGAN DARAH',
                 'EMAIL',
                 'EMAIL CORPORATE',
-                'JATAH CUTI',
+                'JATAH CUTI PRIBADI',
+                'JATAH CUTI BERSAMA',
+                'JATAH CUTI TAHUN LALU',
+                'EXPIRED DATE CUTI TAHUN LALU',
                 'HUTANG CUTI'
             ];
 
@@ -365,13 +374,13 @@ class ExportController extends Controller
             $row = 2;
 
             $columns = [];
-            for ($i = 'A'; $i !== 'AJ'; $i++) {
+            for ($i = 'A'; $i !== 'AM'; $i++) {
                 $columns[] = $i;
             }
             foreach ($columns as $column) {
                 $sheet->getColumnDimension($column)->setAutoSize(true);
             }
-            $sheet->setAutoFilter('A1:AI1');
+            $sheet->setAutoFilter('A1:AL1');
 
             $i = 1;
             foreach ($karyawan_nonaktif as $data) {
@@ -431,8 +440,11 @@ class ExportController extends Controller
                 $sheet->setCellValue('AE' . $row, $data->gol_darah);
                 $sheet->setCellValue('AF' . $row, $data->email);
                 $sheet->setCellValue('AG' . $row, $email_corporate);
-                $sheet->setCellValue('AH' . $row, $data->sisa_cuti_pribadi + $data->sisa_cuti_bersama);
-                $sheet->setCellValue('AI' . $row, $data->hutang_cuti);
+                $sheet->setCellValue('AH' . $row, $data->sisa_cuti_pribadi);
+                $sheet->setCellValue('AI' . $row, $data->sisa_cuti_bersama);
+                $sheet->setCellValue('AJ' . $row, $data->sisa_cuti_tahun_lalu);
+                $sheet->setCellValue('AK' . $row, $data->expired_date_cuti_tahun_lalu);
+                $sheet->setCellValue('AL' . $row, $data->hutang_cuti);
                 $row++;
                 $i++;
             }
