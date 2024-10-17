@@ -25,6 +25,7 @@ export default defineConfig({
                 'resources/js/pages/cutie-dashboard.js',
                 'resources/js/pages/cutie-member-cuti.js',
                 'resources/js/pages/cutie-pengajuan-cuti.js',
+                'resources/js/pages/cutie-personalia-cuti.js',
                 'resources/js/pages/cutie-export.js',
                 'resources/js/pages/cutie-setting.js',
                 'resources/js/pages/cutie-bypass-cuti.js',

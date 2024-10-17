@@ -127,6 +127,7 @@ class EventController extends Controller
         $tanggal_mulai = $request->tanggal_mulai;
         $tanggal_selesai = $request->tanggal_selesai;
         $durasi = Carbon::parse($tanggal_mulai)->diffInDays($tanggal_selesai) + 1;
+        $organisasi_id = auth()->user()->organisasi_id;
     
         DB::beginTransaction();
         try{
@@ -153,7 +154,8 @@ class EventController extends Controller
                 'keterangan' => $keterangan,
                 'durasi' => $durasi,
                 'tanggal_mulai' => $tanggal_mulai,
-                'tanggal_selesai' => $tanggal_selesai  
+                'tanggal_selesai' => $tanggal_selesai,
+                'organisasi_id' => $organisasi_id
             ]);
 
             DB::commit();
