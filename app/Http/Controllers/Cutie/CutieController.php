@@ -656,7 +656,7 @@ class CutieController extends Controller
             8 => 'checked1_at',
             9 => 'checked2_at',
             10 => 'approved_at',
-            11 => 'legalize_at',
+            11 => 'legalized_at',
             12 => 'status_dokumen',
             13 => 'status_cuti',
             14 => 'alasan_cuti',
@@ -992,7 +992,6 @@ class CutieController extends Controller
         $rencana_selesai_cuti = $request->rencana_selesai_cuti;
         $alasan_cuti = $request->alasan_cuti;
         $durasi_cuti = $request->durasi_cuti;
-        $penggunaan_sisa_cuti = $request->penggunaan_sisa_cuti;
         $karyawan_id = auth()->user()->karyawan->id_karyawan;
         $kry = Karyawan::find($karyawan_id);
         $sisa_cuti_pribadi = $kry->sisa_cuti_pribadi;
@@ -1006,7 +1005,6 @@ class CutieController extends Controller
                 'rencana_selesai_cuti' => ['date','required'],
                 'alasan_cuti' => ['required'],
                 'durasi_cuti' => ['numeric','required'],
-                'penggunaan_sisa_cuti' => ['required','in:TL,TB']
             ];
 
             $err_text = 'Periksa Form Dengan Benar!';
@@ -1104,39 +1102,49 @@ class CutieController extends Controller
                 //     }
                 // }
 
-                if($penggunaan_sisa_cuti == 'TB'){
-                    $jatah_cuti = $sisa_cuti_pribadi - $durasi_cuti;
-                    if($sisa_cuti_pribadi < 0){
-                        return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Hubungi HRD untuk informasi lebih lanjut!'], 402);
-                    } else {
-                        if($jatah_cuti < 0){
-                            return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Silahkan baca ketentuan pembagian cuti pribadi lagi!'], 402);
-                        } else {
-                            $karyawan = Karyawan::find($karyawan_id);
-                            $karyawan->sisa_cuti_pribadi = $jatah_cuti;
-                            $karyawan->save();
-                        }
-                    }
+                // if($penggunaan_sisa_cuti == 'TB'){
+                //     $jatah_cuti = $sisa_cuti_pribadi - $durasi_cuti;
+                //     if($sisa_cuti_pribadi < 0){
+                //         return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Hubungi HRD untuk informasi lebih lanjut!'], 402);
+                //     } else {
+                //         if($jatah_cuti < 0){
+                //             return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Silahkan baca ketentuan pembagian cuti pribadi lagi!'], 402);
+                //         } else {
+                //             $karyawan = Karyawan::find($karyawan_id);
+                //             $karyawan->sisa_cuti_pribadi = $jatah_cuti;
+                //             $karyawan->save();
+                //         }
+                //     }
+                // } else {
+                //     $jatah_cuti = $sisa_cuti_tahun_lalu - $durasi_cuti;
+                //     if($sisa_cuti_tahun_lalu < 0){
+                //         return response()->json(['message' => 'Ada tidak memiliki sisa cuti tahun lalu!, Silahkan ajukan menggunakan sisa cuti tahun berjalan anda!'], 402);
+                //     } else {
+                //         if($jatah_cuti < 0 || $rencana_mulai_cuti > $expired_date_cuti_tahun_lalu){
+                //             return response()->json(['message' => 'Sisa cuti tahun lalu anda tidak mencukupi atau sudah melebihi Expired Date, Silahkan ajukan menggunakan sisa cuti tahun berjalan anda!!'], 402);
+                //         } else {
+                //             $karyawan = Karyawan::find($karyawan_id);
+                //             $karyawan->sisa_cuti_tahun_lalu = $jatah_cuti;
+                //             $karyawan->save();
+                //         }
+                //     }
+                // }
+
+                $jatah_cuti = $sisa_cuti_pribadi - $durasi_cuti;
+                if($sisa_cuti_pribadi < 0){
+                    return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Hubungi HRD untuk informasi lebih lanjut!'], 402);
                 } else {
-                    $jatah_cuti = $sisa_cuti_tahun_lalu - $durasi_cuti;
-                    if($sisa_cuti_tahun_lalu < 0){
-                        return response()->json(['message' => 'Ada tidak memiliki sisa cuti tahun lalu!, Silahkan ajukan menggunakan sisa cuti tahun berjalan anda!'], 402);
+                    if($jatah_cuti < 0){
+                        return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Silahkan baca ketentuan pembagian cuti pribadi lagi!'], 402);
                     } else {
-                        if($jatah_cuti < 0 || $rencana_mulai_cuti > $expired_date_cuti_tahun_lalu){
-                            return response()->json(['message' => 'Sisa cuti tahun lalu anda tidak mencukupi atau sudah melebihi Expired Date, Silahkan ajukan menggunakan sisa cuti tahun berjalan anda!!'], 402);
-                        } else {
-                            $karyawan = Karyawan::find($karyawan_id);
-                            $karyawan->sisa_cuti_tahun_lalu = $jatah_cuti;
-                            $karyawan->save();
-                        }
+                        $karyawan = Karyawan::find($karyawan_id);
+                        $karyawan->sisa_cuti_pribadi = $jatah_cuti;
+                        $karyawan->save();
                     }
                 }
-
-
                 $attachment = null;
             } else {
                 $attachment = null;
-                $penggunaan_sisa_cuti = 'TB';
             }
 
             $cuti = Cutie::create([
@@ -1149,7 +1157,6 @@ class CutieController extends Controller
                 'rencana_selesai_cuti' => $rencana_selesai_cuti,
                 'alasan_cuti' => $alasan_cuti,
                 'durasi_cuti' => $durasi_cuti,
-                'penggunaan_sisa_cuti' => $penggunaan_sisa_cuti
             ]);
 
             $data = [
@@ -2198,7 +2205,7 @@ class CutieController extends Controller
                 $sheet->setCellValue('C' . $row, $c->karyawan->nama);
                 $sheet->setCellValue('D' . $row, $c->karyawan->posisi[0]?->departemen?->nama);
                 $sheet->setCellValue('E' . $row, $c->jenis_cuti == 'KHUSUS' ? $c->jenisCuti->nama : $c->jenis_cuti);
-                $sheet->setCellValue('F' . $row, $c->penggunaan_jenis_cuti == 'TB' ? 'TAHUN BERJALAN '.Carbon::parse($c->created_at)->format('Y') : 'TAHUN LALU '.Carbon::parse($c->created_at)->format('Y') - 1);
+                $sheet->setCellValue('F' . $row, $c->penggunaan_sisa_cuti == 'TB' ? 'TAHUN BERJALAN '.Carbon::parse($c->created_at)->format('Y') : 'TAHUN LALU '.Carbon::parse($c->created_at)->format('Y') - 1);
                 $sheet->setCellValue('G' . $row, $c->durasi_cuti);
                 $sheet->setCellValue('H' . $row, $c->rencana_mulai_cuti);
                 $sheet->setCellValue('I' . $row, $c->rencana_selesai_cuti);
@@ -2272,7 +2279,7 @@ class CutieController extends Controller
                     $sheet->setCellValue('C' . $row, $c->karyawan->nama);
                     $sheet->setCellValue('D' . $row, $c->karyawan->posisi[0]?->departemen?->nama);
                     $sheet->setCellValue('E' . $row, $c->jenis_cuti == 'KHUSUS' ? $c->jenisCuti->nama : $c->jenis_cuti);
-                    $sheet->setCellValue('F' . $row, $c->penggunaan_jenis_cuti == 'TB' ? 'TAHUN BERJALAN '.Carbon::parse($c->created_at)->format('Y') : 'TAHUN LALU '.Carbon::parse($c->created_at)->format('Y') - 1);
+                    $sheet->setCellValue('F' . $row, $c->penggunaan_sisa_cuti == 'TB' ? 'TAHUN BERJALAN '.Carbon::parse($c->created_at)->format('Y') : 'TAHUN LALU '.Carbon::parse($c->created_at)->format('Y') - 1);
                     $sheet->setCellValue('G' . $row, $c->durasi_cuti);
                     $sheet->setCellValue('H' . $row, $c->rencana_mulai_cuti);
                     $sheet->setCellValue('I' . $row, $c->rencana_selesai_cuti);

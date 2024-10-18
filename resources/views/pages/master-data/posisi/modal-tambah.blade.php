@@ -1,6 +1,6 @@
 <!-- modal Area -->
 <div class="modal fade" id="modal-input-posisi" style="width: 100%;">
-    <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">Tambah Posisi</h4>

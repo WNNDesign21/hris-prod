@@ -44,19 +44,9 @@
                                                         <div class="row mt-5">
                                                             <div class="col-lg-6 col-12">
                                                                 <div class="form-group">
-                                                                    <label for="" class="fw-light">Jenis
-                                                                        Kontrak</label>
-                                                                    <h5>{{ $val['jenis'] }}</h5>
-                                                                </div>
-                                                                <div class="form-group">
                                                                     <label for=""
                                                                         class="fw-light">Posisi</label>
                                                                     <h5>{{ $val['nama_posisi'] }}</h5>
-                                                                </div>
-                                                                <div class="form-group">
-                                                                    <label for=""
-                                                                        class="fw-light">Status</label>
-                                                                    <h5>{{ $val['status'] }}</h5>
                                                                 </div>
                                                             </div>
                                                             <div class="col-lg-6 col-12">
@@ -68,20 +58,8 @@
                                                                 </div>
                                                                 <div class="form-group">
                                                                     <label for=""
-                                                                        class="fw-light">Salary</label>
-                                                                    <h5>{{ $val['salary'] }}</h5>
-                                                                </div>
-                                                                <div class="form-group">
-                                                                    <label for=""
                                                                         class="fw-light">Deskripsi</label>
                                                                     <h5>{{ $val['deskripsi'] }}</h5>
-                                                                </div>
-                                                                <div class="form-group">
-                                                                    <label for="" class="fw-light">Dokumen
-                                                                        Asli</label>
-                                                                    <h5>{!! $val['attachment']
-                                                                        ? '<a href="' . $val['attachment'] . '" target="_blank"><i class="fas fa-download"></i> Unduh Dokumen Disini</a>'
-                                                                        : '-' !!}</h5>
                                                                 </div>
                                                             </div>
                                                         </div>
