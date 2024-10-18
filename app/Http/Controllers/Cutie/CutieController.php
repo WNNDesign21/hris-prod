@@ -1122,8 +1122,8 @@ class CutieController extends Controller
                     if($sisa_cuti_tahun_lalu < 0){
                         return response()->json(['message' => 'Ada tidak memiliki sisa cuti tahun lalu!, Silahkan ajukan menggunakan sisa cuti tahun berjalan anda!'], 402);
                     } else {
-                        if($jatah_cuti < 0){
-                            return response()->json(['message' => 'Sisa cuti tahun lalu anda tidak mencukupi, Silahkan ajukan menggunakan sisa cuti tahun berjalan anda!!'], 402);
+                        if($jatah_cuti < 0 || $rencana_mulai_cuti > $expired_date_cuti_tahun_lalu){
+                            return response()->json(['message' => 'Sisa cuti tahun lalu anda tidak mencukupi atau sudah melebihi Expired Date, Silahkan ajukan menggunakan sisa cuti tahun berjalan anda!!'], 402);
                         } else {
                             $karyawan = Karyawan::find($karyawan_id);
                             $karyawan->sisa_cuti_tahun_lalu = $jatah_cuti;
@@ -2196,9 +2196,9 @@ class CutieController extends Controller
                 $sheet->setCellValue('A' . $row, $row - 1);
                 $sheet->setCellValue('B' . $row, $c->karyawan->id_karyawan);
                 $sheet->setCellValue('C' . $row, $c->karyawan->nama);
-                $sheet->setCellValue('D' . $row, $c->karyawan->posisi[0]->departemen->nama);
+                $sheet->setCellValue('D' . $row, $c->karyawan->posisi[0]?->departemen->nama);
                 $sheet->setCellValue('E' . $row, $c->jenis_cuti == 'KHUSUS' ? $c->jenisCuti->nama : $c->jenis_cuti);
-                $sheet->setCellValue('F' . $row, $c->penggunaan_jenis_cuti == 'TB' ? 'TAHUN BERJALAN '.$created_at->format('Y') : 'TAHUN LALU '.$created_at->format('Y')-1);
+                $sheet->setCellValue('F' . $row, $c->penggunaan_jenis_cuti == 'TB' ? 'TAHUN BERJALAN '.Carbon::parse($c->created_at)->format('Y') : 'TAHUN LALU '.Carbon::parse($c->created_at)->format('Y') - 1);
                 $sheet->setCellValue('G' . $row, $c->durasi_cuti);
                 $sheet->setCellValue('H' . $row, $c->rencana_mulai_cuti);
                 $sheet->setCellValue('I' . $row, $c->rencana_selesai_cuti);
@@ -2270,9 +2270,9 @@ class CutieController extends Controller
                     $sheet->setCellValue('A' . $row, $row - 1);
                     $sheet->setCellValue('B' . $row, $c->karyawan->id_karyawan);
                     $sheet->setCellValue('C' . $row, $c->karyawan->nama);
-                    $sheet->setCellValue('D' . $row, $c->karyawan->posisi[0]->departemen->nama);
+                    $sheet->setCellValue('D' . $row, $c->karyawan->posisi[0]?->departemen->nama);
                     $sheet->setCellValue('E' . $row, $c->jenis_cuti == 'KHUSUS' ? $c->jenisCuti->nama : $c->jenis_cuti);
-                    $sheet->setCellValue('F' . $row, $c->penggunaan_jenis_cuti == 'TB' ? 'TAHUN BERJALAN '.$created_at->format('Y') : 'TAHUN LALU '.$created_at->format('Y')-1);
+                    $sheet->setCellValue('F' . $row, $c->penggunaan_jenis_cuti == 'TB' ? 'TAHUN BERJALAN '.Carbon::parse($c->created_at)->format('Y') : 'TAHUN LALU '.Carbon::parse($c->created_at)->format('Y') - 1);
                     $sheet->setCellValue('G' . $row, $c->durasi_cuti);
                     $sheet->setCellValue('H' . $row, $c->rencana_mulai_cuti);
                     $sheet->setCellValue('I' . $row, $c->rencana_selesai_cuti);

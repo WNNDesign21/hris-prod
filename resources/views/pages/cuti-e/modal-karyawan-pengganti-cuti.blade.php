@@ -15,8 +15,8 @@
                             <div class="col-12">
                                 <input type="hidden" id="id_cuti" name="id_cuti">
                                 <div class="form-group">
-                                    <select class="form-control" name="karyawan_pengganti_id"
-                                        id="karyawan_pengganti_id"></select>
+                                    <select class="form-control" name="karyawan_pengganti_id" id="karyawan_pengganti_id"
+                                        style="width: 100%:"></select>
                                 </div>
                                 <div class="d-flex justify-content-end mt-2">
                                     <button type="submit" class="btn btn-success"><i class="fas fa-save"></i>
