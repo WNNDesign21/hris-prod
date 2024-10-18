@@ -2196,7 +2196,7 @@ class CutieController extends Controller
                 $sheet->setCellValue('A' . $row, $row - 1);
                 $sheet->setCellValue('B' . $row, $c->karyawan->id_karyawan);
                 $sheet->setCellValue('C' . $row, $c->karyawan->nama);
-                $sheet->setCellValue('D' . $row, $c->karyawan->posisi[0]?->departemen->nama);
+                $sheet->setCellValue('D' . $row, $c->karyawan->posisi[0]?->departemen?->nama);
                 $sheet->setCellValue('E' . $row, $c->jenis_cuti == 'KHUSUS' ? $c->jenisCuti->nama : $c->jenis_cuti);
                 $sheet->setCellValue('F' . $row, $c->penggunaan_jenis_cuti == 'TB' ? 'TAHUN BERJALAN '.Carbon::parse($c->created_at)->format('Y') : 'TAHUN LALU '.Carbon::parse($c->created_at)->format('Y') - 1);
                 $sheet->setCellValue('G' . $row, $c->durasi_cuti);
@@ -2270,7 +2270,7 @@ class CutieController extends Controller
                     $sheet->setCellValue('A' . $row, $row - 1);
                     $sheet->setCellValue('B' . $row, $c->karyawan->id_karyawan);
                     $sheet->setCellValue('C' . $row, $c->karyawan->nama);
-                    $sheet->setCellValue('D' . $row, $c->karyawan->posisi[0]?->departemen->nama);
+                    $sheet->setCellValue('D' . $row, $c->karyawan->posisi[0]?->departemen?->nama);
                     $sheet->setCellValue('E' . $row, $c->jenis_cuti == 'KHUSUS' ? $c->jenisCuti->nama : $c->jenis_cuti);
                     $sheet->setCellValue('F' . $row, $c->penggunaan_jenis_cuti == 'TB' ? 'TAHUN BERJALAN '.Carbon::parse($c->created_at)->format('Y') : 'TAHUN LALU '.Carbon::parse($c->created_at)->format('Y') - 1);
                     $sheet->setCellValue('G' . $row, $c->durasi_cuti);

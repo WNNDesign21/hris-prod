@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\Cutie;
+use App\Models\Kontrak;
 use App\Models\Karyawan;
 use Illuminate\Http\Request;
 
@@ -26,9 +28,10 @@ class HomeController extends Controller
     public function index()
     {
         $profile = auth()->user()?->karyawan;
-        $data = [];
+        $dataProfile = [];
+        $dataKontrak = [];
         if($profile){
-            $data = [
+            $dataProfile = [
                 'ni_karyawan' => $profile->ni_karyawan,
                 'foto' => $profile->foto ? asset('storage/'.$profile->foto) : asset('img/no-image.png'),  
                 'nama' => $profile->nama,
@@ -67,8 +70,37 @@ class HomeController extends Controller
                 'posisi' => $profile?->posisi()?->pluck('posisis.nama'),
                 'grup' => $profile->grup->nama,
             ];
+
+            $kontrak = Kontrak::where('karyawan_id', auth()->user()->karyawan->id_karyawan)->orderBy('tanggal_mulai', 'DESC')->get();
+            if($kontrak){
+                foreach($kontrak as $item){
+                    if($item->status == 'DONE'){
+                        $badge = '<span class="badge badge-pill badge-success">'.$item->status.'</span>';
+                    } else {
+                        $badge = '<span class="badge badge-pill badge-warning">'.$item->status.'</span>';
+                    } 
+                    $dataKontrak[] = [
+                        'id_kontrak' => $item->id_kontrak,
+                        'nama_posisi' => $item->nama_posisi,
+                        'posisi_id' => $item->posisi_id,
+                        'jenis' => $item->jenis,
+                        'status' => $item->status,
+                        'status_badge' => $badge,
+                        'issued_date' => $item->issued_date,
+                        'issued_date_text' => Carbon::parse($item->issued_date)->format('d M Y'),
+                        'tempat_administrasi' => $item->tempat_administrasi,
+                        'durasi' => $item->durasi,
+                        'no_surat' => $item->no_surat,
+                        'salary' => 'Rp. ' . number_format($item->salary, 0, ',', '.').' ,-',
+                        'deskripsi' => $item->deskripsi,
+                        'tanggal_mulai' => Carbon::parse($item->tanggal_mulai)->format('d M Y'),
+                        'tanggal_selesai' => $item->tanggal_selesai !== null ? Carbon::parse($item->tanggal_selesai)->format('d M Y') : 'Unknown',
+                        'attachment' => $item->attachment ? asset('storage/'.$item->attachment) : null
+                    ];
+                }
+            }
         } else {
-            $data = [
+            $dataProfile = [
                 'ni_karyawan' => null,
                 'foto' => asset('img/no-image.png'),
                 'nama' => null,
@@ -112,7 +144,8 @@ class HomeController extends Controller
         $dataPage = [
             'pageTitle' => "SuperApps - Menu",
             'page' => 'menu',
-            'profile' => $data
+            'profile' => $dataProfile,
+            'kontrak' => $dataKontrak
         ];
         return view('pages.menu.index', $dataPage);
     }

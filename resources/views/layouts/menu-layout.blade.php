@@ -41,7 +41,11 @@
                                 @hasanyrole(['atasan', 'member'])
                                     <a class="dropdown-item btnProfile" href="#"><i
                                             class="ti-user text-muted me-2"></i>
-                                        Profile</a>
+                                        My Profile</a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item btnKontrak" href="#"><i
+                                            class="ti-write text-muted me-2"></i>
+                                        My Contract</a>
                                     <div class="dropdown-divider"></div>
                                 @endhasanyrole
                                 <a class="dropdown-item" href="{{ route('logout') }}"
@@ -70,6 +74,7 @@
         </div>
         @include('pages.cuti-e.modal-event-cuti')
         @include('pages.menu.modal-profile')
+        @include('pages.menu.modal-kontrak')
     </div>
 
 

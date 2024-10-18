@@ -307,7 +307,7 @@
                                         <label class="form-label">Jatah Cuti Tahun Lalu</label>
                                         <input type="number" name="sisa_cuti_tahun_lalu" id="sisa_cuti_tahun_lalu"
                                             class="form-control" min='0' max='12'
-                                            value="{{ $profile['sisa_cuti_tahun_lalu'] }}" required>
+                                            value="{{ $profile['sisa_cuti_tahun_lalu'] }}" disabled>
                                     </div>
                                 </div>
                                 <div class="col-lg-6 col-12">
@@ -316,7 +316,7 @@
                                         <input type="date" name="expired_date_cuti_tahun_lalu"
                                             id="expired_date_cuti_tahun_lalu"
                                             value="{{ $profile['expired_date_cuti_tahun_lalu'] }}"
-                                            class="form-control" required>
+                                            class="form-control" disabled>
                                     </div>
                                 </div>
                                 <div class="col-lg-6 col-12">

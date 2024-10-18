@@ -317,7 +317,7 @@
                                         <div class="form-group">
                                             <label class="form-label">Expired Date Cuti Tahun Lalu</label>
                                             <input type="date" name="expired_date_cuti_tahun_laluEdit"
-                                                id="expired_date_cuti_tahun_laluEdit" class="form-control" required>
+                                                id="expired_date_cuti_tahun_laluEdit" class="form-control">
                                         </div>
                                     </div>
                                     <div class="col-lg-6 col-12">

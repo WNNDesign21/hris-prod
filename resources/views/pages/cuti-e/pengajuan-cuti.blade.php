@@ -29,24 +29,25 @@
                             <br>
                             Jatah Cuti Tahunan ({{ date('Y') }}) adalah <span class="text-bold text-primary"
                                 id="sisa_cuti_total_display">{{ auth()->user()->karyawan->sisa_cuti_pribadi + auth()->user()->karyawan->sisa_cuti_bersama }}
-                                Hari</span <ul>
-                            <li>Sisa Cuti Pribadi ({{ date('Y') }}) adalah <span class="text-bold text-primary"
-                                    id="sisa_cuti_pribadi">{{ auth()->user()->karyawan->sisa_cuti_pribadi }}
-                                    Hari</span></li>
-                            <li>Sisa Cuti Bersama ({{ date('Y') }}) adalah <span class="text-bold text-primary"
-                                    id="sisa_cuti_bersama">{{ auth()->user()->karyawan->sisa_cuti_bersama }}
-                                    Hari</span></li>
-                            <li>Sisa Cuti Tahun Lalu ({{ date('Y') - 1 }}) adalah <span class="text-bold text-primary"
-                                    id="sisa_cuti_tahun_lalu">{{ auth()->user()->karyawan->sisa_cuti_tahun_lalu }}
-                                    Hari</span></li>
-                            <li>Expired Date Sisa Cuti Tahun Lalu ({{ date('Y') - 1 }}) adalah tanggal <span
-                                    class="text-bold text-primary"
-                                    id="expired_date_cuti_tahun_lalu">{{ auth()->user()->karyawan->expired_date_cuti_tahun_lalu ? Carbon\Carbon::parse(auth()->user()->karyawan->expired_date_cuti_tahun_lalu)->format('Y-m-d') : '....' }}
-                                </span>(Jika tanggal saat pengajuan cuti masih <= Expired Date, Maka cuti yang diajukan akan
-                                    memotong sisa cuti tahun lalu.) </li>
-                            <li>Hutang Cuti ({{ date('Y') }}) : <span class="text-bold text-primary"
-                                    id="hutang_cuti_display">{{ auth()->user()->karyawan->hutang_cuti }} Hari</span>
-                            </li>
+                                Hari</span>
+                            <ul>
+                                <li>Sisa Cuti Pribadi ({{ date('Y') }}) adalah <span class="text-bold text-primary"
+                                        id="sisa_cuti_pribadi">{{ auth()->user()->karyawan->sisa_cuti_pribadi }}
+                                        Hari</span></li>
+                                <li>Sisa Cuti Bersama ({{ date('Y') }}) adalah <span class="text-bold text-primary"
+                                        id="sisa_cuti_bersama">{{ auth()->user()->karyawan->sisa_cuti_bersama }}
+                                        Hari</span></li>
+                                <li>Sisa Cuti Tahun Lalu ({{ date('Y') - 1 }}) adalah <span class="text-bold text-primary"
+                                        id="sisa_cuti_tahun_lalu">{{ auth()->user()->karyawan->sisa_cuti_tahun_lalu }}
+                                        Hari</span></li>
+                                <li>Expired Date Sisa Cuti Tahun Lalu ({{ date('Y') - 1 }}) adalah tanggal <span
+                                        class="text-bold text-primary"
+                                        id="expired_date_cuti_tahun_lalu">{{ auth()->user()->karyawan->expired_date_cuti_tahun_lalu ? Carbon\Carbon::parse(auth()->user()->karyawan->expired_date_cuti_tahun_lalu)->format('Y-m-d') : '....' }}
+                                    </span>(Jika tanggal saat pengajuan cuti masih <= Expired Date, Maka cuti yang diajukan
+                                        akan memotong sisa cuti tahun lalu.) </li>
+                                <li>Hutang Cuti ({{ date('Y') }}) : <span class="text-bold text-primary"
+                                        id="hutang_cuti_display">{{ auth()->user()->karyawan->hutang_cuti }} Hari</span>
+                                </li>
                             </ul>
                         </small>
                     </div>
