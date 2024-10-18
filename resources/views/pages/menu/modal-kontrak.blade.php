@@ -77,15 +77,6 @@
                                                                     <h5>{{ $val['deskripsi'] }}</h5>
                                                                 </div>
                                                                 <div class="form-group">
-                                                                    <label for="" class="fw-light">Template
-                                                                        Print</label>
-                                                                    <h5><a href="{{ url('/master-data/kontrak/download-kontrak-kerja/' . $val['id_kontrak']) }}"
-                                                                            target="_blank"><i
-                                                                                class="fas fa-download"></i>
-                                                                            Unduh
-                                                                            Template Disini</a></h5>
-                                                                </div>
-                                                                <div class="form-group">
                                                                     <label for="" class="fw-light">Dokumen
                                                                         Asli</label>
                                                                     <h5>{!! $val['attachment']
