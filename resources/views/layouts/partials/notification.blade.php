@@ -90,10 +90,10 @@
                 @foreach ($notification['rejected_cuti'] as $rejected_cuti)
                     <li>
                         <a href="{{ route('cutie.pengajuan-cuti') }}" style="white-space: normal;">
-                            <i class="fas fa-circle-xmark text-danger"></i></i>Pengajuan
+                            <i class="fa fa-warning text-danger"></i></i>Pengajuan
                             Cuti
                             {{ $rejected_cuti['jenis_cuti'] }} dengan durasi
-                            {{ $cutie_approval['durasi_cuti'] }} Hari
+                            {{ $rejected_cuti['durasi_cuti'] }} Hari
                             <strong>DITOLAK</strong> pada
                             {{ \Carbon\Carbon::parse($rejected_cuti['rejected_at'])->format('Y-m-d H:i:s') }}
                             <br>
