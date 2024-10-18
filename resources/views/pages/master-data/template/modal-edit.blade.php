@@ -36,8 +36,8 @@
                             <div class="input-group mb-2" style="width:100%;">
                                 <select name="isactive_template_edit" id="isactive_template_edit" class="form-control"
                                     required>
-                                    <option value="Y">AT</option>
-                                    <option value="N">NON-AT</option>
+                                    <option value="Y">AKTIF</option>
+                                    <option value="N">NON-AKTIF</option>
                                 </select>
                             </div>
                         </div>

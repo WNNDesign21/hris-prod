@@ -147,4 +147,31 @@ function($) {
     $('.btnProfile').on('click', function (){
         openProfile();
     })
+
+    // MODAL KONTRAK
+    var modalKontrakOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalKontrak = new bootstrap.Modal(
+        document.getElementById("modal-kontrak"),
+        modalKontrakOptions
+    );
+
+    function openKontrak() {
+        modalKontrak.show();
+    }
+
+    function closeKontrak() {
+        modalKontrak.hide();
+    }
+
+    $('.btnCloseKontrak').on('click', function (){
+        closeKontrak();
+    })
+
+    $('.btnKontrak').on('click', function (){
+        openKontrak();
+    })
 }(window.jQuery);
