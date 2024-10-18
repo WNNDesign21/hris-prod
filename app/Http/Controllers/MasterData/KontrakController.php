@@ -247,7 +247,7 @@ class KontrakController extends Controller
                         'karyawan_id' => $karyawan,
                         'organisasi_id' => $organisasi_id,
                         'posisi_id' => $posisi_id,
-                        'nama_posisi' => $nama_posisi ? $nama_posisi : Posisi::find($posisi_id)->nama,
+                        'nama_posisi' => $nama_posisi ? $nama_posisi : Posisi::find($posisi_id)?->nama,
                         'jenis' => $jenis,
                         'durasi' => $durasi,
                         'salary' => $salary,
@@ -869,9 +869,9 @@ class KontrakController extends Controller
                 $new_data = $karyawan->whereNotNull('tanggal_mulai')->whereNull('tanggal_selesai')->exists();
 
                 if($new_data){
-                    $existingCutiBersama = Event::whereDate('tanggal_mulai', '<=', $kontrak->tanggal_selesai)->where('jenis_event', 'CB')->get();
+                    $existingCutiBersama = Event::whereDate('tanggal_mulai', '<=', $kontrak->tanggal_selesai)->where('jenis_event', 'CB');
                     if($existingCutiBersama->exists()){
-                        foreach($existingCutiBersama as $cutiBersama){
+                        foreach($existingCutiBersama->get() as $cutiBersama){
                             $jatah_cuti_bersama = $karyawan->sisa_cuti_bersama - $cutiBersama->durasi;
                             if($jatah_cuti_bersama >= 0){
                                 $karyawan->sisa_cuti_bersama = $jatah_cuti_bersama;
@@ -901,12 +901,6 @@ class KontrakController extends Controller
         } catch(Throwable $error){
             DB::rollBack();
             return response()->json(['message' => $error->getMessage()], 500);
-        } catch (QueryException $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Database error: ' . $e->getMessage()], 500);
-        } catch (ModelNotFoundException $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Model not found: ' . $e->getMessage()], 404);
         }
     }
 }

@@ -24,7 +24,7 @@ class Turnover extends Model
 
     public function scopeOrganisasi($query, $organisasi)
     {
-        return $query->where('organisasi_id', $organisasi);
+        return $query->where('turnovers.organisasi_id', $organisasi);
     }
 
     public function karyawan()

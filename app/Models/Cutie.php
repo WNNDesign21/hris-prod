@@ -32,7 +32,7 @@ class Cutie extends Model
     public function scopeOrganisasi($query, $organisasi)
     {
         if($organisasi){
-            return $query->where('organisasi_id', $organisasi);
+            return $query->where('cutis.organisasi_id', $organisasi);
         } else {
             return $query;
         }

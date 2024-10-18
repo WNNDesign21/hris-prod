@@ -45,7 +45,7 @@ $(function () {
 
     //DATATABLE KARYAWAN
     var columnsTable = [
-        { data: "id_karyawan" },
+        { data: "ni_karyawan" },
         { data: "nama" },
         { data: "departemen" },
         { data: "posisi" },

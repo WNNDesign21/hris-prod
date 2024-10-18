@@ -220,7 +220,6 @@ $(function () {
         $('#rencana_mulai_cuti').attr('min', minDate.toISOString().split('T')[0]);
         $('#rencana_mulai_cuti').val('');
         if (jenisCuti == 'KHUSUS') {
-            $('#penggunaan_sisa_cuti_field').css('display', 'none');
             var conditionalField = $('#conditional_field');
             conditionalField.empty();
             conditionalField.append('<label for="jenis_cuti_khusus">Jenis Cuti Khusus</label>');
@@ -279,7 +278,6 @@ $(function () {
             $('#rencana_selesai_cuti').val('');
             $('#rencana_selesai_cuti').prop('readonly', false);
         } else {
-            $('#penggunaan_sisa_cuti_field').css('display', 'block');
             var conditionalField = $('#conditional_field');
             conditionalField.empty();
             $('#rencana_selesai_cuti').val('');

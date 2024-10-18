@@ -52,7 +52,7 @@ class Kontrak extends Model
 
     public function scopeOrganisasi($query, $organisasi)
     {
-        return $query->where('organisasi_id', $organisasi);
+        return $query->where('kontraks.organisasi_id', $organisasi);
     }
 
     public function karyawan()
@@ -86,11 +86,12 @@ class Kontrak extends Model
             'kontraks.evidence',
             'kontraks.isReactive',
             'karyawans.nama as nama_karyawan',
-            'departemens.nama as nama_departemen'
+            'departemens.nama as nama_departemen',
+            'kontraks.created_at'
         )
         ->leftJoin('karyawans', 'kontraks.karyawan_id', 'karyawans.id_karyawan')
         ->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
-        ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+        ->leftJoin('posisis', 'kontraks.posisi_id', 'posisis.id_posisi')
         ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
         ->groupBy(
             'kontraks.id_kontrak',
@@ -111,7 +112,7 @@ class Kontrak extends Model
             'kontraks.evidence',
             'kontraks.isReactive',
             'karyawans.nama',
-            'departemens.nama'
+            'departemens.nama',
         );
 
         $organisasi_id = auth()->user()->organisasi_id;

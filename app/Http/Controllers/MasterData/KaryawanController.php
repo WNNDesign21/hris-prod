@@ -46,7 +46,7 @@ class KaryawanController extends Controller
     {
 
         $columns = array(
-            0 => 'id_karyawan',
+            0 => 'karyawans.ni_karyawan',
             1 => 'karyawans.nama',
             2 => 'departemens.nama',
             4 => 'grups.nama',
@@ -174,8 +174,8 @@ class KaryawanController extends Controller
                 }
                 $kontrak = Kontrak::where('karyawan_id', $data->id_karyawan)->orderBy('tanggal_mulai', 'DESC')->pluck('jenis')->first();
                 $posisis = $data->posisi()->pluck('posisis.nama')->toArray();
-                $nestedData['id_karyawan'] = $data->id_karyawan;
-                $nestedData['nama'] = $data->nama.'<br> ('.$data->ni_karyawan.')';
+                $nestedData['ni_karyawan'] = $data->ni_karyawan;
+                $nestedData['nama'] = $data->nama;
                 $nestedData['jenis_kontrak'] = $kontrak ? $kontrak : ($data->jenis_kontrak ? $data->jenis_kontrak : 'BELUM ADA KONTRAK');
                 $nestedData['tanggal_mulai'] = $data->tanggal_mulai ? $data->tanggal_mulai : 'BELUM ADA KONTRAK';
                 $nestedData['tanggal_selesai'] = $data->tanggal_selesai ? $data->tanggal_selesai : ($kontrak == 'PKWTT' || $data->jenis_kontrak == 'PKWTT' ? '-' : 'BELUM ADA KONTRAK');

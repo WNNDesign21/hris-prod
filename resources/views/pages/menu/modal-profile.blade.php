@@ -304,23 +304,6 @@
                                 </div>
                                 <div class="col-lg-6 col-12">
                                     <div class="form-group">
-                                        <label class="form-label">Jatah Cuti Tahun Lalu</label>
-                                        <input type="number" name="sisa_cuti_tahun_lalu" id="sisa_cuti_tahun_lalu"
-                                            class="form-control" min='0' max='12'
-                                            value="{{ $profile['sisa_cuti_tahun_lalu'] }}" disabled>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6 col-12">
-                                    <div class="form-group">
-                                        <label class="form-label">Expired Date Cuti Tahun Lalu</label>
-                                        <input type="date" name="expired_date_cuti_tahun_lalu"
-                                            id="expired_date_cuti_tahun_lalu"
-                                            value="{{ $profile['expired_date_cuti_tahun_lalu'] }}"
-                                            class="form-control" disabled>
-                                    </div>
-                                </div>
-                                <div class="col-lg-6 col-12">
-                                    <div class="form-group">
                                         <label class="form-label">Hutang Cuti</label>
                                         <div class="input-group mb-2" style="width:100%;">
                                             <input type="text" name="hutang_cuti" id="hutang_cuti"

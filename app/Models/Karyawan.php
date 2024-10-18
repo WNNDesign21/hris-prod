@@ -92,7 +92,7 @@ class Karyawan extends Model
 
     public function scopeOrganisasi($query, $organisasi)
     {
-        return $query->where('organisasi_id', $organisasi);
+        return $query->where('karyawans.organisasi_id', $organisasi);
     }
 
     public function user()
