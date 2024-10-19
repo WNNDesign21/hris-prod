@@ -82,7 +82,7 @@
                 <div class="box-body">
                     <h3 class="mt-0 mb-5">Turnover Karyawan {{ date('Y') }}</h3>
                     <p class="text-fade">Total Karyawan Keluar : {{ $jumlah_karyawan_keluar }}</p>
-                    <div style="min-height: 198px;">
+                    <div style="min-height: 245px;">
                         <div id="turnover-chart">
                         </div>
                     </div>

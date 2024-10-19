@@ -200,6 +200,8 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         /** PERSONALIA CUTI */
         Route::post('/personalia-cuti-datatable', [CutieController::class, 'personalia_cuti_datatable']);
         Route::get('/personalia-cuti',[CutieController::class, 'personalia_cuti_view'])->name('cutie.personalia-cuti');
+        Route::delete('/personalia-cuti/delete/{idCuti}',[CutieController::class, 'delete'])->name('cutie.personalia-cuti.delete');
+        Route::patch('/personalia-cuti/cancel/{idCuti}',[CutieController::class, 'cancel'])->name('cutie.personalia-cuti.cancel');
         
         /** SETTING CUTI */
         Route::post('/setting-cuti-datatable', [CutieController::class, 'setting_cuti_datatable']);

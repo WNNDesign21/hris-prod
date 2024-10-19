@@ -123,7 +123,7 @@ class KontrakController extends Controller
                 $nestedData['id_kontrak'] = $data->id_kontrak;
                 $nestedData['nama'] = $data->nama_karyawan;
                 $nestedData['departemen'] = $data->nama_departemen;
-                $nestedData['nama_posisi'] = $data->nama_posisi;
+                $nestedData['nama_posisi'] = $data->nama_posisi ? $data->nama_posisi : $data->nama_posisis;
                 $nestedData['no_surat'] = $data->no_surat;
                 $nestedData['issued_date'] = $data->issued_date;
                 $nestedData['jenis'] = $data->jenis;

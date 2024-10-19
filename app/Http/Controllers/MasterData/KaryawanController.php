@@ -730,6 +730,20 @@ class KaryawanController extends Controller
         $karyawan = Karyawan::find($id_karyawan);
         $detail = [];
         if($karyawan){
+            if($karyawan->status_karyawan == 'AT'){
+                $status_karyawan_text = 'AKTIF';
+            } elseif ($karyawan->status_karyawan == 'MD') {
+                $status_karyawan_text = 'MENGUNDURKAN DIRI';
+            } elseif ($karyawan->status_karyawan == 'HK') {
+                $status_karyawan_text = 'HABIS KONTRAK';
+            } elseif ($karyawan->status_karyawan == 'PS') {
+                $status_karyawan_text = 'PENSIUN';
+            } elseif ($karyawan->status_karyawan == 'TM') {
+                $status_karyawan_text = 'TERMINASI';
+            } else {
+                $status_karyawan_text = '-';
+            }
+
             $detail = [
                 'id_karyawan' => $karyawan->id_karyawan,
                 'ni_karyawan' => $karyawan->ni_karyawan,
@@ -759,7 +773,7 @@ class KaryawanController extends Controller
                 'jenjang_pendidikan' => $karyawan->jenjang_pendidikan,
                 'jurusan_pendidikan' => $karyawan->jurusan_pendidikan,
                 'jenis_kontrak' => $karyawan->jenis_kontrak,
-                'status_karyawan' => $karyawan->status_karyawan,
+                'status_karyawan' => $status_karyawan_text,
                 'sisa_cuti_pribadi' => $karyawan->sisa_cuti_pribadi,
                 'sisa_cuti_bersama' => $karyawan->sisa_cuti_bersama,
                 'sisa_cuti_tahun_lalu' => $karyawan->sisa_cuti_tahun_lalu,

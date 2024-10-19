@@ -54,7 +54,7 @@ $(function () {
                 chart: {
                 foreColor:"#bac0c7",
                 type: 'bar',
-                height: 200,
+                height: '100%',
                 stacked: true,
                 toolbar: {
                   show: true

@@ -1262,22 +1262,33 @@ class CutieController extends Controller
                 'attachment' => null,
                 'rencana_mulai_cuti' => $rencana_mulai_cuti,
                 'rencana_selesai_cuti' => $rencana_selesai_cuti,
-                'aktual_mulai_cuti' => $aktual_mulai_cuti,
-                'aktual_selesai_cuti' => $aktual_selesai_cuti,
                 'alasan_cuti' => $alasan_cuti,
                 'durasi_cuti' => $durasi_cuti,
-                'penggunaan_sisa_cuti' => $penggunaan_sisa_cuti,
-                'status_cuti' => $status_cuti,
-                'status_dokumen' => 'APPROVED',
-                'checked1_by' => 'HRD & GA (BYPASS SYSTEM)',
-                'checked1_at' => Carbon::now(),
-                'checked2_by' => 'HRD & GA (BYPASS SYSTEM)',
-                'checked2_at' => Carbon::now(),
-                'approved_by' => 'HRD & GA (BYPASS SYSTEM)',
-                'approved_at' => Carbon::now(),
-                'legalized_by' => 'HRD & GA (BYPASS SYSTEM)',
-                'legalized_at' => Carbon::now(),
             ]);
+
+            // $cuti = Cutie::create([
+            //     'karyawan_id' => $id_karyawan,
+            //     'organisasi_id' => $karyawan->user->organisasi_id,
+            //     'jenis_cuti' => 'PRIBADI',
+            //     'attachment' => null,
+            //     'rencana_mulai_cuti' => $rencana_mulai_cuti,
+            //     'rencana_selesai_cuti' => $rencana_selesai_cuti,
+            //     'aktual_mulai_cuti' => $aktual_mulai_cuti,
+            //     'aktual_selesai_cuti' => $aktual_selesai_cuti,
+            //     'alasan_cuti' => $alasan_cuti,
+            //     'durasi_cuti' => $durasi_cuti,
+            //     'penggunaan_sisa_cuti' => $penggunaan_sisa_cuti,
+            //     'status_cuti' => $status_cuti,
+            //     'status_dokumen' => 'APPROVED',
+            //     'checked1_by' => 'HRD & GA (BYPASS SYSTEM)',
+            //     'checked1_at' => Carbon::now(),
+            //     'checked2_by' => 'HRD & GA (BYPASS SYSTEM)',
+            //     'checked2_at' => Carbon::now(),
+            //     'approved_by' => 'HRD & GA (BYPASS SYSTEM)',
+            //     'approved_at' => Carbon::now(),
+            //     'legalized_by' => 'HRD & GA (BYPASS SYSTEM)',
+            //     'legalized_at' => Carbon::now(),
+            // ]);
 
             DB::commit();
             return response()->json(['message' => 'Bypass Cuti Berhasil Dilakukan!'], 200);
@@ -1578,10 +1589,29 @@ class CutieController extends Controller
                 $cuti->approved_by = $issued_name;
                 $cuti->approved_at = now();
             } else {
-                $cuti->legalized_by = $issued_name;
-                $cuti->status_dokumen = 'APPROVED';
-                $cuti->status_cuti = 'SCHEDULED';
-                $cuti->legalized_at = now();
+
+                //LOGIKA UNTUK BYPASS CUTI
+                if($cuti->rencana_mulai_cuti < date('Y-m-d', strtotime('+7 days')) && $cuti->jenis_cuti == 'PRIBADI'){
+                    $cuti->legalized_by = $issued_name.' (BYPASS SYSTEM)';
+                    $cuti->status_dokumen = 'APPROVED';
+
+                    if($cuti->rencana_mulai_cuti > date('Y-m-d')){
+                        $cuti->status_cuti = 'SCHEDULED';
+                    } elseif ($cuti->rencana_mulai_cuti == date('Y-m-d')){
+                        $cuti->status_cuti = 'ON LEAVE';
+                    } else {
+                        $cuti->status_cuti = 'COMPLETED';
+                    }
+                    
+                    $cuti->status_cuti = 'COMPLETED';
+                    $cuti->legalized_at = now();
+                //LOGIKAN UNTUK CUTI BIASA
+                } else {
+                    $cuti->legalized_by = $issued_name;
+                    $cuti->status_dokumen = 'APPROVED';
+                    $cuti->status_cuti = 'SCHEDULED';
+                    $cuti->legalized_at = now();
+                }
             }
             
             $cuti->save();

@@ -56,7 +56,7 @@
                                     <div class="form-group">
                                         <label for="">Rencana Mulai</label>
                                         <input type="date" name="rencana_mulai_cuti" id="rencana_mulai_cuti"
-                                            class="form-control" required>
+                                            class="form-control" required min="{{ date('Y-m-d', strtotime('-7 days')) }}">
                                     </div>
                                     <div class="form-group">
                                         <label for="">Rencana Selesai</label>

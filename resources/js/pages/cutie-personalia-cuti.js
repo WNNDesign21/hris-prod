@@ -408,7 +408,7 @@ $(function () {
             if (result.value) {
                 loadingSwalShow();
                 let idCuti = $(this).data('id');
-                let url = base_url + '/cutie/pengajuan-cuti/cancel/' + idCuti;
+                let url = base_url + '/cutie/personalia-cuti/cancel/' + idCuti;
         
                 var formData = new FormData();
                 formData.append('_method', 'PATCH');
