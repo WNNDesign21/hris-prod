@@ -34,6 +34,11 @@ class Event extends Model
             'tanggal_selesai',
         );
 
+        $organisasi_id = auth()->user()->organisasi_id;
+        if ($organisasi_id){
+            $data->where('organisasi_id', $organisasi_id);
+        }
+
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
             $data->where(function ($query) use ($search) {
