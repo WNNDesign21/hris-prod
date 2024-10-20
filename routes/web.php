@@ -140,6 +140,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         // Tidak Dipakai Lagi
         // Route::post('/kontrak/store-or-update',[KontrakController::class, 'store_or_update'])->name('master-data.kontrak.storeUpdate');
         Route::post('/kontrak/upload-kontrak/{type}/{idKontrak}',[KontrakController::class, 'upload_kontrak'])->name('master-data.kontrak.upload');
+        Route::post('/kontrak/upload-data-kontrak',[KontrakController::class, 'upload_data_kontrak'])->name('master-data.kontrak.upload-data-kontrak');
         Route::post('/kontrak/done/{idKontrak}',[KontrakController::class, 'done_kontrak'])->name('master-data.kontrak.done');
 
         /** MASTER DATA - EXPORT */
@@ -200,6 +201,8 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         /** PERSONALIA CUTI */
         Route::post('/personalia-cuti-datatable', [CutieController::class, 'personalia_cuti_datatable']);
         Route::get('/personalia-cuti',[CutieController::class, 'personalia_cuti_view'])->name('cutie.personalia-cuti');
+        Route::delete('/personalia-cuti/delete/{idCuti}',[CutieController::class, 'delete'])->name('cutie.personalia-cuti.delete');
+        Route::patch('/personalia-cuti/cancel/{idCuti}',[CutieController::class, 'cancel'])->name('cutie.personalia-cuti.cancel');
         
         /** SETTING CUTI */
         Route::post('/setting-cuti-datatable', [CutieController::class, 'setting_cuti_datatable']);

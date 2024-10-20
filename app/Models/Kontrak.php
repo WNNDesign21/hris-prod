@@ -71,6 +71,7 @@ class Kontrak extends Model
             'kontraks.id_kontrak',
             'kontraks.karyawan_id',
             'kontraks.posisi_id',
+            'posisis.nama as nama_posisis',
             'kontraks.nama_posisi',
             'kontraks.no_surat',
             'kontraks.tempat_administrasi',
@@ -113,6 +114,7 @@ class Kontrak extends Model
             'kontraks.isReactive',
             'karyawans.nama',
             'departemens.nama',
+            'posisis.nama'
         );
 
         $organisasi_id = auth()->user()->organisasi_id;

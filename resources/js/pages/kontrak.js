@@ -652,4 +652,49 @@ $(function () {
         kontrakTable.draw();
         closeFilter();
     });
+
+    $('.btnTemplate').on('click', function () {
+        window.location.href = base_url + '/template/template_upload_kontrak.xlsx';
+    });
+
+    $('.btnUpload').on('click', function (){
+        let input = $('#upload-kontrak');
+        input.click();
+
+        input.on("change", function () {
+            Swal.fire({
+                title: "Upload Record Kontrak",
+                text: "Kontrak akan menjadi double jika data sudah ada, pastikan untuk tidak mengupload kontrak yang sama",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, Upload it!",
+                allowOutsideClick: false,
+            }).then((result) => {
+                if (result.value) {
+                    loadingSwalShow();
+                    const url = base_url + "/master-data/kontrak/upload-data-kontrak";
+                    let formData = new FormData();
+                    formData.append('kontrak_file', input[0].files[0]);
+
+                    $.ajax({
+                        url: url,
+                        method: "POST",
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        success: function (data) {
+                            showToast({ title: data.message });
+                            loadingSwalClose();
+                            refreshTable();
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                        },
+                    })
+                } 
+            });
+        });
+    });
 });

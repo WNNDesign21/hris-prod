@@ -14,6 +14,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\IOFactory;
+use PhpOffice\PhpSpreadsheet\IOFactory as PhpSpreadsheetIOFactory;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Database\QueryException;
@@ -123,7 +124,7 @@ class KontrakController extends Controller
                 $nestedData['id_kontrak'] = $data->id_kontrak;
                 $nestedData['nama'] = $data->nama_karyawan;
                 $nestedData['departemen'] = $data->nama_departemen;
-                $nestedData['nama_posisi'] = $data->nama_posisi;
+                $nestedData['nama_posisi'] = $data->nama_posisi ? $data->nama_posisi : $data->nama_posisis;
                 $nestedData['no_surat'] = $data->no_surat;
                 $nestedData['issued_date'] = $data->issued_date;
                 $nestedData['jenis'] = $data->jenis;
@@ -476,7 +477,7 @@ class KontrakController extends Controller
 
     public function get_data_list_kontrak(string $karyawan_id)
     {
-        $kontrak = Kontrak::where('karyawan_id', $karyawan_id)->orderBy('tanggal_mulai', 'DESC')->get();
+        $kontrak = Kontrak::where('karyawan_id', $karyawan_id)->orderBy('tanggal_selesai', 'DESC')->get();
         $list = [];
         if($kontrak){
             foreach($kontrak as $item){
@@ -901,6 +902,131 @@ class KontrakController extends Controller
         } catch(Throwable $error){
             DB::rollBack();
             return response()->json(['message' => $error->getMessage()], 500);
+        }
+    }
+
+    public function upload_data_kontrak(Request $request)
+    {
+        $file = $request->file('kontrak_file');
+        $organisasi_id = auth()->user()->organisasi_id;
+        if ($organisasi_id == '1'){
+            $tempat_administrasi = 'Karawang';
+        } else {
+            $tempat_administrasi = 'Purwakarta';
+        }
+        
+        $validator = Validator::make($request->all(), [
+            'kontrak_file' => 'required|mimes:xlsx,xls'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => 'File Harus bertipe Excel!'], 400);
+        }
+
+        DB::beginTransaction();
+        try {
+
+            if($request->hasFile('kontrak_file')){
+                $kontrak_records = 'KN_' . time() . '.' . $file->getClientOriginalExtension();
+                $kontrak_file = $file->storeAs("attachment/upload-kontrak", $kontrak_records);
+            } 
+
+            if (file_exists(storage_path("app/public/".$kontrak_file))) {
+                $spreadsheet = PhpSpreadsheetIOFactory::load(storage_path("app/public/".$kontrak_file));
+                $worksheet = $spreadsheet->getActiveSheet();
+                $data = $worksheet->toArray();
+                $chunkSize = 100;
+
+                //Chunck data agar tidak terlalu banyak
+                for ($i = 1; $i <= count($data); $i += $chunkSize) {
+                    $chunk = array_slice($data, $i - 1, $chunkSize);
+                    foreach ($chunk as $index => $row) {
+                        if ($index < 1) { 
+                            continue;
+                        }
+
+                        //Convert tanggal mulai dan selesai ke format Ymd jika ada
+                        if($row[7] !== null){
+                            try {
+                                $tanggal_mulai = Carbon::createFromFormat('m/d/Y', $row[7])->format('Y-m-d');
+                            } catch (Exception $e) {
+                                return response()->json(['message' => 'Format tanggal mulai salah!'], 402);
+                            }
+                        } 
+
+                        if($row[8] !== null){
+                            try {
+                                $tanggal_selesai = Carbon::createFromFormat('m/d/Y', $row[8])->format('Y-m-d');
+                            } catch (Exception $e) {
+                                return response()->json(['message' => 'Format tanggal selesai salah!'], 402);
+                            }
+                        }
+
+                        //Validasi Kolom Numeric
+                        if (!is_numeric($row[2]) || !is_numeric($row[5]) || $row[5] < 0 || !is_numeric($row[6]) || $row[6] < 0) {
+                            return response()->json(['message' => 'Kolom ID Posisi, Durasi dan Salary harus berupa numeric!'], 402);
+                        }
+
+                        $posisi_id = Posisi::where('id_posisi', $row[2])->first()->id_posisi;
+                        if($posisi_id == null){
+                            return response()->json(['message' => 'Posisi dengan ID '.$row[2].' tidak ditemukan!'], 404);
+                        }
+
+                        //Validasi Jenis Kontrak
+                        if (!in_array($row[4], ['PKWT', 'PKWTT', 'MAGANG'])) {
+                            return response()->json(['message' => 'Jenis kontrak pada baris ' . ($index + 1) . ' harus PKWT, PKWTT, atau MAGANG!'], 402);
+                        }
+
+                        //Validasi Nomor Induk Karyawan
+                        $karyawan = Karyawan::where('ni_karyawan', $row[0])->first();
+                        if($karyawan->id_karyawan == null){
+                            return response()->json(['message' => 'Karyawan dengan Nomor Induk '.$row[0].' tidak ditemukan!'], 404);
+                        }
+
+                        //Validasi Tempat Administrasi
+                        if (!in_array($row[9], ['Karawang', 'Purwakarta'])) {
+                            return response()->json(['message' => 'Tempat administasi tidak sesuai format!'], 402);
+                        }
+
+                        //Update data karyawan
+                        $karyawan->jenis_kontrak = $row[4];
+                        $karyawan->status_karyawan = 'AT';
+
+                        if(($karyawan->tanggal_selesai < $tanggal_selesai || $karyawan->tanggal_selesai == null) && $row[4] !== 'PKWTT'){
+                            $karyawan->tanggal_selesai = $tanggal_selesai;
+                        }
+                        
+                        $karyawan->save();
+
+                        // Input Kontrak
+                        Kontrak::create([
+                            'no_surat' => $row[3],
+                            'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,
+                            'karyawan_id' =>  $karyawan->id_karyawan,
+                            'posisi_id' => $posisi_id,
+                            'jenis' => $row[4],
+                            'status' => 'DONE',
+                            'durasi' => $row[5],
+                            'salary' => $row[6],
+                            'deskripsi' => 'History Kontrak Karyawan',
+                            'tanggal_mulai' => $tanggal_mulai,
+                            'tanggal_selesai' => $tanggal_selesai,
+                            'tempat_administrasi' => $row[9],
+                            'isReactive' => 'N',
+                            'organisasi_id' => $organisasi_id,
+                            'issued_date' => Carbon::now()->format('Y-m-d'),
+                        ]);
+                    }
+                }
+            } else {
+                DB::rollBack();
+                return response()->json(['message' => 'Terjadi kesalahan, silahkan upload ulang file!'], 404);
+            }
+            DB::commit();
+            return response()->json(['message' => 'File berhasil di upload'], 200);
+        } catch (Throwable $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Error processing the file: ' . $e->getMessage()], 500);
         }
     }
 }

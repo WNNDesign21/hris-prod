@@ -18,10 +18,7 @@ class DivisiSeeder extends Seeder
                 'nama' => 'ADMINISTRATION',
             ],
             [
-                'nama' => 'MARKETING & PROCUREMENT',
-            ],
-            [
-                'nama' => 'RESOURCE & DEVELOPMENT',
+                'nama' => 'ENGINEERING',
             ],
             [
                 'nama' => 'OPERATIONAL',

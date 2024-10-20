@@ -1262,22 +1262,33 @@ class CutieController extends Controller
                 'attachment' => null,
                 'rencana_mulai_cuti' => $rencana_mulai_cuti,
                 'rencana_selesai_cuti' => $rencana_selesai_cuti,
-                'aktual_mulai_cuti' => $aktual_mulai_cuti,
-                'aktual_selesai_cuti' => $aktual_selesai_cuti,
                 'alasan_cuti' => $alasan_cuti,
                 'durasi_cuti' => $durasi_cuti,
-                'penggunaan_sisa_cuti' => $penggunaan_sisa_cuti,
-                'status_cuti' => $status_cuti,
-                'status_dokumen' => 'APPROVED',
-                'checked1_by' => 'HRD & GA (BYPASS SYSTEM)',
-                'checked1_at' => Carbon::now(),
-                'checked2_by' => 'HRD & GA (BYPASS SYSTEM)',
-                'checked2_at' => Carbon::now(),
-                'approved_by' => 'HRD & GA (BYPASS SYSTEM)',
-                'approved_at' => Carbon::now(),
-                'legalized_by' => 'HRD & GA (BYPASS SYSTEM)',
-                'legalized_at' => Carbon::now(),
             ]);
+
+            // $cuti = Cutie::create([
+            //     'karyawan_id' => $id_karyawan,
+            //     'organisasi_id' => $karyawan->user->organisasi_id,
+            //     'jenis_cuti' => 'PRIBADI',
+            //     'attachment' => null,
+            //     'rencana_mulai_cuti' => $rencana_mulai_cuti,
+            //     'rencana_selesai_cuti' => $rencana_selesai_cuti,
+            //     'aktual_mulai_cuti' => $aktual_mulai_cuti,
+            //     'aktual_selesai_cuti' => $aktual_selesai_cuti,
+            //     'alasan_cuti' => $alasan_cuti,
+            //     'durasi_cuti' => $durasi_cuti,
+            //     'penggunaan_sisa_cuti' => $penggunaan_sisa_cuti,
+            //     'status_cuti' => $status_cuti,
+            //     'status_dokumen' => 'APPROVED',
+            //     'checked1_by' => 'HRD & GA (BYPASS SYSTEM)',
+            //     'checked1_at' => Carbon::now(),
+            //     'checked2_by' => 'HRD & GA (BYPASS SYSTEM)',
+            //     'checked2_at' => Carbon::now(),
+            //     'approved_by' => 'HRD & GA (BYPASS SYSTEM)',
+            //     'approved_at' => Carbon::now(),
+            //     'legalized_by' => 'HRD & GA (BYPASS SYSTEM)',
+            //     'legalized_at' => Carbon::now(),
+            // ]);
 
             DB::commit();
             return response()->json(['message' => 'Bypass Cuti Berhasil Dilakukan!'], 200);
@@ -1578,10 +1589,29 @@ class CutieController extends Controller
                 $cuti->approved_by = $issued_name;
                 $cuti->approved_at = now();
             } else {
-                $cuti->legalized_by = $issued_name;
-                $cuti->status_dokumen = 'APPROVED';
-                $cuti->status_cuti = 'SCHEDULED';
-                $cuti->legalized_at = now();
+
+                //LOGIKA UNTUK BYPASS CUTI
+                if($cuti->rencana_mulai_cuti < date('Y-m-d', strtotime('+7 days')) && $cuti->jenis_cuti == 'PRIBADI'){
+                    $cuti->legalized_by = $issued_name.' (BYPASS SYSTEM)';
+                    $cuti->status_dokumen = 'APPROVED';
+
+                    if($cuti->rencana_mulai_cuti > date('Y-m-d')){
+                        $cuti->status_cuti = 'SCHEDULED';
+                    } elseif ($cuti->rencana_mulai_cuti == date('Y-m-d')){
+                        $cuti->status_cuti = 'ON LEAVE';
+                    } else {
+                        $cuti->status_cuti = 'COMPLETED';
+                    }
+                    
+                    $cuti->status_cuti = 'COMPLETED';
+                    $cuti->legalized_at = now();
+                //LOGIKAN UNTUK CUTI BIASA
+                } else {
+                    $cuti->legalized_by = $issued_name;
+                    $cuti->status_dokumen = 'APPROVED';
+                    $cuti->status_cuti = 'SCHEDULED';
+                    $cuti->legalized_at = now();
+                }
             }
             
             $cuti->save();
@@ -2119,10 +2149,6 @@ class CutieController extends Controller
             array_push($jenis_cuti, 'KHUSUS');
         }
 
-        // if($sakit == 'Y'){
-        //     array_push($jenis_cuti, 'SAKIT');
-        // }
-
         if(!empty($jenis_cuti)){
             $cutie->whereIn('jenis_cuti', $jenis_cuti);
         }
@@ -2155,34 +2181,28 @@ class CutieController extends Controller
         ];
         
         if($bulan){
-            $monthlyCutie = $cutie->whereMonth('rencana_mulai_cuti', $bulan);
+            $monthlyCutie = $cutie->whereMonth('rencana_mulai_cuti', $bulan)->where('status_dokumen', 'APPROVED')->where(function($query) {
+                $query->where('status_cuti', '!=', 'CANCELED');
+            })->orderBy('karyawan_id', 'DESC');
             $sheet = $spreadsheet->getActiveSheet();
             $sheet->setTitle(Carbon::createFromFormat('m', $bulan)->format('F Y'));
             $row = 1;
             $col = 'A';
             $headers = [
                 'No',
-                'ID Karyawan',
+                'Nomor Induk Karyawan',
                 'Nama',
                 'Departemen',
-                'Jenis Cuti',
-                'Penggunaan Jatah Cuti',
-                'Durasi Cuti',
-                'Rencana Mulai Cuti',
-                'Rencana Selesai Cuti',
-                'Aktual Mulai Cuti',
-                'Aktual Selesai Cuti',
-                'Alasan Cuti',
-                'Karyawan Pengganti',
-                'Checked 1',
-                'Checked 2',
-                'Approved',
-                'Legalized',
-                'Status Dokumen',
-                'Status Cuti',
-                'Rejected',
-                'Alasan Reject',
-                'Created At',
+                'Jabatan',
+                'Cuti Khusus',
+                'Cuti Pribadi',
+                'Cuti 1',
+                'Cuti 2',
+                'Cuti 3',
+                'Cuti 4',
+                'Cuti 5',
+                'Cuti 6',
+                'Sisa Cuti Pribadi'
             ];
 
             foreach ($headers as $header) {
@@ -2193,70 +2213,109 @@ class CutieController extends Controller
 
             $row = 2;
 
-            $columns = range('A', 'V');
+            $columns = range('A', 'N');
             foreach ($columns as $column) {
                 $sheet->getColumnDimension($column)->setAutoSize(true);
             }
-            $sheet->setAutoFilter('A1:V1');
+            $sheet->setAutoFilter('A1:N1');
 
-            foreach ($monthlyCutie->get() as $c) {
-                $sheet->setCellValue('A' . $row, $row - 1);
-                $sheet->setCellValue('B' . $row, $c->karyawan->id_karyawan);
-                $sheet->setCellValue('C' . $row, $c->karyawan->nama);
-                $sheet->setCellValue('D' . $row, $c->karyawan->posisi[0]?->departemen?->nama);
-                $sheet->setCellValue('E' . $row, $c->jenis_cuti == 'KHUSUS' ? $c->jenisCuti->nama : $c->jenis_cuti);
-                $sheet->setCellValue('F' . $row, $c->penggunaan_sisa_cuti == 'TB' ? 'TAHUN BERJALAN '.Carbon::parse($c->created_at)->format('Y') : 'TAHUN LALU '.Carbon::parse($c->created_at)->format('Y') - 1);
-                $sheet->setCellValue('G' . $row, $c->durasi_cuti);
-                $sheet->setCellValue('H' . $row, $c->rencana_mulai_cuti);
-                $sheet->setCellValue('I' . $row, $c->rencana_selesai_cuti);
-                $sheet->setCellValue('J' . $row, $c->aktual_mulai_cuti);
-                $sheet->setCellValue('K' . $row, $c->aktual_selesai_cuti);
-                $sheet->setCellValue('L' . $row, $c->alasan_cuti);
-                $sheet->setCellValue('M' . $row, $c->karyawan_pengganti_id ? $c->karyawanPengganti->nama : '-');
-                $sheet->setCellValue('N' . $row, $c->checked1_by !== null ? $c->checked1_by.' / '.(Carbon::parse($c->checked1_at)->format('d-m-Y')) : '-');
-                $sheet->setCellValue('O' . $row, $c->checked2_by !== null ? $c->checked2_by.' / '.(Carbon::parse($c->checked2_at)->format('d-m-Y')) : '-');
-                $sheet->setCellValue('P' . $row, $c->approved_by !== null ? $c->approved_by.' / '.(Carbon::parse($c->approved_at)->format('d-m-Y')) : '-');
-                $sheet->setCellValue('Q' . $row, $c->legalized_by !== null ? $c->legalized_by.' / '.(Carbon::parse($c->legalized_at)->format('d-m-Y')) : '-');
-                $sheet->setCellValue('R' . $row, $c->status_dokumen);
-                $sheet->setCellValue('S' . $row, $c->rejected_by ? 'REJECTED' : ($c->status_cuti ? $c->status_cuti : '-'));
-                $sheet->setCellValue('T' . $row, $c->rejected_by !== null ? $c->rejected_by.' / '.(Carbon::parse($c->rejected_at)->format('d-m-Y')) : '-');
-                $sheet->setCellValue('U' . $row, $c->rejected_note ? $c->rejected_note : '-');
-                $sheet->setCellValue('V' . $row, $c->created_at->format('d-m-Y'));
-                $row++;
+            $monthlyCutie = $monthlyCutie->get();
+            $jumlah_cuti_khusus = 0;
+            $jumlah_cuti_pribadi = 0;
+            $tanggal_cuti = [];
+            foreach ($monthlyCutie as $index => $c) {
+
+                if($c->jenis_cuti == 'KHUSUS'){
+                    //MENDAPATKAN DURASI CUTI KHUSUS
+                    $jumlah_cuti_khusus += $c->durasi_cuti;
+                } else {
+                    //MENDAPATKAN DURASI CUTI PRIBADI
+                    $jumlah_cuti_pribadi += $c->durasi_cuti;
+                    if($c->durasi_cuti > 1){
+                        $range_date_cuti =  Carbon::parse($c->rencana_mulai_cuti)->toPeriod(Carbon::parse($c->rencana_selesai_cuti))->toArray();
+                        foreach ($range_date_cuti as $r) {
+                            $tanggal_cuti[] = $r->format('Y-m-d');
+                        }
+                    } else {
+                        $tanggal_cuti[] = $c->rencana_mulai_cuti;
+                    }
+                }
+
+                if(isset($monthlyCutie[$index+1])){
+                    if($monthlyCutie[$index+1]->karyawan_id !== $c->karyawan_id){
+                        $sheet->setCellValue('A' . $row, $row - 1);
+                        $sheet->setCellValue('B' . $row, $c->karyawan->ni_karyawan);
+                        $sheet->setCellValue('C' . $row, $c->karyawan->nama);
+                        $sheet->setCellValue('D' . $row, $c->karyawan->posisi[0]?->departemen?->nama);
+                        $sheet->setCellValue('E' . $row, $c->karyawan->posisi[0]?->nama);
+                        $sheet->setCellValue('F' . $row, $jumlah_cuti_khusus.' Hari');
+                        $sheet->setCellValue('G' . $row, $jumlah_cuti_pribadi.' Hari');
+                        $sheet->setCellValue('H' . $row, isset($tanggal_cuti[0]) ? $tanggal_cuti[0] : '');
+                        $sheet->setCellValue('I' . $row, isset($tanggal_cuti[1]) ? $tanggal_cuti[1] : '');
+                        $sheet->setCellValue('J' . $row, isset($tanggal_cuti[2]) ? $tanggal_cuti[2] : '');
+                        $sheet->setCellValue('K' . $row, isset($tanggal_cuti[3]) ? $tanggal_cuti[3] : '');
+                        $sheet->setCellValue('L' . $row, isset($tanggal_cuti[4]) ? $tanggal_cuti[4] : '');
+                        $sheet->setCellValue('M' . $row, isset($tanggal_cuti[5]) ? $tanggal_cuti[5] : '');
+                        $sheet->setCellValue('N' . $row, $c->karyawan->sisa_cuti_pribadi.' Hari');
+
+                        $row++;
+    
+                        $jumlah_cuti_khusus = 0;
+                        $jumlah_cuti_pribadi = 0;
+                        $tanggal_cuti = [];
+                    } else { 
+                        continue;
+                    }
+                } else {
+                    $sheet->setCellValue('A' . $row, $row - 1);
+                    $sheet->setCellValue('B' . $row, $c->karyawan->ni_karyawan);
+                    $sheet->setCellValue('C' . $row, $c->karyawan->nama);
+                    $sheet->setCellValue('D' . $row, $c->karyawan->posisi[0]?->departemen?->nama);
+                    $sheet->setCellValue('E' . $row, $c->karyawan->posisi[0]?->nama);
+                    $sheet->setCellValue('F' . $row, $jumlah_cuti_khusus.' Hari');
+                    $sheet->setCellValue('G' . $row, $jumlah_cuti_pribadi.' Hari');
+                    $sheet->setCellValue('H' . $row, isset($tanggal_cuti[0]) ? $tanggal_cuti[0] : '');
+                    $sheet->setCellValue('I' . $row, isset($tanggal_cuti[1]) ? $tanggal_cuti[1] : '');
+                    $sheet->setCellValue('J' . $row, isset($tanggal_cuti[2]) ? $tanggal_cuti[2] : '');
+                    $sheet->setCellValue('K' . $row, isset($tanggal_cuti[3]) ? $tanggal_cuti[3] : '');
+                    $sheet->setCellValue('L' . $row, isset($tanggal_cuti[4]) ? $tanggal_cuti[4] : '');
+                    $sheet->setCellValue('M' . $row, isset($tanggal_cuti[5]) ? $tanggal_cuti[5] : '');
+                    $sheet->setCellValue('N' . $row, $c->karyawan->sisa_cuti_pribadi.' Hari');
+                }
             }
-
         } else {
             for($i = 1; $i <= 12; $i++){
                 $i = str_pad($i, 2, '0', STR_PAD_LEFT);
                 $monthlyCutie = clone $cutie;
-                $monthlyCutie = $monthlyCutie->whereMonth('rencana_mulai_cuti', Carbon::createFromFormat('m', $i)->format('m'));
+                $monthlyCutie = $monthlyCutie->whereMonth('rencana_mulai_cuti', Carbon::createFromFormat('m', $i)->format('m'))->where('status_dokumen', 'APPROVED')->where(function($query) {
+                    $query->where('status_cuti', '!=', 'CANCELED');
+                })->orderBy('karyawan_id', 'DESC');
+                $monthlyCuties = $monthlyCutie->get();
+
+                //Kalo bulan itu kosong jangan di export
+                if($monthlyCuties->isEmpty()){
+                    continue;
+                }
+
                 $sheet = $spreadsheet->createSheet($i - 1);
                 $sheet->setTitle(Carbon::createFromFormat('m', $i)->format('F Y'));
                 $row = 1;
                 $col = 'A';
                 $headers = [
                     'No',
-                    'ID Karyawan',
+                    'Nomor Induk Karyawan',
                     'Nama',
                     'Departemen',
-                    'Jenis Cuti',
-                    'Penggunaan Jatah Cuti',
-                    'Durasi Cuti',
-                    'Rencana Mulai Cuti',
-                    'Rencana Selesai Cuti',
-                    'Aktual Mulai Cuti',
-                    'Aktual Selesai Cuti',
-                    'Alasan Cuti',
-                    'Karyawan Pengganti',
-                    'Checked 1',
-                    'Checked 2',
-                    'Approved',
-                    'Legalized',
-                    'Status Dokumen',
-                    'Status Cuti',
-                    'Rejected',
-                    'Alasan Reject',
-                    'Created At',
+                    'Jabatan',
+                    'Cuti Khusus',
+                    'Cuti Pribadi',
+                    'Cuti 1',
+                    'Cuti 2',
+                    'Cuti 3',
+                    'Cuti 4',
+                    'Cuti 5',
+                    'Cuti 6',
+                    'Sisa Cuti Pribadi'
                 ];
 
                 foreach ($headers as $header) {
@@ -2267,36 +2326,74 @@ class CutieController extends Controller
 
                 $row = 2;
 
-                $columns = range('A', 'V');
+                $columns = range('A', 'N');
                 foreach ($columns as $column) {
                     $sheet->getColumnDimension($column)->setAutoSize(true);
                 }
-                $sheet->setAutoFilter('A1:V1');
+                $sheet->setAutoFilter('A1:N1');
 
-                foreach ($monthlyCutie->get() as $c) {
-                    $sheet->setCellValue('A' . $row, $row - 1);
-                    $sheet->setCellValue('B' . $row, $c->karyawan->id_karyawan);
-                    $sheet->setCellValue('C' . $row, $c->karyawan->nama);
-                    $sheet->setCellValue('D' . $row, $c->karyawan->posisi[0]?->departemen?->nama);
-                    $sheet->setCellValue('E' . $row, $c->jenis_cuti == 'KHUSUS' ? $c->jenisCuti->nama : $c->jenis_cuti);
-                    $sheet->setCellValue('F' . $row, $c->penggunaan_sisa_cuti == 'TB' ? 'TAHUN BERJALAN '.Carbon::parse($c->created_at)->format('Y') : 'TAHUN LALU '.Carbon::parse($c->created_at)->format('Y') - 1);
-                    $sheet->setCellValue('G' . $row, $c->durasi_cuti);
-                    $sheet->setCellValue('H' . $row, $c->rencana_mulai_cuti);
-                    $sheet->setCellValue('I' . $row, $c->rencana_selesai_cuti);
-                    $sheet->setCellValue('J' . $row, $c->aktual_mulai_cuti);
-                    $sheet->setCellValue('K' . $row, $c->aktual_selesai_cuti);
-                    $sheet->setCellValue('L' . $row, $c->alasan_cuti);
-                    $sheet->setCellValue('M' . $row, $c->karyawan_pengganti_id ? $c->karyawanPengganti->nama : '-');
-                    $sheet->setCellValue('N' . $row, $c->checked1_by !== null ? $c->checked1_by.' / '.(Carbon::parse($c->checked1_at)->format('d-m-Y')) : '-');
-                    $sheet->setCellValue('O' . $row, $c->checked2_by !== null ? $c->checked2_by.' / '.(Carbon::parse($c->checked2_at)->format('d-m-Y')) : '-');
-                    $sheet->setCellValue('P' . $row, $c->approved_by !== null ? $c->approved_by.' / '.(Carbon::parse($c->approved_at)->format('d-m-Y')) : '-');
-                    $sheet->setCellValue('Q' . $row, $c->legalized_by !== null ? $c->legalized_by.' / '.(Carbon::parse($c->legalized_at)->format('d-m-Y')) : '-');
-                    $sheet->setCellValue('R' . $row, $c->status_dokumen);
-                    $sheet->setCellValue('S' . $row, $c->rejected_by ? 'REJECTED' : ($c->status_cuti ? $c->status_cuti : '-'));
-                    $sheet->setCellValue('T' . $row, $c->rejected_by !== null ? $c->rejected_by.' / '.(Carbon::parse($c->rejected_at)->format('d-m-Y')) : '-');
-                    $sheet->setCellValue('U' . $row, $c->rejected_note ? $c->rejected_note : '-');
-                    $sheet->setCellValue('V' . $row, $c->created_at->format('d-m-Y'));
-                    $row++;
+                $jumlah_cuti_khusus = 0;
+                $jumlah_cuti_pribadi = 0;
+                $tanggal_cuti = [];
+                foreach ($monthlyCuties as $index => $c) {
+
+                    if($c->jenis_cuti == 'KHUSUS'){
+                        //MENDAPATKAN DURASI CUTI KHUSUS
+                        $jumlah_cuti_khusus += $c->durasi_cuti;
+                    } else {
+                        //MENDAPATKAN DURASI CUTI PRIBADI
+                        $jumlah_cuti_pribadi += $c->durasi_cuti;
+                        if($c->durasi_cuti > 1){
+                            $range_date_cuti =  Carbon::parse($c->rencana_mulai_cuti)->toPeriod(Carbon::parse($c->rencana_selesai_cuti))->toArray();
+                            foreach ($range_date_cuti as $r) {
+                                $tanggal_cuti[] = $r->format('Y-m-d');
+                            }
+                        } else {
+                            $tanggal_cuti[] = $r->format('Y-m-d');
+                        }
+                    }
+
+                    if(isset($monthlyCuties[$index+1])){
+                        if($monthlyCuties[$index+1]->karyawan_id !== $c->karyawan_id){
+                            $sheet->setCellValue('A' . $row, $row - 1);
+                            $sheet->setCellValue('B' . $row, $c->karyawan->ni_karyawan);
+                            $sheet->setCellValue('C' . $row, $c->karyawan->nama);
+                            $sheet->setCellValue('D' . $row, $c->karyawan->posisi[0]?->departemen?->nama);
+                            $sheet->setCellValue('E' . $row, $c->karyawan->posisi[0]?->nama);
+                            $sheet->setCellValue('F' . $row, $jumlah_cuti_khusus.' Hari');
+                            $sheet->setCellValue('G' . $row, $jumlah_cuti_pribadi.' Hari');
+                            $sheet->setCellValue('H' . $row, isset($tanggal_cuti[0]) ? $tanggal_cuti[0] : '');
+                            $sheet->setCellValue('I' . $row, isset($tanggal_cuti[1]) ? $tanggal_cuti[1] : '');
+                            $sheet->setCellValue('J' . $row, isset($tanggal_cuti[2]) ? $tanggal_cuti[2] : '');
+                            $sheet->setCellValue('K' . $row, isset($tanggal_cuti[3]) ? $tanggal_cuti[3] : '');
+                            $sheet->setCellValue('L' . $row, isset($tanggal_cuti[4]) ? $tanggal_cuti[4] : '');
+                            $sheet->setCellValue('M' . $row, isset($tanggal_cuti[5]) ? $tanggal_cuti[5] : '');
+                            $sheet->setCellValue('N' . $row, $c->karyawan->sisa_cuti_pribadi.' Hari');
+
+                            $row++;
+        
+                            $jumlah_cuti_khusus = 0;
+                            $jumlah_cuti_pribadi = 0;
+                            $tanggal_cuti = [];
+                        } else { 
+                            continue;
+                        }
+                    } else {
+                        $sheet->setCellValue('A' . $row, $row - 1);
+                        $sheet->setCellValue('B' . $row, $c->karyawan->ni_karyawan);
+                        $sheet->setCellValue('C' . $row, $c->karyawan->nama);
+                        $sheet->setCellValue('D' . $row, $c->karyawan->posisi[0]?->departemen?->nama);
+                        $sheet->setCellValue('E' . $row, $c->karyawan->posisi[0]?->nama);
+                        $sheet->setCellValue('F' . $row, $jumlah_cuti_khusus.' Hari');
+                        $sheet->setCellValue('G' . $row, $jumlah_cuti_pribadi.' Hari');
+                        $sheet->setCellValue('H' . $row, isset($tanggal_cuti[0]) ? $tanggal_cuti[0] : '');
+                        $sheet->setCellValue('I' . $row, isset($tanggal_cuti[1]) ? $tanggal_cuti[1] : '');
+                        $sheet->setCellValue('J' . $row, isset($tanggal_cuti[2]) ? $tanggal_cuti[2] : '');
+                        $sheet->setCellValue('K' . $row, isset($tanggal_cuti[3]) ? $tanggal_cuti[3] : '');
+                        $sheet->setCellValue('L' . $row, isset($tanggal_cuti[4]) ? $tanggal_cuti[4] : '');
+                        $sheet->setCellValue('M' . $row, isset($tanggal_cuti[5]) ? $tanggal_cuti[5] : '');
+                        $sheet->setCellValue('N' . $row, $c->karyawan->sisa_cuti_pribadi.' Hari');
+                    }
                 }
             }
         }

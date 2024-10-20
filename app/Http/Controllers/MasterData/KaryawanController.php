@@ -502,7 +502,6 @@ class KaryawanController extends Controller
         $nama_ibu_kandung = $request->nama_ibu_kandungEdit;
         $jenjang_pendidikan = $request->jenjang_pendidikanEdit;
         $jurusan_pendidikan = $request->jurusan_pendidikanEdit;
-        $status_karyawan = $request->status_karyawanEdit;
         $posisi = $request->posisiEdit;
         $grup_id = $request->grupEdit;
         $foto = $request->file('fotoEdit');
@@ -539,7 +538,6 @@ class KaryawanController extends Controller
             $karyawan->nama_ibu_kandung = $nama_ibu_kandung;
             $karyawan->jenjang_pendidikan = $jenjang_pendidikan;
             $karyawan->jurusan_pendidikan = $jurusan_pendidikan;
-            $karyawan->status_karyawan = $status_karyawan;
             $karyawan->grup_id = $grup_id;
             $karyawan->sisa_cuti_pribadi = $sisa_cuti_pribadi;
             $karyawan->sisa_cuti_bersama = $sisa_cuti_bersama;
@@ -730,6 +728,20 @@ class KaryawanController extends Controller
         $karyawan = Karyawan::find($id_karyawan);
         $detail = [];
         if($karyawan){
+            if($karyawan->status_karyawan == 'AT'){
+                $status_karyawan_text = 'AKTIF';
+            } elseif ($karyawan->status_karyawan == 'MD') {
+                $status_karyawan_text = 'MENGUNDURKAN DIRI';
+            } elseif ($karyawan->status_karyawan == 'HK') {
+                $status_karyawan_text = 'HABIS KONTRAK';
+            } elseif ($karyawan->status_karyawan == 'PS') {
+                $status_karyawan_text = 'PENSIUN';
+            } elseif ($karyawan->status_karyawan == 'TM') {
+                $status_karyawan_text = 'TERMINASI';
+            } else {
+                $status_karyawan_text = '-';
+            }
+
             $detail = [
                 'id_karyawan' => $karyawan->id_karyawan,
                 'ni_karyawan' => $karyawan->ni_karyawan,
@@ -759,7 +771,7 @@ class KaryawanController extends Controller
                 'jenjang_pendidikan' => $karyawan->jenjang_pendidikan,
                 'jurusan_pendidikan' => $karyawan->jurusan_pendidikan,
                 'jenis_kontrak' => $karyawan->jenis_kontrak,
-                'status_karyawan' => $karyawan->status_karyawan,
+                'status_karyawan' => $status_karyawan_text,
                 'sisa_cuti_pribadi' => $karyawan->sisa_cuti_pribadi,
                 'sisa_cuti_bersama' => $karyawan->sisa_cuti_bersama,
                 'sisa_cuti_tahun_lalu' => $karyawan->sisa_cuti_tahun_lalu,
@@ -828,17 +840,6 @@ class KaryawanController extends Controller
                             continue;
                         }
 
-                        //Pengecekan isi pada kolom
-                        for ($i = 0; $i <= 29; $i++) {
-                            if($i == 1){
-                                continue;
-                            }
-
-                            if (!isset($row[$i])) { 
-                                return response()->json(['message' => 'Pastikan tidak ada kolom yang kosong!'], 402);
-                            }
-                        }
-                        
                         //Convert tanggal lahir ke format Ymd jika ada
                         if($row[7] !== null){
                             try {
