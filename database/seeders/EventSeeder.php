@@ -17,7 +17,7 @@ class EventSeeder extends Seeder
         $events = [
             [
                 'jenis_event' => 'EP',
-                'organisasi_id' => 3,
+                'organisasi_id' => 2,
                 'keterangan' => 'TCF Tujuh Belas Agustusan',
                 'durasi' => 1,
                 'tanggal_mulai' =>  '2024-08-17',
@@ -25,7 +25,7 @@ class EventSeeder extends Seeder
             ],
             [
                 'jenis_event' => 'EP',
-                'organisasi_id' => 3,
+                'organisasi_id' => 2,
                 'keterangan' => 'TCF Family Gathering',
                 'durasi' => 2,
                 'tanggal_mulai' =>  '2024-12-24',
