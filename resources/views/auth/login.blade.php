@@ -11,7 +11,7 @@
                 <div class="input-group mb-3">
                     <span class="input-group-text bg-transparent"><i class="ti-user"></i></span>
                     <input type="text" class="form-control ps-15 bg-transparent @error('username') is-invalid @enderror"
-                        placeholder="Username" name="username" id="username">
+                        placeholder="Username or Email" name="username" id="username">
                     @error('username')
                         <span class="invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
