@@ -18,16 +18,19 @@
             <div class="box">
                 <div class="box-header d-flex justify-content-between">
                     <h4 class="box-title">Data Kontrak Karyawan</h4>
-                    <div>
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-info waves-effect btnReload"><i
-                                    class="fas fa-sync-alt"></i></button>
-                            <button type="button" class="btn btn-warning waves-effect btnFilter"><i
-                                    class="fas fa-filter"></i></button>
-                            <button type="button" class="btn btn-success waves-effect btnAdd"><i
-                                    class="fas fa-plus"></i></button>
-                        </div>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-info waves-effect btnReload"><i
+                                class="fas fa-sync-alt"></i></button>
+                        <button type="button" class="btn btn-warning waves-effect btnFilter"><i
+                                class="fas fa-filter"></i></button>
+                        <button type="button" class="btn btn-success waves-effect btnAdd"><i
+                                class="fas fa-plus"></i></button>
+                        <button type="button" class="btn btn-dark waves-effect btnUpload"><i
+                                class="fas fa-upload"></i></button>
+                        <button type="button" class="btn btn-light waves-effect btnTemplate"><i
+                                class="fas fa-file-excel"></i></button>
                     </div>
+                    <input type="file" id="upload-kontrak" class="d-none">
                 </div>
                 <div class="box-body">
                     <div class="table-responsive">

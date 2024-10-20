@@ -140,6 +140,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         // Tidak Dipakai Lagi
         // Route::post('/kontrak/store-or-update',[KontrakController::class, 'store_or_update'])->name('master-data.kontrak.storeUpdate');
         Route::post('/kontrak/upload-kontrak/{type}/{idKontrak}',[KontrakController::class, 'upload_kontrak'])->name('master-data.kontrak.upload');
+        Route::post('/kontrak/upload-data-kontrak',[KontrakController::class, 'upload_data_kontrak'])->name('master-data.kontrak.upload-data-kontrak');
         Route::post('/kontrak/done/{idKontrak}',[KontrakController::class, 'done_kontrak'])->name('master-data.kontrak.done');
 
         /** MASTER DATA - EXPORT */
