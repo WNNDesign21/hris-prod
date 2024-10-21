@@ -24,6 +24,7 @@ class NotificationMiddleware
         $tenggang_karyawans = [];
 
         if($user->hasRole('personalia') || $user->hasRole('super user')){
+            $my_cutie = null;
             $tenggang_karyawans = Karyawan::where('status_karyawan', 'AT')
                 ->whereRaw('(tanggal_selesai - ?) <= 30', [$today])
                 ->selectRaw('*, (tanggal_selesai - ?) as jumlah_hari', [$today])
@@ -60,7 +61,18 @@ class NotificationMiddleware
                 })
                 ->selectRaw('*, (tanggal_selesai - ?) as jumlah_hari', [$today])
                 ->get();
-            
+            //My Cuti
+            $my_cutie = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari',[$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+            ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
+            ->where('status_dokumen', 'WAITING')
+            ->where(function($query) {
+                $query->where('status_cuti', '!=', 'CANCELED')
+                      ->orWhereNull('status_cuti');
+            })
+            ->where('cutis.karyawan_id', $me->id_karyawan)
+            ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
+            ->get();
+
             // Notif Approval
             $cutie_approval = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari',[$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
             ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
@@ -89,7 +101,7 @@ class NotificationMiddleware
 
         } else {
             $me = auth()->user()->karyawan;
-            $cutie_approval = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari',[$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+            $my_cutie = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari',[$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
             ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
             ->where('status_dokumen', 'WAITING')
             ->where(function($query) {
@@ -99,6 +111,8 @@ class NotificationMiddleware
             ->where('cutis.karyawan_id', $me->id_karyawan)
             ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
             ->get();
+
+            $cutie_approval = null;
 
             $rejected_cuti = Cutie::selectRaw('cutis.*, karyawans.nama')->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
             ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
@@ -114,9 +128,10 @@ class NotificationMiddleware
         }
 
         $notification = [
-            'count_notif' => $tenggang_karyawans?->count() + $cutie_approval?->count() + count($rejected_cuti),
+            'count_notif' => $tenggang_karyawans?->count() + $cutie_approval?->count() + count($rejected_cuti) + $my_cutie?->count(),
             'list' => $tenggang_karyawans->toArray(),
-            'cutie_approval' => $cutie_approval->toArray(),
+            'my_cutie' => $my_cutie ? $my_cutie->toArray() : [],
+            'cutie_approval' => $cutie_approval ? $cutie_approval->toArray() : [],
             'rejected_cuti' => $rejected_cuti
         ];
         view()->share('notification', $notification);

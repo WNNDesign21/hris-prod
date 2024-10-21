@@ -133,16 +133,19 @@ class EventController extends Controller
         try{
 
             if($jenis_event == 'CB'){
-                $karyawans = Karyawan::aktif()->get();
+                // GET KARYAWAN YANG TANGGAL SELESAI NYA LEBIH BESAR DARI TANGGAL SELESAI CUTI BERSAMA (KARYAWAN MENGIKUTI CUTI BERSAMA)
+                $karyawans = Karyawan::aktif()->organisasi($organisasi_id)->where('tanggal_selesai', '>=', $tanggal_mulai)->get();
+
+                // KURANGI SISA CUTI BERSAMA SETIAP KARYAWAN YANG MENGIKUTI CUTI BERSAMA
                 foreach($karyawans as $kry){
                     $sisa_cuti_bersama_after = $kry->sisa_cuti_bersama - $durasi;
                     if($sisa_cuti_bersama_after < 0){
-                        Karyawan::find($kry->id_karyawan)->update([
+                        $kry->update([
                             'sisa_cuti_bersama' => 0,
                             'hutang_cuti' => abs($sisa_cuti_bersama_after)
                         ]);
                     } else {
-                        Karyawan::find($kry->id_karyawan)->update([
+                        $kry->update([
                             'sisa_cuti_bersama' => $sisa_cuti_bersama_after
                         ]); 
                     }
@@ -200,30 +203,33 @@ class EventController extends Controller
 
     public function delete(string $id_event)
     {
+        $organisasi_id = auth()->user()->organisasi_id;
         DB::beginTransaction();
         try {
             $event = Event::findOrFail($id_event); 
             if($event->jenis_event == 'CB'){
-                $karyawans = Karyawan::aktif()->get();
-                foreach($karyawans as $kry){
-                    $sisa_cuti_bersama_after = $kry->sisa_cuti_bersama + $event->durasi;
-                    if($kry->hutang_cuti > 0){
-                        $sisa_cuti_bersama_after = $sisa_cuti_bersama_after - $kry->hutang_cuti;
-                        if($sisa_cuti_bersama_after < 0){
-                            Karyawan::find($kry->id_karyawan)->update([
-                                'sisa_cuti_bersama' => 0,
-                                'hutang_cuti' => abs($sisa_cuti_bersama_after)
-                            ]);
+                $karyawans = Karyawan::aktif()->organisasi($organisasi_id)->where('tanggal_selesai', '>=', $event->tanggal_mulai)->get();
+                if($karyawans){
+                    foreach($karyawans as $kry){
+                        $sisa_cuti_bersama_after = $kry->sisa_cuti_bersama + $event->durasi;
+                        if($kry->hutang_cuti > 0){
+                            $sisa_cuti_bersama_after = $sisa_cuti_bersama_after - $kry->hutang_cuti;
+                            if($sisa_cuti_bersama_after < 0){
+                                Karyawan::find($kry->id_karyawan)->update([
+                                    'sisa_cuti_bersama' => 0,
+                                    'hutang_cuti' => abs($sisa_cuti_bersama_after)
+                                ]);
+                            } else {
+                                Karyawan::find($kry->id_karyawan)->update([
+                                    'sisa_cuti_bersama' => $sisa_cuti_bersama_after,
+                                    'hutang_cuti' => 0
+                                ]); 
+                            }
                         } else {
                             Karyawan::find($kry->id_karyawan)->update([
-                                'sisa_cuti_bersama' => $sisa_cuti_bersama_after,
-                                'hutang_cuti' => 0
+                                'sisa_cuti_bersama' => $sisa_cuti_bersama_after
                             ]); 
                         }
-                    } else {
-                        Karyawan::find($kry->id_karyawan)->update([
-                            'sisa_cuti_bersama' => $sisa_cuti_bersama_after
-                        ]); 
                     }
                 }
             }

@@ -41,6 +41,25 @@
                     </li>
                 @endforeach
             @endif
+            @if (!empty($notification['my_cutie']))
+                @foreach ($notification['my_cutie'] as $my_cutie)
+                    <li>
+                        <a href="{{ route('cutie.pengajuan-cuti') }}" style="white-space: normal;">
+                            <i class="fa fa-warning text-warning"></i>Pengajuan
+                            Cuti
+                            {{ $my_cutie['jenis_cuti'] }} dengan durasi
+                            {{ $my_cutie['durasi_cuti'] }} Hari, masih menunggu
+                            persetujuan,<br> segera follow-up atasan & HRD untuk
+                            menindaklanjuti!
+                            <br>
+                            <strong>{{ $my_cutie['jumlah_hari'] }} Hari</strong>
+                            sebelum
+                            otomatis
+                            <strong>REJECTED</strong>.
+                        </a>
+                    </li>
+                @endforeach
+            @endif
             @if (!empty($notification['cutie_approval']))
                 @foreach ($notification['cutie_approval'] as $cutie_approval)
                     <li>

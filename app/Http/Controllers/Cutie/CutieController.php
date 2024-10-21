@@ -1472,7 +1472,7 @@ class CutieController extends Controller
 
         DB::beginTransaction();
         try{
-            JenisCutie::create([
+            JenisCuti::create([
                 'jenis' => $jenis,
                 'durasi' => $durasi,
                 'isUrgent' => $isUrgent,

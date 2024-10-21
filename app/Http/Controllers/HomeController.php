@@ -32,43 +32,43 @@ class HomeController extends Controller
         $dataKontrak = [];
         if($profile){
             $dataProfile = [
-                'ni_karyawan' => $profile->ni_karyawan,
-                'foto' => $profile->foto ? asset('storage/'.$profile->foto) : asset('img/no-image.png'),  
-                'nama' => $profile->nama,
-                'no_kk' => $profile->no_kk,
-                'nik' => $profile->nik,
-                'tempat_lahir' => $profile->tempat_lahir,
-                'tanggal_lahir' => $profile->tanggal_lahir,
-                'jenis_kelamin' => $profile->jenis_kelamin,
-                'agama' => $profile->agama,
-                'gol_darah' => $profile->gol_darah,
-                'status_keluarga' => $profile->status_keluarga,
-                'kategori_keluarga' => $profile->kategori_keluarga,
-                'alamat' => $profile->alamat,
-                'domisili' => $profile->domisili,
-                'no_telp' => $profile->no_telp,
-                'no_telp_darurat' => $profile->no_telp_darurat,
-                'email' => $profile->email,
-                'npwp' => $profile->npwp,
-                'no_bpjs_ks' => $profile->no_bpjs_ks,
-                'no_bpjs_kt' => $profile->no_bpjs_kt,
-                'no_rekening' => $profile->no_rekening,
-                'nama_rekening' => $profile->nama_rekening,
-                'nama_bank' => $profile->nama_bank,
-                'nama_ibu_kandung' => $profile->nama_ibu_kandung,
-                'jenjang_pendidikan' => $profile->jenjang_pendidikan,
-                'jurusan_pendidikan' => $profile->jurusan_pendidikan,
-                'jenis_kontrak' => $profile->jenis_kontrak,
-                'status_karyawan' => $profile->status_karyawan,
-                'sisa_cuti_pribadi' => $profile->sisa_cuti_pribadi,
-                'sisa_cuti_bersama' => $profile->sisa_cuti_bersama,
-                'sisa_cuti_tahun_lalu' => $profile->sisa_cuti_tahun_lalu,
-                'expired_date_cuti_tahun_lalu' => $profile->expired_date_cuti_tahun_lalu,
-                'hutang_cuti' => $profile->hutang_cuti,
-                'tanggal_mulai' => $profile->tanggal_mulai,
-                'tanggal_selesai' => $profile->tanggal_selesai,
+                'ni_karyawan' => $profile?->ni_karyawan,
+                'foto' => $profile?->foto ? asset('storage/'.$profile->foto) : asset('img/no-image.png'),  
+                'nama' => $profile?->nama,
+                'no_kk' => $profile?->no_kk,
+                'nik' => $profile?->nik,
+                'tempat_lahir' => $profile?->tempat_lahir,
+                'tanggal_lahir' => $profile?->tanggal_lahir,
+                'jenis_kelamin' => $profile?->jenis_kelamin,
+                'agama' => $profile?->agama,
+                'gol_darah' => $profile?->gol_darah,
+                'status_keluarga' => $profile?->status_keluarga,
+                'kategori_keluarga' => $profile?->kategori_keluarga,
+                'alamat' => $profile?->alamat,
+                'domisili' => $profile?->domisili,
+                'no_telp' => $profile?->no_telp,
+                'no_telp_darurat' => $profile?->no_telp_darurat,
+                'email' => $profile?->email,
+                'npwp' => $profile?->npwp,
+                'no_bpjs_ks' => $profile?->no_bpjs_ks,
+                'no_bpjs_kt' => $profile?->no_bpjs_kt,
+                'no_rekening' => $profile?->no_rekening,
+                'nama_rekening' => $profile?->nama_rekening,
+                'nama_bank' => $profile?->nama_bank,
+                'nama_ibu_kandung' => $profile?->nama_ibu_kandung,
+                'jenjang_pendidikan' => $profile?->jenjang_pendidikan,
+                'jurusan_pendidikan' => $profile?->jurusan_pendidikan,
+                'jenis_kontrak' => $profile?->jenis_kontrak,
+                'status_karyawan' => $profile?->status_karyawan,
+                'sisa_cuti_pribadi' => $profile?->sisa_cuti_pribadi,
+                'sisa_cuti_bersama' => $profile?->sisa_cuti_bersama,
+                'sisa_cuti_tahun_lalu' => $profile?->sisa_cuti_tahun_lalu,
+                'expired_date_cuti_tahun_lalu' => $profile?->expired_date_cuti_tahun_lalu,
+                'hutang_cuti' => $profile?->hutang_cuti,
+                'tanggal_mulai' => $profile?->tanggal_mulai,
+                'tanggal_selesai' => $profile?->tanggal_selesai,
                 'posisi' => $profile?->posisi()?->pluck('posisis.nama'),
-                'grup' => $profile->grup->nama,
+                'grup' => $profile?->grup?->nama,
             ];
 
             $kontrak = Kontrak::where('karyawan_id', auth()->user()->karyawan->id_karyawan)->orderBy('tanggal_mulai', 'DESC')->get();
@@ -151,24 +151,127 @@ class HomeController extends Controller
     }
 
     public function get_notification(){
+        // $notification = [];
+        // $today = date('Y-m-d');
+        // $user = auth()->user();
+        // $tenggang_karyawans = [];
+        // $organisasi_id = auth()->user()->organisasi_id;
+
+        // if($user->hasRole('personalia') || $user->hasRole('super user')){
+        //     $tenggang_karyawans = Karyawan::organisasi($organisasi_id)->where('status_karyawan', 'AT')
+        //         ->whereRaw('(tanggal_selesai - ?) <= 30', [$today])
+        //         ->selectRaw('*, (tanggal_selesai - ?) as jumlah_hari', [$today])
+        //         ->get();
+
+        //     $cutie_approval = Cutie::organisasi($organisasi_id)->selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari',[$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+        //         ->where('status_dokumen', 'WAITING')
+        //         ->where(function($query) {
+        //             $query->where('status_cuti', '!=', 'CANCELED')
+        //                 ->orWhereNull('status_cuti');
+        //         })
+        //         ->whereNotNull('approved_by')
+        //         ->whereNull('legalized_by')
+        //         ->get();
+
+        //     $rejected_cuti = [];
+
+        // } elseif ($user->hasRole('atasan')){
+        //     $me = auth()->user()->karyawan;
+        //     $posisi = $user->karyawan->posisi;
+        //     $id_posisi_members = $this->get_member_posisi($posisi);
+
+        //     foreach ($posisi as $ps){
+        //         $index = array_search($ps->id_posisi, $id_posisi_members);
+        //         array_splice($id_posisi_members, $index, 1);
+        //     }
+
+        //     $members = $id_posisi_members;
+
+        //     $tenggang_karyawans = Karyawan::where('status_karyawan', 'AT')
+        //         ->whereRaw('(tanggal_selesai - ?) <= 30', [$today])
+        //         ->whereHas('posisi', function($query) use ($members) {
+        //             $query->whereIn('posisi_id', $members);
+        //         })
+        //         ->selectRaw('*, (tanggal_selesai - ?) as jumlah_hari', [$today])
+        //         ->get();
+            
+        //     // Notif Approval
+        //     $cutie_approval = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari',[$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+        //     ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
+        //     ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+        //     ->where('status_dokumen', 'WAITING')
+        //     ->where(function($query) {
+        //             $query->where('status_cuti', '!=', 'CANCELED')
+        //                 ->orWhereNull('status_cuti');
+        //         })
+        //     ->where(function($query) {
+        //         $query->orWhereNull('approved_by')
+        //                 ->orWhereNull('checked1_by')
+        //                 ->orWhereNull('checked2_by');
+        //         })
+        //     ->whereIn('posisis.id_posisi', $members)
+        //     ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
+        //     ->get();
+
+
+        //     $rejected_cuti = Cutie::selectRaw('cutis.*, karyawans.nama')->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+        //     ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
+        //     ->where('status_dokumen', 'REJECTED')
+        //     ->where('cutis.karyawan_id', $me->id_karyawan)
+        //     ->whereRaw('DATE(rejected_at) <= (rencana_mulai_cuti + INTERVAL \'3 days\')')
+        //     ->get()->toArray();
+
+        // } else {
+        //     $me = auth()->user()->karyawan;
+        //     $cutie_approval = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari',[$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+        //     ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
+        //     ->where('status_dokumen', 'WAITING')
+        //     ->where(function($query) {
+        //             $query->where('status_cuti', '!=', 'CANCELED')
+        //                 ->orWhereNull('status_cuti');
+        //         })
+        //     ->where('cutis.karyawan_id', $me->id_karyawan)
+        //     ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
+        //     ->get();
+
+        //     $rejected_cuti = Cutie::selectRaw('cutis.*, karyawans.nama')->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+        //     ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
+        //     ->where('status_dokumen', 'REJECTED')
+        //     ->where('cutis.karyawan_id', $me->id_karyawan)
+        //     ->whereRaw('DATE(rejected_at) <= (rencana_mulai_cuti + INTERVAL \'3 days\')')
+        //     ->get()->toArray();
+
+        //     $tenggang_karyawans = Karyawan::where('status_karyawan', 'AT')->where('id_karyawan', $user->karyawan->id_karyawan)
+        //         ->whereRaw('(tanggal_selesai - ?) <= 30', [$today])
+        //         ->selectRaw('*, (tanggal_selesai - ?) as jumlah_hari', [$today])
+        //         ->get();
+        // }
+
+        // $notification = [
+        //     'count_notif' => $tenggang_karyawans?->count() + $cutie_approval?->count() + count($rejected_cuti),
+        //     'list' => $tenggang_karyawans->toArray(),
+        //     'cutie_approval' => $cutie_approval->toArray(),
+        //     'rejected_cuti' => $rejected_cuti
+        // ];
+
         $notification = [];
         $today = date('Y-m-d');
         $user = auth()->user();
         $tenggang_karyawans = [];
-        $organisasi_id = auth()->user()->organisasi_id;
 
         if($user->hasRole('personalia') || $user->hasRole('super user')){
-            $tenggang_karyawans = Karyawan::organisasi($organisasi_id)->where('status_karyawan', 'AT')
+            $my_cutie = null;
+            $tenggang_karyawans = Karyawan::where('status_karyawan', 'AT')
                 ->whereRaw('(tanggal_selesai - ?) <= 30', [$today])
                 ->selectRaw('*, (tanggal_selesai - ?) as jumlah_hari', [$today])
                 ->get();
 
-            $cutie_approval = Cutie::organisasi($organisasi_id)->selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari',[$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+            $cutie_approval = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari',[$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
                 ->where('status_dokumen', 'WAITING')
                 ->where(function($query) {
-                    $query->where('status_cuti', '!=', 'CANCELED')
-                        ->orWhereNull('status_cuti');
-                })
+                $query->where('status_cuti', '!=', 'CANCELED')
+                      ->orWhereNull('status_cuti');
+            })
                 ->whereNotNull('approved_by')
                 ->whereNull('legalized_by')
                 ->get();
@@ -194,16 +297,27 @@ class HomeController extends Controller
                 })
                 ->selectRaw('*, (tanggal_selesai - ?) as jumlah_hari', [$today])
                 ->get();
-            
+            //My Cuti
+            $my_cutie = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari',[$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+            ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
+            ->where('status_dokumen', 'WAITING')
+            ->where(function($query) {
+                $query->where('status_cuti', '!=', 'CANCELED')
+                      ->orWhereNull('status_cuti');
+            })
+            ->where('cutis.karyawan_id', $me->id_karyawan)
+            ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
+            ->get();
+
             // Notif Approval
             $cutie_approval = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari',[$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
             ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
             ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
             ->where('status_dokumen', 'WAITING')
             ->where(function($query) {
-                    $query->where('status_cuti', '!=', 'CANCELED')
-                        ->orWhereNull('status_cuti');
-                })
+                $query->where('status_cuti', '!=', 'CANCELED')
+                      ->orWhereNull('status_cuti');
+            })
             ->where(function($query) {
                 $query->orWhereNull('approved_by')
                         ->orWhereNull('checked1_by')
@@ -223,16 +337,18 @@ class HomeController extends Controller
 
         } else {
             $me = auth()->user()->karyawan;
-            $cutie_approval = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari',[$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+            $my_cutie = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari',[$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
             ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
             ->where('status_dokumen', 'WAITING')
             ->where(function($query) {
-                    $query->where('status_cuti', '!=', 'CANCELED')
-                        ->orWhereNull('status_cuti');
-                })
+                $query->where('status_cuti', '!=', 'CANCELED')
+                      ->orWhereNull('status_cuti');
+            })
             ->where('cutis.karyawan_id', $me->id_karyawan)
             ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
             ->get();
+
+            $cutie_approval = null;
 
             $rejected_cuti = Cutie::selectRaw('cutis.*, karyawans.nama')->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
             ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
@@ -248,9 +364,10 @@ class HomeController extends Controller
         }
 
         $notification = [
-            'count_notif' => $tenggang_karyawans?->count() + $cutie_approval?->count() + count($rejected_cuti),
+            'count_notif' => $tenggang_karyawans?->count() + $cutie_approval?->count() + count($rejected_cuti) + $my_cutie?->count(),
             'list' => $tenggang_karyawans->toArray(),
-            'cutie_approval' => $cutie_approval->toArray(),
+            'my_cutie' => $my_cutie ? $my_cutie->toArray() : [],
+            'cutie_approval' => $cutie_approval ? $cutie_approval->toArray() : [],
             'rejected_cuti' => $rejected_cuti
         ];
 
