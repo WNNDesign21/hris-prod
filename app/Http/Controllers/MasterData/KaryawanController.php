@@ -866,7 +866,9 @@ class KaryawanController extends Controller
                                 return response()->json(['message' => 'Format tanggal expired cuti tahun lalu salah!'], 402);
                             }
 
-                        } 
+                        } else {
+                            $expired_date_cuti_tahun_lalu = null;
+                        }
 
                         //Validasi Kolom Numeric
                         if (!is_numeric($row[11]) || $row[11] < 0 || 
@@ -888,7 +890,8 @@ class KaryawanController extends Controller
                         if (isset($row[1])) {
                             try {
                                 if (strpos($row[1], ',') !== false) {
-                                    $posisis = Posisi::whereIn('nama',explode(',', $row[1]))->pluck('id_posisi')->toArray();
+                                    return response()->json(['message' => 'Hanya boleh mengisi 1 posisi utama!'], 402);
+                                    // $posisis = Posisi::whereIn('nama',explode(',', $row[1]))->pluck('id_posisi')->toArray();
                                 } else {
                                     $posisis = Posisi::where('nama', $row[1])->pluck('id_posisi')->toArray();
                                 }
@@ -939,8 +942,8 @@ class KaryawanController extends Controller
                                 'gol_darah' => in_array(strtoupper($row[25]), ['O', 'A', 'B', 'AB']) ? strtoupper($row[25]) : null,
                                 'sisa_cuti_pribadi' => $row[30],
                                 'sisa_cuti_bersama' => $row[31],
-                                'sisa_cuti_tahun_lalu' => $row[32],
-                                'expired_date_cuti_tahun_lalu' => $expired_date_cuti_tahun_lalu,
+                                'sisa_cuti_tahun_lalu' => $row[32] ? $row[32] : 0,
+                                'expired_date_cuti_tahun_lalu' => $expired_date_cuti_tahun_lalu ? $expired_date_cuti_tahun_lalu : null,
                                 'hutang_cuti' => $row[34],
                             ]);
 
@@ -956,6 +959,17 @@ class KaryawanController extends Controller
 
                             if(!empty($posisis)){
                                 $existingKaryawan->posisi()->sync($posisis);
+                                if($existingKaryawan->posisi[0]->jabatan_id !== 6){
+                                    if ($user->roles()->count() > 0) {
+                                        $user->roles()->detach();
+                                    }
+                                    $user->assignRole('atasan');
+                                } else {
+                                    if ($user->roles()->count() > 0) {
+                                        $user->roles()->detach();
+                                    }
+                                    $user->assignRole('member');
+                                }
                             }
 
                             continue;
@@ -1002,29 +1016,24 @@ class KaryawanController extends Controller
                             'gol_darah' => in_array(strtoupper($row[25]), ['O', 'A', 'B', 'AB']) ? strtoupper($row[25]) : null,
                             'sisa_cuti_pribadi' => $row[30],
                             'sisa_cuti_bersama' => $row[31],
-                            'sisa_cuti_tahun_lalu' => $row[32],
-                            'expired_date_cuti_tahun_lalu' => $expired_date_cuti_tahun_lalu,
+                            'sisa_cuti_tahun_lalu' => $row[32] ? $row[32] : 0,
+                            'expired_date_cuti_tahun_lalu' => $expired_date_cuti_tahun_lalu ? $expired_date_cuti_tahun_lalu : null,
                             'hutang_cuti' => $row[34],
                         ]);
 
-                        // Initial Contract
-                        // Kontrak::create([
-                        //     'no_surat' => str_pad(mt_rand(0, 999), 3, '0', STR_PAD_LEFT),
-                        //     'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,
-                        //     'karyawan_id' =>  $id_karyawan,
-                        //     'nama_posisi' => 'Initial Contract',
-                        //     'jenis' => 'PKWT',
-                        //     'status' => 'DONE',
-                        //     'durasi' => 1,
-                        //     'salary' => 0,
-                        //     'deskripsi' => 'Initial Contract for generate Tanggal Mulai dan Tanggal Akhir',
-                        //     'tanggal_mulai' => $tanggal_mulai,
-                        //     'tanggal_selesai' => Carbon::parse($tanggal_mulai)->addMonth()->toDateString(),
-                        //     'isReactive' => 'N',
-                        // ]);
-
                         if(!empty($posisis)){
                             $karyawan->posisi()->sync($posisis);
+                            if($karyawan->posisi[0]->jabatan_id !== 6){
+                                if ($user->roles()->count() > 0) {
+                                    $user->roles()->detach();
+                                }
+                                $user->assignRole('atasan');
+                            } else {
+                                if ($user->roles()->count() > 0) {
+                                    $user->roles()->detach();
+                                }
+                                $user->assignRole('member');
+                            }
                         }
                     }
                 }
