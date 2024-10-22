@@ -182,7 +182,7 @@ class PosisiController extends Controller
                     'nama' =>  $nama_posisi,
                     'organisasi_id' => $id_organisasi,
                     'parent_id' => $parent_id,
-                    'divisi_id' => $seksi->divisi->id_divisi,
+                    'divisi_id' => $seksi->divisi_id,
                     'departemen_id' => $seksi->departemen_id,
                     'seksi_id' => $id_seksi
                 ]);
@@ -193,7 +193,7 @@ class PosisiController extends Controller
                     'nama' =>  $nama_posisi,
                     'organisasi_id' => $id_organisasi,
                     'parent_id' => $parent_id,
-                    'divisi_id' => $seksi->divisi->id_divisi,
+                    'divisi_id' => $seksi->divisi_id,
                     'departemen_id' => $seksi->departemen_id,
                     'seksi_id' => $id_seksi
                 ]);
@@ -305,7 +305,7 @@ class PosisiController extends Controller
                     $posisi->nama = $nama_posisi_edit;
                     $posisi->parent_id = $parent_id_edit;
                     $posisi->organisasi_id = $id_organisasi_edit;
-                    $posisi->divisi_id = $seksi->divisi->id_divisi;
+                    $posisi->divisi_id = $seksi->divisi_id;
                     $posisi->departemen_id = $seksi->departemen_id;
                     $posisi->seksi_id = $id_seksi_edit;
                 } else{
@@ -313,7 +313,7 @@ class PosisiController extends Controller
                     $posisi->nama = $nama_posisi_edit;
                     $posisi->parent_id = $parent_id_edit;
                     $posisi->organisasi_id = null;
-                    $posisi->divisi_id = $seksi->divisi->id_divisi;
+                    $posisi->divisi_id = $seksi->divisi_id;
                     $posisi->departemen_id = $seksi->departemen_id;
                     $posisi->seksi_id = $id_seksi_edit;
                 }
