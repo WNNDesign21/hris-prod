@@ -5,6 +5,7 @@ namespace App\Http\Controllers\MasterData;
 use Exception;
 use Throwable;
 use App\Models\Seksi;
+use App\Models\Posisi;
 use App\Models\Departemen;
 use Illuminate\Http\Request;
 use PhpParser\Node\Stmt\TryCatch;
@@ -166,6 +167,15 @@ class SeksiController extends Controller
 
         DB::beginTransaction();
         try{
+            $posisi = Posisi::where('seksi_id', $id)->get();
+            if($posisi){
+                foreach($posisi as $ps){
+                    $ps->divisi_id = Departemen::find($request->input('id_departemen_edit'))->divisi->id_divisi;
+                    $ps->departemen_id = $request->input('id_departemen_edit');
+                    $ps->save();
+                }
+            }
+
             $seksi->nama = $request->input('nama_seksi_edit');
             $seksi->departemen_id = $request->input('id_departemen_edit');
             $seksi->save();
