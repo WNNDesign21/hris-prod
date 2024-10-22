@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Models\Posisi;
 
 class DepartemenController extends Controller
 {
@@ -169,6 +170,14 @@ class DepartemenController extends Controller
             $departemen->nama = $request->input('nama_departemen_edit');
             $departemen->divisi_id = $request->input('id_divisi_edit');
             $departemen->save();
+
+            $posisi = Posisi::where('departemen_id', $id)->get();
+            if($posisi){
+                foreach($posisi as $ps){
+                    $ps->divisi_id = $request->input('id_divisi_edit');
+                    $ps->save();
+                }
+            }
             DB::commit();
             return response()->json(['message' => 'Departemen Updated!'], 200);
         } catch(\Throwable $error){
