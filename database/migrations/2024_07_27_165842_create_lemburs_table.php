@@ -12,24 +12,36 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('lemburs', function (Blueprint $table) {
-            $table->increments('id_lembur');
-            $table->string('karyawan_id');
-            $table->datetime('rencana_kerja');
-            $table->datetime('aktual_kerja')->nullable();
-            $table->text('deskripsi');
-            $table->date('approve1_at')->nullable();
-            $table->string('approved1_by')->nullable();
-            $table->date('approve2_at')->nullable();
-            $table->string('approved2_by')->nullable();
-            $table->date('approve3_at')->nullable();
-            $table->string('approved3_by')->nullable();
-            $table->enum('isDone',['Y','N']);
+            $table->string('id_lembur')->primary();
+            $table->integer('organisasi_id');
+            $table->integer('departemen_id');
+
+            //Planning
+            $table->string('plan_checked_by')->nullable();
+            $table->date('plan_checked_at')->nullable();
+            $table->string('plan_approved_by')->nullable();
+            $table->date('plan_approved_at')->nullable();
+            $table->string('plan_legalized_by')->nullable();
+            $table->date('plan_legalized_at')->nullable();
+
+            //Actual
+            $table->string('actual_checked_by')->nullable();
+            $table->date('actual_checked_at')->nullable();
+            $table->string('actual_approved_by')->nullable();
+            $table->date('actual_approved_at')->nullable();
+            $table->string('actual_legalized_by')->nullable();
+            $table->date('actual_legalized_at')->nullable();
+
+            $table->integer('total_jam')->default(0);
+            $table->enum('status',['WAITING', 'PLANNED', 'COMPLETED', 'REJECTED'])->default('WAITING');
             $table->string('attachment')->nullable();
-            $table->unsignedInteger('createdBy');
+            $table->timestamp('issued_date')->default(now());
+            $table->string('issued_by');
 
             $table->softDeletes();
             $table->timestamps();
-            $table->foreign('karyawan_id')->references('id_karyawan')->on('karyawans')->restrictOnDelete();
+            $table->foreign('organisasi_id')->references('id_organisasi')->on('organisasis')->restrictOnDelete();
+            $table->foreign('departemen_id')->references('id_departemen')->on('departemens')->restrictOnDelete();
         });
     }
 
