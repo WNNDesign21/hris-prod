@@ -573,21 +573,21 @@ class PosisiController extends Controller
                  'organisasi' => Organisasi::all(),
                  'divisi' => null,
                  'departemen' => null,
-                 'seksi' => Seksi::with('departemen', 'divisi')->get(),
+                 'seksi' => Seksi::with('departemen')->get(),
              ];
          } elseif ($id_jabatan == 5){
              $data = [
                  'organisasi' => Organisasi::all(),
                  'divisi' => null,
                  'departemen' => null,
-                 'seksi' => Seksi::with('departemen', 'divisi')->get(),
+                 'seksi' => Seksi::with('departemen')->get(),
              ];
          } elseif ($id_jabatan == 6){
              $data = [
                  'organisasi' => Organisasi::all(),
                  'divisi' => null,
                  'departemen' => null,
-                 'seksi' => Seksi::with('departemen', 'divisi')->get(),
+                 'seksi' => Seksi::with('departemen')->get(),
              ];
          }
  
