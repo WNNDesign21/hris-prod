@@ -71,33 +71,31 @@ class HomeController extends Controller
                 'grup' => $profile?->grup?->nama,
             ];
 
-            $kontrak = Kontrak::where('karyawan_id', auth()->user()->karyawan->id_karyawan)->orderBy('tanggal_mulai', 'DESC')->get();
+            $kontrak = Kontrak::where('karyawan_id', auth()->user()->karyawan->id_karyawan)->orderBy('tanggal_mulai', 'DESC')->first();
             if($kontrak){
-                foreach($kontrak as $item){
-                    if($item->status == 'DONE'){
-                        $badge = '<span class="badge badge-pill badge-success">'.$item->status.'</span>';
-                    } else {
-                        $badge = '<span class="badge badge-pill badge-warning">'.$item->status.'</span>';
-                    } 
-                    $dataKontrak[] = [
-                        'id_kontrak' => $item->id_kontrak,
-                        'nama_posisi' => $item->nama_posisi,
-                        'posisi_id' => $item->posisi_id,
-                        'jenis' => $item->jenis,
-                        'status' => $item->status,
-                        'status_badge' => $badge,
-                        'issued_date' => $item->issued_date,
-                        'issued_date_text' => Carbon::parse($item->issued_date)->format('d M Y'),
-                        'tempat_administrasi' => $item->tempat_administrasi,
-                        'durasi' => $item->durasi,
-                        'no_surat' => $item->no_surat,
-                        'salary' => 'Rp. ' . number_format($item->salary, 0, ',', '.').' ,-',
-                        'deskripsi' => $item->deskripsi,
-                        'tanggal_mulai' => Carbon::parse($item->tanggal_mulai)->format('d M Y'),
-                        'tanggal_selesai' => $item->tanggal_selesai !== null ? Carbon::parse($item->tanggal_selesai)->format('d M Y') : 'Unknown',
-                        'attachment' => $item->attachment ? asset('storage/'.$item->attachment) : null
-                    ];
-                }
+                if($kontrak->status == 'DONE'){
+                    $badge = '<span class="badge badge-pill badge-success">SEDANG BERJALAN</span>';
+                } else {
+                    $badge = '<span class="badge badge-pill badge-warning">PROSES PERPANJANGAN</span>';
+                } 
+                $dataKontrak[] = [
+                    'id_kontrak' => $kontrak->id_kontrak,
+                    'nama_posisi' => $kontrak->nama_posisi ? $kontrak->nama_posisi : ($kontrak->posisi->nama ? $kontrak->posisi->nama : null),
+                    'posisi_id' => $kontrak->posisi_id,
+                    'jenis' => $kontrak->jenis,
+                    'status' => $kontrak->status,
+                    'status_badge' => $badge,
+                    'issued_date' => $kontrak->issued_date,
+                    'issued_date_text' => Carbon::parse($kontrak->issued_date)->format('d M Y'),
+                    'tempat_administrasi' => $kontrak->tempat_administrasi,
+                    'durasi' => $kontrak->durasi,
+                    'no_surat' => $kontrak->no_surat,
+                    'salary' => 'Rp. ' . number_format($kontrak->salary, 0, ',', '.').' ,-',
+                    'deskripsi' => $kontrak->deskripsi,
+                    'tanggal_mulai' => Carbon::parse($kontrak->tanggal_mulai)->format('d M Y'),
+                    'tanggal_selesai' => $kontrak->tanggal_selesai !== null ? Carbon::parse($kontrak->tanggal_selesai)->format('d M Y') : 'Unknown',
+                    'attachment' => $kontrak->attachment ? asset('storage/'.$kontrak->attachment) : null
+                ];
             }
         } else {
             $dataProfile = [

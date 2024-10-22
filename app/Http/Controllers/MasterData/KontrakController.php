@@ -1049,6 +1049,7 @@ class KontrakController extends Controller
                             'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,
                             'karyawan_id' =>  $karyawan->id_karyawan,
                             'posisi_id' => $posisi_id,
+                            'nama_posisi' => Posisi::find($posisi_id)->nama ? Posisi::find($posisi_id)->nama : '',
                             'jenis' => $row[4],
                             'status' => 'DONE',
                             'durasi' => $row[5],
