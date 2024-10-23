@@ -115,6 +115,11 @@ class Karyawan extends Model
         return $this->belongsToMany(Posisi::class, 'karyawan_posisi', 'karyawan_id', 'posisi_id');
     }
 
+    public function settingLembur()
+    {
+        return $this->belongsTo(SettingLemburKaryawan::class, 'karyawan_id', 'id_karyawan');
+    }
+
     private static function _query($dataFilter)
     {
         $data = self::select(
