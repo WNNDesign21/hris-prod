@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Cutie\CutieController;
+use App\Http\Controllers\Lembure\LembureController;
 use App\Http\Controllers\MasterData\AkunController;
 use App\Http\Controllers\MasterData\GrupController;
 use App\Http\Controllers\MasterData\EventController;
@@ -35,6 +36,8 @@ Route::get('/master-data/posisi/get-data-jabatan-by-posisi-edit/{idPosisi}/{myPo
 Route::post('/master-data/posisi/get-data-parent',[PosisiController::class, 'get_data_parent']); 
 Route::post('/master-data/posisi/get-data-posisi',[PosisiController::class, 'get_data_posisi']); 
 Route::get('/master-data/posisi/get-data-parent-edit/{idParent}',[PosisiController::class, 'get_data_parent_edit']); 
+
+Route::get('/master-data/organisasi/get-data-organisasi',[OrganisasiController::class, 'get_data_organisasi']); 
 
 Route::post('/master-data/grup/get-data-grup',[GrupController::class, 'get_data_grup']); 
 Route::get('/master-data/grup/get-data-all-grup',[GrupController::class, 'get_data_all_grup']); 
@@ -216,9 +219,11 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         Route::post('/bypass-cuti/store',[CutieController::class, 'bypass_store'])->name('cutie.bypass-cuti.store');
      });
 
-    
-
-    
+     Route::group(['prefix' => 'lembure'], function () {
+        Route::get('/dashboard', [LembureController::class, 'index'])->name('lembure.dashboard');
+        Route::get('/pengajuan-lembur', [LembureController::class, 'pengajuan_lembur_view'])->name('lembure.pengajuan-lembur');
+        Route::post('/pengajuan-lembur-datatable', [LembureController::class, 'pengajuan_lembur_datatable']);
+     });
 });
 
 

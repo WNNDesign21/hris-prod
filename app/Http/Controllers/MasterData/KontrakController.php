@@ -238,7 +238,7 @@ class KontrakController extends Controller
                     $kry->jenis_kontrak = $jenis;
                     $bulan_romawi = $this->angka_to_romawi(Carbon::parse($tanggal_mulai)->month);
                     $hrd = $tempat_administrasi == 'Karawang' ? 'HRD-TCF3' : 'HRD-TCF2';
-                    $jenis_on_surat = $jenis.'-'.$this->angka_to_romawi($kontrak_karyawan);
+                    $jenis_on_surat = ($jenis == 'MAGANG' ? 'MG' : $jenis).($jenis == 'PKWT' || $jenis == 'MAGANG' ? '-'.$this->angka_to_romawi($kontrak_karyawan) : '');
                     $tahun = Carbon::parse($tanggal_mulai)->format('Y');
                     $no_surat_text = 'No. ' . str_pad($no_surat_int, 3, '0', STR_PAD_LEFT) . '/' . $jenis_on_surat . '/' . $hrd . '/'.$bulan_romawi.'/' . $tahun;
 
@@ -410,7 +410,7 @@ class KontrakController extends Controller
             //No Surat Text
             $bulan_romawi = $this->angka_to_romawi(Carbon::parse($tanggal_mulai)->month);
             $hrd = $tempat_administrasi == 'Karawang' ? 'HRD-TCF3' : 'HRD-TCF2';
-            $jenis_on_surat = $jenis.'-'.$this->angka_to_romawi($kontrak_karyawan);
+            $jenis_on_surat = ($jenis == 'MAGANG' ? 'MG' : $jenis).($jenis == 'PKWT' || $jenis == 'MAGANG' ? '-'.$this->angka_to_romawi($kontrak_karyawan) : '');
             $tahun = Carbon::parse($tanggal_mulai)->format('Y');
             $no_surat_text = 'No. ' . str_pad($no_surat, 3, '0', STR_PAD_LEFT) . '/' . $jenis_on_surat . '/' . $hrd . '/'.$bulan_romawi.'/' . $tahun;
             
@@ -971,7 +971,7 @@ class KontrakController extends Controller
                         //Convert tanggal mulai dan selesai ke format Ymd jika ada
                         if($row[7] !== null){
                             try {
-                                $tanggal_mulai = Carbon::createFromFormat('m/d/Y', $row[7])->format('Y-m-d');
+                                $tanggal_mulai = Carbon::createFromFormat('d/m/Y', $row[7])->format('Y-m-d');
                             } catch (Exception $e) {
                                 return response()->json(['message' => 'Format tanggal mulai salah!'], 402);
                             }
@@ -979,7 +979,7 @@ class KontrakController extends Controller
 
                         if($row[8] !== null){
                             try {
-                                $tanggal_selesai = Carbon::createFromFormat('m/d/Y', $row[8])->format('Y-m-d');
+                                $tanggal_selesai = Carbon::createFromFormat('d/m/Y', $row[8])->format('Y-m-d');
                             } catch (Exception $e) {
                                 return response()->json(['message' => 'Format tanggal selesai salah!'], 402);
                             }

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Karyawan;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -16,4 +17,9 @@ class SettingLemburKaryawan extends Model
     protected $fillable = [
         'karyawan_id','organisasi_id','jabatan_id','departemen_id','gaji'
     ];
+
+    public function karyawan()
+    {
+        return $this->belongsTo(Karyawan::class, 'karyawan_id', 'id_karyawan');
+    }
 }
