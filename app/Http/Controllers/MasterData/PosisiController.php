@@ -173,6 +173,7 @@ class PosisiController extends Controller
                     'nama' =>  $nama_posisi,
                     'parent_id' => $parent_id,
                     'divisi_id' => $departemen->divisi_id,
+                    'organisasi_id' => $id_organisasi,
                     'departemen_id' => $id_departemen
                 ]);
             } elseif ($id_jabatan == 4){
