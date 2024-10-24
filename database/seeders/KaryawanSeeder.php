@@ -175,26 +175,26 @@ class KaryawanSeeder extends Seeder
 
         $karyawans = Karyawan::all();
 
-        // $i = 1;
-        // foreach ($karyawans as $kry) {
-        //     Kontrak::create([
-        //         'no_surat' => 'No. 001/PKWT-I/HRD-TCF3/2024',
-        //         'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,
-        //         'organisasi_id' => 2,
-        //         'karyawan_id' =>  $kry->id_karyawan,
-        //         'nama_posisi' => 'Initial Document',
-        //         'jenis' => 'PKWT',
-        //         'status' => 'DONE',
-        //         'durasi' => 1,
-        //         'salary' => 0,
-        //         'deskripsi' => 'Initial Contract for generate Tanggal Mulai dan Tanggal Akhir',
-        //         'tanggal_mulai' => Carbon::now()->toDateString(),
-                // 'tanggal_selesai' => Carbon::now()->addMonths(1)->toDateString(),
-        //         'isReactive' => 'N',
-        //         'issued_date' => date('Y-m-d')
-        //     ]);
-        //     $i++;
-        // }
+        $i = 1;
+        foreach ($karyawans as $kry) {
+            Kontrak::create([
+                'no_surat' => 'No. 001/PKWT-I/HRD-TCF3/2024',
+                'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,
+                'organisasi_id' => 2,
+                'karyawan_id' =>  $kry->id_karyawan,
+                'nama_posisi' => 'Initial Document',
+                'jenis' => 'PKWT',
+                'status' => 'DONE',
+                'durasi' => 1,
+                'salary' => 0,
+                'deskripsi' => 'Initial Contract for generate Tanggal Mulai dan Tanggal Akhir',
+                'tanggal_mulai' => Carbon::now()->toDateString(),
+                'tanggal_selesai' => Carbon::now()->addMonths(1)->toDateString(),
+                'isReactive' => 'N',
+                'issued_date' => date('Y-m-d')
+            ]);
+            $i++;
+        }
 
     }
 }
