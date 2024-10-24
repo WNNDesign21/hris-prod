@@ -55,7 +55,7 @@
                 {{-- CARD LEMBUR SYSTEM --}}
                 @if (auth()->user()->hasRole('personalia') || auth()->user()->karyawan->settingLembur->jabatan_id >= 5)
                     {{-- CARD LEMBUR SYSTEM --}}
-                    <div class="col-lg-6 col-12">
+                    {{-- <div class="col-lg-6 col-12">
                         <a href="{{ route('lembure.dashboard') }}" class="box pull-up">
                             <div class="box-body">
                                 <div class="d-flex align-items-center">
@@ -71,9 +71,9 @@
                                 </div>
                             </div>
                         </a>
-                    </div>
+                    </div> --}}
+                @endif
             </div>
-            @endif
         </div>
 
         {{-- CARD PRESENSI DAN PAYROLL SYSTEM --}}
