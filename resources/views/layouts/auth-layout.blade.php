@@ -169,6 +169,10 @@
         @vite(['resources/js/pages/cutie-bypass-cuti.js'])
     @endif
 
+    @if ($page == 'lembure-pengajuan-lembur')
+        @vite(['resources/js/pages/lembure-pengajuan-lembur.js'])
+    @endif
+
 </body>
 
 </html>

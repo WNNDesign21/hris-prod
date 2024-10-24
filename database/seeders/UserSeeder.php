@@ -80,42 +80,42 @@ class UserSeeder extends Seeder
 
 
         //USER
-        // $user1 = User::create([
-        //     'username' => 'FL0001',
-        //     'email' => "fl0001@tcf.com",
-        //     'password' => bcrypt('12345678'),
-        //     'organisasi_id' => 2
-        // ]);
+        $user1 = User::create([
+            'username' => 'FL0001',
+            'email' => "fl0001@tcf.com",
+            'password' => bcrypt('12345678'),
+            'organisasi_id' => 2
+        ]);
 
-        // $user2 = User::create([
-        //     'username' => 'IN0002',
-        //     'email' => "in0002@email.com",
-        //     'password' => bcrypt('12345678'),
-        //     'organisasi_id' => 2
-        // ]);
+        $user2 = User::create([
+            'username' => 'IN0002',
+            'email' => "in0002@email.com",
+            'password' => bcrypt('12345678'),
+            'organisasi_id' => 2
+        ]);
 
-        // $user3 = User::create([
-        //     'username' => 'AM0003',
-        //     'email' => "am0003@tcf.com",
-        //     'password' => bcrypt('12345678'),
-        //     'organisasi_id' => 2
-        // ]);
+        $user3 = User::create([
+            'username' => 'AM0003',
+            'email' => "am0003@tcf.com",
+            'password' => bcrypt('12345678'),
+            'organisasi_id' => 2
+        ]);
 
-        // $user4 = User::create([
-        //     'username' => 'FA1722',
-        //     'email' => "fathan@tcf.com",
-        //     'password' => bcrypt('12345678'),
-        //     'organisasi_id' => 2
-        // ]);
+        $user4 = User::create([
+            'username' => 'FA1722',
+            'email' => "fathan@tcf.com",
+            'password' => bcrypt('12345678'),
+            'organisasi_id' => 2
+        ]);
 
         $personalia1_tcf2->assignRole('personalia');
         $personalia2_tcf2->assignRole('personalia');
         $personalia1_tcf3->assignRole('personalia');
         $personalia2_tcf3->assignRole('personalia');
         $superUser->assignRole('super user');
-        // $user1->assignRole('member');
-        // $user2->assignRole('atasan');
-        // $user3->assignRole('atasan');
-        // $user4->assignRole('atasan');
+        $user1->assignRole('member');
+        $user2->assignRole('atasan');
+        $user3->assignRole('atasan');
+        $user4->assignRole('atasan');
     }
 }

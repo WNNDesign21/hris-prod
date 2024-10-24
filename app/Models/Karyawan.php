@@ -8,6 +8,7 @@ use App\Models\Divisi;
 use App\Models\Posisi;
 use App\Models\Departemen;
 use App\Models\Organisasi;
+use App\Models\SettingLemburKaryawan;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -117,7 +118,7 @@ class Karyawan extends Model
 
     public function settingLembur()
     {
-        return $this->belongsTo(SettingLemburKaryawan::class, 'karyawan_id', 'id_karyawan');
+        return $this->hasOne(SettingLemburKaryawan::class, 'karyawan_id', 'id_karyawan');
     }
 
     private static function _query($dataFilter)

@@ -198,4 +198,10 @@ class OrganisasiController extends Controller
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }
+
+    public function get_data_organisasi()
+    {
+        $org = Organisasi::all();
+        return response()->json(['data' => $org], 200);
+    }
 }

@@ -31,6 +31,18 @@ class HomeController extends Controller
         $dataProfile = [];
         $dataKontrak = [];
         if($profile){
+            if($profile?->status_karyawan == 'AT'){
+                $status = 'AKTIF';
+            } elseif($profile?->status_karyawan == 'MD'){
+                $status = 'MENGUNDURKAN DIRI';
+            } elseif($profile?->status_karyawan == 'PS'){
+                $status = 'PENSIUN';
+            } elseif($profile?->status_karyawan == 'HK'){
+                $status = 'HABIS KONTRAK';
+            } else {
+                $status = 'TERMINASI';
+            }
+
             $dataProfile = [
                 'ni_karyawan' => $profile?->ni_karyawan,
                 'foto' => $profile?->foto ? asset('storage/'.$profile->foto) : asset('img/no-image.png'),  
@@ -59,7 +71,7 @@ class HomeController extends Controller
                 'jenjang_pendidikan' => $profile?->jenjang_pendidikan,
                 'jurusan_pendidikan' => $profile?->jurusan_pendidikan,
                 'jenis_kontrak' => $profile?->jenis_kontrak,
-                'status_karyawan' => $profile?->status_karyawan,
+                'status_karyawan' => $status,
                 'sisa_cuti_pribadi' => $profile?->sisa_cuti_pribadi,
                 'sisa_cuti_bersama' => $profile?->sisa_cuti_bersama,
                 'sisa_cuti_tahun_lalu' => $profile?->sisa_cuti_tahun_lalu,

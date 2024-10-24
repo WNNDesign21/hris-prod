@@ -843,7 +843,7 @@ class KaryawanController extends Controller
                         //Convert tanggal lahir ke format Ymd jika ada
                         if($row[7] !== null){
                             try {
-                                $tanggal_lahir = Carbon::createFromFormat('m/d/Y', $row[7])->format('Y-m-d');
+                                $tanggal_lahir = Carbon::createFromFormat('d/m/Y', $row[7])->format('Y-m-d');
                             } catch (Exception $e) {
                                 return response()->json(['message' => 'Format tanggal lahir salah!'], 402);
                             }
@@ -852,7 +852,7 @@ class KaryawanController extends Controller
                         //Convert tanggal bergabung/mulai ke format Ymd jika ada
                         if($row[17] !== null){
                             try {
-                                $tanggal_mulai = Carbon::createFromFormat('m/d/Y', $row[17])->format('Y-m-d');
+                                $tanggal_mulai = Carbon::createFromFormat('d/m/Y', $row[17])->format('Y-m-d');
                             } catch (Exception $e) {
                                 return response()->json(['message' => 'Format tanggal bergabung salah!'], 402);
                             }
@@ -861,7 +861,7 @@ class KaryawanController extends Controller
 
                         if($row[33] !== null){
                             try {
-                                $expired_date_cuti_tahun_lalu = Carbon::createFromFormat('m/d/Y', $row[33])->format('Y-m-d');
+                                $expired_date_cuti_tahun_lalu = Carbon::createFromFormat('d/m/Y', $row[33])->format('Y-m-d');
                             } catch (Exception $e) {
                                 return response()->json(['message' => 'Format tanggal expired cuti tahun lalu salah!'], 402);
                             }
