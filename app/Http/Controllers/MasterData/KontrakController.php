@@ -43,18 +43,18 @@ class KontrakController extends Controller
     {
 
         $columns = array(
-            0 => 'id_kontrak',
+            0 => 'kontraks.id_kontrak',
             1 => 'karyawans.nama',
             2 => 'departemens.nama',
             3 => 'kontraks.nama_posisi',
-            4 => 'no_surat',
-            5 => 'issued_date',
-            6 => 'jenis',
-            7 => 'status',
-            8 => 'durasi',
-            9 => 'salary',
-            10 => 'tanggal_mulai',
-            11 => 'tanggal_selesai',
+            4 => 'kontraks.no_surat',
+            5 => 'kontraks.issued_date',
+            6 => 'kontraks.jenis',
+            7 => 'kontraks.status',
+            8 => 'kontraks.durasi',
+            9 => 'kontraks.salary',
+            10 => 'kontraks.tanggal_mulai',
+            11 => 'kontraks.tanggal_selesai',
         );
 
         $totalData = Kontrak::count();
@@ -116,7 +116,7 @@ class KontrakController extends Controller
 
         $kontrak = Kontrak::getData($dataFilter, $settings);
         $totalFiltered = Kontrak::countData($dataFilter);
-
+        
         $dataTable = [];
 
         if (!empty($kontrak)) {
@@ -157,7 +157,6 @@ class KontrakController extends Controller
             "order" => $order,
             "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
             "dir" => $dir,
-            "column"=>$request->input('order.0.column')
         );
 
         return response()->json($json_data, 200);

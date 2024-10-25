@@ -64,6 +64,7 @@ class LembureController extends Controller
 
         $totalData = Lembure::where('issued_by', auth()->user()->karyawan->id_karyawan)->count();
         $totalFiltered = $totalData;
+        
         $lembure = Lembure::getData($dataFilter, $settings);
         $totalFiltered = $lembure->count();
         $dataTable = [];
@@ -162,14 +163,12 @@ class LembureController extends Controller
             'nama',
         );
 
-        $organisasi_id = auth()->user()->organisasi_id;
-        if($organisasi_id){
-            $query->organisasi($organisasi_id);
-        }
+        $posisi = auth()->user()->karyawan->posisi;
+        $id_posisi_members = $this->get_member_posisi($posisi);
 
-        $departemen_id = auth()->user()->departemen_id;
-        if($departemen_id){
-            $query->where($departemen_id);
+        foreach ($posisi as $ps){
+            $index = array_search($ps->id_posisi, $id_posisi_members);
+            array_splice($id_posisi_members, $index, 1);
         }
 
         if (!empty($search)) {
@@ -180,10 +179,7 @@ class LembureController extends Controller
         }
 
         //Ambil karyawan yang scope Aktif jika ada parameter status
-        $status = $request->input('status');
-        if (!empty($status)) {
-            $query->aktif();
-        }
+        $query->aktif();
 
 
         $data = $query->simplePaginate(10);
@@ -209,5 +205,17 @@ class LembureController extends Controller
         );
 
         return response()->json($results);
+    }
+
+    function get_member_posisi($posisis)
+    {
+        $data = [];
+        foreach ($posisis as $ps) {
+            if ($ps->children) {
+                $data = array_merge($data, $this->get_member_posisi($ps->children));
+            }
+            $data[] = $ps->id_posisi;
+        }
+        return $data;
     }
 }

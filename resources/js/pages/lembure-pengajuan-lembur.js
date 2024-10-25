@@ -169,22 +169,99 @@ $(function () {
         modalPengajuanLembur.hide();
     }
 
-    $('#karyawan_id_1').select2({
-        dropdownParent: $('#modal-pengajuan-lembur'),
-        ajax: {
+    //SURAT PERINTAH LEMBUR
+    let count = 0;
+    let jumlah_detail_lembur = 0;
+    $('#table-detail-lembur').on("click",'.btnDeleteDetailLembur', function (){
+        jumlah_detail_lembur--;
+        let urutan = $(this).data('urutan');
+        $(`#btn_delete_detail_lembur_${urutan}`).closest('tr').remove();
+
+        if(jumlah_detail_lembur == 0){
+            $('.btnSubmitDetailLembur').attr('disabled', true);
+        } else {
+            $('.btnSubmitDetailLembur').attr('disabled', false);
+        }
+    });
+
+    $('.btnAddDetailLembur').on("click", function (){
+        count++;
+        jumlah_detail_lembur++;
+        let tbody = $('#list-detail-lembur');
+        tbody.append(`
+             <tr>
+                <td>
+                    <select name="karyawan_id[]" id="karyawan_id_${count}" class="form-control" style="width: 100%;">
+                    </select>
+                </td>
+                <td>
+                    <input type="text" name="job_description[]"
+                        id="job_description_${count}" class="form-control"
+                        style="width: 100%;">
+                    </input>
+                </td>
+                <td>
+                    <input type="datetime-local" name="rencana_mulai_lembur[]"
+                        id="rencana_mulai_lembur_${count}" class="form-control"
+                        style="width: 100%;">
+                    </input>
+                </td>
+                <td>
+                    <input type="datetime-local" name="rencana_selesai_lembur[]"
+                        id="rencana_selesai_lembur_${count}" class="form-control"
+                        style="width: 100%;">
+                    </input>
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <button type="button"
+                            class="btn btn-danger waves-effect btnDeleteDetailLembur" data-urutan="${count}" id="btn_delete_detail_lembur_${count}"><i
+                                class="fas fa-trash"></i></button>
+                    </div>
+                </td>
+            </tr>
+        `)
+
+        if(jumlah_detail_lembur == 0){
+            $('.btnSubmitDetailLembur').attr('disabled', true);
+        } else {
+            $('.btnSubmitDetailLembur').attr('disabled', false);
+        }
+
+        $("#karyawan_id_" + count).select2({
+            dropdownParent: $('#modal-pengajuan-lembur'),
+            ajax: {
             url: base_url + "/master-data/karyawan/get-data-karyawan",
             type: "post",
             dataType: "json",
             delay: 250,
             data: function (params) {
                 return {
-                    search: params.term || "",
-                    page: params.page || 1,
+                search: params.term || "",
+                page: params.page || 1,
+                };
+            },
+            processResults: function (data, params) {
+                let selectedIds = [];
+                $("select[name='karyawan_id[]']").each(function () {
+                if ($(this).val()) {
+                    selectedIds.push($(this).val());
+                }
+                });
+
+                let filteredData = data.results.filter(function (item) {
+                return !selectedIds.includes(item.id);
+                });
+
+                return {
+                    results: filteredData,
+                    pagination: {
+                        more: (params.page * 10) < data.total_count
+                    }
                 };
             },
             cache: true,
-        },
-    });
-
-
+            },
+        });
+    })
 });
