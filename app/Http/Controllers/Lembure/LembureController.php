@@ -169,7 +169,7 @@ class LembureController extends Controller
 
         $departemen_id = auth()->user()->departemen_id;
         if($departemen_id){
-            $query->organisasi($departemen_id);
+            $query->where($departemen_id);
         }
 
         if (!empty($search)) {

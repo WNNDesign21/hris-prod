@@ -59,6 +59,8 @@ Route::get('/cutie/dashboard-cuti/get-data-cuti-detail-chart',[CutieController::
 Route::get('/cutie/dashboard-cuti/get-data-jenis-cuti-monthly-chart',[CutieController::class, 'get_data_jenis_cuti_monthly_chart']);
 Route::get('/cutie/setting-cuti/get-data-detail-jenis-cuti/{idJenisCuti}',[CutieController::class, 'get_data_detail_jenis_cuti']);
 
+Route::post('/lembure/pengajuan-lembur/get-data-karyawan-lembur',[LembureController::class, 'get_data_karyawan_lembur']); 
+
 
 Route::group(['middleware' => ['auth', 'notifikasi']], function () {
     // MENU UTAMA
