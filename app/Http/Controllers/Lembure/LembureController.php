@@ -661,4 +661,19 @@ class LembureController extends Controller
             return response()->json(['message' => 'Data lembur tidak tersedia, hubungi ICT!', 'data' => []], 500);
         }
     }
+
+    public function delete(string $id_lembur)
+    {
+        DB::beginTransaction();
+        try{
+            $lembure = Lembure::find($id_lembur);
+            $lembure->detailLembur()->delete();
+            $lembure->delete();
+            DB::commit();
+            return response()->json(['message' => 'Pengajuan Lembur Dihapus!'],200);
+        } catch(Throwable $error){
+            DB::rollBack();
+            return response()->json(['message' => $error->getMessage()], 500);
+        }
+    }
 }

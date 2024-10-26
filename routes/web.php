@@ -228,6 +228,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         Route::get('/pengajuan-lembur', [LembureController::class, 'pengajuan_lembur_view'])->name('lembure.pengajuan-lembur');
         Route::post('/pengajuan-lembur-datatable', [LembureController::class, 'pengajuan_lembur_datatable']);
         Route::post('/pengajuan-lembur/store', [LembureController::class, 'store'])->name('lembure.pengajuan-lembur.store');
+        Route::delete('pengajuan-lembur/delete/{idLembur}',[LembureController::class, 'delete'])->name('lembure.pengajuan-lembur.delete');
         Route::patch('/pengajuan-lembur/update/{idLembur}', [LembureController::class, 'update'])->name('lembure.pengajuan-lembur.update');
      });
 });

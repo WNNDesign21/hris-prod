@@ -659,4 +659,40 @@ $(function () {
         }
     });
 
+    //DELETE
+    $('#lembur-table').on('click', '.btnDelete', function (){
+        var idLembur = $(this).data('id-lembur');
+        Swal.fire({
+            title: "Delete Lembur",
+            text: "Apakah kamu yakin untuk menghapus Pengajuan Lembur ini?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
+            allowOutsideClick: false,
+        }).then((result) => {
+            if (result.value) {
+                loadingSwalShow();
+                var url = base_url + '/lembure/pengajuan-lembur/delete/' + idLembur;
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: {
+                        _method: "delete",
+                    },
+                    dataType: "JSON",
+                    success: function (data) {
+                        loadingSwalClose();
+                        refreshTable();
+                        showToast({ title: data.message });
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                    },
+                });
+            }
+        });
+    })
+
 });
