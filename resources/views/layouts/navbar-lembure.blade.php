@@ -12,11 +12,20 @@
                             <span>Dashboard</span>
                         </a>
                     </li>
-                    {{-- @if (auth()->user()->karyawan->settingLembur->jabatan_id == 5) --}}
-                    <li class="{{ $page == 'lembure-pengajuan-lembur' ? 'active' : '' }}">
-                        <a href="{{ route('lembure.pengajuan-lembur') }}">
+                    @if (auth()->user()->karyawan->posisi[0]->jabatan_id == 5)
+                        <li class="{{ $page == 'lembure-pengajuan-lembur' ? 'active' : '' }}">
+                            <a href="{{ route('lembure.pengajuan-lembur') }}">
+                                <i class="icon-Layout-4-blocks"><span class="path1"></span><span
+                                        class="path2"></span></i>
+                                <span>Pengajuan Lembur</span>
+                            </a>
+                        </li>
+                    @endif
+                    {{-- @if (auth()->user()->karyawan->posisi[0]->jabatan_id == 4 || auth()->user()->karyawan->posisi[0]->jabatan_id == 3) --}}
+                    <li class="{{ $page == 'lembure-approval-lembur' ? 'active' : '' }}">
+                        <a href="{{ route('lembure.approval-lembur') }}">
                             <i class="icon-Layout-4-blocks"><span class="path1"></span><span class="path2"></span></i>
-                            <span>Pengajuan Lembur</span>
+                            <span>Approval Lembur</span>
                         </a>
                     </li>
                     {{-- @endif --}}

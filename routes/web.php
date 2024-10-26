@@ -224,12 +224,20 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
      });
 
      Route::group(['prefix' => 'lembure'], function () {
+
+        // DASHBOARD
         Route::get('/dashboard', [LembureController::class, 'index'])->name('lembure.dashboard');
+
+        // PENGAJUAN LEMBUR (LEADER)
         Route::get('/pengajuan-lembur', [LembureController::class, 'pengajuan_lembur_view'])->name('lembure.pengajuan-lembur');
         Route::post('/pengajuan-lembur-datatable', [LembureController::class, 'pengajuan_lembur_datatable']);
         Route::post('/pengajuan-lembur/store', [LembureController::class, 'store'])->name('lembure.pengajuan-lembur.store');
         Route::delete('pengajuan-lembur/delete/{idLembur}',[LembureController::class, 'delete'])->name('lembure.pengajuan-lembur.delete');
         Route::patch('/pengajuan-lembur/update/{idLembur}', [LembureController::class, 'update'])->name('lembure.pengajuan-lembur.update');
+
+        // APPROVAL LEMBUR (CHECK)
+        Route::get('/approval-lembur', [LembureController::class, 'approval_lembur_view'])->name('lembure.approval-lembur');
+        Route::post('/approval-lembur-datatable', [LembureController::class, 'approval_lembur_datatable']);
      });
 });
 

@@ -173,6 +173,10 @@
         @vite(['resources/js/pages/lembure-pengajuan-lembur.js'])
     @endif
 
+    @if ($page == 'lembure-approval-lembur')
+        @vite(['resources/js/pages/lembure-approval-lembur.js'])
+    @endif
+
 </body>
 
 </html>

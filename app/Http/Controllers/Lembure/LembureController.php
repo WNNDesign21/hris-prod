@@ -38,6 +38,15 @@ class LembureController extends Controller
         return view('pages.lembur-e.pengajuan-lembur', $dataPage);
     }
 
+    public function approval_lembur_view()
+    {
+        $dataPage = [
+            'pageTitle' => "Lembur-E - Approval Lembur",
+            'page' => 'lembure-approval-lembur',
+        ];
+        return view('pages.lembur-e.approval-lembur', $dataPage);
+    }
+
     public function pengajuan_lembur_datatable(Request $request)
     {
         $columns = array(
@@ -83,13 +92,113 @@ class LembureController extends Controller
                 $jam = floor($data->total_durasi / 60);
                 $menit = $data->total_durasi % 60;
                 $tanggal_lembur = Carbon::parse(DetailLembur::where('lembur_id', $data->id_lembur)->first()->rencana_mulai_lembur)->format('Y-m-d');
+                if($data->status == 'WAITING'){
+                    $status = '<span class="badge badge-warning">WAITING</span>';
+                } elseif ($data->status == 'PLANNED'){
+                    $status = '<span class="badge badge-info">PLANNED</span>';
+                } elseif ($data->status == 'COMPLETED'){
+                    $status = '<span class="badge badge-success">COMPLETED</span>';
+                } else {
+                    $status = '<span class="badge badge-rejected">REJECTED</span>';
+                }
 
                 $nestedData['id_lembur'] = $data->id_lembur;
                 $nestedData['issued_date'] = Carbon::parse($data->issued_date)->locale('id')->translatedFormat('l, d F Y');
                 $nestedData['issued_by'] = $data->nama_karyawan;
                 $nestedData['jenis_hari'] = $data->jenis_hari;
                 $nestedData['total_durasi'] = $jam . ' Jam ' . $menit . ' Menit';
-                $nestedData['status'] = $data->status;
+                $nestedData['status'] = $status;
+                $nestedData['plan_checked_by'] = $data->plan_checked_by;
+                $nestedData['plan_approved_by'] = $data->plan_approved_by;
+                $nestedData['plan_legalized_by'] = $data->plan_legalized_by;
+                $nestedData['actual_checked_by'] = $data->actual_checked_by;
+                $nestedData['actual_approved_by'] = $data->actual_approved_by;
+                $nestedData['actual_legalized_by'] = $data->actual_legalized_by;
+                $nestedData['aksi'] = '<div class="btn-group btn-group-sm">
+                    '.($tanggal_lembur <= date('Y-m-d') && $data->status == 'PLANNED' ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnDone" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-check-circle"></i> Done</button>' : '').'
+                    '.($data->plan_checked_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-edit"></i> Edit</button>' : '').'
+                    '.($data->plan_checked_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-trash"></i> Delete</button>' : '').'
+                </div>';
+
+                $dataTable[] = $nestedData;
+            }
+        }
+
+        $json_data = array(
+            "draw" => intval($request->input('draw')),
+            "recordsTotal" => intval($totalData),
+            "recordsFiltered" => intval($totalFiltered),
+            "data" => $dataTable,
+            "order" => $order,
+            "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
+            "dir" => $dir,
+            "column"=>$request->input('order.0.column')
+        );
+
+        return response()->json($json_data, 200);
+    }
+
+    public function approval_lembur_datatable(Request $request)
+    {
+        $columns = array(
+            0 => 'lemburs.id_lembur',
+            1 => 'lemburs.issued_date',
+            2 => 'karyawans.nama',
+            3 => 'lemburs.jenis_hari',
+            4 => 'lemburs.total_durasi',
+            5 => 'lemburs.status',
+            6 => 'lemburs.plan_checked_by',
+            7=> 'lemburs.plan_approved_by',
+            8 => 'lemburs.plan_legalized_by',
+            9 => 'lemburs.actual_checked_by',
+            10 => 'lemburs.actual_approved_by',
+            11 => 'lemburs.actual_legalized_by'
+        );
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = (!empty($request->input('order.0.column'))) ? $columns[$request->input('order.0.column')] : $columns[0];
+        $dir = (!empty($request->input('order.0.dir'))) ? $request->input('order.0.dir') : "DESC";
+
+        $settings['start'] = $start;
+        $settings['limit'] = $limit;
+        $settings['dir'] = $dir;
+        $settings['order'] = $order;
+
+        $dataFilter = [];
+        $search = $request->input('search.value');
+        if (!empty($search)) {
+            $dataFilter['search'] = $search;
+        }
+
+        $totalData = Lembure::where('issued_by', auth()->user()->karyawan->id_karyawan)->count();
+        $totalFiltered = $totalData;
+
+        $lembure = Lembure::getData($dataFilter, $settings);
+        $totalFiltered = $lembure->count();
+        $dataTable = [];
+
+        if (!empty($lembure)) {
+            foreach ($lembure as $data) {
+                $jam = floor($data->total_durasi / 60);
+                $menit = $data->total_durasi % 60;
+                $tanggal_lembur = Carbon::parse(DetailLembur::where('lembur_id', $data->id_lembur)->first()->rencana_mulai_lembur)->format('Y-m-d');
+                if($data->status == 'WAITING'){
+                    $status = '<span class="badge badge-warning">WAITING</span>';
+                } elseif ($data->status == 'PLANNED'){
+                    $status = '<span class="badge badge-info">PLANNED</span>';
+                } elseif ($data->status == 'COMPLETED'){
+                    $status = '<span class="badge badge-success">COMPLETED</span>';
+                } else {
+                    $status = '<span class="badge badge-rejected">REJECTED</span>';
+                }
+
+                $nestedData['id_lembur'] = $data->id_lembur;
+                $nestedData['issued_date'] = Carbon::parse($data->issued_date)->locale('id')->translatedFormat('l, d F Y');
+                $nestedData['issued_by'] = $data->nama_karyawan;
+                $nestedData['jenis_hari'] = $data->jenis_hari;
+                $nestedData['total_durasi'] = $jam . ' Jam ' . $menit . ' Menit';
+                $nestedData['status'] = $status;
                 $nestedData['plan_checked_by'] = $data->plan_checked_by;
                 $nestedData['plan_approved_by'] = $data->plan_approved_by;
                 $nestedData['plan_legalized_by'] = $data->plan_legalized_by;
