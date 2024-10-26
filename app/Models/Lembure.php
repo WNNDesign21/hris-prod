@@ -58,7 +58,7 @@ class Lembure extends Model
 
     public function detailLembur()
     {
-        return $this->hasMany(DetailLembur::class, 'lembur_id', 'id_lembur');
+        return $this->hasMany(DetailLembur::class, 'lembur_id', 'id_lembur')->orderBy('created_at', 'ASC');
     }
 
     public function getJenisHariAttribute($value)

@@ -8,6 +8,7 @@ use App\Models\Lembure;
 use App\Models\Karyawan;
 use App\Models\Organisasi;
 use Illuminate\Support\Str;
+use App\Models\DetailLembur;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -81,6 +82,7 @@ class LembureController extends Controller
             foreach ($lembure as $data) {
                 $jam = floor($data->total_durasi / 60);
                 $menit = $data->total_durasi % 60;
+                $tanggal_lembur = Carbon::parse(DetailLembur::where('lembur_id', $data->id_lembur)->first()->rencana_mulai_lembur)->format('Y-m-d');
 
                 $nestedData['id_lembur'] = $data->id_lembur;
                 $nestedData['issued_date'] = Carbon::parse($data->issued_date)->locale('id')->translatedFormat('l, d F Y');
@@ -95,9 +97,9 @@ class LembureController extends Controller
                 $nestedData['actual_approved_by'] = $data->actual_approved_by;
                 $nestedData['actual_legalized_by'] = $data->actual_legalized_by;
                 $nestedData['aksi'] = '<div class="btn-group btn-group-sm">
-                    <button type="button" class="waves-effect waves-light btn btn-sm btn-success btnDone" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-check-circle"></i> Done</button>
-                    <button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-edit"></i> Edit</button>
-                    <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-trash"></i> Delete</button>
+                    '.($tanggal_lembur <= date('Y-m-d') && $data->status == 'PLANNED' ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnDone" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-check-circle"></i> Done</button>' : '').'
+                    '.($data->plan_checked_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-edit"></i> Edit</button>' : '').'
+                    '.($data->plan_checked_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-trash"></i> Delete</button>' : '').'
                 </div>';
 
                 $dataTable[] = $nestedData;
@@ -158,7 +160,7 @@ class LembureController extends Controller
         DB::beginTransaction();
         try {
             $header = Lembure::create([
-                'id_lembur' => 'LEMBUR-' . '-' . Str::random(4).'-'. date('YmdHis'),
+                'id_lembur' => 'LEMBUR-' . Str::random(4).'-'. date('YmdHis'),
                 'issued_by' => $issued_by,
                 'organisasi_id' => $organisasi_id,
                 'departemen_id' => $departemen_id,
@@ -361,7 +363,141 @@ class LembureController extends Controller
      */
     public function update(Request $request, string $id_lembur)
     {
-        //
+        $dataValidate = [
+            'jenis_hariEdit' => ['required','in:WD,WE'],
+            'karyawan_idEdit.*' => ['required', 'distinct'],
+            'job_descriptionEdit.*' => ['required'],
+            'rencana_mulai_lemburEdit.*' => ['required', 'date_format:Y-m-d\TH:i'],
+            'rencana_selesai_lemburEdit.*' => ['required', 'date_format:Y-m-d\TH:i'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+        
+        $id_detail_lemburs = $request->id_detail_lemburEdit;
+        $jenis_hari = $request->jenis_hariEdit;
+        $karyawan_ids = $request->karyawan_idEdit;
+        $job_descriptions = $request->job_descriptionEdit;
+        $rencana_mulai_lemburs = $request->rencana_mulai_lemburEdit;
+        $rencana_selesai_lemburs = $request->rencana_selesai_lemburEdit;
+        $issued_by = auth()->user()->karyawan->id_karyawan;
+        $organisasi_id = auth()->user()->organisasi_id;
+        $departemen_id = auth()->user()->karyawan->posisi[0]->departemen_id;
+
+        $karyawan_ids_new = $request->karyawan_idEditNew;
+        $job_descriptions_new = $request->job_descriptionEditNew;
+        $rencana_mulai_lemburs_new = $request->rencana_mulai_lemburEditNew;
+        $rencana_selesai_lemburs_new = $request->rencana_selesai_lemburEditNew;
+
+        DB::beginTransaction();
+        try {
+
+            $lembur = Lembure::find($id_lembur);
+            $total_durasi = 0;
+
+            if($lembur){
+                $lembur->jenis_hari = $jenis_hari;
+                $lembur->save();
+            } else {
+                DB::rollback();
+                return response()->json(['message' => 'ID Lembur tidak ditemukan, hubungi ICT'], 402);
+            }
+
+            if(isset($karyawan_ids_new) || isset($job_descriptions_new) || isset($rencana_mulai_lemburs_new) || isset($rencana_selesai_lemburs_new)){
+                $dataValidate = [
+                    'karyawan_idEditNew.*' => ['required', 'distinct'],
+                    'job_descriptionEditNew.*' => ['required'],
+                    'rencana_mulai_lemburEditNew.*' => ['required', 'date_format:Y-m-d\TH:i'],
+                    'rencana_selesai_lemburEditNew.*' => ['required', 'date_format:Y-m-d\TH:i'],
+                ];
+        
+                $validator = Validator::make(request()->all(), $dataValidate);
+            
+                if ($validator->fails()) {
+                    $errors = $validator->errors()->all();
+                    return response()->json(['message' => $errors], 402);
+                }
+    
+                $data_detail_lembur_new = [];
+                foreach ($karyawan_ids_new as $key => $karyawan_id_new) {
+                    $karyawan_new = Karyawan::find($karyawan_id_new);
+                    $datetime_rencana_mulai_lembur_new = Carbon::createFromFormat('Y-m-d\TH:i', $rencana_mulai_lemburs_new[$key])->toDateTimeString();
+                    $datetime_rencana_selesai_lembur_new = Carbon::createFromFormat('Y-m-d\TH:i', $rencana_selesai_lemburs_new[$key])->toDateTimeString();
+                    $durasi_new = $this->calculate_overtime_per_minutes($datetime_rencana_mulai_lembur_new, $datetime_rencana_selesai_lembur_new);
+    
+                    if($durasi_new < 60){
+                        DB::rollback();
+                        return response()->json(['message' => 'Durasi lembur '.$karyawan_new->nama.' kurang dari 1 jam, tidak perlu menginput SPL'], 402);
+                    }
+    
+                    if(!$karyawan_new->posisi()->exists()){
+                        DB::rollback();
+                        return response()->json(['message' => $karyawan_new->nama.' belum memiliki posisi, Hubungi HRD untuk setting posisi karyawan!'], 402);
+                    }
+    
+                    $nominal_new = $this->calculate_overtime_nominal($jenis_hari, $durasi_new, $karyawan_id_new);
+                    $data_detail_lembur_new[] = [
+                        'karyawan_id' => $karyawan_id_new,
+                        'organisasi_id' => $karyawan_new->user->organisasi_id,
+                        'departemen_id' => $karyawan_new->posisi[0]->departemen_id,
+                        'rencana_mulai_lembur' => $datetime_rencana_mulai_lembur_new,
+                        'rencana_selesai_lembur' => $datetime_rencana_selesai_lembur_new,
+                        'deskripsi_pekerjaan' => $job_descriptions_new[$key],
+                        'durasi' => $durasi_new,
+                        'nominal' => $nominal_new
+                    ];
+    
+                    $total_durasi+= $durasi_new;
+                }
+                
+                $lembur->detailLembur()->createMany($data_detail_lembur_new);
+            }
+
+            foreach ($karyawan_ids as $key => $id_kry){
+                $karyawan = Karyawan::find($id_kry);
+                $datetime_rencana_mulai_lembur = Carbon::createFromFormat('Y-m-d\TH:i', $rencana_mulai_lemburs[$key])->toDateTimeString();
+                $datetime_rencana_selesai_lembur = Carbon::createFromFormat('Y-m-d\TH:i', $rencana_selesai_lemburs[$key])->toDateTimeString();
+                $durasi = $this->calculate_overtime_per_minutes($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur);
+
+                if($durasi < 60){
+                    DB::rollback();
+                    return response()->json(['message' => 'Durasi lembur '.$karyawan->nama.' kurang dari 1 jam, tidak perlu menginput SPL'], 402);
+                }
+
+                if(!$karyawan->posisi()->exists()){
+                    DB::rollback();
+                    return response()->json(['message' => $karyawan->nama.' belum memiliki posisi, Hubungi HRD untuk setting posisi karyawan!'], 402);
+                }
+
+                $nominal = $this->calculate_overtime_nominal($jenis_hari, $durasi, $id_kry);
+                $detailLembur = DetailLembur::find($id_detail_lemburs[$key]);
+                $detailLembur->update([
+                    'karyawan_id' => $id_kry,
+                    'organisasi_id' => $karyawan->user->organisasi_id,
+                    'departemen_id' => $karyawan->posisi[0]->departemen_id,
+                    'rencana_mulai_lembur' => $datetime_rencana_mulai_lembur,
+                    'rencana_selesai_lembur' => $datetime_rencana_selesai_lembur,
+                    'deskripsi_pekerjaan' => $job_descriptions[$key],
+                    'durasi' => $durasi,
+                    'nominal' => $nominal
+                ]);
+
+                $total_durasi += $durasi;
+            }
+
+            //Update Total Durasi Lagi
+            $lembur->update(['total_durasi' => $total_durasi]);
+
+            DB::commit();
+            return response()->json(['message' => 'Lembur Berhasil Diupdate!'], 200);
+        } catch (Throwable $e) {
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 
     /**

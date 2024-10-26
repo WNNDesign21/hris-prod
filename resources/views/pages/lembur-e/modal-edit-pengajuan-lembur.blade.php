@@ -11,6 +11,7 @@
                     @csrf
                     @method('PATCH')
                     <div class="form-group">
+                        <input type="hidden" name="id_lembur" id="id_lembur">
                         <div class="col-12">
                             <div class="box">
                                 <div class="box-body">

@@ -303,6 +303,32 @@ $(function () {
         });
     })
 
+    $('.btnUpdateDetailLembur').on("click", function (e){
+        loadingSwalShow();
+        e.preventDefault();
+        let idLembur = $('#id_lembur').val();
+        let url = base_url + '/lembure/pengajuan-lembur/update/' + idLembur;
+        let formData = new FormData($('#form-pengajuan-lembur-edit')[0]);
+        $.ajax({
+            url: url,
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (data) {
+                showToast({ title: data.message });
+                refreshTable();
+                loadingSwalClose();
+                closeFormEdit();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        });
+    })
+
     //Select2
     $('#jenis_hari').select2({
         dropdownParent: $('#modal-pengajuan-lembur')
@@ -335,6 +361,7 @@ $(function () {
 
     function resetFormEdit() {
         detailCount = 0;
+        $('#id_lembur').val('');
         $('#jenis_hariEdit').val('');
         $('#list-detail-lembur-edit').empty();
         $('.btnUpdateDetailLembur').attr('disabled', false);
@@ -346,6 +373,7 @@ $(function () {
         loadingSwalShow();
         let idLembur = $(this).data('id-lembur');
         let url = base_url + '/lembure/pengajuan-lembur/get-data-lembur/' + idLembur;
+        $('#id_lembur').val(idLembur);
         $.ajax({
             url: url,
             method: "GET",
@@ -384,18 +412,22 @@ $(function () {
                                 </input>
                             </td>
                             <td>
-                                <div class="btn-group">
-                                    <button type="button"
-                                        class="btn btn-danger waves-effect btnDeleteDetailLemburEdit" data-urutan="${i}" id="btn_delete_detail_lemburEdit_${i}"><i
-                                            class="fas fa-trash"></i></button>
-                                </div>
+                                -
                             </td>
                         </tr>
                     `)
+
+                    //Backup jika butuh fitur hapus pada Edit data
+                    // <div class="btn-group">
+                    //     <button type="button"
+                    //         class="btn btn-danger waves-effect btnDeleteDetailLemburEdit" data-urutan="${i}" id="btn_delete_detail_lemburEdit_${i}"><i
+                    //             class="fas fa-trash"></i></button>
+                    // </div>
                     selectedKaryawanLembur(i, val.karyawan_id);
                     $('#job_descriptionEdit_' + i).val(val.deskripsi_pekerjaan);
                     $('#rencana_mulai_lemburEdit_' + i).val(val.rencana_mulai_lembur);
                     $('#rencana_selesai_lemburEdit_' + i).val(val.rencana_selesai_lembur);
+                    $('#id_detail_lemburEdit_' + i).val(val.id_detail_lembur);
                 });
                 
                 $('#jenis_hariEdit').val(jenisHari);
