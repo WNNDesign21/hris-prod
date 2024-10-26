@@ -6,22 +6,25 @@ use App\Models\Divisi;
 use App\Models\Karyawan;
 use App\Models\Departemen;
 use App\Models\Organisasi;
+use App\Models\DetailLembur;
 use Illuminate\Database\Eloquent\Model;
+use Iksaku\Laravel\MassUpdate\MassUpdatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Lembure extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, MassUpdatable;
 
     protected $table = 'lemburs';
     protected $primaryKey = 'id_lembur';
+    public $incrementing = false;
 
     protected $fillable = [
-        'organisasi_id','departemen_id','divisi_id','plan_checked_by','plan_checked_at','plan_approved_by',
+        'id_lembur','organisasi_id','departemen_id','divisi_id','plan_checked_by','plan_checked_at','plan_approved_by',
         'plan_approved_at','plan_legalized_by','plan_legalized_at','actual_checked_by','actual_checked_at',
         'actual_approved_by','actual_approved_at','actual_legalized_by','actual_legalized_at','total_durasi',
-        'status','attachment','issued_date','issued_by'
+        'status','attachment','issued_date','issued_by', 'jenis_hari'
     ];
 
     // public function scopeIssuedBy($query, $issued_by)
@@ -53,6 +56,16 @@ class Lembure extends Model
         return $this->belongsTo(Karyawan::class, 'issued_by', 'id_karyawan');
     }
 
+    public function detailLembur()
+    {
+        return $this->hasMany(DetailLembur::class, 'lembur_id', 'id_lembur');
+    }
+
+    public function getJenisHariAttribute($value)
+    {
+        return ($value == 'WE' ? 'WEEKEND'  : 'WEEKDAY');
+    }
+
     private static function _query($dataFilter)
     {
 
@@ -78,6 +91,7 @@ class Lembure extends Model
             'lemburs.attachment',
             'lemburs.issued_date',
             'lemburs.issued_by',
+            'lemburs.jenis_hari',
             'organisasis.nama as nama_organisasi',
             'departemens.nama as nama_departemen',
             'divisis.nama as nama_divisi',
@@ -97,6 +111,7 @@ class Lembure extends Model
                     ->orWhere('lemburs.status', 'ILIKE', "%{$search}%")
                     ->orWhere('lemburs.issued_date', 'ILIKE', "%{$search}%")
                     ->orWhere('lemburs.status', 'ILIKE', "%{$search}%")
+                    ->orWhere('lemburs.jenis_hari', 'ILIKE', "%{$search}%")
                     ->orWhere('lemburs.issued_by', 'ILIKE', "%{$search}%");
             });
         }

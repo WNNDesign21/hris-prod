@@ -60,6 +60,8 @@ Route::get('/cutie/dashboard-cuti/get-data-jenis-cuti-monthly-chart',[CutieContr
 Route::get('/cutie/setting-cuti/get-data-detail-jenis-cuti/{idJenisCuti}',[CutieController::class, 'get_data_detail_jenis_cuti']);
 
 Route::post('/lembure/pengajuan-lembur/get-data-karyawan-lembur',[LembureController::class, 'get_data_karyawan_lembur']); 
+Route::get('/lembure/pengajuan-lembur/get-data-karyawan-lembur',[LembureController::class, 'get_karyawan_lembur']); 
+Route::get('/lembure/pengajuan-lembur/get-data-lembur/{idLembur}',[LembureController::class, 'get_data_lembur']); 
 
 
 Route::group(['middleware' => ['auth', 'notifikasi']], function () {
@@ -225,6 +227,8 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         Route::get('/dashboard', [LembureController::class, 'index'])->name('lembure.dashboard');
         Route::get('/pengajuan-lembur', [LembureController::class, 'pengajuan_lembur_view'])->name('lembure.pengajuan-lembur');
         Route::post('/pengajuan-lembur-datatable', [LembureController::class, 'pengajuan_lembur_datatable']);
+        Route::post('/pengajuan-lembur/store', [LembureController::class, 'store'])->name('lembure.pengajuan-lembur.store');
+        Route::patch('/pengajuan-lembur/update/{idLembur}', [LembureController::class, 'update'])->name('lembure.pengajuan-lembur.update');
      });
 });
 

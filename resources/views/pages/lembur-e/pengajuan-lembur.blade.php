@@ -35,8 +35,9 @@
                             <thead>
                                 <tr>
                                     <th>ID Lembur</th>
-                                    <th>Issued By</th>
                                     <th>Issued At</th>
+                                    <th>Issued By</th>
+                                    <th>Jenis Hari</th>
                                     <th>Total Durasi</th>
                                     <th>Status</th>
                                     <th>Plan Checked</th>
@@ -56,4 +57,5 @@
         </div>
     </div>
     @include('pages.lembur-e.modal-pengajuan-lembur')
+    @include('pages.lembur-e.modal-edit-pengajuan-lembur')
 @endsection
