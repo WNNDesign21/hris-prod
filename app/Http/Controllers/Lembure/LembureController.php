@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Lembure;
 
 use Throwable;
 use Carbon\Carbon;
+use App\Models\Posisi;
 use App\Models\Lembure;
 use App\Models\Karyawan;
 use App\Models\Organisasi;
@@ -171,7 +172,30 @@ class LembureController extends Controller
             $dataFilter['search'] = $search;
         }
 
-        $totalData = Lembure::where('issued_by', auth()->user()->karyawan->id_karyawan)->count();
+        $organisasi_id = auth()->user()->organisasi_id;
+        $posisi = auth()->user()?->karyawan?->posisi;
+        $is_can_legalized = false;
+        $is_can_checked = false;
+        $is_can_approved = false;
+        $is_has_department_head = false;
+
+        if(auth()->user()->hasRole('personalia')){
+            $dataFilter['organisasi_id'] = $organisasi_id;
+            // $dataFilter['is_legalized'] = true;
+            $is_can_legalized = true;
+        } elseif (auth()->user()->karyawan->posisi[0]->jabatan_id == 4 || auth()->user()->karyawan->posisi[0]->jabatan_id == 3){
+            $member_posisi_ids = $this->get_member_posisi($posisi);
+            $dataFilter['member_posisi_ids'] = $member_posisi_ids;
+            $is_can_checked = true;
+            $is_has_department_head = $this->has_department_head($posisi);
+            // $dataFilter['is_checked'] = true;
+        }  elseif (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->organisasi_id !== null){
+            $dataFilter['organisasi_id'] = $organisasi_id;
+            $is_can_approved = true;
+            // $dataFilter['is_approved'] = true;
+        }
+
+        $totalData = Lembure::all()->count();
         $totalFiltered = $totalData;
 
         $lembure = Lembure::getData($dataFilter, $settings);
@@ -183,6 +207,8 @@ class LembureController extends Controller
                 $jam = floor($data->total_durasi / 60);
                 $menit = $data->total_durasi % 60;
                 $tanggal_lembur = Carbon::parse(DetailLembur::where('lembur_id', $data->id_lembur)->first()->rencana_mulai_lembur)->format('Y-m-d');
+
+                //STYLE STATUS
                 if($data->status == 'WAITING'){
                     $status = '<span class="badge badge-warning">WAITING</span>';
                 } elseif ($data->status == 'PLANNED'){
@@ -193,22 +219,100 @@ class LembureController extends Controller
                     $status = '<span class="badge badge-rejected">REJECTED</span>';
                 }
 
+                $button_checked_plan = '';
+                $button_approved_plan = '';
+                $button_legalized_plan = '';
+                $button_checked_actual = '';
+                $button_approved_actual = '';
+                $button_legalized_actual = '';
+
+                //TOMBOL CHECKED
+                if($is_can_checked){
+                     //BUTTON CHECKED DI SISI SECTION HEAD / DEPT HEAD
+                    if($is_has_department_head){
+                        if($data->plan_checked_by == null){
+                            $button_checked_plan = 'MUST CHECKED BY DEPT.HEAD';
+                        } else {
+                            $button_checked_plan = '✅<br><small class="text-bold">'.$data?->plan_checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_checked_at)->diffForHumans().'</small>';
+                        }
+                    } else {
+                        if($data->plan_checked_by == null){
+                            $button_checked_plan = '<button class="btn btn-sm btn-success btnCheckedPlan" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-check-circle"></i> Checked</button>';
+                        } else {
+                            $button_checked_plan = '✅<br><small class="text-bold">'.$data?->plan_checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_checked_at)->diffForHumans().'</small>';
+                        }
+                    }
+
+                    //BUTTON APPROVED DI SISI SECTION HEAD / DEPT HEAD
+                    if($data->plan_approved_by !== null){
+                        $button_approved_plan = '✅<br><small class="text-bold">'.$data?->plan_approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_approved_at)->diffForHumans().'</small>';
+                    }
+
+                    //BUTTON LEGALIZED DI SISI SECTION HEAD / DEPT HEAD
+                    if($data->plan_legalized_by !== null){
+                        $button_legalized_plan = '✅<br><small class="text-bold">'.$data?->plan_legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_legalized_at)->diffForHumans().'</small>';
+                    }
+                }
+
+                //TOMBOL APPROVED
+                if($is_can_approved){
+                    //BUTTON CHECKED DI SISI PLANT HEAD
+                    if($data->plan_checked_by !== null){
+                        $button_checked_plan = '✅<br><small class="text-bold">'.$data?->plan_checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_checked_at)->diffForHumans().'</small>';
+                    }
+
+                    //BUTTON APPROVED DI SISI PLANT HEAD
+                    if($data->plan_approved_by == null){
+                        $button_approved_plan = '<button class="btn btn-sm btn-success btnApprovedPlan" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-thumbs-up"></i> Approved</button>';
+                    } else {
+                        $button_approved_plan = '✅<br><small class="text-bold">'.$data?->plan_approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_approved_at)->diffForHumans().'</small>';
+                    }
+
+                    //BUTTON LEGALIZED DI SISI PLANT HEAD
+                    if($data->plan_legalized_by !== null){
+                        $button_legalized_plan = '✅<br><small class="text-bold">'.$data?->plan_legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_legalized_at)->diffForHumans().'</small>';
+                    }
+                }
+
+                //TOMBOL APPROVED
+                if($is_can_legalized){
+                    //BUTTON CHECKED DI SISI PERSONALIA
+                    if($data->plan_checked_by !== null){
+                        $button_checked_plan = '✅<br><small class="text-bold">'.$data?->plan_checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_checked_at)->diffForHumans().'</small>';
+                    }
+
+                    //BUTTON APPROVED DI SISI PERSONALIA
+                    if($data->plan_approved_by !== null){
+                        $button_approved_plan = '✅<br><small class="text-bold">'.$data?->plan_approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_approved_at)->diffForHumans().'</small>';
+                    } 
+
+                    //BUTTON LEGALIZED DI SISI PERSONALIA
+                    if($data->plan_legalized_by == null){
+                        $button_legalized_plan = '<button class="btn btn-sm btn-success btnLegalizedPlan" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-balance-scale"></i> Legalized</button>';
+                    } else {
+                        $button_legalized_plan = '✅<br><small class="text-bold">'.$data?->plan_legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_legalized_at)->diffForHumans().'</small>';
+                    }
+                }
+
+                $is_planned = true;
+                if($data->status == 'WAITING'){
+                    $is_planned = false;
+                }
+
                 $nestedData['id_lembur'] = $data->id_lembur;
                 $nestedData['issued_date'] = Carbon::parse($data->issued_date)->locale('id')->translatedFormat('l, d F Y');
                 $nestedData['issued_by'] = $data->nama_karyawan;
                 $nestedData['jenis_hari'] = $data->jenis_hari;
                 $nestedData['total_durasi'] = $jam . ' Jam ' . $menit . ' Menit';
                 $nestedData['status'] = $status;
-                $nestedData['plan_checked_by'] = $data->plan_checked_by;
-                $nestedData['plan_approved_by'] = $data->plan_approved_by;
-                $nestedData['plan_legalized_by'] = $data->plan_legalized_by;
-                $nestedData['actual_checked_by'] = $data->actual_checked_by;
-                $nestedData['actual_approved_by'] = $data->actual_approved_by;
-                $nestedData['actual_legalized_by'] = $data->actual_legalized_by;
+                $nestedData['plan_checked_by'] = $button_checked_plan;
+                $nestedData['plan_approved_by'] = $button_approved_plan;
+                $nestedData['plan_legalized_by'] = $button_legalized_plan;
+                $nestedData['actual_checked_by'] =  $button_checked_actual;
+                $nestedData['actual_approved_by'] = $button_approved_actual;
+                $nestedData['actual_legalized_by'] = $button_legalized_actual;
                 $nestedData['aksi'] = '<div class="btn-group btn-group-sm">
-                    '.($tanggal_lembur <= date('Y-m-d') && $data->status == 'PLANNED' ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnDone" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-check-circle"></i> Done</button>' : '').'
-                    '.($data->plan_checked_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-edit"></i> Edit</button>' : '').'
-                    '.($data->plan_checked_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-trash"></i> Delete</button>' : '').'
+                    <button type="button" class="waves-effect waves-light btn btn-sm btn-info btnDetail" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-list-ul"></i> Detail</button>
                 </div>';
 
                 $dataTable[] = $nestedData;
@@ -738,6 +842,40 @@ class LembureController extends Controller
         }
         return $data;
     }
+
+    function get_parent_posisi($posisi)
+    {
+        $data = [];
+        if ($posisi->parent_id !== 0) {
+            $parent = Posisi::find($posisi->parent_id);
+            $data = array_merge($data, $this->get_parent_posisi($parent));
+        }
+        $data[] = $posisi->parent_id;
+        return $data;
+    }
+
+    function has_department_head($posisi)
+    {
+        $has_dept_head = false;
+        if($posisi){
+            foreach($posisi as $pos){
+                $parent_posisi_ids = $this->get_parent_posisi($pos);
+                if(!empty($parent_posisi_ids)){
+                    foreach ($parent_posisi_ids as $parent_id){
+                        if($parent_id !== 0){
+                            if(Posisi::where('id_posisi', $parent_id)->first()->jabatan_id == 3){
+                                $has_dept_head = true;
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            return response()->json(['message' => 'Anda tidak memiliki posisi, silahkan hubungi HRD'], 200);
+        }
+
+        return $has_dept_head;
+    } 
 
     public function get_data_lembur(string $id_lembur)
     {

@@ -68,7 +68,7 @@ $(function () {
         processing: true,
         serverSide: true,
         ajax: {
-            url: base_url + "/lembure/pengajuan-lembur-datatable",
+            url: base_url + "/lembure/approval-lembur-datatable",
             dataType: "json",
             type: "POST",
             data: function (dataFilter) {
@@ -101,13 +101,7 @@ $(function () {
                             '<div class="alert alert-danger text-left" role="alert">' +
                             "<p>Error Message: <strong>" +
                             message +
-                            "</strong></p>" +
-                            "<p>File: " +
-                            file +
-                            "</p>" +
-                            "<p>Line: " +
-                            errorLine +
-                            "</p>" +
+                            "</strong></p>"+
                             "</div>",
                         allowOutsideClick: false,
                         showConfirmButton: true,
@@ -157,8 +151,114 @@ $(function () {
         document.getElementById("modal-approval-lembur"),
         modalApprovalLemburOptions
     );
+    
+    function openForm() {
+        modalApprovalLembur.show();
+    }
 
     function closeForm() {
+        $('#id_lembur').val('');
+        $('.btnUpdateDetailLembur').attr('disabled', false);
         modalApprovalLembur.hide();
     }
+
+
+    $('#approval-table').on("click", '.btnDetail' , function () {
+        loadingSwalShow();
+        let idLembur = $(this).data('id-lembur');
+        let canApproved = $(this).data('can-approved');
+        let isPlanned = $(this).data('is-planned');
+        let url = base_url + '/lembure/pengajuan-lembur/get-data-lembur/' + idLembur;
+        $('#id_lembur').val(idLembur);
+
+        $.ajax({
+            url: url,
+            method: "GET",
+            dataType: "JSON",
+            success: function (response) {
+                let header = response.data.header;
+                let jenisHari = header.jenis_hari == 'WEEKEND' ? 'WE' : 'WD';
+                let detail = response.data.detail_lembur;
+                let tbody = $('#list-approval-lembur').empty();
+                
+                $.each(detail, function (i, val){
+                    tbody.append(`
+                         <tr>
+                            <td>
+                                <input type="hidden" name="id_detail_lembur[]" id="id_detail_lembur_${i}">
+                                <input type="text" name="karyawan_id[]"
+                                    id="karyawan_id_${i}" class="form-control"
+                                    style="width: 100%;" readonly>
+                                </input>
+                            </td>
+                            <td>
+                                <input type="text" name="job_description[]"
+                                    id="job_description_${i}" class="form-control" placeholder="Pisahkan dengan koma (,)"
+                                    style="width: 100%;" readonly>
+                                </input>
+                            </td>
+                            <td>
+                                <input type="datetime-local" name="aktual_mulai_lembur[]"
+                                    id="aktual_mulai_lembur_${i}" class="form-control aktualMulaiLembur"
+                                    style="width: 100%;" min="${new Date().toISOString().slice(0, 16)}" data-urutan="${i}" data-mulai="${val.rencana_mulai_lembur}" ${isPlanned ? 'required' : 'readonly'}>
+                                </input>
+                            </td>
+                            <td>
+                                <input type="datetime-local" name="aktual_selesai_lembur[]"
+                                    id="aktual_selesai_lembur_${i}" class="form-control aktualSelesaiLembur"
+                                    style="width: 100%;" min="${new Date().toISOString().slice(0, 16)}" data-urutan="${i}" data-selesai="${val.rencana_selesai_lembur}" ${isPlanned ? 'required' : 'readonly'}>
+                                </input>
+                            </td>
+                            <td>
+                                `+ (canApproved && !isPlanned ? 
+                                `
+                                    <input type="checkbox" data-urutan="${i}" id="btn_reject_approval_lembur_${i}" value="Y" class="filled-in chk-col-primary" checked />
+                                    <label for="btn_reject_approval_lembur_${i}"></label>
+                                ` : '-' )+`
+                            </td>
+                        </tr>
+                    `)
+
+                    //Backup jika butuh fitur hapus pada  data
+                    // <div class="btn-group">
+                    //     <button type="button"
+                    //         class="btn btn-danger waves-effect btnDeleteDetailLembur" data-urutan="${i}" id="btn_delete_detail_lembur_${i}"><i
+                    //             class="fas fa-trash"></i></button>
+                    // </div>
+                    $('#karyawan_id_' + i).val(val.karyawan_id);
+                    $('#job_description_' + i).val(val.deskripsi_pekerjaan);
+                    $('#aktual_mulai_lembur_' + i).val(val.rencana_mulai_lembur);
+                    $('#aktual_selesai_lembur_' + i).val(val.rencana_selesai_lembur);
+                    $('#id_detail_lembur_' + i).val(val.id_detail_lembur);
+
+                    if(canApproved && !isPlanned){
+                        $('.btnUpdateDetailLembur').attr('disabled', true);
+                    }
+                });
+                $('#jenis_hari').val(jenisHari);
+                openForm();
+                loadingSwalClose();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        }); 
+    })
+
+    $('#table-approval-lembur').on("change", '.aktualMulaiLembur', function () {
+        let urutan = $(this).data('urutan');
+        let startTime = $(this).val();
+        $('#aktual_selesai_lembur_' + urutan).val('').attr('min', startTime);
+    });
+
+    $('#table-approval-lembur').on("change", '.aktualSelesaiLembur' , function () {
+        let urutan = $(this).data('urutan');
+        let startTime = $('#aktual_mulai_lembur_' + urutan).val();
+        let endTime = $(this).val();
+        let oldEndTime = $(this).data('selesai');
+        if (endTime < startTime) {
+            $(this).val(oldEndTime);
+            showToast({ title: "Waktu selesai lembur tidak boleh kurang dari waktu mulai lembur", icon: "error" });
+        }
+    });
 });

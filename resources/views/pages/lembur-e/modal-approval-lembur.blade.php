@@ -3,45 +3,62 @@
     <div class="modal-dialog modal-fullscreen" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                {{-- <h4 class="modal-title">Pengajuan Lembur</h4> --}}
                 <button type="button" class="btn-close btnClose" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="form-group">
-                    <div class="col-12">
-                        <div class="box">
-                            <div class="box-body">
-                                <h4 class="box-title">Surat Perintah Lembur (Detail)</h4>
-                                <div class="row">
-                                    <div class="col-lg-4 col-8 p-0">
-                                        <div class="form-group">
-                                            <label for="jenis_hari">Jenis Hari</label>
-                                            <input type="text" class="form-control" id="jenis_hari">
+                <form action="#" method="POST" enctype="multipart/form-data" id="form-approval-lembur">
+                    @csrf
+                    @method('PATCH')
+                    <div class="form-group">
+                        <input type="hidden" name="id_lembur" id="id_lembur">
+                        <div class="col-12">
+                            <div class="box">
+                                <div class="box-body">
+                                    <h4 class="box-title">Surat Perintah Lembur</h4>
+                                    <div class="row">
+                                        <div class="col-lg-4 col-8">
+                                            <div class="form-group">
+                                                <label for="jenis_hari">Jenis Hari</label>
+                                                <select name="jenis_hari" id="jenis_hari" class="form-control"
+                                                    style="width:100%;" disabled>
+                                                    <option value="">PILIH JENIS HARI LEMBUR</option>
+                                                    <option value="WE">WEEKEND</option>
+                                                    <option value="WD">WEEKDAY</option>
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <!-- /.box-header -->
-                            <div class="box-body px-4 py-0">
-                                <div class="table-responsive">
-                                    <table class="table mb-0" id="table-approval-detail-lembur">
-                                        <thead class="table-primary">
-                                            <tr>
-                                                <th style="width: 20%;">Karyawan</th>
-                                                <th style="width: 35%;">Job Description</th>
-                                                <th style="width: 20%;">Rencana Mulai </th>
-                                                <th style="width: 20%;">Rencana Selesai </th>
-                                                <th style="width: 5%;">Aksi</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="list-approval-detail-lembur">
-                                        </tbody>
-                                    </table>
+                                <!-- /.box-header -->
+                                <div class="box-body px-4 py-0">
+                                    <div class="table-responsive">
+                                        <table class="table mb-0" id="table-approval-lembur">
+                                            <thead class="table-primary">
+                                                <tr>
+                                                    <th style="width: 20%;">Karyawan</th>
+                                                    <th style="width: 35%;">Job Description</th>
+                                                    <th style="width: 20%;">Rencana Mulai </th>
+                                                    <th style="width: 20%;">Rencana Selesai </th>
+                                                    <th style="width: 5%;">Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="list-approval-lembur">
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
+                                <!-- /.box-body -->
                             </div>
-                            <!-- /.box-body -->
+                            <!-- /.box -->
                         </div>
-                        <!-- /.box -->
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <div class="col">
+                    <div class="d-flex justify-content-end">
+                        <button type="button"
+                            class="btn btn-warning waves-effect btnUpdateDetailLembur">Update</button>
                     </div>
                 </div>
             </div>

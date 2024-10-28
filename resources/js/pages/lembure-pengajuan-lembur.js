@@ -528,7 +528,7 @@ $(function () {
         }
     });
 
-     $('#table-detail-lembur-edit').on("change", '.rencanaMulaiLemburEdit', function () {
+    $('#table-detail-lembur-edit').on("change", '.rencanaMulaiLemburEdit', function () {
         let urutan = $(this).data('urutan');
         let startTime = $(this).val();
         $('#rencana_selesai_lemburEdit_' + urutan).val('').attr('min', startTime);

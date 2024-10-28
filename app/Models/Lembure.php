@@ -100,7 +100,10 @@ class Lembure extends Model
             ->leftJoin('karyawans', 'lemburs.issued_by', 'karyawans.id_karyawan')
             ->leftJoin('organisasis', 'lemburs.organisasi_id', 'organisasis.id_organisasi')
             ->leftJoin('departemens', 'lemburs.departemen_id', 'departemens.id_departemen')
-            ->leftJoin('divisis', 'lemburs.divisi_id', 'divisis.id_divisi');
+            ->leftJoin('divisis', 'lemburs.divisi_id', 'divisis.id_divisi')
+            ->rightJoin('detail_lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
+            ->leftJoin('karyawan_posisi', 'detail_lemburs.karyawan_id', 'karyawan_posisi.karyawan_id')
+            ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi');
         
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
@@ -115,6 +118,43 @@ class Lembure extends Model
                     ->orWhere('lemburs.issued_by', 'ILIKE', "%{$search}%");
             });
         }
+
+        if(isset($dataFilter['organisasi_id'])){
+            $data->where('detail_lemburs.organisasi_id', $dataFilter['organisasi_id']);
+        }
+
+        if (isset($dataFilter['member_posisi_ids'])) {
+            $data->whereIn('posisis.id_posisi', $dataFilter['member_posisi_ids']);
+        }
+
+        $data->groupBy(
+            'lemburs.id_lembur',
+            'lemburs.organisasi_id',
+            'lemburs.departemen_id',
+            'lemburs.divisi_id',
+            'lemburs.plan_checked_by',
+            'lemburs.plan_checked_at',
+            'lemburs.plan_approved_by',
+            'lemburs.plan_approved_at',
+            'lemburs.plan_legalized_by',
+            'lemburs.plan_legalized_at',
+            'lemburs.actual_checked_by',
+            'lemburs.actual_checked_at',
+            'lemburs.actual_approved_by',
+            'lemburs.actual_approved_at',
+            'lemburs.actual_legalized_by',
+            'lemburs.actual_legalized_at',
+            'lemburs.total_durasi',
+            'lemburs.status',
+            'lemburs.attachment',
+            'lemburs.issued_date',
+            'lemburs.issued_by',
+            'lemburs.jenis_hari',
+            'organisasis.nama',
+            'departemens.nama',
+            'divisis.nama',
+            'karyawans.nama'
+        );
 
         $result = $data;
         return $result;
