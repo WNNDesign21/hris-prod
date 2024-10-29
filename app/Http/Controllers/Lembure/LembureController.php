@@ -219,6 +219,7 @@ class LembureController extends Controller
                     $status = '<span class="badge badge-rejected">REJECTED</span>';
                 }
 
+                //BUTTON ACTION DATATABLE
                 $button_checked_plan = '';
                 $button_approved_plan = '';
                 $button_legalized_plan = '';
@@ -235,71 +236,155 @@ class LembureController extends Controller
                 if($is_can_checked){
                      //BUTTON CHECKED DI SISI SECTION HEAD / DEPT HEAD
                     if($is_has_department_head){
+                        //BEFORE PLANNED
                         if($data->plan_checked_by == null){
                             $button_checked_plan = 'MUST CHECKED BY DEPT.HEAD';
                         } else {
                             $button_checked_plan = '✅<br><small class="text-bold">'.$data?->plan_checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_checked_at)->diffForHumans().'</small>';
                         }
+
+                        //AFTER PLANNED
+                        if($data->status == 'PLANNED' && $data->plan_legalized_by == null){
+                            $button_checked_actual = 'MUST CHECKED BY DEPT.HEAD';
+                        } else {
+                            $button_checked_actual = '✅<br><small class="text-bold">'.$data?->actual_checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_checked_at)->diffForHumans().'</small>';
+                        }
                     } else {
+                         //BEFORE PLANNED
                         if($data->plan_checked_by == null){
                             $button_checked_plan = '<button class="btn btn-sm btn-success btnChecked" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="far fa-check-circle"></i> Checked</button>';
                         } else {
                             $button_checked_plan = '✅<br><small class="text-bold">'.$data?->plan_checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_checked_at)->diffForHumans().'</small>';
                         }
+
+                        //AFTER PLANNED
+                        if($data->status == 'PLANNED' && $data->plan_legalized_by == null){
+                            $button_checked_actual = '<button class="btn btn-sm btn-success btnChecked" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="far fa-check-circle"></i> Checked</button>';
+                        } else {
+                            $button_checked_actual = '✅<br><small class="text-bold">'.$data?->actual_checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_checked_at)->diffForHumans().'</small>';
+                        }
                     }
 
+                    //BEFORE PLANNED
                     //BUTTON APPROVED DI SISI SECTION HEAD / DEPT HEAD
                     if($data->plan_approved_by !== null){
                         $button_approved_plan = '✅<br><small class="text-bold">'.$data?->plan_approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_approved_at)->diffForHumans().'</small>';
                     }
 
+                    //AFTER PLANNED
+                    //BUTTON APPROVED DI SISI SECTION HEAD / DEPT HEAD
+                    if($data->actual_approved_by !== null){
+                        $button_approved_actual = '✅<br><small class="text-bold">'.$data?->actual_approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_approved_at)->diffForHumans().'</small>';
+                    }
+
+                    //BEFORE PLANNED
                     //BUTTON LEGALIZED DI SISI SECTION HEAD / DEPT HEAD
                     if($data->plan_legalized_by !== null){
                         $button_legalized_plan = '✅<br><small class="text-bold">'.$data?->plan_legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_legalized_at)->diffForHumans().'</small>';
+                    }
+
+                    //AFTER PLANNED
+                    //BUTTON LEGALIZED DI SISI SECTION HEAD / DEPT HEAD
+                    if($data->actual_legalized_by !== null){
+                        $button_legalized_actual = '✅<br><small class="text-bold">'.$data?->actual_legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_legalized_at)->diffForHumans().'</small>';
                     }
                 }
 
                 //TOMBOL APPROVED
                 if($is_can_approved){
+                    //BEFORE PLANNED
                     //BUTTON CHECKED DI SISI PLANT HEAD
                     if($data->plan_checked_by !== null){
                         $button_checked_plan = '✅<br><small class="text-bold">'.$data?->plan_checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_checked_at)->diffForHumans().'</small>';
                     }
 
+                    //AFTER PLANNED
+                    //BUTTON CHECKED DI SISI PLANT HEAD
+                    if($data->actual_checked_by !== null){
+                        $button_checked_actual = '✅<br><small class="text-bold">'.$data?->plan_checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_checked_at)->diffForHumans().'</small>';
+                    }
+
+                    //BEFORE PLANNED
                     //BUTTON APPROVED DI SISI PLANT HEAD
                     if($data->plan_approved_by == null){
                         if($data->plan_checked_by !== null){
                             $button_approved_plan = '<button class="btn btn-sm btn-success btnApproved" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-thumbs-up"></i> Approved</button>';
                         } 
                     } else {
+                        //BEFORE PLANNED
                         $button_approved_plan = '✅<br><small class="text-bold">'.$data?->plan_approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_approved_at)->diffForHumans().'</small>';
                     }
 
+                    //AFTER PLANNED
+                    //BUTTON APPROVED DI SISI PLANT HEAD
+                    if($data->actual_approved_by == null){
+                        if($data->actual_checked_by !== null){
+                            $button_approved_actual = '<button class="btn btn-sm btn-success btnApproved" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-thumbs-up"></i> Approved</button>';
+                        } 
+                    } else {
+                        //AFTER PLANNED
+                        $button_approved_actual = '✅<br><small class="text-bold">'.$data?->actual_approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_approved_at)->diffForHumans().'</small>';
+                    }
+
+                    //BEFORE PLANNED
                     //BUTTON LEGALIZED DI SISI PLANT HEAD
                     if($data->plan_legalized_by !== null){
                         $button_legalized_plan = '✅<br><small class="text-bold">'.$data?->plan_legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_legalized_at)->diffForHumans().'</small>';
+                    }
+
+                    //AFTER PLANNED
+                    //BUTTON LEGALIZED DI SISI PLANT HEAD
+                    if($data->actual_legalized_by !== null){
+                        $button_legalized_actual = '✅<br><small class="text-bold">'.$data?->actual_legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_legalized_at)->diffForHumans().'</small>';
                     }
                 }
 
                 //TOMBOL APPROVED
                 if($is_can_legalized){
+                    //BEFORE PLANNED
                     //BUTTON CHECKED DI SISI PERSONALIA
                     if($data->plan_checked_by !== null){
                         $button_checked_plan = '✅<br><small class="text-bold">'.$data?->plan_checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_checked_at)->diffForHumans().'</small>';
                     }
 
+                    //AFTER PLANNED
+                    //BUTTON CHECKED DI SISI PERSONALIA
+                    if($data->actual_checked_by !== null){
+                        $button_checked_actual = '✅<br><small class="text-bold">'.$data?->actual_checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_checked_at)->diffForHumans().'</small>';
+                    }
+
+                    //BEFORE PLANNED
                     //BUTTON APPROVED DI SISI PERSONALIA
                     if($data->plan_approved_by !== null){
                         $button_approved_plan = '✅<br><small class="text-bold">'.$data?->plan_approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_approved_at)->diffForHumans().'</small>';
                     } 
 
+                    //AFTER PLANNED
+                    //BUTTON APPROVED DI SISI PERSONALIA
+                    if($data->actual_approved_by !== null){
+                        $button_approved_actual = '✅<br><small class="text-bold">'.$data?->actual_approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_approved_at)->diffForHumans().'</small>';
+                    } 
+
+                    //BEFORE PLANNED
                     //BUTTON LEGALIZED DI SISI PERSONALIA
                     if($data->plan_legalized_by == null){
                         if($data->plan_approved_by !== null){
                             $button_legalized_plan = '<button class="btn btn-sm btn-success btnLegalized" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-balance-scale"></i> Legalized</button>';
                         } 
                     } else {
+                        //BEFORE PLANNED
                         $button_legalized_plan = '✅<br><small class="text-bold">'.$data?->plan_legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_legalized_at)->diffForHumans().'</small>';
+                    }
+
+                    //AFTER PLANNED
+                    //BUTTON LEGALIZED DI SISI PERSONALIA
+                    if($data->actual_legalized_by == null){
+                        if($data->actual_approved_by !== null){
+                            $button_legalized_actual = '<button class="btn btn-sm btn-success btnLegalized" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-balance-scale"></i> Legalized</button>';
+                        } 
+                    } else {
+                        //AFTER PLANNED
+                        $button_legalized_actual = '✅<br><small class="text-bold">'.$data?->actual_legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_legalized_at)->diffForHumans().'</small>';
                     }
                 }
 
