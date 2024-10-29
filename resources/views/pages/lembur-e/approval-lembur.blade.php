@@ -55,4 +55,5 @@
         </div>
     </div>
     @include('pages.lembur-e.modal-approval-lembur')
+    @include('pages.lembur-e.modal-detail-approval-lembur')
 @endsection

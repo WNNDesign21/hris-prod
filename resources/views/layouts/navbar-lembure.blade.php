@@ -12,7 +12,7 @@
                             <span>Dashboard</span>
                         </a>
                     </li>
-                    @if (auth()->user()->karyawan->posisi[0]->jabatan_id == 5)
+                    @if (auth()->user()->karyawan && auth()->user()->karyawan->posisi[0]->jabatan_id == 5)
                         <li class="{{ $page == 'lembure-pengajuan-lembur' ? 'active' : '' }}">
                             <a href="{{ route('lembure.pengajuan-lembur') }}">
                                 <i class="icon-Layout-4-blocks"><span class="path1"></span><span

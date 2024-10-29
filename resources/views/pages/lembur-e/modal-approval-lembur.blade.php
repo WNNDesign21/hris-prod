@@ -36,9 +36,10 @@
                                             <thead class="table-primary">
                                                 <tr>
                                                     <th style="width: 20%;">Karyawan</th>
-                                                    <th style="width: 35%;">Job Description</th>
+                                                    <th style="width: 30%;">Job Description</th>
                                                     <th style="width: 20%;">Rencana Mulai </th>
                                                     <th style="width: 20%;">Rencana Selesai </th>
+                                                    <th style="width: 5%;">Durasi</th>
                                                     <th style="width: 5%;">Aksi</th>
                                                 </tr>
                                             </thead>
@@ -58,7 +59,7 @@
                 <div class="col">
                     <div class="d-flex justify-content-end">
                         <button type="button"
-                            class="btn btn-warning waves-effect btnUpdateDetailLembur">Update</button>
+                            class="btn btn-warning waves-effect btnUpdateStatusDetailLembur">Update</button>
                     </div>
                 </div>
             </div>
