@@ -109,12 +109,12 @@ class LembureController extends Controller
                 $nestedData['jenis_hari'] = $data->jenis_hari;
                 $nestedData['total_durasi'] = $jam . ' Jam ' . $menit . ' Menit';
                 $nestedData['status'] = $status;
-                $nestedData['plan_checked_by'] = $data->plan_checked_by;
-                $nestedData['plan_approved_by'] = $data->plan_approved_by;
-                $nestedData['plan_legalized_by'] = $data->plan_legalized_by;
-                $nestedData['actual_checked_by'] = $data->actual_checked_by;
-                $nestedData['actual_approved_by'] = $data->actual_approved_by;
-                $nestedData['actual_legalized_by'] = $data->actual_legalized_by;
+                $nestedData['plan_checked_by'] = $data->plan_checked_by ? '✅<br><small class="text-bold">'.$data?->plan_checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_checked_at)->diffForHumans().'</small>': '';
+                $nestedData['plan_approved_by'] = $data->plan_approved_by ? '✅<br><small class="text-bold">'.$data?->plan_approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_approved_at)->diffForHumans().'</small>': '';
+                $nestedData['plan_legalized_by'] = $data->plan_legalized_by ? '✅<br><small class="text-bold">'.$data?->plan_legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_legalized_at)->diffForHumans().'</small>': '';
+                $nestedData['actual_checked_by'] = $data->actual_checked_by ? '✅<br><small class="text-bold">'.$data?->actual_checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_checked_at)->diffForHumans().'</small>': '';
+                $nestedData['actual_approved_by'] = $data->actual_approved_by ? '✅<br><small class="text-bold">'.$data?->actual_approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_approved_at)->diffForHumans().'</small>': '';
+                $nestedData['actual_legalized_by'] = $data->actual_legalized_by ? '✅<br><small class="text-bold">'.$data?->actual_legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_legalized_at)->diffForHumans().'</small>': '';
                 $nestedData['aksi'] = '<div class="btn-group btn-group-sm">
                     '.($tanggal_lembur <= date('Y-m-d') && $data->status == 'PLANNED' ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnDone" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-check-circle"></i> Done</button>' : '').'
                     '.($data->plan_checked_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-edit"></i> Edit</button>' : '').'
@@ -244,9 +244,9 @@ class LembureController extends Controller
                         }
 
                         //AFTER PLANNED
-                        if($data->status == 'PLANNED' && $data->plan_legalized_by == null){
+                        if($data->status == 'COMPLETED' && $data->actual_checked_by == null){
                             $button_checked_actual = 'MUST CHECKED BY DEPT.HEAD';
-                        } else {
+                        } elseif ($data->status == 'COMPLETED' && $data->actual_checked_by !== null) {
                             $button_checked_actual = '✅<br><small class="text-bold">'.$data?->actual_checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_checked_at)->diffForHumans().'</small>';
                         }
                     } else {
@@ -258,9 +258,9 @@ class LembureController extends Controller
                         }
 
                         //AFTER PLANNED
-                        if($data->status == 'PLANNED' && $data->plan_legalized_by == null){
+                        if($data->status == 'COMPLETED' && $data->actual_checked_by == null){
                             $button_checked_actual = '<button class="btn btn-sm btn-success btnChecked" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="far fa-check-circle"></i> Checked</button>';
-                        } else {
+                        } elseif ($data->status == 'COMPLETED' && $data->actual_checked_by !== null) {
                             $button_checked_actual = '✅<br><small class="text-bold">'.$data?->actual_checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_checked_at)->diffForHumans().'</small>';
                         }
                     }
@@ -1175,6 +1175,82 @@ class LembureController extends Controller
         } catch (Throwable $e){
             DB::rollBack();
             return response()->json(['message' => $error->getMessage()], 500);
+        }
+    }
+
+    public function done(Request $request, string $id_lembur)
+    {
+        dd(request()->all());
+        $dataValidate = [
+            'id_detail_lembur.*' => ['required', 'distinct'],
+            'is_planned' => ['required', 'in:Y,N'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $is_planned = $request->is_planned;
+        $approved_detail = $request->approved_detail;
+
+        DB::beginTransaction();
+        try{
+            $lembur = Lembure::find($id_lembur);
+            $detail_lembur = $lembur->detailLembur;
+            $karyawan = auth()->user()->karyawan->nama;
+            $total_durasi = $lembur->total_durasi;
+
+            if(!$approved_detail){
+                DB::commit();
+                return response()->json(['message' => 'Minimal ada 1 orang yang di Approved!, jika ingin mereject semua, silahkan klik tombol Reject!'], 403);
+            } else {
+                $approved_detail = explode(',', $approved_detail);
+            }
+
+            if($is_planned = 'N'){
+                if($lembur->plan_checked_by == null){
+                    return response()->json(['message' => 'Pengajuan Lembur belum di check oleh Sect.Head/Dept.Head !'], 403);
+                }
+    
+                if($lembur->plan_approved_by !== null){
+                    return response()->json(['message' => 'Pengajuan Lembur sudah di Approved !'], 403);
+                }
+
+                // Delete detail lembur yang tidak ada di approved_detail
+                foreach ($detail_lembur as $detail) {
+                    if (!in_array($detail->id_detail_lembur, $approved_detail)) {
+                        $detail->is_rencana_approved = 'N';
+                        $detail->save();
+
+                        $lembur->total_durasi -= $detail->durasi;
+                    }
+                }
+
+                $lembur->plan_approved_by = $karyawan;
+                $lembur->plan_approved_at = now();
+
+            } else {
+                if($lembur->actual_checked_by == null){
+                    return response()->json(['message' => 'Aktual Lembur belum di check oleh Sect.Head/Dept.Head !'], 403);
+                }
+    
+                if($lembur->actual_approved_by !== null){
+                    return response()->json(['message' => 'Aktual Lembur sudah di Approved !'], 403);
+                }
+
+                $lembur->actual_approved_by = $karyawan;
+                $lembur->actual_approved_at = now();
+            }
+
+            $lembur->save();
+            DB::commit();
+            return response()->json(['message' => 'Pengajuan Lembur berhasil di Approved!'],200);
+        } catch (Throwable $e){
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 }

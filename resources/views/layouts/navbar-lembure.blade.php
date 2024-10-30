@@ -21,14 +21,18 @@
                             </a>
                         </li>
                     @endif
-                    {{-- @if (auth()->user()->karyawan->posisi[0]->jabatan_id == 4 || auth()->user()->karyawan->posisi[0]->jabatan_id == 3) --}}
-                    <li class="{{ $page == 'lembure-approval-lembur' ? 'active' : '' }}">
-                        <a href="{{ route('lembure.approval-lembur') }}">
-                            <i class="icon-Layout-4-blocks"><span class="path1"></span><span class="path2"></span></i>
-                            <span>Approval Lembur</span>
-                        </a>
-                    </li>
-                    {{-- @endif --}}
+                    @if (auth()->user()->karyawan &&
+                            (auth()->user()->karyawan->posisi[0]->jabatan_id == 4 ||
+                                auth()->user()->karyawan->posisi[0]->jabatan_id == 3 ||
+                                auth()->user()->karyawan->posisi[0]->jabatan_id == 2))
+                        <li class="{{ $page == 'lembure-approval-lembur' ? 'active' : '' }}">
+                            <a href="{{ route('lembure.approval-lembur') }}">
+                                <i class="icon-Layout-4-blocks"><span class="path1"></span><span
+                                        class="path2"></span></i>
+                                <span>Approval Lembur</span>
+                            </a>
+                        </li>
+                    @endif
                 </ul>
             </div>
         </div>

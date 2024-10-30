@@ -151,6 +151,14 @@ $(function () {
         closeForm();
     })
 
+    $('.btnDone').on("click", function (){
+        openDone();
+    })
+
+    $('.btnCloseDone').on("click", function (){
+        closeDone();
+    })
+
     // MODAL TAMBAH LEMBUR
     var modalPengajuanLemburOptions = {
         backdrop: true,
@@ -175,6 +183,32 @@ $(function () {
         count = 0;
         jumlah_detail_lembur = 0;
     }
+
+
+    //MODAL DONE LEMBUR
+    var modalDoneLemburOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalDoneLembur = new bootstrap.Modal(
+        document.getElementById("modal-detail-lembur-done"),
+        modalDoneLemburOptions
+    );
+
+    function openDone() {
+        modalDoneLembur.show();
+    }
+
+    function closeDone() {
+        resetDone();
+        modalDoneLembur.hide();
+    }
+
+    function resetDone() {
+        $('#list-detail-lembur-done').empty();
+    }
+
 
     //SURAT PERINTAH LEMBUR
     let count = 0;
@@ -545,6 +579,23 @@ $(function () {
         }
     });
 
+    $('#table-detail-lembur-done').on("change", '.aktualMulaiLembur', function () {
+        let urutan = $(this).data('urutan');
+        let startTime = $(this).val();
+        $('#aktual_selesai_lembur_' + urutan).val('').attr('min', startTime);
+    });
+
+    $('#table-detail-lembur-done').on("change", '.aktualSelesaiLembur' , function () {
+        let urutan = $(this).data('urutan');
+        let startTime = $('#aktual_mulai_lembur_' + urutan).val();
+        let endTime = $(this).val();
+        let oldEndTime = $(this).data('selesai');
+        if (endTime < startTime) {
+            $(this).val(oldEndTime);
+            showToast({ title: "Waktu selesai lembur tidak boleh kurang dari waktu mulai lembur", icon: "error" });
+        }
+    });
+
     //ADD DATA IN DETAIL LEMBUR
     $('.btnAddDetailLemburEdit').on("click", function (){
         detailCount++;
@@ -693,6 +744,158 @@ $(function () {
                 });
             }
         });
+    })
+
+    //BUTTON DONE
+    $('#lembur-table').on('click', '.btnDone', function(){
+        loadingSwalShow();
+        let idLembur = $(this).data('id-lembur');
+        let url = base_url + '/lembure/pengajuan-lembur/get-data-lembur/' + idLembur;
+        $('#id_lemburDone').val(idLembur);
+
+        $.ajax({
+            url: url,
+            method: "GET",
+            dataType: "JSON",
+            success: function (response) {
+                loadingSwalClose();
+                let header = response.data.header;
+                let textTanggal = response.data.text_tanggal
+                let jenisHari = header.jenis_hari == 'WEEKEND' ? 'WE' : 'WD';
+                let status = header.status;
+                let detail = response.data.detail_lembur;
+                let tbody = $('#list-detail-lembur-done').empty();
+                
+                $.each(detail, function (i, val){
+                    tbody.append(`
+                         <tr class="${val.is_rencana_approved == 'N' ? 'bg-danger' : ''}">
+                            <td>
+                                ${val.is_rencana_approved !== 'N' ? `<input type="hidden" name="id_detail_lembur[]" id="id_detail_lembur_${i}">` : ''}
+                                ${val.is_rencana_approved !== 'N' ? `<input type="text" name="karyawan_id[]"
+                                    id="karyawan_id_${i}" class="form-control ${val.is_rencana_approved == 'N' ? 'bg-danger' : ''}"
+                                    style="width: 100%;" readonly>
+                                </input>` : `<div id="karyawan_id_${i}" class="text-white"></div>`}
+                            </td>
+                            <td>
+                                <div id="job_description_${i}" class="${val.is_rencana_approved == 'N' ? 'text-white' : ''}"></div>
+                            </td>
+                            <td>
+                                ${val.is_rencana_approved !== 'N' ? `<input type="datetime-local" name="aktual_mulai_lembur[]"
+                                        id="aktual_mulai_lembur_${i}" class="form-control aktualMulaiLembur ${val.is_rencana_approved == 'N' ? 'bg-danger' : ''}"
+                                        style="width: 100%;" min="${val.rencana_mulai_lembur}" data-urutan="${i}" data-mulai="${val.rencana_mulai_lembur}"> 
+                                </input>` : `-`}
+                            </td>
+                            <td>
+                                ${val.is_rencana_approved !== 'N' ? `<input type="datetime-local" name="aktual_selesai_lembur[]"
+                                    id="aktual_selesai_lembur_${i}" class="form-control aktualSelesaiLembur ${val.is_rencana_approved == 'N' ? 'bg-danger' : ''}"
+                                    style="width: 100%;" min="${val.rencana_selesai_lembur}" data-urutan="${i}" data-selesai="${val.rencana_selesai_lembur}"> 
+                                </input>` : `-`}
+                            </td>
+                            <td>
+                            ${val.is_rencana_approved !== 'N' ? `<input type="text" name="keterangan[]"
+                                    id="keterangan_${i}" class="form-control ${val.is_rencana_approved == 'N' ? 'bg-danger text-white' : ''}"
+                                    style="width: 100%;">
+                                </input>` : '-'}
+                            </td>
+                            <td>
+                                ${val.is_rencana_approved !== 'N' ? `<input type="checkbox" name="is_aktual_approved" data-urutan="${i}" id="is_aktual_approved_${i}" class="filled-in chk-col-primary" ${val.is_aktual_approved == 'Y' ? 'checked' : ''} value="${val.id_detail_lembur}"/>
+                                <label for="is_aktual_approved_${i}"></label>` : `-`}
+                            </td>
+                        </tr>
+                    `)
+
+                    $('#is_aktual_approved_' + i).on('change', function(){
+                        if ($(this).is(':checked')) {
+                            $(this).attr('checked', true);
+                            if ($(this).closest('tr').hasClass('bg-danger')) {
+                                $(this).closest('tr').removeClass('bg-danger');
+                            }
+                        } else {
+                            $(this).removeAttr('checked');
+                            $(this).closest('tr').addClass('bg-danger');
+                        }
+                    });
+
+                    //Backup jika butuh fitur hapus pada  data
+                    // <div class="btn-group">
+                    //     <button type="button"
+                    //         class="btn btn-danger waves-effect btnDeleteDetailLembur" data-urutan="${i}" id="btn_delete_detail_lembur_${i}"><i
+                    //             class="fas fa-trash"></i></button>
+                    // </div>
+                    let jobDescriptions = val.deskripsi_pekerjaan.split(',').map(desc => `<li>${desc.trim()}</li>`).join('');
+                    $('#job_description_' + i).html(`<ul>${jobDescriptions}</ul>`);
+                    
+                    if(val.is_rencana_approved == 'Y'){
+                        $('#karyawan_id_' + i).val(val.nama);
+                        $('#aktual_mulai_lembur_' + i).val(val.rencana_mulai_lembur);
+                        $('#aktual_selesai_lembur_' + i).val(val.rencana_selesai_lembur);
+                        $('#id_detail_lembur_' + i).val(val.id_detail_lembur);
+                    } else {
+                        $('#karyawan_id_' + i).text(val.nama);
+                    }
+
+                    $('#form-detail-lembur-done').attr('action', base_url + '/lembure/pengajuan-lembur/done/' + idLembur);
+                    $('.btnSubmitDoneLembur').on("click", function (e){
+                        loadingSwalShow();
+                        e.preventDefault();
+                        let url = $('#form-detail-lembur-done').attr('action');
+                        let formData = new FormData($('#form-detail-lembur-done')[0]);
+
+                        Swal.fire({
+                            title: "Aktual Lembur",
+                            text: "Apakah anda yakin dengan detail lembur ini?",
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonColor: "#3085d6",
+                            cancelButtonColor: "#d33",
+                            confirmButtonText: "Yes, Tandai sebagai Selesai!",
+                            allowOutsideClick: false,
+                        }).then((result) => {
+                            if (result.value) {
+                                loadingSwalShow();
+                                $.ajax({
+                                    url: url,
+                                    data: formData,
+                                    method:"POST",
+                                    contentType: false,
+                                    processData: false,
+                                    dataType: "JSON",
+                                    success: function (data) {
+                                        showToast({ title: data.message });
+                                        refreshTable();
+                                        loadingSwalClose();
+                                        closeDone();
+                                    },
+                                    error: function (jqXHR, textStatus, errorThrown) {
+                                        loadingSwalClose();
+                                        showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                                    },
+                                });
+                            }
+                        });
+                    });
+                });
+                $('#jenis_hariDone').text(jenisHari == 'WE' ? 'Weekend' : 'Weekday');
+                $('#text_tanggalDone').text(textTanggal);
+
+                //STATUS
+                if (status == 'WAITING'){
+                    $('#statusDone').text(status).removeClass().addClass('badge badge-warning')
+                } else if (status == 'PLANNED'){
+                    $('#statusDone').text(status).removeClass().addClass('badge badge-info')
+                } else if (status == 'COMPLETED'){
+                    $('#statusDone').text(status).removeClass().addClass('badge badge-success')
+                } else {
+                    $('#statusDone').text(status).removeClass().addClass('badge badge-danger')
+                }
+                openDone();
+                loadingSwalClose();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        }); 
+        
     })
 
 });
