@@ -145,6 +145,10 @@ $(function () {
         closeDetail();
     })
 
+    $('.btnCloseAktual').on("click", function (){
+        closeAktual();
+    })
+
     // MODAL APPROVAL LEMBUR
     var modalApprovalLemburOptions = {
         backdrop: true,
@@ -198,7 +202,6 @@ $(function () {
             method: "GET",
             dataType: "JSON",
             success: function (response) {
-                console.log(response);
                 let header = response.data.header;
                 let textTanggal = response.data.text_tanggal
                 let jenisHari = header.jenis_hari == 'WEEKEND' ? 'WE' : 'WD';
@@ -208,42 +211,45 @@ $(function () {
                 
                 $.each(detail, function (i, val){
                     tbody.append(`
-                         <tr class="${val.is_rencana_approved == 'N' ? 'bg-danger' : ''}">
+                         <tr class="${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N' ? 'bg-danger' : ''}">
                             <td>
-                                <span id="karyawan_id_${i}"></span>
+                                <span id="karyawan_id_detail_${i}"></span>
                             </td>
                             <td>
-                                <div id="job_description_${i}"></div>
+                                <div id="job_description_detail_${i}"></div>
                             </td>
                             <td>
-                                <span id="rencana_mulai_lembur_${i}"></span>
+                                <span id="rencana_mulai_lembur_detail_${i}"></span>
                             </td>
                             <td>
-                                <span id="rencana_selesai_lembur_${i}"></span>
+                                <span id="rencana_selesai_lembur_detail_${i}"></span>
                             </td>
                             <td>
-                                <span id="aktual_mulai_lembur_${i}"></span>
+                                `+val.durasi_rencana+`
                             </td>
                             <td>
-                                <span id="aktual_selesai_lembur_${i}"></span>
+                                <span id="aktual_mulai_lembur_detail_${i}"></span>
                             </td>
                             <td>
-                                `+val.durasi+`
+                                <span id="aktual_selesai_lembur_detail_${i}"></span>
+                            </td>
+                             <td>
+                                `+(val.durasi_aktual == '0 Jam 0 Menit' ? val.durasi_rencana : val.durasi_aktual)+`
                             </td>
                         </tr>
                     `)
                     
-                    $('#karyawan_id_' + i).text(val.nama);
+                    $('#karyawan_id_detail_' + i).text(val.nama);
 
                     //JOB DESCRIPTION
                     let jobDescriptions = val.deskripsi_pekerjaan.split(',').map(desc => `<li>${desc.trim()}</li>`).join('');
-                    $('#job_description_' + i).html(`<ul>${jobDescriptions}</ul>`);
+                    $('#job_description_detail_' + i).html(`<ul>${jobDescriptions}</ul>`);
                     
                     //WAKTU
-                    $('#rencana_mulai_lembur_' + i).text(val.rencana_mulai_lembur ? val.rencana_mulai_lembur.replace('T', ' ').replace(':', '.') : '-');
-                    $('#rencana_selesai_lembur_' + i).text(val.rencana_selesai_lembur ? val.rencana_selesai_lembur.replace('T', ' ').replace(':', '.') : '-');
-                    $('#aktual_mulai_lembur_' + i).text(val.aktual_mulai_lembur ? val.aktual_mulai_lembur.replace('T', ' ').replace(':', '.') : '-');
-                    $('#aktual_selesai_lembur_' + i).text(val.aktual_selesai_lembur ? val.aktual_selesai_lembur.replace('T', ' ').replace(':', '.') : '-');
+                    $('#rencana_mulai_lembur_detail_' + i).text(val.rencana_mulai_lembur ? val.rencana_mulai_lembur.replace('T', ' ').replace(':', '.') : '-');
+                    $('#rencana_selesai_lembur_detail_' + i).text(val.rencana_selesai_lembur ? val.rencana_selesai_lembur.replace('T', ' ').replace(':', '.') : '-');
+                    $('#aktual_mulai_lembur_detail_' + i).text(val.aktual_mulai_lembur ? val.aktual_mulai_lembur.replace('T', ' ').replace(':', '.') : '-');
+                    $('#aktual_selesai_lembur_detail_' + i).text(val.aktual_selesai_lembur ? val.aktual_selesai_lembur.replace('T', ' ').replace(':', '.') : '-');
                 });
                 $('#jenis_hariDetail').text(jenisHari == 'WE' ? 'Weekend' : 'Weekday');
                 $('#text_tanggalDetail').text(textTanggal);
@@ -308,7 +314,7 @@ $(function () {
                 
                 $.each(detail, function (i, val){
                     tbody.append(`
-                         <tr class="${val.is_rencana_approved == 'N' ? 'bg-danger' : ''}">
+                         <tr class="${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N' ? 'bg-danger' : ''}">
                             <td>
                                 <input type="hidden" name="id_detail_lembur[]" id="id_detail_lembur_${i}">
                                 <input type="text" name="karyawan_id[]"
@@ -325,17 +331,17 @@ $(function () {
                             <td>
                                 <input type="datetime-local" name="aktual_mulai_lembur[]"
                                     id="aktual_mulai_lembur_${i}" class="form-control aktualMulaiLembur"
-                                    style="width: 100%;" min="${new Date().toISOString().slice(0, 16)}" data-urutan="${i}" data-mulai="${val.rencana_mulai_lembur}" ${isPlanned ? 'required' : 'readonly'}>
+                                    style="width: 100%;" min="${new Date().toISOString().slice(0, 16)}" data-urutan="${i}" data-mulai="${val.rencana_mulai_lembur}" ${isPlanned && (val.rencana_selesai_lembur == 'Y' || val.aktual_selesai_lembur == 'Y') ? 'required' : 'readonly'}>
                                 </input>
                             </td>
                             <td>
                                 <input type="datetime-local" name="aktual_selesai_lembur[]"
                                     id="aktual_selesai_lembur_${i}" class="form-control aktualSelesaiLembur"
-                                    style="width: 100%;" min="${new Date().toISOString().slice(0, 16)}" data-urutan="${i}" data-selesai="${val.rencana_selesai_lembur}" ${isPlanned ? 'required' : 'readonly'}>
+                                    style="width: 100%;" min="${new Date().toISOString().slice(0, 16)}" data-urutan="${i}" data-selesai="${val.rencana_selesai_lembur}" ${isPlanned && (val.rencana_selesai_lembur == 'Y' || val.aktual_selesai_lembur == 'Y') ? 'required' : 'readonly'}>
                                 </input>
                             </td>
                             <td>
-                                `+val.durasi+`
+                                `+val.durasi_rencana+`
                             </td>
                             <td>
                                 `+ (canApproved && !isPlanned ? 
@@ -460,7 +466,7 @@ $(function () {
                                 </input>
                             </td>
                             <td>
-                                `+val.durasi+`
+                                `+val.durasi_rencana+`
                             </td>
                             <td>
                                 `+ (canApproved && !isPlanned ? 
@@ -608,7 +614,7 @@ $(function () {
                                 </input>
                             </td>
                             <td>
-                                `+val.durasi+`
+                                `+val.durasi_rencana+`
                             </td>
                             <td>
                                 `+ (canApproved && !isPlanned ? 
@@ -683,5 +689,125 @@ $(function () {
             },
         }); 
         
+    })
+
+    //MODAL DETAIL LEMBUR
+    var modalDetailApprovalLemburOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalDetailApprovalLembur = new bootstrap.Modal(
+        document.getElementById("modal-detail-approval-lembur"),
+        modalDetailApprovalLemburOptions
+    );
+    
+    function openDetail() {
+        modalDetailApprovalLembur.show();
+    }
+
+    function closeDetail() {
+        modalDetailApprovalLembur.hide();
+    }
+
+    //MODAL DETAIL LEMBUR
+    var modalAktualApprovalLemburOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalAktualApprovalLembur = new bootstrap.Modal(
+        document.getElementById("modal-aktual-approval-lembur"),
+        modalAktualApprovalLemburOptions
+    );
+    
+    function openAktual() {
+        modalAktualApprovalLembur.show();
+    }
+
+    function closeAktual() {
+        modalAktualApprovalLembur.hide();
+    }
+
+
+    $('#approval-table').on("click", '.btnCheckedAktual' , function () {
+        loadingSwalShow();
+        let idLembur = $(this).data('id-lembur');
+        let url = base_url + '/lembure/pengajuan-lembur/get-data-lembur/' + idLembur;
+        $('#id_lemburAktual').val(idLembur);
+
+        $.ajax({
+            url: url,
+            method: "GET",
+            dataType: "JSON",
+            success: function (response) {
+                let header = response.data.header;
+                let textTanggal = response.data.text_tanggal
+                let jenisHari = header.jenis_hari == 'WEEKEND' ? 'WE' : 'WD';
+                let status = header.status;
+                let detail = response.data.detail_lembur;
+                let tbody = $('#list-aktual-approval-lembur').empty();
+                
+                $.each(detail, function (i, val){
+                    tbody.append(`
+                         <tr class="${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N' ? 'bg-danger' : ''}">
+                            <td>
+                                <span id="karyawan_id_aktual_${i}"></span>
+                            </td>
+                            <td>
+                                <div id="job_description_aktual_${i}"></div>
+                            </td>
+                            <td>
+                                <span id="rencana_mulai_lembur_aktual_${i}"></span>
+                            </td>
+                            <td>
+                                <span id="rencana_selesai_lembur_aktual_${i}"></span>
+                            </td>
+                            <td>
+                                <span id="aktual_mulai_lembur_aktual_${i}"></span>
+                            </td>
+                            <td>
+                                <span id="aktual_selesai_lembur_aktual_${i}"></span>
+                            </td>
+                            <td>
+                                `+(val.durasi_aktual ? val.durasi_aktual : val.durasi_rencana)+`
+                            </td>
+                        </tr>
+                    `)
+                    
+                    $('#karyawan_id_aktual_' + i).text(val.nama);
+
+                    //JOB DESCRIPTION
+                    let jobDescriptions = val.deskripsi_pekerjaan.split(',').map(desc => `<li>${desc.trim()}</li>`).join('');
+                    $('#job_description_aktual_' + i).html(`<ul>${jobDescriptions}</ul>`);
+                    
+                    //WAKTU
+                    $('#rencana_mulai_lembur_aktual_' + i).text(val.rencana_mulai_lembur ? val.rencana_mulai_lembur.replace('T', ' ').replace(':', '.') : '-');
+                    $('#rencana_selesai_lembur_aktual_' + i).text(val.rencana_selesai_lembur ? val.rencana_selesai_lembur.replace('T', ' ').replace(':', '.') : '-');
+                    $('#aktual_mulai_lembur_aktual_' + i).text(val.aktual_mulai_lembur ? val.aktual_mulai_lembur.replace('T', ' ').replace(':', '.') : '-');
+                    $('#aktual_selesai_lembur_aktual_' + i).text(val.aktual_selesai_lembur ? val.aktual_selesai_lembur.replace('T', ' ').replace(':', '.') : '-');
+                    $('.btnUpdateAktualLembur').removeClass().addClass('btn btn-success').text('Checked');
+                });
+                $('#jenis_hariAktual').text(jenisHari == 'WE' ? 'Weekend' : 'Weekday');
+                $('#text_tanggalAktual').text(textTanggal);
+
+                //STATUS
+                if (status == 'WAITING'){
+                    $('#statusAktual').text(status).removeClass().addClass('badge badge-warning')
+                } else if (status == 'PLANNED'){
+                    $('#statusAktual').text(status).removeClass().addClass('badge badge-info')
+                } else if (status == 'COMPLETED'){
+                    $('#statusAktual').text(status).removeClass().addClass('badge badge-success')
+                } else {
+                    $('#statusAktual').text(status).removeClass().addClass('badge badge-danger')
+                }
+
+                openAktual();
+                loadingSwalClose();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        }); 
     })
 });

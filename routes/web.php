@@ -243,7 +243,10 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::delete('pengajuan-lembur/delete/{idLembur}',[LembureController::class, 'delete'])->name('lembure.pengajuan-lembur.delete');
             Route::patch('/pengajuan-lembur/update/{idLembur}', [LembureController::class, 'update'])->name('lembure.pengajuan-lembur.update');
             Route::patch('/pengajuan-lembur/done/{idLembur}', [LembureController::class, 'done'])->name('lembure.pengajuan-lembur.done');
-            
+
+        });
+
+        Route::group(['middleware' => ['role:atasan|personalia']], function () {
             // APPROVAL LEMBUR (CHECK)
             Route::get('/approval-lembur', [LembureController::class, 'approval_lembur_view'])->name('lembure.approval-lembur');
             Route::post('/approval-lembur-datatable', [LembureController::class, 'approval_lembur_datatable']);

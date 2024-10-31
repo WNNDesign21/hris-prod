@@ -805,6 +805,7 @@ $(function () {
                     `)
 
                     $('#is_aktual_approved_' + i).on('change', function(){
+                        console.log($(this).is(':checked'), $(this).val());
                         if ($(this).is(':checked')) {
                             $(this).attr('checked', true);
                             if ($(this).closest('tr').hasClass('bg-danger')) {
@@ -840,6 +841,13 @@ $(function () {
                         e.preventDefault();
                         let url = $('#form-detail-lembur-done').attr('action');
                         let formData = new FormData($('#form-detail-lembur-done')[0]);
+
+                        let aktualApproved = []; 
+                        $("input:checkbox[name=is_aktual_approved]:checked").each(function() { 
+                            aktualApproved.push($(this).val()); 
+                        }); 
+                        
+                        formData.append('is_aktual_approved', aktualApproved);
 
                         Swal.fire({
                             title: "Aktual Lembur",

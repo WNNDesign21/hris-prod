@@ -31,9 +31,10 @@
                                                 <th style="width: 30%;">Job Description</th>
                                                 <th style="width: 10%;">Rencana Mulai</th>
                                                 <th style="width: 10%;">Rencana Selesai </th>
+                                                <th style="width: 5%;">Durasi (Rencana)</th>
                                                 <th style="width: 10%;">Aktual Mulai</th>
                                                 <th style="width: 10%;">Aktual Selesai</th>
-                                                <th style="width: 10%;">Durasi (Aktual)</th>
+                                                <th style="width: 5%;">Durasi (Aktual)</th>
                                             </tr>
                                         </thead>
                                         <tbody id="list-detail-approval-lembur">
