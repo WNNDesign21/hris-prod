@@ -55,6 +55,6 @@
         </div>
     </div>
     @include('pages.lembur-e.modal-approval-lembur')
-    @include('pages.lembur-e.modal-detail-approval-lembur')
+    @include('pages.lembur-e.modal-detail-lembur')
     @include('pages.lembur-e.modal-aktual-approval-lembur')
 @endsection

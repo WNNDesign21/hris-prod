@@ -906,4 +906,113 @@ $(function () {
         
     })
 
+    //MODAL DETAIL LEMBUR
+    var modalDetailApprovalLemburOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalDetailApprovalLembur = new bootstrap.Modal(
+        document.getElementById("modal-detail-approval-lembur"),
+        modalDetailApprovalLemburOptions
+    );
+    
+    function openDetail() {
+        modalDetailApprovalLembur.show();
+    }
+
+    function closeDetail() {
+        modalDetailApprovalLembur.hide();
+    }
+
+    $('.btnCloseDetail').on("click", function (){
+        closeDetail();
+    })
+
+
+    $('#lembur-table').on("click", '.btnDetail' , function () {
+        loadingSwalShow();
+        let idLembur = $(this).data('id-lembur');
+        let url = base_url + '/lembure/pengajuan-lembur/get-data-lembur/' + idLembur;
+
+        $.ajax({
+            url: url,
+            method: "GET",
+            dataType: "JSON",
+            success: function (response) {
+                let header = response.data.header;
+                let textTanggal = response.data.text_tanggal
+                let jenisHari = header.jenis_hari == 'WEEKEND' ? 'WE' : 'WD';
+                let status = header.status;
+                let detail = response.data.detail_lembur;
+                let tbody = $('#list-detail-approval-lembur').empty();
+                
+                $.each(detail, function (i, val){
+                    tbody.append(`
+                         <tr class="${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N' ? 'bg-danger' : ''}">
+                            <td>
+                                <span id="karyawan_id_detail_${i}"></span>
+                            </td>
+                            <td>
+                                <div id="job_description_detail_${i}"></div>
+                            </td>
+                            <td>
+                                <span id="rencana_mulai_lembur_detail_${i}"></span>
+                            </td>
+                            <td>
+                                <span id="rencana_selesai_lembur_detail_${i}"></span>
+                            </td>
+                            <td>
+                                `+val.durasi_rencana+`
+                            </td>
+                            <td>
+                                <span id="aktual_mulai_lembur_detail_${i}"></span>
+                            </td>
+                            <td>
+                                <span id="aktual_selesai_lembur_detail_${i}"></span>
+                            </td>
+                            <td>
+                                `+val.durasi_aktual+`
+                            </td>
+                            <td>
+                                `+(val.keterangan ? val.keterangan : '-')+`
+                            </td>
+                        </tr>
+                    `)
+                    
+                    $('#karyawan_id_detail_' + i).text(val.nama);
+
+                    //JOB DESCRIPTION
+                    let jobDescriptions = val.deskripsi_pekerjaan.split(',').map(desc => `<li>${desc.trim()}</li>`).join('');
+                    $('#job_description_detail_' + i).html(`<ul>${jobDescriptions}</ul>`);
+                    
+                    //WAKTU
+                    $('#rencana_mulai_lembur_detail_' + i).text(val.rencana_mulai_lembur ? val.rencana_mulai_lembur.replace('T', ' ').replace(':', '.') : '-');
+                    $('#rencana_selesai_lembur_detail_' + i).text(val.rencana_selesai_lembur ? val.rencana_selesai_lembur.replace('T', ' ').replace(':', '.') : '-');
+                    $('#aktual_mulai_lembur_detail_' + i).text(val.aktual_mulai_lembur ? val.aktual_mulai_lembur.replace('T', ' ').replace(':', '.') : '-');
+                    $('#aktual_selesai_lembur_detail_' + i).text(val.aktual_selesai_lembur ? val.aktual_selesai_lembur.replace('T', ' ').replace(':', '.') : '-');
+                });
+                $('#jenis_hariDetail').text(jenisHari == 'WE' ? 'Weekend' : 'Weekday');
+                $('#text_tanggalDetail').text(textTanggal);
+
+                //STATUS
+                if (status == 'WAITING'){
+                    $('#statusDetail').text(status).removeClass().addClass('badge badge-warning')
+                } else if (status == 'PLANNED'){
+                    $('#statusDetail').text(status).removeClass().addClass('badge badge-info')
+                } else if (status == 'COMPLETED'){
+                    $('#statusDetail').text(status).removeClass().addClass('badge badge-success')
+                } else {
+                    $('#statusDetail').text(status).removeClass().addClass('badge badge-danger')
+                }
+
+                openDetail();
+                loadingSwalClose();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        }); 
+    })
+
 });

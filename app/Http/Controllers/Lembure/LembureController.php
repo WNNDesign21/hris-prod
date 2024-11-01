@@ -116,6 +116,7 @@ class LembureController extends Controller
                 $nestedData['actual_approved_by'] = $data->actual_approved_by ? '✅<br><small class="text-bold">'.$data?->actual_approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_approved_at)->diffForHumans().'</small>': '';
                 $nestedData['actual_legalized_by'] = $data->actual_legalized_by ? '✅<br><small class="text-bold">'.$data?->actual_legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_legalized_at)->diffForHumans().'</small>': '';
                 $nestedData['aksi'] = '<div class="btn-group btn-group-sm">
+                    <button type="button" class="waves-effect waves-light btn btn-sm btn-info btnDetail" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-eye"></i> Detail</button>
                     '.($tanggal_lembur <= date('Y-m-d') && $data->status == 'PLANNED' ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnDone" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-check-circle"></i> Done</button>' : '').'
                     '.($data->plan_checked_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-edit"></i> Edit</button>' : '').'
                     '.($data->plan_checked_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-trash"></i> Delete</button>' : '').'
@@ -587,8 +588,8 @@ class LembureController extends Controller
 
             //PERHITUNGAN UNTUK LEADER DAN STAFF
             if($jabatan_id >= 5){
-                $jam_pertama = 1 * $upah_sejam * 1.5; 
-                $jam_kedua = $convert_duration > 1 ? ($convert_duration - 1) * $upah_sejam * 2 : 0;
+                $jam_pertama = $convert_duration < 2 ? ($convert_duration * $upah_sejam * 1.5) : (1 * $upah_sejam * 1.5); 
+                $jam_kedua = $convert_duration >= 2 ? ($convert_duration - 1) * $upah_sejam * 2 : 0;
                 $nominal_lembur = $jam_pertama + $jam_kedua;
             
             //PERHITUNGAN UNTUK JABATAN LAINNYA
@@ -617,8 +618,6 @@ class LembureController extends Controller
                 $jam_ke_sembilan = $convert_duration >= 9 && $convert_duration < 10 ? (($convert_duration - 8) * $upah_sejam * 3) : ($convert_duration >= 10 ? $upah_sejam * 3 : 0);
                 $jam_ke_sepuluh = $convert_duration >= 10 ? ($convert_duration - 9) * $upah_sejam * 4 : 0;
                 $nominal_lembur = $delapan_jam_pertama + $jam_ke_sembilan + $jam_ke_sepuluh;
-
-                dd($delapan_jam_pertama, $jam_ke_sembilan, $jam_ke_sepuluh);
 
             //PERHITUNGAN UNTUK SECTION HEAD
             } elseif ($jabatan_id == 4){
@@ -1104,14 +1103,14 @@ class LembureController extends Controller
             $karyawan = auth()->user()->karyawan->nama;
             $total_durasi = $lembur->total_durasi;
 
-            if(!$approved_detail){
-                DB::commit();
-                return response()->json(['message' => 'Minimal ada 1 orang yang di Approved!, jika ingin mereject semua, silahkan klik tombol Reject!'], 403);
-            } else {
-                $approved_detail = explode(',', $approved_detail);
-            }
-
-            if($is_planned = 'N'){
+            if($is_planned == 'N'){
+                if(!$approved_detail){
+                    DB::commit();
+                    return response()->json(['message' => 'Minimal ada 1 orang yang di Approved!, jika ingin mereject semua, silahkan klik tombol Reject!'], 403);
+                } else {
+                    $approved_detail = explode(',', $approved_detail);
+                }
+                
                 if($lembur->plan_checked_by == null){
                     return response()->json(['message' => 'Pengajuan Lembur belum di check oleh Sect.Head/Dept.Head !'], 403);
                 }
@@ -1177,14 +1176,14 @@ class LembureController extends Controller
 
             if($is_planned == 'N'){
                 if($lembur->plan_legalized_by !== null){
-                    return response()->json(['message' => 'Pengajuan Lembur sudah di Checked !'], 403);
+                    return response()->json(['message' => 'Pengajuan Lembur sudah di Legalized pada Planning !'], 403);
                 }
                 $lembur->status = 'PLANNED';
                 $lembur->plan_legalized_by = $karyawan;
                 $lembur->plan_legalized_at = now();
             } else {
                 if($lembur->actual_legalized_by !== null){
-                    return response()->json(['message' => 'Pengajuan Lembur sudah di Checked !'], 403);
+                    return response()->json(['message' => 'Pengajuan Lembur sudah di Legalized pada Aktual!'], 403);
                 }
                 $lembur->status = 'COMPLETED';
                 $lembur->actual_legalized_by = $karyawan;
@@ -1193,7 +1192,7 @@ class LembureController extends Controller
 
             $lembur->save();
             DB::commit();
-            return response()->json(['message' => 'Pengajuan Lembur berhasil di Checked!'],200);
+            return response()->json(['message' => 'Pengajuan Lembur berhasil di Legalized!'],200);
         } catch (Throwable $e){
             DB::rollBack();
             return response()->json(['message' => $error->getMessage()], 500);

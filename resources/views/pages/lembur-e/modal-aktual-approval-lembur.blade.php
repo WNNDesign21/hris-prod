@@ -32,12 +32,14 @@
                                             <thead class="table-primary">
                                                 <tr>
                                                     <th style="width: 20%;">Karyawan</th>
-                                                    <th style="width: 30%;">Job Description</th>
+                                                    <th style="width: 20%;">Job Description</th>
                                                     <th style="width: 10%;">Rencana Mulai</th>
                                                     <th style="width: 10%;">Rencana Selesai </th>
+                                                    <th style="width: 5%;">Durasi (Rencana)</th>
                                                     <th style="width: 10%;">Aktual Mulai</th>
                                                     <th style="width: 10%;">Aktual Selesai</th>
-                                                    <th style="width: 10%;">Durasi (Aktual)</th>
+                                                    <th style="width: 5%;">Durasi (Aktual)</th>
+                                                    <th style="width: 10%;">Keterangan</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="list-aktual-approval-lembur">
@@ -56,7 +58,7 @@
                 <div class="col">
                     <div class="d-flex justify-content-end">
                         <button type="button"
-                            class="btn btn-warning waves-effect btnUpdateAktualLembur">Update</button>
+                            class="btn btn-success waves-effect btnUpdateAktualLembur">Update</button>
                     </div>
                 </div>
             </div>
