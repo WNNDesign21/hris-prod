@@ -64,7 +64,7 @@ Route::get('/lembure/pengajuan-lembur/get-data-karyawan-lembur',[LembureControll
 Route::get('/lembure/pengajuan-lembur/get-data-lembur/{idLembur}',[LembureController::class, 'get_data_lembur']); 
 
 
-Route::group(['middleware' => ['auth', 'notifikasi']], function () {
+Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
     // MENU UTAMA
     Route::get('/home', [HomeController::class, 'index'])->name('root');
     Route::get('/get-notification', [HomeController::class, 'get_notification']);
@@ -235,7 +235,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         // DASHBOARD
         Route::get('/dashboard', [LembureController::class, 'index'])->name('lembure.dashboard');
 
-        Route::group(['middleware' => ['role:atasan']], function () {
+        Route::group(['middleware' => ['role:atasan|member']], function () {
         // PENGAJUAN LEMBUR (LEADER)
             Route::get('/pengajuan-lembur', [LembureController::class, 'pengajuan_lembur_view'])->name('lembure.pengajuan-lembur');
             Route::post('/pengajuan-lembur-datatable', [LembureController::class, 'pengajuan_lembur_datatable']);

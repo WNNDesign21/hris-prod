@@ -123,6 +123,10 @@ class Lembure extends Model
             $data->where('detail_lemburs.organisasi_id', $dataFilter['organisasi_id']);
         }
 
+        if(isset($dataFilter['issued_by'])){
+            $data->where('lemburs.issued_by', $dataFilter['issued_by']);
+        }
+
         if (isset($dataFilter['member_posisi_ids'])) {
             $data->whereIn('posisis.id_posisi', $dataFilter['member_posisi_ids']);
         }

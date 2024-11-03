@@ -40,6 +40,15 @@ class LembureController extends Controller
         return view('pages.lembur-e.pengajuan-lembur', $dataPage);
     }
 
+    public function pengajuan_lembur_individual_view()
+    {
+        $dataPage = [
+            'pageTitle' => "Lembur-E - Pengajuan Lembur Individual (Non-Leader)",
+            'page' => 'lembure-pengajuan-lembur-individual',
+        ];
+        return view('pages.lembur-e.pengajuan-lembur-individual', $dataPage);
+    }
+
     public function approval_lembur_view()
     {
         $dataPage = [
@@ -82,6 +91,11 @@ class LembureController extends Controller
             $dataFilter['search'] = $search;
         }
 
+        $issued_by = auth()->user()->karyawan->id_karyawan;
+        if(!empty($issued_by)){
+            $dataFilter['issued_by'] = $issued_by;
+        }
+
         $totalData = Lembure::where('issued_by', auth()->user()->karyawan->id_karyawan)->count();
         $totalFiltered = $totalData;
 
@@ -118,7 +132,7 @@ class LembureController extends Controller
                 $nestedData['actual_legalized_by'] = $data->actual_legalized_by ? '✅<br><small class="text-bold">'.$data?->actual_legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_legalized_at)->diffForHumans().'</small>': '';
                 $nestedData['aksi'] = '<div class="btn-group btn-group-sm">
                     <button type="button" class="waves-effect waves-light btn btn-sm btn-info btnDetail" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-eye"></i> Detail</button>
-                    '.($tanggal_lembur <= date('Y-m-d') && $data->status == 'PLANNED' ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnDone" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-check-circle"></i> Done</button>' : '').'
+                    '.($tanggal_lembur <= date('Y-m-d') && $data->status == 'PLANNED' && $data->issued_by == auth()->user()->karyawan->id_karyawan ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnDone" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-check-circle"></i> Done</button>' : '').'
                     '.($data->plan_checked_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-edit"></i> Edit</button>' : '').'
                     '.($data->plan_checked_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-trash"></i> Delete</button>' : '').'
                 </div>';
@@ -321,7 +335,7 @@ class LembureController extends Controller
                     //AFTER PLANNED
                     //BUTTON APPROVED DI SISI PLANT HEAD
                     if($data->actual_approved_by == null){
-                        if($data->actual_checked_by !== null){
+                        if($data->status == 'COMPLETED' && $data->actual_checked_by !== null){
                             $button_approved_actual = '<button class="btn btn-sm btn-success btnApprovedAktual" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-thumbs-up"></i> Approved</button>';
                         } 
                     } else {
@@ -472,9 +486,37 @@ class LembureController extends Controller
                 'jenis_hari' => $jenis_hari
             ]);
 
+            if(auth()->user()->karyawan->posisi[0]->jabatan_id == 3){
+                $checked_by = auth()->user()->karyawan->nama;
+                $header->update([
+                    'plan_checked_by' => $checked_by,
+                    'plan_checked_at' => now(),
+                    'actual_checked_by' => $checked_by,
+                    'actual_checked_at' => now(),
+                ]);
+            }
+
+            if(auth()->user()->karyawan->posisi[0]->jabatan_id <= 2){
+                $checked_and_approved = auth()->user()->karyawan->nama;
+                $header->update([
+                    'status' => 'COMPLETED',
+                    'plan_checked_by' => $checked_and_approved,
+                    'plan_checked_at' => now(),
+                    'plan_approved_by' => $checked_and_approved,
+                    'plan_approved_at' => now(),
+                    'plan_legalized_by' => 'HRD & GA',
+                    'plan_legalized_at' => now(),
+                    'actual_checked_by' => $checked_and_approved,
+                    'actual_checked_at' => now(),
+                    'actual_approved_by' => $checked_and_approved,
+                    'actual_approved_at' => now(),
+                ]);
+            }
+
 
             //belum selesai
             $total_durasi = 0;
+            $total_nominal = 0;
             $data_detail_lembur = [];
             foreach ($karyawan_ids as $key => $karyawan_id) {
                 $karyawan = Karyawan::find($karyawan_id);
@@ -505,12 +547,17 @@ class LembureController extends Controller
                 ];
 
                 $total_durasi += $durasi;
+                $total_nominal += $nominal;
             }
             
             $header->detailLembur()->createMany($data_detail_lembur);
             
             //Update Total Durasi Lagi
             $header->update(['total_durasi' => $total_durasi]);
+
+            if(auth()->user()->karyawan->posisi[0]->jabatan_id <= 2){
+                $header->update(['total_nominal' => $total_nominal]);
+            }
 
             DB::commit();
             return response()->json(['message' => 'Lembur Berhasil Dibuat'], 200);
@@ -586,6 +633,7 @@ class LembureController extends Controller
         $gaji_lembur_karyawan = $setting_lembur_karyawan->gaji;
         $jabatan_id = $karyawan->posisi[0]->jabatan_id;
         $upah_sejam = $gaji_lembur_karyawan / 173;
+        $uang_makan = 15000;
 
         //PERHITUNGAN SESUAI JENIS HARI
         if($jenis_hari == 'WD'){
@@ -595,6 +643,10 @@ class LembureController extends Controller
                 $jam_pertama = $convert_duration < 2 ? ($convert_duration * $upah_sejam * 1.5) : (1 * $upah_sejam * 1.5); 
                 $jam_kedua = $convert_duration >= 2 ? ($convert_duration - 1) * $upah_sejam * 2 : 0;
                 $nominal_lembur = $jam_pertama + $jam_kedua;
+
+                if($convert_duration >= 4){
+                    $nominal_lembur += $uang_makan;
+                }
             
             //PERHITUNGAN UNTUK JABATAN LAINNYA
             } elseif ($jabatan_id == 4){
@@ -622,6 +674,10 @@ class LembureController extends Controller
                 $jam_ke_sembilan = $convert_duration >= 9 && $convert_duration < 10 ? (($convert_duration - 8) * $upah_sejam * 3) : ($convert_duration >= 10 ? $upah_sejam * 3 : 0);
                 $jam_ke_sepuluh = $convert_duration >= 10 ? ($convert_duration - 9) * $upah_sejam * 4 : 0;
                 $nominal_lembur = $delapan_jam_pertama + $jam_ke_sembilan + $jam_ke_sepuluh;
+
+                if($convert_duration >= 7){
+                    $nominal_lembur += $uang_makan;
+                }
 
             //PERHITUNGAN UNTUK SECTION HEAD
             } elseif ($jabatan_id == 4){
@@ -857,8 +913,12 @@ class LembureController extends Controller
         ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
         ->rightJoin('setting_lembur_karyawans', 'karyawans.id_karyawan', 'setting_lembur_karyawans.karyawan_id');
 
-        $query->whereIn('posisis.id_posisi', $id_posisi_members);
-        $query->orWhere('karyawans.id_karyawan', auth()->user()->karyawan->id_karyawan);
+        if(auth()->user()->karyawan->posisi[0]->jabatan_id == 5){
+            $query->whereIn('posisis.id_posisi', $id_posisi_members);
+            $query->orWhere('karyawans.id_karyawan', auth()->user()->karyawan->id_karyawan);
+        } else {
+            $query->where('karyawans.id_karyawan', auth()->user()->karyawan->id_karyawan);
+        }
 
         $query->groupBy('karyawans.id_karyawan','karyawans.nama', 'posisis.nama',);
 

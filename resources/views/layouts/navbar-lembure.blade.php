@@ -12,7 +12,7 @@
                             <span>Dashboard</span>
                         </a>
                     </li>
-                    @if (auth()->user()->karyawan && auth()->user()->karyawan->posisi[0]->jabatan_id == 5)
+                    @if (auth()->user()->karyawan && ($lembure['is_leader'] || !$lembure['has_leader']))
                         <li class="{{ $page == 'lembure-pengajuan-lembur' ? 'active' : '' }}">
                             <a href="{{ route('lembure.pengajuan-lembur') }}">
                                 <i class="icon-Layout-4-blocks"><span class="path1"></span><span
@@ -21,10 +21,11 @@
                             </a>
                         </li>
                     @endif
-                    @if (auth()->user()->karyawan &&
-                            (auth()->user()->karyawan->posisi[0]->jabatan_id == 4 ||
-                                auth()->user()->karyawan->posisi[0]->jabatan_id == 3 ||
-                                auth()->user()->karyawan->posisi[0]->jabatan_id == 2))
+                    @if (auth()->user()->hasRole('personalia') ||
+                            (auth()->user()->karyawan &&
+                                (auth()->user()->karyawan->posisi[0]->jabatan_id == 4 ||
+                                    auth()->user()->karyawan->posisi[0]->jabatan_id == 3 ||
+                                    auth()->user()->karyawan->posisi[0]->jabatan_id == 2)))
                         <li class="{{ $page == 'lembure-approval-lembur' ? 'active' : '' }}">
                             <a href="{{ route('lembure.approval-lembur') }}">
                                 <i class="icon-Layout-4-blocks"><span class="path1"></span><span
