@@ -7,7 +7,7 @@ $(function () {
 
     $.fn.modal.Constructor.prototype._enforceFocus = function () {};
 
-    //LOADING SWALL
+    // ALERT & LOADING
     let loadingSwal;
     function loadingSwalShow() {
         loadingSwal = Swal.fire({
@@ -23,7 +23,6 @@ $(function () {
         loadingSwal.close();
     }
 
-    //SHOW TOAST
     function showToast(options) {
         const toast = Swal.mixin({
             toast: true,
@@ -43,7 +42,7 @@ $(function () {
         });
     }
 
-    //DATATABLE KARYAWAN
+    // DATATABLE
     var columnsTable = [
         { data: "id_lembur" },
         { data: "issued_date" },
@@ -133,16 +132,15 @@ $(function () {
         ],
     })
 
-    //REFRESH TABLE
     function refreshTable() {
         lembureTable.search("").draw();
     }
 
-    //RELOAD TABLE
     $('.btnReload').on("click", function (){
         refreshTable();
     })
 
+    // ADD
     $('.btnAdd').on("click", function (){
         openForm();
     })
@@ -151,15 +149,6 @@ $(function () {
         closeForm();
     })
 
-    $('.btnDone').on("click", function (){
-        openDone();
-    })
-
-    $('.btnCloseDone').on("click", function (){
-        closeDone();
-    })
-
-    // MODAL TAMBAH LEMBUR
     var modalPengajuanLemburOptions = {
         backdrop: true,
         keyboard: false,
@@ -184,33 +173,6 @@ $(function () {
         jumlah_detail_lembur = 0;
     }
 
-
-    //MODAL DONE LEMBUR
-    var modalDoneLemburOptions = {
-        backdrop: true,
-        keyboard: false,
-    };
-
-    var modalDoneLembur = new bootstrap.Modal(
-        document.getElementById("modal-detail-lembur-done"),
-        modalDoneLemburOptions
-    );
-
-    function openDone() {
-        modalDoneLembur.show();
-    }
-
-    function closeDone() {
-        resetDone();
-        modalDoneLembur.hide();
-    }
-
-    function resetDone() {
-        $('#list-detail-lembur-done').empty();
-    }
-
-
-    //SURAT PERINTAH LEMBUR
     let count = 0;
     let jumlah_detail_lembur = 0;
     $('#table-detail-lembur').on("click",'.btnDeleteDetailLembur', function (){
@@ -306,11 +268,7 @@ $(function () {
             },
         });
     })
-    //END TAMBAH DETAIL LEMBUR
-
     
-
-    //Submit form lembur
     $('.btnSubmitDetailLembur').on("click", function (e){
         loadingSwalShow();
         e.preventDefault();
@@ -363,13 +321,11 @@ $(function () {
         });
     })
 
-    //Select2
     $('#jenis_hari').select2({
         dropdownParent: $('#modal-pengajuan-lembur')
     })
 
-    //EDIT SPL
-    // MODAL TAMBAH KARYAWAN
+    // EDIT
     $('.btnCloseEdit').on("click", function (){
         closeFormEdit();
     })
@@ -400,7 +356,6 @@ $(function () {
         $('#list-detail-lembur-edit').empty();
         $('.btnUpdateDetailLembur').attr('disabled', false);
     }
-
 
     let detailCount = 0;
     $('#lembur-table').on("click", '.btnEdit' , function () {
@@ -579,24 +534,7 @@ $(function () {
         }
     });
 
-    $('#table-detail-lembur-done').on("change", '.aktualMulaiLembur', function () {
-        let urutan = $(this).data('urutan');
-        let startTime = $(this).val();
-        $('#aktual_selesai_lembur_' + urutan).val('').attr('min', startTime);
-    });
-
-    $('#table-detail-lembur-done').on("change", '.aktualSelesaiLembur' , function () {
-        let urutan = $(this).data('urutan');
-        let startTime = $('#aktual_mulai_lembur_' + urutan).val();
-        let endTime = $(this).val();
-        let oldEndTime = $(this).data('selesai');
-        if (endTime < startTime) {
-            $(this).val(oldEndTime);
-            showToast({ title: "Waktu selesai lembur tidak boleh kurang dari waktu mulai lembur", icon: "error" });
-        }
-    });
-
-    //ADD DATA IN DETAIL LEMBUR
+    // EDIT
     $('.btnAddDetailLemburEdit').on("click", function (){
         detailCount++;
         let tbody = $('#list-detail-lembur-edit');
@@ -683,8 +621,6 @@ $(function () {
         });
     })
 
-
-    //DATA YANG EDIT
     $('#table-detail-lembur-edit').on("click",'.btnDeleteDetailLemburEdit', function (){
         detailCount--;
         let urutan = $(this).data('urutan');
@@ -697,7 +633,6 @@ $(function () {
         }
     });
 
-    //DATA TAMBAHAN KETIKA EDIT
     $('#table-detail-lembur-edit').on("click",'.btnDeleteDetailLemburEditNew', function (){
         detailCount--;
         let urutan = $(this).data('urutan');
@@ -710,7 +645,7 @@ $(function () {
         }
     });
 
-    //DELETE
+    // DELETE
     $('#lembur-table').on('click', '.btnDelete', function (){
         var idLembur = $(this).data('id-lembur');
         Swal.fire({
@@ -746,7 +681,55 @@ $(function () {
         });
     })
 
-    //BUTTON DONE
+    // DONE
+    var modalDoneLemburOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalDoneLembur = new bootstrap.Modal(
+        document.getElementById("modal-detail-lembur-done"),
+        modalDoneLemburOptions
+    );
+
+    function openDone() {
+        modalDoneLembur.show();
+    }
+
+    function closeDone() {
+        resetDone();
+        modalDoneLembur.hide();
+    }
+
+    function resetDone() {
+        $('#list-detail-lembur-done').empty();
+    }
+
+    $('.btnDone').on("click", function (){
+        openDone();
+    })
+
+    $('.btnCloseDone').on("click", function (){
+        closeDone();
+    })
+
+    $('#table-detail-lembur-done').on("change", '.aktualMulaiLembur', function () {
+        let urutan = $(this).data('urutan');
+        let startTime = $(this).val();
+        $('#aktual_selesai_lembur_' + urutan).val('').attr('min', startTime);
+    });
+
+    $('#table-detail-lembur-done').on("change", '.aktualSelesaiLembur' , function () {
+        let urutan = $(this).data('urutan');
+        let startTime = $('#aktual_mulai_lembur_' + urutan).val();
+        let endTime = $(this).val();
+        let oldEndTime = $(this).data('selesai');
+        if (endTime < startTime) {
+            $(this).val(oldEndTime);
+            showToast({ title: "Waktu selesai lembur tidak boleh kurang dari waktu mulai lembur", icon: "error" });
+        }
+    });
+
     $('#lembur-table').on('click', '.btnDone', function(){
         loadingSwalShow();
         let idLembur = $(this).data('id-lembur');
@@ -770,11 +753,8 @@ $(function () {
                     tbody.append(`
                          <tr class="${val.is_rencana_approved == 'N' ? 'bg-danger' : ''}">
                             <td>
-                                ${val.is_rencana_approved !== 'N' ? `<input type="hidden" name="id_detail_lembur[]" id="id_detail_lembur_${i}">` : ''}
-                                ${val.is_rencana_approved !== 'N' ? `<input type="text" name="karyawan_id[]"
-                                    id="karyawan_id_${i}" class="form-control ${val.is_rencana_approved == 'N' ? 'bg-danger' : ''}"
-                                    style="width: 100%;" readonly>
-                                </input>` : `<div id="karyawan_id_${i}" class="text-white"></div>`}
+                            ${val.is_rencana_approved !== 'N' ? `<input type="hidden" name="id_detail_lembur[]" id="id_detail_lembur_${i}"></input>` : `-`}
+                                <span id="karyawan_id_${i}"></span>
                             </td>
                             <td>
                                 <div id="job_description_${i}" class="${val.is_rencana_approved == 'N' ? 'text-white' : ''}"></div>
@@ -811,9 +791,13 @@ $(function () {
                             if ($(this).closest('tr').hasClass('bg-danger')) {
                                 $(this).closest('tr').removeClass('bg-danger');
                             }
+                            $('#aktual_mulai_lembur_' + i).attr('readonly', false);
+                            $('#aktual_selesai_lembur_' + i).attr('readonly', false);
                         } else {
                             $(this).removeAttr('checked');
                             $(this).closest('tr').addClass('bg-danger');
+                            $('#aktual_mulai_lembur_' + i).attr('readonly', true);
+                            $('#aktual_selesai_lembur_' + i).attr('readonly', true);
                         }
                     });
 
@@ -827,13 +811,11 @@ $(function () {
                     $('#job_description_' + i).html(`<ul>${jobDescriptions}</ul>`);
                     
                     if(val.is_rencana_approved == 'Y'){
-                        $('#karyawan_id_' + i).val(val.nama);
                         $('#aktual_mulai_lembur_' + i).val(val.rencana_mulai_lembur);
                         $('#aktual_selesai_lembur_' + i).val(val.rencana_selesai_lembur);
                         $('#id_detail_lembur_' + i).val(val.id_detail_lembur);
-                    } else {
-                        $('#karyawan_id_' + i).text(val.nama);
-                    }
+                    } 
+                    $('#karyawan_id_' + i).text(val.nama);
 
                     $('#form-detail-lembur-done').attr('action', base_url + '/lembure/pengajuan-lembur/done/' + idLembur);
                     $('.btnSubmitDoneLembur').on("click", function (e){
@@ -906,7 +888,7 @@ $(function () {
         
     })
 
-    //MODAL DETAIL LEMBUR
+    // DETAIL
     var modalDetailApprovalLemburOptions = {
         backdrop: true,
         keyboard: false,
@@ -928,7 +910,6 @@ $(function () {
     $('.btnCloseDetail').on("click", function (){
         closeDetail();
     })
-
 
     $('#lembur-table').on("click", '.btnDetail' , function () {
         loadingSwalShow();
@@ -976,6 +957,9 @@ $(function () {
                             </td>
                             <td>
                                 `+(val.keterangan ? val.keterangan : '-')+`
+                            </td>
+                             <td>
+                                `+val.nominal+`
                             </td>
                         </tr>
                     `)

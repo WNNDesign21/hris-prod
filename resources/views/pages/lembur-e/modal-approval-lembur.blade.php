@@ -14,33 +14,30 @@
                         <div class="col-12">
                             <div class="box">
                                 <div class="box-body">
-                                    <h4 class="box-title">Surat Perintah Lembur</h4>
                                     <div class="row">
-                                        <div class="col-lg-4 col-8">
-                                            <div class="form-group">
-                                                <label for="jenis_hari">Jenis Hari</label>
-                                                <select name="jenis_hari" id="jenis_hari" class="form-control"
-                                                    style="width:100%;" disabled>
-                                                    <option value="">PILIH JENIS HARI LEMBUR</option>
-                                                    <option value="WE">WEEKEND</option>
-                                                    <option value="WD">WEEKDAY</option>
-                                                </select>
-                                            </div>
+                                        <div class="col-12 d-flex justify-content-center text-center">
+                                            <h1 class="box-title">Surat Perintah Lembur</h4>
                                         </div>
+                                    </div>
+                                    <div class="row">
+                                        <p>Status : <span id="statusApproval"></span></p>
+                                        <p>Tanggal : <span id="text_tanggalApproval"></span></p>
+                                        <p>Jenis Hari : <span id="jenis_hariApproval"></span></p>
                                     </div>
                                 </div>
                                 <!-- /.box-header -->
                                 <div class="box-body px-4 py-0">
                                     <div class="table-responsive">
-                                        <table class="table mb-0" id="table-approval-lembur">
+                                        <table class="table table-bordered mb-0" id="table-approval-lembur">
                                             <thead class="table-primary">
                                                 <tr>
                                                     <th style="width: 20%;">Karyawan</th>
-                                                    <th style="width: 30%;">Job Description</th>
+                                                    <th style="width: 10%;">Job Description</th>
                                                     <th style="width: 20%;">Rencana Mulai </th>
                                                     <th style="width: 20%;">Rencana Selesai </th>
-                                                    <th style="width: 5%;">Durasi</th>
-                                                    <th style="width: 5%;">Aksi</th>
+                                                    <th style="width: 10%;">Durasi</th>
+                                                    <th style="width: 10%;">Nominal</th>
+                                                    <th style="width: 10%;">Aksi</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="list-approval-lembur">

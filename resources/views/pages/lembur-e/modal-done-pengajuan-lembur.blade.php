@@ -28,7 +28,7 @@
                                 <!-- /.box-header -->
                                 <div class="box-body px-4 py-0">
                                     <div class="table-responsive">
-                                        <table class="table mb-0" id="table-detail-lembur-done">
+                                        <table class="table table-bordered mb-0" id="table-detail-lembur-done">
                                             <thead class="table-primary">
                                                 <tr>
                                                     <th style="width: 20%;">Karyawan</th>
@@ -36,7 +36,7 @@
                                                     <th style="width: 20%;">Aktual Mulai </th>
                                                     <th style="width: 20%;">Aktual Selesai </th>
                                                     <th style="width: 20%;">Keterangan</th>
-                                                    <th style="width: 5%;">#</th>
+                                                    <th style="width: 5%;">Aksi</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="list-detail-lembur-done">

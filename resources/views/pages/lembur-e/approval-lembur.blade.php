@@ -37,6 +37,7 @@
                                     <th>Issued By</th>
                                     <th>Jenis Hari</th>
                                     <th>Total Durasi</th>
+                                    <th>Total Nominal</th>
                                     <th>Status</th>
                                     <th>Plan Checked</th>
                                     <th>Plan Approved</th>
