@@ -49,6 +49,15 @@ class LembureController extends Controller
         return view('pages.lembur-e.approval-lembur', $dataPage);
     }
 
+    public function setting_upah_lembur_view()
+    {
+        $dataPage = [
+            'pageTitle' => "Lembur-E - Setting Upah Lembur",
+            'page' => 'lembure-setting-upah-lembur',
+        ];
+        return view('pages.lembur-e.setting-upah-lembur', $dataPage);
+    }
+
     public function pengajuan_lembur_datatable(Request $request)
     {
         $columns = array(
@@ -416,6 +425,72 @@ class LembureController extends Controller
                 $nestedData['actual_approved_by'] = $button_approved_actual;
                 $nestedData['actual_legalized_by'] = $button_legalized_actual;
                 $nestedData['action'] = '<button type="button" class="waves-effect waves-light btn btn-sm btn-info btnDetail" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-eye"></i> Detail</button>';
+
+                $dataTable[] = $nestedData;
+            }
+        }
+
+        $json_data = array(
+            "draw" => intval($request->input('draw')),
+            "recordsTotal" => intval($totalData),
+            "recordsFiltered" => intval($totalFiltered),
+            "data" => $dataTable,
+            "order" => $order,
+            "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
+            "dir" => $dir,
+            "column"=>$request->input('order.0.column')
+        );
+
+        return response()->json($json_data, 200);
+    }
+
+    public function setting_upah_lembur_datatable(Request $request)
+    {
+        $columns = array(
+            0 => 'karyawans.ni_karyawan',
+            1 => 'divisis.nama',
+            2 => 'departemens.nama',
+            3 => 'karyawans.nama',
+            4 => 'setting_lembur_karyawans.gaji',
+        );
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = (!empty($request->input('order.0.column'))) ? $columns[$request->input('order.0.column')] : $columns[0];
+        $dir = (!empty($request->input('order.0.dir'))) ? $request->input('order.0.dir') : "DESC";
+
+        $settings['start'] = $start;
+        $settings['limit'] = $limit;
+        $settings['dir'] = $dir;
+        $settings['order'] = $order;
+
+        $dataFilter = [];
+        $search = $request->input('search.value');
+        if (!empty($search)) {
+            $dataFilter['search'] = $search;
+        }
+
+        $totalData = SettingLemburKaryawan::all()->count();
+        $totalFiltered = $totalData;
+
+        $setting_upah_lembur = SettingLemburKaryawan::getData($dataFilter, $settings);
+        $totalFiltered = $setting_upah_lembur->count();
+
+
+        $dataTable = [];
+
+        if (!empty($setting_upah_lembur)) {
+            foreach ($setting_upah_lembur as $data) {
+                $nestedData['ni_karyawan'] = $data->ni_karyawan;
+                $nestedData['divisi'] = $data->divisi ?? '-';
+                $nestedData['departemen'] = $data->departemen ?? '-';
+                $nestedData['nama'] = $data->nama;
+                $nestedData['gaji'] = '
+                    <div class="input-group mb-3">
+                        <input type="number" value="' . ($data->gaji ?? 0) . '" min="0" class="form-control inputUpdahLembur"/>
+                        <button class="btn btn-warning updateUpahLembur" type="button" data-id-setting-lembur-karyawan="' . $data->id_setting_lembur_karyawan . '" data-karyawan-id="'.$data->id_karyawan.'"><i class="fas fa-save"></i></button>
+                    </div>
+                ';
 
                 $dataTable[] = $nestedData;
             }
@@ -860,6 +935,57 @@ class LembureController extends Controller
 
             DB::commit();
             return response()->json(['message' => 'Lembur Berhasil Diupdate!'], 200);
+        } catch (Throwable $e) {
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function update_setting_upah_lembur(Request $request)
+    {
+        $dataValidate = [
+            'gaji' => ['required', 'numeric', 'min:174'],
+            'karyawan_id' => ['required', 'exists:karyawans,id_karyawan'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        DB::beginTransaction();
+        try{
+            $setting_lembur_karyawan = SettingLemburKaryawan::find($request->id_setting_lembur_karyawan);
+            if($setting_lembur_karyawan){
+                $setting_lembur_karyawan->gaji = $request->gaji;
+                $setting_lembur_karyawan->save();
+            } else {
+                $karyawan = Karyawan::find($request->karyawan_id); 
+                $posisi = $karyawan->posisi[0];
+
+                if(!$karyawan){
+                    DB::rollback();
+                    return response()->json(['message' => 'Karyawan tidak ditemukan!'], 402);
+                }
+
+                if(!$posisi){
+                    DB::rollback();
+                    return response()->json(['message' => 'Karyawan belum memiliki posisi, hubungi HRD untuk setting posisi karyawan!'], 402);
+                }
+
+                SettingLemburKaryawan::create([
+                    'karyawan_id' => $request->karyawan_id,
+                    'organisasi_id' => $karyawan->user->organisasi_id,
+                    'departemen_id' => $posisi?->departemen_id,
+                    'jabatan_id' => $posisi->jabatan_id,
+                    'gaji' => $request->gaji
+                ]);
+            }
+            
+            DB::commit();
+            return response()->json(['message' => 'Upah Lembur Karyawan Berhasil di Update!'], 200);
         } catch (Throwable $e) {
             DB::rollBack();
             return response()->json(['message' => $e->getMessage()], 500);

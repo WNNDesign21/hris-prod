@@ -15,8 +15,7 @@
                     @if (auth()->user()->karyawan && ($lembure['is_leader'] || !$lembure['has_leader']))
                         <li class="{{ $page == 'lembure-pengajuan-lembur' ? 'active' : '' }}">
                             <a href="{{ route('lembure.pengajuan-lembur') }}">
-                                <i class="icon-Layout-4-blocks"><span class="path1"></span><span
-                                        class="path2"></span></i>
+                                <i class="icon-Book"><span class="path1"></span><span class="path2"></span></i>
                                 <span>Pengajuan Lembur</span>
                             </a>
                         </li>
@@ -28,9 +27,17 @@
                                     auth()->user()->karyawan->posisi[0]->jabatan_id == 2)))
                         <li class="{{ $page == 'lembure-approval-lembur' ? 'active' : '' }}">
                             <a href="{{ route('lembure.approval-lembur') }}">
-                                <i class="icon-Layout-4-blocks"><span class="path1"></span><span
+                                <i class="icon-Double-check"><span class="path1"></span><span
                                         class="path2"></span></i>
                                 <span>Approval Lembur</span>
+                            </a>
+                        </li>
+                    @endif
+                    @if (auth()->user()->hasRole('personalia'))
+                        <li class="{{ $page == 'lembure-setting-upah-lembur' ? 'active' : '' }}">
+                            <a href="{{ route('lembure.setting-upah-lembur') }}">
+                                <i class="icon-Settings"><span class="path1"></span><span class="path2"></span></i>
+                                <span>Setting Gaji Lembur</span>
                             </a>
                         </li>
                     @endif

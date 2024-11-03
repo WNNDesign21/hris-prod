@@ -32,6 +32,7 @@ export default defineConfig({
                 'resources/js/pages/menu.js',
                 'resources/js/pages/lembure-pengajuan-lembur.js',
                 'resources/js/pages/lembure-approval-lembur.js',
+                'resources/js/pages/lembure-setting-upah-lembur.js',
             ],
             // refresh: true,
             refresh: ["resources/views/**", "resources/css/**", "app/Http/**"],

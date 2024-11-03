@@ -257,6 +257,13 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
             Route::patch('/approval-lembur/approved-aktual/{idLembur}', [LembureController::class, 'approved_aktual'])->name('lembure.approval-lembur.approved-aktual');
             Route::patch('/approval-lembur/legalized-aktual/{idLembur}', [LembureController::class, 'legalized_aktual'])->name('lembure.approval-lembur.legalized-aktual');
         });
+
+        Route::group(['middleware' => ['role:personalia']], function () {
+            // APPROVAL LEMBUR (CHECK)
+            Route::get('/setting-upah-lembur', [LembureController::class, 'setting_upah_lembur_view'])->name('lembure.setting-upah-lembur');
+            Route::post('/setting-upah-lembur-datatable', [LembureController::class, 'setting_upah_lembur_datatable']);
+            Route::patch('/setting-upah-lembur/update', [LembureController::class, 'update_setting_upah_lembur'])->name('lembure.setting-upah-lembur.update');
+        });
      });
 });
 
