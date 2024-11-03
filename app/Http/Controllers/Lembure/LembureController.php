@@ -40,15 +40,6 @@ class LembureController extends Controller
         return view('pages.lembur-e.pengajuan-lembur', $dataPage);
     }
 
-    public function pengajuan_lembur_individual_view()
-    {
-        $dataPage = [
-            'pageTitle' => "Lembur-E - Pengajuan Lembur Individual (Non-Leader)",
-            'page' => 'lembure-pengajuan-lembur-individual',
-        ];
-        return view('pages.lembur-e.pengajuan-lembur-individual', $dataPage);
-    }
-
     public function approval_lembur_view()
     {
         $dataPage = [
@@ -108,6 +99,8 @@ class LembureController extends Controller
                 $jam = floor($data->total_durasi / 60);
                 $menit = $data->total_durasi % 60;
                 $tanggal_lembur = Carbon::parse(DetailLembur::where('lembur_id', $data->id_lembur)->first()->rencana_mulai_lembur)->format('Y-m-d');
+                $is_member = false;
+
                 if($data->status == 'WAITING'){
                     $status = '<span class="badge badge-warning">WAITING</span>';
                 } elseif ($data->status == 'PLANNED'){
@@ -116,6 +109,10 @@ class LembureController extends Controller
                     $status = '<span class="badge badge-success">COMPLETED</span>';
                 } else {
                     $status = '<span class="badge badge-rejected">REJECTED</span>';
+                }
+
+                if(auth()->user()->karyawan->posisi[0]->jabatan_id > 5){
+                    $is_member = true;
                 }
 
                 $nestedData['id_lembur'] = $data->id_lembur;
@@ -131,7 +128,7 @@ class LembureController extends Controller
                 $nestedData['actual_approved_by'] = $data->actual_approved_by ? '✅<br><small class="text-bold">'.$data?->actual_approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_approved_at)->diffForHumans().'</small>': '';
                 $nestedData['actual_legalized_by'] = $data->actual_legalized_by ? '✅<br><small class="text-bold">'.$data?->actual_legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_legalized_at)->diffForHumans().'</small>': '';
                 $nestedData['aksi'] = '<div class="btn-group btn-group-sm">
-                    <button type="button" class="waves-effect waves-light btn btn-sm btn-info btnDetail" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-eye"></i> Detail</button>
+                    <button type="button" class="waves-effect waves-light btn btn-sm btn-info btnDetail" data-id-lembur="'.$data->id_lembur.'" data-is-member="'.($is_member ? 'true' : 'false').'"><i class="fas fa-eye"></i> Detail</button>
                     '.($tanggal_lembur <= date('Y-m-d') && $data->status == 'PLANNED' && $data->issued_by == auth()->user()->karyawan->id_karyawan ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnDone" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-check-circle"></i> Done</button>' : '').'
                     '.($data->plan_checked_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-edit"></i> Edit</button>' : '').'
                     '.($data->plan_checked_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-trash"></i> Delete</button>' : '').'

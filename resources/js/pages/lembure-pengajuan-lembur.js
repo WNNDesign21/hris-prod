@@ -915,6 +915,7 @@ $(function () {
         loadingSwalShow();
         let idLembur = $(this).data('id-lembur');
         let url = base_url + '/lembure/pengajuan-lembur/get-data-lembur/' + idLembur;
+        let isMember = $(this).data('is-member');
 
         $.ajax({
             url: url,
@@ -959,7 +960,7 @@ $(function () {
                                 `+(val.keterangan ? val.keterangan : '-')+`
                             </td>
                              <td>
-                                `+val.nominal+`
+                                `+(!isMember ? val.nominal : '-')+`
                             </td>
                         </tr>
                     `)
