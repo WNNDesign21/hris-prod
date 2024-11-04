@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use App\Models\DetailLembur;
 use App\Models\LemburHarian;
 use Illuminate\Http\Request;
+use App\Models\SettingLembur;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\SettingLemburKaryawan;
@@ -56,6 +57,22 @@ class LembureController extends Controller
             'page' => 'lembure-setting-upah-lembur',
         ];
         return view('pages.lembur-e.setting-upah-lembur', $dataPage);
+    }
+
+    public function setting_lembur_view()
+    {
+        $setting_lembur = SettingLembur::where('organisasi_id', auth()->user()->organisasi_id)->get();
+        $data_setting_lembur = [];
+        foreach ($setting_lembur as $setting) {
+            $data_setting_lembur[$setting->setting_name] = $setting->value;
+        }
+
+        $dataPage = [
+            'pageTitle' => "Lembur-E - Setting Lembur",
+            'page' => 'lembure-setting-lembur',
+            'setting_lembur' => $data_setting_lembur
+        ];
+        return view('pages.lembur-e.setting-lembur', $dataPage);
     }
 
     public function pengajuan_lembur_datatable(Request $request)
@@ -647,18 +664,31 @@ class LembureController extends Controller
         $end = Carbon::parse($datetime_end);
         $duration = $start->diffInMinutes($end);
 
+        $organisasi_id = auth()->user()->organisasi_id;
+        $setting_lembur = SettingLembur::where('organisasi_id', $organisasi_id)->get();
+        $jam_istirahat_mulai_1 = $setting_lembur->where('setting_name', 'jam_istirahat_mulai_1')->first()->value;
+        $jam_istirahat_selesai_1 = $setting_lembur->where('setting_name', 'jam_istirahat_selesai_1')->first()->value;
+        $jam_istirahat_mulai_2 = $setting_lembur->where('setting_name', 'jam_istirahat_mulai_2')->first()->value;
+        $jam_istirahat_selesai_2 = $setting_lembur->where('setting_name', 'jam_istirahat_selesai_2')->first()->value;
+        $jam_istirahat_mulai_3 = $setting_lembur->where('setting_name', 'jam_istirahat_mulai_3')->first()->value;
+        $jam_istirahat_selesai_3 = $setting_lembur->where('setting_name', 'jam_istirahat_selesai_3')->first()->value;
+        $jam_istirahat_mulai_jumat = $setting_lembur->where('setting_name', 'jam_istirahat_mulai_jumat')->first()->value;
+        $jam_istirahat_selesai_jumat = $setting_lembur->where('setting_name', 'jam_istirahat_selesai_jumat')->first()->value;
+        $durasi_jam_istirahat_normal = $setting_lembur->where('setting_name', 'durasi_jam_istirahat_normal')->first()->value;
+        $durasi_jam_istirahat_jumat = $setting_lembur->where('setting_name', 'durasi_jam_istirahat_jumat')->first()->value;
+
         // Setting Istirahat ketika lembur (Hari jumat memiliki perbedaan)
         if ($start->isFriday()) {
             $breaks = [
-                ['start' => '11:30', 'end' => '13:00', 'duration' => 90],
-                ['start' => '18:00', 'end' => '18:45', 'duration' => 45],
-                ['start' => '02:30', 'end' => '03:15', 'duration' => 45],
+                ['start' => $jam_istirahat_mulai_jumat, 'end' => $jam_istirahat_selesai_jumat, 'duration' => $durasi_jam_istirahat_jumat],
+                ['start' => $jam_istirahat_mulai_2, 'end' => $jam_istirahat_selesai_2, 'duration' => $durasi_jam_istirahat_normal],
+                ['start' => $jam_istirahat_mulai_3, 'end' => $jam_istirahat_selesai_3, 'duration' => $durasi_jam_istirahat_normal],
             ];
         } else {
             $breaks = [
-                ['start' => '12:00', 'end' => '12:45', 'duration' => 45],
-                ['start' => '18:00', 'end' => '18:45', 'duration' => 45],
-                ['start' => '02:30', 'end' => '03:15', 'duration' => 45],
+                ['start' => $jam_istirahat_mulai_1, 'end' => $jam_istirahat_selesai_1, 'duration' => $durasi_jam_istirahat_normal],
+                ['start' => $jam_istirahat_mulai_2, 'end' => $jam_istirahat_selesai_2, 'duration' => $durasi_jam_istirahat_normal],
+                ['start' => $jam_istirahat_mulai_3, 'end' => $jam_istirahat_selesai_3, 'duration' => $durasi_jam_istirahat_normal],
             ];
         }
 
@@ -699,13 +729,23 @@ class LembureController extends Controller
     //FUNGSI MENGHITUNG NOMINAL LEMBUR
     public function calculate_overtime_nominal($jenis_hari, $durasi, $karyawan_id)
     {
+        $organisasi_id = auth()->user()->organisasi_id;
         $setting_lembur_karyawan = SettingLemburKaryawan::where('karyawan_id', $karyawan_id)->first();
         $karyawan = Karyawan::find($karyawan_id);
         $convert_duration = number_format($durasi / 60, 2);
         $gaji_lembur_karyawan = $setting_lembur_karyawan->gaji;
         $jabatan_id = $karyawan->posisi[0]->jabatan_id;
-        $upah_sejam = $gaji_lembur_karyawan / 173;
-        $uang_makan = 15000;
+
+        $setting_lembur = SettingLembur::where('organisasi_id', $organisasi_id)->get();
+        $upah_sejam = $gaji_lembur_karyawan / $setting_lembur->where('setting_name', 'pembagi_upah_lembur_harian')->first()->value;
+        $uang_makan = $setting_lembur->where('setting_name', 'uang_makan')->first()->value;
+        $insentif_section_head_1 = $setting_lembur->where('setting_name', 'insentif_section_head_1')->first()->value;
+        $insentif_section_head_2 = $setting_lembur->where('setting_name', 'insentif_section_head_2')->first()->value;
+        $insentif_section_head_3 = $setting_lembur->where('setting_name', 'insentif_section_head_3')->first()->value;
+        $insentif_section_head_4 = $setting_lembur->where('setting_name', 'insentif_section_head_4')->first()->value;
+        $insentif_department_head_4 = $setting_lembur->where('setting_name', 'insentif_department_head_4')->first()->value;
+
+        
 
         //PERHITUNGAN SESUAI JENIS HARI
         if($jenis_hari == 'WD'){
@@ -723,11 +763,11 @@ class LembureController extends Controller
             //PERHITUNGAN UNTUK JABATAN LAINNYA
             } elseif ($jabatan_id == 4){
                 if ($convert_duration >= 3){
-                    $nominal_lembur = 107500;
+                    $nominal_lembur = $insentif_section_head_3;
                 } elseif ($convert_duration >= 2){
-                    $nominal_lembur = 67500;
+                    $nominal_lembur = $insentif_section_head_2;
                 } elseif ($convert_duration >= 1){
-                    $nominal_lembur = 32500;
+                    $nominal_lembur = $insentif_section_head_1;
                 } else {
                     $nominal_lembur = 0;
                 }
@@ -754,13 +794,13 @@ class LembureController extends Controller
             //PERHITUNGAN UNTUK SECTION HEAD
             } elseif ($jabatan_id == 4){
                 if ($convert_duration >= 4){
-                    $nominal_lembur = 250000;
+                    $nominal_lembur = $insentif_section_head_4;
                 } elseif ($convert_duration >= 3){
-                    $nominal_lembur = 107500;
+                    $nominal_lembur = $insentif_section_head_3;
                 } elseif ($convert_duration >= 2){
-                    $nominal_lembur = 67500;
+                    $nominal_lembur = $insentif_section_head_2;
                 } elseif ($convert_duration >= 1){
-                    $nominal_lembur = 32500;
+                    $nominal_lembur = $insentif_section_head_1;
                 } else {
                     $nominal_lembur = 0;
                 }
@@ -768,7 +808,7 @@ class LembureController extends Controller
             //PERHITUNGAN UNTUK DEPARTEMEN HEAD
             } elseif ($jabatan_id == 3) {
                 if ($convert_duration >= 4){
-                    $nominal_lembur = 400000;
+                    $nominal_lembur = $insentif_department_head_4;
                 } else {
                     $nominal_lembur = 0;
                 }
@@ -986,6 +1026,97 @@ class LembureController extends Controller
             
             DB::commit();
             return response()->json(['message' => 'Upah Lembur Karyawan Berhasil di Update!'], 200);
+        } catch (Throwable $e) {
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function update_setting_lembur(Request $request)
+    {
+        $dataValidate = [
+            'pembagi_upah_lembur_harian' => ['required', 'numeric', 'min:1'],
+            'uang_makan' => ['required', 'numeric', 'min:0'],
+            'insentif_section_head_1' => ['required', 'numeric', 'min:0'],
+            'insentif_section_head_2' => ['required', 'numeric', 'min:0'],
+            'insentif_section_head_3' => ['required', 'numeric', 'min:0'],
+            'insentif_section_head_4' => ['required', 'numeric', 'min:0'],
+            'insentif_department_head_4' => ['required', 'numeric', 'min:0'],
+            'jam_istirahat_mulai_1' => ['required', 'date_format:H:i'],
+            'jam_istirahat_selesai_1' => ['required', 'date_format:H:i', 'after:jam_istirahat_mulai_1'],
+            'jam_istirahat_mulai_2' => ['required', 'date_format:H:i'],
+            'jam_istirahat_selesai_2' => ['required', 'date_format:H:i', 'after:jam_istirahat_mulai_2'],
+            'jam_istirahat_mulai_3' => ['required', 'date_format:H:i'],
+            'jam_istirahat_selesai_3' => ['required', 'date_format:H:i', 'after:jam_istirahat_mulai_3'],
+            'jam_istirahat_mulai_jumat' => ['required', 'date_format:H:i'],
+            'jam_istirahat_selesai_jumat' => ['required', 'date_format:H:i', 'after:jam_istirahat_mulai_jumat'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $organisasi_id = auth()->user()->organisasi_id;
+        $pembagi_upah_lembur_harian = $request->pembagi_upah_lembur_harian;
+        $uang_makan = $request->uang_makan;
+        $insentif_section_head_1 = $request->insentif_section_head_1;
+        $insentif_section_head_2 = $request->insentif_section_head_2;
+        $insentif_section_head_3 = $request->insentif_section_head_3;
+        $insentif_section_head_4 = $request->insentif_section_head_4;
+        $insentif_department_head_4 = $request->insentif_department_head_4;
+        $jam_istirahat_mulai_1 = $request->jam_istirahat_mulai_1;
+        $jam_istirahat_selesai_1 = $request->jam_istirahat_selesai_1;
+        $jam_istirahat_mulai_2 = $request->jam_istirahat_mulai_2;
+        $jam_istirahat_selesai_2 = $request->jam_istirahat_selesai_2;
+        $jam_istirahat_mulai_3 = $request->jam_istirahat_mulai_3;
+        $jam_istirahat_selesai_3 = $request->jam_istirahat_selesai_3;
+        $jam_istirahat_mulai_jumat = $request->jam_istirahat_mulai_jumat;
+        $jam_istirahat_selesai_jumat = $request->jam_istirahat_selesai_jumat;
+
+        //Durasi Istirahat
+        $durasi_istirahat_1 = intval(Carbon::parse($jam_istirahat_mulai_1)->diffInMinutes(Carbon::parse($jam_istirahat_selesai_1)));
+        $durasi_istirahat_2 = intval(Carbon::parse($jam_istirahat_mulai_2)->diffInMinutes(Carbon::parse($jam_istirahat_selesai_2)));
+        $durasi_istirahat_3 = intval(Carbon::parse($jam_istirahat_mulai_3)->diffInMinutes(Carbon::parse($jam_istirahat_selesai_3)));
+        $durasi_istirahat_jumat = intval(Carbon::parse($jam_istirahat_mulai_jumat)->diffInMinutes(Carbon::parse($jam_istirahat_selesai_jumat)));
+
+        DB::beginTransaction();
+        try{
+            $setting_lembur = SettingLembur::where('organisasi_id', $organisasi_id)->get();
+            if($setting_lembur){
+                $settings = [
+                    'pembagi_upah_lembur_harian' => $pembagi_upah_lembur_harian,
+                    'uang_makan' => $uang_makan,
+                    'insentif_section_head_1' => $insentif_section_head_1,
+                    'insentif_section_head_2' => $insentif_section_head_2,
+                    'insentif_section_head_3' => $insentif_section_head_3,
+                    'insentif_section_head_4' => $insentif_section_head_4,
+                    'insentif_department_head_4' => $insentif_department_head_4,
+                    'jam_istirahat_mulai_1' => $jam_istirahat_mulai_1,
+                    'jam_istirahat_selesai_1' => $jam_istirahat_selesai_1,
+                    'jam_istirahat_mulai_2' => $jam_istirahat_mulai_2,
+                    'jam_istirahat_selesai_2' => $jam_istirahat_selesai_2,
+                    'jam_istirahat_mulai_3' => $jam_istirahat_mulai_3,
+                    'jam_istirahat_selesai_3' => $jam_istirahat_selesai_3,
+                    'jam_istirahat_mulai_jumat' => $jam_istirahat_mulai_jumat,
+                    'jam_istirahat_selesai_jumat' => $jam_istirahat_selesai_jumat,
+                    'durasi_istirahat_1' => $durasi_istirahat_1,
+                    'durasi_istirahat_2' => $durasi_istirahat_2,
+                    'durasi_istirahat_3' => $durasi_istirahat_3,
+                    'durasi_istirahat_jumat' => $durasi_istirahat_jumat,
+                ];
+
+                foreach ($settings as $key => $value) {
+                    $setting_lembur->where('setting_name', $key)->first()->update(['value' => $value]);
+                }
+            } else {
+                return response()->json(['message' => 'Setting Lembur tidak ditemukan!'], 402);
+            }
+
+            DB::commit();
+            return response()->json(['message' => 'Setting Lembur Berhasil di Update!'], 200);
         } catch (Throwable $e) {
             DB::rollBack();
             return response()->json(['message' => $e->getMessage()], 500);

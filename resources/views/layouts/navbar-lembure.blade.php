@@ -40,6 +40,12 @@
                                 <span>Setting Gaji Lembur</span>
                             </a>
                         </li>
+                        <li class="{{ $page == 'lembure-setting-lembur' ? 'active' : '' }}">
+                            <a href="{{ route('lembure.setting-lembur') }}">
+                                <i class="icon-Tools"><span class="path1"></span><span class="path2"></span></i>
+                                <span>Setting Lembur</span>
+                            </a>
+                        </li>
                     @endif
                 </ul>
             </div>
