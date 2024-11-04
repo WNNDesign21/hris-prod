@@ -99,7 +99,8 @@ class LemburHarian extends Model
         $month = date('m');
         $data = self::selectRaw(
             'departemens.nama as departemen, 
-            SUM(lembur_harians.total_nominal_lembur) as total_nominal'
+            SUM(lembur_harians.total_nominal_lembur) as total_nominal,
+            SUM(lembur_harians.total_durasi_lembur) as total_durasi'
         )
         ->leftJoin('departemens', 'lembur_harians.departemen_id', 'departemens.id_departemen')
         ->where('lembur_harians.organisasi_id', $organisasi_id)
