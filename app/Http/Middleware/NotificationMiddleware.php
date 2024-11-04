@@ -26,11 +26,15 @@ class NotificationMiddleware
         if($user->hasRole('personalia') || $user->hasRole('super user')){
             $my_cutie = null;
             $tenggang_karyawans = Karyawan::where('status_karyawan', 'AT')
+                ->leftJoin('users', 'karyawans.user_id', 'users.id')
+                ->where('users.organisasi_id', $user->organisasi_id)
                 ->whereRaw('(tanggal_selesai - ?) <= 30', [$today])
                 ->selectRaw('*, (tanggal_selesai - ?) as jumlah_hari', [$today])
                 ->get();
 
             $cutie_approval = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari',[$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+                ->leftJoin('users', 'karyawans.user_id', 'users.id')
+                ->where('users.organisasi_id', $user->organisasi_id)
                 ->where('status_dokumen', 'WAITING')
                 ->where(function($query) {
                 $query->where('status_cuti', '!=', 'CANCELED')

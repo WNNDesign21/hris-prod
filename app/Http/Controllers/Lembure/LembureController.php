@@ -563,6 +563,7 @@ class LembureController extends Controller
         $issued_by = auth()->user()->karyawan->id_karyawan;
         $organisasi_id = auth()->user()->organisasi_id;
         $departemen_id = auth()->user()->karyawan->posisi[0]->departemen_id;
+        $divisi_id = auth()->user()->karyawan->posisi[0]->divisi_id;
 
         DB::beginTransaction();
         try {
@@ -572,6 +573,7 @@ class LembureController extends Controller
                 'issued_date' => now(),
                 'organisasi_id' => $organisasi_id,
                 'departemen_id' => $departemen_id,
+                'divisi_id' => $divisi_id,
                 'jenis_hari' => $jenis_hari
             ]);
 
@@ -611,7 +613,7 @@ class LembureController extends Controller
                 $karyawan = Karyawan::find($karyawan_id);
                 $datetime_rencana_mulai_lembur = Carbon::createFromFormat('Y-m-d\TH:i', $rencana_mulai_lemburs[$key])->toDateTimeString();
                 $datetime_rencana_selesai_lembur = Carbon::createFromFormat('Y-m-d\TH:i', $rencana_selesai_lemburs[$key])->toDateTimeString();
-                $durasi = $this->calculate_overtime_per_minutes($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur);
+                $durasi = $this->calculate_overtime_per_minutes($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur, $karyawan->user->organisasi_id);
 
                 if($durasi < 60){
                     DB::rollback();
@@ -627,7 +629,8 @@ class LembureController extends Controller
                 $data_detail_lembur[] = [
                     'karyawan_id' => $karyawan_id,
                     'organisasi_id' => $karyawan->user->organisasi_id,
-                    'departemen_id' => $karyawan->posisi[0]->departemen_id,
+                    'departemen_id' => $karyawan->posisi[0]?->departemen_id,
+                    'divisi_id' => $karyawan->posisi[0]?->divisi_id,
                     'rencana_mulai_lembur' => $datetime_rencana_mulai_lembur,
                     'rencana_selesai_lembur' => $datetime_rencana_selesai_lembur,
                     'deskripsi_pekerjaan' => $job_descriptions[$key],
@@ -657,14 +660,13 @@ class LembureController extends Controller
     }
 
     //FUNGSI MENGHITUNG DURASI LEMBUR YANG SUDAH DIKURANGI DENGAN ISTIRAHAT
-    public function calculate_overtime_per_minutes($datetime_start, $datetime_end)
+    public function calculate_overtime_per_minutes($datetime_start, $datetime_end, $organisasi_id)
     {
         //Kondisi Istirahat ketika lembur
         $start = Carbon::parse($datetime_start);
         $end = Carbon::parse($datetime_end);
         $duration = $start->diffInMinutes($end);
 
-        $organisasi_id = auth()->user()->organisasi_id;
         $setting_lembur = SettingLembur::where('organisasi_id', $organisasi_id)->get();
         $jam_istirahat_mulai_1 = $setting_lembur->where('setting_name', 'jam_istirahat_mulai_1')->first()->value;
         $jam_istirahat_selesai_1 = $setting_lembur->where('setting_name', 'jam_istirahat_selesai_1')->first()->value;
@@ -674,21 +676,23 @@ class LembureController extends Controller
         $jam_istirahat_selesai_3 = $setting_lembur->where('setting_name', 'jam_istirahat_selesai_3')->first()->value;
         $jam_istirahat_mulai_jumat = $setting_lembur->where('setting_name', 'jam_istirahat_mulai_jumat')->first()->value;
         $jam_istirahat_selesai_jumat = $setting_lembur->where('setting_name', 'jam_istirahat_selesai_jumat')->first()->value;
-        $durasi_jam_istirahat_normal = $setting_lembur->where('setting_name', 'durasi_jam_istirahat_normal')->first()->value;
-        $durasi_jam_istirahat_jumat = $setting_lembur->where('setting_name', 'durasi_jam_istirahat_jumat')->first()->value;
+        $durasi_istirahat_1 = $setting_lembur->where('setting_name', 'durasi_istirahat_1')->first()->value;
+        $durasi_istirahat_2 = $setting_lembur->where('setting_name', 'durasi_istirahat_2')->first()->value;
+        $durasi_istirahat_3 = $setting_lembur->where('setting_name', 'durasi_istirahat_3')->first()->value;
+        $durasi_istirahat_jumat = $setting_lembur->where('setting_name', 'durasi_istirahat_jumat')->first()->value;
 
         // Setting Istirahat ketika lembur (Hari jumat memiliki perbedaan)
         if ($start->isFriday()) {
             $breaks = [
-                ['start' => $jam_istirahat_mulai_jumat, 'end' => $jam_istirahat_selesai_jumat, 'duration' => $durasi_jam_istirahat_jumat],
-                ['start' => $jam_istirahat_mulai_2, 'end' => $jam_istirahat_selesai_2, 'duration' => $durasi_jam_istirahat_normal],
-                ['start' => $jam_istirahat_mulai_3, 'end' => $jam_istirahat_selesai_3, 'duration' => $durasi_jam_istirahat_normal],
+                ['start' => $jam_istirahat_mulai_jumat, 'end' => $jam_istirahat_selesai_jumat, 'duration' => $durasi_istirahat_jumat],
+                ['start' => $jam_istirahat_mulai_2, 'end' => $jam_istirahat_selesai_2, 'duration' => $durasi_istirahat_2],
+                ['start' => $jam_istirahat_mulai_3, 'end' => $jam_istirahat_selesai_3, 'duration' => $durasi_istirahat_3],
             ];
         } else {
             $breaks = [
-                ['start' => $jam_istirahat_mulai_1, 'end' => $jam_istirahat_selesai_1, 'duration' => $durasi_jam_istirahat_normal],
-                ['start' => $jam_istirahat_mulai_2, 'end' => $jam_istirahat_selesai_2, 'duration' => $durasi_jam_istirahat_normal],
-                ['start' => $jam_istirahat_mulai_3, 'end' => $jam_istirahat_selesai_3, 'duration' => $durasi_jam_istirahat_normal],
+                ['start' => $jam_istirahat_mulai_1, 'end' => $jam_istirahat_selesai_1, 'duration' => $durasi_istirahat_1],
+                ['start' => $jam_istirahat_mulai_2, 'end' => $jam_istirahat_selesai_2, 'duration' => $durasi_istirahat_2],
+                ['start' => $jam_istirahat_mulai_3, 'end' => $jam_istirahat_selesai_3, 'duration' => $durasi_istirahat_3],
             ];
         }
 
@@ -729,9 +733,9 @@ class LembureController extends Controller
     //FUNGSI MENGHITUNG NOMINAL LEMBUR
     public function calculate_overtime_nominal($jenis_hari, $durasi, $karyawan_id)
     {
-        $organisasi_id = auth()->user()->organisasi_id;
         $setting_lembur_karyawan = SettingLemburKaryawan::where('karyawan_id', $karyawan_id)->first();
         $karyawan = Karyawan::find($karyawan_id);
+        $organisasi_id = $karyawan->user->organisasi_id;
         $convert_duration = number_format($durasi / 60, 2);
         $gaji_lembur_karyawan = $setting_lembur_karyawan->gaji;
         $jabatan_id = $karyawan->posisi[0]->jabatan_id;
@@ -908,7 +912,7 @@ class LembureController extends Controller
                     $karyawan_new = Karyawan::find($karyawan_id_new);
                     $datetime_rencana_mulai_lembur_new = Carbon::createFromFormat('Y-m-d\TH:i', $rencana_mulai_lemburs_new[$key])->toDateTimeString();
                     $datetime_rencana_selesai_lembur_new = Carbon::createFromFormat('Y-m-d\TH:i', $rencana_selesai_lemburs_new[$key])->toDateTimeString();
-                    $durasi_new = $this->calculate_overtime_per_minutes($datetime_rencana_mulai_lembur_new, $datetime_rencana_selesai_lembur_new);
+                    $durasi_new = $this->calculate_overtime_per_minutes($datetime_rencana_mulai_lembur_new, $datetime_rencana_selesai_lembur_new, $karyawan_new->user->organisasi_id);
     
                     if($durasi_new < 60){
                         DB::rollback();
@@ -942,7 +946,7 @@ class LembureController extends Controller
                 $karyawan = Karyawan::find($id_kry);
                 $datetime_rencana_mulai_lembur = Carbon::createFromFormat('Y-m-d\TH:i', $rencana_mulai_lemburs[$key])->toDateTimeString();
                 $datetime_rencana_selesai_lembur = Carbon::createFromFormat('Y-m-d\TH:i', $rencana_selesai_lemburs[$key])->toDateTimeString();
-                $durasi = $this->calculate_overtime_per_minutes($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur);
+                $durasi = $this->calculate_overtime_per_minutes($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur, $karyawan->user->organisasi_id);
 
                 if($durasi < 60){
                     DB::rollback();
@@ -1145,6 +1149,7 @@ class LembureController extends Controller
             'posisis.nama as posisi',
         );
 
+        $organisasi_id = auth()->user()->organisasi_id;
         $posisi = auth()->user()->karyawan->posisi;
         $id_posisi_members = $this->get_member_posisi($posisi);
 
@@ -1163,18 +1168,20 @@ class LembureController extends Controller
         //Ambil karyawan yang scope Aktif jika ada parameter status
         $query->aktif();
         $query->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
+        ->leftJoin('users', 'karyawans.user_id', 'users.id')
         ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
         ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
         ->rightJoin('setting_lembur_karyawans', 'karyawans.id_karyawan', 'setting_lembur_karyawans.karyawan_id');
 
         if(auth()->user()->karyawan->posisi[0]->jabatan_id == 5){
+            $query->where('users.organisasi_id', $organisasi_id);
             $query->whereIn('posisis.id_posisi', $id_posisi_members);
             $query->orWhere('karyawans.id_karyawan', auth()->user()->karyawan->id_karyawan);
         } else {
             $query->where('karyawans.id_karyawan', auth()->user()->karyawan->id_karyawan);
         }
 
-        $query->groupBy('karyawans.id_karyawan','karyawans.nama', 'posisis.nama',);
+        $query->groupBy('karyawans.id_karyawan','karyawans.nama', 'posisis.nama');
 
         $data = $query->simplePaginate(10);
 
@@ -1220,10 +1227,13 @@ class LembureController extends Controller
         //Ambil karyawan yang scope Aktif jika ada parameter status
         $query->aktif();
         $query->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
+        ->leftJoin('users', 'karyawans.user_id', 'users.id')
         ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
         ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
         ->rightJoin('setting_lembur_karyawans', 'karyawans.id_karyawan', 'setting_lembur_karyawans.karyawan_id');
 
+        $organisasi_id = auth()->user()->organisasi_id;
+        $query->where('users.organisasi_id', $organisasi_id);
         $query->whereIn('posisis.id_posisi', $id_posisi_members);
         $query->orWhere('karyawans.id_karyawan', auth()->user()->karyawan->id_karyawan);
 
@@ -1298,15 +1308,15 @@ class LembureController extends Controller
             $data_detail_lembur = [];
             foreach ($lembur->detailLembur as $data){
                 //rencana
-                $duration_rencana = $this->calculate_overtime_per_minutes($data->rencana_mulai_lembur, $data->rencana_selesai_lembur);
+                $duration_rencana = $this->calculate_overtime_per_minutes($data->rencana_mulai_lembur, $data->rencana_selesai_lembur, $data->organisasi_id);
                 $hour_rencana = floor($duration_rencana / 60);
                 $minutes_rencana = $duration_rencana % 60;
-                
+
                 //aktual
-                $duration_aktual = $this->calculate_overtime_per_minutes($data->aktual_mulai_lembur, $data->aktual_selesai_lembur);
+                $duration_aktual = $this->calculate_overtime_per_minutes($data->aktual_mulai_lembur, $data->aktual_selesai_lembur, $data->organisasi_id);
                 $hour_aktual = floor($duration_aktual / 60);
                 $minutes_aktual = $duration_aktual % 60;
-                
+
                 $data_detail_lembur[] = [
                     'id_detail_lembur' => $data->id_detail_lembur,
                     'lembur_id' => $data->lembur_id,
@@ -1538,8 +1548,8 @@ class LembureController extends Controller
                 $total_nominal = $lembur->detailLembur->where('is_aktual_approved', 'Y')->sum('nominal');
                 $total_durasi = $lembur->detailLembur->where('is_aktual_approved', 'Y')->sum('durasi');
                 $organisasi_id = auth()->user()->organisasi_id;
-                $departemen_id = $lembur->issued->posisi[0]?->departemen_id;
-                $divisi_id = $lembur->issued->posisi[0]?->divisi_id;
+                $departemen_id = $lembur?->departemen_id;
+                $divisi_id = $lembur?->divisi_id;
                 $tanggal_lembur = Carbon::parse($lembur->aktual_mulai_lembur)->format('Y-m-d');
                 
                 $lembur_harian = LemburHarian::where('tanggal_lembur', $tanggal_lembur)->where('organisasi_id', $organisasi_id)->where('departemen_id', $departemen_id)->where('divisi_id', $divisi_id)->first();
@@ -1620,7 +1630,7 @@ class LembureController extends Controller
                     if($detail && $detail->is_aktual_approved == 'Y'){
                         $datetime_aktual_mulai_lembur = Carbon::createFromFormat('Y-m-d\TH:i', $aktual_mulai_lemburs[$key])->toDateTimeString();
                         $datetime_aktual_selesai_lembur = Carbon::createFromFormat('Y-m-d\TH:i', $aktual_selesai_lemburs[$key])->toDateTimeString();
-                        $durasi = $this->calculate_overtime_per_minutes($datetime_aktual_mulai_lembur, $datetime_aktual_selesai_lembur);
+                        $durasi = $this->calculate_overtime_per_minutes($datetime_aktual_mulai_lembur, $datetime_aktual_selesai_lembur, $detail->organisasi_id);
         
                         if($durasi < 60){
                             DB::rollback();
@@ -1676,6 +1686,37 @@ class LembureController extends Controller
             return response()->json(['message' => 'Aktual Lembur berhasil di Konfirmasi!'],200);
         } catch (Throwable $e){
             DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    //CHART
+    public function get_monthly_lembur_per_departemen(Request $request)
+    {
+        try{
+            $data = LemburHarian::getMonthlyLemburPerDepartemen()->toArray();
+            return response()->json(['message' => 'Data Lembur Berhasil Ditemukan', 'data' => $data], 200);
+        } catch (Throwable $e){
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function get_weekly_lembur_per_departemen(Request $request)
+    {
+        try{
+            $data = LemburHarian::getWeeklyLemburPerDepartemen()->toArray();
+            return response()->json(['message' => 'Data Lembur Berhasil Ditemukan', 'data' => $data], 200);
+        } catch (Throwable $e){
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function get_current_month_lembur_per_departemen(Request $request)
+    {
+        try{
+            $data = LemburHarian::getCurrentMonthLemburPerDepartemen()->toArray();
+            return response()->json(['message' => 'Data Lembur Berhasil Ditemukan', 'data' => $data], 200);
+        } catch (Throwable $e){
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }

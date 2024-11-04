@@ -42,6 +42,7 @@ class SettingLemburKaryawan extends Model
         ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
         ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
         ->leftJoin('divisis', 'departemens.divisi_id', 'divisis.id_divisi')
+        ->leftJoin('users', 'karyawans.user_id', 'users.id')
         ->groupBy(
             'setting_lembur_karyawans.id_setting_lembur_karyawan',
             'karyawans.id_karyawan',
@@ -54,6 +55,9 @@ class SettingLemburKaryawan extends Model
             'divisis.id_divisi'
         );
 
+        $organisasi_id = auth()->user()->organisasi_id;
+
+        $data->where('users.organisasi_id', $organisasi_id);
         $data->where('karyawans.status_karyawan', 'AT');
 
         if (isset($dataFilter['search'])) {
