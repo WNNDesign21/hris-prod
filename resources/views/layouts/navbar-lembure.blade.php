@@ -6,12 +6,15 @@
                 <!-- sidebar menu-->
                 <ul class="sidebar-menu" data-widget="tree">
                     <li class="header">Lembur-E Menu</li>
-                    <li class="{{ $page == 'lembure-dashboard' ? 'active' : '' }}">
-                        <a href="{{ route('lembure.dashboard') }}">
-                            <i class="icon-Layout-4-blocks"><span class="path1"></span><span class="path2"></span></i>
-                            <span>Dashboard</span>
-                        </a>
-                    </li>
+                    @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('atasan'))
+                        <li class="{{ $page == 'lembure-dashboard' ? 'active' : '' }}">
+                            <a href="{{ route('lembure.dashboard') }}">
+                                <i class="icon-Layout-4-blocks"><span class="path1"></span><span
+                                        class="path2"></span></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                    @endif
                     @if (auth()->user()->karyawan && ($lembure['is_leader'] || !$lembure['has_leader']))
                         <li class="{{ $page == 'lembure-pengajuan-lembur' ? 'active' : '' }}">
                             <a href="{{ route('lembure.pengajuan-lembur') }}">

@@ -56,7 +56,8 @@
                 @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('atasan') || !$lembure['has_leader'])
                     {{-- CARD LEMBUR SYSTEM --}}
                     <div class="col-lg-6 col-12">
-                        <a href="{{ route('lembure.dashboard') }}" class="box pull-up">
+                        <a href="{{ auth()->user()->hasRole('personalia') || auth()->user()->hasRole('atasan') ? route('lembure.dashboard') : route('lembure.pengajuan-lembur') }}"
+                            class="box pull-up">
                             <div class="box-body">
                                 <div class="d-flex align-items-center">
                                     <div class="icon bg-primary-light rounded-circle w-60 h-60 text-center l-h-80">

@@ -59,14 +59,21 @@ class LemburHarian extends Model
             SUM(CASE WHEN EXTRACT(MONTH FROM lembur_harians.tanggal_lembur) = 11 THEN lembur_harians.total_nominal_lembur ELSE 0 END) as november,
             SUM(CASE WHEN EXTRACT(MONTH FROM lembur_harians.tanggal_lembur) = 12 THEN lembur_harians.total_nominal_lembur ELSE 0 END) as desember'
         )
-        ->leftJoin('departemens', 'lembur_harians.departemen_id', 'departemens.id_departemen')
-        ->where('lembur_harians.organisasi_id', $organisasi_id)
-        ->whereNotNull('departemens.nama')
-        ->whereYear('lembur_harians.tanggal_lembur', $year)
-        ->groupBy('departemens.nama')
-        ->get();
+        ->leftJoin('departemens', 'lembur_harians.departemen_id', 'departemens.id_departemen');
 
-        return $data;
+        if(auth()->user()->hasRole('personalia') || (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->organisasi_id) || auth()->user()->karyawan->posisi[0]->jabatan_id == 5)){
+            $data->where('lembur_harians.organisasi_id', $organisasi_id);
+        }
+
+        if(auth()->user()->hasRole('atasan') && (auth()->user()->karyawan && auth()->user()->karyawan->posisi[0]->jabatan_id >= 3)) {
+            $data->where('lembur_harians.departemen_id', auth()->user()->karyawan->posisi[0]->departemen_id);
+        }
+        
+        $data->whereNotNull('departemens.nama')
+        ->whereYear('lembur_harians.tanggal_lembur', $year)
+        ->groupBy('departemens.nama');
+
+        return $data->get();
     }
 
     public static function getWeeklyLemburPerDepartemen()
@@ -81,15 +88,21 @@ class LemburHarian extends Model
             SUM(CASE WHEN EXTRACT(DAY FROM lembur_harians.tanggal_lembur) BETWEEN 16 AND 23 THEN lembur_harians.total_nominal_lembur ELSE 0 END) as minggu_3,
             SUM(CASE WHEN EXTRACT(DAY FROM lembur_harians.tanggal_lembur) BETWEEN 24 AND 31 THEN lembur_harians.total_nominal_lembur ELSE 0 END) as minggu_4'
         )
-        ->leftJoin('departemens', 'lembur_harians.departemen_id', 'departemens.id_departemen')
-        ->where('lembur_harians.organisasi_id', $organisasi_id)
-        ->whereNotNull('departemens.nama')
+        ->leftJoin('departemens', 'lembur_harians.departemen_id', 'departemens.id_departemen');
+        if(auth()->user()->hasRole('personalia') || (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->organisasi_id) || auth()->user()->karyawan->posisi[0]->jabatan_id == 5)){
+            $data->where('lembur_harians.organisasi_id', $organisasi_id);
+        }
+
+        if(auth()->user()->hasRole('atasan') && (auth()->user()->karyawan && auth()->user()->karyawan->posisi[0]->jabatan_id >= 3)) {
+            $data->where('lembur_harians.departemen_id', auth()->user()->karyawan->posisi[0]->departemen_id);
+        }
+
+        $data->whereNotNull('departemens.nama')
         ->whereYear('lembur_harians.tanggal_lembur', $year)
         ->whereMonth('lembur_harians.tanggal_lembur', $month)
-        ->groupBy('departemens.nama')
-        ->get();
+        ->groupBy('departemens.nama');
 
-        return $data;
+        return $data->get();
     }
 
     public static function getCurrentMonthLemburPerDepartemen()
@@ -102,14 +115,20 @@ class LemburHarian extends Model
             SUM(lembur_harians.total_nominal_lembur) as total_nominal,
             SUM(lembur_harians.total_durasi_lembur) as total_durasi'
         )
-        ->leftJoin('departemens', 'lembur_harians.departemen_id', 'departemens.id_departemen')
-        ->where('lembur_harians.organisasi_id', $organisasi_id)
-        ->whereNotNull('departemens.nama')
+        ->leftJoin('departemens', 'lembur_harians.departemen_id', 'departemens.id_departemen');
+        if(auth()->user()->hasRole('personalia') || (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->organisasi_id) || auth()->user()->karyawan->posisi[0]->jabatan_id == 5)){
+            $data->where('lembur_harians.organisasi_id', $organisasi_id);
+        }
+
+        if(auth()->user()->hasRole('atasan') && (auth()->user()->karyawan && auth()->user()->karyawan->posisi[0]->jabatan_id >= 3)) {
+            $data->where('lembur_harians.departemen_id', auth()->user()->karyawan->posisi[0]->departemen_id);
+        }
+
+        $data->whereNotNull('departemens.nama')
         ->whereYear('lembur_harians.tanggal_lembur', $year)
         ->whereMonth('lembur_harians.tanggal_lembur', $month)
-        ->groupBy('departemens.nama')
-        ->get();
+        ->groupBy('departemens.nama');
 
-        return $data;
+        return $data->get();
     }
 }

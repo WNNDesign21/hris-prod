@@ -236,7 +236,7 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
      Route::group(['prefix' => 'lembure'], function () {
 
         // DASHBOARD
-        Route::get('/dashboard', [LembureController::class, 'index'])->name('lembure.dashboard');
+        Route::get('/dashboard', [LembureController::class, 'index'])->name('lembure.dashboard')->middleware('role:personalia|atasan');
 
         Route::group(['middleware' => ['role:atasan|member']], function () {
         // PENGAJUAN LEMBUR (LEADER)
