@@ -270,6 +270,9 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
             // Setting Lembur
             Route::get('/setting-lembur', [LembureController::class, 'setting_lembur_view'])->name('lembure.setting-lembur');
             Route::patch('/setting-lembur/update', [LembureController::class, 'update_setting_lembur'])->name('lembure.setting-lembur.update');
+
+            // Export Report Lembur
+            Route::get('/export-report-lembur', [LembureController::class, 'export_report_lembur_view'])->name('lembure.export-report-lembur');
         });
      });
 });

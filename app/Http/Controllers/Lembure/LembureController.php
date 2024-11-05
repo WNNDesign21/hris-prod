@@ -75,6 +75,15 @@ class LembureController extends Controller
         return view('pages.lembur-e.setting-lembur', $dataPage);
     }
 
+    public function export_report_lembur_view()
+    {
+        $dataPage = [
+            'pageTitle' => "Lembur-E - Export Report Lembur",
+            'page' => 'lembure-export-report-lembur',
+        ];
+        return view('pages.lembur-e.export-report-lembur', $dataPage);
+    }
+
     public function pengajuan_lembur_datatable(Request $request)
     {
         $columns = array(
@@ -1719,5 +1728,145 @@ class LembureController extends Controller
         } catch (Throwable $e){
             return response()->json(['message' => $e->getMessage()], 500);
         }
+    }
+
+    //EXPORT REPORT LEMBUR
+    public function export_rekap_lembur_perbulan(Request $request){
+        
+        $organisasi_id = auth()->user()->organisasi_id;
+        $tahun = $request->tahun;
+        $bulan = Carbon::createFromFormat('m', $request->bulan)->format('F Y');
+
+        //CREATE EXCEL FILE
+        $spreadsheet = new Spreadsheet();
+
+        $fillStyle = [
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['argb' => 'FF000000'],
+                ],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_LEFT,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'font' => [
+                'bold' => true,
+                'color' => ['argb' => 'FFFFFFFF'],
+                'size' => 12,
+            ],
+        ];
+        
+        $rekapLembur = DetailLembur::getReportMonthlyPerDepartemen($tahun, $bulan);
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Rekap Lembur - '.Carbon::createFromFormat('m', $bulan)->format('F Y'));
+        $row = 1;
+        $col = 'A';
+        $headers = [
+            'NO',
+            'FULL NAME',
+            'DEPARTMENT',
+            'JABATAN',
+            'PERIODE PERHITUNGAN',
+            'GAJI POKOK '.$tahun,
+            'UPAH LEMBUR PER JAM',
+            'TOTAL JAM LEMBUR',
+            'KONVERSI JAM LEMBUR',
+            'GAJI LEMBUR',
+            'UANG MAKAN',
+            'TOTAL GAJI LEMBUR'
+        ];
+
+        foreach ($headers as $header) {
+            $sheet->setCellValue($col . '1', $header);
+            $sheet->getStyle($col . '1')->applyFromArray($fillStyle);
+            $col++;
+        }
+
+        $row = 2;
+
+        $columns = range('A', 'N');
+        foreach ($columns as $column) {
+            $sheet->getColumnDimension($column)->setAutoSize(true);
+        }
+        $sheet->setAutoFilter('A1:N1');
+
+        $monthlyCutie = $monthlyCutie->get();
+        $jumlah_cuti_khusus = 0;
+        $jumlah_cuti_pribadi = 0;
+        $tanggal_cuti = [];
+        foreach ($monthlyCutie as $index => $c) {
+
+            if($c->jenis_cuti == 'KHUSUS'){
+                //MENDAPATKAN DURASI CUTI KHUSUS
+                $jumlah_cuti_khusus += $c->durasi_cuti;
+            } else {
+                //MENDAPATKAN DURASI CUTI PRIBADI
+                $jumlah_cuti_pribadi += $c->durasi_cuti;
+                if($c->durasi_cuti > 1){
+                    $range_date_cuti =  Carbon::parse($c->rencana_mulai_cuti)->toPeriod(Carbon::parse($c->rencana_selesai_cuti))->toArray();
+                    foreach ($range_date_cuti as $r) {
+                        $tanggal_cuti[] = $r->format('Y-m-d');
+                    }
+                } else {
+                    $tanggal_cuti[] = $c->rencana_mulai_cuti;
+                }
+            }
+
+            if(isset($monthlyCutie[$index+1])){
+                if($monthlyCutie[$index+1]->karyawan_id !== $c->karyawan_id){
+                    $sheet->setCellValue('A' . $row, $row - 1);
+                    $sheet->setCellValue('B' . $row, $c->karyawan->ni_karyawan);
+                    $sheet->setCellValue('C' . $row, $c->karyawan->nama);
+                    $sheet->setCellValue('D' . $row, $c->karyawan->posisi[0]?->departemen?->nama);
+                    $sheet->setCellValue('E' . $row, $c->karyawan->posisi[0]?->nama);
+                    $sheet->setCellValue('F' . $row, $jumlah_cuti_khusus.' Hari');
+                    $sheet->setCellValue('G' . $row, $jumlah_cuti_pribadi.' Hari');
+                    $sheet->setCellValue('H' . $row, isset($tanggal_cuti[0]) ? $tanggal_cuti[0] : '');
+                    $sheet->setCellValue('I' . $row, isset($tanggal_cuti[1]) ? $tanggal_cuti[1] : '');
+                    $sheet->setCellValue('J' . $row, isset($tanggal_cuti[2]) ? $tanggal_cuti[2] : '');
+                    $sheet->setCellValue('K' . $row, isset($tanggal_cuti[3]) ? $tanggal_cuti[3] : '');
+                    $sheet->setCellValue('L' . $row, isset($tanggal_cuti[4]) ? $tanggal_cuti[4] : '');
+                    $sheet->setCellValue('M' . $row, isset($tanggal_cuti[5]) ? $tanggal_cuti[5] : '');
+                    $sheet->setCellValue('N' . $row, $c->karyawan->sisa_cuti_pribadi.' Hari');
+
+                    $row++;
+
+                    $jumlah_cuti_khusus = 0;
+                    $jumlah_cuti_pribadi = 0;
+                    $tanggal_cuti = [];
+                } else { 
+                    continue;
+                }
+            } else {
+                $sheet->setCellValue('A' . $row, $row - 1);
+                $sheet->setCellValue('B' . $row, $c->karyawan->ni_karyawan);
+                $sheet->setCellValue('C' . $row, $c->karyawan->nama);
+                $sheet->setCellValue('D' . $row, $c->karyawan->posisi[0]?->departemen?->nama);
+                $sheet->setCellValue('E' . $row, $c->karyawan->posisi[0]?->nama);
+                $sheet->setCellValue('F' . $row, $jumlah_cuti_khusus.' Hari');
+                $sheet->setCellValue('G' . $row, $jumlah_cuti_pribadi.' Hari');
+                $sheet->setCellValue('H' . $row, isset($tanggal_cuti[0]) ? $tanggal_cuti[0] : '');
+                $sheet->setCellValue('I' . $row, isset($tanggal_cuti[1]) ? $tanggal_cuti[1] : '');
+                $sheet->setCellValue('J' . $row, isset($tanggal_cuti[2]) ? $tanggal_cuti[2] : '');
+                $sheet->setCellValue('K' . $row, isset($tanggal_cuti[3]) ? $tanggal_cuti[3] : '');
+                $sheet->setCellValue('L' . $row, isset($tanggal_cuti[4]) ? $tanggal_cuti[4] : '');
+                $sheet->setCellValue('M' . $row, isset($tanggal_cuti[5]) ? $tanggal_cuti[5] : '');
+                $sheet->setCellValue('N' . $row, $c->karyawan->sisa_cuti_pribadi.' Hari');
+            }
+        }
+
+        $writer = new Xlsx($spreadsheet);
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename=data-cuti-export.xlsx');
+        header('Cache-Control: max-age=0');
+
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $writer->save('php://output');
+        $spreadsheet->disconnectWorksheets();
+        unset($spreadsheet);
+        exit();
     }
 }

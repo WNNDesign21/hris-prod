@@ -9,8 +9,7 @@
                     @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('atasan'))
                         <li class="{{ $page == 'lembure-dashboard' ? 'active' : '' }}">
                             <a href="{{ route('lembure.dashboard') }}">
-                                <i class="icon-Layout-4-blocks"><span class="path1"></span><span
-                                        class="path2"></span></i>
+                                <i class="icon-Chart-bar2"><span class="path1"></span><span class="path2"></span></i>
                                 <span>Dashboard</span>
                             </a>
                         </li>
@@ -47,6 +46,12 @@
                             <a href="{{ route('lembure.setting-lembur') }}">
                                 <i class="icon-Tools"><span class="path1"></span><span class="path2"></span></i>
                                 <span>Setting Lembur</span>
+                            </a>
+                        </li>
+                        <li class="{{ $page == 'lembure-export-report-lembur' ? 'active' : '' }}">
+                            <a href="{{ route('lembure.export-report-lembur') }}">
+                                <i class="icon-Export"><span class="path1"></span><span class="path2"></span></i>
+                                <span>Export Report Lembur</span>
                             </a>
                         </li>
                     @endif
