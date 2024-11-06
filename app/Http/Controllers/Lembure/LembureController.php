@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use App\Models\Posisi;
 use App\Models\Lembure;
 use App\Models\Karyawan;
+use App\Models\Departemen;
 use App\Models\Organisasi;
 use Illuminate\Support\Str;
 use App\Models\DetailLembur;
@@ -16,7 +17,13 @@ use App\Models\SettingLembur;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\SettingLemburKaryawan;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use Illuminate\Support\Facades\Validator;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
 class LembureController extends Controller
 {
@@ -77,9 +84,11 @@ class LembureController extends Controller
 
     public function export_report_lembur_view()
     {
+        $departments = Departemen::all();
         $dataPage = [
             'pageTitle' => "Lembur-E - Export Report Lembur",
             'page' => 'lembure-export-report-lembur',
+            'departments' => $departments
         ];
         return view('pages.lembur-e.export-report-lembur', $dataPage);
     }
@@ -1734,33 +1743,26 @@ class LembureController extends Controller
     public function export_rekap_lembur_perbulan(Request $request){
         
         $organisasi_id = auth()->user()->organisasi_id;
-        $tahun = $request->tahun;
-        $bulan = Carbon::createFromFormat('m', $request->bulan)->format('F Y');
+        $year = date('Y');
+        $month = date('m');
 
         //CREATE EXCEL FILE
         $spreadsheet = new Spreadsheet();
 
         $fillStyle = [
-            'borders' => [
-                'allBorders' => [
-                    'borderStyle' => Border::BORDER_THIN,
-                    'color' => ['argb' => 'FF000000'],
-                ],
-            ],
             'alignment' => [
-                'horizontal' => Alignment::HORIZONTAL_LEFT,
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
                 'vertical' => Alignment::VERTICAL_CENTER,
             ],
             'font' => [
                 'bold' => true,
-                'color' => ['argb' => 'FFFFFFFF'],
                 'size' => 12,
             ],
         ];
         
-        $rekapLembur = DetailLembur::getReportMonthlyPerDepartemen($tahun, $bulan);
+        $rekapLembur = DetailLembur::getReportMonthlyPerDepartemen($month, $year);
         $sheet = $spreadsheet->getActiveSheet();
-        $sheet->setTitle('Rekap Lembur - '.Carbon::createFromFormat('m', $bulan)->format('F Y'));
+        $sheet->setTitle('REKAP LEMBUR');
         $row = 1;
         $col = 'A';
         $headers = [
@@ -1769,7 +1771,7 @@ class LembureController extends Controller
             'DEPARTMENT',
             'JABATAN',
             'PERIODE PERHITUNGAN',
-            'GAJI POKOK '.$tahun,
+            'GAJI POKOK '.$year,
             'UPAH LEMBUR PER JAM',
             'TOTAL JAM LEMBUR',
             'KONVERSI JAM LEMBUR',
@@ -1780,87 +1782,147 @@ class LembureController extends Controller
 
         foreach ($headers as $header) {
             $sheet->setCellValue($col . '1', $header);
+            $sheet->mergeCells($col . '1:' . $col . '2');
             $sheet->getStyle($col . '1')->applyFromArray($fillStyle);
             $col++;
         }
 
-        $row = 2;
+        $row = 3;
 
         $columns = range('A', 'N');
         foreach ($columns as $column) {
             $sheet->getColumnDimension($column)->setAutoSize(true);
         }
-        $sheet->setAutoFilter('A1:N1');
+        $sheet->setAutoFilter('A1:L1');
 
-        $monthlyCutie = $monthlyCutie->get();
-        $jumlah_cuti_khusus = 0;
-        $jumlah_cuti_pribadi = 0;
-        $tanggal_cuti = [];
-        foreach ($monthlyCutie as $index => $c) {
+        $no = 1;
+        $is_first = true;
+        $is_last = false;
+        $departemen_first_data_row = 0;
+        foreach ($rekapLembur as $index => $data) {
+            if($is_first){
+                $sheet->setCellValue('B'.$row, 'DEPARTEMEN '.$data->departemen);
+                $sheet->mergeCells('B'.$row.':E'.$row);
+                $sheet->getStyle('B'.$row.':E'.$row)->applyFromArray([
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => [
+                            'argb' => 'FFFFFF00',
+                        ],
+                    ],
+                    'alignment' => [
+                        'horizontal' => Alignment::HORIZONTAL_CENTER,
+                        'vertical' => Alignment::VERTICAL_CENTER,
+                    ],
+                    'font' => [
+                        'bold' => true,
+                        'size' => 12,
+                    ],
+                ]);
+                $departemen_first_data_row = $row+1;
+                $is_first = false;
+                $row++;
+            } 
 
-            if($c->jenis_cuti == 'KHUSUS'){
-                //MENDAPATKAN DURASI CUTI KHUSUS
-                $jumlah_cuti_khusus += $c->durasi_cuti;
-            } else {
-                //MENDAPATKAN DURASI CUTI PRIBADI
-                $jumlah_cuti_pribadi += $c->durasi_cuti;
-                if($c->durasi_cuti > 1){
-                    $range_date_cuti =  Carbon::parse($c->rencana_mulai_cuti)->toPeriod(Carbon::parse($c->rencana_selesai_cuti))->toArray();
-                    foreach ($range_date_cuti as $r) {
-                        $tanggal_cuti[] = $r->format('Y-m-d');
-                    }
-                } else {
-                    $tanggal_cuti[] = $c->rencana_mulai_cuti;
-                }
+            $sheet->setCellValue('A'.$row, $no);
+            $sheet->setCellValue('B'.$row, $data->nama);
+            $sheet->setCellValue('C'.$row, $data->departemen);
+            $sheet->setCellValue('D'.$row, $data->posisi);
+            $sheet->setCellValue('E'.$row, $data->periode_perhitungan);
+            $sheet->setCellValue('E'.$row, '1 ' . Carbon::createFromFormat('m', $month)->format('F Y') . ' - ' . Carbon::createFromFormat('Y-m', $year . '-' . $month)->endOfMonth()->format('d F Y'));
+            $sheet->setCellValue('F'.$row, $data->gaji);
+            $sheet->setCellValue('G'.$row, $data->jabatan_id >= 5 ? $data->upah_lembur_per_jam : '-');
+            $sheet->setCellValue('H'.$row, $data->total_jam_lembur);
+            $sheet->setCellValue('I'.$row, $data->konversi_jam_lembur);
+            $sheet->setCellValue('J'.$row, $data->jabatan_id >= 5 ? $data->gaji_lembur : '-');
+            $sheet->setCellValue('K'.$row, $data->jabatan_id >= 5 ? $data->uang_makan : '-');
+            $sheet->setCellValue('L'.$row, $data->total_gaji_lembur);
+
+            if($data->jabatan_id >= 5){
+                $sheet->getStyle('G'.$row)->getNumberFormat()->setFormatCode('#,##0');
+                $sheet->getStyle('J'.$row)->getNumberFormat()->setFormatCode('#,##0');
+                $sheet->getStyle('K'.$row)->getNumberFormat()->setFormatCode('#,##0');
             }
 
-            if(isset($monthlyCutie[$index+1])){
-                if($monthlyCutie[$index+1]->karyawan_id !== $c->karyawan_id){
-                    $sheet->setCellValue('A' . $row, $row - 1);
-                    $sheet->setCellValue('B' . $row, $c->karyawan->ni_karyawan);
-                    $sheet->setCellValue('C' . $row, $c->karyawan->nama);
-                    $sheet->setCellValue('D' . $row, $c->karyawan->posisi[0]?->departemen?->nama);
-                    $sheet->setCellValue('E' . $row, $c->karyawan->posisi[0]?->nama);
-                    $sheet->setCellValue('F' . $row, $jumlah_cuti_khusus.' Hari');
-                    $sheet->setCellValue('G' . $row, $jumlah_cuti_pribadi.' Hari');
-                    $sheet->setCellValue('H' . $row, isset($tanggal_cuti[0]) ? $tanggal_cuti[0] : '');
-                    $sheet->setCellValue('I' . $row, isset($tanggal_cuti[1]) ? $tanggal_cuti[1] : '');
-                    $sheet->setCellValue('J' . $row, isset($tanggal_cuti[2]) ? $tanggal_cuti[2] : '');
-                    $sheet->setCellValue('K' . $row, isset($tanggal_cuti[3]) ? $tanggal_cuti[3] : '');
-                    $sheet->setCellValue('L' . $row, isset($tanggal_cuti[4]) ? $tanggal_cuti[4] : '');
-                    $sheet->setCellValue('M' . $row, isset($tanggal_cuti[5]) ? $tanggal_cuti[5] : '');
-                    $sheet->setCellValue('N' . $row, $c->karyawan->sisa_cuti_pribadi.' Hari');
+            $sheet->getStyle('F'.$row)->getNumberFormat()->setFormatCode('#,##0');
+            $sheet->getStyle('L'.$row)->getNumberFormat()->setFormatCode('#,##0');
 
+            //ALIGN CENTER
+            $sheet->getStyle('A'.$row.':L'.$row)->applyFromArray([
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+
+            $no++;
+            $row++;
+
+            if(isset($rekapLembur[$index+1]) && $rekapLembur[$index+1]->departemen !== $data->departemen){
+                $is_first = true;
+                $is_last = true;
+            }
+
+            if(!isset($rekapLembur[$index+1])){
+                $is_last = true;
+            }
+
+            if($is_last){
+                $sheet->setCellValue('A'.$row, '###');
+                $sheet->setCellValue('B'.$row, 'TOTAL GAJI DEPT. '.$data->departemen);
+                $sheet->setCellValue('C'.$row, $data->departemen);
+                $sheet->setCellValue('D'.$row, '-');
+                $sheet->setCellValue('E'.$row, '-');
+                $sheet->setCellValue('F'.$row, '-');
+                $sheet->setCellValue('G'.$row, '-');
+                $sheet->getStyle('A'.$row.':N'.$row)->applyFromArray([
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => [
+                            'argb' => 'FFFFFF00',
+                        ],
+                    ],
+                    'alignment' => [
+                        'horizontal' => Alignment::HORIZONTAL_CENTER,
+                        'vertical' => Alignment::VERTICAL_CENTER,
+                    ],
+                    'font' => [
+                        'bold' => true,
+                        'size' => 12,
+                    ],
+                ]);
+                $sheet->setCellValue('H'.$row, '=SUM(H'.$departemen_first_data_row.':H'.($row-1).')');
+                $sheet->setCellValue('I'.$row, '=SUM(I'.$departemen_first_data_row.':I'.($row-1).')');
+                $sheet->setCellValue('J'.$row, '=SUM(J'.$departemen_first_data_row.':J'.($row-1).')');
+                $sheet->setCellValue('K'.$row, '=SUM(K'.$departemen_first_data_row.':K'.($row-1).')');
+                $sheet->setCellValue('L'.$row, '=SUM(L'.$departemen_first_data_row.':L'.($row-1).')');
+
+                $sheet->getStyle('J'.$row)->getNumberFormat()->setFormatCode('#,##0');
+                $sheet->getStyle('K'.$row)->getNumberFormat()->setFormatCode('#,##0');
+                $sheet->getStyle('L'.$row)->getNumberFormat()->setFormatCode('#,##0');
+                $is_last = false;
+
+                if(isset($rekapLembur[$index+1])){
+                    $no = 1;
                     $row++;
-
-                    $jumlah_cuti_khusus = 0;
-                    $jumlah_cuti_pribadi = 0;
-                    $tanggal_cuti = [];
-                } else { 
-                    continue;
                 }
-            } else {
-                $sheet->setCellValue('A' . $row, $row - 1);
-                $sheet->setCellValue('B' . $row, $c->karyawan->ni_karyawan);
-                $sheet->setCellValue('C' . $row, $c->karyawan->nama);
-                $sheet->setCellValue('D' . $row, $c->karyawan->posisi[0]?->departemen?->nama);
-                $sheet->setCellValue('E' . $row, $c->karyawan->posisi[0]?->nama);
-                $sheet->setCellValue('F' . $row, $jumlah_cuti_khusus.' Hari');
-                $sheet->setCellValue('G' . $row, $jumlah_cuti_pribadi.' Hari');
-                $sheet->setCellValue('H' . $row, isset($tanggal_cuti[0]) ? $tanggal_cuti[0] : '');
-                $sheet->setCellValue('I' . $row, isset($tanggal_cuti[1]) ? $tanggal_cuti[1] : '');
-                $sheet->setCellValue('J' . $row, isset($tanggal_cuti[2]) ? $tanggal_cuti[2] : '');
-                $sheet->setCellValue('K' . $row, isset($tanggal_cuti[3]) ? $tanggal_cuti[3] : '');
-                $sheet->setCellValue('L' . $row, isset($tanggal_cuti[4]) ? $tanggal_cuti[4] : '');
-                $sheet->setCellValue('M' . $row, isset($tanggal_cuti[5]) ? $tanggal_cuti[5] : '');
-                $sheet->setCellValue('N' . $row, $c->karyawan->sisa_cuti_pribadi.' Hari');
             }
         }
+
+        //STYLE ALL CELLS
+        $sheet->getStyle('A1:L'.$row)->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['argb' => 'FF000000'],
+                ],
+            ],
+        ]);
 
         $writer = new Xlsx($spreadsheet);
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename=data-cuti-export.xlsx');
+        header('Content-Disposition: attachment;filename="Rekapitulasi Pembayaran Lembur - '.Carbon::createFromFormat('m', $month)->format('F Y').'.xlsx"');
         header('Cache-Control: max-age=0');
 
         $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
