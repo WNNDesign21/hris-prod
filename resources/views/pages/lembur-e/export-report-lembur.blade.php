@@ -30,7 +30,7 @@
                                         <h4 class="box-title">Rekap Lembur</h4>
                                     </div>
                                 </div>
-                                <div class="box-body">
+                                <div class="box-body min-h-200">
                                     <form action="{{ route('lembure.export-report-lembur.rekap-lembur-perbulan') }}"
                                         method="POST" enctype="multipart/form-data" id="form-export-report-lembur">
                                         @csrf
@@ -62,9 +62,9 @@
                                         <h4 class="box-title">Slip Lembur</h4>
                                     </div>
                                 </div>
-                                <div class="box-body">
-                                    <form action="{{ route('lembure.export-report-lembur.rekap-lembur-perbulan') }}"
-                                        method="POST" enctype="multipart/form-data" id="form-export-report-lembur">
+                                <div class="box-body min-h-200">
+                                    <form action="{{ route('lembure.export-report-lembur.export-slip-lembur-perbulan') }}"
+                                        method="POST" enctype="multipart/form-data" id="form-export-slip-lembur">
                                         @csrf
                                         <div class="row">
                                             <div class="col-12">

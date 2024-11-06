@@ -57,6 +57,27 @@ class DetailLembur extends Model
         return $this->belongsTo(Karyawan::class, 'karyawan_id', 'id_karyawan');
     }
 
+    public static function getSlipLemburPerDepartemen($karyawan_id, $date)
+    {
+        $data = self::select('detail_lemburs.*')
+        ->leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
+        ->leftJoin('karyawans', 'karyawans.id_karyawan', 'detail_lemburs.karyawan_id')
+        ->leftJoin('departemens', 'departemens.id_departemen', 'detail_lemburs.departemen_id')
+        ->leftJoin('divisis', 'divisis.id_divisi', 'detail_lemburs.divisi_id')
+        ->leftJoin('karyawan_posisi', 'karyawan_posisi.karyawan_id', 'karyawans.id_karyawan')
+        ->leftJoin('posisis', 'posisis.id_posisi', 'karyawan_posisi.posisi_id')
+        ->leftJoin('setting_lembur_karyawans', 'setting_lembur_karyawans.karyawan_id', 'detail_lemburs.karyawan_id');
+
+        $data->where('detail_lemburs.organisasi_id', auth()->user()->organisasi_id)
+        ->whereNotNull('lemburs.actual_legalized_by')
+        ->where('lemburs.status', 'COMPLETED')
+        ->where('detail_lemburs.karyawan_id', $karyawan_id)
+        ->whereDate('detail_lemburs.aktual_mulai_lembur', $date)
+        ->orderBy('detail_lemburs.aktual_mulai_lembur');
+
+        return $data->first();
+    }
+
     public static function getReportMonthlyPerDepartemen($month, $year)
     {
         $data = self::selectRaw('

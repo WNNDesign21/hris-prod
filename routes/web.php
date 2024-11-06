@@ -274,6 +274,7 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
             // Export Report Lembur
             Route::get('/export-report-lembur', [LembureController::class, 'export_report_lembur_view'])->name('lembure.export-report-lembur');
             Route::post('/export-report-lembur/rekap-lembur-perbulan', [LembureController::class, 'export_rekap_lembur_perbulan'])->name('lembure.export-report-lembur.rekap-lembur-perbulan');
+            Route::post('/export-report-lembur/slip-lembur-perbulan', [LembureController::class, 'export_slip_lembur_perbulan'])->name('lembure.export-report-lembur.export-slip-lembur-perbulan');
         });
      });
 });

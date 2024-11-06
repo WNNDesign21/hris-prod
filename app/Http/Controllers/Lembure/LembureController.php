@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use App\Models\Posisi;
 use App\Models\Lembure;
 use App\Models\Karyawan;
+use Carbon\CarbonPeriod;
 use App\Models\Departemen;
 use App\Models\Organisasi;
 use Illuminate\Support\Str;
@@ -1743,8 +1744,9 @@ class LembureController extends Controller
     public function export_rekap_lembur_perbulan(Request $request){
         
         $organisasi_id = auth()->user()->organisasi_id;
-        $year = date('Y');
-        $month = date('m');
+        $periode = $request->periode_rekap;
+        $year = Carbon::parse($periode)->format('Y');
+        $month = Carbon::parse($periode)->format('m');
 
         //CREATE EXCEL FILE
         $spreadsheet = new Spreadsheet();
@@ -1799,112 +1801,114 @@ class LembureController extends Controller
         $is_first = true;
         $is_last = false;
         $departemen_first_data_row = 0;
-        foreach ($rekapLembur as $index => $data) {
-            if($is_first){
-                $sheet->setCellValue('B'.$row, 'DEPARTEMEN '.$data->departemen);
-                $sheet->mergeCells('B'.$row.':E'.$row);
-                $sheet->getStyle('B'.$row.':E'.$row)->applyFromArray([
-                    'fill' => [
-                        'fillType' => Fill::FILL_SOLID,
-                        'startColor' => [
-                            'argb' => 'FFFFFF00',
+        if($rekapLembur){
+            foreach ($rekapLembur as $index => $data) {
+                if($is_first){
+                    $sheet->setCellValue('B'.$row, 'DEPARTEMEN '.$data->departemen);
+                    $sheet->mergeCells('B'.$row.':E'.$row);
+                    $sheet->getStyle('B'.$row.':E'.$row)->applyFromArray([
+                        'fill' => [
+                            'fillType' => Fill::FILL_SOLID,
+                            'startColor' => [
+                                'argb' => 'FFFFFF00',
+                            ],
                         ],
-                    ],
-                    'alignment' => [
-                        'horizontal' => Alignment::HORIZONTAL_CENTER,
-                        'vertical' => Alignment::VERTICAL_CENTER,
-                    ],
-                    'font' => [
-                        'bold' => true,
-                        'size' => 12,
-                    ],
-                ]);
-                $departemen_first_data_row = $row+1;
-                $is_first = false;
-                $row++;
-            } 
-
-            $sheet->setCellValue('A'.$row, $no);
-            $sheet->setCellValue('B'.$row, $data->nama);
-            $sheet->setCellValue('C'.$row, $data->departemen);
-            $sheet->setCellValue('D'.$row, $data->posisi);
-            $sheet->setCellValue('E'.$row, $data->periode_perhitungan);
-            $sheet->setCellValue('E'.$row, '1 ' . Carbon::createFromFormat('m', $month)->format('F Y') . ' - ' . Carbon::createFromFormat('Y-m', $year . '-' . $month)->endOfMonth()->format('d F Y'));
-            $sheet->setCellValue('F'.$row, $data->gaji);
-            $sheet->setCellValue('G'.$row, $data->jabatan_id >= 5 ? $data->upah_lembur_per_jam : '-');
-            $sheet->setCellValue('H'.$row, $data->total_jam_lembur);
-            $sheet->setCellValue('I'.$row, $data->konversi_jam_lembur);
-            $sheet->setCellValue('J'.$row, $data->jabatan_id >= 5 ? $data->gaji_lembur : '-');
-            $sheet->setCellValue('K'.$row, $data->jabatan_id >= 5 ? $data->uang_makan : '-');
-            $sheet->setCellValue('L'.$row, $data->total_gaji_lembur);
-
-            if($data->jabatan_id >= 5){
-                $sheet->getStyle('G'.$row)->getNumberFormat()->setFormatCode('#,##0');
-                $sheet->getStyle('J'.$row)->getNumberFormat()->setFormatCode('#,##0');
-                $sheet->getStyle('K'.$row)->getNumberFormat()->setFormatCode('#,##0');
-            }
-
-            $sheet->getStyle('F'.$row)->getNumberFormat()->setFormatCode('#,##0');
-            $sheet->getStyle('L'.$row)->getNumberFormat()->setFormatCode('#,##0');
-
-            //ALIGN CENTER
-            $sheet->getStyle('A'.$row.':L'.$row)->applyFromArray([
-                'alignment' => [
-                    'horizontal' => Alignment::HORIZONTAL_CENTER,
-                    'vertical' => Alignment::VERTICAL_CENTER,
-                ],
-            ]);
-
-            $no++;
-            $row++;
-
-            if(isset($rekapLembur[$index+1]) && $rekapLembur[$index+1]->departemen !== $data->departemen){
-                $is_first = true;
-                $is_last = true;
-            }
-
-            if(!isset($rekapLembur[$index+1])){
-                $is_last = true;
-            }
-
-            if($is_last){
-                $sheet->setCellValue('A'.$row, '###');
-                $sheet->setCellValue('B'.$row, 'TOTAL GAJI DEPT. '.$data->departemen);
-                $sheet->setCellValue('C'.$row, $data->departemen);
-                $sheet->setCellValue('D'.$row, '-');
-                $sheet->setCellValue('E'.$row, '-');
-                $sheet->setCellValue('F'.$row, '-');
-                $sheet->setCellValue('G'.$row, '-');
-                $sheet->getStyle('A'.$row.':N'.$row)->applyFromArray([
-                    'fill' => [
-                        'fillType' => Fill::FILL_SOLID,
-                        'startColor' => [
-                            'argb' => 'FFFFFF00',
+                        'alignment' => [
+                            'horizontal' => Alignment::HORIZONTAL_CENTER,
+                            'vertical' => Alignment::VERTICAL_CENTER,
                         ],
-                    ],
-                    'alignment' => [
-                        'horizontal' => Alignment::HORIZONTAL_CENTER,
-                        'vertical' => Alignment::VERTICAL_CENTER,
-                    ],
-                    'font' => [
-                        'bold' => true,
-                        'size' => 12,
-                    ],
-                ]);
-                $sheet->setCellValue('H'.$row, '=SUM(H'.$departemen_first_data_row.':H'.($row-1).')');
-                $sheet->setCellValue('I'.$row, '=SUM(I'.$departemen_first_data_row.':I'.($row-1).')');
-                $sheet->setCellValue('J'.$row, '=SUM(J'.$departemen_first_data_row.':J'.($row-1).')');
-                $sheet->setCellValue('K'.$row, '=SUM(K'.$departemen_first_data_row.':K'.($row-1).')');
-                $sheet->setCellValue('L'.$row, '=SUM(L'.$departemen_first_data_row.':L'.($row-1).')');
-
-                $sheet->getStyle('J'.$row)->getNumberFormat()->setFormatCode('#,##0');
-                $sheet->getStyle('K'.$row)->getNumberFormat()->setFormatCode('#,##0');
-                $sheet->getStyle('L'.$row)->getNumberFormat()->setFormatCode('#,##0');
-                $is_last = false;
-
-                if(isset($rekapLembur[$index+1])){
-                    $no = 1;
+                        'font' => [
+                            'bold' => true,
+                            'size' => 12,
+                        ],
+                    ]);
+                    $departemen_first_data_row = $row+1;
+                    $is_first = false;
                     $row++;
+                } 
+    
+                $sheet->setCellValue('A'.$row, $no);
+                $sheet->setCellValue('B'.$row, $data->nama);
+                $sheet->setCellValue('C'.$row, $data->departemen);
+                $sheet->setCellValue('D'.$row, $data->posisi);
+                $sheet->setCellValue('E'.$row, $data->periode_perhitungan);
+                $sheet->setCellValue('E'.$row, '1 ' . Carbon::createFromFormat('m', $month)->format('F Y') . ' - ' . Carbon::createFromFormat('Y-m', $year . '-' . $month)->endOfMonth()->format('d F Y'));
+                $sheet->setCellValue('F'.$row, $data->gaji);
+                $sheet->setCellValue('G'.$row, $data->jabatan_id >= 5 ? $data->upah_lembur_per_jam : '-');
+                $sheet->setCellValue('H'.$row, $data->total_jam_lembur);
+                $sheet->setCellValue('I'.$row, $data->konversi_jam_lembur);
+                $sheet->setCellValue('J'.$row, $data->jabatan_id >= 5 ? $data->gaji_lembur : '-');
+                $sheet->setCellValue('K'.$row, $data->jabatan_id >= 5 ? $data->uang_makan : '-');
+                $sheet->setCellValue('L'.$row, $data->total_gaji_lembur);
+    
+                if($data->jabatan_id >= 5){
+                    $sheet->getStyle('G'.$row)->getNumberFormat()->setFormatCode('#,##0');
+                    $sheet->getStyle('J'.$row)->getNumberFormat()->setFormatCode('#,##0');
+                    $sheet->getStyle('K'.$row)->getNumberFormat()->setFormatCode('#,##0');
+                }
+    
+                $sheet->getStyle('F'.$row)->getNumberFormat()->setFormatCode('#,##0');
+                $sheet->getStyle('L'.$row)->getNumberFormat()->setFormatCode('#,##0');
+    
+                //ALIGN CENTER
+                $sheet->getStyle('A'.$row.':L'.$row)->applyFromArray([
+                    'alignment' => [
+                        'horizontal' => Alignment::HORIZONTAL_CENTER,
+                        'vertical' => Alignment::VERTICAL_CENTER,
+                    ],
+                ]);
+    
+                $no++;
+                $row++;
+    
+                if(isset($rekapLembur[$index+1]) && $rekapLembur[$index+1]->departemen !== $data->departemen){
+                    $is_first = true;
+                    $is_last = true;
+                }
+    
+                if(!isset($rekapLembur[$index+1])){
+                    $is_last = true;
+                }
+    
+                if($is_last){
+                    $sheet->setCellValue('A'.$row, '###');
+                    $sheet->setCellValue('B'.$row, 'TOTAL GAJI DEPT. '.$data->departemen);
+                    $sheet->setCellValue('C'.$row, $data->departemen);
+                    $sheet->setCellValue('D'.$row, '-');
+                    $sheet->setCellValue('E'.$row, '-');
+                    $sheet->setCellValue('F'.$row, '-');
+                    $sheet->setCellValue('G'.$row, '-');
+                    $sheet->getStyle('A'.$row.':N'.$row)->applyFromArray([
+                        'fill' => [
+                            'fillType' => Fill::FILL_SOLID,
+                            'startColor' => [
+                                'argb' => 'FFFFFF00',
+                            ],
+                        ],
+                        'alignment' => [
+                            'horizontal' => Alignment::HORIZONTAL_CENTER,
+                            'vertical' => Alignment::VERTICAL_CENTER,
+                        ],
+                        'font' => [
+                            'bold' => true,
+                            'size' => 12,
+                        ],
+                    ]);
+                    $sheet->setCellValue('H'.$row, '=SUM(H'.$departemen_first_data_row.':H'.($row-1).')');
+                    $sheet->setCellValue('I'.$row, '=SUM(I'.$departemen_first_data_row.':I'.($row-1).')');
+                    $sheet->setCellValue('J'.$row, '=SUM(J'.$departemen_first_data_row.':J'.($row-1).')');
+                    $sheet->setCellValue('K'.$row, '=SUM(K'.$departemen_first_data_row.':K'.($row-1).')');
+                    $sheet->setCellValue('L'.$row, '=SUM(L'.$departemen_first_data_row.':L'.($row-1).')');
+    
+                    $sheet->getStyle('J'.$row)->getNumberFormat()->setFormatCode('#,##0');
+                    $sheet->getStyle('K'.$row)->getNumberFormat()->setFormatCode('#,##0');
+                    $sheet->getStyle('L'.$row)->getNumberFormat()->setFormatCode('#,##0');
+                    $is_last = false;
+    
+                    if(isset($rekapLembur[$index+1])){
+                        $no = 1;
+                        $row++;
+                    }
                 }
             }
         }
@@ -1923,6 +1927,303 @@ class LembureController extends Controller
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
         header('Content-Disposition: attachment;filename="Rekapitulasi Pembayaran Lembur - '.Carbon::createFromFormat('m', $month)->format('F Y').'.xlsx"');
+        header('Cache-Control: max-age=0');
+
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $writer->save('php://output');
+        $spreadsheet->disconnectWorksheets();
+        unset($spreadsheet);
+        exit();
+    }
+
+    public function export_slip_lembur_perbulan(Request $request){
+        
+        $organisasi_id = auth()->user()->organisasi_id;
+        $periode = $request->periode_slip;
+        $departemen_id = $request->departemen_slip;
+        $departemen = Departemen::find($departemen_id)->nama;
+
+        //CREATE EXCEL FILE
+        $spreadsheet = new Spreadsheet();
+
+        $fillStyle = [
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['argb' => 'FF000000'],
+                ],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'font' => [
+                'bold' => true,
+                'size' => 12,
+            ],
+        ];
+        
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('SLIP LEMBUR');
+        $row = 1;
+        $headers = [
+            'NO',
+            'HARI',
+            'TANGGAL',
+            'JAM MASUK',
+            'JAM KELUAR',
+            'JAM ISTIRAHAT',
+            'JAM KELUAR SETELAH ISTIRAHAT',
+            'TOTAL JAM',
+            'KONVERSI JAM',
+            'UANG MAKAN',
+            'UPAH LEMBUR PERJAM',
+            'JUMLAH'
+        ];
+        $start = Carbon::createFromFormat('Y-m', $periode)->startOfMonth()->toDateString();
+        $end = Carbon::createFromFormat('Y-m', $periode)->endOfMonth()->toDateString();
+        $members = Karyawan::getDepartemenMember($departemen_id);
+
+        $columns = range('A', 'L');
+        foreach ($columns as $column) {
+            $sheet->getColumnDimension($column)->setAutoSize(true);
+        }
+   
+        foreach ($members as $kry){
+            $setting_lembur = SettingLemburKaryawan::where('karyawan_id', $kry->id_karyawan)->first();
+            $upah_lembur_per_jam = $setting_lembur ? 'Rp ' . number_format($setting_lembur->gaji / 173, 0, ',', '.') : 'Rp. 0';
+
+            // TEXT "SLIP LEMBUR BULAN INI"
+            $sheet->mergeCells('A'.$row.':F'.$row+1);
+            $sheet->setCellValue('A'.$row, 'SLIP LEMBUR BULAN '.Carbon::createFromFormat('Y-m', $periode)->format('F Y'));
+            $sheet->getStyle('A'.$row.':F'.$row+1)->applyFromArray([
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => [
+                        'argb' => 'FF808080',
+                    ],
+                ],
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+                'font' => [
+                    'bold' => true,
+                    'size' => 12,
+                ],
+            ]);
+
+            $row += 2;
+            $sheet->setCellValue('B'.$row, 'NAMA');
+            $sheet->setCellValue('C'.$row, ':');
+            $sheet->setCellValue('D'.$row, $kry->nama);
+            $sheet->setCellValue('B'.$row+1, 'NIK');
+            $sheet->setCellValue('C'.$row+1, ':');
+            $sheet->setCellValue('D'.$row+1, $kry->ni_karyawan);
+            $sheet->getStyle('B'.$row.':B'.$row+1)->applyFromArray([
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_LEFT,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+                'font' => [
+                    'bold' => true,
+                    'size' => 12,
+                ],
+            ]);
+
+            $sheet->getStyle('C'.$row.':C'.$row+1)->applyFromArray([
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+                'font' => [
+                    'bold' => true,
+                    'size' => 12,
+                ],
+            ]);
+
+            $sheet->getStyle('D'.$row.':D'.$row+1)->applyFromArray([
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_LEFT,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+                'font' => [
+                    'bold' => true,
+                    'size' => 12,
+                ],
+            ]);
+
+            $row += 2;
+            $col = 'A';
+            foreach ($headers as $header) {
+                $sheet->setCellValue($col . $row, $header);
+                $sheet->mergeCells($col . $row.':' . $col . ($row+1));
+                $sheet->getStyle($col . $row.':' . $col . ($row+1))->applyFromArray($fillStyle);
+                $col++;
+            }
+            
+            $row += 2;
+            //LOOPING AWAL SAMPAI AKHIR BULAN
+            for($i = 0; $i <= Carbon::parse($start)->diffInDays(Carbon::parse($end)); $i++){
+                $date = Carbon::parse($start)->addDays($i)->toDateString();
+                $slipLembur = DetailLembur::getSlipLemburPerDepartemen($kry->id_karyawan, $date);
+
+                if($slipLembur){
+                    $sheet->setCellValue('A'.$row, $i+1);
+                    $sheet->setCellValue('B'.$row, Carbon::parse($date)->locale('id')->translatedFormat('l'));
+
+                    //JIKA WEEKEND UBAH STYLE CELL
+                    if(Carbon::parse($date)->isWeekend()){
+                        $sheet->getStyle('B'.$row)->applyFromArray([
+                            'fill' => [
+                                'fillType' => Fill::FILL_SOLID,
+                                'startColor' => [
+                                    'argb' => 'FFFF0000',
+                                ],
+                            ],
+                            'font' => [
+                                'color' => [
+                                    'argb' => 'FFFFFFFF',
+                                ],
+                            ],
+                        ]);
+                    }
+
+                    $sheet->setCellValue('C'.$row, Carbon::parse($date)->format('d-m-Y'));
+                    $sheet->setCellValue('D'.$row, Carbon::parse($slipLembur->aktual_mulai_lembur)->format('H:i'));
+                    $sheet->setCellValue('E'.$row, Carbon::parse($slipLembur->aktual_selesai_lembur)->format('H:i'));
+                    $sheet->setCellValue('F'.$row, '0,45');
+                    $sheet->setCellValue('G'.$row, Carbon::parse($slipLembur->aktual_selesai_lembur)->subMinutes(45)->format('H:i'));
+                    $sheet->setCellValue('H'.$row, number_format($slipLembur->durasi / 60, 2));
+                    $sheet->setCellValue('I'.$row, '-');
+                    $sheet->setCellValue('J'.$row, 0);
+                    $sheet->setCellValue('K'.$row, $upah_lembur_per_jam);
+                    $sheet->setCellValue('L'.$row, 'Rp '. number_format($slipLembur->nominal, 0, ',', '.'));
+
+                    //STYLE CELL
+                $sheet->getStyle('C'.$row)->applyFromArray([
+                    'alignment' => [
+                        'horizontal' => Alignment::HORIZONTAL_CENTER,
+                        'vertical' => Alignment::VERTICAL_CENTER,
+                    ],
+                ]);
+                $sheet->getStyle('J'.$row.':K'.$row)->applyFromArray([
+                    'font' => [
+                        'color' => [
+                            'argb' => 'FFFF0000',
+                        ],
+                    ],
+                ]);
+                $sheet->getStyle('A'.$row.':L'.$row)->applyFromArray([
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => Border::BORDER_THIN,
+                            'color' => ['argb' => 'FF000000'],
+                        ],
+                    ],
+                ]);
+
+                } else {
+                    $sheet->setCellValue('A'.$row, $i+1);
+                    $sheet->setCellValue('B'.$row, Carbon::parse($date)->locale('id')->translatedFormat('l'));
+
+                    //JIKA WEEKEND UBAH STYLE CELL
+                    if(Carbon::parse($date)->isWeekend()){
+                        $sheet->getStyle('B'.$row)->applyFromArray([
+                            'fill' => [
+                                'fillType' => Fill::FILL_SOLID,
+                                'startColor' => [
+                                    'argb' => 'FFFF0000',
+                                ],
+                            ],
+                            'font' => [
+                                'color' => [
+                                    'argb' => 'FFFFFFFF',
+                                ],
+                            ],
+                        ]);
+                    }
+
+                    $sheet->setCellValue('C'.$row, Carbon::parse($date)->format('d-m-Y'));
+                    $sheet->setCellValue('D'.$row, '');
+                    $sheet->setCellValue('E'.$row, '');
+                    $sheet->setCellValue('F'.$row, '0,45');
+                    $sheet->setCellValue('G'.$row, '');
+                    $sheet->setCellValue('H'.$row, '-');
+                    $sheet->setCellValue('I'.$row, '-');
+                    $sheet->setCellValue('J'.$row, 0);
+                    $sheet->setCellValue('K'.$row, $upah_lembur_per_jam);
+                    $sheet->setCellValue('L'.$row, 'Rp');
+                }
+
+                //STYLE CELL
+                $sheet->getStyle('C'.$row)->applyFromArray([
+                    'alignment' => [
+                        'horizontal' => Alignment::HORIZONTAL_CENTER,
+                        'vertical' => Alignment::VERTICAL_CENTER,
+                    ],
+                ]);
+                $sheet->getStyle('J'.$row.':K'.$row)->applyFromArray([
+                    'font' => [
+                        'color' => [
+                            'argb' => 'FFFF0000',
+                        ],
+                    ],
+                ]);
+                $sheet->getStyle('A'.$row.':L'.$row)->applyFromArray([
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => Border::BORDER_THIN,
+                            'color' => ['argb' => 'FF000000'],
+                        ],
+                    ],
+                ]);
+
+                $row++;
+            }
+            $sheet->setCellValue('H'.$row, 'TOTAL');    
+            $sheet->setCellValue('I'.$row, 'TOTAL');    
+            $sheet->setCellValue('J'.$row, 'Rp ');    
+            $sheet->setCellValue('K'.$row, 'Rp ');    
+            $sheet->setCellValue('L'.$row, 'Rp ');
+            $sheet->setCellValue('K'.$row+1, 'SESUAI SPL');
+            $sheet->setCellValue('L'.$row+1, 'Rp ');
+            $sheet->getStyle('H'.$row.':L'.$row)->applyFromArray([
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_THIN,
+                        'color' => ['argb' => 'FF000000'],
+                    ],
+                ],
+                'font' => [
+                    'bold' => true,
+                    'size' => 12,
+                ]
+            ]);
+            $sheet->getStyle('K'.($row+1).':L'.($row+1))->applyFromArray([
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_THIN,
+                        'color' => ['argb' => 'FF000000'],
+                    ],
+                ],
+                'font' => [
+                    'bold' => true,
+                    'size' => 12,
+                ],
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_LEFT,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+            
+            $row += 6;
+        }
+
+        $writer = new Xlsx($spreadsheet);
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="Slip Pembayaran Lembur - '.$departemen.' - '.Carbon::createFromFormat('Y-m', $periode)->format('F Y').'.xlsx"');
         header('Cache-Control: max-age=0');
 
         $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');

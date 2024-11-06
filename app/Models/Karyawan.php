@@ -324,4 +324,13 @@ class Karyawan extends Model
     {
         return self::_query($dataFilter)->get()->count();
     }
+
+    public static function getDepartemenMember($departemen_id)
+    {
+        return self::select('karyawans.id_karyawan', 'karyawans.nama', 'karyawans.ni_karyawan')
+            ->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
+            ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+            ->where('posisis.departemen_id', $departemen_id)
+            ->get();
+    }
 }
