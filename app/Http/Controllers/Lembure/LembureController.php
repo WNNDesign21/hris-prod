@@ -623,17 +623,19 @@ class LembureController extends Controller
                 ]);
             }
 
-
-            //belum selesai
             $total_durasi = 0;
             $total_nominal = 0;
             $data_detail_lembur = [];
             foreach ($karyawan_ids as $key => $karyawan_id) {
                 $karyawan = Karyawan::find($karyawan_id);
                 $gaji_lembur = $karyawan->settingLembur->gaji;
-                $datetime_rencana_mulai_lembur = Carbon::createFromFormat('Y-m-d\TH:i', $rencana_mulai_lemburs[$key])->toDateTimeString();
-                $datetime_rencana_selesai_lembur = Carbon::createFromFormat('Y-m-d\TH:i', $rencana_selesai_lemburs[$key])->toDateTimeString();
+                $pembagi_upah_lembur = SettingLembur::where('setting_name', 'pembagi_upah_lembur_harian')->where('organisasi_id', $karyawan->user->organisasi_id)->first()->value;
+                $datetime_rencana_mulai_lembur = $this->pembulatan_menit_ke_bawah($rencana_mulai_lemburs[$key]);
+                $datetime_rencana_selesai_lembur = $this->pembulatan_menit_ke_bawah($rencana_selesai_lemburs[$key]);
+                $durasi_istirahat = $this->overtime_resttime_per_minutes($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur, $karyawan->user->organisasi_id);
                 $durasi = $this->calculate_overtime_per_minutes($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur, $karyawan->user->organisasi_id);
+                $durasi_konversi_lembur = $this->calculate_durasi_konversi_lembur($jenis_hari, $durasi, $karyawan_id);
+                $uang_makan = $this->calculate_overtime_uang_makan($jenis_hari, $durasi, $karyawan_id);
 
                 if($durasi < 60){
                     DB::rollback();
@@ -654,7 +656,11 @@ class LembureController extends Controller
                     'rencana_mulai_lembur' => $datetime_rencana_mulai_lembur,
                     'rencana_selesai_lembur' => $datetime_rencana_selesai_lembur,
                     'deskripsi_pekerjaan' => $job_descriptions[$key],
+                    'durasi_istirahat' => $durasi_istirahat,
+                    'durasi_konversi_lembur' => $durasi_konversi_lembur,
                     'gaji_lembur' => $gaji_lembur,
+                    'pembagi_upah_lembur' => $pembagi_upah_lembur,
+                    'uang_makan' => $uang_makan,
                     'durasi' => $durasi,
                     'nominal' => $nominal
                 ];
@@ -753,18 +759,113 @@ class LembureController extends Controller
 
     public function overtime_resttime_per_minutes($datetime_start, $datetime_end, $organisasi_id)
     {
+        $start = Carbon::parse($datetime_start);
+        $end = Carbon::parse($datetime_end);
+        $duration = $start->diffInMinutes($end);
+        $rest_time = 0;
 
+        $setting_lembur = SettingLembur::where('organisasi_id', $organisasi_id)->get();
+        $jam_istirahat_mulai_1 = $setting_lembur->where('setting_name', 'jam_istirahat_mulai_1')->first()->value;
+        $jam_istirahat_selesai_1 = $setting_lembur->where('setting_name', 'jam_istirahat_selesai_1')->first()->value;
+        $jam_istirahat_mulai_2 = $setting_lembur->where('setting_name', 'jam_istirahat_mulai_2')->first()->value;
+        $jam_istirahat_selesai_2 = $setting_lembur->where('setting_name', 'jam_istirahat_selesai_2')->first()->value;
+        $jam_istirahat_mulai_3 = $setting_lembur->where('setting_name', 'jam_istirahat_mulai_3')->first()->value;
+        $jam_istirahat_selesai_3 = $setting_lembur->where('setting_name', 'jam_istirahat_selesai_3')->first()->value;
+        $jam_istirahat_mulai_jumat = $setting_lembur->where('setting_name', 'jam_istirahat_mulai_jumat')->first()->value;
+        $jam_istirahat_selesai_jumat = $setting_lembur->where('setting_name', 'jam_istirahat_selesai_jumat')->first()->value;
+        $durasi_istirahat_1 = $setting_lembur->where('setting_name', 'durasi_istirahat_1')->first()->value;
+        $durasi_istirahat_2 = $setting_lembur->where('setting_name', 'durasi_istirahat_2')->first()->value;
+        $durasi_istirahat_3 = $setting_lembur->where('setting_name', 'durasi_istirahat_3')->first()->value;
+        $durasi_istirahat_jumat = $setting_lembur->where('setting_name', 'durasi_istirahat_jumat')->first()->value;
+
+        // Setting Istirahat ketika lembur (Hari jumat memiliki perbedaan)
+        if ($start->isFriday()) {
+            $breaks = [
+                ['start' => $jam_istirahat_mulai_jumat, 'end' => $jam_istirahat_selesai_jumat, 'duration' => $durasi_istirahat_jumat],
+                ['start' => $jam_istirahat_mulai_2, 'end' => $jam_istirahat_selesai_2, 'duration' => $durasi_istirahat_2],
+                ['start' => $jam_istirahat_mulai_3, 'end' => $jam_istirahat_selesai_3, 'duration' => $durasi_istirahat_3],
+            ];
+        } else {
+            $breaks = [
+                ['start' => $jam_istirahat_mulai_1, 'end' => $jam_istirahat_selesai_1, 'duration' => $durasi_istirahat_1],
+                ['start' => $jam_istirahat_mulai_2, 'end' => $jam_istirahat_selesai_2, 'duration' => $durasi_istirahat_2],
+                ['start' => $jam_istirahat_mulai_3, 'end' => $jam_istirahat_selesai_3, 'duration' => $durasi_istirahat_3],
+            ];
+        }
+
+        foreach ($breaks as $break) {
+            $breakStart = Carbon::parse($start->format('Y-m-d') . ' ' . $break['start']);
+            $breakEnd = Carbon::parse($start->format('Y-m-d') . ' ' . $break['end']);
+
+            if ($start->lessThan($breakEnd) && $end->greaterThan($breakStart)) {
+                $rest_time += $break['duration'];
+            }
+        }
+
+        return $rest_time;
+    }
+
+    public function calculate_overtime_uang_makan($jenis_hari, $durasi, $karyawan_id)
+    {
+        $setting_lembur_karyawan = SettingLemburKaryawan::where('karyawan_id', $karyawan_id)->first();
+        $karyawan = Karyawan::find($karyawan_id); 
+        $organisasi_id = $karyawan->user->organisasi_id;
+        $jabatan_id = $karyawan->posisi[0]->jabatan_id;
+        $convert_duration = number_format($durasi / 60, 2);
+        $uang_makan = SettingLembur::where('organisasi_id', $organisasi_id)->where('setting_name', 'uang_makan')->first()->value;
+
+        if($jenis_hari == 'WD'){
+            if($jabatan_id >= 5){
+                if($convert_duration >= 4){
+                    return $uang_makan;
+                } else {
+                    return 0;
+                }
+            } else {
+                return 0;
+            }
+        } else {
+            if($jabatan_id >= 5){
+                if($convert_duration >= 7){
+                    return $uang_makan;
+                } else {
+                    return 0;
+                }
+            } else {
+                return 0;
+            }
+        }
     }
 
     //FUNGSI MENGHITUNG NOMINAL LEMBUR
+    public function calculate_durasi_konversi_lembur($jenis_hari, $durasi, $karyawan_id)
+    {
+        $karyawan = Karyawan::find($karyawan_id); 
+        $organisasi_id = $karyawan->user->organisasi_id;
+        $convert_duration = number_format($durasi / 60, 2);
+        $jabatan_id = $karyawan->posisi[0]->jabatan_id;
+
+        if($jenis_hari == 'WD'){
+            $jam_pertama = $convert_duration < 2 ? ($convert_duration * 1.5) : (1 * 1.5); 
+            $jam_kedua = $convert_duration >= 2 ? ($convert_duration - 1) * 2 : 0;
+            $durasi_konversi_lembur = $jam_pertama + $jam_kedua;
+        } else {
+            $delapan_jam_pertama = $convert_duration < 9 ? ($convert_duration * 2) : (8 * 2);
+            $jam_ke_sembilan = $convert_duration >= 9 && $convert_duration < 10 ? (($convert_duration - 8) * 3) : ($convert_duration >= 10 ? 1 * 3 : 0);
+            $jam_ke_sepuluh = $convert_duration >= 10 ? ($convert_duration - 9) * 4 : 0;
+            $durasi_konversi_lembur = $delapan_jam_pertama + $jam_ke_sembilan + $jam_ke_sepuluh;
+        }
+        return $durasi_konversi_lembur * 60;
+    }
+
     public function calculate_overtime_nominal($jenis_hari, $durasi, $karyawan_id)
     {
         $setting_lembur_karyawan = SettingLemburKaryawan::where('karyawan_id', $karyawan_id)->first();
         $karyawan = Karyawan::find($karyawan_id); 
         $organisasi_id = $karyawan->user->organisasi_id;
         $convert_duration = number_format($durasi / 60, 2);
-        $gaji_lembur_karyawan = $setting_lembur_karyawan->gaji;
         $jabatan_id = $karyawan->posisi[0]->jabatan_id;
+        $gaji_lembur_karyawan = $setting_lembur_karyawan->gaji;
 
         $setting_lembur = SettingLembur::where('organisasi_id', $organisasi_id)->get();
         $upah_sejam = $gaji_lembur_karyawan / $setting_lembur->where('setting_name', 'pembagi_upah_lembur_harian')->first()->value;
@@ -853,6 +954,15 @@ class LembureController extends Controller
 
     }
 
+    public function pembulatan_menit_ke_bawah($datetime)
+    {
+        $datetime = Carbon::createFromFormat('Y-m-d\TH:i', $datetime);
+        $minute = $datetime->minute;
+        $minute = $minute - ($minute % 15);
+        $datetime->minute($minute)->second(0);
+        return $datetime->toDateTimeString();
+    }
+
     /**
      * Display the specified resource.
      */
@@ -936,9 +1046,14 @@ class LembureController extends Controller
                 $data_detail_lembur_new = [];
                 foreach ($karyawan_ids_new as $key => $karyawan_id_new) {
                     $karyawan_new = Karyawan::find($karyawan_id_new);
-                    $datetime_rencana_mulai_lembur_new = Carbon::createFromFormat('Y-m-d\TH:i', $rencana_mulai_lemburs_new[$key])->toDateTimeString();
-                    $datetime_rencana_selesai_lembur_new = Carbon::createFromFormat('Y-m-d\TH:i', $rencana_selesai_lemburs_new[$key])->toDateTimeString();
+                    $gaji_lembur_new = $karyawan_new->settingLembur->gaji;
+                    $pembagi_upah_lembur_new = SettingLembur::where('setting_name', 'pembagi_upah_lembur_harian')->where('organisasi_id', $karyawan_new->user->organisasi_id)->first()->value;
+                    $datetime_rencana_mulai_lembur_new = $this->pembulatan_menit_ke_bawah($rencana_mulai_lemburs_new[$key]);
+                    $datetime_rencana_selesai_lembur_new = $this->pembulatan_menit_ke_bawah($rencana_selesai_lemburs_new[$key]);
+                    $durasi_istirahat_new = $this->overtime_resttime_per_minutes($datetime_rencana_mulai_lembur_new, $datetime_rencana_selesai_lembur_new, $karyawan_new->user->organisasi_id);
                     $durasi_new = $this->calculate_overtime_per_minutes($datetime_rencana_mulai_lembur_new, $datetime_rencana_selesai_lembur_new, $karyawan_new->user->organisasi_id);
+                    $durasi_konversi_lembur_new = $this->calculate_durasi_konversi_lembur($jenis_hari, $durasi_new, $karyawan_id_new);
+                    $uang_makan_new = $this->calculate_overtime_uang_makan($jenis_hari, $durasi_new, $karyawan_id_new);
     
                     if($durasi_new < 60){
                         DB::rollback();
@@ -954,10 +1069,16 @@ class LembureController extends Controller
                     $data_detail_lembur_new[] = [
                         'karyawan_id' => $karyawan_id_new,
                         'organisasi_id' => $karyawan_new->user->organisasi_id,
-                        'departemen_id' => $karyawan_new->posisi[0]->departemen_id,
+                        'departemen_id' => $karyawan_new->posisi[0]?->departemen_id,
+                        'divisi_id' => $karyawan_new->posisi[0]?->divisi_id,
                         'rencana_mulai_lembur' => $datetime_rencana_mulai_lembur_new,
                         'rencana_selesai_lembur' => $datetime_rencana_selesai_lembur_new,
                         'deskripsi_pekerjaan' => $job_descriptions_new[$key],
+                        'durasi_istirahat' => $durasi_istirahat_new,
+                        'durasi_konversi_lembur' => $durasi_konversi_lembur_new,
+                        'gaji_lembur' => $gaji_lembur_new,
+                        'pembagi_upah_lembur' => $pembagi_upah_lembur_new,
+                        'uang_makan' => $uang_makan_new,
                         'durasi' => $durasi_new,
                         'nominal' => $nominal_new
                     ];
@@ -970,9 +1091,14 @@ class LembureController extends Controller
 
             foreach ($karyawan_ids as $key => $id_kry){
                 $karyawan = Karyawan::find($id_kry);
-                $datetime_rencana_mulai_lembur = Carbon::createFromFormat('Y-m-d\TH:i', $rencana_mulai_lemburs[$key])->toDateTimeString();
-                $datetime_rencana_selesai_lembur = Carbon::createFromFormat('Y-m-d\TH:i', $rencana_selesai_lemburs[$key])->toDateTimeString();
+                $gaji_lembur = $karyawan->settingLembur->gaji;
+                $pembagi_upah_lembur = SettingLembur::where('setting_name', 'pembagi_upah_lembur_harian')->where('organisasi_id', $karyawan->user->organisasi_id)->first()->value;
+                $datetime_rencana_mulai_lembur = $this->pembulatan_menit_ke_bawah($rencana_mulai_lemburs[$key]);
+                $datetime_rencana_selesai_lembur = $this->pembulatan_menit_ke_bawah($rencana_selesai_lemburs[$key]);
+                $durasi_istirahat = $this->overtime_resttime_per_minutes($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur, $karyawan->user->organisasi_id);
                 $durasi = $this->calculate_overtime_per_minutes($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur, $karyawan->user->organisasi_id);
+                $durasi_konversi_lembur = $this->calculate_durasi_konversi_lembur($jenis_hari, $durasi, $id_kry);
+                $uang_makan = $this->calculate_overtime_uang_makan($jenis_hari, $durasi, $id_kry);
 
                 if($durasi < 60){
                     DB::rollback();
@@ -989,10 +1115,16 @@ class LembureController extends Controller
                 $detailLembur->update([
                     'karyawan_id' => $id_kry,
                     'organisasi_id' => $karyawan->user->organisasi_id,
-                    'departemen_id' => $karyawan->posisi[0]->departemen_id,
+                    'departemen_id' => $karyawan->posisi[0]?->departemen_id,
+                    'divisi_id' => $karyawan->posisi[0]?->divisi_id,
                     'rencana_mulai_lembur' => $datetime_rencana_mulai_lembur,
                     'rencana_selesai_lembur' => $datetime_rencana_selesai_lembur,
                     'deskripsi_pekerjaan' => $job_descriptions[$key],
+                    'durasi_istirahat' => $durasi_istirahat,
+                    'durasi_konversi_lembur' => $durasi_konversi_lembur,
+                    'gaji_lembur' => $gaji_lembur,
+                    'pembagi_upah_lembur' => $pembagi_upah_lembur,
+                    'uang_makan' => $uang_makan,
                     'durasi' => $durasi,
                     'nominal' => $nominal
                 ]);
@@ -1654,18 +1786,29 @@ class LembureController extends Controller
                     $detail->is_aktual_approved = 'N';
                 } else {
                     if($detail && $detail->is_aktual_approved == 'Y'){
-                        $datetime_aktual_mulai_lembur = Carbon::createFromFormat('Y-m-d\TH:i', $aktual_mulai_lemburs[$key])->toDateTimeString();
-                        $datetime_aktual_selesai_lembur = Carbon::createFromFormat('Y-m-d\TH:i', $aktual_selesai_lemburs[$key])->toDateTimeString();
+                        $karyawan = $detail->karyawan;
+                        $gaji_lembur = $karyawan->settingLembur->gaji;
+                        $pembagi_upah_lembur = SettingLembur::where('setting_name', 'pembagi_upah_lembur_harian')->where('organisasi_id', $detail->organisasi_id)->first()->value;
+                        $datetime_aktual_mulai_lembur = $this->pembulatan_menit_ke_bawah($aktual_mulai_lemburs[$key]);
+                        $datetime_aktual_selesai_lembur = $this->pembulatan_menit_ke_bawah($aktual_selesai_lemburs[$key]);
+                        $durasi_istirahat = $this->overtime_resttime_per_minutes($datetime_aktual_mulai_lembur, $datetime_aktual_selesai_lembur, $detail->organisasi_id);
                         $durasi = $this->calculate_overtime_per_minutes($datetime_aktual_mulai_lembur, $datetime_aktual_selesai_lembur, $detail->organisasi_id);
+                        $durasi_konversi_lembur = $this->calculate_durasi_konversi_lembur($detail->lembur->jenis_hari, $durasi, $detail->karyawan_id);
+                        $uang_makan = $this->calculate_overtime_uang_makan($detail->lembur->jenis_hari, $durasi, $detail->karyawan_id);
         
                         if($durasi < 60){
                             DB::rollback();
                             return response()->json(['message' => 'Durasi lembur '.$detail->karyawan->nama.' kurang dari 1 jam, tidak perlu dimasukkan ke SPL'], 402);
                         }
     
-                        $nominal = $this->calculate_overtime_nominal($detail->jenis_hari, $durasi, $detail->karyawan_id);
+                        $nominal = $this->calculate_overtime_nominal($detail->lembur->jenis_hari, $durasi, $detail->karyawan_id);
                         $detail->aktual_mulai_lembur = $datetime_aktual_mulai_lembur;
                         $detail->aktual_selesai_lembur = $datetime_aktual_selesai_lembur;
+                        $detail->durasi_istirahat = $durasi_istirahat;
+                        $detail->durasi_konversi_lembur = $durasi_konversi_lembur;
+                        $detail->uang_makan = $uang_makan;
+                        $detail->gaji_lembur = $gaji_lembur;
+                        $detail->pembagi_upah_lembur = $pembagi_upah_lembur;
                         $detail->durasi = $durasi;
                         $detail->nominal = $nominal;
                         
@@ -1676,31 +1819,6 @@ class LembureController extends Controller
                 $detail->keterangan = isset($keterangan[$key]) ? $keterangan[$key] : null;
                 $detail->save();
             }
-
-            
-            // foreach ($is_aktual_approved as $key => $id_detail_lembur){
-            //     dd($is_aktual_approved);
-            //     $detail = DetailLembur::find($id_detail_lembur);
-            //     if($detail && $detail->is_aktual_approved == 'Y'){
-            //         $datetime_aktual_mulai_lembur = Carbon::createFromFormat('Y-m-d\TH:i', $aktual_mulai_lemburs[$key])->toDateTimeString();
-            //         $datetime_aktual_selesai_lembur = Carbon::createFromFormat('Y-m-d\TH:i', $aktual_selesai_lemburs[$key])->toDateTimeString();
-            //         $durasi = $this->calculate_overtime_per_minutes($datetime_aktual_mulai_lembur, $datetime_aktual_selesai_lembur);
-            //         dd($durasi);
-    
-            //         if($durasi < 60){
-            //             DB::rollback();
-            //             return response()->json(['message' => 'Durasi lembur '.$detail->karyawan->nama.' kurang dari 1 jam, tidak perlu dimasukkan ke SPL'], 402);
-            //         }
-
-            //         $nominal = $this->calculate_overtime_nominal($detail->jenis_hari, $durasi, $detail->karyawan_id);
-            //         $detail->durasi = $durasi;
-            //         $detail->nominal = $nominal;
-                    
-            //         // Hitung durasi dan nominal Aktual
-            //         $total_durasi_aktual += $durasi;
-            //     }
-            //     $detail->save();
-            // }
 
             $lembur->update([
                 'total_durasi' => $total_durasi_aktual,
