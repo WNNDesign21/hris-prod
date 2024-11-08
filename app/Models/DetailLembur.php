@@ -27,6 +27,10 @@ class DetailLembur extends Model
         'aktual_selesai_lembur', 
         'is_aktual_approved', 
         'durasi', 
+        'durasi_istirahat',
+        'durasi_konversi_lembur',
+        'gaji_lembur',
+        'uang_makan',
         'deskripsi_pekerjaan', 
         'keterangan', 
         'nominal'

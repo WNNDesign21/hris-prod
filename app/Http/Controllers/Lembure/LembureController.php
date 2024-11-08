@@ -630,6 +630,7 @@ class LembureController extends Controller
             $data_detail_lembur = [];
             foreach ($karyawan_ids as $key => $karyawan_id) {
                 $karyawan = Karyawan::find($karyawan_id);
+                $gaji_lembur = $karyawan->settingLembur->gaji;
                 $datetime_rencana_mulai_lembur = Carbon::createFromFormat('Y-m-d\TH:i', $rencana_mulai_lemburs[$key])->toDateTimeString();
                 $datetime_rencana_selesai_lembur = Carbon::createFromFormat('Y-m-d\TH:i', $rencana_selesai_lemburs[$key])->toDateTimeString();
                 $durasi = $this->calculate_overtime_per_minutes($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur, $karyawan->user->organisasi_id);
@@ -653,6 +654,7 @@ class LembureController extends Controller
                     'rencana_mulai_lembur' => $datetime_rencana_mulai_lembur,
                     'rencana_selesai_lembur' => $datetime_rencana_selesai_lembur,
                     'deskripsi_pekerjaan' => $job_descriptions[$key],
+                    'gaji_lembur' => $gaji_lembur,
                     'durasi' => $durasi,
                     'nominal' => $nominal
                 ];
@@ -749,11 +751,16 @@ class LembureController extends Controller
         return $duration;
     }
 
+    public function overtime_resttime_per_minutes($datetime_start, $datetime_end, $organisasi_id)
+    {
+
+    }
+
     //FUNGSI MENGHITUNG NOMINAL LEMBUR
     public function calculate_overtime_nominal($jenis_hari, $durasi, $karyawan_id)
     {
         $setting_lembur_karyawan = SettingLemburKaryawan::where('karyawan_id', $karyawan_id)->first();
-        $karyawan = Karyawan::find($karyawan_id);
+        $karyawan = Karyawan::find($karyawan_id); 
         $organisasi_id = $karyawan->user->organisasi_id;
         $convert_duration = number_format($durasi / 60, 2);
         $gaji_lembur_karyawan = $setting_lembur_karyawan->gaji;
