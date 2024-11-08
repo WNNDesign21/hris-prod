@@ -31,6 +31,7 @@ class DetailLembur extends Model
         'durasi_konversi_lembur',
         'gaji_lembur',
         'uang_makan',
+        'pembagi_upah_lembur',
         'deskripsi_pekerjaan', 
         'keterangan', 
         'nominal'
