@@ -2115,9 +2115,11 @@ class LembureController extends Controller
         }
    
         foreach ($members as $kry){
-            $setting_lembur = SettingLemburKaryawan::where('karyawan_id', $kry->id_karyawan)->first();
-            $upah_lembur_per_jam = $setting_lembur ? 'Rp ' . number_format($setting_lembur->gaji / 173, 0, ',', '.') : 'Rp. 0';
-
+            $lembur_karyawan = DetailLembur::leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')->where('detail_lemburs.karyawan_id', $kry->id_karyawan)->whereBetween('detail_lemburs.aktual_mulai_lembur', [$start, $end])->whereNotNull('lemburs.actual_legalized_by')
+            ->where('lemburs.status', 'COMPLETED')->first();
+            $setting_lembur_karyawan = SettingLemburKaryawan::where('karyawan_id', $kry->id_karyawan)->first();
+            $pembagi_upah_lembur_harian = SettingLembur::where('organisasi_id', auth()->user()->organisasi_id)->where('setting_name', 'pembagi_upah_lembur_harian')->first()->value;
+            $upah_lembur_per_jam_setting = $lembur_karyawan ? $lembur_karyawan->gaji_lembur / $lembur_karyawan->pembagi_upah_lembur : ($setting_lembur_karyawan ? $setting_lembur_karyawan->gaji / $pembagi_upah_lembur_harian : 0);
             // TEXT "SLIP LEMBUR BULAN INI"
             $sheet->mergeCells('A'.$row.':F'.$row+1);
             $sheet->setCellValue('A'.$row, 'SLIP LEMBUR BULAN '.Carbon::createFromFormat('Y-m', $periode)->format('F Y'));
@@ -2189,11 +2191,20 @@ class LembureController extends Controller
             
             $row += 2;
             //LOOPING AWAL SAMPAI AKHIR BULAN
+            $total_jam = 0;
+            $total_konversi_jam = 0;
+            $total_uang_makan = 0;
+            $total_spl = 0;
             for($i = 0; $i <= Carbon::parse($start)->diffInDays(Carbon::parse($end)); $i++){
                 $date = Carbon::parse($start)->addDays($i)->toDateString();
                 $slipLembur = DetailLembur::getSlipLemburPerDepartemen($kry->id_karyawan, $date);
+                $upah_lembur_per_jam = $slipLembur ? $slipLembur->gaji_lembur / $slipLembur->pembagi_upah_lembur : $upah_lembur_per_jam_setting;
 
                 if($slipLembur){
+                    $total_jam += $slipLembur->durasi;
+                    $total_konversi_jam += $slipLembur->durasi_konversi_lembur;
+                    $total_uang_makan += $slipLembur->uang_makan;
+                    $total_spl += $slipLembur->nominal;
                     $sheet->setCellValue('A'.$row, $i+1);
                     $sheet->setCellValue('B'.$row, Carbon::parse($date)->locale('id')->translatedFormat('l'));
 
@@ -2217,12 +2228,12 @@ class LembureController extends Controller
                     $sheet->setCellValue('C'.$row, Carbon::parse($date)->format('d-m-Y'));
                     $sheet->setCellValue('D'.$row, Carbon::parse($slipLembur->aktual_mulai_lembur)->format('H:i'));
                     $sheet->setCellValue('E'.$row, Carbon::parse($slipLembur->aktual_selesai_lembur)->format('H:i'));
-                    $sheet->setCellValue('F'.$row, '0,45');
-                    $sheet->setCellValue('G'.$row, Carbon::parse($slipLembur->aktual_selesai_lembur)->subMinutes(45)->format('H:i'));
+                    $sheet->setCellValue('F'.$row, number_format($slipLembur->durasi_istirahat / 100 , 2));
+                    $sheet->setCellValue('G'.$row, Carbon::parse($slipLembur->aktual_selesai_lembur)->subMinutes($slipLembur->durasi_istirahat)->format('H:i'));
                     $sheet->setCellValue('H'.$row, number_format($slipLembur->durasi / 60, 2));
-                    $sheet->setCellValue('I'.$row, '-');
-                    $sheet->setCellValue('J'.$row, 0);
-                    $sheet->setCellValue('K'.$row, $upah_lembur_per_jam);
+                    $sheet->setCellValue('I'.$row, number_format($slipLembur->durasi_konversi_lembur / 60, 2));
+                    $sheet->setCellValue('J'.$row, $slipLembur->uang_makan);
+                    $sheet->setCellValue('K'.$row, 'Rp ' . number_format($upah_lembur_per_jam, 0, ',', '.'));
                     $sheet->setCellValue('L'.$row, 'Rp '. number_format($slipLembur->nominal, 0, ',', '.'));
 
                     //STYLE CELL
@@ -2270,14 +2281,14 @@ class LembureController extends Controller
                     }
 
                     $sheet->setCellValue('C'.$row, Carbon::parse($date)->format('d-m-Y'));
-                    $sheet->setCellValue('D'.$row, '');
-                    $sheet->setCellValue('E'.$row, '');
-                    $sheet->setCellValue('F'.$row, '0,45');
-                    $sheet->setCellValue('G'.$row, '');
+                    $sheet->setCellValue('D'.$row, '-');
+                    $sheet->setCellValue('E'.$row, '-');
+                    $sheet->setCellValue('F'.$row, '-');
+                    $sheet->setCellValue('G'.$row, '-');
                     $sheet->setCellValue('H'.$row, '-');
                     $sheet->setCellValue('I'.$row, '-');
                     $sheet->setCellValue('J'.$row, 0);
-                    $sheet->setCellValue('K'.$row, $upah_lembur_per_jam);
+                    $sheet->setCellValue('K'.$row, 'Rp ' . number_format($upah_lembur_per_jam, 0, ',', '.'));
                     $sheet->setCellValue('L'.$row, 'Rp');
                 }
 
@@ -2306,13 +2317,13 @@ class LembureController extends Controller
 
                 $row++;
             }
-            $sheet->setCellValue('H'.$row, 'TOTAL');    
-            $sheet->setCellValue('I'.$row, 'TOTAL');    
-            $sheet->setCellValue('J'.$row, 'Rp ');    
-            $sheet->setCellValue('K'.$row, 'Rp ');    
-            $sheet->setCellValue('L'.$row, 'Rp ');
+            $sheet->setCellValue('H'.$row, number_format($total_jam / 60 , 2));    
+            $sheet->setCellValue('I'.$row, number_format($total_konversi_jam / 60 , 2));    
+            $sheet->setCellValue('J'.$row, 'Rp ' . number_format($total_uang_makan, 0, ',', '.'));    
+            $sheet->setCellValue('K'.$row, '-');    
+            $sheet->setCellValue('L'.$row, 'Rp ' . number_format($total_spl, 0, ',', '.'));
             $sheet->setCellValue('K'.$row+1, 'SESUAI SPL');
-            $sheet->setCellValue('L'.$row+1, 'Rp ');
+            $sheet->setCellValue('L'.$row+1, 'Rp ' . number_format($total_spl, 0, ',', '.'));
             $sheet->getStyle('H'.$row.':L'.$row)->applyFromArray([
                 'borders' => [
                     'allBorders' => [

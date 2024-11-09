@@ -90,37 +90,12 @@ class DetailLembur extends Model
             karyawans.nama,
             departemens.nama as departemen,
             posisis.nama as posisi,
-            setting_lembur_karyawans.gaji,
-            TRUNC(setting_lembur_karyawans.gaji) / 173 as upah_lembur_per_jam,
+            detail_lemburs.gaji_lembur as gaji,
+            TRUNC(detail_lemburs.gaji_lembur) / detail_lemburs.pembagi_upah_lembur as upah_lembur_per_jam,
             TRUNC(SUM(TRUNC(detail_lemburs.durasi, 2) / 60),2) as total_jam_lembur,
-            TRUNC(
-                SUM(
-                    CASE WHEN lemburs.jenis_hari = \'WE\' THEN 
-                        CASE 
-                            WHEN detail_lemburs.durasi < 540 THEN TRUNC(detail_lemburs.durasi, 2) * 2 / 60
-                            WHEN detail_lemburs.durasi < 600 THEN TRUNC((TRUNC(detail_lemburs.durasi, 2) - 480) * 3 + 960) / 60
-                            ELSE TRUNC((TRUNC(detail_lemburs.durasi, 2) - 540) * 4 + 1140) / 60
-                        END
-                    ELSE
-                        CASE 
-                            WHEN detail_lemburs.durasi > 0 THEN TRUNC(1 * 1.5 + ((TRUNC(detail_lemburs.durasi, 2) - 1) * 2)) / 60
-                            ELSE 0
-                        END
-                    END
-                ), 2
-            ) as konversi_jam_lembur,
-            CASE WHEN posisis.jabatan_id >= 5 THEN
-                SUM(detail_lemburs.nominal) - SUM(CASE 
-                    WHEN posisis.jabatan_id >= 5 AND detail_lemburs.durasi >= 4 THEN 15000 
-                    ELSE 0 
-                END)
-            ELSE
-                SUM(detail_lemburs.nominal)
-            END as gaji_lembur,
-            SUM(CASE 
-                    WHEN posisis.jabatan_id >= 5 AND detail_lemburs.durasi >= 4 THEN 15000 
-                    ELSE 0 
-                END) as uang_makan,
+            TRUNC(SUM(TRUNC(detail_lemburs.durasi_konversi_lembur, 2) / 60), 2) as konversi_jam_lembur,
+            SUM(detail_lemburs.nominal) - SUM(detail_lemburs.uang_makan) as gaji_lembur,
+            SUM(detail_lemburs.uang_makan) as uang_makan,
             SUM(detail_lemburs.nominal) as total_gaji_lembur
         ')
         ->leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
@@ -129,14 +104,13 @@ class DetailLembur extends Model
         ->leftJoin('divisis', 'divisis.id_divisi', 'detail_lemburs.divisi_id')
         ->leftJoin('karyawan_posisi', 'karyawan_posisi.karyawan_id', 'karyawans.id_karyawan')
         ->leftJoin('posisis', 'posisis.id_posisi', 'karyawan_posisi.posisi_id')
-        ->leftJoin('setting_lembur_karyawans', 'setting_lembur_karyawans.karyawan_id', 'detail_lemburs.karyawan_id')
 
         ->where('detail_lemburs.organisasi_id', auth()->user()->organisasi_id)
         ->whereNotNull('lemburs.actual_legalized_by')
         ->where('lemburs.status', 'COMPLETED')
         ->whereMonth('detail_lemburs.aktual_mulai_lembur', $month)
         ->whereYear('detail_lemburs.aktual_mulai_lembur', $year)
-        ->groupBy('posisis.jabatan_id','karyawans.nama', 'departemens.nama','detail_lemburs.departemen_id', 'posisis.nama', 'setting_lembur_karyawans.gaji')
+        ->groupBy('posisis.jabatan_id','karyawans.nama', 'departemens.nama','detail_lemburs.departemen_id', 'posisis.nama', 'detail_lemburs.gaji_lembur', 'detail_lemburs.pembagi_upah_lembur')
         ->orderBy('detail_lemburs.departemen_id');
         
         return $data->get();
