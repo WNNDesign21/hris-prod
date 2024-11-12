@@ -121,14 +121,21 @@ class Lembure extends Model
 
         if(isset($dataFilter['organisasi_id'])){
             $data->where('detail_lemburs.organisasi_id', $dataFilter['organisasi_id']);
+            if(auth()->user()->hasRole('personalia')){
+                $data->orderByRaw("(lemburs.plan_approved_by IS NOT NULL AND lemburs.plan_legalized_by IS NULL) OR (lemburs.actual_approved_by IS NOT NULL AND lemburs.actual_legalized_by IS NULL) DESC");
+            } else {
+                $data->orderByRaw("(lemburs.plan_checked_by IS NOT NULL AND lemburs.plan_approved_by IS NULL) OR (lemburs.actual_checked_by IS NOT NULL AND lemburs.actual_approved_by IS NULL) DESC");
+            }
         }
 
         if(isset($dataFilter['issued_by'])){
             $data->where('lemburs.issued_by', $dataFilter['issued_by']);
+            $data->orderBy('lemburs.issued_date', 'DESC');
         }
 
         if (isset($dataFilter['member_posisi_ids'])) {
             $data->whereIn('posisis.id_posisi', $dataFilter['member_posisi_ids']);
+            $data->orderByRaw("(lemburs.plan_checked_by IS NULL AND lemburs.status != 'REJECTED') OR (lemburs.actual_checked_by IS NULL AND lemburs.status != 'REJECTED') DESC");
         }
 
         $data->groupBy(

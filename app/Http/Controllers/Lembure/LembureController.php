@@ -369,6 +369,11 @@ class LembureController extends Controller
                         if($data->plan_checked_by !== null){
                             $button_approved_plan = '<button class="btn btn-sm btn-success btnApproved" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-can-checked="'.($is_can_checked ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-thumbs-up"></i> Approved</button>';
                         } 
+
+                        //APPROVAL LANGSUNG OLEH PLANT HEAD JIKA USER YANG MEMBUAT DOKUMEN TIDAK PUNYA DEPT.HEAD
+                        if(!$this->has_department_head($data->issued->posisi) && $data->plan_checked_by == null){
+                            $button_approved_plan = '<button class="btn btn-sm btn-success btnApproved" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-can-checked="'.($is_can_checked ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-thumbs-up"></i> Approved</button>';
+                        }
                     } else {
                         //BEFORE PLANNED
                         $button_approved_plan = '✅<br><small class="text-bold">'.$data?->plan_approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_approved_at)->diffForHumans().'</small>';
@@ -380,6 +385,10 @@ class LembureController extends Controller
                         if($data->status == 'COMPLETED' && $data->actual_checked_by !== null){
                             $button_approved_actual = '<button class="btn btn-sm btn-success btnApprovedAktual" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-thumbs-up"></i> Approved</button>';
                         } 
+
+                        if($data->status == 'COMPLETED' && !$this->has_department_head($data->issued->posisi) && $data->actual_checked_by == null){
+                            $button_approved_actual = '<button class="btn btn-sm btn-success btnApprovedAktual" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-thumbs-up"></i> Approved</button>';
+                        }
                     } else {
                         //AFTER PLANNED
                         $button_approved_actual = '✅<br><small class="text-bold">'.$data?->actual_approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_approved_at)->diffForHumans().'</small>';
@@ -1629,10 +1638,6 @@ class LembureController extends Controller
                 } else {
                     $approved_detail = explode(',', $approved_detail);
                 }
-                
-                if($lembur->plan_checked_by == null){
-                    return response()->json(['message' => 'Pengajuan Lembur belum di check oleh Sect.Head/Dept.Head !'], 403);
-                }
     
                 if($lembur->plan_approved_by !== null){
                     return response()->json(['message' => 'Pengajuan Lembur sudah di Approved !'], 403);
@@ -1683,6 +1688,21 @@ class LembureController extends Controller
                     }
                 }
 
+                
+                //Jika yang membuat tidak memiliki dept head maka checked by = approved by
+                $has_dept_head = $this->has_department_head($lembur->issued->posisi);
+                if(!$has_dept_head && $lembur->plan_checked_by == null){
+                    $lembur->update([
+                        'plan_checked_by' => auth()->user()->karyawan->nama,
+                        'plan_checked_at' => now(),
+                    ]);
+                } else {
+                    if($lembur->plan_checked_by == null){
+                        DB::rollback();
+                        return response()->json(['message' => 'Pengajuan Lembur belum di check oleh Sect.Head/Dept.Head !'], 403);
+                    }
+                }
+
                 $lembur->update([
                     'plan_approved_by' => auth()->user()->karyawan->nama,
                     'plan_approved_at' => now(),
@@ -1691,11 +1711,8 @@ class LembureController extends Controller
                 ]);
                 $lembur->save();
             } else {
-                if($lembur->actual_checked_by == null){
-                    return response()->json(['message' => 'Aktual Lembur belum di check oleh Sect.Head/Dept.Head !'], 403);
-                }
-    
                 if($lembur->actual_approved_by !== null){
+                    DB::rollback();
                     return response()->json(['message' => 'Aktual Lembur sudah di Approved !'], 403);
                 }
 
@@ -1735,6 +1752,20 @@ class LembureController extends Controller
                     }
                     $detail->keterangan = isset($keterangan[$key]) ? $keterangan[$key] : null;
                     $detail->save();
+                }
+
+                //Jika yang membuat tidak memiliki dept head maka checked by = approved by
+                $has_dept_head = $this->has_department_head($lembur->issued->posisi);
+                if(!$has_dept_head && $lembur->plan_checked_by == null){
+                    $lembur->update([
+                        'actual_checked_by' => auth()->user()->karyawan->nama,
+                        'actual_checked_at' => now(),
+                    ]);
+                } else {
+                    if($lembur->actual_checked_by == null){
+                        DB::rollback();
+                        return response()->json(['message' => 'Aktual Lembur belum di check oleh Sect.Head/Dept.Head !'], 403);
+                    }
                 }
 
                 $lembur->update([
