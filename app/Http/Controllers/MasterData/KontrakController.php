@@ -275,7 +275,7 @@ class KontrakController extends Controller
                     $kry->jenis_kontrak = $jenis;
                     $bulan_romawi = $this->angka_to_romawi(Carbon::parse($tanggal_mulai)->month);
                     $hrd = $tempat_administrasi == 'Karawang' ? 'HRD-TCF3' : 'HRD-TCF2';
-                    $jenis_on_surat = $jenis.'-'.$this->angka_to_romawi($kontrak_karyawan);
+                    $jenis_on_surat = 'SKP'.'-'.$this->angka_to_romawi($kontrak_karyawan);
                     $tahun = Carbon::parse($tanggal_mulai)->format('Y');
                     $no_surat_text = 'No. ' . str_pad($no_surat_int, 3, '0', STR_PAD_LEFT) . '/' . $jenis_on_surat . '/' . $hrd . '/'.$bulan_romawi.'/' . $tahun;
                     $kry->save();
@@ -1018,6 +1018,10 @@ class KontrakController extends Controller
                             $karyawan->tanggal_selesai = $tanggal_selesai;
                         }
 
+                        if($row[4] == 'PKWTT'){
+                            $karyawan->tanggal_selesai = null;
+                        }
+
                         //CEK APAKAH ADA CUTI BERSAMA SEBELUM TANGGAL SELESAI KONTRAK YANG BARU DI UPLOAD
                         $existingCutiBersama = Event::whereDate('tanggal_mulai', '<=', $tanggal_selesai)->where('jenis_event', 'CB');
                         if($existingCutiBersama->exists()){
@@ -1051,11 +1055,11 @@ class KontrakController extends Controller
                             'nama_posisi' => Posisi::find($posisi_id)->nama ? Posisi::find($posisi_id)->nama : '',
                             'jenis' => $row[4],
                             'status' => 'DONE',
-                            'durasi' => $row[5],
+                            'durasi' => $row[4] !== 'PKWTT' ? $row[5] : null,
                             'salary' => $row[6],
                             'deskripsi' => 'History Kontrak Karyawan',
                             'tanggal_mulai' => $tanggal_mulai,
-                            'tanggal_selesai' => $tanggal_selesai,
+                            'tanggal_selesai' => $row[4] !== 'PKWTT' ? $tanggal_selesai : null,
                             'tempat_administrasi' => $row[9],
                             'isReactive' => 'N',
                             'organisasi_id' => $organisasi_id,

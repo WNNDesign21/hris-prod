@@ -167,5 +167,51 @@ $(function () {
         });
     })
 
+    $('.btnTemplate').on('click', function () {
+        window.location.href = base_url + '/template/template_upload_gaji_lembur_karyawan.xlsx';
+    });
+
+    $('.btnUpload').on('click', function (){
+        let input = $('#upload-upah-lembur');
+        input.click();
+
+        input.on("change", function () {
+            Swal.fire({
+                title: "Upload Gaji Lembur Karyawan",
+                text: "Gaji yang sudah ada akan terupdate, dan yang belum ada akan ditambahkan, yakin ?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, Upload it!",
+                allowOutsideClick: false,
+            }).then((result) => {
+                if (result.value) {
+                    loadingSwalShow();
+                    const url = base_url + "/lembure/upload-upah-lembur-karyawan";
+                    let formData = new FormData();
+                    formData.append('upah_lembur_karyawan_file', input[0].files[0]);
+
+                    $.ajax({
+                        url: url,
+                        method: "POST",
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        success: function (data) {
+                            input.val('');
+                            showToast({ title: data.message });
+                            loadingSwalClose();
+                            refreshTable();
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            loadingSwalClose();
+                            showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                        },
+                    })
+                } 
+            });
+        });
+    });
 
 });

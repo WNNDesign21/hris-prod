@@ -339,24 +339,31 @@ $(function () {
                 
                 $.each(detail, function (i, val){
                     tbody.append(`
-                         <tr class="${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N' ? 'bg-danger' : ''}">
+                         <tr class="${val.is_rencana_approved == 'N' ? 'bg-danger' : ''}">
                             <td>
+                            ${val.is_rencana_approved !== 'N' ? `<input type="hidden" name="id_detail_lembur[]" id="id_detail_lembur_${i}"></input>` : `-`}
                                 <span id="karyawan_id_${i}"></span>
-                                </td>
-                            <td>
-                                <div id="job_description_${i}"></div>
                             </td>
                             <td>
-                                <span id="rencana_mulai_lembur_${i}"></span>
+                                <div id="job_description_${i}" class="${val.is_rencana_approved == 'N' ? 'text-white' : ''}"></div>
                             </td>
                             <td>
-                                <span id="rencana_selesai_lembur_${i}"></span>
+                                ${val.is_rencana_approved !== 'N' ? `<input type="datetime-local" name="mulai_lembur[]"
+                                        id="rencana_mulai_lembur_${i}" class="form-control mulaiLembur ${val.is_rencana_approved == 'N' ? 'bg-danger' : ''}"
+                                        style="width: 100%;" min="${val.rencana_mulai_lembur}" data-urutan="${i}" data-mulai="${val.rencana_mulai_lembur}"> 
+                                </input>` : `-`}
                             </td>
                             <td>
-                                `+(val.durasi_rencana)+`
+                                ${val.is_rencana_approved !== 'N' ? `<input type="datetime-local" name="selesai_lembur[]"
+                                    id="rencana_selesai_lembur_${i}" class="form-control selesaiLembur ${val.is_rencana_approved == 'N' ? 'bg-danger' : ''}"
+                                    style="width: 100%;" min="${val.rencana_selesai_lembur}" data-urutan="${i}" data-selesai="${val.rencana_selesai_lembur}"> 
+                                </input>` : `-`}
+                            </td>
+                            <td> 
+                                ${val.durasi_rencana}
                             </td>
                             <td>
-                                `+(val.nominal)+`
+                                ${val.nominal}
                             </td>
                             <td>
                                 `+ ((canApproved || canChecked) && !isPlanned && val.is_rencana_approved == 'Y' ? 
@@ -368,51 +375,53 @@ $(function () {
                         </tr>
                     `)
 
-                    //CHECKBOX
                     $('#is_rencana_approved_' + i).on('change', function(){
                         if ($(this).is(':checked')) {
                             $(this).attr('checked', true);
                             if ($(this).closest('tr').hasClass('bg-danger')) {
                                 $(this).closest('tr').removeClass('bg-danger');
                             }
+                            $('#rencana_mulai_lembur_' + i).attr('readonly', false);
+                            $('#rencana_selesai_lembur_' + i).attr('readonly', false);
                         } else {
                             $(this).removeAttr('checked');
                             $(this).closest('tr').addClass('bg-danger');
+                            $('#rencana_mulai_lembur_' + i).attr('readonly', true);
+                            $('#rencana_selesai_lembur_' + i).attr('readonly', true);
                         }
                     });
 
-                    //Backup jika butuh fitur hapus pada  data
-                    // <div class="btn-group">
-                    //     <button type="button"
-                    //         class="btn btn-danger waves-effect btnDeleteDetailLembur" data-urutan="${i}" id="btn_delete_detail_lembur_${i}"><i
-                    //             class="fas fa-trash"></i></button>
-                    // </div>
-
-                    $('#karyawan_id_' + i).text(val.nama);
                     let jobDescriptions = val.deskripsi_pekerjaan.split(',').map(desc => `<li>${desc.trim()}</li>`).join('');
                     $('#job_description_' + i).html(`<ul>${jobDescriptions}</ul>`);
-                    $('#rencana_mulai_lembur_' + i).text(val.rencana_mulai_lembur.replace('T', ' ').replace(':', '.'));
-                    $('#rencana_selesai_lembur_' + i).text(val.rencana_selesai_lembur.replace('T', ' ').replace(':', '.'));
                     
+                    if(val.is_rencana_approved == 'Y'){
+                        $('#rencana_mulai_lembur_' + i).val(val.rencana_mulai_lembur);
+                        $('#rencana_selesai_lembur_' + i).val(val.rencana_selesai_lembur);
+                        $('#id_detail_lembur_' + i).val(val.id_detail_lembur);
+                    } 
+                    $('#karyawan_id_' + i).text(val.nama);
+
                     $('.btnUpdateStatusDetailLembur').removeClass('btn-warning').addClass('btn-success').text('Approved');
                     $('#form-approval-lembur').attr('action', base_url + '/lembure/approval-lembur/approved/' + idLembur);
-
-                    let formData = new FormData($('#form-approval-lembur')[0]);
-                    formData.append('is_planned', isPlanned ? 'Y' : 'N');
 
                     $('.btnUpdateStatusDetailLembur').on("click", function (e){
                         loadingSwalShow();
                         e.preventDefault();
                         let url = $('#form-approval-lembur').attr('action');
+                        let formData = new FormData($('#form-approval-lembur')[0]);
                         let approvedDetail = []; 
                         $("input:checkbox[name=is_rencana_approved]:checked").each(function() { 
                             approvedDetail.push($(this).val()); 
                         }); 
                         
+                        formData.append('is_planned', isPlanned ? 'Y' : 'N');
                         formData.append('approved_detail', approvedDetail);
+                        formData.forEach((value, key) => {
+                            console.log(key + ": " + value);
+                        });
 
                         Swal.fire({
-                            title: "Approve Lembur",
+                            title: "Rencana Lembur",
                             text: "Apakah anda yakin dengan detail lembur ini?",
                             icon: "warning",
                             showCancelButton: true,
@@ -443,7 +452,7 @@ $(function () {
                                 });
                             }
                         });
-                    })
+                    });
                 });
                 $('#jenis_hariApproval').text(jenisHari == 'WE' ? 'Weekend' : 'Weekday');
                 $('#text_tanggalApproval').text(textTanggal);
@@ -595,21 +604,22 @@ $(function () {
     })
 
     // AKTUAL
-    $('#table-approval-lembur').on("change", '.aktualMulaiLembur', function () {
+    $('#table-approval-lembur').on("change", '.mulaiLembur', function () {
         let urutan = $(this).data('urutan');
         let startTime = $(this).val();
-        $('#aktual_selesai_lembur_' + urutan).val('').attr('min', startTime);
+        $('#rencana_selesai_lembur_' + urutan).val('').attr('min', startTime);
     });
 
-    $('#table-approval-lembur').on("change", '.aktualSelesaiLembur' , function () {
+    $('#table-approval-lembur').on("change", '.selesaiLembur' , function () {
         let urutan = $(this).data('urutan');
-        let startTime = $('#aktual_mulai_lembur_' + urutan).val();
+        let startTime = $('#rencana_mulai_lembur_' + urutan).val();
         let endTime = $(this).val();
         let oldEndTime = $(this).data('selesai');
         if (endTime < startTime) {
             $(this).val(oldEndTime);
             showToast({ title: "Waktu selesai lembur tidak boleh kurang dari waktu mulai lembur", icon: "error" });
         }
+        console.log($(this).val())
     });
 
     $('.btnCloseAktual').on("click", function (){
@@ -786,14 +796,123 @@ $(function () {
                 let detail = response.data.detail_lembur;
                 let tbody = $('#list-aktual-approval-lembur').empty();
                 
+                // $.each(detail, function (i, val){
+                //     tbody.append(`
+                //          <tr class="${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N' ? 'bg-danger' : ''}">
+                //          <td>
+                //             <span id="karyawan_id_aktual_${i}"></span>
+                //             </td>
+                //             <td>
+                //                 <div id="job_description_aktual_${i}"></div>
+                //             </td>
+                //             <td>
+                //                 <span id="rencana_mulai_lembur_aktual_${i}"></span>
+                //             </td>
+                //             <td>
+                //                 <span id="rencana_selesai_lembur_aktual_${i}"></span>
+                //             </td>
+                //             <td>
+                //                 `+(val.durasi_rencana)+`
+                //             </td>
+                //             <td>
+                //                 <span id="aktual_mulai_lembur_aktual_${i}"></span>
+                //             </td>
+                //             <td>
+                //                 <span id="aktual_selesai_lembur_aktual_${i}"></span>
+                //             </td>
+                //             <td>
+                //                 `+(val.durasi_aktual)+`
+                //             </td>
+                //             <td>
+                //                 `+(val.keterangan ? val.keterangan : '-')+`
+                //             </td>
+                //             <td>
+                //                 `+(val.nominal)+`
+                //             </td>
+                //         </tr>
+                //     `)
+                    
+                //     $('#karyawan_id_aktual_' + i).text(val.nama);
+
+                //     //JOB DESCRIPTION
+                //     let jobDescriptions = val.deskripsi_pekerjaan.split(',').map(desc => `<li>${desc.trim()}</li>`).join('');
+                //     $('#job_description_aktual_' + i).html(`<ul>${jobDescriptions}</ul>`);
+                    
+                //     //WAKTU
+                //     $('#rencana_mulai_lembur_aktual_' + i).text(val.rencana_mulai_lembur ? val.rencana_mulai_lembur.replace('T', ' ').replace(':', '.') : '-');
+                //     $('#rencana_selesai_lembur_aktual_' + i).text(val.rencana_selesai_lembur ? val.rencana_selesai_lembur.replace('T', ' ').replace(':', '.') : '-');
+                //     $('#aktual_mulai_lembur_aktual_' + i).text(val.aktual_mulai_lembur ? val.aktual_mulai_lembur.replace('T', ' ').replace(':', '.') : '-');
+                //     $('#aktual_selesai_lembur_aktual_' + i).text(val.aktual_selesai_lembur ? val.aktual_selesai_lembur.replace('T', ' ').replace(':', '.') : '-');
+                // });
+                // $('#jenis_hariAktual').text(jenisHari == 'WE' ? 'Weekend' : 'Weekday');
+                // $('#text_tanggalAktual').text(textTanggal);
+
+                // //STATUS
+                // if (status == 'WAITING'){
+                //     $('#statusAktual').text(status).removeClass().addClass('badge badge-warning')
+                // } else if (status == 'PLANNED'){
+                //     $('#statusAktual').text(status).removeClass().addClass('badge badge-info')
+                // } else if (status == 'COMPLETED'){
+                //     $('#statusAktual').text(status).removeClass().addClass('badge badge-success')
+                // } else {
+                //     $('#statusAktual').text(status).removeClass().addClass('badge badge-danger')
+                // }
+
+                // $('.btnUpdateAktualLembur').text('Approved');
+                // $('#form-aktual-approval-lembur').attr('action', base_url + '/lembure/approval-lembur/approved/' + idLembur);
+                // let formData = new FormData($('#form-aktual-approval-lembur')[0]);
+                // formData.append('is_planned', isPlanned ? 'Y' : 'N');
+
+                // $('.btnUpdateAktualLembur').on("click", function (e){
+                //     loadingSwalShow();
+                //     e.preventDefault();
+                //     let url = $('#form-aktual-approval-lembur').attr('action');
+                //     Swal.fire({
+                //         title: "Aktual Lembur",
+                //         text: "Apakah anda yakin dengan detail lembur ini?",
+                //         icon: "warning",
+                //         showCancelButton: true,
+                //         confirmButtonColor: "#3085d6",
+                //         cancelButtonColor: "#d33",
+                //         confirmButtonText: "Yes, Tandai sebagai Approved!",
+                //         allowOutsideClick: false,
+                //     }).then((result) => {
+                //         if (result.value) {
+                //             loadingSwalShow();
+                //             $.ajax({
+                //                 url: url,
+                //                 data: formData,
+                //                 method:"POST",
+                //                 contentType: false,
+                //                 processData: false,
+                //                 dataType: "JSON",
+                //                 success: function (data) {
+                //                     showToast({ title: data.message });
+                //                     refreshTable();
+                //                     loadingSwalClose();
+                //                     closeAktual();
+                //                 },
+                //                 error: function (jqXHR, textStatus, errorThrown) {
+                //                     loadingSwalClose();
+                //                     showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                //                 },
+                //             });
+                //         }
+                //     });
+                // })
+
+                // openAktual();
+                // loadingSwalClose();
+
                 $.each(detail, function (i, val){
                     tbody.append(`
-                         <tr class="${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N' ? 'bg-danger' : ''}">
-                         <td>
-                            <span id="karyawan_id_aktual_${i}"></span>
+                         <tr class="${val.is_rencana_approved == 'N' ? 'bg-danger' : ''}">
+                            <td>
+                            ${val.is_rencana_approved !== 'N' ? `<input type="hidden" name="id_detail_lembur[]" id="id_detail_lembur_aktual_${i}"></input>` : `-`}
+                                <span id="karyawan_id_aktual_${i}"></span>
                             </td>
                             <td>
-                                <div id="job_description_aktual_${i}"></div>
+                                <div id="job_description_aktual_${i}" class="${val.is_rencana_approved == 'N' ? 'text-white' : ''}"></div>
                             </td>
                             <td>
                                 <span id="rencana_mulai_lembur_aktual_${i}"></span>
@@ -805,34 +924,88 @@ $(function () {
                                 `+(val.durasi_rencana)+`
                             </td>
                             <td>
-                                <span id="aktual_mulai_lembur_aktual_${i}"></span>
+                                ${val.is_aktual_approved !== 'N' ? `<input type="datetime-local" name="mulai_lembur[]"
+                                        id="aktual_mulai_lembur_aktual_${i}" class="form-control mulaiLembur ${val.is_aktual_approved == 'N' ? 'bg-danger' : ''}"
+                                        style="width: 100%;" min="${val.aktual_mulai_lembur}" data-urutan="${i}" data-mulai="${val.aktual_mulai_lembur}"> 
+                                </input>` : `-`}
                             </td>
                             <td>
-                                <span id="aktual_selesai_lembur_aktual_${i}"></span>
+                                ${val.is_aktual_approved !== 'N' ? `<input type="datetime-local" name="selesai_lembur[]"
+                                    id="aktual_selesai_lembur_aktual_${i}" class="form-control selesaiLembur ${val.is_aktual_approved == 'N' ? 'bg-danger' : ''}"
+                                    style="width: 100%;" min="${val.aktual_selesai_lembur}" data-urutan="${i}" data-selesai="${val.aktual_selesai_lembur}"> 
+                                </input>` : `-`}
+                            </td>
+                            <td> 
+                                ${val.durasi_aktual}
                             </td>
                             <td>
-                                `+(val.durasi_aktual)+`
+                                ${val.is_aktual_approved !== 'N' ? `<input type="text" name="keterangan[]"
+                                    id="keterangan_aktual_${i}" class="form-control ${val.is_aktual_approved == 'N' ? 'bg-danger text-white' : ''}"
+                                    style="width: 100%;">
+                                </input>` : '-'}
                             </td>
                             <td>
-                                `+(val.keterangan ? val.keterangan : '-')+`
-                            </td>
-                            <td>
-                                `+(val.nominal)+`
+                                ${val.nominal}
                             </td>
                         </tr>
                     `)
-                    
-                    $('#karyawan_id_aktual_' + i).text(val.nama);
 
-                    //JOB DESCRIPTION
                     let jobDescriptions = val.deskripsi_pekerjaan.split(',').map(desc => `<li>${desc.trim()}</li>`).join('');
                     $('#job_description_aktual_' + i).html(`<ul>${jobDescriptions}</ul>`);
                     
-                    //WAKTU
-                    $('#rencana_mulai_lembur_aktual_' + i).text(val.rencana_mulai_lembur ? val.rencana_mulai_lembur.replace('T', ' ').replace(':', '.') : '-');
-                    $('#rencana_selesai_lembur_aktual_' + i).text(val.rencana_selesai_lembur ? val.rencana_selesai_lembur.replace('T', ' ').replace(':', '.') : '-');
-                    $('#aktual_mulai_lembur_aktual_' + i).text(val.aktual_mulai_lembur ? val.aktual_mulai_lembur.replace('T', ' ').replace(':', '.') : '-');
-                    $('#aktual_selesai_lembur_aktual_' + i).text(val.aktual_selesai_lembur ? val.aktual_selesai_lembur.replace('T', ' ').replace(':', '.') : '-');
+                    if(val.is_rencana_approved == 'Y'){
+                        $('#rencana_mulai_lembur_aktual_' + i).text(val.rencana_mulai_lembur);
+                        $('#rencana_selesai_lembur_aktual_' + i).text(val.rencana_selesai_lembur);
+                        $('#keterangan_aktual_' + i).val(val.keterangan);
+                        $('#id_detail_lembur_aktual_' + i).val(val.id_detail_lembur);
+                        $('#aktual_mulai_lembur_aktual_' + i).val(val.aktual_mulai_lembur);
+                        $('#aktual_selesai_lembur_aktual_' + i).val(val.aktual_selesai_lembur);
+                    } 
+                    $('#karyawan_id_aktual_' + i).text(val.nama);
+
+                    $('.btnUpdateAktualLembur').removeClass('btn-warning').addClass('btn-success').text('Approved');
+                    $('#form-aktual-approval-lembur').attr('action', base_url + '/lembure/approval-lembur/approved/' + idLembur);
+
+                    $('.btnUpdateAktualLembur').on("click", function (e){
+                        loadingSwalShow();
+                        e.preventDefault();
+                        let url = $('#form-aktual-approval-lembur').attr('action');
+                        let formData = new FormData($('#form-aktual-approval-lembur')[0]);
+                        formData.append('is_planned', isPlanned ? 'Y' : 'N');
+
+                        Swal.fire({
+                            title: "Aktual Lembur",
+                            text: "Apakah anda yakin dengan detail lembur ini?",
+                            icon: "warning",
+                            showCancelButton: true,
+                            confirmButtonColor: "#3085d6",
+                            cancelButtonColor: "#d33",
+                            confirmButtonText: "Yes, Tandai sebagai Approved!",
+                            allowOutsideClick: false,
+                        }).then((result) => {
+                            if (result.value) {
+                                loadingSwalShow();
+                                $.ajax({
+                                    url: url,
+                                    data: formData,
+                                    method:"POST",
+                                    contentType: false,
+                                    processData: false,
+                                    dataType: "JSON",
+                                    success: function (data) {
+                                        showToast({ title: data.message });
+                                        refreshTable();
+                                        loadingSwalClose();
+                                        closeAktual();
+                                    },
+                                    error: function (jqXHR, textStatus, errorThrown) {
+                                        loadingSwalClose();
+                                        showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                                    },
+                                });
+                            }
+                        });
+                    });
                 });
                 $('#jenis_hariAktual').text(jenisHari == 'WE' ? 'Weekend' : 'Weekday');
                 $('#text_tanggalAktual').text(textTanggal);
@@ -847,50 +1020,6 @@ $(function () {
                 } else {
                     $('#statusAktual').text(status).removeClass().addClass('badge badge-danger')
                 }
-
-                $('.btnUpdateAktualLembur').text('Approved');
-                $('#form-aktual-approval-lembur').attr('action', base_url + '/lembure/approval-lembur/approved/' + idLembur);
-                let formData = new FormData($('#form-aktual-approval-lembur')[0]);
-                formData.append('is_planned', isPlanned ? 'Y' : 'N');
-
-                $('.btnUpdateAktualLembur').on("click", function (e){
-                    loadingSwalShow();
-                    e.preventDefault();
-                    let url = $('#form-aktual-approval-lembur').attr('action');
-                    Swal.fire({
-                        title: "Aktual Lembur",
-                        text: "Apakah anda yakin dengan detail lembur ini?",
-                        icon: "warning",
-                        showCancelButton: true,
-                        confirmButtonColor: "#3085d6",
-                        cancelButtonColor: "#d33",
-                        confirmButtonText: "Yes, Tandai sebagai Approved!",
-                        allowOutsideClick: false,
-                    }).then((result) => {
-                        if (result.value) {
-                            loadingSwalShow();
-                            $.ajax({
-                                url: url,
-                                data: formData,
-                                method:"POST",
-                                contentType: false,
-                                processData: false,
-                                dataType: "JSON",
-                                success: function (data) {
-                                    showToast({ title: data.message });
-                                    refreshTable();
-                                    loadingSwalClose();
-                                    closeAktual();
-                                },
-                                error: function (jqXHR, textStatus, errorThrown) {
-                                    loadingSwalClose();
-                                    showToast({ icon: "error", title: jqXHR.responseJSON.message });
-                                },
-                            });
-                        }
-                    });
-                })
-
                 openAktual();
                 loadingSwalClose();
             },

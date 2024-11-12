@@ -266,6 +266,7 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
             Route::get('/setting-upah-lembur', [LembureController::class, 'setting_upah_lembur_view'])->name('lembure.setting-upah-lembur');
             Route::post('/setting-upah-lembur-datatable', [LembureController::class, 'setting_upah_lembur_datatable']);
             Route::patch('/setting-upah-lembur/update', [LembureController::class, 'update_setting_upah_lembur'])->name('lembure.setting-upah-lembur.update');
+            Route::post('/upload-upah-lembur-karyawan', [LembureController::class, 'upload_upah_lembur_karyawan'])->name('lembure.setting-upah-lembur.upload');
 
             // Setting Lembur
             Route::get('/setting-lembur', [LembureController::class, 'setting_lembur_view'])->name('lembure.setting-lembur');

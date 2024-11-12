@@ -24,7 +24,12 @@
                         <div class="btn-group">
                             <button type="button" class="btn btn-info waves-effect btnReload"><i
                                     class="fas fa-sync-alt"></i></button>
+                            <button type="button" class="btn btn-dark waves-effect btnUpload"><i
+                                    class="fas fa-upload"></i></button>
+                            <button type="button" class="btn btn-light waves-effect btnTemplate"><i
+                                    class="fas fa-file-excel"></i></button>
                         </div>
+                        <input type="file" id="upload-upah-lembur" class="d-none">
                     </div>
                 </div>
                 <div class="box-body">
