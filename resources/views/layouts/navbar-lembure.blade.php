@@ -6,7 +6,7 @@
                 <!-- sidebar menu-->
                 <ul class="sidebar-menu" data-widget="tree">
                     <li class="header">Lembur-E Menu</li>
-                    @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('atasan'))
+                    @if (auth()->user()->hasRole('personalia') || auth()->user()->karyawan->posisi[0]->jabatan_id <= 3)
                         <li class="{{ $page == 'lembure-dashboard' ? 'active' : '' }}">
                             <a href="{{ route('lembure.dashboard') }}">
                                 <i class="icon-Chart-bar2"><span class="path1"></span><span class="path2"></span></i>
