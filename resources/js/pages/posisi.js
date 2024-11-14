@@ -403,7 +403,12 @@ $(function () {
 
     //REFRESH TABLE
     function refreshTable() {
-        posisiTable.search("").draw();
+        var searchValue = posisiTable.search();
+        if (searchValue) {
+            posisiTable.search(searchValue).draw();
+        } else {
+            posisiTable.search("").draw();
+        }
     }
 
     //RELOAD TABLE
@@ -462,7 +467,7 @@ $(function () {
                 loadingSwalClose();
                 showToast({ title: data.message });
                 refreshTable();
-                location.reload();
+                // location.reload();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 loadingSwalClose();
@@ -526,6 +531,16 @@ $(function () {
     }
 
     //EDIT POSISI
+    $('.dd-handle').on('click', function (){
+        var idPosisi = $(this).data('id');
+        var nama = $(this).data('posisi-nama');
+        var idParent = $(this).data('parent-id');
+        parentSelect(idParent, idPosisi);
+        $('#id_posisi_edit').val(idPosisi);
+        $('#nama_posisi_edit').val(nama);
+        // openEditPosisi();
+    });
+
     $('#posisi-table').on('click', '.btnEdit', function (){
         var idPosisi = $(this).data('id');
         var nama = $(this).data('posisi-nama');
@@ -545,8 +560,11 @@ $(function () {
         // JIKA INGIN BISA MENGUBAH ORGANISASI, DIVISI, DEPARTEMEN, SEKSI MAKA UNCOMMENT INI
         // KARENA KEBUTUHAN HNYA MENGUBAH PARENT NYA SAJA MAKA COMMENT INI
 
-        if(idParent !== 0){
+        if(idParent !== '0'){
             getDataJabatanByPosisiEdit(idParent, myPosisi);
+        } else {
+            openEditPosisi();
+            loadingSwalClose();
         }
     })
 
@@ -570,7 +588,7 @@ $(function () {
                 showToast({ title: data.message });
                 refreshTable();
                 closeEditPosisi();
-                location.reload();
+                // location.reload();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 loadingSwalClose();

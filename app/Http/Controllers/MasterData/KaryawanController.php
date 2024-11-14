@@ -16,6 +16,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -826,12 +827,13 @@ class KaryawanController extends Controller
                 $spreadsheet = IOFactory::load(storage_path("app/public/".$karyawan_file));
                 $worksheet = $spreadsheet->getActiveSheet();
                 $data = $worksheet->toArray();
-                $chunkSize = 100;
+                $chunkSize = 25;
 
                 //Chunck data agar tidak terlalu banyak
                 for ($i = 1; $i <= count($data); $i += $chunkSize) {
                     $chunk = array_slice($data, $i - 1, $chunkSize);
                     foreach ($chunk as $index => $row) {
+                        Log::info('Memproses data ke-' . $index+1);
                         if ($index < 1) { 
                             continue;
                         }

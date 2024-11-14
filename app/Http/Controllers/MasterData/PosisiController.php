@@ -529,7 +529,7 @@ class PosisiController extends Controller
     {
         $my_posisi = Posisi::find($myposisi);
         $posisi = Posisi::where('id_posisi',$id)->first();
-        $parent_posisi = Posisi::where('id_posisi', $posisi->parent_id)->first();
+        // $parent_posisi = Posisi::where('id_posisi', $posisi->parent_id)->first();
         $jabatan = Jabatan::where('id_jabatan', '>' , $posisi->jabatan_id)->get();
         $data = [
             'jabatan' => $jabatan,

@@ -895,6 +895,7 @@ $(function () {
                         processData: false,
                         success: function (data) {
                             showToast({ title: data.message });
+                            input.val('');
                             loadingSwalClose();
                             refreshTable();
                         },

@@ -685,6 +685,7 @@ $(function () {
                         contentType: false,
                         processData: false,
                         success: function (data) {
+                            input.val('');
                             showToast({ title: data.message });
                             loadingSwalClose();
                             refreshTable();
