@@ -6,22 +6,25 @@ use App\Models\Divisi;
 use App\Models\Karyawan;
 use App\Models\Departemen;
 use App\Models\Organisasi;
+use App\Models\DetailLembur;
 use Illuminate\Database\Eloquent\Model;
+use Iksaku\Laravel\MassUpdate\MassUpdatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Lembure extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, MassUpdatable;
 
     protected $table = 'lemburs';
     protected $primaryKey = 'id_lembur';
+    public $incrementing = false;
 
     protected $fillable = [
-        'organisasi_id','departemen_id','divisi_id','plan_checked_by','plan_checked_at','plan_approved_by',
+        'id_lembur','organisasi_id','departemen_id','divisi_id','plan_checked_by','plan_checked_at','plan_approved_by',
         'plan_approved_at','plan_legalized_by','plan_legalized_at','actual_checked_by','actual_checked_at',
         'actual_approved_by','actual_approved_at','actual_legalized_by','actual_legalized_at','total_durasi',
-        'status','attachment','issued_date','issued_by'
+        'status','attachment','issued_date','issued_by', 'jenis_hari'
     ];
 
     // public function scopeIssuedBy($query, $issued_by)
@@ -53,6 +56,16 @@ class Lembure extends Model
         return $this->belongsTo(Karyawan::class, 'issued_by', 'id_karyawan');
     }
 
+    public function detailLembur()
+    {
+        return $this->hasMany(DetailLembur::class, 'lembur_id', 'id_lembur')->orderBy('created_at', 'ASC');
+    }
+
+    public function getJenisHariAttribute($value)
+    {
+        return ($value == 'WE' ? 'WEEKEND'  : 'WEEKDAY');
+    }
+
     private static function _query($dataFilter)
     {
 
@@ -78,6 +91,7 @@ class Lembure extends Model
             'lemburs.attachment',
             'lemburs.issued_date',
             'lemburs.issued_by',
+            'lemburs.jenis_hari',
             'organisasis.nama as nama_organisasi',
             'departemens.nama as nama_departemen',
             'divisis.nama as nama_divisi',
@@ -86,7 +100,10 @@ class Lembure extends Model
             ->leftJoin('karyawans', 'lemburs.issued_by', 'karyawans.id_karyawan')
             ->leftJoin('organisasis', 'lemburs.organisasi_id', 'organisasis.id_organisasi')
             ->leftJoin('departemens', 'lemburs.departemen_id', 'departemens.id_departemen')
-            ->leftJoin('divisis', 'lemburs.divisi_id', 'divisis.id_divisi');
+            ->leftJoin('divisis', 'lemburs.divisi_id', 'divisis.id_divisi')
+            ->rightJoin('detail_lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
+            ->leftJoin('karyawan_posisi', 'detail_lemburs.karyawan_id', 'karyawan_posisi.karyawan_id')
+            ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi');
         
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
@@ -97,9 +114,58 @@ class Lembure extends Model
                     ->orWhere('lemburs.status', 'ILIKE', "%{$search}%")
                     ->orWhere('lemburs.issued_date', 'ILIKE', "%{$search}%")
                     ->orWhere('lemburs.status', 'ILIKE', "%{$search}%")
+                    ->orWhere('lemburs.jenis_hari', 'ILIKE', "%{$search}%")
                     ->orWhere('lemburs.issued_by', 'ILIKE', "%{$search}%");
             });
         }
+
+        if(isset($dataFilter['organisasi_id'])){
+            $data->where('detail_lemburs.organisasi_id', $dataFilter['organisasi_id']);
+            if(auth()->user()->hasRole('personalia')){
+                $data->orderByRaw("(lemburs.plan_approved_by IS NOT NULL AND lemburs.plan_legalized_by IS NULL) OR (lemburs.actual_approved_by IS NOT NULL AND lemburs.actual_legalized_by IS NULL) DESC");
+            } else {
+                $data->orderByRaw("(lemburs.plan_checked_by IS NOT NULL AND lemburs.plan_approved_by IS NULL) OR (lemburs.actual_checked_by IS NOT NULL AND lemburs.actual_approved_by IS NULL) DESC");
+            }
+        }
+
+        if(isset($dataFilter['issued_by'])){
+            $data->where('lemburs.issued_by', $dataFilter['issued_by']);
+            $data->orderBy('lemburs.issued_date', 'DESC');
+        }
+
+        if (isset($dataFilter['member_posisi_ids'])) {
+            $data->whereIn('posisis.id_posisi', $dataFilter['member_posisi_ids']);
+            $data->orderByRaw("(lemburs.plan_checked_by IS NULL AND lemburs.status != 'REJECTED') OR (lemburs.actual_checked_by IS NULL AND lemburs.status != 'REJECTED') DESC");
+        }
+
+        $data->groupBy(
+            'lemburs.id_lembur',
+            'lemburs.organisasi_id',
+            'lemburs.departemen_id',
+            'lemburs.divisi_id',
+            'lemburs.plan_checked_by',
+            'lemburs.plan_checked_at',
+            'lemburs.plan_approved_by',
+            'lemburs.plan_approved_at',
+            'lemburs.plan_legalized_by',
+            'lemburs.plan_legalized_at',
+            'lemburs.actual_checked_by',
+            'lemburs.actual_checked_at',
+            'lemburs.actual_approved_by',
+            'lemburs.actual_approved_at',
+            'lemburs.actual_legalized_by',
+            'lemburs.actual_legalized_at',
+            'lemburs.total_durasi',
+            'lemburs.status',
+            'lemburs.attachment',
+            'lemburs.issued_date',
+            'lemburs.issued_by',
+            'lemburs.jenis_hari',
+            'organisasis.nama',
+            'departemens.nama',
+            'divisis.nama',
+            'karyawans.nama'
+        );
 
         $result = $data;
         return $result;
@@ -115,6 +181,6 @@ class Lembure extends Model
 
     public static function countData($dataFilter)
     {
-        return self::_query($dataFilter)->count();
+        return self::_query($dataFilter)->get()->count();
     }
 }

@@ -895,10 +895,12 @@ $(function () {
                         processData: false,
                         success: function (data) {
                             showToast({ title: data.message });
+                            input.val('');
                             loadingSwalClose();
                             refreshTable();
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
+                            loadingSwalClose();
                             showToast({ icon: "error", title: jqXHR.responseJSON.message });
                         },
                     })

@@ -173,6 +173,22 @@
         @vite(['resources/js/pages/lembure-pengajuan-lembur.js'])
     @endif
 
+    @if ($page == 'lembure-approval-lembur')
+        @vite(['resources/js/pages/lembure-approval-lembur.js'])
+    @endif
+
+    @if ($page == 'lembure-setting-upah-lembur')
+        @vite(['resources/js/pages/lembure-setting-upah-lembur.js'])
+    @endif
+
+    @if ($page == 'lembure-setting-lembur')
+        @vite(['resources/js/pages/lembure-setting-lembur.js'])
+    @endif
+
+    @if ($page == 'lembure-dashboard')
+        @vite(['resources/js/pages/lembure-dashboard.js'])
+    @endif
+
 </body>
 
 </html>

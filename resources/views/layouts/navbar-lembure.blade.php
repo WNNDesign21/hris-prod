@@ -6,18 +6,52 @@
                 <!-- sidebar menu-->
                 <ul class="sidebar-menu" data-widget="tree">
                     <li class="header">Lembur-E Menu</li>
-                    <li class="{{ $page == 'lembure-dashboard' ? 'active' : '' }}">
-                        <a href="{{ route('lembure.dashboard') }}">
-                            <i class="icon-Layout-4-blocks"><span class="path1"></span><span class="path2"></span></i>
-                            <span>Dashboard</span>
-                        </a>
-                    </li>
-                    @if (auth()->user()->karyawan->settingLembur->jabatan_id == 5)
+                    @if (auth()->user()->hasRole('personalia') || auth()->user()->karyawan->posisi[0]->jabatan_id <= 3)
+                        <li class="{{ $page == 'lembure-dashboard' ? 'active' : '' }}">
+                            <a href="{{ route('lembure.dashboard') }}">
+                                <i class="icon-Chart-bar2"><span class="path1"></span><span class="path2"></span></i>
+                                <span>Dashboard</span>
+                            </a>
+                        </li>
+                    @endif
+                    @if (auth()->user()->karyawan && ($lembure['is_leader'] || !$lembure['has_leader']))
                         <li class="{{ $page == 'lembure-pengajuan-lembur' ? 'active' : '' }}">
                             <a href="{{ route('lembure.pengajuan-lembur') }}">
-                                <i class="icon-Layout-4-blocks"><span class="path1"></span><span
-                                        class="path2"></span></i>
+                                <i class="icon-Book"><span class="path1"></span><span class="path2"></span></i>
                                 <span>Pengajuan Lembur</span>
+                            </a>
+                        </li>
+                    @endif
+                    @if (auth()->user()->hasRole('personalia') ||
+                            (auth()->user()->karyawan &&
+                                (auth()->user()->karyawan->posisi[0]->jabatan_id == 4 ||
+                                    auth()->user()->karyawan->posisi[0]->jabatan_id == 3 ||
+                                    auth()->user()->karyawan->posisi[0]->jabatan_id == 2)))
+                        <li class="{{ $page == 'lembure-approval-lembur' ? 'active' : '' }}">
+                            <a href="{{ route('lembure.approval-lembur') }}">
+                                <i class="icon-Double-check"><span class="path1"></span><span
+                                        class="path2"></span></i>
+                                <span>Approval Lembur</span>
+                            </a>
+                        </li>
+                    @endif
+                    @if (auth()->user()->hasRole('personalia'))
+                        <li class="{{ $page == 'lembure-setting-upah-lembur' ? 'active' : '' }}">
+                            <a href="{{ route('lembure.setting-upah-lembur') }}">
+                                <i class="icon-Settings"><span class="path1"></span><span class="path2"></span></i>
+                                <span>Setting Gaji Lembur</span>
+                            </a>
+                        </li>
+                        <li class="{{ $page == 'lembure-setting-lembur' ? 'active' : '' }}">
+                            <a href="{{ route('lembure.setting-lembur') }}">
+                                <i class="icon-Tools"><span class="path1"></span><span class="path2"></span></i>
+                                <span>Setting Lembur</span>
+                            </a>
+                        </li>
+                        <li class="{{ $page == 'lembure-export-report-lembur' ? 'active' : '' }}">
+                            <a href="{{ route('lembure.export-report-lembur') }}">
+                                <i class="icon-Export"><span class="path1"></span><span class="path2"></span></i>
+                                <span>Export Report Lembur</span>
                             </a>
                         </li>
                     @endif

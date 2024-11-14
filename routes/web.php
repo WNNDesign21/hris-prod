@@ -59,8 +59,15 @@ Route::get('/cutie/dashboard-cuti/get-data-cuti-detail-chart',[CutieController::
 Route::get('/cutie/dashboard-cuti/get-data-jenis-cuti-monthly-chart',[CutieController::class, 'get_data_jenis_cuti_monthly_chart']);
 Route::get('/cutie/setting-cuti/get-data-detail-jenis-cuti/{idJenisCuti}',[CutieController::class, 'get_data_detail_jenis_cuti']);
 
+Route::post('/lembure/pengajuan-lembur/get-data-karyawan-lembur',[LembureController::class, 'get_data_karyawan_lembur']); 
+Route::get('/lembure/pengajuan-lembur/get-data-karyawan-lembur',[LembureController::class, 'get_karyawan_lembur']); 
+Route::get('/lembure/pengajuan-lembur/get-data-lembur/{idLembur}',[LembureController::class, 'get_data_lembur']); 
+Route::post('/lembure/dashboard-lembur/get-monthly-lembur-per-departemen',[LembureController::class, 'get_monthly_lembur_per_departemen']); 
+Route::post('/lembure/dashboard-lembur/get-weekly-lembur-per-departemen',[LembureController::class, 'get_weekly_lembur_per_departemen']); 
+Route::post('/lembure/dashboard-lembur/get-current-month-lembur-per-departemen',[LembureController::class, 'get_current_month_lembur_per_departemen']); 
 
-Route::group(['middleware' => ['auth', 'notifikasi']], function () {
+
+Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
     // MENU UTAMA
     Route::get('/home', [HomeController::class, 'index'])->name('root');
     Route::get('/get-notification', [HomeController::class, 'get_notification']);
@@ -182,47 +189,94 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         Route::post('/export/export-cuti',[CutieController::class, 'export_cuti'])->name('cutie.export.cuti');
 
         /** PERSONAL CUTI */
-        Route::post('/pengajuan-cuti-datatable', [CutieController::class, 'pengajuan_cuti_datatable']);
-        Route::get('/pengajuan-cuti',[CutieController::class, 'pengajuan_cuti_view'])->name('cutie.pengajuan-cuti');
-        Route::post('/pengajuan-cuti/store',[CutieController::class, 'store'])->name('cutie.pengajuan-cuti.store');
-        Route::delete('/pengajuan-cuti/delete/{idCuti}',[CutieController::class, 'delete'])->name('cutie.pengajuan-cuti.delete');
-        Route::patch('/pengajuan-cuti/update/{idCuti}',[CutieController::class, 'update'])->name('cutie.pengajuan-cuti.update');
-        Route::patch('/pengajuan-cuti/cancel/{idCuti}',[CutieController::class, 'cancel'])->name('cutie.pengajuan-cuti.cancel');
-        Route::patch('/pengajuan-cuti/mulai-cuti/{idCuti}',[CutieController::class, 'mulai_cuti'])->name('cutie.pengajuan-cuti.mulai-cuti');
-        Route::patch('/pengajuan-cuti/selesai-cuti/{idCuti}',[CutieController::class, 'selesai_cuti'])->name('cutie.pengajuan-cuti.selesai-cuti');
+        
+        Route::group(['middleware' => ['role:atasan|member']], function () {
+            Route::post('/pengajuan-cuti-datatable', [CutieController::class, 'pengajuan_cuti_datatable']);
+            Route::get('/pengajuan-cuti',[CutieController::class, 'pengajuan_cuti_view'])->name('cutie.pengajuan-cuti');
+            Route::post('/pengajuan-cuti/store',[CutieController::class, 'store'])->name('cutie.pengajuan-cuti.store');
+            Route::delete('/pengajuan-cuti/delete/{idCuti}',[CutieController::class, 'delete'])->name('cutie.pengajuan-cuti.delete');
+            Route::patch('/pengajuan-cuti/update/{idCuti}',[CutieController::class, 'update'])->name('cutie.pengajuan-cuti.update');
+            Route::patch('/pengajuan-cuti/cancel/{idCuti}',[CutieController::class, 'cancel'])->name('cutie.pengajuan-cuti.cancel');
+            Route::patch('/pengajuan-cuti/mulai-cuti/{idCuti}',[CutieController::class, 'mulai_cuti'])->name('cutie.pengajuan-cuti.mulai-cuti');
+            Route::patch('/pengajuan-cuti/selesai-cuti/{idCuti}',[CutieController::class, 'selesai_cuti'])->name('cutie.pengajuan-cuti.selesai-cuti');
+        });
 
         /** MEMBER CUTI */
-        Route::post('/member-cuti-datatable', [CutieController::class, 'member_cuti_datatable']);
-        Route::get('/member-cuti',[CutieController::class, 'member_cuti_view'])->middleware('role:atasan')->name('cutie.member-cuti');
-        Route::post('/member-cuti/store',[CutieController::class, 'store'])->name('cutie.member-cuti.store');
-        Route::delete('/member-cuti/delete/{idCuti}',[CutieController::class, 'delete'])->name('cutie.member-cuti.delete');
-        Route::patch('/member-cuti/update/{idCuti}',[CutieController::class, 'update'])->name('cutie.member-cuti.update');
-        Route::patch('/member-cuti/update-dokumen-cuti/{idCuti}',[CutieController::class, 'update_dokumen_cuti'])->name('cutie.member-cuti.update-document-cuti');
-        Route::patch('/member-cuti/update-karyawan-pengganti/{idCuti}',[CutieController::class, 'update_karyawan_pengganti'])->name('cutie.member-cuti.update-karyawan-pengganti');
-        Route::patch('/member-cuti/reject/{idCuti}',[CutieController::class, 'reject'])->name('cutie.member-cuti.reject');
+        Route::group(['middleware' => ['role:atasan']], function () {
+            Route::post('/member-cuti-datatable', [CutieController::class, 'member_cuti_datatable']);
+            Route::get('/member-cuti',[CutieController::class, 'member_cuti_view'])->name('cutie.member-cuti');
+            Route::post('/member-cuti/store',[CutieController::class, 'store'])->name('cutie.member-cuti.store');
+            Route::delete('/member-cuti/delete/{idCuti}',[CutieController::class, 'delete'])->name('cutie.member-cuti.delete');
+            Route::patch('/member-cuti/update/{idCuti}',[CutieController::class, 'update'])->name('cutie.member-cuti.update');
+            Route::patch('/member-cuti/update-dokumen-cuti/{idCuti}',[CutieController::class, 'update_dokumen_cuti'])->name('cutie.member-cuti.update-document-cuti');
+            Route::patch('/member-cuti/update-karyawan-pengganti/{idCuti}',[CutieController::class, 'update_karyawan_pengganti'])->name('cutie.member-cuti.update-karyawan-pengganti');
+            Route::patch('/member-cuti/reject/{idCuti}',[CutieController::class, 'reject'])->name('cutie.member-cuti.reject');
+        });
 
         /** PERSONALIA CUTI */
-        Route::post('/personalia-cuti-datatable', [CutieController::class, 'personalia_cuti_datatable']);
-        Route::get('/personalia-cuti',[CutieController::class, 'personalia_cuti_view'])->name('cutie.personalia-cuti');
-        Route::delete('/personalia-cuti/delete/{idCuti}',[CutieController::class, 'delete'])->name('cutie.personalia-cuti.delete');
-        Route::patch('/personalia-cuti/cancel/{idCuti}',[CutieController::class, 'cancel'])->name('cutie.personalia-cuti.cancel');
+        Route::group(['middleware' => ['role:personalia']], function () {
+            Route::post('/personalia-cuti-datatable', [CutieController::class, 'personalia_cuti_datatable']);
+            Route::get('/personalia-cuti',[CutieController::class, 'personalia_cuti_view'])->name('cutie.personalia-cuti');
+            Route::delete('/personalia-cuti/delete/{idCuti}',[CutieController::class, 'delete'])->name('cutie.personalia-cuti.delete');
+            Route::patch('/personalia-cuti/cancel/{idCuti}',[CutieController::class, 'cancel'])->name('cutie.personalia-cuti.cancel');
         
-        /** SETTING CUTI */
-        Route::post('/setting-cuti-datatable', [CutieController::class, 'setting_cuti_datatable']);
-        Route::get('/setting-cuti',[CutieController::class, 'setting_cuti_view'])->name('cutie.setting-cuti');
-        Route::delete('/setting-cuti/delete/{idCuti}',[CutieController::class, 'delete_jenis_cuti'])->name('cutie.setting-cuti.delete');
-        Route::patch('/setting-cuti/update/{idCuti}',[CutieController::class, 'update_jenis_cuti'])->name('cutie.setting-cuti.update');
-        Route::post('/setting-cuti/store',[CutieController::class, 'store_jenis_cuti'])->name('cutie.setting-cuti.store');
+            /** SETTING CUTI */
+            Route::post('/setting-cuti-datatable', [CutieController::class, 'setting_cuti_datatable']);
+            Route::get('/setting-cuti',[CutieController::class, 'setting_cuti_view'])->name('cutie.setting-cuti');
+            Route::delete('/setting-cuti/delete/{idCuti}',[CutieController::class, 'delete_jenis_cuti'])->name('cutie.setting-cuti.delete');
+            Route::patch('/setting-cuti/update/{idCuti}',[CutieController::class, 'update_jenis_cuti'])->name('cutie.setting-cuti.update');
+            Route::post('/setting-cuti/store',[CutieController::class, 'store_jenis_cuti'])->name('cutie.setting-cuti.store');
 
-        /** BYPASS CUTI */
-        Route::get('/bypass-cuti',[CutieController::class, 'bypass_cuti_view'])->name('cutie.bypass-cuti');
-        Route::post('/bypass-cuti/store',[CutieController::class, 'bypass_store'])->name('cutie.bypass-cuti.store');
+            /** BYPASS CUTI */
+            Route::get('/bypass-cuti',[CutieController::class, 'bypass_cuti_view'])->name('cutie.bypass-cuti');
+            Route::post('/bypass-cuti/store',[CutieController::class, 'bypass_store'])->name('cutie.bypass-cuti.store');
+        });
      });
 
      Route::group(['prefix' => 'lembure'], function () {
-        Route::get('/dashboard', [LembureController::class, 'index'])->name('lembure.dashboard');
-        Route::get('/pengajuan-lembur', [LembureController::class, 'pengajuan_lembur_view'])->name('lembure.pengajuan-lembur');
-        Route::post('/pengajuan-lembur-datatable', [LembureController::class, 'pengajuan_lembur_datatable']);
+
+        // DASHBOARD
+        Route::get('/dashboard', [LembureController::class, 'index'])->name('lembure.dashboard')->middleware('role:personalia|atasan');
+
+        Route::group(['middleware' => ['role:atasan|member']], function () {
+        // PENGAJUAN LEMBUR (LEADER)
+            Route::get('/pengajuan-lembur', [LembureController::class, 'pengajuan_lembur_view'])->name('lembure.pengajuan-lembur');
+            Route::post('/pengajuan-lembur-datatable', [LembureController::class, 'pengajuan_lembur_datatable']);
+            Route::post('/pengajuan-lembur/store', [LembureController::class, 'store'])->name('lembure.pengajuan-lembur.store');
+            Route::delete('pengajuan-lembur/delete/{idLembur}',[LembureController::class, 'delete'])->name('lembure.pengajuan-lembur.delete');
+            Route::patch('/pengajuan-lembur/update/{idLembur}', [LembureController::class, 'update'])->name('lembure.pengajuan-lembur.update');
+            Route::patch('/pengajuan-lembur/done/{idLembur}', [LembureController::class, 'done'])->name('lembure.pengajuan-lembur.done');
+
+        });
+
+        Route::group(['middleware' => ['role:atasan|personalia']], function () {
+            // APPROVAL LEMBUR (CHECK)
+            Route::get('/approval-lembur', [LembureController::class, 'approval_lembur_view'])->name('lembure.approval-lembur');
+            Route::post('/approval-lembur-datatable', [LembureController::class, 'approval_lembur_datatable']);
+            Route::patch('/approval-lembur/checked/{idLembur}', [LembureController::class, 'checked'])->name('lembure.approval-lembur.checked');
+            Route::patch('/approval-lembur/approved/{idLembur}', [LembureController::class, 'approved'])->name('lembure.approval-lembur.approved');
+            Route::patch('/approval-lembur/legalized/{idLembur}', [LembureController::class, 'legalized'])->name('lembure.approval-lembur.legalized');
+            Route::patch('/approval-lembur/checked-aktual/{idLembur}', [LembureController::class, 'checked_aktual'])->name('lembure.approval-lembur.checked-aktual');
+            Route::patch('/approval-lembur/approved-aktual/{idLembur}', [LembureController::class, 'approved_aktual'])->name('lembure.approval-lembur.approved-aktual');
+            Route::patch('/approval-lembur/legalized-aktual/{idLembur}', [LembureController::class, 'legalized_aktual'])->name('lembure.approval-lembur.legalized-aktual');
+        });
+
+        Route::group(['middleware' => ['role:personalia']], function () {
+            // Setting Upah Lembur
+            Route::get('/setting-upah-lembur', [LembureController::class, 'setting_upah_lembur_view'])->name('lembure.setting-upah-lembur');
+            Route::post('/setting-upah-lembur-datatable', [LembureController::class, 'setting_upah_lembur_datatable']);
+            Route::patch('/setting-upah-lembur/update', [LembureController::class, 'update_setting_upah_lembur'])->name('lembure.setting-upah-lembur.update');
+            Route::post('/upload-upah-lembur-karyawan', [LembureController::class, 'upload_upah_lembur_karyawan'])->name('lembure.setting-upah-lembur.upload');
+
+            // Setting Lembur
+            Route::get('/setting-lembur', [LembureController::class, 'setting_lembur_view'])->name('lembure.setting-lembur');
+            Route::patch('/setting-lembur/update', [LembureController::class, 'update_setting_lembur'])->name('lembure.setting-lembur.update');
+
+            // Export Report Lembur
+            Route::get('/export-report-lembur', [LembureController::class, 'export_report_lembur_view'])->name('lembure.export-report-lembur');
+            Route::post('/export-report-lembur/rekap-lembur-perbulan', [LembureController::class, 'export_rekap_lembur_perbulan'])->name('lembure.export-report-lembur.rekap-lembur-perbulan');
+            Route::post('/export-report-lembur/slip-lembur-perbulan', [LembureController::class, 'export_slip_lembur_perbulan'])->name('lembure.export-report-lembur.export-slip-lembur-perbulan');
+        });
      });
 });
 

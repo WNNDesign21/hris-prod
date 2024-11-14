@@ -46,7 +46,7 @@
             expandBtnHTML   : '<button data-action="expand" type="button">Expand</button>',
             collapseBtnHTML : '<button data-action="collapse" type="button">Collapse</button>',
             group           : 0,
-            maxDepth        : 5,
+            maxDepth        : 0,
             threshold       : 20
         };
 
@@ -246,6 +246,7 @@
 
         dragStart: function(e)
         {
+            return false;
             var mouse    = this.mouse,
                 target   = $(e.target),
                 dragItem = target.closest(this.options.itemNodeName);

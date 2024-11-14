@@ -43,18 +43,18 @@ class KontrakController extends Controller
     {
 
         $columns = array(
-            0 => 'id_kontrak',
+            0 => 'kontraks.id_kontrak',
             1 => 'karyawans.nama',
             2 => 'departemens.nama',
             3 => 'kontraks.nama_posisi',
-            4 => 'no_surat',
-            5 => 'issued_date',
-            6 => 'jenis',
-            7 => 'status',
-            8 => 'durasi',
-            9 => 'salary',
-            10 => 'tanggal_mulai',
-            11 => 'tanggal_selesai',
+            4 => 'kontraks.no_surat',
+            5 => 'kontraks.issued_date',
+            6 => 'kontraks.jenis',
+            7 => 'kontraks.status',
+            8 => 'kontraks.durasi',
+            9 => 'kontraks.salary',
+            10 => 'kontraks.tanggal_mulai',
+            11 => 'kontraks.tanggal_selesai',
         );
 
         $totalData = Kontrak::count();
@@ -116,7 +116,7 @@ class KontrakController extends Controller
 
         $kontrak = Kontrak::getData($dataFilter, $settings);
         $totalFiltered = Kontrak::countData($dataFilter);
-
+        
         $dataTable = [];
 
         if (!empty($kontrak)) {
@@ -157,7 +157,6 @@ class KontrakController extends Controller
             "order" => $order,
             "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
             "dir" => $dir,
-            "column"=>$request->input('order.0.column')
         );
 
         return response()->json($json_data, 200);
@@ -276,7 +275,7 @@ class KontrakController extends Controller
                     $kry->jenis_kontrak = $jenis;
                     $bulan_romawi = $this->angka_to_romawi(Carbon::parse($tanggal_mulai)->month);
                     $hrd = $tempat_administrasi == 'Karawang' ? 'HRD-TCF3' : 'HRD-TCF2';
-                    $jenis_on_surat = $jenis.'-'.$this->angka_to_romawi($kontrak_karyawan);
+                    $jenis_on_surat = 'SKP'.'-'.$this->angka_to_romawi($kontrak_karyawan);
                     $tahun = Carbon::parse($tanggal_mulai)->format('Y');
                     $no_surat_text = 'No. ' . str_pad($no_surat_int, 3, '0', STR_PAD_LEFT) . '/' . $jenis_on_surat . '/' . $hrd . '/'.$bulan_romawi.'/' . $tahun;
                     $kry->save();
@@ -1019,6 +1018,10 @@ class KontrakController extends Controller
                             $karyawan->tanggal_selesai = $tanggal_selesai;
                         }
 
+                        if($row[4] == 'PKWTT'){
+                            $karyawan->tanggal_selesai = null;
+                        }
+
                         //CEK APAKAH ADA CUTI BERSAMA SEBELUM TANGGAL SELESAI KONTRAK YANG BARU DI UPLOAD
                         $existingCutiBersama = Event::whereDate('tanggal_mulai', '<=', $tanggal_selesai)->where('jenis_event', 'CB');
                         if($existingCutiBersama->exists()){
@@ -1052,11 +1055,11 @@ class KontrakController extends Controller
                             'nama_posisi' => Posisi::find($posisi_id)->nama ? Posisi::find($posisi_id)->nama : '',
                             'jenis' => $row[4],
                             'status' => 'DONE',
-                            'durasi' => $row[5],
+                            'durasi' => $row[4] !== 'PKWTT' ? $row[5] : null,
                             'salary' => $row[6],
                             'deskripsi' => 'History Kontrak Karyawan',
                             'tanggal_mulai' => $tanggal_mulai,
-                            'tanggal_selesai' => $tanggal_selesai,
+                            'tanggal_selesai' => $row[4] !== 'PKWTT' ? $tanggal_selesai : null,
                             'tempat_administrasi' => $row[9],
                             'isReactive' => 'N',
                             'organisasi_id' => $organisasi_id,

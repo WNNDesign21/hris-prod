@@ -17,7 +17,11 @@
         <div class="col-12">
             <div class="box">
                 <div class="box-header d-flex justify-content-between">
-                    <h4 class="box-title">Susunan Korporasi</h4>
+                    <h4 class="box-title">Hierarki Approval</h4>
+                    <ul class="box-controls pull-right">
+                        <li><a class="box-btn-slide" href="#"></a></li>
+                        <li><a class="box-btn-fullscreen" href="#"></a></li>
+                    </ul>
                 </div>
                 <div class="box-body">
                     {{-- <div class="myadmin-dd dd" id="nestable"> --}}

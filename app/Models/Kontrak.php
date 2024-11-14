@@ -167,14 +167,14 @@ class Kontrak extends Model
             $data->where(function ($query) use ($search) {
                 $query->where('karyawans.nama', 'ILIKE', "%{$search}%")
                 ->orWhere('kontraks.nama_posisi', 'ILIKE', "%{$search}%")
-                ->orWhere('durasi', 'ILIKE', "%{$search}%")
-                ->orWhere('status', 'ILIKE', "%{$search}%")
-                ->orWhere('salary', 'ILIKE', "%{$search}%")
+                ->orWhere('kontraks.durasi', 'ILIKE', "%{$search}%")
+                ->orWhere('kontraks.status', 'ILIKE', "%{$search}%")
+                ->orWhere('kontraks.salary', 'ILIKE', "%{$search}%")
                 ->orWhere('kontraks.tanggal_mulai', 'ILIKE', "%{$search}%")
                 ->orWhere('kontraks.tanggal_selesai', 'ILIKE', "%{$search}%")
-                ->orWhere('issued_date', 'ILIKE', "%{$search}%")
-                ->orWhere('id_kontrak', 'ILIKE', "%{$search}%")
-                ->orWhere('karyawan_id', 'ILIKE', "%{$search}%")
+                ->orWhere('kontraks.issued_date', 'ILIKE', "%{$search}%")
+                ->orWhere('kontraks.id_kontrak', 'ILIKE', "%{$search}%")
+                ->orWhere('kontraks.karyawan_id', 'ILIKE', "%{$search}%")
                 ->orWhere('departemens.nama', 'ILIKE', "%{$search}%");
             });
         }
@@ -193,6 +193,6 @@ class Kontrak extends Model
 
     public static function countData($dataFilter)
     {
-        return self::_query($dataFilter)->count();
+        return self::_query($dataFilter)->get()->count();
     }
 }

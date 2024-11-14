@@ -53,10 +53,11 @@
                 </div>
 
                 {{-- CARD LEMBUR SYSTEM --}}
-                @if (auth()->user()->hasRole('personalia') || auth()->user()->karyawan->settingLembur->jabatan_id >= 5)
+                @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('atasan') || !$lembure['has_leader'])
                     {{-- CARD LEMBUR SYSTEM --}}
-                    {{-- <div class="col-lg-6 col-12">
-                        <a href="{{ route('lembure.dashboard') }}" class="box pull-up">
+                    <div class="col-lg-6 col-12">
+                        <a href="{{ auth()->user()->hasRole('personalia') || auth()->user()->karyawan->posisi[0]->jabatan_id <= 3 ? route('lembure.dashboard') : route('lembure.pengajuan-lembur') }}"
+                            class="box pull-up">
                             <div class="box-body">
                                 <div class="d-flex align-items-center">
                                     <div class="icon bg-primary-light rounded-circle w-60 h-60 text-center l-h-80">
@@ -71,7 +72,7 @@
                                 </div>
                             </div>
                         </a>
-                    </div> --}}
+                    </div>
                 @endif
             </div>
         </div>

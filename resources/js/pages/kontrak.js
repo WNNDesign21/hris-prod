@@ -685,11 +685,13 @@ $(function () {
                         contentType: false,
                         processData: false,
                         success: function (data) {
+                            input.val('');
                             showToast({ title: data.message });
                             loadingSwalClose();
                             refreshTable();
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
+                            loadingSwalClose();
                             showToast({ icon: "error", title: jqXHR.responseJSON.message });
                         },
                     })

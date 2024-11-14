@@ -64,6 +64,7 @@ class Posisi extends Model
         $getSeksi = Seksi::select("id_seksi as sek_id", "nama as nama_sek");
         $data = self::select(
             'id_posisi',
+            'posisis.jabatan_id',
             'posisis.organisasi_id',
             'posisis.divisi_id',
             'posisis.departemen_id',

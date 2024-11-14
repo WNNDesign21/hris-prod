@@ -16,6 +16,7 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -54,32 +55,28 @@ class KaryawanController extends Controller
             6 => 'tanggal_mulai',
             7 => 'tanggal_selesai',
             8 => 'status_karyawan',
-            10 => 'nik',
-            11 => 'no_kk',
-            12 => 'tempat_lahir',
-            13 => 'tanggal_lahir',
-            14 => 'jenis_kelamin',  
-            15 => 'agama',
-            16 => 'gol_darah',
-            17 => 'status_keluarga',
-            18 => 'kategori_keluarga',
-            19 => 'alamat',
-            20 => 'domisili',
-            21 => 'npwp',
-            22 => 'no_bpjs_ks',
-            23 => 'no_bpjs_kt',
-            24 => 'no_telp',
-            25 => 'email',
-            26 => 'nama_bank',
-            27 => 'no_rekening',    
-            28 => 'nama_rekening',
-            29 => 'nama_ibu_kandung',
-            30 => 'jenjang_pendidikan',
-            31 => 'jurusan_pendidikan',
-            32 => 'no_telp_darurat',
-            33 => 'gol_darah',
-            35 => 'hutang_cuti',
-            
+            9 => 'nik',
+            10 => 'no_kk',
+            11 => 'tempat_lahir',
+            12 => 'tanggal_lahir',
+            13 => 'jenis_kelamin',  
+            14 => 'agama',
+            15 => 'alamat',
+            16 => 'domisili',
+            17 => 'npwp',
+            18 => 'no_bpjs_ks',
+            19 => 'no_bpjs_kt',
+            20 => 'no_telp',
+            21 => 'email',
+            22 => 'nama_bank',
+            23 => 'no_rekening',
+            24 => 'nama_rekening',
+            25 => 'nama_ibu_kandung',
+            26 => 'jenjang_pendidikan',
+            27 => 'jurusan_pendidikan',
+            28 => 'no_telp_darurat',
+            29 => 'gol_darah',
+            31 => 'hutang_cuti'
         );
 
         $totalData = Karyawan::count();
@@ -800,7 +797,7 @@ class KaryawanController extends Controller
         }
 
         $timestamp = now()->timestamp;
-        $baseString = $initials . $timestamp;
+        $baseString = $initials . $timestamp . rand(100, 999);
 
         return $baseString;
     }
@@ -830,12 +827,13 @@ class KaryawanController extends Controller
                 $spreadsheet = IOFactory::load(storage_path("app/public/".$karyawan_file));
                 $worksheet = $spreadsheet->getActiveSheet();
                 $data = $worksheet->toArray();
-                $chunkSize = 100;
+                $chunkSize = 25;
 
                 //Chunck data agar tidak terlalu banyak
                 for ($i = 1; $i <= count($data); $i += $chunkSize) {
                     $chunk = array_slice($data, $i - 1, $chunkSize);
                     foreach ($chunk as $index => $row) {
+                        Log::info('Memproses data ke-' . $index+1);
                         if ($index < 1) { 
                             continue;
                         }
