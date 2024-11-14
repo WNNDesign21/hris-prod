@@ -797,7 +797,7 @@ class KaryawanController extends Controller
         }
 
         $timestamp = now()->timestamp;
-        $baseString = $initials . $timestamp;
+        $baseString = $initials . $timestamp . rand(100, 999);
 
         return $baseString;
     }
