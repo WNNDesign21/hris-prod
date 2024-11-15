@@ -467,6 +467,7 @@ $(function () {
                 loadingSwalClose();
                 showToast({ title: data.message });
                 refreshTable();
+                closePosisi();
                 // location.reload();
             },
             error: function (jqXHR, textStatus, errorThrown) {
