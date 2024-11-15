@@ -208,10 +208,10 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
             Route::post('/member-cuti/store',[CutieController::class, 'store'])->name('cutie.member-cuti.store');
             Route::delete('/member-cuti/delete/{idCuti}',[CutieController::class, 'delete'])->name('cutie.member-cuti.delete');
             Route::patch('/member-cuti/update/{idCuti}',[CutieController::class, 'update'])->name('cutie.member-cuti.update');
-            Route::patch('/member-cuti/update-dokumen-cuti/{idCuti}',[CutieController::class, 'update_dokumen_cuti'])->name('cutie.member-cuti.update-document-cuti');
             Route::patch('/member-cuti/update-karyawan-pengganti/{idCuti}',[CutieController::class, 'update_karyawan_pengganti'])->name('cutie.member-cuti.update-karyawan-pengganti');
             Route::patch('/member-cuti/reject/{idCuti}',[CutieController::class, 'reject'])->name('cutie.member-cuti.reject');
         });
+        Route::patch('/member-cuti/update-dokumen-cuti/{idCuti}',[CutieController::class, 'update_dokumen_cuti'])->name('cutie.member-cuti.update-document-cuti');
 
         /** PERSONALIA CUTI */
         Route::group(['middleware' => ['role:personalia']], function () {
