@@ -19,7 +19,7 @@
     </li>
     <li>
         <!-- inner menu: contains the actual data -->
-        <ul class="menu sm-scroll">
+        <ul class="menu sm-scroll" style="max-height: 300px; overflow-y: auto;">
             @if (!empty($notification['list']))
                 @foreach ($notification['list'] as $list)
                     <li>

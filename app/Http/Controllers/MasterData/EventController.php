@@ -142,7 +142,7 @@ class EventController extends Controller
                     if($sisa_cuti_bersama_after < 0){
                         $kry->update([
                             'sisa_cuti_bersama' => 0,
-                            'hutang_cuti' => abs($sisa_cuti_bersama_after)
+                            'hutang_cuti' => abs($sisa_cuti_bersama_after) + $kry->hutang_cuti
                         ]);
                     } else {
                         $kry->update([
@@ -208,7 +208,7 @@ class EventController extends Controller
         try {
             $event = Event::findOrFail($id_event); 
             if($event->jenis_event == 'CB'){
-                $karyawans = Karyawan::aktif()->organisasi($organisasi_id)->where('tanggal_selesai', '>=', $event->tanggal_mulai)->get();
+                $karyawans = Karyawan::aktif()->organisasi($organisasi_id)->where('tanggal_selesai', '>=', $event->tanggal_mulai)->orWhere('jenis_kontrak', 'PKWTT')->get();
                 if($karyawans){
                     foreach($karyawans as $kry){
                         $sisa_cuti_bersama_after = $kry->sisa_cuti_bersama + $event->durasi;
