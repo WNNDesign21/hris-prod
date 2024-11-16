@@ -205,10 +205,13 @@ $(function () {
                             refreshTable();
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
+                            input.val('');
                             loadingSwalClose();
                             showToast({ icon: "error", title: jqXHR.responseJSON.message });
                         },
                     })
+                } else {
+                    input.val('');
                 } 
             });
         });
