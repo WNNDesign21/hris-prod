@@ -134,7 +134,7 @@ class EventController extends Controller
 
             if($jenis_event == 'CB'){
                 // GET KARYAWAN YANG TANGGAL SELESAI NYA LEBIH BESAR DARI TANGGAL SELESAI CUTI BERSAMA (KARYAWAN MENGIKUTI CUTI BERSAMA)
-                $karyawans = Karyawan::aktif()->organisasi($organisasi_id)->where('tanggal_selesai', '>=', $tanggal_mulai)->get();
+                $karyawans = Karyawan::aktif()->organisasi($organisasi_id)->where('tanggal_selesai', '>=', $tanggal_mulai)->orWhere('jenis_kontrak', 'PKWTT')->get();
 
                 // KURANGI SISA CUTI BERSAMA SETIAP KARYAWAN YANG MENGIKUTI CUTI BERSAMA
                 foreach($karyawans as $kry){

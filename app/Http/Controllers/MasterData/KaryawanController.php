@@ -831,12 +831,12 @@ class KaryawanController extends Controller
 
                 //Chunck data agar tidak terlalu banyak
                 for ($i = 1; $i <= count($data); $i += $chunkSize) {
-                    $chunk = array_slice($data, $i - 1, $chunkSize);
+                    $chunk = array_slice($data, $i, $chunkSize);
                     foreach ($chunk as $index => $row) {
-                        Log::info('Memproses data ke-' . $index+1);
-                        if ($index < 1) { 
-                            continue;
-                        }
+                        // Log::info('Memproses data ke-' . $index+1);
+                        // if ($index < 1) { 
+                        //     continue;
+                        // }
 
                         //Convert tanggal lahir ke format Ymd jika ada
                         if($row[7] !== null){
