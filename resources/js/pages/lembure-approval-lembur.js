@@ -1273,4 +1273,60 @@ $(function () {
             },
         }); 
     })
+
+    //REJECT
+     $('.btnRejectClose').on("click", function (){
+        closeReject();
+    })
+
+    var modalRejectLemburOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalRejectLembur = new bootstrap.Modal(
+        document.getElementById("modal-reject-lembur"),
+        modalRejectLemburOptions
+    );
+    
+    function openReject() {
+        modalRejectLembur.show();
+    }
+
+    function closeReject() {
+        modalRejectLembur.hide();
+    }
+
+    $('#approval-table').on("click", '.btnRejectLembur', function () {
+        let idLembur = $(this).data('id-lembur');
+        let url = base_url + '/lembure/approval-lembur/rejected/' + idLembur;
+        $('#form-reject-lembur').attr('action', url);
+        openReject();
+    })
+
+    $('#form-reject-lembur').on('submit', function (e){
+        loadingSwalShow();
+        e.preventDefault();
+        let url = $('#form-reject-lembur').attr('action');
+
+        var formData = new FormData($('#form-reject-lembur')[0]);
+        $.ajax({
+            url: url,
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (data) {
+                showToast({ title: data.message });
+                refreshTable();
+                closeReject();
+                loadingSwalClose();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        })
+    });
 });

@@ -254,6 +254,7 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
             // APPROVAL LEMBUR (CHECK)
             Route::get('/approval-lembur', [LembureController::class, 'approval_lembur_view'])->name('lembure.approval-lembur');
             Route::post('/approval-lembur-datatable', [LembureController::class, 'approval_lembur_datatable']);
+            Route::patch('/approval-lembur/rejected/{idLembur}', [LembureController::class, 'rejected'])->name('lembure.approval-lembur.rejected');
             Route::patch('/approval-lembur/checked/{idLembur}', [LembureController::class, 'checked'])->name('lembure.approval-lembur.checked');
             Route::patch('/approval-lembur/approved/{idLembur}', [LembureController::class, 'approved'])->name('lembure.approval-lembur.approved');
             Route::patch('/approval-lembur/legalized/{idLembur}', [LembureController::class, 'legalized'])->name('lembure.approval-lembur.legalized');

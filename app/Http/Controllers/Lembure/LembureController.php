@@ -145,6 +145,7 @@ class LembureController extends Controller
                 $menit = $data->total_durasi % 60;
                 $tanggal_lembur = Carbon::parse(DetailLembur::where('lembur_id', $data->id_lembur)->first()->rencana_mulai_lembur)->format('Y-m-d');
                 $is_member = false;
+                $rejected = false;
 
                 if($data->status == 'WAITING'){
                     $status = '<span class="badge badge-warning">WAITING</span>';
@@ -153,7 +154,8 @@ class LembureController extends Controller
                 } elseif ($data->status == 'COMPLETED'){
                     $status = '<span class="badge badge-success">COMPLETED</span>';
                 } else {
-                    $status = '<span class="badge badge-rejected">REJECTED</span>';
+                    $rejected = true;
+                    $status = '<span class="badge badge-danger mb-1">REJECTED</span><br><small class="text-fade">❌ '.$data->rejected_by.'-'.Carbon::parse($data->rejected_at)->format('Y-m-d').'</small><br><small class="text-fade"> Note : '.$data->rejected_note.'</small>';
                 }
 
                 if(auth()->user()->karyawan->posisi[0]->jabatan_id >= 4){
@@ -266,6 +268,7 @@ class LembureController extends Controller
                 $menit = $data->total_durasi % 60;
                 $tanggal_lembur = Carbon::parse(DetailLembur::where('lembur_id', $data->id_lembur)->first()->rencana_mulai_lembur)->format('Y-m-d');
                 $total_nominal = $data->detailLembur->where('is_aktual_approved', 'Y')->sum('nominal');
+                $rejected = false;
 
                 //STYLE STATUS
                 if($data->status == 'WAITING'){
@@ -275,7 +278,8 @@ class LembureController extends Controller
                 } elseif ($data->status == 'COMPLETED'){
                     $status = '<span class="badge badge-success">COMPLETED</span>';
                 } else {
-                    $status = '<span class="badge badge-rejected">REJECTED</span>';
+                    $rejected = true;
+                    $status = '<span class="badge badge-danger mb-1">REJECTED</span><br><small class="text-fade">❌ '.$data->rejected_by.'-'.Carbon::parse($data->rejected_at)->format('Y-m-d').'</small><br><small class="text-fade"> Note : '.$data->rejected_note.'</small>';
                 }
 
                 //BUTTON ACTION DATATABLE
@@ -311,7 +315,7 @@ class LembureController extends Controller
                     } else {
                          //BEFORE PLANNED
                         if($data->plan_checked_by == null){
-                            $button_checked_plan = '<button class="btn btn-sm btn-success btnChecked" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-can-checked="'.($is_can_checked ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="far fa-check-circle"></i> Checked</button>';
+                            $button_checked_plan = '<div class="btn-group"><button class="btn btn-sm btn-success btnChecked" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-can-checked="'.($is_can_checked ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="far fa-check-circle"></i> Checked</button><button type="button" class="btn btn-sm btn-danger waves-effect btnRejectLembur" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-times-circle"></i> Reject</button></div>';
                         } else {
                             $button_checked_plan = '✅<br><small class="text-bold">'.$data?->plan_checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_checked_at)->diffForHumans().'</small>';
                         }
@@ -367,12 +371,12 @@ class LembureController extends Controller
                     //BUTTON APPROVED DI SISI PLANT HEAD
                     if($data->plan_approved_by == null){
                         if($data->plan_checked_by !== null){
-                            $button_approved_plan = '<button class="btn btn-sm btn-success btnApproved" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-can-checked="'.($is_can_checked ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-thumbs-up"></i> Approved</button>';
+                            $button_approved_plan = '<div class="btn-group"><button class="btn btn-sm btn-success btnApproved" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-can-checked="'.($is_can_checked ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-thumbs-up"></i> Approved</button><button type="button" class="btn btn-sm btn-danger waves-effect btnRejectLembur" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-times-circle"></i> Reject</button></div>';
                         } 
 
                         //APPROVAL LANGSUNG OLEH PLANT HEAD JIKA USER YANG MEMBUAT DOKUMEN TIDAK PUNYA DEPT.HEAD
                         if(!$this->has_department_head($data->issued->posisi) && $data->plan_checked_by == null){
-                            $button_approved_plan = '<button class="btn btn-sm btn-success btnApproved" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-can-checked="'.($is_can_checked ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-thumbs-up"></i> Approved</button>';
+                            $button_approved_plan = '<div class="btn-group"><button class="btn btn-sm btn-success btnApproved" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-can-checked="'.($is_can_checked ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-thumbs-up"></i> Approved</button><button type="button" class="btn btn-sm btn-danger waves-effect btnRejectLembur" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-times-circle"></i> Reject</button></div>';
                         }
                     } else {
                         //BEFORE PLANNED
@@ -437,7 +441,7 @@ class LembureController extends Controller
                     //BUTTON LEGALIZED DI SISI PERSONALIA
                     if($data->plan_legalized_by == null){
                         if($data->plan_approved_by !== null){
-                            $button_legalized_plan = '<button class="btn btn-sm btn-success btnLegalized" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-can-checked="'.($is_can_checked ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-balance-scale"></i> Legalized</button>';
+                            $button_legalized_plan = '<div class="btn-group"><button class="btn btn-sm btn-success btnLegalized" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-can-checked="'.($is_can_checked ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-balance-scale"></i> Legalized</button><button type="button" class="btn btn-sm btn-danger waves-effect btnRejectLembur" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-times-circle"></i> Reject</button></div>';
                         } 
                     } else {
                         //BEFORE PLANNED
@@ -463,12 +467,12 @@ class LembureController extends Controller
                 $nestedData['total_durasi'] = $jam . ' Jam ' . $menit . ' Menit';
                 $nestedData['total_nominal'] = 'Rp. ' . number_format($total_nominal, 0, ',', '.');
                 $nestedData['status'] = $status;
-                $nestedData['plan_checked_by'] = $button_checked_plan;
-                $nestedData['plan_approved_by'] = $button_approved_plan;
-                $nestedData['plan_legalized_by'] = $button_legalized_plan;
-                $nestedData['actual_checked_by'] =  $button_checked_actual;
-                $nestedData['actual_approved_by'] = $button_approved_actual;
-                $nestedData['actual_legalized_by'] = $button_legalized_actual;
+                $nestedData['plan_checked_by'] = !$rejected ? $button_checked_plan : $button_checked_plan;
+                $nestedData['plan_approved_by'] = !$rejected ? $button_approved_plan : '';
+                $nestedData['plan_legalized_by'] = !$rejected ? $button_legalized_plan : '';
+                $nestedData['actual_checked_by'] =  !$rejected ? $button_checked_actual : '';
+                $nestedData['actual_approved_by'] = !$rejected ? $button_approved_actual : '';
+                $nestedData['actual_legalized_by'] = !$rejected ? $button_legalized_actual : '';
                 $nestedData['action'] = '<button type="button" class="waves-effect waves-light btn btn-sm btn-info btnDetail" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-eye"></i> Detail</button>';
 
                 $dataTable[] = $nestedData;
@@ -604,6 +608,18 @@ class LembureController extends Controller
                 'divisi_id' => $divisi_id,
                 'jenis_hari' => $jenis_hari
             ]);
+
+            if(auth()->user()->karyawan->posisi[0]->jabatan_id == 4){
+                if(!$this->has_department_head(auth()->user()->karyawan->posisi)){
+                    $checked_by = auth()->user()->karyawan->nama;
+                    $header->update([
+                        'plan_checked_by' => $checked_by,
+                        'plan_checked_at' => now(),
+                        'actual_checked_by' => $checked_by,
+                        'actual_checked_at' => now(),
+                    ]);
+                }
+            }
 
             if(auth()->user()->karyawan->posisi[0]->jabatan_id == 3){
                 $checked_by = auth()->user()->karyawan->nama;
@@ -1848,6 +1864,50 @@ class LembureController extends Controller
             $lembur->save();
             DB::commit();
             return response()->json(['message' => 'Pengajuan Lembur berhasil di Legalized!'],200);
+        } catch (Throwable $e){
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function rejected(Request $request, string $id_lembur)
+    {
+        $dataValidate = [
+            'rejected_note' => ['required'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $rejected_note = $request->rejected_note;
+
+        DB::beginTransaction();
+        try{
+            $lembur = Lembure::find($id_lembur);
+            if(auth()->user()->hasRole('personalia')){
+                $rejected_by = 'HRD & GA';
+            } else {
+                $rejected_by = auth()->user()->karyawan->nama;
+            }
+
+            $detail_lembur = $lembur->detailLembur;
+            foreach ($detail_lembur as $detail){
+                $detail->is_rencana_approved = 'N';
+                $detail->is_aktual_approved = 'N';
+                $detail->save();
+            }
+
+            $lembur->status = 'REJECTED';
+            $lembur->rejected_by = $rejected_by;
+            $lembur->rejected_note = $rejected_note;
+            $lembur->rejected_at = now();
+            $lembur->save();
+            DB::commit();
+            return response()->json(['message' => 'Pengajuan Lembur berhasil di Rejected!'],200);
         } catch (Throwable $e){
             DB::rollBack();
             return response()->json(['message' => $e->getMessage()], 500);

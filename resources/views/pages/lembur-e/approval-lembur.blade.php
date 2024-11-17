@@ -58,4 +58,5 @@
     @include('pages.lembur-e.modal-approval-lembur')
     @include('pages.lembur-e.modal-detail-lembur')
     @include('pages.lembur-e.modal-aktual-approval-lembur')
+    @include('pages.lembur-e.modal-reject-lembur')
 @endsection
