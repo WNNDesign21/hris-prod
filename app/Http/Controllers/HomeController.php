@@ -6,7 +6,16 @@ use Carbon\Carbon;
 use App\Models\Cutie;
 use App\Models\Kontrak;
 use App\Models\Karyawan;
+use App\Models\DetailLembur;
 use Illuminate\Http\Request;
+use App\Models\SettingLembur;
+use App\Models\SettingLemburKaryawan;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
 class HomeController extends Controller
 {
@@ -161,109 +170,6 @@ class HomeController extends Controller
     }
 
     public function get_notification(){
-        // $notification = [];
-        // $today = date('Y-m-d');
-        // $user = auth()->user();
-        // $tenggang_karyawans = [];
-        // $organisasi_id = auth()->user()->organisasi_id;
-
-        // if($user->hasRole('personalia') || $user->hasRole('super user')){
-        //     $tenggang_karyawans = Karyawan::organisasi($organisasi_id)->where('status_karyawan', 'AT')
-        //         ->whereRaw('(tanggal_selesai - ?) <= 30', [$today])
-        //         ->selectRaw('*, (tanggal_selesai - ?) as jumlah_hari', [$today])
-        //         ->get();
-
-        //     $cutie_approval = Cutie::organisasi($organisasi_id)->selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari',[$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
-        //         ->where('status_dokumen', 'WAITING')
-        //         ->where(function($query) {
-        //             $query->where('status_cuti', '!=', 'CANCELED')
-        //                 ->orWhereNull('status_cuti');
-        //         })
-        //         ->whereNotNull('approved_by')
-        //         ->whereNull('legalized_by')
-        //         ->get();
-
-        //     $rejected_cuti = [];
-
-        // } elseif ($user->hasRole('atasan')){
-        //     $me = auth()->user()->karyawan;
-        //     $posisi = $user->karyawan->posisi;
-        //     $id_posisi_members = $this->get_member_posisi($posisi);
-
-        //     foreach ($posisi as $ps){
-        //         $index = array_search($ps->id_posisi, $id_posisi_members);
-        //         array_splice($id_posisi_members, $index, 1);
-        //     }
-
-        //     $members = $id_posisi_members;
-
-        //     $tenggang_karyawans = Karyawan::where('status_karyawan', 'AT')
-        //         ->whereRaw('(tanggal_selesai - ?) <= 30', [$today])
-        //         ->whereHas('posisi', function($query) use ($members) {
-        //             $query->whereIn('posisi_id', $members);
-        //         })
-        //         ->selectRaw('*, (tanggal_selesai - ?) as jumlah_hari', [$today])
-        //         ->get();
-            
-        //     // Notif Approval
-        //     $cutie_approval = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari',[$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
-        //     ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
-        //     ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
-        //     ->where('status_dokumen', 'WAITING')
-        //     ->where(function($query) {
-        //             $query->where('status_cuti', '!=', 'CANCELED')
-        //                 ->orWhereNull('status_cuti');
-        //         })
-        //     ->where(function($query) {
-        //         $query->orWhereNull('approved_by')
-        //                 ->orWhereNull('checked1_by')
-        //                 ->orWhereNull('checked2_by');
-        //         })
-        //     ->whereIn('posisis.id_posisi', $members)
-        //     ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
-        //     ->get();
-
-
-        //     $rejected_cuti = Cutie::selectRaw('cutis.*, karyawans.nama')->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
-        //     ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
-        //     ->where('status_dokumen', 'REJECTED')
-        //     ->where('cutis.karyawan_id', $me->id_karyawan)
-        //     ->whereRaw('DATE(rejected_at) <= (rencana_mulai_cuti + INTERVAL \'3 days\')')
-        //     ->get()->toArray();
-
-        // } else {
-        //     $me = auth()->user()->karyawan;
-        //     $cutie_approval = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari',[$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
-        //     ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
-        //     ->where('status_dokumen', 'WAITING')
-        //     ->where(function($query) {
-        //             $query->where('status_cuti', '!=', 'CANCELED')
-        //                 ->orWhereNull('status_cuti');
-        //         })
-        //     ->where('cutis.karyawan_id', $me->id_karyawan)
-        //     ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
-        //     ->get();
-
-        //     $rejected_cuti = Cutie::selectRaw('cutis.*, karyawans.nama')->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
-        //     ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
-        //     ->where('status_dokumen', 'REJECTED')
-        //     ->where('cutis.karyawan_id', $me->id_karyawan)
-        //     ->whereRaw('DATE(rejected_at) <= (rencana_mulai_cuti + INTERVAL \'3 days\')')
-        //     ->get()->toArray();
-
-        //     $tenggang_karyawans = Karyawan::where('status_karyawan', 'AT')->where('id_karyawan', $user->karyawan->id_karyawan)
-        //         ->whereRaw('(tanggal_selesai - ?) <= 30', [$today])
-        //         ->selectRaw('*, (tanggal_selesai - ?) as jumlah_hari', [$today])
-        //         ->get();
-        // }
-
-        // $notification = [
-        //     'count_notif' => $tenggang_karyawans?->count() + $cutie_approval?->count() + count($rejected_cuti),
-        //     'list' => $tenggang_karyawans->toArray(),
-        //     'cutie_approval' => $cutie_approval->toArray(),
-        //     'rejected_cuti' => $rejected_cuti
-        // ];
-
         $notification = [];
         $today = date('Y-m-d');
         $user = auth()->user();
@@ -399,5 +305,306 @@ class HomeController extends Controller
             $data[] = $ps->id_posisi;
         }
         return $data;
+    }
+
+    public function export_slip_lembur(Request $request)
+    {
+        $organisasi_id = auth()->user()->organisasi_id;
+        $periode = $request->periode_slip;
+        $karyawan = auth()->user()->karyawan;
+        $id_karyawan = $karyawan->id_karyawan;
+
+        //CREATE EXCEL FILE
+        $spreadsheet = new Spreadsheet();
+
+        $fillStyle = [
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['argb' => 'FF000000'],
+                ],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'font' => [
+                'bold' => true,
+                'size' => 12,
+            ],
+        ];
+        
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('SLIP LEMBUR');
+        $row = 1;
+        $headers = [
+            'NO',
+            'HARI',
+            'TANGGAL',
+            'JAM MASUK',
+            'JAM KELUAR',
+            'JAM ISTIRAHAT',
+            'JAM KELUAR SETELAH ISTIRAHAT',
+            'TOTAL JAM',
+            'KONVERSI JAM',
+            'UANG MAKAN',
+            'JUMLAH'
+        ];
+        $start = Carbon::createFromFormat('Y-m', $periode)->startOfMonth()->toDateString();
+        $end = Carbon::createFromFormat('Y-m', $periode)->endOfMonth()->toDateString();
+
+        $columns = range('A', 'K');
+        foreach ($columns as $column) {
+            $sheet->getColumnDimension($column)->setAutoSize(true);
+        }
+
+        $lembur_karyawan = DetailLembur::leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')->where('detail_lemburs.karyawan_id', $id_karyawan)->whereBetween('detail_lemburs.aktual_mulai_lembur', [$start, $end])->whereNotNull('lemburs.actual_legalized_by')
+        ->where('lemburs.status', 'COMPLETED')->first();
+        $setting_lembur_karyawan = SettingLemburKaryawan::where('karyawan_id', $id_karyawan)->first();
+        $pembagi_upah_lembur_harian = SettingLembur::where('organisasi_id', auth()->user()->organisasi_id)->where('setting_name', 'pembagi_upah_lembur_harian')->first()->value;
+        $upah_lembur_per_jam_setting = $lembur_karyawan ? $lembur_karyawan->gaji_lembur / $lembur_karyawan->pembagi_upah_lembur : ($setting_lembur_karyawan ? $setting_lembur_karyawan->gaji / $pembagi_upah_lembur_harian : 0);
+        // TEXT "SLIP LEMBUR BULAN INI"
+        $sheet->mergeCells('A'.$row.':F'.$row+1);
+        $sheet->setCellValue('A'.$row, 'SLIP LEMBUR BULAN '.strtoupper(Carbon::createFromFormat('Y-m', $periode)->format('F Y')));
+        $sheet->getStyle('A'.$row.':F'.$row+1)->applyFromArray([
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => [
+                    'argb' => 'FF808080',
+                ],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'font' => [
+                'bold' => true,
+                'size' => 12,
+            ],
+        ]);
+
+        $row += 2;
+        $sheet->setCellValue('B'.$row, 'NAMA');
+        $sheet->setCellValue('C'.$row, ':');
+        $sheet->setCellValue('D'.$row, $karyawan->nama);
+        $sheet->setCellValue('B'.$row+1, 'NIK');
+        $sheet->setCellValue('C'.$row+1, ':');
+        $sheet->setCellValue('D'.$row+1, $karyawan->ni_karyawan);
+        $sheet->getStyle('B'.$row.':B'.$row+1)->applyFromArray([
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_LEFT,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'font' => [
+                'bold' => true,
+                'size' => 12,
+            ],
+        ]);
+
+        $sheet->getStyle('C'.$row.':C'.$row+1)->applyFromArray([
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'font' => [
+                'bold' => true,
+                'size' => 12,
+            ],
+        ]);
+
+        $sheet->getStyle('D'.$row.':D'.$row+1)->applyFromArray([
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_LEFT,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'font' => [
+                'bold' => true,
+                'size' => 12,
+            ],
+        ]);
+
+        $row += 2;
+        $col = 'A';
+        foreach ($headers as $header) {
+            $sheet->setCellValue($col . $row, $header);
+            $sheet->mergeCells($col . $row.':' . $col . ($row+1));
+            $sheet->getStyle($col . $row.':' . $col . ($row+1))->applyFromArray($fillStyle);
+            $col++;
+        }
+        
+        $row += 2;
+        //LOOPING AWAL SAMPAI AKHIR BULAN
+        $total_jam = 0;
+        $total_konversi_jam = 0;
+        $total_uang_makan = 0;
+        $total_spl = 0;
+        for($i = 0; $i <= Carbon::parse($start)->diffInDays(Carbon::parse($end)); $i++){
+            $date = Carbon::parse($start)->addDays($i)->toDateString();
+            $slipLembur = DetailLembur::getSlipLemburPerDepartemen($id_karyawan, $date);
+            $upah_lembur_per_jam = $slipLembur ? $slipLembur->gaji_lembur / $slipLembur->pembagi_upah_lembur : $upah_lembur_per_jam_setting;
+
+            if($slipLembur){
+                $total_jam += $slipLembur->durasi;
+                $total_konversi_jam += $slipLembur->durasi_konversi_lembur;
+                $total_uang_makan += $slipLembur->uang_makan;
+                $total_spl += $slipLembur->nominal;
+                $sheet->setCellValue('A'.$row, $i+1);
+                $sheet->setCellValue('B'.$row, Carbon::parse($date)->locale('id')->translatedFormat('l'));
+
+                //JIKA WEEKEND UBAH STYLE CELL
+                if(Carbon::parse($date)->isWeekend()){
+                    $sheet->getStyle('B'.$row)->applyFromArray([
+                        'fill' => [
+                            'fillType' => Fill::FILL_SOLID,
+                            'startColor' => [
+                                'argb' => 'FFFF0000',
+                            ],
+                        ],
+                        'font' => [
+                            'color' => [
+                                'argb' => 'FFFFFFFF',
+                            ],
+                        ],
+                    ]);
+                }
+
+            $sheet->setCellValue('C'.$row, Carbon::parse($date)->format('d-m-Y'));
+            $sheet->setCellValue('D'.$row, Carbon::parse($slipLembur->aktual_mulai_lembur)->format('H:i'));
+            $sheet->setCellValue('E'.$row, Carbon::parse($slipLembur->aktual_selesai_lembur)->format('H:i'));
+            $sheet->setCellValue('F'.$row, number_format($slipLembur->durasi_istirahat / 100 , 2));
+            $sheet->setCellValue('G'.$row, Carbon::parse($slipLembur->aktual_selesai_lembur)->subMinutes($slipLembur->durasi_istirahat)->format('H:i'));
+            $sheet->setCellValue('H'.$row, number_format($slipLembur->durasi / 60, 2));
+            $sheet->setCellValue('I'.$row, number_format($slipLembur->durasi_konversi_lembur / 60, 2));
+            $sheet->setCellValue('J'.$row, $slipLembur->uang_makan);
+            $sheet->setCellValue('K'.$row, 'Rp '. number_format($slipLembur->nominal, 0, ',', '.'));
+
+                //STYLE CELL
+            $sheet->getStyle('C'.$row)->applyFromArray([
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+            $sheet->getStyle('J'.$row.':J'.$row)->applyFromArray([
+                'font' => [
+                    'color' => [
+                        'argb' => 'FFFF0000',
+                    ],
+                ],
+            ]);
+            $sheet->getStyle('A'.$row.':K'.$row)->applyFromArray([
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_THIN,
+                        'color' => ['argb' => 'FF000000'],
+                    ],
+                ],
+            ]);
+
+            } else {
+                $sheet->setCellValue('A'.$row, $i+1);
+                $sheet->setCellValue('B'.$row, Carbon::parse($date)->locale('id')->translatedFormat('l'));
+
+                //JIKA WEEKEND UBAH STYLE CELL
+                if(Carbon::parse($date)->isWeekend()){
+                    $sheet->getStyle('B'.$row)->applyFromArray([
+                        'fill' => [
+                            'fillType' => Fill::FILL_SOLID,
+                            'startColor' => [
+                                'argb' => 'FFFF0000',
+                            ],
+                        ],
+                        'font' => [
+                            'color' => [
+                                'argb' => 'FFFFFFFF',
+                            ],
+                        ],
+                    ]);
+                }
+
+                $sheet->setCellValue('C'.$row, Carbon::parse($date)->format('d-m-Y'));
+                $sheet->setCellValue('D'.$row, '-');
+                $sheet->setCellValue('E'.$row, '-');
+                $sheet->setCellValue('F'.$row, '-');
+                $sheet->setCellValue('G'.$row, '-');
+                $sheet->setCellValue('H'.$row, '-');
+                $sheet->setCellValue('I'.$row, '-');
+                $sheet->setCellValue('J'.$row, 0);
+                $sheet->setCellValue('K'.$row, 'Rp');
+            }
+
+            //STYLE CELL
+            $sheet->getStyle('C'.$row)->applyFromArray([
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+            $sheet->getStyle('J'.$row.':K'.$row)->applyFromArray([
+                'font' => [
+                    'color' => [
+                        'argb' => 'FFFF0000',
+                    ],
+                ],
+            ]);
+            $sheet->getStyle('A'.$row.':K'.$row)->applyFromArray([
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_THIN,
+                        'color' => ['argb' => 'FF000000'],
+                    ],
+                ],
+            ]);
+
+            $row++;
+        }
+
+        $sheet->setCellValue('H'.$row, number_format($total_jam / 60 , 2));    
+        $sheet->setCellValue('I'.$row, number_format($total_konversi_jam / 60 , 2));    
+        $sheet->setCellValue('J'.$row, 'Rp ' . number_format($total_uang_makan, 0, ',', '.'));    
+        $sheet->setCellValue('K'.$row, 'Rp ' . number_format($total_spl, 0, ',', '.'));
+        $sheet->setCellValue('J'.$row+1, 'SESUAI SPL');
+        $sheet->setCellValue('K'.$row+1, 'Rp ' . number_format($total_spl, 0, ',', '.'));
+        $sheet->getStyle('H'.$row.':K'.$row)->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['argb' => 'FF000000'],
+                ],
+            ],
+            'font' => [
+                'bold' => true,
+                'size' => 12,
+            ]
+        ]);
+        $sheet->getStyle('J'.($row+1).':K'.($row+1))
+        ->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['argb' => 'FF000000'],
+                ],
+            ],
+            'font' => [
+                'bold' => true,
+                'size' => 12,
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_LEFT,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+        ]);
+
+        $writer = new Xlsx($spreadsheet);
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="Slip Pembayaran Lembur - '.Carbon::createFromFormat('Y-m', $periode)->format('F Y').'.xlsx"');
+        header('Cache-Control: max-age=0');
+
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $writer->save('php://output');
+        $spreadsheet->disconnectWorksheets();
+        unset($spreadsheet);
+        exit();
     }
 }

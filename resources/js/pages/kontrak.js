@@ -661,7 +661,7 @@ $(function () {
         let input = $('#upload-kontrak');
         input.click();
 
-        input.on("change", function () {
+        input.off('change').on('change', function () {
             Swal.fire({
                 title: "Upload Record Kontrak",
                 text: "Kontrak akan menjadi double jika data sudah ada, pastikan untuk tidak mengupload kontrak yang sama",
@@ -691,14 +691,11 @@ $(function () {
                             refreshTable();
                         },
                         error: function (jqXHR, textStatus, errorThrown) {
-                            input.val('');
                             loadingSwalClose();
                             showToast({ icon: "error", title: jqXHR.responseJSON.message });
                         },
                     })
-                } else {
-                    input.val('');
-                }
+                } 
             });
         });
     });

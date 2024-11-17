@@ -65,7 +65,7 @@ class LemburHarian extends Model
             $data->where('lembur_harians.organisasi_id', $organisasi_id);
         }
 
-        if(auth()->user()->hasRole('atasan') && (auth()->user()->karyawan && auth()->user()->karyawan->posisi[0]->jabatan_id >= 3)) {
+        if(auth()->user()->hasRole('atasan') && (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id == 3 || auth()->user()->karyawan->posisi[0]->jabatan_id == 4))) {
             $data->where('lembur_harians.departemen_id', auth()->user()->karyawan->posisi[0]->departemen_id);
         }
         
@@ -93,7 +93,7 @@ class LemburHarian extends Model
             $data->where('lembur_harians.organisasi_id', $organisasi_id);
         }
 
-        if(auth()->user()->hasRole('atasan') && (auth()->user()->karyawan && auth()->user()->karyawan->posisi[0]->jabatan_id >= 3)) {
+        if(auth()->user()->hasRole('atasan') && (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id == 3 || auth()->user()->karyawan->posisi[0]->jabatan_id == 4))) {
             $data->where('lembur_harians.departemen_id', auth()->user()->karyawan->posisi[0]->departemen_id);
         }
 
@@ -120,7 +120,7 @@ class LemburHarian extends Model
             $data->where('lembur_harians.organisasi_id', $organisasi_id);
         }
 
-        if(auth()->user()->hasRole('atasan') && (auth()->user()->karyawan && auth()->user()->karyawan->posisi[0]->jabatan_id >= 3)) {
+        if(auth()->user()->hasRole('atasan') && (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id == 3 || auth()->user()->karyawan->posisi[0]->jabatan_id == 4))) {
             $data->where('lembur_harians.departemen_id', auth()->user()->karyawan->posisi[0]->departemen_id);
         }
 
