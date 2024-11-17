@@ -467,7 +467,7 @@ class LembureController extends Controller
                 $nestedData['total_durasi'] = $jam . ' Jam ' . $menit . ' Menit';
                 $nestedData['total_nominal'] = 'Rp. ' . number_format($total_nominal, 0, ',', '.');
                 $nestedData['status'] = $status;
-                $nestedData['plan_checked_by'] = !$rejected ? $button_checked_plan : $button_checked_plan;
+                $nestedData['plan_checked_by'] = !$rejected ? $button_checked_plan : '';
                 $nestedData['plan_approved_by'] = !$rejected ? $button_approved_plan : '';
                 $nestedData['plan_legalized_by'] = !$rejected ? $button_legalized_plan : '';
                 $nestedData['actual_checked_by'] =  !$rejected ? $button_checked_actual : '';
