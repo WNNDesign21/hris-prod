@@ -1137,9 +1137,8 @@ class CutieController extends Controller
                     if($jatah_cuti < 0){
                         return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Silahkan baca ketentuan pembagian cuti pribadi lagi!'], 402);
                     } else {
-                        $karyawan = Karyawan::find($karyawan_id);
-                        $karyawan->sisa_cuti_pribadi = $jatah_cuti;
-                        $karyawan->save();
+                        $kry->sisa_cuti_pribadi = $jatah_cuti;
+                        $kry->save();
                     }
                 }
                 $attachment = null;
@@ -1160,9 +1159,9 @@ class CutieController extends Controller
             ]);
 
             $data = [
-                'sisa_cuti_tahunan' => $karyawan->sisa_cuti_pribadi + $karyawan->sisa_cuti_bersama,
-                'sisa_cuti_pribadi' => $karyawan->sisa_cuti_pribadi,
-                'sisa_cuti_tahun_lalu' => $karyawan->sisa_cuti_tahun_lalu
+                'sisa_cuti_tahunan' => $kry->sisa_cuti_pribadi + $kry->sisa_cuti_bersama,
+                'sisa_cuti_pribadi' => $kry->sisa_cuti_pribadi,
+                'sisa_cuti_tahun_lalu' => $kry->sisa_cuti_tahun_lalu
             ];
             DB::commit();
             return response()->json(['message' => 'Pengajuan cuti berhasil dibuat, konfirmasi ke atasan untuk melakukan approval!', 'data' => $data], 200);
