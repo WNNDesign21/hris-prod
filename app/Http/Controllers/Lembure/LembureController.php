@@ -375,9 +375,9 @@ class LembureController extends Controller
                         } 
 
                         //APPROVAL LANGSUNG OLEH PLANT HEAD JIKA USER YANG MEMBUAT DOKUMEN TIDAK PUNYA DEPT.HEAD
-                        if(!$this->has_department_head($data->issued->posisi) && $data->plan_checked_by == null){
+                        if(!$this->has_department_head($data->issued->posisi) && !$this->has_section_head($data->issued->posisi) && $data->plan_checked_by == null){
                             $button_approved_plan = '<div class="btn-group"><button class="btn btn-sm btn-success btnApproved" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-can-checked="'.($is_can_checked ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-thumbs-up"></i> Approved</button><button type="button" class="btn btn-sm btn-danger waves-effect btnRejectLembur" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-times-circle"></i> Reject</button></div>';
-                        }
+                        } 
                     } else {
                         //BEFORE PLANNED
                         $button_approved_plan = '✅<br><small class="text-bold">'.$data?->plan_approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_approved_at)->diffForHumans().'</small>';
@@ -1487,6 +1487,29 @@ class LembureController extends Controller
         }
 
         return $has_dept_head;
+    } 
+
+    function has_section_head($posisi)
+    {
+        $has_sec_head = false;
+        if($posisi){
+            foreach($posisi as $pos){
+                $parent_posisi_ids = $this->get_parent_posisi($pos);
+                if(!empty($parent_posisi_ids)){
+                    foreach ($parent_posisi_ids as $parent_id){
+                        if($parent_id !== 0){
+                            if(Posisi::where('id_posisi', $parent_id)->first()->jabatan_id == 4){
+                                $has_sec_head = true;
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            return response()->json(['message' => 'Anda tidak memiliki posisi, silahkan hubungi HRD'], 200);
+        }
+
+        return $has_sec_head;
     } 
 
     public function get_data_lembur(string $id_lembur)
