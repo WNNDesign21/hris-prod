@@ -885,7 +885,8 @@ class LembureController extends Controller
             $jam_ke_sepuluh = $convert_duration >= 10 ? ($convert_duration - 9) * 4 : 0;
             $durasi_konversi_lembur = $delapan_jam_pertama + $jam_ke_sembilan + $jam_ke_sepuluh;
         }
-        return $durasi_konversi_lembur * 60;
+        // return $durasi_konversi_lembur * 60;
+        return floor($durasi_konversi_lembur * 60);
     }
 
     public function calculate_overtime_nominal($jenis_hari, $durasi, $karyawan_id)
