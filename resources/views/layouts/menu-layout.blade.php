@@ -41,11 +41,15 @@
                                 @hasanyrole(['atasan', 'member'])
                                     <a class="dropdown-item btnProfile" href="#"><i
                                             class="ti-user text-muted me-2"></i>
-                                        My Profile</a>
+                                        Profile</a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item btnKontrak" href="#"><i
                                             class="ti-write text-muted me-2"></i>
-                                        My Contract</a>
+                                        Kontrak</a>
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item btnLembur" href="#"><i
+                                            class="ti-time text-muted me-2"></i>
+                                        Slip Lembur</a>
                                     <div class="dropdown-divider"></div>
                                 @endhasanyrole
                                 <a class="dropdown-item" href="{{ route('logout') }}"
@@ -75,6 +79,7 @@
         @include('pages.cuti-e.modal-event-cuti')
         @include('pages.menu.modal-profile')
         @include('pages.menu.modal-kontrak')
+        @include('pages.menu.modal-lembur')
     </div>
 
 

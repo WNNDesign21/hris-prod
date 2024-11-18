@@ -174,4 +174,31 @@ function($) {
     $('.btnKontrak').on('click', function (){
         openKontrak();
     })
+
+    //MODAL LEMBUR
+     var modalLemburOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalLembur = new bootstrap.Modal(
+        document.getElementById("modal-lembur"),
+        modalLemburOptions
+    );
+
+    function openLembur() {
+        modalLembur.show();
+    }
+
+    function closeLembur() {
+        modalLembur.hide();
+    }
+
+    $('.btnCloseLembur').on('click', function (){
+        closeLembur();
+    })
+
+    $('.btnLembur').on('click', function (){
+        openLembur();
+    })
 }(window.jQuery);

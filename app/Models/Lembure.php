@@ -24,7 +24,7 @@ class Lembure extends Model
         'id_lembur','organisasi_id','departemen_id','divisi_id','plan_checked_by','plan_checked_at','plan_approved_by',
         'plan_approved_at','plan_legalized_by','plan_legalized_at','actual_checked_by','actual_checked_at',
         'actual_approved_by','actual_approved_at','actual_legalized_by','actual_legalized_at','total_durasi',
-        'status','attachment','issued_date','issued_by', 'jenis_hari'
+        'status','attachment','issued_date','issued_by', 'jenis_hari', 'rejected_by', 'rejected_at', 'rejected_note'
     ];
 
     // public function scopeIssuedBy($query, $issued_by)
@@ -54,6 +54,11 @@ class Lembure extends Model
     public function issued()
     {
         return $this->belongsTo(Karyawan::class, 'issued_by', 'id_karyawan');
+    }
+
+    public function rejectedby()
+    {
+        return $this->belongsTo(Karyawan::class, 'rejected_by', 'id_karyawan');
     }
 
     public function detailLembur()
@@ -92,6 +97,9 @@ class Lembure extends Model
             'lemburs.issued_date',
             'lemburs.issued_by',
             'lemburs.jenis_hari',
+            'lemburs.rejected_by',
+            'lemburs.rejected_at',
+            'lemburs.rejected_note',
             'organisasis.nama as nama_organisasi',
             'departemens.nama as nama_departemen',
             'divisis.nama as nama_divisi',
@@ -122,9 +130,16 @@ class Lembure extends Model
         if(isset($dataFilter['organisasi_id'])){
             $data->where('detail_lemburs.organisasi_id', $dataFilter['organisasi_id']);
             if(auth()->user()->hasRole('personalia')){
-                $data->orderByRaw("(lemburs.plan_approved_by IS NOT NULL AND lemburs.plan_legalized_by IS NULL) OR (lemburs.actual_approved_by IS NOT NULL AND lemburs.actual_legalized_by IS NULL) DESC");
+                $data->orderByRaw("(lemburs.status != 'REJECTED') OR (lemburs.plan_approved_by IS NOT NULL AND lemburs.plan_legalized_by IS NULL) OR (lemburs.actual_approved_by IS NOT NULL AND lemburs.actual_legalized_by IS NULL) DESC");
             } else {
-                $data->orderByRaw("(lemburs.plan_checked_by IS NOT NULL AND lemburs.plan_approved_by IS NULL) OR (lemburs.actual_checked_by IS NOT NULL AND lemburs.actual_approved_by IS NULL) DESC");
+                $data->where('lemburs.status','!=','REJECTED');
+                $data->whereNotNull('lemburs.plan_checked_by');
+                $data->orWhere(function ($query) {
+                    $query->where('lemburs.status', 'PLANNED')
+                    ->where('lemburs.status','!=','REJECTED')
+                    ->whereNotNull('lemburs.actual_checked_by');
+                });
+                $data->orderByRaw("(lemburs.status != 'REJECTED') OR (lemburs.plan_checked_by IS NOT NULL AND lemburs.plan_approved_by IS NULL) OR (lemburs.actual_checked_by IS NOT NULL AND lemburs.actual_approved_by IS NULL) DESC");
             }
         }
 
@@ -135,7 +150,7 @@ class Lembure extends Model
 
         if (isset($dataFilter['member_posisi_ids'])) {
             $data->whereIn('posisis.id_posisi', $dataFilter['member_posisi_ids']);
-            $data->orderByRaw("(lemburs.plan_checked_by IS NULL AND lemburs.status != 'REJECTED') OR (lemburs.actual_checked_by IS NULL AND lemburs.status != 'REJECTED') DESC");
+            $data->orderByRaw("(lemburs.status != 'REJECTED') OR (lemburs.plan_checked_by IS NULL) OR (lemburs.actual_checked_by IS NULL) DESC");
         }
 
         $data->groupBy(

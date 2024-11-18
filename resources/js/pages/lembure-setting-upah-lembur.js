@@ -175,7 +175,7 @@ $(function () {
         let input = $('#upload-upah-lembur');
         input.click();
 
-        input.on("change", function () {
+        input.off('change').on('change', function () {
             Swal.fire({
                 title: "Upload Gaji Lembur Karyawan",
                 text: "Gaji yang sudah ada akan terupdate, dan yang belum ada akan ditambahkan, yakin ?",
@@ -209,7 +209,7 @@ $(function () {
                             showToast({ icon: "error", title: jqXHR.responseJSON.message });
                         },
                     })
-                } 
+                }
             });
         });
     });

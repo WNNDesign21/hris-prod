@@ -870,7 +870,7 @@ $(function () {
         let input = $('#upload-karyawan');
         input.click();
 
-        input.on("change", function () {
+        input.off('change').on('change', function () {
             Swal.fire({
                 title: "Upload Record Karyawan",
                 text: "Karyawan dengan ID yang sudah terdaftar akan terupdate sesuai dengan ID Karyawan",

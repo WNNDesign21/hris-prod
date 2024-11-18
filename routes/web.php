@@ -71,6 +71,7 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
     // MENU UTAMA
     Route::get('/home', [HomeController::class, 'index'])->name('root');
     Route::get('/get-notification', [HomeController::class, 'get_notification']);
+    Route::post('/export-slip-lembur', [HomeController::class, 'export_slip_lembur'])->name('home.export-slip-lembur');
 
     /** MASTER DATA FEATURE */
     Route::group(['prefix' => 'master-data'], function () {
@@ -208,10 +209,10 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
             Route::post('/member-cuti/store',[CutieController::class, 'store'])->name('cutie.member-cuti.store');
             Route::delete('/member-cuti/delete/{idCuti}',[CutieController::class, 'delete'])->name('cutie.member-cuti.delete');
             Route::patch('/member-cuti/update/{idCuti}',[CutieController::class, 'update'])->name('cutie.member-cuti.update');
-            Route::patch('/member-cuti/update-dokumen-cuti/{idCuti}',[CutieController::class, 'update_dokumen_cuti'])->name('cutie.member-cuti.update-document-cuti');
             Route::patch('/member-cuti/update-karyawan-pengganti/{idCuti}',[CutieController::class, 'update_karyawan_pengganti'])->name('cutie.member-cuti.update-karyawan-pengganti');
             Route::patch('/member-cuti/reject/{idCuti}',[CutieController::class, 'reject'])->name('cutie.member-cuti.reject');
         });
+        Route::patch('/member-cuti/update-dokumen-cuti/{idCuti}',[CutieController::class, 'update_dokumen_cuti'])->name('cutie.member-cuti.update-document-cuti');
 
         /** PERSONALIA CUTI */
         Route::group(['middleware' => ['role:personalia']], function () {
@@ -253,6 +254,7 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
             // APPROVAL LEMBUR (CHECK)
             Route::get('/approval-lembur', [LembureController::class, 'approval_lembur_view'])->name('lembure.approval-lembur');
             Route::post('/approval-lembur-datatable', [LembureController::class, 'approval_lembur_datatable']);
+            Route::patch('/approval-lembur/rejected/{idLembur}', [LembureController::class, 'rejected'])->name('lembure.approval-lembur.rejected');
             Route::patch('/approval-lembur/checked/{idLembur}', [LembureController::class, 'checked'])->name('lembure.approval-lembur.checked');
             Route::patch('/approval-lembur/approved/{idLembur}', [LembureController::class, 'approved'])->name('lembure.approval-lembur.approved');
             Route::patch('/approval-lembur/legalized/{idLembur}', [LembureController::class, 'legalized'])->name('lembure.approval-lembur.legalized');

@@ -14,14 +14,15 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\IOFactory;
-use PhpOffice\PhpSpreadsheet\IOFactory as PhpSpreadsheetIOFactory;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpWord\TemplateProcessor;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use PhpOffice\PhpSpreadsheet\IOFactory as PhpSpreadsheetIOFactory;
 
 class KontrakController extends Controller
 {
@@ -274,8 +275,8 @@ class KontrakController extends Controller
                     //No Surat Text
                     $kry->jenis_kontrak = $jenis;
                     $bulan_romawi = $this->angka_to_romawi(Carbon::parse($tanggal_mulai)->month);
-                    $hrd = $tempat_administrasi == 'Karawang' ? 'HRD-TCF3' : 'HRD-TCF2';
-                    $jenis_on_surat = 'SKP'.'-'.$this->angka_to_romawi($kontrak_karyawan);
+                    $hrd = 'TCF';
+                    $jenis_on_surat = 'SKP';
                     $tahun = Carbon::parse($tanggal_mulai)->format('Y');
                     $no_surat_text = 'No. ' . str_pad($no_surat_int, 3, '0', STR_PAD_LEFT) . '/' . $jenis_on_surat . '/' . $hrd . '/'.$bulan_romawi.'/' . $tahun;
                     $kry->save();
@@ -862,12 +863,19 @@ class KontrakController extends Controller
                 $karyawan->tanggal_selesai = $kontrak->tanggal_selesai;
             } else {
                 // $kontrak_exist = Kontrak::where('karyawan_id', $karyawan->id)->where('status', 'DONE')->orderBy('tanggal_mulai', 'DESC')->exists();
-                $new_data = $karyawan->whereNotNull('tanggal_mulai')->whereNull('tanggal_selesai')->exists();
+                $new_data = $karyawan->whereNotNull('tanggal_mulai')->whereNull('tanggal_selesai')->whereNull('jenis_kontrak')->exists();
 
                 if($new_data){
-                    $existingCutiBersama = Event::whereDate('tanggal_mulai', '<=', $kontrak->tanggal_selesai)->where('jenis_event', 'CB');
-                    if($existingCutiBersama->exists()){
-                        foreach($existingCutiBersama->get() as $cutiBersama){
+                    if($kontrak->jenis !== 'PKWTT'){
+                        //KONDISI JIKA KARYAWAN BARU DAN KONTRAK
+                        $existingCB = Event::whereDate('tanggal_mulai', '<=', $kontrak->tanggal_selesai)->where('jenis_event', 'CB');
+                    } else {
+                        //KONDISI JIKA KARYAWAN BARU DAN KARTAP
+                        $existingCB = Event::whereDate('tanggal_mulai', '>=', $kontrak->tanggal_mulai)->where('jenis_event', 'CB');
+                    }
+
+                    if($existingCB->exists()){
+                        foreach($existingCB->get() as $cutiBersama){
                             $jatah_cuti_bersama = $karyawan->sisa_cuti_bersama - $cutiBersama->durasi;
                             if($jatah_cuti_bersama >= 0){
                                 $karyawan->sisa_cuti_bersama = $jatah_cuti_bersama;
@@ -880,7 +888,12 @@ class KontrakController extends Controller
                         }
                     }
                 } else {
-                    $existingCutiBersama = Event::whereDate('tanggal_mulai', '<=', $kontrak->tanggal_selesai)->where('jenis_event', 'CB');
+                    if($kontrak->jenis !== 'PKWTT'){
+                        $existingCutiBersama = Event::whereDate('tanggal_mulai', '<=', $kontrak->tanggal_selesai)->where('jenis_event', 'CB');
+                    } else {
+                        $existingCutiBersama = Event::whereDate('tanggal_mulai', '>=', $kontrak->tanggal_mulai)->where('jenis_event', 'CB');
+                    }
+
                     if($existingCutiBersama->exists()){
                         //JIKA ADA
                         foreach($existingCutiBersama->get() as $cutiBersama){
@@ -959,12 +972,8 @@ class KontrakController extends Controller
                 $karyawans = [];
                 //Chunck data agar tidak terlalu banyak
                 for ($i = 1; $i <= count($data); $i += $chunkSize) {
-                    $chunk = array_slice($data, $i - 1, $chunkSize);
+                    $chunk = array_slice($data, $i, $chunkSize);
                     foreach ($chunk as $index => $row) {
-                        if ($index < 1) { 
-                            continue;
-                        }
-
                         $karyawans[] = Karyawan::where('ni_karyawan', $row[0])->first()->id_karyawan;
 
                         //Convert tanggal mulai dan selesai ke format Ymd jika ada
@@ -976,11 +985,13 @@ class KontrakController extends Controller
                             }
                         } 
 
-                        if($row[8] !== null){
-                            try {
-                                $tanggal_selesai = Carbon::createFromFormat('d/m/Y', $row[8])->format('Y-m-d');
-                            } catch (Exception $e) {
-                                return response()->json(['message' => 'Format tanggal selesai salah!'], 402);
+                        if($row[4] !== 'PKWTT'){ 
+                            if($row[8] !== null){
+                                try {
+                                    $tanggal_selesai = Carbon::createFromFormat('d/m/Y', $row[8])->format('Y-m-d');
+                                } catch (Exception $e) {
+                                    return response()->json(['message' => 'Format tanggal selesai salah!'], 402);
+                                }
                             }
                         }
 
@@ -1014,36 +1025,14 @@ class KontrakController extends Controller
                         $karyawan->jenis_kontrak = $row[4];
                         $karyawan->status_karyawan = 'AT';
 
-                        if(($karyawan->tanggal_selesai < $tanggal_selesai || $karyawan->tanggal_selesai == null) && $row[4] !== 'PKWTT'){
-                            $karyawan->tanggal_selesai = $tanggal_selesai;
-                        }
-
-                        if($row[4] == 'PKWTT'){
+                        if($row[4] !== 'PKWTT'){
+                            if($karyawan->tanggal_selesai < $tanggal_selesai || $karyawan->tanggal_selesai == null){
+                                $karyawan->tanggal_selesai = $tanggal_selesai;
+                            }
+                        } else {
                             $karyawan->tanggal_selesai = null;
                         }
 
-                        //CEK APAKAH ADA CUTI BERSAMA SEBELUM TANGGAL SELESAI KONTRAK YANG BARU DI UPLOAD
-                        $existingCutiBersama = Event::whereDate('tanggal_mulai', '<=', $tanggal_selesai)->where('jenis_event', 'CB');
-                        if($existingCutiBersama->exists()){
-                            //JIKA ADA
-                            foreach($existingCutiBersama->get() as $cutiBersama){
-                                //CEK APAKAH ADA KONTRAK YANG MEMILIKI TANGGAL SELESAI LEBIH DARI CUTI BERSAMA (KONTRAK SELESAI SETELAH CUTI BERSAMA)
-                                $existingKontrak = Kontrak::where('karyawan_id', $karyawan->id_karyawan)->where('status', 'DONE')->where('tanggal_selesai', '>=', $cutiBersama->mulai)->exists();
-                                //JIKA SUDAH ADA, MAKA TIDAK PERLU DIKURANGI SISA CUTI BERSAMA (KARENA SUDAH DIKURANGIN SEBELUMNYA)
-                                if(!$existingKontrak){
-                                    $jatah_cuti_bersama = $karyawan->sisa_cuti_bersama - $cutiBersama->durasi;
-                                    if($jatah_cuti_bersama >= 0){
-                                        $karyawan->sisa_cuti_bersama = $jatah_cuti_bersama;
-                                        $karyawan->save();
-                                    } else {
-                                        $karyawan->sisa_cuti_bersama = 0;
-                                        $karyawan->hutang_cuti = abs($jatah_cuti_bersama);
-                                        $karyawan->save();
-                                    }
-                                }
-                            }
-                        }
-                        
                         $karyawan->save();
 
                         // Input Kontrak
@@ -1070,13 +1059,31 @@ class KontrakController extends Controller
 
                 //Update sisa cuti bersama karyawan
                 $array_karyawan = array_unique($karyawans);
-                foreach ($array_karyawan as $kry){
+                foreach ($array_karyawan as $index => $kry){
                     $k = Karyawan::find($kry);
-                    $kontrak = Kontrak::where('karyawan_id', $kry)->where('status', 'DONE')->orderBy('tanggal_selesai', 'DESC')->first();
-                    if($k && $kontrak){
-                        $existingCutiBersama = Event::whereDate('tanggal_mulai', '<=', $kontrak->tanggal_selesai)->where('jenis_event', 'CB');
-                        if($existingCutiBersama->exists()){
-                            foreach($existingCutiBersama->get() as $cutiBersama){
+                    //CEK APAKAH ADA CUTI BERSAMA SEBELUM TANGGAL SELESAI KONTRAK YANG BARU DI UPLOAD
+                    if($k && $k->tanggal_selesai !== null && $k->jenis_kontrak !== 'PKWTT'){
+                        $kontrak = Kontrak::where('karyawan_id', $kry)->where('status', 'DONE')->orderBy('tanggal_selesai', 'DESC')->first();
+                        $existingCB = Event::whereDate('tanggal_mulai', '<=', $kontrak->tanggal_selesai)->where('jenis_event', 'CB');
+                        if($existingCB->exists()){
+                            foreach($existingCB->get() as $cutiBersama){
+                                $jatah_cuti_bersama = $k->sisa_cuti_bersama - $cutiBersama->durasi;
+                                if($jatah_cuti_bersama >= 0){
+                                    $k->sisa_cuti_bersama = $jatah_cuti_bersama;
+                                    $k->save();
+                                } else {
+                                    $k->sisa_cuti_bersama = 0;
+                                    $k->hutang_cuti = abs($jatah_cuti_bersama);
+                                    $k->save();
+                                }
+                            }
+                        }
+                    } elseif ($k && $k->jenis_kontrak == 'PKWTT'){
+                        $kontrak = Kontrak::where('karyawan_id', $kry)->where('status', 'DONE')->where('jenis', 'PKWTT')->orderBy('tanggal_mulai', 'DESC')->first();
+                        $tanggal_selesai_temp = Carbon::now()->year.'-'.Carbon::parse($kontrak->tanggal_mulai)->format('m-d');
+                        $existingCB = Event::whereDate('tanggal_mulai', '>=', $tanggal_selesai_temp)->where('jenis_event', 'CB');
+                        if($existingCB->exists()){
+                            foreach($existingCB->get() as $cutiBersama){
                                 $jatah_cuti_bersama = $k->sisa_cuti_bersama - $cutiBersama->durasi;
                                 if($jatah_cuti_bersama >= 0){
                                     $k->sisa_cuti_bersama = $jatah_cuti_bersama;

@@ -252,8 +252,8 @@ class CutieController extends Controller
                 $nestedData['aksi'] = '
                 <div class="btn-group btn-group-sm">'.
                     // ($data->checked1_by == null && $data->checked2_by == null && $data->approved_by == null && $data->legalized_by == null && $data->rejected_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id="'.$data->id_cuti.'"><i class="fas fa-edit"></i> Edit</button><button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button>' : '').
-                    ($data->status_cuti !== 'CANCELED'  && date('Y-m-d') <= $data->rencana_mulai_cuti && $data->rejected_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnCancel" data-id="'.$data->id_cuti.'"><i class="fas fa-history"></i> Cancel </button>' : '').
-                    ($data->checked1_by == null && $data->checked2_by == null && $data->approved_by == null && $data->legalized_by == null && $data->rejected_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button>' : '').
+                    ($data->status_cuti !== 'CANCELED' ? (date('Y-m-d') <= $data->rencana_mulai_cuti && $data->rejected_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnCancel" data-id="'.$data->id_cuti.'"><i class="fas fa-history"></i> Cancel </button>' : '') : '').
+                    ($data->checked1_by == null && $data->checked2_by == null && $data->approved_by == null && $data->legalized_by == null && $data->rejected_by == null && $data->status_cuti !== 'CANCELED' ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button>' : '').
                     // ($data->status_cuti == 'SCHEDULED' && $data->status_dokumen == 'APPROVED' && $data->approved_by !== null && $data->aktual_mulai_cuti == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-info btnMulai" data-id="'.$data->id_cuti.'"><i class="fas fa-play-circle"></i> Mulai </button>' : '').
                     // ($data->status_cuti == 'ON LEAVE' && $data->status_dokumen == 'APPROVED' && $data->approved_by !== null && $data->aktual_mulai_cuti !== null && $data->aktual_selesai_cuti == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-primary btnSelesai" data-id="'.$data->id_cuti.'"><i class="fas fa-calendar-check"></i> Selesai </button>' : '').
                     '
@@ -1137,9 +1137,8 @@ class CutieController extends Controller
                     if($jatah_cuti < 0){
                         return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Silahkan baca ketentuan pembagian cuti pribadi lagi!'], 402);
                     } else {
-                        $karyawan = Karyawan::find($karyawan_id);
-                        $karyawan->sisa_cuti_pribadi = $jatah_cuti;
-                        $karyawan->save();
+                        $kry->sisa_cuti_pribadi = $jatah_cuti;
+                        $kry->save();
                     }
                 }
                 $attachment = null;
@@ -1160,9 +1159,9 @@ class CutieController extends Controller
             ]);
 
             $data = [
-                'sisa_cuti_tahunan' => $karyawan->sisa_cuti_pribadi + $karyawan->sisa_cuti_bersama,
-                'sisa_cuti_pribadi' => $karyawan->sisa_cuti_pribadi,
-                'sisa_cuti_tahun_lalu' => $karyawan->sisa_cuti_tahun_lalu
+                'sisa_cuti_tahunan' => $kry->sisa_cuti_pribadi + $kry->sisa_cuti_bersama,
+                'sisa_cuti_pribadi' => $kry->sisa_cuti_pribadi,
+                'sisa_cuti_tahun_lalu' => $kry->sisa_cuti_tahun_lalu
             ];
             DB::commit();
             return response()->json(['message' => 'Pengajuan cuti berhasil dibuat, konfirmasi ke atasan untuk melakukan approval!', 'data' => $data], 200);

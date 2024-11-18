@@ -262,7 +262,7 @@ class ExportController extends Controller
                     $posisi_merge = implode(' , ', $formattedPosisi);
                     $departemens = [];
                     foreach ($dataPosisis->get() as $item){
-                        $departemens = [$item->departemen->nama];
+                        $departemens = [$item->departemen?->nama];
                     }
                     $formattedDepartemen = array_map(function($departemen) {
                         return $departemen;
@@ -395,7 +395,7 @@ class ExportController extends Controller
                     $posisi_merge = implode(' , ', $formattedPosisi);
                     $departemens = [];
                     foreach ($dataPosisis->get() as $item){
-                        $departemens = [$item->departemen->nama];
+                        $departemens = [$item->departemen?->nama];
                     }
                     $formattedDepartemen = array_map(function($departemen) {
                         return $departemen;

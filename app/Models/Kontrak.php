@@ -179,6 +179,8 @@ class Kontrak extends Model
             });
         }
 
+        $data->orderBy('kontraks.created_at', 'DESC');
+
         $result = $data;
         return $result;
     }
