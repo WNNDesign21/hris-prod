@@ -66,7 +66,7 @@ return [
     */
 
     'timezone' => env('APP_TIMEZONE', 'UTC'),
-
+    'schedule_timezone' => 'Asia/Jakarta',
     /*
     |--------------------------------------------------------------------------
     | Application Locale Configuration
