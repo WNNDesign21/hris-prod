@@ -83,7 +83,8 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
         Route::get('/dashboard/get-data-kontrak-progress-dashboard',[DashboardController::class, 'get_data_kontrak_progress_dashboard']);
         Route::get('/dashboard/get-data-keluar-masuk-karyawan-dashboard',[DashboardController::class, 'get_data_keluar_masuk_karyawan_dashboard']);
         Route::get('/dashboard/get-total-data-karyawan-by-status-karyawan-dashboard',[DashboardController::class, 'get_total_data_karyawan_by_status_karyawan_dashboard']);
-    
+        Route::get('/event/get-data-event-calendar',[EventController::class, 'get_data_event_calendar']);
+        
         /** MASTER DATA - ORGANISASI */
         Route::group(['middleware' => ['role:personalia']], function () {
 
@@ -175,7 +176,6 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
 
             /** MASTER DATA - KALENDER PERUSAHAAN*/
             Route::post('/event/datatable', [EventController::class, 'datatable']);
-            Route::get('/event/get-data-event-calendar',[EventController::class, 'get_data_event_calendar']);
             Route::get('/event',[EventController::class, 'index'])->name('master-data.event');
             Route::post('/event/store',[EventController::class, 'store'])->name('master-data.event.store');
             Route::delete('/event/delete/{idEvent}', [EventController::class, 'delete'])->name('master-data.event.delete');

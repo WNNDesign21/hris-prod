@@ -116,7 +116,7 @@ $(function () {
                 }
             },
         },
-        responsive: true,
+        // responsive: true,
         columns: columnsTable,
         columnDefs: [
             {
@@ -260,7 +260,7 @@ $(function () {
                 return {
                     results: filteredData,
                     pagination: {
-                        more: (params.page * 10) < data.total_count
+                        more: (params.page * 30) < data.total_count
                     }
                 };
             },

@@ -147,7 +147,7 @@ $(function () {
                 }
             },
         },
-        responsive: true,
+        // responsive: true,
         columns: columnsTable,
         columnDefs: [
             {
