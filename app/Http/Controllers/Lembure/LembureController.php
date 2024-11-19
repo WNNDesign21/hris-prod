@@ -1377,7 +1377,7 @@ class LembureController extends Controller
 
         $query->groupBy('karyawans.id_karyawan','karyawans.nama', 'posisis.nama');
 
-        $data = $query->simplePaginate(10);
+        $data = $query->simplePaginate(30);
 
         $morePages = true;
         $pagination_obj = json_encode($data);
