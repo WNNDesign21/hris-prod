@@ -74,7 +74,7 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
     Route::post('/export-slip-lembur', [HomeController::class, 'export_slip_lembur'])->name('home.export-slip-lembur');
 
     /** MASTER DATA FEATURE */
-    Route::group(['prefix' => 'master-data'], function () {
+    Route::group(['prefix' => 'master-data', 'middleware' => ['role:personalia']], function () {
         /** MASTER DATA - DASHBOARD */
         Route::get('/dashboard',[DashboardController::class, 'index'])->name('master-data.dashboard');
         Route::get('/dashboard/get-data-karyawan-dashboard',[DashboardController::class, 'get_data_karyawan_dashboard']);

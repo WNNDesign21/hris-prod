@@ -16,6 +16,7 @@ use App\Models\LemburHarian;
 use Illuminate\Http\Request;
 use App\Models\SettingLembur;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\SettingLemburKaryawan;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -2600,6 +2601,7 @@ class LembureController extends Controller
                 unset($data[0]);
 
                 foreach ($data as $key => $row) {
+                    Log::info($row[0]);
                     $karyawan = Karyawan::where('ni_karyawan', $row[0])->first();
                     $setting_lembur_karyawan = SettingLemburKaryawan::where('karyawan_id', $karyawan->id_karyawan)->first();
 

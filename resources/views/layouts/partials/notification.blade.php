@@ -24,7 +24,7 @@
                 @foreach ($notification['list'] as $list)
                     <li>
                         @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('super user') || auth()->user()->hasRole('atasan'))
-                            <a href="{{ route('master-data.kontrak') }}" style="white-space: normal;">
+                            <a href="#" style="white-space: normal;">
                                 <i class="fa fa-users text-danger"></i> <strong>{{ $list['nama'] }}</strong>
                                 memiliki
                                 sisa
