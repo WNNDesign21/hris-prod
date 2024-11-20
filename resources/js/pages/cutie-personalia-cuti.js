@@ -52,6 +52,16 @@ $(function () {
             }
         })
     }
+
+    function updateListCutiNotification(){
+        $.ajax({
+            url: base_url + '/get-list-cuti-notification',
+            method: 'GET',
+            success: function(response){
+                $('.notification-list-cuti').html(response.data);
+            }
+        })
+    }
     
     //DATATABLE KARYAWAN
     var columnsTable = [
@@ -257,6 +267,7 @@ $(function () {
                     dataType: "JSON",
                     success: function (data) {
                         updateNotification();
+                        updateListCutiNotification();
                         refreshTable();
                         showToast({ title: data.message });
                     },
@@ -283,6 +294,7 @@ $(function () {
             dataType: "JSON",
             success: function (data) {
                 updateNotification();
+                updateListCutiNotification();
                 showToast({ title: data.message });
                 refreshTable();
                 closeReject();
@@ -325,6 +337,7 @@ $(function () {
                     contentType: false,
                     success: function(data) {
                         updateNotification();
+                        updateListCutiNotification();
                         loadingSwalClose()
                         showToast({ title: data.message });
                         refreshTable();
@@ -423,6 +436,7 @@ $(function () {
                         $('#sisa_cuti_pribadi').text(data.data.sisa_cuti_pribadi+' Hari');
                         $('#sisa_cuti_tahun_lalu').text(data.data.sisa_cuti_tahun_lalu+' Hari');
                         updateNotification();
+                        updateListCutiNotification();
                         loadingSwalClose()
                         showToast({ title: data.message });
                         refreshTable();

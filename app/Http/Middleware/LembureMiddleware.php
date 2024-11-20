@@ -48,9 +48,11 @@ class LembureMiddleware
             $approval_lembur = Lembure::where(function($query) {
                 $query->where(function($query) {
                     $query->where('status', 'WAITING')
+                        ->whereNotNull('plan_checked_by')
                         ->whereNull('plan_approved_by');
                 })->orWhere(function($query) {
                     $query->where('status', 'COMPLETED')
+                        ->whereNotNull('actual_checked_by')
                         ->whereNull('actual_approved_by');
                 });
             })->where('organisasi_id', $organisasi_id)->count();

@@ -609,14 +609,22 @@ class LembureController extends Controller
                 'jenis_hari' => $jenis_hari
             ]);
 
+            if(auth()->user()->karyawan->posisi[0]->jabatan_id >= 5){
+                if(!$this->has_department_head(auth()->user()->karyawan->posisi) && !$this->has_section_head(auth()->user()->karyawan->posisi)){
+                    $checked_by = auth()->user()->karyawan->nama;
+                    $header->update([
+                        'plan_checked_by' => $checked_by,
+                        'plan_checked_at' => now(),
+                    ]);
+                }
+            }
+
             if(auth()->user()->karyawan->posisi[0]->jabatan_id == 4){
                 if(!$this->has_department_head(auth()->user()->karyawan->posisi)){
                     $checked_by = auth()->user()->karyawan->nama;
                     $header->update([
                         'plan_checked_by' => $checked_by,
                         'plan_checked_at' => now(),
-                        'actual_checked_by' => $checked_by,
-                        'actual_checked_at' => now(),
                     ]);
                 }
             }
@@ -759,8 +767,8 @@ class LembureController extends Controller
             }
 
             //Hasil Revisi
-            if ($start->lessThan($breakEnd) && $end->greaterThan($breakStart)) {
-                if ($start->lessThan($breakStart) && $end->greaterThan($breakEnd)) {
+            if ($start->lessThanOrEqualTo($breakEnd) && $end->greaterThanOrEqualTo($breakStart)) {
+                if ($start->lessThanOrEqualTo($breakStart) && $end->greaterThanOrEqualTo($breakEnd)) {
                     $duration -= $break['duration'];
                 } elseif ($start->lessThan($breakStart) && $end->lessThan($breakEnd)) {
                     $duration -= abs($end->diffInMinutes($breakStart));
@@ -770,10 +778,9 @@ class LembureController extends Controller
                     $duration -= abs($end->diffInMinutes($start));
                 }
             }
-        }
+        }        
 
         // memastikan bukan negatif
-        $duration = max($duration, 0);
         $duration = intval($duration);
         return $duration;
     }
@@ -819,8 +826,8 @@ class LembureController extends Controller
             $breakEnd = Carbon::parse($start->format('Y-m-d') . ' ' . $break['end']);
 
             //Revisi
-            if ($start->lessThan($breakEnd) && $end->greaterThan($breakStart)) {
-                if ($start->lessThan($breakStart) && $end->greaterThan($breakEnd)) {
+            if ($start->lessThanOrEqualTo($breakEnd) && $end->greaterThanOrEqualTo($breakStart)) {
+                if ($start->lessThanOrEqualTo($breakStart) && $end->greaterThanOrEqualTo($breakEnd)) {
                     $rest_time += $break['duration'];
                 } elseif ($start->lessThan($breakStart) && $end->lessThan($breakEnd)) {
                     $rest_time += abs($end->diffInMinutes($breakStart));
@@ -832,7 +839,7 @@ class LembureController extends Controller
             }
         }
 
-        return abs($rest_time);
+        return intval($rest_time);
     }
 
     public function calculate_overtime_uang_makan($jenis_hari, $durasi, $karyawan_id)
@@ -2027,6 +2034,26 @@ class LembureController extends Controller
                 }
                 $detail->keterangan = isset($keterangan[$key]) ? $keterangan[$key] : null;
                 $detail->save();
+            }
+
+            if(auth()->user()->karyawan->posisi[0]->jabatan_id >= 5){
+                if(!$this->has_department_head(auth()->user()->karyawan->posisi) && !$this->has_section_head(auth()->user()->karyawan->posisi)){
+                    $checked_by = auth()->user()->karyawan->nama;
+                    $lembur->update([
+                        'actual_checked_by' => $checked_by,
+                        'actual_checked_at' => now(),
+                    ]);
+                }
+            }
+
+            if(auth()->user()->karyawan->posisi[0]->jabatan_id == 4){
+                if(!$this->has_department_head(auth()->user()->karyawan->posisi)){
+                    $checked_by = auth()->user()->karyawan->nama;
+                    $lembur->update([
+                        'actual_checked_by' => $checked_by,
+                        'actual_checked_at' => now(),
+                    ]);
+                }
             }
 
             $lembur->update([

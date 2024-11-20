@@ -71,6 +71,16 @@ $(function () {
             }
         })
     }
+
+    function updatePengajuanCutiNotification(){
+        $.ajax({
+            url: base_url + '/get-pengajuan-cuti-notification',
+            method: 'GET',
+            success: function(response){
+                $('.notification-pengajuan-cuti').html(response.data);
+            }
+        })
+    }
     
     //DATATABLE KARYAWAN
     var columnsTable = [
@@ -306,6 +316,7 @@ $(function () {
                 $('#sisa_cuti_pribadi').text(data.data.sisa_cuti_pribadi+' Hari');
                 $('#sisa_cuti_tahun_lalu').text(data.data.sisa_cuti_tahun_lalu+' Hari');
                 updateNotification();
+                updatePengajuanCutiNotification();
                 showToast({ title: data.message });
                 refreshTable();
                 closeForm();
@@ -382,6 +393,7 @@ $(function () {
                         $('#sisa_cuti_pribadi').text(data.data.sisa_cuti_pribadi+' Hari');
                         $('#sisa_cuti_tahun_lalu').text(data.data.sisa_cuti_tahun_lalu+' Hari');
                         updateNotification();
+                        updatePengajuanCutiNotification();
                         refreshTable();
                         showToast({ title: data.message });
                     },
@@ -441,6 +453,7 @@ $(function () {
                         $('#sisa_cuti_pribadi').text(data.data.sisa_cuti_pribadi+' Hari');
                         $('#sisa_cuti_tahun_lalu').text(data.data.sisa_cuti_tahun_lalu+' Hari');
                         updateNotification();
+                        updatePengajuanCutiNotification();
                         loadingSwalClose()
                         showToast({ title: data.message });
                         refreshTable();

@@ -1591,7 +1591,7 @@ class CutieController extends Controller
 
                 //LOGIKA UNTUK BYPASS CUTI
                 if($cuti->rencana_mulai_cuti < date('Y-m-d', strtotime('+7 days')) && $cuti->jenis_cuti == 'PRIBADI'){
-                    $cuti->legalized_by = $issued_name.' (BYPASS SYSTEM)';
+                    $cuti->legalized_by = $issued_name;
                     $cuti->status_dokumen = 'APPROVED';
 
                     if($cuti->rencana_mulai_cuti > date('Y-m-d')){
@@ -1601,8 +1601,6 @@ class CutieController extends Controller
                     } else {
                         $cuti->status_cuti = 'COMPLETED';
                     }
-                    
-                    $cuti->status_cuti = 'COMPLETED';
                     $cuti->legalized_at = now();
                 //LOGIKAN UNTUK CUTI BIASA
                 } else {
