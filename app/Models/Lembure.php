@@ -137,7 +137,7 @@ class Lembure extends Model
                 $data->whereNull('lemburs.plan_approved_by');
                 $data->orWhere(function ($query) {
                     $query->where('lemburs.status', 'COMPLETED')
-                    ->whereNotNull('lemburs.actual_checked_by');
+                    ->whereNull('lemburs.actual_approved_by');
                 });
                 $data->orderByRaw("(lemburs.status = 'WAITING' AND lemburs.plan_approved_by IS NULL AND lemburs.plan_checked_by IS NOT NULL) OR (lemburs.status = 'WAITING' AND lemburs.plan_approved_by IS NOT NULL) DESC");
                 $data->orderByRaw("lemburs.status = 'COMPLETED' AND lemburs.actual_approved_by IS NULL DESC");

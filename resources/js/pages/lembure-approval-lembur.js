@@ -42,6 +42,16 @@ $(function () {
         });
     }
 
+    function updateLemburNotification(){
+        $.ajax({
+            url: base_url + '/get-approval-lembur-notification',
+            method: 'GET',
+            success: function(response){
+                $('.notification-approval-lembur').html(response.data);
+            }
+        })
+    }
+
     // DATATABLE
     var columnsTable = [
         { data: "id_lembur" },
@@ -278,6 +288,7 @@ $(function () {
                                     processData: false,
                                     dataType: "JSON",
                                     success: function (data) {
+                                        updateLemburNotification();
                                         showToast({ title: data.message });
                                         refreshTable();
                                         loadingSwalClose();
@@ -440,6 +451,7 @@ $(function () {
                                     processData: false,
                                     dataType: "JSON",
                                     success: function (data) {
+                                        updateLemburNotification();
                                         showToast({ title: data.message });
                                         refreshTable();
                                         loadingSwalClose();
@@ -565,6 +577,7 @@ $(function () {
                                     processData: false,
                                     dataType: "JSON",
                                     success: function (data) {
+                                        updateLemburNotification();
                                         showToast({ title: data.message });
                                         refreshTable();
                                         loadingSwalClose();
@@ -754,6 +767,7 @@ $(function () {
                                 processData: false,
                                 dataType: "JSON",
                                 success: function (data) {
+                                    updateLemburNotification();
                                     showToast({ title: data.message });
                                     refreshTable();
                                     loadingSwalClose();
@@ -993,6 +1007,7 @@ $(function () {
                                     processData: false,
                                     dataType: "JSON",
                                     success: function (data) {
+                                        updateLemburNotification();
                                         showToast({ title: data.message });
                                         refreshTable();
                                         loadingSwalClose();
@@ -1139,6 +1154,7 @@ $(function () {
                                 processData: false,
                                 dataType: "JSON",
                                 success: function (data) {
+                                    updateLemburNotification();
                                     showToast({ title: data.message });
                                     refreshTable();
                                     loadingSwalClose();

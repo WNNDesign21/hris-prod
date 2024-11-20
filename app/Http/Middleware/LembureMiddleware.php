@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use App\Models\Posisi;
+use App\Models\Lembure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -21,10 +22,52 @@ class LembureMiddleware
             $posisi = auth()->user()->karyawan->posisi;
             $has_leader = $this->has_leader_head($posisi);
         }
+        
+        $user = auth()->user();
+        $organisasi_id = $user->organisasi_id;
+        $approval_lembur = 0;
+        if($user->hasRole('personalia')){
+            $approval_lembur = Lembure::where(function($query) {
+                $query->where(function($query) {
+                    $query->where('status', 'WAITING')
+                        ->whereNotNull('plan_approved_by')
+                        ->whereNull('plan_legalized_by');
+                })->orWhere(function($query) {
+                    $query->where('status', 'COMPLETED')
+                        ->whereNotNull('actual_approved_by')
+                        ->whereNull('actual_legalized_by');
+                });
+            })->where('organisasi_id', $organisasi_id)->count();
+        } elseif ($user->karyawan->posisi[0]->jabatan_id == 2 && $user->karyawan->posisi[0]->organisasi_id !== NULL){ 
+            $approval_lembur = Lembure::where(function($query) {
+                $query->where(function($query) {
+                    $query->where('status', 'WAITING')
+                        ->whereNull('plan_approved_by');
+                })->orWhere(function($query) {
+                    $query->where('status', 'COMPLETED')
+                        ->whereNull('actual_approved_by');
+                });
+            })->where('organisasi_id', $organisasi_id)->count();
+        } elseif ($user->karyawan->posisi[0]->jabatan_id == 4 || $user->karyawan->posisi[0]->jabatan_id == 3) {
+            $posisi = $user->karyawan->posisi;
+            $member_posisi_ids = $this->get_member_posisi($posisi);
+            $approval_lembur = Lembure::leftJoin('karyawan_posisi', 'lemburs.issued_by', 'karyawan_posisi.karyawan_id')
+            ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')->whereIn('posisis.id_posisi', $member_posisi_ids)
+            ->where(function($query) {
+                $query->where(function($query) {
+                    $query->where('status', 'WAITING')
+                        ->whereNull('plan_checked_by');
+                })->orWhere(function($query) {
+                    $query->where('status', 'COMPLETED')
+                        ->whereNull('actual_checked_by');
+                });
+            })->count();
+        }
 
         $lembure = [
             'has_leader' => $has_leader,
             'is_leader' => $this->is_leader(),
+            'approval_lembur' => $approval_lembur
         ];
         
         view()->share('lembure', $lembure);
@@ -70,6 +113,18 @@ class LembureMiddleware
             $data = array_merge($data, $this->get_parent_posisi($parent));
         }
         $data[] = $posisi->parent_id;
+        return $data;
+    }
+
+    function get_member_posisi($posisis)
+    {
+        $data = [];
+        foreach ($posisis as $ps) {
+            if ($ps->children) {
+                $data = array_merge($data, $this->get_member_posisi($ps->children));
+            }
+            $data[] = $ps->id_posisi;
+        }
         return $data;
     }
 }

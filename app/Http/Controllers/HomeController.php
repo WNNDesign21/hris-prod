@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use App\Models\Cutie;
 use App\Models\Kontrak;
+use App\Models\Lembure;
 use App\Models\Karyawan;
 use App\Models\DetailLembur;
 use Illuminate\Http\Request;
@@ -160,41 +161,63 @@ class HomeController extends Controller
             ];
         }
 
-        $user = auth()->user();
-        $organisasi_id = $user->organisasi_id;
-        $approval_lembur = false;
-        // if($user->hasRole('personalia')){
-        //     $approval_lembur = Lembure::where(function($query) {
-        //         $query->where(function($query) {
-        //             $query->where('status', 'WAITING')
-        //                 ->whereNotNull('plan_approved_by')
-        //                 ->whereNull('plan_legalized_by');
-        //         })->orWhere(function($query) {
-        //             $query->where('status', 'COMPLETED')
-        //                 ->whereNotNull('actual_approved_by')
-        //                 ->whereNull('actual_legalized_by');
-        //         });
-        //     })->count();
-        // } elseif ($user->karyawan->posisi[0]->jabatan_id == 2) {
-        //     $approval_lembur = Lembure::where(function($query) {
-        //         $query->where(function($query) {
-        //             $query->where('status', 'WAITING')
-        //                 ->whereNull('plan_approved_by');
-        //         })->orWhere(function($query) {
-        //             $query->where('status', 'COMPLETED')
-        //                 ->whereNotNull('actual_checked_by')
-        //                 ->whereNull('actual_approved_by');
-        //         });
-        //     })->count();
-        // }
-
         $dataPage = [
             'pageTitle' => "SuperApps - Menu",
             'page' => 'menu',
             'profile' => $dataProfile,
-            'kontrak' => $dataKontrak
+            'kontrak' => $dataKontrak,
         ];
         return view('pages.menu.index', $dataPage);
+    }
+
+    public function get_approval_lembur_notification(){
+        $user = auth()->user();
+        $organisasi_id = $user->organisasi_id;
+        $approval_lembur = 0;
+        if($user->hasRole('personalia')){
+            $approval_lembur = Lembure::where(function($query) {
+                $query->where(function($query) {
+                    $query->where('status', 'WAITING')
+                        ->whereNotNull('plan_approved_by')
+                        ->whereNull('plan_legalized_by');
+                })->orWhere(function($query) {
+                    $query->where('status', 'COMPLETED')
+                        ->whereNotNull('actual_approved_by')
+                        ->whereNull('actual_legalized_by');
+                });
+            })->where('organisasi_id', $organisasi_id)->count();
+        } elseif ($user->karyawan->posisi[0]->jabatan_id == 2 && $user->karyawan->posisi[0]->organisasi_id !== NULL){ 
+            $approval_lembur = Lembure::where(function($query) {
+                $query->where(function($query) {
+                    $query->where('status', 'WAITING')
+                        ->whereNull('plan_approved_by');
+                })->orWhere(function($query) {
+                    $query->where('status', 'COMPLETED')
+                        ->whereNull('actual_approved_by');
+                });
+            })->where('organisasi_id', $organisasi_id)->count();
+        } elseif ($user->karyawan->posisi[0]->jabatan_id == 4 || $user->karyawan->posisi[0]->jabatan_id == 3) {
+            $posisi = $user->karyawan->posisi;
+            $member_posisi_ids = $this->get_member_posisi($posisi);
+            $approval_lembur = Lembure::leftJoin('karyawan_posisi', 'lemburs.issued_by', 'karyawan_posisi.karyawan_id')
+            ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')->whereIn('posisis.id_posisi', $member_posisi_ids)
+            ->where(function($query) {
+                $query->where(function($query) {
+                    $query->where('status', 'WAITING')
+                        ->whereNull('plan_checked_by');
+                })->orWhere(function($query) {
+                    $query->where('status', 'COMPLETED')
+                        ->whereNull('actual_checked_by');
+                });
+            })->count();
+        }
+
+        $lembure = [
+            'approval_lembur' => $approval_lembur,
+        ];
+        
+        $html = view('layouts.partials.notification-approval-lembur')->with(compact('lembure'))->render();
+        return response()->json(['data' => $html], 200);
     }
 
     public function get_notification(){
