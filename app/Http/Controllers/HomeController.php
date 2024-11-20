@@ -170,6 +170,47 @@ class HomeController extends Controller
         return view('pages.menu.index', $dataPage);
     }
 
+    public function get_planned_pengajuan_lembur_notification(){
+        $pengajuan_lembur= 0;
+        if(auth()->user()->karyawan && auth()->user()->karyawan->posisi){
+            $posisi = auth()->user()->karyawan->posisi;
+            $has_leader = $this->has_leader_head($posisi);
+            if(!$has_leader || auth()->user()->karyawan->posisi[0]->jabatan_id == 5){
+                $pengajuan_lembur = Lembure::where('issued_by', $user->karyawan->id_karyawan)->where('status', 'PLANNED')->count();
+            }
+        }
+
+        $lembure = [
+            'pengajuan_lembur' => $pengajuan_lembur,
+        ];
+        
+        $html = view('layouts.partials.notification-planned-pengajuan-lembur')->with(compact('lembure'))->render();
+        return response()->json(['data' => $html], 200);
+    }
+
+    function has_leader_head($posisi)
+    {
+        $has_leader = false;
+        if($posisi){
+            foreach($posisi as $pos){
+                $parent_posisi_ids = $this->get_parent_posisi($pos);
+                if(!empty($parent_posisi_ids)){
+                    foreach ($parent_posisi_ids as $parent_id){
+                        if($parent_id !== 0){
+                            if(Posisi::where('id_posisi', $parent_id)->first()->jabatan_id == 5){
+                                $has_leader = true;
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            return response()->json(['message' => 'Anda tidak memiliki posisi, silahkan hubungi HRD'], 200);
+        }
+
+        return $has_leader;
+    } 
+
     public function get_approval_lembur_notification(){
         $user = auth()->user();
         $organisasi_id = $user->organisasi_id;

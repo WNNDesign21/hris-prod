@@ -18,14 +18,20 @@ class LembureMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         $has_leader = false;
-        if(auth()->user()->karyawan && auth()->user()->karyawan->posisi){
-            $posisi = auth()->user()->karyawan->posisi;
-            $has_leader = $this->has_leader_head($posisi);
-        }
-        
         $user = auth()->user();
         $organisasi_id = $user->organisasi_id;
         $approval_lembur = 0;
+        $pengajuan_lembur= 0;
+        
+        if(auth()->user()->karyawan && auth()->user()->karyawan->posisi){
+            $posisi = auth()->user()->karyawan->posisi;
+            $has_leader = $this->has_leader_head($posisi);
+            if(!$has_leader || auth()->user()->karyawan->posisi[0]->jabatan_id == 5){
+                $pengajuan_lembur = Lembure::where('issued_by', $user->karyawan->id_karyawan)->where('status', 'PLANNED')->count();
+            }
+        }
+
+        //APPROVAL LEMBUR
         if($user->hasRole('personalia')){
             $approval_lembur = Lembure::where(function($query) {
                 $query->where(function($query) {
@@ -67,7 +73,8 @@ class LembureMiddleware
         $lembure = [
             'has_leader' => $has_leader,
             'is_leader' => $this->is_leader(),
-            'approval_lembur' => $approval_lembur
+            'approval_lembur' => $approval_lembur,
+            'pengajuan_lembur' => $pengajuan_lembur
         ];
         
         view()->share('lembure', $lembure);

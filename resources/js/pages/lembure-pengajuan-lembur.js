@@ -42,6 +42,16 @@ $(function () {
         });
     }
 
+    function updateLemburNotification(){
+        $.ajax({
+            url: base_url + '/get-planned-pengajuan-lembur-notification',
+            method: 'GET',
+            success: function(response){
+                $('.notification-planned-pengajuan-lembur').html(response.data);
+            }
+        })
+    }
+
     // DATATABLE
     var columnsTable = [
         { data: "id_lembur" },
@@ -851,6 +861,7 @@ $(function () {
                                     processData: false,
                                     dataType: "JSON",
                                     success: function (data) {
+                                        updateLemburNotification();
                                         showToast({ title: data.message });
                                         refreshTable();
                                         loadingSwalClose();
