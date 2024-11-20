@@ -24,7 +24,12 @@
 
 <body class="hold-transition light-skin sidebar-mini theme-primary fixed">
     <header class="main-header">
-        <nav class="navbar m-0 navbar-static-top justify-content-end">
+        <nav class="navbar m-0 navbar-static-top">
+            <div class="app-menu">
+                <h4 class="mb-0 text-primary"><i class="ti-user"></i>
+                    {{ auth()->user()->hasAnyRole(['atasan', 'member'])? auth()->user()->karyawan->nama: 'PERSONALIA' }}
+                </h4>
+            </div>
             <div class="navbar-custom-menu r-side">
                 <ul class="nav navbar-nav">
                     <li class="dropdown notifications-menu">

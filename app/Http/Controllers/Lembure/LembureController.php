@@ -137,7 +137,7 @@ class LembureController extends Controller
         $totalFiltered = $totalData;
 
         $lembure = Lembure::getData($dataFilter, $settings);
-        $totalFiltered = $lembure->count();
+        $totalFiltered = Lembure::countData($dataFilter);
         $dataTable = [];
 
         if (!empty($lembure)) {
@@ -260,7 +260,7 @@ class LembureController extends Controller
         $totalFiltered = $totalData;
 
         $lembure = Lembure::getData($dataFilter, $settings);
-        $totalFiltered = $lembure->count();
+        $totalFiltered = Lembure::countData($dataFilter);
         $dataTable = [];
 
         if (!empty($lembure)) {
@@ -524,8 +524,7 @@ class LembureController extends Controller
         $totalFiltered = $totalData;
 
         $setting_upah_lembur = SettingLemburKaryawan::getData($dataFilter, $settings);
-        $totalFiltered = $setting_upah_lembur->count();
-
+        $totalFiltered = SettingLemburKaryawan::countData($dataFilter);
 
         $dataTable = [];
 

@@ -160,6 +160,34 @@ class HomeController extends Controller
             ];
         }
 
+        $user = auth()->user();
+        $organisasi_id = $user->organisasi_id;
+        $approval_lembur = false;
+        // if($user->hasRole('personalia')){
+        //     $approval_lembur = Lembure::where(function($query) {
+        //         $query->where(function($query) {
+        //             $query->where('status', 'WAITING')
+        //                 ->whereNotNull('plan_approved_by')
+        //                 ->whereNull('plan_legalized_by');
+        //         })->orWhere(function($query) {
+        //             $query->where('status', 'COMPLETED')
+        //                 ->whereNotNull('actual_approved_by')
+        //                 ->whereNull('actual_legalized_by');
+        //         });
+        //     })->count();
+        // } elseif ($user->karyawan->posisi[0]->jabatan_id == 2) {
+        //     $approval_lembur = Lembure::where(function($query) {
+        //         $query->where(function($query) {
+        //             $query->where('status', 'WAITING')
+        //                 ->whereNull('plan_approved_by');
+        //         })->orWhere(function($query) {
+        //             $query->where('status', 'COMPLETED')
+        //                 ->whereNotNull('actual_checked_by')
+        //                 ->whereNull('actual_approved_by');
+        //         });
+        //     })->count();
+        // }
+
         $dataPage = [
             'pageTitle' => "SuperApps - Menu",
             'page' => 'menu',
