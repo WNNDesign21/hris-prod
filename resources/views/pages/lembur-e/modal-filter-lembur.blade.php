@@ -1,0 +1,68 @@
+<!-- modal Area -->
+<div class="modal fade" id="modal-filter">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Filter Lembur</h4>
+                <button type="button" class="btn-close btnCloseFilter" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label for="filterUrutan">URUTAN</label>
+                                <select name="filterUrutan" id="filterUrutan" class="form-control" style="width: 100%;">
+                                    <option value="">NO FILTER</option>
+                                    <option value="NO">NEW TO OLD</option>
+                                    <option value="ON">OLD TO NEW</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="filterJenisHari">JENIS HARI</label>
+                                <select name="filterJenisHari" id="filterJenisHari" class="form-control"
+                                    style="width: 100%;" multiple>
+                                    <option value="WD">WEEKDAY</option>
+                                    <option value="WE">WEEKEND</option>
+                                </select>
+                            </div>
+                            {{-- <div class="form-group">
+                                <label for="filterAksi">Aksi</label>
+                                <select name="filterAksi" id="filterAksi" class="form-control" style="width: 100%;">
+                                    <option value="">NO FILTER</option>
+                                    <option value="CHECKED">MUST BE CHECKED</option>
+                                    <option value="APPROVED">MUST BE APPROVED</option>
+                                    <option value="LEGALIZED">MUST BE LEGALIZED</option>
+                                </select>
+                            </div> --}}
+                            <div class="form-group">
+                                <label for="filterStatus">Status</label>
+                                <select name="filterStatus" id="filterStatus" class="form-control" style="width: 100%;"
+                                    multiple>
+                                    <option value="WAITING">WAITING</option>
+                                    <option value="PLANNED">PLANNED</option>
+                                    <option value="COMPLETED">COMPLETED</option>
+                                    <option value="REJECTED">REJECTED</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.modal-content -->
+            </div>
+            <div class="modal-footer">
+                <div class="row">
+                    <div class="col-12 d-flex justify-content-end gap-1">
+                        <button type="button" class="waves-effect waves-light btn btn-danger btnResetFilter"><i
+                                class="fas fa-history"></i> Reset</button>
+                        <button type="button" class="waves-effect waves-light btn btn-warning btnSubmitFilter"><i
+                                class="fas fa-filter"></i> Filter</button>
+                    </div>
+                </div>
+            </div>
+            <!-- /.modal-dialog -->
+        </div>
+    </div>
+</div>
+<!-- /.modal -->

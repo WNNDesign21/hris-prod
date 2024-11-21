@@ -256,6 +256,26 @@ class LembureController extends Controller
             // $dataFilter['is_approved'] = true;
         }
 
+        $filterUrutan = $request->urutan;
+        if (!empty($filterUrutan)) {
+            $dataFilter['urutan'] = $filterUrutan;
+        }
+
+        $filterJenisHari = $request->jenisHari;
+        if (!empty($filterJenisHari)) {
+            $dataFilter['jenisHari'] = $filterJenisHari;
+        }
+
+        $filterAksi = $request->aksi;
+        if (!empty($filterAksi)) {
+            $dataFilter['aksi'] = $filterAksi;
+        }
+
+        $filterStatus = $request->status;
+        if (!empty($filterStatus)) {
+            $dataFilter['status'] = $filterStatus;
+        }
+
         $totalData = Lembure::all()->count();
         $totalFiltered = $totalData;
 
