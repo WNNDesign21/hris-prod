@@ -66,6 +66,7 @@
     <script src="{{ asset('assets/vendor_components/nestable/jquery.nestable.js') }}"></script>
     <script src="{{ asset('assets/vendor_components/moment/min/moment.min.js') }}"></script>
     <script src="{{ asset('assets/vendor_components/fullcalendar/fullcalendar.js') }}"></script>
+    <script src="{{ asset('assets/vendor_plugins/polyfill/datetime-polyfill.js') }}"></script>
 
     <!-- EduAdmin App -->
     <script src="{{ asset('js/template.js') }}"></script>

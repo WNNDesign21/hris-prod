@@ -596,11 +596,8 @@ class LembureController extends Controller
             'jenis_hari' => ['required','in:WD,WE'],
             'karyawan_id.*' => ['required', 'distinct'],
             'job_description.*' => ['required'],
-            //OLD VERSION DATE
-            // 'rencana_mulai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i'],
-            // 'rencana_selesai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i'],
-            'rencana_mulai_lembur.*' => ['required', 'date_format:Y-m-d H:i'],
-            'rencana_selesai_lembur.*' => ['required', 'date_format:Y-m-d H:i', 'after:rencana_mulai_lembur.*'],
+            'rencana_mulai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'before:rencana_selesai_lembur.*'],
+            'rencana_selesai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'after:rencana_mulai_lembur.*'],
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -1046,8 +1043,8 @@ class LembureController extends Controller
     public function pembulatan_menit_ke_bawah($datetime)
     {
         //OLD VERSION DATE
-        // $datetime = Carbon::createFromFormat('Y-m-d\TH:i', $datetime);
-        $datetime = Carbon::parse($datetime);
+        $datetime = Carbon::createFromFormat('Y-m-d\TH:i', $datetime);
+        // $datetime = Carbon::parse($datetime);
         $minute = $datetime->minute;
         $minute = $minute - ($minute % 15);
         $datetime->minute($minute)->second(0);
@@ -1079,8 +1076,8 @@ class LembureController extends Controller
             'jenis_hariEdit' => ['required','in:WD,WE'],
             'karyawan_idEdit.*' => ['required', 'distinct'],
             'job_descriptionEdit.*' => ['required'],
-            'rencana_mulai_lemburEdit.*' => ['required', 'date_format:Y-m-d H:i'],
-            'rencana_selesai_lemburEdit.*' => ['required', 'date_format:Y-m-d H:i', 'after:rencana_mulai_lemburEdit.*'],
+            'rencana_mulai_lemburEdit.*' => ['required', 'date_format:Y-m-d\TH:i', 'before:rencana_selesai_lemburEdit.*'],
+            'rencana_selesai_lemburEdit.*' => ['required', 'date_format:Y-m-d\TH:i', 'after:rencana_mulai_lemburEdit.*'],
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -1123,8 +1120,8 @@ class LembureController extends Controller
                 $dataValidate = [
                     'karyawan_idEditNew.*' => ['required', 'distinct'],
                     'job_descriptionEditNew.*' => ['required'],
-                    'rencana_mulai_lemburEditNew.*' => ['required', 'date_format:Y-m-d H:i'],
-                    'rencana_selesai_lemburEditNew.*' => ['required', 'date_format:Y-m-d H:i', 'after:rencana_mulai_lemburEditNew.*'],
+                    'rencana_mulai_lemburEditNew.*' => ['required', 'date_format:Y-m-d\TH:i', 'before:rencana_selesai_lemburEditNew.*'],
+                    'rencana_selesai_lemburEditNew.*' => ['required', 'date_format:Y-m-d\TH:i', 'after:rencana_mulai_lemburEditNew.*'],
                 ];
         
                 $validator = Validator::make(request()->all(), $dataValidate);
@@ -1607,10 +1604,10 @@ class LembureController extends Controller
                     'organisasi_id' => $data->organisasi_id,
                     'departemen_id' => $data->departemen_id,
                     'divisi_id' => $data->divisi_id,
-                    'rencana_mulai_lembur' => $data->rencana_mulai_lembur ? Carbon::parse($data->rencana_mulai_lembur)->format('Y-m-d H:i') : null,
-                    'rencana_selesai_lembur' => $data->rencana_selesai_lembur ? Carbon::parse($data->rencana_selesai_lembur)->format('Y-m-d H:i') : null,
-                    'aktual_mulai_lembur' => $data->aktual_mulai_lembur ? Carbon::parse($data->aktual_mulai_lembur)->format('Y-m-d H:i') : null,
-                    'aktual_selesai_lembur' => $data->aktual_selesai_lembur ? Carbon::parse($data->aktual_selesai_lembur)->format('Y-m-d H:i') : null,
+                    'rencana_mulai_lembur' => $data->rencana_mulai_lembur ? Carbon::parse($data->rencana_mulai_lembur)->format('Y-m-d\TH:i') : null,
+                    'rencana_selesai_lembur' => $data->rencana_selesai_lembur ? Carbon::parse($data->rencana_selesai_lembur)->format('Y-m-d\TH:i') : null,
+                    'aktual_mulai_lembur' => $data->aktual_mulai_lembur ? Carbon::parse($data->aktual_mulai_lembur)->format('Y-m-d\TH:i') : null,
+                    'aktual_selesai_lembur' => $data->aktual_selesai_lembur ? Carbon::parse($data->aktual_selesai_lembur)->format('Y-m-d\TH:i') : null,
                     'is_rencana_approved' => $data->is_rencana_approved,
                     'is_aktual_approved' => $data->is_aktual_approved,
                     'deskripsi_pekerjaan' => $data->deskripsi_pekerjaan,
@@ -1718,8 +1715,8 @@ class LembureController extends Controller
     {
         $dataValidate = [
             'is_planned' => ['required', 'in:Y,N'],
-            'mulai_lembur.*' => ['required', 'date_format:Y-m-d H:i'],
-            'selesai_lembur.*' => ['required', 'date_format:Y-m-d H:i', 'after:mulai_lembur.*'],
+            'mulai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'before:selesai_lembur.*'],
+            'selesai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'after:mulai_lembur.*'],
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -1872,8 +1869,8 @@ class LembureController extends Controller
     {
         $dataValidate = [
             'is_planned' => ['required', 'in:Y,N'],
-            'mulai_lembur.*' => ['required', 'date_format:Y-m-d H:i'],
-            'selesai_lembur.*' => ['required', 'date_format:Y-m-d H:i', 'after:mulai_lembur.*'],
+            'mulai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'before:selesai_lembur.*'],
+            'selesai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'after:mulai_lembur.*'],
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -2167,8 +2164,8 @@ class LembureController extends Controller
     public function done(Request $request, string $id_lembur)
     {
         $dataValidate = [
-            'aktual_mulai_lembur.*' => ['required', 'date_format:Y-m-d H:i'],
-            'aktual_selesai_lembur.*' => ['required', 'date_format:Y-m-d H:i', 'after:aktual_mulai_lembur.*'],
+            'aktual_mulai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'before:aktual_selesai_lembur.*'],
+            'aktual_selesai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'after:aktual_mulai_lembur.*'],
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
