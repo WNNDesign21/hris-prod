@@ -895,22 +895,22 @@ $(function () {
         closeDone();
     })
 
-    $('#table-detail-lembur-done').on("change", '.aktualMulaiLembur', function () {
-        let urutan = $(this).data('urutan');
-        let startTime = $(this).val();
-        $('#aktual_selesai_lembur_' + urutan).val('').attr('min', startTime);
-    });
+    // $('#table-detail-lembur-done').on("change", '.aktualMulaiLembur', function () {
+    //     let urutan = $(this).data('urutan');
+    //     let startTime = $(this).val();
+    //     $('#aktual_selesai_lembur_' + urutan).val('').attr('min', startTime);
+    // });
 
-    $('#table-detail-lembur-done').on("change", '.aktualSelesaiLembur' , function () {
-        let urutan = $(this).data('urutan');
-        let startTime = $('#aktual_mulai_lembur_' + urutan).val();
-        let endTime = $(this).val();
-        let oldEndTime = $(this).data('selesai');
-        if (endTime < startTime) {
-            $(this).val(oldEndTime);
-            showToast({ title: "Waktu selesai lembur tidak boleh kurang dari waktu mulai lembur", icon: "error" });
-        }
-    });
+    // $('#table-detail-lembur-done').on("change", '.aktualSelesaiLembur' , function () {
+    //     let urutan = $(this).data('urutan');
+    //     let startTime = $('#aktual_mulai_lembur_' + urutan).val();
+    //     let endTime = $(this).val();
+    //     let oldEndTime = $(this).data('selesai');
+    //     if (endTime < startTime) {
+    //         $(this).val(oldEndTime);
+    //         showToast({ title: "Waktu selesai lembur tidak boleh kurang dari waktu mulai lembur", icon: "error" });
+    //     }
+    // });
 
     $('#lembur-table').on('click', '.btnDone', function(){
         loadingSwalShow();
@@ -942,26 +942,10 @@ $(function () {
                                 <div id="job_description_${i}" class="${val.is_rencana_approved == 'N' ? 'text-white' : ''}"></div>
                             </td>
                             <td>
-                                ${val.is_rencana_approved !== 'N' ? `<div class="input-group" id="datetimepicker_aktual_mulai_${i}" data-td-target-input="nearest"
-                                    data-td-target-toggle="nearest">
-                                    <input id="aktual_mulai_lembur_${i}" name="aktual_mulai_lembur[]" type="text" class="form-control aktualMulaiLembur"
-                                        data-td-target="#datetimepicker_aktual_mulai_${i}" data-urutan="${i}" data-mulai="${val.rencana_mulai_lembur}" required>
-                                    <span class="input-group-text" data-td-target="#datetimepicker_aktual_mulai_${i}"
-                                        data-td-toggle="datetimepicker">
-                                        <i class="fa fa-calendar"></i>
-                                    </span>
-                                </div>` : `-`}
+                                ${val.is_rencana_approved !== 'N' ? `<input id="aktual_mulai_lembur_${i}" name="aktual_mulai_lembur[]" type="datetime-local" class="form-control aktualMulaiLembur" data-urutan="${i}" data-mulai="${val.rencana_mulai_lembur}" required>` : `-`}
                             </td>
                             <td>
-                                ${val.is_rencana_approved !== 'N' ? `<div class="input-group" id="datetimepicker_aktual_selesai_${i}" data-td-target-input="nearest"
-                                    data-td-target-toggle="nearest">
-                                    <input id="aktual_selesai_lembur_${i}" name="aktual_selesai_lembur[]" type="text" class="form-control aktualSelesaiLembur"
-                                        data-td-target="#datetimepicker_aktual_selesai_${i}" data-urutan="${i}" data-selesai="${val.rencana_selesai_lembur}" required>
-                                    <span class="input-group-text" data-td-target="#datetimepicker_aktual_selesai_${i}"
-                                        data-td-toggle="datetimepicker">
-                                        <i class="fa fa-calendar"></i>
-                                    </span>
-                                </div>` : `-`}
+                                ${val.is_rencana_approved !== 'N' ? `<input id="aktual_selesai_lembur_${i}" name="aktual_selesai_lembur[]" type="datetime-local" class="form-control aktualSelesaiLembur" data-urutan="${i}" data-selesai="${val.rencana_selesai_lembur}" required>` : `-`}
                             </td>
                             <td>
                             ${val.is_rencana_approved !== 'N' ? `<input type="text" name="keterangan[]"
@@ -976,29 +960,48 @@ $(function () {
                         </tr>
                     `)
 
-                    if(val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N'){
-                        const aktualMulaiElement = document.getElementById('aktual_mulai_lembur_'+i);
-                        const aktualSelesaiElement = document.getElementById('aktual_selesai_lembur_'+i);
-                        let mulai = moment(val.rencana_mulai_lembur).format('YYYY-MM-DD 00:00');
+                    // if(val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N'){
+                    //     const aktualMulaiElement = document.getElementById('aktual_mulai_lembur_'+i);
+                    //     const aktualSelesaiElement = document.getElementById('aktual_selesai_lembur_'+i);
+                    //     let mulai = moment(val.rencana_mulai_lembur).format('YYYY-MM-DD 00:00');
                         
-                        initializeTempus(aktualMulaiElement, mulai);
-                        initializeTempus(aktualSelesaiElement, mulai);
+                    //     initializeTempus(aktualMulaiElement, mulai);
+                    //     initializeTempus(aktualSelesaiElement, mulai);
 
-                        aktualMulaiElement.addEventListener('change', function() {
-                            const selectedValue = this.value;
-                            aktualSelesaiElement.value = selectedValue;
-                            if(aktualSelesaiElement.value < selectedValue){
-                                aktualSelesaiElement.value = selectedValue;
-                            }
-                            initializeTempus(aktualSelesaiElement, this.value);
-                        });
+                    //     aktualMulaiElement.addEventListener('change', function() {
+                    //         const selectedValue = this.value;
+                    //         aktualSelesaiElement.value = selectedValue;
+                    //         if(aktualSelesaiElement.value < selectedValue){
+                    //             aktualSelesaiElement.value = selectedValue;
+                    //         }
+                    //         initializeTempus(aktualSelesaiElement, this.value);
+                    //     });
 
-                        aktualSelesaiElement.addEventListener('change', function() {
-                            if(this.value < aktualMulaiElement.value){
-                                this.value = this.dataset.selesai;
-                            }
-                        });
-                    }
+                    //     aktualSelesaiElement.addEventListener('change', function() {
+                    //         if(this.value < aktualMulaiElement.value){
+                    //             this.value = this.dataset.selesai;
+                    //         }
+                    //     });
+                    // }
+
+                    let minDate = moment(val.rencana_mulai_lembur).format('YYYY-MM-DDT00:00');
+         
+                    $('#aktual_mulai_lembur_' + i).attr('min', minDate);
+                    $('#aktual_selesai_lembur_' + i).attr('min', minDate);
+
+                    $('#aktual_mulai_lembur_' + i).on('change', function(){
+                        let startTime = moment($(this).val()).format('YYYY-MM-DDT00:00');
+                        $('#aktual_selesai_lembur_' + i).attr('min', startTime);
+                        if($(this).val() > $('#aktual_selesai_lembur_' + i).val()){
+                            $('#aktual_selesai_lembur_' + i).val($(this).val());
+                        }
+                    });
+
+                    $('#aktual_selesai_lembur_' + i).on('change', function(){
+                        if($(this).val() < $('#aktual_mulai_lembur_' + i).val()){
+                            $(this).val($(this).data('selesai'));
+                        }
+                    })
 
                     $('#is_aktual_approved_' + i).on('change', function(){
                         console.log($(this).is(':checked'), $(this).val());
