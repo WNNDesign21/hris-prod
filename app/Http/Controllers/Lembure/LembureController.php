@@ -1431,12 +1431,9 @@ class LembureController extends Controller
                     $dat->where(function ($subQuery) use ($search) {
                         $subQuery->where('karyawans.id_karyawan', 'ILIKE', "%{$search}%")
                                  ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%");
-                    })
-                    ->orWhere(function ($subQuery) {
-                        $subQuery->where('karyawans.id_karyawan', auth()->user()->karyawan->id_karyawan)
-                                 ->orWhere('karyawans.nama', auth()->user()->karyawan->nama);
                     });
                 });
+
             } else {
                 $query->where('karyawans.id_karyawan', auth()->user()->karyawan->id_karyawan);
             }
