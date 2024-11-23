@@ -1001,8 +1001,8 @@ class CutieController extends Controller
         if($jenis_cuti == 'PRIBADI'){
             $dataValidate = [
                 'jenis_cuti' => ['required'],
-                'rencana_mulai_cuti' => ['date','required'],
-                'rencana_selesai_cuti' => ['date','required'],
+                'rencana_mulai_cuti' => ['date','required', 'after_or_equal:'.Carbon::now()->addDays(7)->format('Y-m-d')],
+                'rencana_selesai_cuti' => ['date','required', 'after_or_equal:rencana_mulai_cuti'],
                 'alasan_cuti' => ['required'],
                 'durasi_cuti' => ['numeric','required'],
             ];

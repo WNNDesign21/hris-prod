@@ -364,8 +364,6 @@ $(function () {
                 return !selectedIds.includes(item.id);
                 });
 
-                params.page = params.page || 1;
-
                 return {
                     results: filteredData,
                     pagination: {
