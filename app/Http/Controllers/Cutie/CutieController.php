@@ -153,7 +153,7 @@ class CutieController extends Controller
         $totalData = Cutie::where('karyawan_id', auth()->user()->karyawan->id_karyawan)->count();
         $totalFiltered = $totalData;
         $cutie = Cutie::getData($dataFilter, $settings);
-        $totalFiltered = $cutie->count();
+        $totalFiltered = Cutie::countData($dataFilter);
         $dataTable = [];
         
 
@@ -371,7 +371,7 @@ class CutieController extends Controller
         }
         
         $cutie = Cutie::getData($dataFilter, $settings);
-        $totalFiltered = $cutie->count();
+        $totalFiltered = Cutie::countData($dataFilter);
         // $totalFiltered = Cutie::countData($dataFilter);
 
         $dataTable = [];
@@ -725,7 +725,7 @@ class CutieController extends Controller
         }
         
         $cutie = Cutie::getData($dataFilter, $settings);
-        $totalFiltered = $cutie->count();
+        $totalFiltered = Cutie::countData($dataFilter);
         // $totalFiltered = Cutie::countData($dataFilter);
 
         $dataTable = [];
@@ -878,7 +878,7 @@ class CutieController extends Controller
 
         
         $jenis_cuti = JenisCuti::getData($dataFilter, $settings);
-        $totalFiltered = $jenis_cuti->count();
+        $totalFiltered = JenisCuti::countData($dataFilter);
 
         $dataTable = [];
         
@@ -1591,7 +1591,7 @@ class CutieController extends Controller
 
                 //LOGIKA UNTUK BYPASS CUTI
                 if($cuti->rencana_mulai_cuti < date('Y-m-d', strtotime('+7 days')) && $cuti->jenis_cuti == 'PRIBADI'){
-                    $cuti->legalized_by = $issued_name.' (BYPASS SYSTEM)';
+                    $cuti->legalized_by = $issued_name;
                     $cuti->status_dokumen = 'APPROVED';
 
                     if($cuti->rencana_mulai_cuti > date('Y-m-d')){
@@ -1601,8 +1601,6 @@ class CutieController extends Controller
                     } else {
                         $cuti->status_cuti = 'COMPLETED';
                     }
-                    
-                    $cuti->status_cuti = 'COMPLETED';
                     $cuti->legalized_at = now();
                 //LOGIKAN UNTUK CUTI BIASA
                 } else {

@@ -1,3 +1,8 @@
+import { TempusDominus } from "@eonasdan/tempus-dominus";
+import { faFiveIcons } from '@eonasdan/tempus-dominus/dist/plugins/fa-five';
+import '@eonasdan/tempus-dominus/dist/css/tempus-dominus.min.css';
+import '@popperjs/core';
+
 $(function () {
     $.ajaxSetup({
         headers: {
@@ -40,6 +45,70 @@ $(function () {
             icon: options.icon || "success",
             title: options.title
         });
+    }
+
+    function updateLemburNotification(){
+        $.ajax({
+            url: base_url + '/get-planned-pengajuan-lembur-notification',
+            method: 'GET',
+            success: function(response){
+                $('.notification-planned-pengajuan-lembur').html(response.data);
+            }
+        })
+    }
+
+    function initializeTempus(element, minDate = '', dateTime = '') {
+        const tempusDominus = new TempusDominus(element, {
+            useCurrent: false,
+            stepping: 15,
+            restrictions: {
+                minDate: minDate || undefined
+            },
+            display: {
+                icons: faFiveIcons,
+                components: {
+                    calendar: true,
+                    date: true,
+                    month: true,
+                    year: true,
+                    decades: true,
+                    clock: true,
+                    hours: true,
+                    minutes: true,
+                    seconds: false,
+                },
+                viewMode: 'calendar',
+                calendarWeeks: true,
+                sideBySide: true,
+            },
+            localization: {
+                hourCycle: 'h23',
+                dateFormats: {
+                    LTS: 'h:mm:ss T',
+                    LT: 'h:mm T',
+                    L: 'yyyy-MM-dd HH:mm',
+                    LL: 'MMMM d, yyyy',
+                    LLL: 'MMMM d, yyyy h:mm T',
+                    LLLL: 'dddd, MMMM d, yyyy h:mm T'
+                },
+                format: 'L',
+            },
+        });
+
+        if(dateTime){
+            tempusDominus.dates.setValue(dateTime);
+        }
+        return tempusDominus;
+    }
+
+    function tempusFormatter(datetime){
+        let formattedDateTime = moment(dateTime, 'YYYY-MM-DD HH:mm').format('YYYY-MM-DDTHH:mm');
+        return formattedDateTime;
+    }
+
+    function tempusReverseFormatter(datetime){
+        let formattedDateTime = moment(dateTime, 'YYYY-MM-DDTHH:mm').format('YYYY-MM-DD HH:mm');
+        return formattedDateTime;
     }
 
     // DATATABLE
@@ -116,7 +185,7 @@ $(function () {
                 }
             },
         },
-        responsive: true,
+        // responsive: true,
         columns: columnsTable,
         columnDefs: [
             {
@@ -205,16 +274,26 @@ $(function () {
                     </input>
                 </td>
                 <td>
-                    <input type="datetime-local" name="rencana_mulai_lembur[]"
-                        id="rencana_mulai_lembur_${count}" class="form-control rencanaMulaiLembur"
-                        style="width: 100%;" min="${new Date().toISOString().slice(0, 16)}" data-urutan="${count}" required>
-                    </input>
+                    <div class="input-group" id="datetimepicker_rencana_mulai_${count}" data-td-target-input="nearest"
+                        data-td-target-toggle="nearest">
+                        <input id="rencana_mulai_lembur_${count}" name="rencana_mulai_lembur[]" type="text" class="form-control rencanaMulaiLembur"
+                            data-td-target="#datetimepicker_rencana_mulai_${count}" data-urutan="${count}">
+                        <span class="input-group-text" data-td-target="#datetimepicker_rencana_mulai_${count}"
+                            data-td-toggle="datetimepicker">
+                            <i class="fa fa-calendar"></i>
+                        </span>
+                    </div>
                 </td>
                 <td>
-                    <input type="datetime-local" name="rencana_selesai_lembur[]"
-                        id="rencana_selesai_lembur_${count}" class="form-control rencanaSelesaiLembur"
-                        style="width: 100%;" min="${new Date().toISOString().slice(0, 16)}" data-urutan="${count}" required>
-                    </input>
+                    <div class="input-group" id="datetimepicker_rencana_selesai_${count}" data-td-target-input="nearest"
+                        data-td-target-toggle="nearest">
+                        <input id="rencana_selesai_lembur_${count}" name="rencana_selesai_lembur[]" type="text" class="form-control rencanaSelesaiLembur"
+                            data-td-target="#datetimepicker_rencana_selesai_${count}" data-urutan="${count}">
+                        <span class="input-group-text" data-td-target="#datetimepicker_rencana_selesai_${count}"
+                            data-td-toggle="datetimepicker">
+                            <i class="fa fa-calendar"></i>
+                        </span>
+                    </div>
                 </td>
                 <td>
                     <div class="btn-group">
@@ -225,6 +304,31 @@ $(function () {
                 </td>
             </tr>
         `)
+
+
+        //DATE
+        const rencanaMulaiElement = document.getElementById('rencana_mulai_lembur_'+count);
+        const rencanaSelesaiElement = document.getElementById('rencana_selesai_lembur_'+count);
+        let now = moment().format('YYYY-MM-DD 00:00');
+        
+        initializeTempus(rencanaMulaiElement, now);
+        initializeTempus(rencanaSelesaiElement, now);
+        rencanaMulaiElement.value = now;
+        rencanaSelesaiElement.value = now;
+
+        rencanaMulaiElement.addEventListener('change', function() {
+            const selectedValue = this.value;
+            rencanaSelesaiElement.value = selectedValue;
+            initializeTempus(rencanaSelesaiElement, selectedValue);
+        });
+        
+        rencanaSelesaiElement.addEventListener('change', function() {
+            if(this.value < rencanaMulaiElement.value){
+                rencanaMulaiElement.value = this.value;
+            }
+        });
+
+        
 
         if(jumlah_detail_lembur == 0){
             $('.btnSubmitDetailLembur').attr('disabled', true);
@@ -241,8 +345,8 @@ $(function () {
             delay: 250,
             data: function (params) {
                 return {
-                search: params.term || "",
-                page: params.page || 1,
+                    search: params.term || "",
+                    page: params.page || 1,
                 };
             },
             processResults: function (data, params) {
@@ -257,10 +361,12 @@ $(function () {
                 return !selectedIds.includes(item.id);
                 });
 
+                params.page = params.page || 1;
+
                 return {
                     results: filteredData,
                     pagination: {
-                        more: (params.page * 10) < data.total_count
+                        more: (params.page * 30) < data.total_count
                     }
                 };
             },
@@ -372,6 +478,7 @@ $(function () {
                 let jenisHari = header.jenis_hari == 'WEEKEND' ? 'WE' : 'WD';
                 let detail = response.data.detail_lembur;
                 detailCount += detail.length;
+                console.log(detailCount);
                 let tbody = $('#list-detail-lembur-edit').empty();
                 
                 $.each(detail, function (i, val){
@@ -389,16 +496,26 @@ $(function () {
                                 </input>
                             </td>
                             <td>
-                                <input type="datetime-local" name="rencana_mulai_lemburEdit[]"
-                                    id="rencana_mulai_lemburEdit_${i}" class="form-control rencanaMulaiLemburEdit"
-                                    style="width: 100%;" min="${new Date().toISOString().slice(0, 16)}" data-urutan="${i}" data-mulai="${val.rencana_mulai_lembur}" required>
-                                </input>
+                                <div class="input-group" id="datetimepicker_rencana_mulaiEdit_${i}" data-td-target-input="nearest"
+                                    data-td-target-toggle="nearest">
+                                    <input id="rencana_mulai_lemburEdit_${i}" name="rencana_mulai_lemburEdit[]" type="text" class="form-control rencanaMulaiLemburEdit"
+                                        data-td-target="#datetimepicker_rencana_mulaiEdit_${i}" data-urutan="${i}" data-mulai="${val.rencana_mulai_lembur}" required>
+                                    <span class="input-group-text" data-td-target="#datetimepicker_rencana_mulaiEdit_${i}"
+                                        data-td-toggle="datetimepicker">
+                                        <i class="fa fa-calendar"></i>
+                                    </span>
+                                </div>
                             </td>
                             <td>
-                                <input type="datetime-local" name="rencana_selesai_lemburEdit[]"
-                                    id="rencana_selesai_lemburEdit_${i}" class="form-control rencanaSelesaiLemburEdit"
-                                    style="width: 100%;" min="${new Date().toISOString().slice(0, 16)}" data-urutan="${i}" data-selesai="${val.rencana_selesai_lembur}" required>
-                                </input>
+                                <div class="input-group" id="datetimepicker_rencana_selesaiEdit_${i}" data-td-target-input="nearest"
+                                    data-td-target-toggle="nearest">
+                                    <input id="rencana_selesai_lemburEdit_${i}" name="rencana_selesai_lemburEdit[]" type="text" class="form-control rencanaSelesaiLemburEdit"
+                                        data-td-target="#datetimepicker_rencana_selesaiEdit_${i}" data-urutan="${i}" data-selesai="${val.rencana_selesai_lembur}" required>
+                                    <span class="input-group-text" data-td-target="#datetimepicker_rencana_selesaiEdit_${i}"
+                                        data-td-toggle="datetimepicker">
+                                        <i class="fa fa-calendar"></i>
+                                    </span>
+                                </div>
                             </td>
                             <td>
                                 -
@@ -406,12 +523,30 @@ $(function () {
                         </tr>
                     `)
 
-                    //Backup jika butuh fitur hapus pada Edit data
-                    // <div class="btn-group">
-                    //     <button type="button"
-                    //         class="btn btn-danger waves-effect btnDeleteDetailLemburEdit" data-urutan="${i}" id="btn_delete_detail_lemburEdit_${i}"><i
-                    //             class="fas fa-trash"></i></button>
-                    // </div>
+
+                    //DATE
+                    const rencanaMulaiElement = document.getElementById('rencana_mulai_lemburEdit_'+i);
+                    const rencanaSelesaiElement = document.getElementById('rencana_selesai_lemburEdit_'+i);
+                    let minDateMulai = moment(val.rencana_mulai_lembur).format('YYYY-MM-DD 00:00');
+                    
+                    initializeTempus(rencanaMulaiElement, minDateMulai);
+                    initializeTempus(rencanaSelesaiElement, minDateMulai);
+
+                    rencanaMulaiElement.addEventListener('change', function() {
+                        const selectedValue = this.value;
+                        rencanaSelesaiElement.value = selectedValue;
+                        if(rencanaSelesaiElement.value < selectedValue){
+                            rencanaSelesaiElement.value = selectedValue;
+                        }
+                        initializeTempus(rencanaSelesaiElement, this.value);
+                    });
+
+                    rencanaSelesaiElement.addEventListener('change', function() {
+                        if(this.value < rencanaMulaiElement.value){
+                            rencanaMulaiElement.value = this.value;
+                        }
+                    });
+
                     selectedKaryawanLembur(i, val.karyawan_id);
                     $('#job_descriptionEdit_' + i).val(val.deskripsi_pekerjaan);
                     $('#rencana_mulai_lemburEdit_' + i).val(val.rencana_mulai_lembur);
@@ -488,7 +623,7 @@ $(function () {
     $('#table-detail-lembur').on("change", '.rencanaMulaiLembur', function () {
         let urutan = $(this).data('urutan');
         let startTime = $(this).val();
-        $('#rencana_selesai_lembur_' + urutan).val('').attr('min', startTime);
+        // $('#rencana_selesai_lembur_' + urutan).val('').attr('min', startTime);
     });
 
     $('#table-detail-lembur').on("change", '.rencanaSelesaiLembur' , function () {
@@ -537,6 +672,7 @@ $(function () {
     // EDIT
     $('.btnAddDetailLemburEdit').on("click", function (){
         detailCount++;
+        console.log(detailCount);
         let tbody = $('#list-detail-lembur-edit');
         tbody.append(`
              <tr>
@@ -551,16 +687,26 @@ $(function () {
                     </input>
                 </td>
                 <td>
-                    <input type="datetime-local" name="rencana_mulai_lemburEditNew[]"
-                        id="rencana_mulai_lemburEditNew_${detailCount}" class="form-control rencanaMulaiLemburEditNew"
-                        style="width: 100%;" min="${new Date().toISOString().slice(0, 16)}" data-urutan="${detailCount}" required>
-                    </input>
+                    <div class="input-group" id="datetimepicker_rencana_mulaiEditNew_${detailCount}" data-td-target-input="nearest"
+                        data-td-target-toggle="nearest">
+                        <input id="rencana_mulai_lemburEditNew_${detailCount}" name="rencana_mulai_lemburEditNew[]" type="text" class="form-control rencanaMulaiLemburEditNew"
+                            data-td-target="#datetimepicker_rencana_mulaiEditNew_${detailCount}" data-urutan="${detailCount}" required>
+                        <span class="input-group-text" data-td-target="#datetimepicker_rencana_mulaiEditNew_${detailCount}"
+                            data-td-toggle="datetimepicker">
+                            <i class="fa fa-calendar"></i>
+                        </span>
+                    </div>
                 </td>
                 <td>
-                    <input type="datetime-local" name="rencana_selesai_lemburEditNew[]"
-                        id="rencana_selesai_lemburEditNew_${detailCount}" class="form-control rencanaSelesaiLemburEditNew"
-                        style="width: 100%;" min="${new Date().toISOString().slice(0, 16)}" data-urutan="${detailCount}" required>
-                    </input>
+                    <div class="input-group" id="datetimepicker_rencana_selesaiEditNew_${detailCount}" data-td-target-input="nearest"
+                        data-td-target-toggle="nearest">
+                        <input id="rencana_selesai_lemburEditNew_${detailCount}" name="rencana_selesai_lemburEditNew[]" type="text" class="form-control rencanaSelesaiLemburEditNew"
+                            data-td-target="#datetimepicker_rencana_selesaiEditNew_${detailCount}" data-urutan="${detailCount}" required>
+                        <span class="input-group-text" data-td-target="#datetimepicker_rencana_selesaiEditNew_${detailCount}"
+                            data-td-toggle="datetimepicker">
+                            <i class="fa fa-calendar"></i>
+                        </span>
+                    </div>
                 </td>
                 <td>
                     <div class="btn-group">
@@ -571,6 +717,28 @@ $(function () {
                 </td>
             </tr>
         `)
+
+        const rencanaMulaiElement = document.getElementById('rencana_mulai_lemburEditNew_'+detailCount);
+        const rencanaSelesaiElement = document.getElementById('rencana_selesai_lemburEditNew_'+detailCount);
+        let now = moment().format('YYYY-MM-DD 00:00');
+        
+        initializeTempus(rencanaMulaiElement, now);
+        initializeTempus(rencanaSelesaiElement, now);
+
+        rencanaMulaiElement.addEventListener('change', function() {
+            const selectedValue = this.value;
+            rencanaSelesaiElement.value = selectedValue;
+            if(rencanaSelesaiElement.value < selectedValue){
+                rencanaSelesaiElement.value = selectedValue;
+            }
+            initializeTempus(rencanaSelesaiElement, this.value);
+        });
+
+        rencanaSelesaiElement.addEventListener('change', function() {
+            if(this.value < rencanaMulaiElement.value){
+                rencanaMulaiElement.value = this.value;
+            }
+        });
 
         if(detailCount == 0){
             $('.btnUpdateDetailLembur').attr('disabled', true);
@@ -635,6 +803,7 @@ $(function () {
 
     $('#table-detail-lembur-edit').on("click",'.btnDeleteDetailLemburEditNew', function (){
         detailCount--;
+        console.log(detailCount);
         let urutan = $(this).data('urutan');
         $(`#btn_delete_detail_lemburEditNew_${urutan}`).closest('tr').remove();
 
@@ -760,16 +929,26 @@ $(function () {
                                 <div id="job_description_${i}" class="${val.is_rencana_approved == 'N' ? 'text-white' : ''}"></div>
                             </td>
                             <td>
-                                ${val.is_rencana_approved !== 'N' ? `<input type="datetime-local" name="aktual_mulai_lembur[]"
-                                        id="aktual_mulai_lembur_${i}" class="form-control aktualMulaiLembur ${val.is_rencana_approved == 'N' ? 'bg-danger' : ''}"
-                                        style="width: 100%;" min="${val.rencana_mulai_lembur}" data-urutan="${i}" data-mulai="${val.rencana_mulai_lembur}"> 
-                                </input>` : `-`}
+                                ${val.is_rencana_approved !== 'N' ? `<div class="input-group" id="datetimepicker_aktual_mulai_${i}" data-td-target-input="nearest"
+                                    data-td-target-toggle="nearest">
+                                    <input id="aktual_mulai_lembur_${i}" name="aktual_mulai_lembur[]" type="text" class="form-control aktualMulaiLembur"
+                                        data-td-target="#datetimepicker_aktual_mulai_${i}" data-urutan="${i}" data-mulai="${val.rencana_mulai_lembur}" required>
+                                    <span class="input-group-text" data-td-target="#datetimepicker_aktual_mulai_${i}"
+                                        data-td-toggle="datetimepicker">
+                                        <i class="fa fa-calendar"></i>
+                                    </span>
+                                </div>` : `-`}
                             </td>
                             <td>
-                                ${val.is_rencana_approved !== 'N' ? `<input type="datetime-local" name="aktual_selesai_lembur[]"
-                                    id="aktual_selesai_lembur_${i}" class="form-control aktualSelesaiLembur ${val.is_rencana_approved == 'N' ? 'bg-danger' : ''}"
-                                    style="width: 100%;" min="${val.rencana_selesai_lembur}" data-urutan="${i}" data-selesai="${val.rencana_selesai_lembur}"> 
-                                </input>` : `-`}
+                                ${val.is_rencana_approved !== 'N' ? `<div class="input-group" id="datetimepicker_aktual_selesai_${i}" data-td-target-input="nearest"
+                                    data-td-target-toggle="nearest">
+                                    <input id="aktual_selesai_lembur_${i}" name="aktual_selesai_lembur[]" type="text" class="form-control aktualSelesaiLembur"
+                                        data-td-target="#datetimepicker_aktual_selesai_${i}" data-urutan="${i}" data-selesai="${val.rencana_selesai_lembur}" required>
+                                    <span class="input-group-text" data-td-target="#datetimepicker_aktual_selesai_${i}"
+                                        data-td-toggle="datetimepicker">
+                                        <i class="fa fa-calendar"></i>
+                                    </span>
+                                </div>` : `-`}
                             </td>
                             <td>
                             ${val.is_rencana_approved !== 'N' ? `<input type="text" name="keterangan[]"
@@ -783,6 +962,30 @@ $(function () {
                             </td>
                         </tr>
                     `)
+
+                    if(val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N'){
+                        const aktualMulaiElement = document.getElementById('aktual_mulai_lembur_'+i);
+                        const aktualSelesaiElement = document.getElementById('aktual_selesai_lembur_'+i);
+                        let mulai = moment(val.rencana_mulai_lembur).format('YYYY-MM-DD 00:00');
+                        
+                        initializeTempus(aktualMulaiElement, mulai);
+                        initializeTempus(aktualSelesaiElement, mulai);
+
+                        aktualMulaiElement.addEventListener('change', function() {
+                            const selectedValue = this.value;
+                            aktualSelesaiElement.value = selectedValue;
+                            if(aktualSelesaiElement.value < selectedValue){
+                                aktualSelesaiElement.value = selectedValue;
+                            }
+                            initializeTempus(aktualSelesaiElement, this.value);
+                        });
+
+                        aktualSelesaiElement.addEventListener('change', function() {
+                            if(this.value < aktualMulaiElement.value){
+                                this.value = this.dataset.selesai;
+                            }
+                        });
+                    }
 
                     $('#is_aktual_approved_' + i).on('change', function(){
                         console.log($(this).is(':checked'), $(this).val());
@@ -801,12 +1004,6 @@ $(function () {
                         }
                     });
 
-                    //Backup jika butuh fitur hapus pada  data
-                    // <div class="btn-group">
-                    //     <button type="button"
-                    //         class="btn btn-danger waves-effect btnDeleteDetailLembur" data-urutan="${i}" id="btn_delete_detail_lembur_${i}"><i
-                    //             class="fas fa-trash"></i></button>
-                    // </div>
                     let jobDescriptions = val.deskripsi_pekerjaan.split(',').map(desc => `<li>${desc.trim()}</li>`).join('');
                     $('#job_description_' + i).html(`<ul>${jobDescriptions}</ul>`);
                     
@@ -851,6 +1048,7 @@ $(function () {
                                     processData: false,
                                     dataType: "JSON",
                                     success: function (data) {
+                                        updateLemburNotification();
                                         showToast({ title: data.message });
                                         refreshTable();
                                         loadingSwalClose();

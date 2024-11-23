@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use App\Models\Cutie;
 use App\Models\Kontrak;
+use App\Models\Lembure;
 use App\Models\Karyawan;
 use App\Models\DetailLembur;
 use Illuminate\Http\Request;
@@ -164,9 +165,102 @@ class HomeController extends Controller
             'pageTitle' => "SuperApps - Menu",
             'page' => 'menu',
             'profile' => $dataProfile,
-            'kontrak' => $dataKontrak
+            'kontrak' => $dataKontrak,
         ];
         return view('pages.menu.index', $dataPage);
+    }
+
+    public function get_planned_pengajuan_lembur_notification(){
+        $pengajuan_lembur= 0;
+        if(auth()->user()->karyawan && auth()->user()->karyawan->posisi){
+            $posisi = auth()->user()->karyawan->posisi;
+            $has_leader = $this->has_leader_head($posisi);
+            if(!$has_leader || auth()->user()->karyawan->posisi[0]->jabatan_id == 5){
+                $pengajuan_lembur = Lembure::where('issued_by', $user->karyawan->id_karyawan)->where('status', 'PLANNED')->count();
+            }
+        }
+
+        $lembure = [
+            'pengajuan_lembur' => $pengajuan_lembur,
+        ];
+        
+        $html = view('layouts.partials.notification-planned-pengajuan-lembur')->with(compact('lembure'))->render();
+        return response()->json(['data' => $html], 200);
+    }
+
+    function has_leader_head($posisi)
+    {
+        $has_leader = false;
+        if($posisi){
+            foreach($posisi as $pos){
+                $parent_posisi_ids = $this->get_parent_posisi($pos);
+                if(!empty($parent_posisi_ids)){
+                    foreach ($parent_posisi_ids as $parent_id){
+                        if($parent_id !== 0){
+                            if(Posisi::where('id_posisi', $parent_id)->first()->jabatan_id == 5){
+                                $has_leader = true;
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            return response()->json(['message' => 'Anda tidak memiliki posisi, silahkan hubungi HRD'], 200);
+        }
+
+        return $has_leader;
+    } 
+
+    public function get_approval_lembur_notification(){
+        $user = auth()->user();
+        $organisasi_id = $user->organisasi_id;
+        $approval_lembur = 0;
+        if($user->hasRole('personalia')){
+            $approval_lembur = Lembure::where(function($query) {
+                $query->where(function($query) {
+                    $query->where('status', 'WAITING')
+                        ->whereNotNull('plan_approved_by')
+                        ->whereNull('plan_legalized_by');
+                })->orWhere(function($query) {
+                    $query->where('status', 'COMPLETED')
+                        ->whereNotNull('actual_approved_by')
+                        ->whereNull('actual_legalized_by');
+                });
+            })->where('organisasi_id', $organisasi_id)->count();
+        } elseif ($user->karyawan->posisi[0]->jabatan_id == 2 && $user->karyawan->posisi[0]->organisasi_id !== NULL){ 
+            $approval_lembur = Lembure::where(function($query) {
+                $query->where(function($query) {
+                    $query->where('status', 'WAITING')
+                        ->whereNotNull('plan_checked_by')
+                        ->whereNull('plan_approved_by');
+                })->orWhere(function($query) {
+                    $query->where('status', 'COMPLETED')
+                        ->whereNotNull('actual_checked_by')
+                        ->whereNull('actual_approved_by');
+                });
+            })->where('organisasi_id', $organisasi_id)->count();
+        } elseif ($user->karyawan->posisi[0]->jabatan_id == 4 || $user->karyawan->posisi[0]->jabatan_id == 3) {
+            $posisi = $user->karyawan->posisi;
+            $member_posisi_ids = $this->get_member_posisi($posisi);
+            $approval_lembur = Lembure::leftJoin('karyawan_posisi', 'lemburs.issued_by', 'karyawan_posisi.karyawan_id')
+            ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')->whereIn('posisis.id_posisi', $member_posisi_ids)
+            ->where(function($query) {
+                $query->where(function($query) {
+                    $query->where('status', 'WAITING')
+                        ->whereNull('plan_checked_by');
+                })->orWhere(function($query) {
+                    $query->where('status', 'COMPLETED')
+                        ->whereNull('actual_checked_by');
+                });
+            })->count();
+        }
+
+        $lembure = [
+            'approval_lembur' => $approval_lembur,
+        ];
+        
+        $html = view('layouts.partials.notification-approval-lembur')->with(compact('lembure'))->render();
+        return response()->json(['data' => $html], 200);
     }
 
     public function get_notification(){
@@ -288,11 +382,137 @@ class HomeController extends Controller
             'list' => $tenggang_karyawans->toArray(),
             'my_cutie' => $my_cutie ? $my_cutie->toArray() : [],
             'cutie_approval' => $cutie_approval ? $cutie_approval->toArray() : [],
-            'rejected_cuti' => $rejected_cuti
+            'rejected_cuti' => $rejected_cuti,
+            'count_my_cutie' => $my_cutie ? $my_cutie->count() : 0,
+            'count_cutie_approval' => $cutie_approval ? $cutie_approval->count() : 0,
+            'count_rejected_cuti' => count($rejected_cuti),
         ];
 
         $html = view('layouts.partials.notification')->with(compact('notification'))->render();
         return response()->json(['data' => $html], 200);
+    }
+
+    public function get_pengajuan_cuti_notification(){
+        $notification = $this->get_notification_cuti();
+        $html = view('layouts.partials.notification-pengajuan-cuti')->with(compact('notification'))->render();
+        return response()->json(['data' => $html], 200);
+    }
+    
+    public function get_member_cuti_notification(){
+        $notification = $this->get_notification_cuti();
+        $html = view('layouts.partials.notification-member-cuti')->with(compact('notification'))->render();
+        return response()->json(['data' => $html], 200);
+    }
+
+    public function get_list_cuti_notification(){
+        $notification = $this->get_notification_cuti();
+        $html = view('layouts.partials.notification-list-cuti')->with(compact('notification'))->render();
+        return response()->json(['data' => $html], 200);
+    }
+
+    function get_notification_cuti(){
+        $notification = [];
+        $today = date('Y-m-d');
+        $user = auth()->user();
+        $tenggang_karyawans = [];
+
+        if($user->hasRole('personalia') || $user->hasRole('super user')){
+            $my_cutie = null;
+            $cutie_approval = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari',[$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+                ->leftJoin('users', 'karyawans.user_id', 'users.id')
+                ->where('users.organisasi_id', $user->organisasi_id)
+                ->where('status_dokumen', 'WAITING')
+                ->where(function($query) {
+                $query->where('status_cuti', '!=', 'CANCELED')
+                      ->orWhereNull('status_cuti');
+            })
+                ->whereNotNull('approved_by')
+                ->whereNull('legalized_by')
+                ->get();
+            $rejected_cuti = [];
+
+        } elseif ($user->hasRole('atasan')){
+            $me = auth()->user()->karyawan;
+            $posisi = $user->karyawan->posisi;
+            $id_posisi_members = $this->get_member_posisi($posisi);
+
+            foreach ($posisi as $ps){
+                $index = array_search($ps->id_posisi, $id_posisi_members);
+                array_splice($id_posisi_members, $index, 1);
+            }
+
+            $members = $id_posisi_members;
+            //My Cuti
+            $my_cutie = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari',[$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+            ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
+            ->where('status_dokumen', 'WAITING')
+            ->where(function($query) {
+                $query->where('status_cuti', '!=', 'CANCELED')
+                      ->orWhereNull('status_cuti');
+            })
+            ->where('cutis.karyawan_id', $me->id_karyawan)
+            ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
+            ->get();
+
+            // Notif Approval
+            $cutie_approval = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari',[$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+            ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
+            ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+            ->where('status_dokumen', 'WAITING')
+            ->where(function($query) {
+                $query->where('status_cuti', '!=', 'CANCELED')
+                      ->orWhereNull('status_cuti');
+            })
+            ->where(function($query) {
+                $query->orWhereNull('approved_by')
+                        ->orWhereNull('checked1_by')
+                        ->orWhereNull('checked2_by');
+                })
+            ->whereIn('posisis.id_posisi', $members)
+            ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
+            ->get();
+
+
+            $rejected_cuti = Cutie::selectRaw('cutis.*, karyawans.nama')->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+            ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
+            ->where('status_dokumen', 'REJECTED')
+            ->where('cutis.karyawan_id', $me->id_karyawan)
+            ->whereRaw('DATE(rejected_at) <= (rencana_mulai_cuti + INTERVAL \'3 days\')')
+            ->get()->toArray();
+
+        } else {
+            $me = auth()->user()->karyawan;
+            $my_cutie = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari',[$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+            ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
+            ->where('status_dokumen', 'WAITING')
+            ->where(function($query) {
+                $query->where('status_cuti', '!=', 'CANCELED')
+                      ->orWhereNull('status_cuti');
+            })
+            ->where('cutis.karyawan_id', $me->id_karyawan)
+            ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
+            ->get();
+
+            $cutie_approval = null;
+
+            $rejected_cuti = Cutie::selectRaw('cutis.*, karyawans.nama')->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+            ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
+            ->where('status_dokumen', 'REJECTED')
+            ->where('cutis.karyawan_id', $me->id_karyawan)
+            ->whereRaw('DATE(rejected_at) <= (rencana_mulai_cuti + INTERVAL \'3 days\')')
+            ->get()->toArray();
+        }
+
+        $notification = [
+            'my_cutie' => $my_cutie ? $my_cutie->toArray() : [],
+            'cutie_approval' => $cutie_approval ? $cutie_approval->toArray() : [],
+            'rejected_cuti' => $rejected_cuti,
+            'count_my_cutie' => $my_cutie ? $my_cutie->count() : 0,
+            'count_cutie_approval' => $cutie_approval ? $cutie_approval->count() : 0,
+            'count_rejected_cuti' => count($rejected_cuti),
+        ];
+
+        return $notification;
     }
 
     function get_member_posisi($posisis)

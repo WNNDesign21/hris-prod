@@ -32,15 +32,15 @@
                                             <thead class="table-primary">
                                                 <tr>
                                                     <th style="width: 10%;">Karyawan</th>
-                                                    <th style="width: 20%;">Job Description</th>
+                                                    <th style="width: 10%;">Job Description</th>
                                                     <th style="width: 5%;">Rencana Mulai</th>
                                                     <th style="width: 5%;">Rencana Selesai </th>
                                                     <th style="width: 10%;">Durasi (Rencana)</th>
-                                                    <th style="width: 5%;">Aktual Mulai</th>
-                                                    <th style="width: 5%;">Aktual Selesai</th>
+                                                    <th style="width: 15%;">Aktual Mulai</th>
+                                                    <th style="width: 15%;">Aktual Selesai</th>
                                                     <th style="width: 10%;">Durasi (Aktual)</th>
                                                     <th style="width: 15%;">Keterangan</th>
-                                                    <th style="width: 15%;">Nominal</th>
+                                                    <th style="width: 5%;">Nominal</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="list-aktual-approval-lembur">

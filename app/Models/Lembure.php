@@ -118,11 +118,7 @@ class Lembure extends Model
             $data->where(function ($query) use ($search) {
                 $query->where('departemens.nama', 'ILIKE', "%{$search}%")
                     ->orWhere('lemburs.id_lembur', 'ILIKE', "%{$search}%")
-                    ->orWhere('divisis.nama', 'ILIKE', "%{$search}%")
-                    ->orWhere('lemburs.status', 'ILIKE', "%{$search}%")
-                    ->orWhere('lemburs.issued_date', 'ILIKE', "%{$search}%")
-                    ->orWhere('lemburs.status', 'ILIKE', "%{$search}%")
-                    ->orWhere('lemburs.jenis_hari', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%")
                     ->orWhere('lemburs.issued_by', 'ILIKE', "%{$search}%");
             });
         }
@@ -130,17 +126,36 @@ class Lembure extends Model
         if(isset($dataFilter['organisasi_id'])){
             $data->where('detail_lemburs.organisasi_id', $dataFilter['organisasi_id']);
             if(auth()->user()->hasRole('personalia')){
-                $data->orderByRaw("(lemburs.status != 'REJECTED') OR (lemburs.plan_approved_by IS NOT NULL AND lemburs.plan_legalized_by IS NULL) OR (lemburs.actual_approved_by IS NOT NULL AND lemburs.actual_legalized_by IS NULL) DESC");
+                if(isset($dataFilter['status'])){
+                    $data->whereIn('lemburs.status', $dataFilter['status']);
+                } 
+
+                if(isset($dataFilter['urutan'])){
+                    if($dataFilter['urutan'] == 'NO'){
+                        $data->orderBy('lemburs.issued_date', 'DESC');
+                    } else {
+                        $data->orderBy('lemburs.issued_date', 'ASC');
+                    }
+                } else {
+                    $data->orderByRaw("((lemburs.status = 'WAITING') AND (lemburs.plan_approved_by IS NOT NULL AND lemburs.plan_legalized_by IS NULL)) OR ((lemburs.status = 'COMPLETED') AND (lemburs.actual_approved_by IS NOT NULL AND lemburs.actual_legalized_by IS NULL)) DESC");
+                    $data->orderByRaw("lemburs.status = 'REJECTED' ASC");
+                }
             } else {
-                $data->where('lemburs.status','!=','REJECTED');
+                $data->where('lemburs.status','WAITING');
                 $data->whereNotNull('lemburs.plan_checked_by');
+                $data->whereNull('lemburs.plan_approved_by');
                 $data->orWhere(function ($query) {
-                    $query->where('lemburs.status', 'PLANNED')
-                    ->where('lemburs.status','!=','REJECTED')
-                    ->whereNotNull('lemburs.actual_checked_by');
+                    $query->where('lemburs.status', 'COMPLETED')
+                    ->whereNotNull('lemburs.actual_checked_by')
+                    ->whereNull('lemburs.actual_approved_by');
                 });
-                $data->orderByRaw("(lemburs.status != 'REJECTED') OR (lemburs.plan_checked_by IS NOT NULL AND lemburs.plan_approved_by IS NULL) OR (lemburs.actual_checked_by IS NOT NULL AND lemburs.actual_approved_by IS NULL) DESC");
+                $data->orderByRaw("(lemburs.status = 'WAITING' AND lemburs.plan_approved_by IS NULL AND lemburs.plan_checked_by IS NOT NULL) OR (lemburs.status = 'WAITING' AND lemburs.plan_approved_by IS NOT NULL) DESC");
+                $data->orderByRaw("lemburs.status = 'COMPLETED' AND lemburs.actual_approved_by IS NULL DESC");
             }
+        }
+
+        if(isset($dataFilter['jenisHari'])){
+            $data->whereIn('lemburs.jenis_hari', $dataFilter['jenisHari']);
         }
 
         if(isset($dataFilter['issued_by'])){
@@ -150,7 +165,13 @@ class Lembure extends Model
 
         if (isset($dataFilter['member_posisi_ids'])) {
             $data->whereIn('posisis.id_posisi', $dataFilter['member_posisi_ids']);
-            $data->orderByRaw("(lemburs.status != 'REJECTED') OR (lemburs.plan_checked_by IS NULL) OR (lemburs.actual_checked_by IS NULL) DESC");
+            if(isset($dataFilter['status'])){
+                $data->whereIn('lemburs.status', $dataFilter['status']);
+            } else {
+                $data->orderByRaw("(lemburs.status = 'WAITING' AND lemburs.plan_checked_by IS NULL) OR (lemburs.status = 'WAITING' AND lemburs.plan_checked_by IS NOT NULL) DESC");
+                $data->orderByRaw("lemburs.status = 'COMPLETED' AND lemburs.actual_checked_by IS NULL DESC");
+                $data->orderByRaw("lemburs.status = 'REJECTED' ASC");
+            }
         }
 
         $data->groupBy(

@@ -36,10 +36,16 @@
                 <div class="col-lg-6 col-12">
                     <a href="{{ !auth()->user()->hasRole('member') ? route('cutie.dashboard') : route('cutie.pengajuan-cuti') }}"
                         class="box pull-up">
-                        <div class="box-body">
+                        <div class="box-body position-relative">
+                            @if ($notification['count_cutie_approval'] + $notification['count_my_cutie'] + $notification['count_rejected_cuti'] > 0)
+                                <span class="position-absolute top-0 start-95 translate-middle badge bg-danger">
+                                    <i class="ti-bell"></i>
+                                    {{ $notification['count_cutie_approval'] + $notification['count_my_cutie'] + $notification['count_rejected_cuti'] }}
+                                </span>
+                            @endif
                             <div class="d-flex align-items-center">
                                 <div class="icon bg-primary-light rounded-circle w-60 h-60 text-center l-h-80">
-                                    <span class="fs-30 icon-Bulb1"><span class="path1"></span><span
+                                    <span class="fs-30 icon-Bed"><span class="path1"></span><span
                                             class="path2"></span><span class="path3"></span><span
                                             class="path4"></span></span>
                                 </div>
@@ -58,10 +64,16 @@
                     <div class="col-lg-6 col-12">
                         <a href="{{ auth()->user()->hasRole('personalia') || auth()->user()->karyawan->posisi[0]->jabatan_id <= 3 ? route('lembure.dashboard') : route('lembure.pengajuan-lembur') }}"
                             class="box pull-up">
-                            <div class="box-body">
+                            <div class="box-body position-relative">
+                                @if ($lembure['approval_lembur'] + $lembure['pengajuan_lembur'] > 0)
+                                    <span class="position-absolute top-0 start-95 translate-middle badge bg-danger">
+                                        <i class="ti-bell"></i>
+                                        {{ $lembure['approval_lembur'] + $lembure['pengajuan_lembur'] }}
+                                    </span>
+                                @endif
                                 <div class="d-flex align-items-center">
                                     <div class="icon bg-primary-light rounded-circle w-60 h-60 text-center l-h-80">
-                                        <span class="fs-30 icon-Bulb1"><span class="path1"></span><span
+                                        <span class="fs-30 icon-Timer"><span class="path1"></span><span
                                                 class="path2"></span><span class="path3"></span><span
                                                 class="path4"></span></span>
                                     </div>

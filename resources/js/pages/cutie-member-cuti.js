@@ -53,6 +53,16 @@ $(function () {
         })
     }
 
+    function updateMemberCutiNotification(){
+        $.ajax({
+            url: base_url + '/get-member-cuti-notification',
+            method: 'GET',
+            success: function(response){
+                $('.notification-member-cuti').html(response.data);
+            }
+        })
+    }
+
     //DATATABLE MEMBER
     var columnsTable = [
         { data: "nama" },
@@ -147,7 +157,7 @@ $(function () {
                 }
             },
         },
-        responsive: true,
+        // responsive: true,
         columns: columnsTable,
         columnDefs: [
             {
@@ -229,6 +239,7 @@ $(function () {
             dataType: "JSON",
             success: function (data) {
                 updateNotification();
+                updateMemberCutiNotification();
                 showToast({ title: data.message });
                 refreshTable();
                 closeReject();
@@ -290,6 +301,7 @@ $(function () {
                     contentType: false,
                     success: function(data) {
                         updateNotification();
+                        updateMemberCutiNotification();
                         loadingSwalClose()
                         showToast({ title: data.message });
                         refreshTable();

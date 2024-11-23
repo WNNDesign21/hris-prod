@@ -40,8 +40,8 @@
                                         <table class="table mb-0" id="table-detail-lembur">
                                             <thead class="table-primary">
                                                 <tr>
-                                                    <th style="width: 20%;">Karyawan</th>
-                                                    <th style="width: 35%;">Job Description</th>
+                                                    <th style="width: 35%;">Karyawan</th>
+                                                    <th style="width: 20%;">Job Description</th>
                                                     <th style="width: 20%;">Rencana Mulai</th>
                                                     <th style="width: 20%;">Rencana Selesai</th>
                                                     <th style="width: 5%;">Aksi</th>

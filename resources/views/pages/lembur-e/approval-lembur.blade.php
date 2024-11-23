@@ -24,6 +24,10 @@
                         <div class="btn-group">
                             <button type="button" class="btn btn-info waves-effect btnReload"><i
                                     class="fas fa-sync-alt"></i></button>
+                            @if (auth()->user()->hasRole('personalia'))
+                                <button type="button" class="btn btn-warning waves-effect btnFilter"><i
+                                        class="fas fa-filter"></i></button>
+                            @endif
                         </div>
                     </div>
                 </div>
@@ -59,4 +63,5 @@
     @include('pages.lembur-e.modal-detail-lembur')
     @include('pages.lembur-e.modal-aktual-approval-lembur')
     @include('pages.lembur-e.modal-reject-lembur')
+    @include('pages.lembur-e.modal-filter-lembur')
 @endsection

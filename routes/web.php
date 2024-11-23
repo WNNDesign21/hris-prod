@@ -65,12 +65,16 @@ Route::get('/lembure/pengajuan-lembur/get-data-lembur/{idLembur}',[LembureContro
 Route::post('/lembure/dashboard-lembur/get-monthly-lembur-per-departemen',[LembureController::class, 'get_monthly_lembur_per_departemen']); 
 Route::post('/lembure/dashboard-lembur/get-weekly-lembur-per-departemen',[LembureController::class, 'get_weekly_lembur_per_departemen']); 
 Route::post('/lembure/dashboard-lembur/get-current-month-lembur-per-departemen',[LembureController::class, 'get_current_month_lembur_per_departemen']); 
-
+Route::get('/get-approval-lembur-notification', [HomeController::class, 'get_approval_lembur_notification'])->middleware('lembure');
+Route::get('/get-planned-pengajuan-lembur-notification', [HomeController::class, 'get_planned_pengajuan_lembur_notification'])->middleware('lembure');
 
 Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
     // MENU UTAMA
     Route::get('/home', [HomeController::class, 'index'])->name('root');
     Route::get('/get-notification', [HomeController::class, 'get_notification']);
+    Route::get('/get-pengajuan-cuti-notification', [HomeController::class, 'get_pengajuan_cuti_notification']);
+    Route::get('/get-member-cuti-notification', [HomeController::class, 'get_member_cuti_notification']);
+    Route::get('/get-list-cuti-notification', [HomeController::class, 'get_list_cuti_notification']);
     Route::post('/export-slip-lembur', [HomeController::class, 'export_slip_lembur'])->name('home.export-slip-lembur');
 
     /** MASTER DATA FEATURE */
@@ -83,100 +87,103 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
         Route::get('/dashboard/get-data-kontrak-progress-dashboard',[DashboardController::class, 'get_data_kontrak_progress_dashboard']);
         Route::get('/dashboard/get-data-keluar-masuk-karyawan-dashboard',[DashboardController::class, 'get_data_keluar_masuk_karyawan_dashboard']);
         Route::get('/dashboard/get-total-data-karyawan-by-status-karyawan-dashboard',[DashboardController::class, 'get_total_data_karyawan_by_status_karyawan_dashboard']);
-    
-        /** MASTER DATA - ORGANISASI */
-        Route::post('/organisasi/datatable', [OrganisasiController::class, 'datatable']);
-        Route::get('/organisasi',[OrganisasiController::class, 'index'])->name('master-data.organisasi');
-        Route::post('/organisasi/store',[OrganisasiController::class, 'store'])->name('master-data.organisasi.store');
-        Route::delete('/organisasi/delete/{idOrganisasi}', [OrganisasiController::class, 'delete'])->name('master-data.organisasi.delete');
-        Route::patch('/organisasi/update/{idOrganisasi}', [OrganisasiController::class, 'update'])->name('master-data.organisasi.update');
-    
-        /** MASTER DATA - DIVISI */
-        Route::post('/divisi/datatable', [DivisiController::class, 'datatable']);
-        Route::get('/divisi',[DivisiController::class, 'index'])->name('master-data.divisi');
-        Route::post('/divisi/store',[DivisiController::class, 'store'])->name('master-data.divisi.store');
-        Route::delete('/divisi/delete/{idDivisi}', [DivisiController::class, 'delete'])->name('master-data.divisi.delete');
-        Route::patch('/divisi/update/{idDivisi}', [DivisiController::class, 'update'])->name('master-data.divisi.update');
-
-        /** MASTER DATA - DEPARTEMEN */
-        Route::post('/departemen/datatable', [DepartemenController::class, 'datatable']);
-        Route::get('/departemen',[DepartemenController::class, 'index'])->name('master-data.departemen');
-        Route::post('/departemen/store',[DepartemenController::class, 'store'])->name('master-data.departemen.store');
-        Route::delete('/departemen/delete/{idDepartemen}', [DepartemenController::class, 'delete'])->name('master-data.departemen.delete');
-        Route::patch('/departemen/update/{idDepartemen}', [DepartemenController::class, 'update'])->name('master-data.departemen.update');
-
-        /** MASTER DATA - SEKSI */
-        Route::post('/seksi/datatable', [SeksiController::class, 'datatable']);
-        Route::get('/seksi',[SeksiController::class, 'index'])->name('master-data.seksi');
-        Route::post('/seksi/store',[SeksiController::class, 'store'])->name('master-data.seksi.store');
-        Route::delete('/seksi/delete/{idSeksi}', [SeksiController::class, 'delete'])->name('master-data.seksi.delete');
-        Route::patch('/seksi/update/{idSeksi}', [SeksiController::class, 'update'])->name('master-data.seksi.update');
-
-        /** MASTER DATA - GRUP */
-        Route::post('/grup/datatable', [GrupController::class, 'datatable']);
-        Route::get('/grup',[GrupController::class, 'index'])->name('master-data.grup');
-        Route::post('/grup/store',[GrupController::class, 'store'])->name('master-data.grup.store');
-        Route::delete('/grup/delete/{idGrup}', [GrupController::class, 'delete'])->name('master-data.grup.delete');
-        Route::patch('/grup/update/{idGrup}', [GrupController::class, 'update'])->name('master-data.grup.update');
-
-        /** MASTER DATA - JABATAN */
-        Route::post('/jabatan/datatable', [JabatanController::class, 'datatable']);
-        Route::get('/jabatan',[JabatanController::class, 'index'])->name('master-data.jabatan');
-        Route::post('/jabatan/store',[JabatanController::class, 'store'])->name('master-data.jabatan.store');
-        Route::delete('/jabatan/delete/{idJabatan}', [JabatanController::class, 'delete'])->name('master-data.jabatan.delete');
-        Route::patch('/jabatan/update/{idJabatan}', [JabatanController::class, 'update'])->name('master-data.jabatan.update');
-
-        /** MASTER DATA - POSISI */
-        Route::post('/posisi/datatable', [PosisiController::class, 'datatable']);
-        Route::get('/posisi',[PosisiController::class, 'index'])->name('master-data.posisi');
-        Route::post('/posisi/store',[PosisiController::class, 'store'])->name('master-data.posisi.store');
-        Route::delete('/posisi/delete/{idPosisi}', [PosisiController::class, 'delete'])->name('master-data.posisi.delete');
-        Route::patch('/posisi/update/{idPosisi}', [PosisiController::class, 'update'])->name('master-data.posisi.update');
-
-        /** MASTER DATA - KARYAWAN */
-        Route::post('/karyawan/datatable', [KaryawanController::class, 'datatable']);
-        Route::get('/karyawan',[KaryawanController::class, 'index'])->name('master-data.karyawan');
-        Route::post('/karyawan/store',[KaryawanController::class, 'store'])->name('master-data.karyawan.store');
-        Route::post('/karyawan/upload-karyawan',[KaryawanController::class, 'upload_karyawan'])->name('master-data.karyawan.upload-karyawan');
-        Route::delete('/karyawan/delete/{idKaryawan}', [KaryawanController::class, 'delete'])->name('master-data.karyawan.delete');
-        Route::patch('/karyawan/update/{idKaryawan}', [KaryawanController::class, 'update'])->name('master-data.karyawan.update');
-        Route::post('/akun/store-or-update',[AkunController::class, 'store_or_update'])->name('master-data.akun.storeUpdate');
+        Route::get('/event/get-data-event-calendar',[EventController::class, 'get_data_event_calendar']);
         
-        /** MASTER DATA - KONTRAK */
-        Route::post('/kontrak/datatable', [KontrakController::class, 'datatable']);
-        Route::get('/kontrak',[KontrakController::class, 'index'])->name('master-data.kontrak');
-        Route::post('/kontrak/store',[KontrakController::class, 'store'])->name('master-data.kontrak.store');
-        Route::delete('/kontrak/delete/{idKontrak}', [KontrakController::class, 'delete'])->name('master-data.kontrak.delete');
-        Route::patch('/kontrak/update/{idKontrak}', [KontrakController::class, 'update'])->name('master-data.kontrak.update');
-        // Tidak Dipakai Lagi
-        // Route::post('/kontrak/store-or-update',[KontrakController::class, 'store_or_update'])->name('master-data.kontrak.storeUpdate');
-        Route::post('/kontrak/upload-kontrak/{type}/{idKontrak}',[KontrakController::class, 'upload_kontrak'])->name('master-data.kontrak.upload');
-        Route::post('/kontrak/upload-data-kontrak',[KontrakController::class, 'upload_data_kontrak'])->name('master-data.kontrak.upload-data-kontrak');
-        Route::post('/kontrak/done/{idKontrak}',[KontrakController::class, 'done_kontrak'])->name('master-data.kontrak.done');
+        /** MASTER DATA - ORGANISASI */
+        Route::group(['middleware' => ['role:personalia']], function () {
 
-        /** MASTER DATA - EXPORT */
-        Route::get('/export',[ExportController::class, 'index'])->name('master-data.export');
-        Route::post('/export/export-master-data',[ExportController::class, 'export_master_data'])->name('master-data.export.master-data');
-        Route::post('/export/export-kontrak',[ExportController::class, 'export_kontrak'])->name('master-data.export.kontrak');
+            Route::post('/organisasi/datatable', [OrganisasiController::class, 'datatable']);
+            Route::get('/organisasi',[OrganisasiController::class, 'index'])->name('master-data.organisasi');
+            Route::post('/organisasi/store',[OrganisasiController::class, 'store'])->name('master-data.organisasi.store');
+            Route::delete('/organisasi/delete/{idOrganisasi}', [OrganisasiController::class, 'delete'])->name('master-data.organisasi.delete');
+            Route::patch('/organisasi/update/{idOrganisasi}', [OrganisasiController::class, 'update'])->name('master-data.organisasi.update');
+        
+            /** MASTER DATA - DIVISI */
+            Route::post('/divisi/datatable', [DivisiController::class, 'datatable']);
+            Route::get('/divisi',[DivisiController::class, 'index'])->name('master-data.divisi');
+            Route::post('/divisi/store',[DivisiController::class, 'store'])->name('master-data.divisi.store');
+            Route::delete('/divisi/delete/{idDivisi}', [DivisiController::class, 'delete'])->name('master-data.divisi.delete');
+            Route::patch('/divisi/update/{idDivisi}', [DivisiController::class, 'update'])->name('master-data.divisi.update');
 
-        /** MASTER DATA - TURNOVER */
-        Route::post('/turnover/datatable', [TurnoverController::class, 'datatable']);
-        Route::get('/turnover',[TurnoverController::class, 'index'])->name('master-data.turnover');
-        Route::post('/turnover/store',[TurnoverController::class, 'store'])->name('master-data.turnover.store');
+            /** MASTER DATA - DEPARTEMEN */
+            Route::post('/departemen/datatable', [DepartemenController::class, 'datatable']);
+            Route::get('/departemen',[DepartemenController::class, 'index'])->name('master-data.departemen');
+            Route::post('/departemen/store',[DepartemenController::class, 'store'])->name('master-data.departemen.store');
+            Route::delete('/departemen/delete/{idDepartemen}', [DepartemenController::class, 'delete'])->name('master-data.departemen.delete');
+            Route::patch('/departemen/update/{idDepartemen}', [DepartemenController::class, 'update'])->name('master-data.departemen.update');
 
-         /** MASTER DATA - TEMPLATE */
-         Route::post('/template/datatable', [TemplateController::class, 'datatable']);
-         Route::get('/template',[TemplateController::class, 'index'])->name('master-data.template');
-         Route::post('/template/store',[TemplateController::class, 'store'])->name('master-data.template.store');
-         Route::delete('/template/delete/{idTemplate}', [TemplateController::class, 'delete'])->name('master-data.template.delete');
-         Route::patch('/template/update/{idTemplate}', [TemplateController::class, 'update'])->name('master-data.template.update');
+            /** MASTER DATA - SEKSI */
+            Route::post('/seksi/datatable', [SeksiController::class, 'datatable']);
+            Route::get('/seksi',[SeksiController::class, 'index'])->name('master-data.seksi');
+            Route::post('/seksi/store',[SeksiController::class, 'store'])->name('master-data.seksi.store');
+            Route::delete('/seksi/delete/{idSeksi}', [SeksiController::class, 'delete'])->name('master-data.seksi.delete');
+            Route::patch('/seksi/update/{idSeksi}', [SeksiController::class, 'update'])->name('master-data.seksi.update');
 
-         /** MASTER DATA - KALENDER PERUSAHAAN*/
-         Route::post('/event/datatable', [EventController::class, 'datatable']);
-         Route::get('/event/get-data-event-calendar',[EventController::class, 'get_data_event_calendar']);
-         Route::get('/event',[EventController::class, 'index'])->name('master-data.event');
-         Route::post('/event/store',[EventController::class, 'store'])->name('master-data.event.store');
-         Route::delete('/event/delete/{idEvent}', [EventController::class, 'delete'])->name('master-data.event.delete');
+            /** MASTER DATA - GRUP */
+            Route::post('/grup/datatable', [GrupController::class, 'datatable']);
+            Route::get('/grup',[GrupController::class, 'index'])->name('master-data.grup');
+            Route::post('/grup/store',[GrupController::class, 'store'])->name('master-data.grup.store');
+            Route::delete('/grup/delete/{idGrup}', [GrupController::class, 'delete'])->name('master-data.grup.delete');
+            Route::patch('/grup/update/{idGrup}', [GrupController::class, 'update'])->name('master-data.grup.update');
+
+            /** MASTER DATA - JABATAN */
+            Route::post('/jabatan/datatable', [JabatanController::class, 'datatable']);
+            Route::get('/jabatan',[JabatanController::class, 'index'])->name('master-data.jabatan');
+            Route::post('/jabatan/store',[JabatanController::class, 'store'])->name('master-data.jabatan.store');
+            Route::delete('/jabatan/delete/{idJabatan}', [JabatanController::class, 'delete'])->name('master-data.jabatan.delete');
+            Route::patch('/jabatan/update/{idJabatan}', [JabatanController::class, 'update'])->name('master-data.jabatan.update');
+
+            /** MASTER DATA - POSISI */
+            Route::post('/posisi/datatable', [PosisiController::class, 'datatable']);
+            Route::get('/posisi',[PosisiController::class, 'index'])->name('master-data.posisi');
+            Route::post('/posisi/store',[PosisiController::class, 'store'])->name('master-data.posisi.store');
+            Route::delete('/posisi/delete/{idPosisi}', [PosisiController::class, 'delete'])->name('master-data.posisi.delete');
+            Route::patch('/posisi/update/{idPosisi}', [PosisiController::class, 'update'])->name('master-data.posisi.update');
+
+            /** MASTER DATA - KARYAWAN */
+            Route::post('/karyawan/datatable', [KaryawanController::class, 'datatable']);
+            Route::get('/karyawan',[KaryawanController::class, 'index'])->name('master-data.karyawan');
+            Route::post('/karyawan/store',[KaryawanController::class, 'store'])->name('master-data.karyawan.store');
+            Route::post('/karyawan/upload-karyawan',[KaryawanController::class, 'upload_karyawan'])->name('master-data.karyawan.upload-karyawan');
+            Route::delete('/karyawan/delete/{idKaryawan}', [KaryawanController::class, 'delete'])->name('master-data.karyawan.delete');
+            Route::patch('/karyawan/update/{idKaryawan}', [KaryawanController::class, 'update'])->name('master-data.karyawan.update');
+            Route::post('/akun/store-or-update',[AkunController::class, 'store_or_update'])->name('master-data.akun.storeUpdate');
+            
+            /** MASTER DATA - KONTRAK */
+            Route::post('/kontrak/datatable', [KontrakController::class, 'datatable']);
+            Route::get('/kontrak',[KontrakController::class, 'index'])->name('master-data.kontrak');
+            Route::post('/kontrak/store',[KontrakController::class, 'store'])->name('master-data.kontrak.store');
+            Route::delete('/kontrak/delete/{idKontrak}', [KontrakController::class, 'delete'])->name('master-data.kontrak.delete');
+            Route::patch('/kontrak/update/{idKontrak}', [KontrakController::class, 'update'])->name('master-data.kontrak.update');
+            // Tidak Dipakai Lagi
+            // Route::post('/kontrak/store-or-update',[KontrakController::class, 'store_or_update'])->name('master-data.kontrak.storeUpdate');
+            Route::post('/kontrak/upload-kontrak/{type}/{idKontrak}',[KontrakController::class, 'upload_kontrak'])->name('master-data.kontrak.upload');
+            Route::post('/kontrak/upload-data-kontrak',[KontrakController::class, 'upload_data_kontrak'])->name('master-data.kontrak.upload-data-kontrak');
+            Route::post('/kontrak/done/{idKontrak}',[KontrakController::class, 'done_kontrak'])->name('master-data.kontrak.done');
+
+            /** MASTER DATA - EXPORT */
+            Route::get('/export',[ExportController::class, 'index'])->name('master-data.export');
+            Route::post('/export/export-master-data',[ExportController::class, 'export_master_data'])->name('master-data.export.master-data');
+            Route::post('/export/export-kontrak',[ExportController::class, 'export_kontrak'])->name('master-data.export.kontrak');
+
+            /** MASTER DATA - TURNOVER */
+            Route::post('/turnover/datatable', [TurnoverController::class, 'datatable']);
+            Route::get('/turnover',[TurnoverController::class, 'index'])->name('master-data.turnover');
+            Route::post('/turnover/store',[TurnoverController::class, 'store'])->name('master-data.turnover.store');
+
+            /** MASTER DATA - TEMPLATE */
+            Route::post('/template/datatable', [TemplateController::class, 'datatable']);
+            Route::get('/template',[TemplateController::class, 'index'])->name('master-data.template');
+            Route::post('/template/store',[TemplateController::class, 'store'])->name('master-data.template.store');
+            Route::delete('/template/delete/{idTemplate}', [TemplateController::class, 'delete'])->name('master-data.template.delete');
+            Route::patch('/template/update/{idTemplate}', [TemplateController::class, 'update'])->name('master-data.template.update');
+
+            /** MASTER DATA - KALENDER PERUSAHAAN*/
+            Route::post('/event/datatable', [EventController::class, 'datatable']);
+            Route::get('/event',[EventController::class, 'index'])->name('master-data.event');
+            Route::post('/event/store',[EventController::class, 'store'])->name('master-data.event.store');
+            Route::delete('/event/delete/{idEvent}', [EventController::class, 'delete'])->name('master-data.event.delete');
+        });
     });
 
     /** CUTIE */

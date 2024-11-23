@@ -136,7 +136,10 @@ class NotificationMiddleware
             'list' => $tenggang_karyawans->toArray(),
             'my_cutie' => $my_cutie ? $my_cutie->toArray() : [],
             'cutie_approval' => $cutie_approval ? $cutie_approval->toArray() : [],
-            'rejected_cuti' => $rejected_cuti
+            'count_my_cutie' => $my_cutie ? $my_cutie->count() : 0,
+            'count_cutie_approval' => $cutie_approval ? $cutie_approval->count() : 0,
+            'count_rejected_cuti' => count($rejected_cuti),
+            'rejected_cuti' => $rejected_cuti,
         ];
         view()->share('notification', $notification);
         return $next($request);
