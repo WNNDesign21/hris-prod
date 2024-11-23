@@ -1408,12 +1408,34 @@ class LembureController extends Controller
 
         if (!empty($search)) {
             if(auth()->user()->karyawan->posisi[0]->jabatan_id == 5){
-                $query->where('users.organisasi_id', $organisasi_id);
-                $query->whereIn('posisis.id_posisi', $id_posisi_members);
-                $query->where('karyawans.id_karyawan', auth()->user()->karyawan->id_karyawan);
-                $query->where(function ($dat) use ($search) {
-                    $dat->where('karyawans.id_karyawan', 'ILIKE', "%{$search}%")
-                        ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%");
+
+                //Bug
+                // $query->where('users.organisasi_id', $organisasi_id);
+                // $query->whereIn('posisis.id_posisi', $id_posisi_members);
+                // $query->where(function ($dat) use ($search) {
+                //     $dat->where('karyawans.id_karyawan', 'ILIKE', "%{$search}%")
+                //         ->whereIn('posisis.id_posisi', $id_posisi_members)
+                //         ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%");
+                // });
+                // $query->orWhere(function ($dat) use ($search) {
+                //     $dat->where('karyawans.id_karyawan', 'ILIKE', "%{$search}%")
+                //         ->whereIn('posisis.id_posisi', $id_posisi_members)
+                //         ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%")
+                //         ->orWhere('karyawans.id_karyawan', auth()->user()->karyawan->id_karyawan);
+                // });
+
+                //Sementara
+                $query->where('users.organisasi_id', $organisasi_id)
+                ->whereIn('posisis.id_posisi', $id_posisi_members)
+                ->where(function ($dat) use ($search) {
+                    $dat->where(function ($subQuery) use ($search) {
+                        $subQuery->where('karyawans.id_karyawan', 'ILIKE', "%{$search}%")
+                                 ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%");
+                    })
+                    ->orWhere(function ($subQuery) {
+                        $subQuery->where('karyawans.id_karyawan', auth()->user()->karyawan->id_karyawan)
+                                 ->orWhere('karyawans.nama', auth()->user()->karyawan->nama);
+                    });
                 });
             } else {
                 $query->where('karyawans.id_karyawan', auth()->user()->karyawan->id_karyawan);
