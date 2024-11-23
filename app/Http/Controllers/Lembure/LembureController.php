@@ -1406,11 +1406,14 @@ class LembureController extends Controller
             $index = array_search($ps->id_posisi, $id_posisi_members);
             array_splice($id_posisi_members, $index, 1);
         }
+        array_push($id_posisi_members, auth()->user()->karyawan->posisi[0]->id_posisi);
+
 
         if (!empty($search)) {
             if(auth()->user()->karyawan->posisi[0]->jabatan_id == 5){
                 $query->where('users.organisasi_id', $organisasi_id);
                 $query->whereIn('posisis.id_posisi', $id_posisi_members);
+                $query->where('karyawans.id_karyawan', auth()->user()->karyawan->id_karyawan);
                 $query->where(function ($dat) use ($search) {
                     $dat->where('karyawans.id_karyawan', 'ILIKE', "%{$search}%")
                         ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%");
@@ -1446,6 +1449,7 @@ class LembureController extends Controller
             $morePages = false;
         }
 
+        $dataUser = [];
         foreach ($data->items() as $karyawan) {
             $dataUser[] = [
                 'id' => $karyawan->id_karyawan,

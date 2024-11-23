@@ -345,8 +345,8 @@ $(function () {
             delay: 250,
             data: function (params) {
                 return {
-                search: params.term || "",
-                page: params.page || 1,
+                    search: params.term || "",
+                    page: params.page || 1,
                 };
             },
             processResults: function (data, params) {
@@ -360,6 +360,8 @@ $(function () {
                 let filteredData = data.results.filter(function (item) {
                 return !selectedIds.includes(item.id);
                 });
+
+                params.page = params.page || 1;
 
                 return {
                     results: filteredData,

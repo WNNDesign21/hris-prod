@@ -66,7 +66,17 @@ class LemburHarian extends Model
         }
 
         if(auth()->user()->hasRole('atasan') && (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id == 3 || auth()->user()->karyawan->posisi[0]->jabatan_id == 4))) {
-            $data->where('lembur_harians.departemen_id', auth()->user()->karyawan->posisi[0]->departemen_id);
+            $posisi = auth()->user()->karyawan->posisi;
+            if($posisi[0]->jabatan_id == 3){
+                foreach($posisi as $p){
+                    if ($p->departemen_id !== null) {
+                        $departemen_id[] = $p->departemen_id;
+                    }
+                }
+                $data->whereIn('lembur_harians.departemen_id', $departemen_id);
+            } else {
+                $data->where('lembur_harians.departemen_id', auth()->user()->karyawan->posisi[0]->departemen_id);
+            }
         }
         
         $data->whereNotNull('departemens.nama')
@@ -94,7 +104,17 @@ class LemburHarian extends Model
         }
 
         if(auth()->user()->hasRole('atasan') && (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id == 3 || auth()->user()->karyawan->posisi[0]->jabatan_id == 4))) {
-            $data->where('lembur_harians.departemen_id', auth()->user()->karyawan->posisi[0]->departemen_id);
+            $posisi = auth()->user()->karyawan->posisi;
+            if($posisi[0]->jabatan_id == 3){
+                foreach($posisi as $p){
+                    if ($p->departemen_id !== null) {
+                        $departemen_id[] = $p->departemen_id;
+                    }
+                }
+                $data->whereIn('lembur_harians.departemen_id', $departemen_id);
+            } else {
+                $data->where('lembur_harians.departemen_id', auth()->user()->karyawan->posisi[0]->departemen_id);
+            }
         }
 
         $data->whereNotNull('departemens.nama')
@@ -121,7 +141,17 @@ class LemburHarian extends Model
         }
 
         if(auth()->user()->hasRole('atasan') && (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id == 3 || auth()->user()->karyawan->posisi[0]->jabatan_id == 4))) {
-            $data->where('lembur_harians.departemen_id', auth()->user()->karyawan->posisi[0]->departemen_id);
+            $posisi = auth()->user()->karyawan->posisi;
+            if($posisi[0]->jabatan_id == 3){
+                foreach($posisi as $p){
+                    if ($p->departemen_id !== null) {
+                        $departemen_id[] = $p->departemen_id;
+                    }
+                }
+                $data->whereIn('lembur_harians.departemen_id', $departemen_id);
+            } else {
+                $data->where('lembur_harians.departemen_id', auth()->user()->karyawan->posisi[0]->departemen_id);
+            }
         }
 
         $data->whereNotNull('departemens.nama')
