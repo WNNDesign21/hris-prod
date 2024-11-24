@@ -96,6 +96,7 @@ html {
   font-size: 12px; }
 
 body {
+  padding-right: 0 !important;
   height: 100%; }
   body.layout-boxed {
     height: 100%; }

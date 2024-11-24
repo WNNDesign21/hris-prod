@@ -7,6 +7,7 @@ use App\Models\Karyawan;
 use App\Models\Departemen;
 use App\Models\Organisasi;
 use App\Models\DetailLembur;
+use App\Models\AttachmentLembur;
 use Illuminate\Database\Eloquent\Model;
 use Iksaku\Laravel\MassUpdate\MassUpdatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -35,6 +36,11 @@ class Lembure extends Model
     //         return $query;
     //     }
     // }
+
+    public function attachmentLembur()
+    {
+        return $this->hasMany(AttachmentLembur::class, 'lembur_id', 'id_lembur');
+    }
 
     public function organisasi()
     {
