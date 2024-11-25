@@ -119,6 +119,7 @@ $(function () {
         { data: "action"},
     ];
 
+    let mustChecked = false;
     var approvalTable = $("#approval-table").DataTable({
         search: {
             return: true,
@@ -140,6 +141,7 @@ $(function () {
                 dataFilter.jenisHari = jenisHari;
                 dataFilter.aksi = aksi;
                 dataFilter.status = status;
+                dataFilter.mustChecked = mustChecked;
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.responseJSON.data) {
@@ -371,9 +373,6 @@ $(function () {
                         
                         formData.append('is_planned', isPlanned ? 'Y' : 'N');
                         formData.append('approved_detail', approvedDetail);
-                        formData.forEach((value, key) => {
-                            console.log(key + ": " + value);
-                        });
 
                         Swal.fire({
                             title: "Rencana Lembur",
@@ -573,9 +572,6 @@ $(function () {
                         
                         formData.append('is_planned', isPlanned ? 'Y' : 'N');
                         formData.append('approved_detail', approvedDetail);
-                        formData.forEach((value, key) => {
-                            console.log(key + ": " + value);
-                        });
 
                         Swal.fire({
                             title: "Rencana Lembur",
@@ -655,7 +651,6 @@ $(function () {
                 let tbody = $('#list-approval-lembur').empty();
                 
                 $.each(detail, function (i, val){
-                    console.log(val)
                     tbody.append(`
                          <tr class="${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N' ? 'bg-danger' : ''}">
                             <td>
@@ -772,7 +767,6 @@ $(function () {
             $(this).val(oldEndTime);
             showToast({ title: "Waktu selesai lembur tidak boleh kurang dari waktu mulai lembur", icon: "error" });
         }
-        console.log($(this).val())
     });
 
     $('.btnCloseAktual').on("click", function (){
@@ -1041,7 +1035,6 @@ $(function () {
 
                  //attachment
                  let attachmentLembur = response.data.attachment;
-                 console.log(attachmentLembur)
                  let previewElement = $('.previewAttachmentLembur').empty();
  
                  if(attachmentLembur.length > 0){
@@ -1665,5 +1658,18 @@ $(function () {
     $(".btnSubmitFilter").on("click", function () {
         approvalTable.draw();
         closeFilter();
+    });
+
+    //MUST CHECKED
+    $('.btnMustChecked').on("click", function (){
+        mustChecked = !mustChecked;
+        if (mustChecked == true){
+            $(this).text('Unchecked');
+            $(this).prepend('<i class="far fa-check-circle"></i> ');
+        } else {
+            $(this).text('Must Checked');
+            $(this).prepend('<i class="far fa-check-circle"></i> ');
+        }
+        approvalTable.draw();
     });
 });

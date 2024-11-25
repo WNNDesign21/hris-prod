@@ -272,6 +272,11 @@ class LembureController extends Controller
             $dataFilter['aksi'] = $filterAksi;
         }
 
+        $filterMustChecked = $request->mustChecked;
+        if ($filterMustChecked) {
+            $dataFilter['mustChecked'] = $filterMustChecked;
+        }
+
         $filterStatus = $request->status;
         if (!empty($filterStatus)) {
             $dataFilter['status'] = $filterStatus;

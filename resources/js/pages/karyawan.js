@@ -180,19 +180,25 @@ $(function () {
 
     //REFRESH TABLE
     function refreshTable() {
-        $('#filterDepartemen').val('').trigger('change');
-        $('#filterGrup').val('').trigger('change');
-        $('#filterJeniskontrak').val('').trigger('change');
-        $('#filterStatuskaryawan').val('').trigger('change');
-        $('#filterJeniskelamin').val('').trigger('change');
-        $('#filterAgama').val('').trigger('change');
-        $('#filterGolongandarah').val('').trigger('change');
-        $('#filterStatuskeluarga').val('').trigger('change');
-        $('#filterKategorikeluarga').val('').trigger('change');
-        $('#filterNamabank').val('').trigger('change');
-        $('#filterNama').val('');
-        $('#filterNik').val('');
-        karyawanTable.search("").draw();
+        // $('#filterDepartemen').val('').trigger('change');
+        // $('#filterGrup').val('').trigger('change');
+        // $('#filterJeniskontrak').val('').trigger('change');
+        // $('#filterStatuskaryawan').val('').trigger('change');
+        // $('#filterJeniskelamin').val('').trigger('change');
+        // $('#filterAgama').val('').trigger('change');
+        // $('#filterGolongandarah').val('').trigger('change');
+        // $('#filterStatuskeluarga').val('').trigger('change');
+        // $('#filterKategorikeluarga').val('').trigger('change');
+        // $('#filterNamabank').val('').trigger('change');
+        // $('#filterNama').val('');
+        // $('#filterNik').val('');
+        // karyawanTable.search("").draw();
+        var searchValue = karyawanTable.search();
+        if (searchValue) {
+            karyawanTable.search(searchValue).draw();
+        } else {
+            karyawanTable.search("").draw();
+        }
     }
 
     //RELOAD TABLE

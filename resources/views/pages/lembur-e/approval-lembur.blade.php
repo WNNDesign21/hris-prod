@@ -28,6 +28,12 @@
                                 <button type="button" class="btn btn-warning waves-effect btnFilter"><i
                                         class="fas fa-filter"></i></button>
                             @endif
+                            @if (auth()->user()->hasRole('atasan') &&
+                                    (auth()->user()->karyawan->posisi[0]->jabatan_id == '3' ||
+                                        auth()->user()->karyawan->posisi[0]->jabatan_id == '4'))
+                                <button type="button" class="btn btn-success waves-effect btnMustChecked"><i
+                                        class="far fa-check-circle"></i> Must Checked</button>
+                            @endif
                         </div>
                     </div>
                 </div>
