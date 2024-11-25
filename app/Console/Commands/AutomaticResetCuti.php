@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use Exception;
 use App\Models\Karyawan;
 use App\Models\ResetCuti;
 use Illuminate\Console\Command;

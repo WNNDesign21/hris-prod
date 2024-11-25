@@ -3,6 +3,8 @@
 namespace App\Console\Commands;
 
 use Exception;
+use App\Models\Cutie;
+use App\Models\Karyawan;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
