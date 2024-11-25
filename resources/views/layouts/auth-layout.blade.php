@@ -186,6 +186,10 @@
         @vite(['resources/js/pages/lembure-setting-lembur.js'])
     @endif
 
+    @if ($page == 'lembure-setting-gaji-departemen')
+        @vite(['resources/js/pages/lembure-setting-gaji-departemen.js'])
+    @endif
+
     @if ($page == 'lembure-dashboard')
         @vite(['resources/js/pages/lembure-dashboard.js'])
     @endif

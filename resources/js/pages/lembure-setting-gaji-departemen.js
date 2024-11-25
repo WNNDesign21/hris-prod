@@ -44,14 +44,13 @@ $(function () {
 
     // DATATABLE
     var columnsTable = [
-        { data: "ni_karyawan" },
-        { data: "divisi" },
         { data: "departemen" },
-        { data: "nama" },
-        { data: "gaji" },
+        { data: "periode" },
+        { data: "nominal_batas_lembur" },
+        { data: "total_gaji" },
     ];
 
-    var settingUpahTable = $("#setting-upah-lembur-table").DataTable({
+    var settingGajiDepartemen = $("#setting-gaji-departemen-table").DataTable({
         search: {
             return: true,
         },
@@ -59,7 +58,7 @@ $(function () {
         processing: true,
         serverSide: true,
         ajax: {
-            url: base_url + "/lembure/setting-upah-lembur-datatable",
+            url: base_url + "/lembure/setting-gaji-departemen-datatable",
             dataType: "json",
             type: "POST",
             data: function (dataFilter) {
@@ -108,7 +107,7 @@ $(function () {
                 }
             },
         },
-        responsive: true,
+        // responsive: true,
         columns: columnsTable,
         columnDefs: [
             {
@@ -121,14 +120,14 @@ $(function () {
     })
 
     function refreshTable() {
-        settingUpahTable.search("").draw();
+        settingGajiDepartemen.search("").draw();
     }
 
     $('.btnReload').on("click", function (){
         refreshTable();
     })
 
-    $('#setting-upah-lembur-table').on('input', '.inputUpahLembur', function () {
+    $('#setting-gaji-departemen-table').on('input', '.inputGajiDepartemen', function () {
         let inputValue = $(this).val();
 
         if (!/^\d+$/.test(inputValue)) {
@@ -138,17 +137,17 @@ $(function () {
         }
     })
 
-    $('#setting-upah-lembur-table').on('click', '.updateUpahLembur', function (){
+    $('#setting-gaji-departemen-table').on('click', '.updateGajiDepartemen', function (){
         loadingSwalShow();
-        let idSettingLemburKaryawan = $(this).data('id-setting-lembur-karyawan');
-        let karyawanId = $(this).data('karyawan-id');
+        let idGajiDepartemen = $(this).data('id-gaji-departemen');
+        let departemenId = $(this).data('departemen-id');
         let formData = new FormData();
-        formData.append('id_setting_lembur_karyawan', idSettingLemburKaryawan);
-        formData.append('gaji', $(this).closest('tr').find('.inputUpahLembur').val());
-        formData.append('karyawan_id', karyawanId);
+        formData.append('id_gaji_departemen', idGajiDepartemen);
+        formData.append('total_gaji', $(this).closest('tr').find('.inputGajiDepartemen').val());
+        formData.append('departemen_id', departemenId);
         formData.append('_method', 'PATCH');
 
-        let url = base_url + '/lembure/setting-upah-lembur/update';
+        let url = base_url + '/lembure/setting-gaji-departemen/update';
         $.ajax({
             url: url,
             data: formData,
@@ -166,52 +165,4 @@ $(function () {
             },
         });
     })
-
-    $('.btnTemplate').on('click', function () {
-        window.location.href = base_url + '/template/template_upload_gaji_lembur_karyawan.xlsx';
-    });
-
-    $('.btnUpload').on('click', function (){
-        let input = $('#upload-upah-lembur');
-        input.click();
-
-        input.off('change').on('change', function () {
-            Swal.fire({
-                title: "Upload Gaji Lembur Karyawan",
-                text: "Gaji yang sudah ada akan terupdate, dan yang belum ada akan ditambahkan, yakin ?",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Yes, Upload it!",
-                allowOutsideClick: false,
-            }).then((result) => {
-                if (result.value) {
-                    loadingSwalShow();
-                    const url = base_url + "/lembure/upload-upah-lembur-karyawan";
-                    let formData = new FormData();
-                    formData.append('upah_lembur_karyawan_file', input[0].files[0]);
-
-                    $.ajax({
-                        url: url,
-                        method: "POST",
-                        data: formData,
-                        contentType: false,
-                        processData: false,
-                        success: function (data) {
-                            input.val('');
-                            showToast({ title: data.message });
-                            loadingSwalClose();
-                            refreshTable();
-                        },
-                        error: function (jqXHR, textStatus, errorThrown) {
-                            loadingSwalClose();
-                            showToast({ icon: "error", title: jqXHR.responseJSON.message });
-                        },
-                    })
-                }
-            });
-        });
-    });
-
 });
