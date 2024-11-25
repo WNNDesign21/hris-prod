@@ -2339,8 +2339,6 @@ class LembureController extends Controller
         $dataValidate = [
             'aktual_mulai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'before:aktual_selesai_lembur.*'],
             'aktual_selesai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'after:aktual_mulai_lembur.*'],
-            'attachment_lembur.*' => ['mimes:jpeg,jpg,png,pdf', 'max:2048'],
-            'attachment_lembur' => ['array','max:5']
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -2447,18 +2445,6 @@ class LembureController extends Controller
             ]);
             $lembur->save();
 
-            if($request->hasFile('attachment_lembur')){
-                $file = $request->file('attachment_lembur');
-                foreach ($file as $index => $item){
-                    $fileName = $lembur->id_lembur.'-'.$index.'.'.$item->getClientOriginalExtension();
-                    $file_path = $item->storeAs("attachment/lembur", $fileName);
-
-                    $lembur->attachmentLembur()->create([
-                        'path' => $file_path
-                    ]);
-                }
-            }
-           
             DB::commit();
             return response()->json(['message' => 'Aktual Lembur berhasil di Konfirmasi!'],200);
         } catch (Throwable $e){
@@ -3092,5 +3078,47 @@ class LembureController extends Controller
             DB::rollBack();
             return response()->json(['message' => 'Error processing the file: ' . $e->getMessage()], 500);
         }
+    }
+
+    public function store_lkh(Request $request)
+    {
+        $dataValidate = [
+            'attachment_lembur' => ['mimes:jpeg,jpg,png,pdf', 'max:2048', 'required'],
+            'lembur_id' => ['required', 'exists:lemburs,id_lembur'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $lembur = Lembure::find($request->lembur_id);
+        $file = $request->file('attachment_lembur');
+
+        DB::beginTransaction();
+        try{
+
+            $fileName = $lembur->id_lembur.'-'.Str::random(5).'.'.$file->getClientOriginalExtension();
+            $file_path = $file->storeAs("attachment/lembur", $fileName);
+
+            $lembur->attachmentLembur()->create([
+                'path' => $file_path
+            ]);
+
+            DB::commit();
+            return response()->json(['message' => 'LKH Berhasil di Upload!'],200);
+        } catch (Throwable $e){
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function get_attachment_lembur(Request $request, string $id_lembur)
+    {
+        $lembur = Lembure::find($id_lembur);
+        $attachment = $lembur->attachmentLembur;
+        return response()->json(['message' => 'Data LKH Berhasil Ditemukan', 'data' => $attachment], 200);
     }
 }

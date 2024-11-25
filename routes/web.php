@@ -67,6 +67,7 @@ Route::post('/lembure/dashboard-lembur/get-weekly-lembur-per-departemen',[Lembur
 Route::post('/lembure/dashboard-lembur/get-current-month-lembur-per-departemen',[LembureController::class, 'get_current_month_lembur_per_departemen']); 
 Route::get('/get-approval-lembur-notification', [HomeController::class, 'get_approval_lembur_notification'])->middleware('lembure');
 Route::get('/get-planned-pengajuan-lembur-notification', [HomeController::class, 'get_planned_pengajuan_lembur_notification'])->middleware('lembure');
+Route::get('/lembure/pengajuan-lembur/get-attachment-lembur/{idLembur}',[LembureController::class, 'get_attachment_lembur']);
 
 Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
     // MENU UTAMA
@@ -254,7 +255,7 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
             Route::delete('pengajuan-lembur/delete/{idLembur}',[LembureController::class, 'delete'])->name('lembure.pengajuan-lembur.delete');
             Route::patch('/pengajuan-lembur/update/{idLembur}', [LembureController::class, 'update'])->name('lembure.pengajuan-lembur.update');
             Route::patch('/pengajuan-lembur/done/{idLembur}', [LembureController::class, 'done'])->name('lembure.pengajuan-lembur.done');
-
+            Route::post('/pengajuan-lembur/store-lkh', [LembureController::class, 'store_lkh'])->name('lembure.pengajuan-lembur.store-lkh');
         });
 
         Route::group(['middleware' => ['role:atasan|personalia']], function () {
