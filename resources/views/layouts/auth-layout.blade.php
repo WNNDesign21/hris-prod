@@ -47,7 +47,7 @@
 
     <!-- jQuery -->
     <script src="{{ asset('assets/vendor_plugins/jquery/jquery.min.js') }}"></script>
-    <script src="{{ asset('assets/vendor_components/apexcharts-bundle/dist/apexcharts.js') }}"></script>
+    <script src="{{ asset('assets/vendor_components/apexcharts-bundle-new/dist/apexcharts.js') }}"></script>
 
     <!-- Vendor JS -->
     <script src="{{ asset('js/vendors.min.js') }}"></script>

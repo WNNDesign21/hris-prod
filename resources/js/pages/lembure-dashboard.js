@@ -52,23 +52,44 @@ $(function () {
             data: {},
             success: function(response) {
                 let data = response.data;
+                let batas = response.batas;
                 var series = [];
                 const colors = ['#007bff', '#28a745', '#dc3545', '#ffc107', '#17a2b8', '#6f42c1', '#fd7e14', '#20c997', '#e83e8c', '#6610f2', '#fdc500', '#6c757d'];
                 let colorIndex = 0;
 
-                for (const val of data) {
-                    const departmentName = val.departemen;
-                    const monthlyData = [val.januari, val.februari, val.maret, val.april, val.mei, val.juni, val.juli, val.agustus, val.september, val.oktober, val.november, val.desember];   
+                // for (const val of data) {
+                    // const departmentName = val.departemen;
+                    const monthlyData = [data.januari, data.februari, data.maret, data.april, data.mei, data.juni, data.juli, data.agustus, data.september, data.oktober, data.november, data.desember];   
                     const departmentSeries = {
-                        name: departmentName,
+                        name: 'Nominal Lembur',
                         data: monthlyData,
-                        color: colors[colorIndex % colors.length], 
+                        color: '#007bff', 
                     };
                     series.push(departmentSeries);
-                    colorIndex++;
-                }
+                    // colorIndex++;
+                // }
+
+                let target = [];
+                $.each(batas, function(key, value) {
+                    if (value == 0) return;
+                    target.push({
+                        y: value,
+                        borderColor: '#FF0000', 
+                        label: {
+                            borderColor: '#FF0000',
+                            style: {
+                                color: '#fff',
+                                background: '#FF0000'
+                            },
+                            text: key.toUpperCase() + ' : Rp ' + value.toLocaleString('id-ID')
+                        }
+                    })
+                })
 
                 var options = {
+                    annotations: {
+                        yaxis: target
+                    },
                     series: series,
                     chart: {
                         height: '100%',
@@ -167,22 +188,35 @@ $(function () {
             data: {},
             success: function(response) {
                 let data = response.data;
+                let batas = response.batas;
                 var series = [];
                 var categories = [];
                 var hours = [];
-                const colors = ['#007bff', '#28a745', '#dc3545', '#ffc107', '#17a2b8', '#6f42c1', '#fd7e14', '#20c997', '#e83e8c', '#6610f2', '#fdc500', '#6c757d'];
+                // const colors = ['#007bff', '#28a745', '#dc3545', '#ffc107', '#17a2b8', '#6f42c1', '#fd7e14', '#20c997', '#e83e8c', '#6610f2', '#fdc500', '#6c757d'];
 
-                for (const val of data) {
+                data.forEach(function(val, index) {
                     const departmentName = val.departemen;
+                    const departmentSeries = {
+                      x: departmentName,
+                      y: val.total_nominal,
+                      goals: [{
+                        value: batas[index]['id_departemen'] == val.id_departemen ? batas[index]['nominal_batas_lembur'] : 0,
+                        name: 'Batas Budget Lembur',
+                        strokeWidth: 5,
+                        strokeColor: '#FF0000',
+                        border: '#FF0000',
+                        dashArray: 5
+                      }],
+                    };
                     categories.push(departmentName);
-                    series.push(val.total_nominal);
+                    series.push(departmentSeries);
                     hours.push(val.total_durasi / 60);
-                }
+                });
 
                 var options = {
                     series: [{
-                    data: series
-                  }],
+                      data: series
+                    }],
                     chart: {
                     type: 'bar',
                     height: '100%'
@@ -218,7 +252,7 @@ $(function () {
                     colors: ['#fff']
                   },
                   xaxis: {
-                    categories: categories,
+                    // categories: categories,
                     labels: {
                         formatter: function (val) {
                             return 'Rp ' + (val / 1000).toLocaleString('id-ID') + 'K';
@@ -243,13 +277,13 @@ $(function () {
                     y: {
                       title: {
                         formatter: function (val, opt) {
-                            return 'Total Durasi Lembur';
+                            return 'Total Nominal Lembur';
                           },
                       },
                         formatter: function (val, opt) {
-                            return hours[opt.dataPointIndex] + ' Jam';
+                            return 'Rp ' + val.toLocaleString('id-ID')
                         }
-                    }
+                    },
                   }
                   };
 

@@ -284,6 +284,7 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
             // Setting Gaji Departemen
             Route::get('/setting-gaji-departemen', [LembureController::class, 'setting_gaji_departemen_view'])->name('lembure.setting-gaji-departemen');
             Route::post('/setting-gaji-departemen-datatable', [LembureController::class, 'setting_gaji_departemen_datatable']);
+            Route::post('/setting-gaji-departemen/store', [LembureController::class, 'store_setting_gaji_departemen'])->name('lembure.setting-gaji-departemen.store');
             Route::patch('/setting-gaji-departemen/update', [LembureController::class, 'update_setting_gaji_departemen'])->name('lembure.setting-gaji-departemen.update');
 
             // Export Report Lembur

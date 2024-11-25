@@ -631,8 +631,8 @@ class LembureController extends Controller
         if (!empty($setting_upah_lembur)) {
             foreach ($setting_upah_lembur as $data) {
                 $nestedData['departemen'] = $data->nama_departemen;
-                $nestedData['periode'] = $data->periode;
-                $nestedData['batas_nominal_lembur'] = $data->batas_nominal_lembur;
+                $nestedData['periode'] = Carbon::parse($data->periode)->format('F Y');
+                $nestedData['nominal_batas_lembur'] = 'Rp. ' . number_format($data->nominal_batas_lembur, 0, ',', '.');
                 $nestedData['total_gaji'] = '
                     <div class="input-group mb-3">
                         <input type="number" value="' . ($data->total_gaji) . '" min="0" class="form-control inputGajiDepartemen"/>
@@ -1452,11 +1452,53 @@ class LembureController extends Controller
         }
     }
 
+    public function store_setting_gaji_departemen(Request $request)
+    {
+        $dataValidate = [
+            'periode' => ['required', 'date_format:Y-m']
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $periode = $request->periode.'-01';
+
+        DB::beginTransaction();
+        try{
+            $gaji_departemen_exist = GajiDepartemen::whereDate('periode', $periode)->exists();
+
+            if($gaji_departemen_exist){
+                DB::rollback();
+                return response()->json(['message' => 'Gaji Departemen sudah ada, silahkan update nominalnya pada tabel!'], 402);
+            }
+
+            $departemens = Departemen::all();
+            if($departemens){
+                foreach($departemens as $dept){
+                    GajiDepartemen::create([
+                        'departemen_id' => $dept->id_departemen,
+                        'organisasi_id' => auth()->user()->organisasi_id,
+                        'periode' => $periode,
+                    ]);
+                }
+            }
+            DB::commit();
+            return response()->json(['message' => 'Gaji Departemen periode'.Carbon::parse($periode)->format('F Y').' Berhasil di Tambahkan!'], 200);
+        } catch (Throwable $e) {
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
     public function update_setting_gaji_departemen(Request $request)
     {
         $dataValidate = [
             'total_gaji' => ['required', 'numeric', 'min:0'],
-            'departemen_id' => ['required', 'exists:departemens,id_departemen'],
+            'id_gaji_departemen' => ['required'],
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -1469,26 +1511,12 @@ class LembureController extends Controller
         DB::beginTransaction();
         try{
             $gaji_departemen = GajiDepartemen::find($request->id_gaji_departemen);
-            $batas_nominal_lembur = intval($request->total_gaji * 0.15);
-            dd($batas_nominal_lembur);
+            $nominal_batas_lembur = intval($request->total_gaji * 0.15);
             if($gaji_departemen){
                 $gaji_departemen->total_gaji = $request->total_gaji;
+                $gaji_departemen->nominal_batas_lembur = $nominal_batas_lembur;
                 $gaji_departemen->save();
-            } else {
-                $departemen = Departemen::find($request->departemen_id); 
-
-                if(!$departemen){
-                    DB::rollback();
-                    return response()->json(['message' => 'Departemen tidak ditemukan!'], 402);
-                }
-
-                GajiDepartemen::create([
-                    'departemen_id' => $request->departemen_id,
-                    'organisasi_id' => auth()->user()->organisasi_id,
-                    'batas_nominal_lembur' => $batas_nominal_lembur,
-                    'total_gaji' => $request->total_gaji,
-                ]);
-            }
+            } 
             
             DB::commit();
             return response()->json(['message' => 'Gaji Departemen Berhasil di Update!'], 200);
@@ -2444,7 +2472,9 @@ class LembureController extends Controller
     {
         try{
             $data = LemburHarian::getMonthlyLemburPerDepartemen()->toArray();
-            return response()->json(['message' => 'Data Lembur Berhasil Ditemukan', 'data' => $data], 200);
+            $batas = GajiDepartemen::getMonthlyNominalBatasAllDepartemen()->toArray();
+
+            return response()->json(['message' => 'Data Lembur Berhasil Ditemukan', 'data' => $data, 'batas' => $batas], 200);
         } catch (Throwable $e){
             return response()->json(['message' => $e->getMessage()], 500);
         }
@@ -2464,7 +2494,18 @@ class LembureController extends Controller
     {
         try{
             $data = LemburHarian::getCurrentMonthLemburPerDepartemen()->toArray();
-            return response()->json(['message' => 'Data Lembur Berhasil Ditemukan', 'data' => $data], 200);
+            $batas = GajiDepartemen::getCurrentMonthNominalBatasPerDepartemen()->toArray();
+
+            $existing_batas = [];
+            foreach ($batas as $key => $value) {
+                foreach ($data as $key2 => $value2) {
+                    if($value['id_departemen'] == $value2['id_departemen']){
+                        $existing_batas[] = $value;
+                    }
+                }
+            }
+
+            return response()->json(['message' => 'Data Lembur Berhasil Ditemukan', 'data' => $data, 'batas' => $existing_batas], 200);
         } catch (Throwable $e){
             return response()->json(['message' => $e->getMessage()], 500);
         }

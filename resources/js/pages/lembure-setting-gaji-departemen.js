@@ -50,7 +50,7 @@ $(function () {
         { data: "total_gaji" },
     ];
 
-    var settingGajiDepartemen = $("#setting-gaji-departemen-table").DataTable({
+    var settingGajiDepartemenTable = $("#setting-gaji-departemen-table").DataTable({
         search: {
             return: true,
         },
@@ -120,7 +120,12 @@ $(function () {
     })
 
     function refreshTable() {
-        settingGajiDepartemen.search("").draw();
+        var searchValue = settingGajiDepartemenTable.search();
+        if (searchValue) {
+            settingGajiDepartemenTable.search(searchValue).draw();
+        } else {
+            settingGajiDepartemenTable.search("").draw();
+        }
     }
 
     $('.btnReload').on("click", function (){
@@ -157,6 +162,7 @@ $(function () {
             dataType: "JSON",
             success: function (data) {
                 showToast({ title: data.message });
+                refreshTable();
                 loadingSwalClose();
             },
             error: function (jqXHR, textStatus, errorThrown) {
@@ -165,4 +171,56 @@ $(function () {
             },
         });
     })
+
+    // TAMBAH GAJI DEPARTEMEN
+    $('.btnAdd').on("click", function (){
+        openForm();
+    })
+
+    $('.btnClose').on("click", function (){
+        closeForm();
+    })
+
+    var modalTambahGajiDepartemenOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalTambahGajiDepartemen = new bootstrap.Modal(
+        document.getElementById("modal-tambah-gaji-departemen"),
+        modalTambahGajiDepartemenOptions
+    );
+    
+    function openForm() {
+        modalTambahGajiDepartemen.show();
+    }
+
+    function closeForm() {
+        modalTambahGajiDepartemen.hide();
+    }
+
+    $('#form-tambah-gaji-departemen').on('submit', function (e) {
+        e.preventDefault();
+        loadingSwalShow();
+        let formData = new FormData($(this)[0]);
+        let url = $(this).attr('action');
+        $.ajax({
+            url: url,
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (data) {
+                showToast({ title: data.message });
+                loadingSwalClose();
+                closeForm();
+                refreshTable();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        });
+    });
 });
