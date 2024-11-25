@@ -171,7 +171,6 @@
     @endif
 
     @if ($page == 'lembure-pengajuan-lembur')
-        {{-- <script src="{{ asset('assets/vendor_components/dropzone/dropzone.js') }}"></script> --}}
         @vite(['resources/js/pages/lembure-pengajuan-lembur.js'])
     @endif
 

@@ -15,6 +15,7 @@ use App\Models\DetailLembur;
 use App\Models\LemburHarian;
 use Illuminate\Http\Request;
 use App\Models\SettingLembur;
+use App\Models\AttachmentLembur;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
@@ -269,6 +270,11 @@ class LembureController extends Controller
         $filterAksi = $request->aksi;
         if (!empty($filterAksi)) {
             $dataFilter['aksi'] = $filterAksi;
+        }
+
+        $filterMustChecked = $request->mustChecked;
+        if ($filterMustChecked) {
+            $dataFilter['mustChecked'] = $filterMustChecked;
         }
 
         $filterStatus = $request->status;
@@ -1639,6 +1645,7 @@ class LembureController extends Controller
 
             $data = [
                 'header' => $lembur,
+                'attachment' => $lembur->attachmentLembur,
                 'detail_lembur' => $data_detail_lembur,
                 'text_tanggal' => Carbon::parse($data->rencana_mulai_lembur)->locale('id')->translatedFormat('l, d F Y'),
             ];
@@ -2185,6 +2192,8 @@ class LembureController extends Controller
         $dataValidate = [
             'aktual_mulai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'before:aktual_selesai_lembur.*'],
             'aktual_selesai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'after:aktual_mulai_lembur.*'],
+            'attachment_lembur.*' => ['mimes:jpeg,jpg,png,pdf', 'max:2048'],
+            'attachment_lembur' => ['array','max:5']
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -2289,8 +2298,20 @@ class LembureController extends Controller
                 'total_durasi' => $total_durasi_aktual,
                 'status' => 'COMPLETED'
             ]);
-
             $lembur->save();
+
+            if($request->hasFile('attachment_lembur')){
+                $file = $request->file('attachment_lembur');
+                foreach ($file as $index => $item){
+                    $fileName = $lembur->id_lembur.'-'.$index.'.'.$item->getClientOriginalExtension();
+                    $file_path = $item->storeAs("attachment/lembur", $fileName);
+
+                    $lembur->attachmentLembur()->create([
+                        'path' => $file_path
+                    ]);
+                }
+            }
+           
             DB::commit();
             return response()->json(['message' => 'Aktual Lembur berhasil di Konfirmasi!'],200);
         } catch (Throwable $e){

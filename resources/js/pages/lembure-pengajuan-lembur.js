@@ -1142,6 +1142,42 @@ $(function () {
                 let status = header.status;
                 let detail = response.data.detail_lembur;
                 let tbody = $('#list-detail-approval-lembur').empty();
+
+                //attachment
+                let attachmentLembur = response.data.attachment;
+                let previewElement = $('.previewAttachmentLembur').empty();
+
+                if(attachmentLembur.length > 0){
+                    $.each(attachmentLembur, function (i, val){
+                        let ext = val.path.split('.').pop();
+                        if(ext == 'pdf'){
+                            previewElement.append(`
+                            <a id="attachment_${i}" href="${base_url}/storage/${val.path}" data-title="Attachment Ke-${i}" target="_blank">
+                                <img src="${base_url}/img/pdf-img.png" alt="Attachment Ke-${i}" style="width: 3.5rem;height: 3.5rem;" class="p-0">
+                            </a>`);
+                        } else {
+                            previewElement.append(`
+                            <a id="attachment_${i}" href="${base_url}/storage/${val.path}" data-title="Attachment Ke-${i}" class="image-popup-vertical-fit">
+                                <img src="${base_url}/storage/${val.path}" alt="Attachment Ke-${i}" style="width: 3.5rem;height: 3.5rem;" class="img-fluid p-0">
+                            </a>`);
+                        }
+                    });
+                } else {
+                    previewElement.append(`<p>No Attachment Uploaded</p>`);
+                }
+
+                //REINITALIZE LIGHTBOX
+                if ($('.image-popup-vertical-fit').length) {
+                    $('.image-popup-vertical-fit').magnificPopup({
+                        type: 'image',
+                        closeOnContentClick: true,
+                        mainClass: 'mfp-img-mobile',
+                        image: {
+                            verticalFit: true
+                        }
+                    });
+                }
+                
                 
                 $.each(detail, function (i, val){
                     tbody.append(`

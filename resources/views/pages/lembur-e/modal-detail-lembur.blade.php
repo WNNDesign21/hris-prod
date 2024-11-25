@@ -19,6 +19,11 @@
                                     <p>Status : <span id="statusDetail"></span></p>
                                     <p>Tanggal : <span id="text_tanggalDetail"></span></p>
                                     <p>Jenis Hari : <span id="jenis_hariDetail"></span></p>
+                                    <div class="col-12">
+                                        <p class="fw-bold">Lampiran LKH</p>
+                                        <div class="row d-inline-block previewAttachmentLembur">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <!-- /.box-header -->

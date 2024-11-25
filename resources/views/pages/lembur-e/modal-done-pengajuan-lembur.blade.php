@@ -6,7 +6,8 @@
                 <button type="button" class="btn-close btnCloseDone" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="#" method="POST" enctype="multipart/form-data" id="form-detail-lembur-done">
+                <form action="#" method="POST" enctype="multipart/form-data" id="form-detail-lembur-done"
+                    class="dropzone" style="border:none!important;">
                     @csrf
                     @method('PATCH')
                     <div class="form-group">
@@ -23,6 +24,18 @@
                                         <p>Status : <span id="statusDone"></span></p>
                                         <p>Tanggal : <span id="text_tanggalDone"></span></p>
                                         <p>Jenis Hari : <span id="jenis_hariDone"></span></p>
+                                        <div class="col-lg-4 col-md-6 col-12">
+                                            <div class="form-group">
+                                                <label for="attachment-lembur">Laporan Kerja Harian</label>
+                                                <br>
+                                                <small class="text-fade">Note : Ukuran file maksimal 2MB/File, Maksimal
+                                                    5 file
+                                                    (PDF/IMG)</small>
+                                                <input type="file" class="form-control" name="attachment_lembur[]"
+                                                    id="attachment-lembur" multiple
+                                                    placeholder="Upload Laporan Kerja Harian Disini.">
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <!-- /.box-header -->
