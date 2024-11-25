@@ -15,6 +15,7 @@ use App\Models\DetailLembur;
 use App\Models\LemburHarian;
 use Illuminate\Http\Request;
 use App\Models\SettingLembur;
+use App\Models\GajiDepartemen;
 use App\Models\AttachmentLembur;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -83,6 +84,15 @@ class LembureController extends Controller
             'setting_lembur' => $data_setting_lembur
         ];
         return view('pages.lembur-e.setting-lembur', $dataPage);
+    }
+
+    public function setting_gaji_departemen_view()
+    {
+        $dataPage = [
+            'pageTitle' => "Lembur-E - Setting Gaji Departemen",
+            'page' => 'lembure-setting-gaji-departemen',
+        ];
+        return view('pages.lembur-e.setting-gaji-departemen', $dataPage);
     }
 
     public function export_report_lembur_view()
@@ -562,8 +572,71 @@ class LembureController extends Controller
                 $nestedData['nama'] = $data->nama;
                 $nestedData['gaji'] = '
                     <div class="input-group mb-3">
-                        <input type="number" value="' . ($data->gaji ?? 0) . '" min="0" class="form-control inputUpdahLembur"/>
+                        <input type="number" value="' . ($data->gaji ?? 0) . '" min="0" class="form-control inputUpahLembur"/>
                         <button class="btn btn-warning updateUpahLembur" type="button" data-id-setting-lembur-karyawan="' . $data->id_setting_lembur_karyawan . '" data-karyawan-id="'.$data->id_karyawan.'"><i class="fas fa-save"></i></button>
+                    </div>
+                ';
+
+                $dataTable[] = $nestedData;
+            }
+        }
+
+        $json_data = array(
+            "draw" => intval($request->input('draw')),
+            "recordsTotal" => intval($totalData),
+            "recordsFiltered" => intval($totalFiltered),
+            "data" => $dataTable,
+            "order" => $order,
+            "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
+            "dir" => $dir,
+            "column"=>$request->input('order.0.column')
+        );
+
+        return response()->json($json_data, 200);
+    }
+
+    public function setting_gaji_departemen_datatable(Request $request)
+    {
+        $columns = array(
+            0 => 'departemens.nama',
+            1 => 'gaji_departemens.periode',
+            2 => 'gaji_departemens.nominal_batas_lembur',
+            3 => 'gaji_departemens.total_gaji',
+        );
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = (!empty($request->input('order.0.column'))) ? $columns[$request->input('order.0.column')] : $columns[0];
+        $dir = (!empty($request->input('order.0.dir'))) ? $request->input('order.0.dir') : "DESC";
+
+        $settings['start'] = $start;
+        $settings['limit'] = $limit;
+        $settings['dir'] = $dir;
+        $settings['order'] = $order;
+
+        $dataFilter = [];
+        $search = $request->input('search.value');
+        if (!empty($search)) {
+            $dataFilter['search'] = $search;
+        }
+
+        $totalData = GajiDepartemen::all()->count();
+        $totalFiltered = $totalData;
+
+        $setting_upah_lembur = GajiDepartemen::getData($dataFilter, $settings);
+        $totalFiltered = GajiDepartemen::countData($dataFilter);
+
+        $dataTable = [];
+
+        if (!empty($setting_upah_lembur)) {
+            foreach ($setting_upah_lembur as $data) {
+                $nestedData['departemen'] = $data->nama_departemen;
+                $nestedData['periode'] = Carbon::parse($data->periode)->format('F Y');
+                $nestedData['nominal_batas_lembur'] = 'Rp. ' . number_format($data->nominal_batas_lembur, 0, ',', '.');
+                $nestedData['total_gaji'] = '
+                    <div class="input-group mb-3">
+                        <input type="number" value="' . ($data->total_gaji) . '" min="0" class="form-control inputGajiDepartemen"/>
+                        <button class="btn btn-warning updateGajiDepartemen" type="button" data-id-gaji-departemen="' . $data->id_gaji_departemen . '" data-departemen-id="'.$data->id_departemen.'"><i class="fas fa-save"></i></button>
                     </div>
                 ';
 
@@ -1373,6 +1446,80 @@ class LembureController extends Controller
 
             DB::commit();
             return response()->json(['message' => 'Setting Lembur Berhasil di Update!'], 200);
+        } catch (Throwable $e) {
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function store_setting_gaji_departemen(Request $request)
+    {
+        $dataValidate = [
+            'periode' => ['required', 'date_format:Y-m']
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $periode = $request->periode.'-01';
+
+        DB::beginTransaction();
+        try{
+            $gaji_departemen_exist = GajiDepartemen::whereDate('periode', $periode)->exists();
+
+            if($gaji_departemen_exist){
+                DB::rollback();
+                return response()->json(['message' => 'Gaji Departemen sudah ada, silahkan update nominalnya pada tabel!'], 402);
+            }
+
+            $departemens = Departemen::all();
+            if($departemens){
+                foreach($departemens as $dept){
+                    GajiDepartemen::create([
+                        'departemen_id' => $dept->id_departemen,
+                        'organisasi_id' => auth()->user()->organisasi_id,
+                        'periode' => $periode,
+                    ]);
+                }
+            }
+            DB::commit();
+            return response()->json(['message' => 'Gaji Departemen periode'.Carbon::parse($periode)->format('F Y').' Berhasil di Tambahkan!'], 200);
+        } catch (Throwable $e) {
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function update_setting_gaji_departemen(Request $request)
+    {
+        $dataValidate = [
+            'total_gaji' => ['required', 'numeric', 'min:0'],
+            'id_gaji_departemen' => ['required'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        DB::beginTransaction();
+        try{
+            $gaji_departemen = GajiDepartemen::find($request->id_gaji_departemen);
+            $nominal_batas_lembur = intval($request->total_gaji * 0.15);
+            if($gaji_departemen){
+                $gaji_departemen->total_gaji = $request->total_gaji;
+                $gaji_departemen->nominal_batas_lembur = $nominal_batas_lembur;
+                $gaji_departemen->save();
+            } 
+            
+            DB::commit();
+            return response()->json(['message' => 'Gaji Departemen Berhasil di Update!'], 200);
         } catch (Throwable $e) {
             DB::rollBack();
             return response()->json(['message' => $e->getMessage()], 500);
@@ -2192,8 +2339,6 @@ class LembureController extends Controller
         $dataValidate = [
             'aktual_mulai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'before:aktual_selesai_lembur.*'],
             'aktual_selesai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'after:aktual_mulai_lembur.*'],
-            'attachment_lembur.*' => ['mimes:jpeg,jpg,png,pdf', 'max:2048'],
-            'attachment_lembur' => ['array','max:5']
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -2300,18 +2445,6 @@ class LembureController extends Controller
             ]);
             $lembur->save();
 
-            if($request->hasFile('attachment_lembur')){
-                $file = $request->file('attachment_lembur');
-                foreach ($file as $index => $item){
-                    $fileName = $lembur->id_lembur.'-'.$index.'.'.$item->getClientOriginalExtension();
-                    $file_path = $item->storeAs("attachment/lembur", $fileName);
-
-                    $lembur->attachmentLembur()->create([
-                        'path' => $file_path
-                    ]);
-                }
-            }
-           
             DB::commit();
             return response()->json(['message' => 'Aktual Lembur berhasil di Konfirmasi!'],200);
         } catch (Throwable $e){
@@ -2325,7 +2458,9 @@ class LembureController extends Controller
     {
         try{
             $data = LemburHarian::getMonthlyLemburPerDepartemen()->toArray();
-            return response()->json(['message' => 'Data Lembur Berhasil Ditemukan', 'data' => $data], 200);
+            $batas = GajiDepartemen::getMonthlyNominalBatasAllDepartemen()->toArray();
+
+            return response()->json(['message' => 'Data Lembur Berhasil Ditemukan', 'data' => $data, 'batas' => $batas], 200);
         } catch (Throwable $e){
             return response()->json(['message' => $e->getMessage()], 500);
         }
@@ -2345,7 +2480,18 @@ class LembureController extends Controller
     {
         try{
             $data = LemburHarian::getCurrentMonthLemburPerDepartemen()->toArray();
-            return response()->json(['message' => 'Data Lembur Berhasil Ditemukan', 'data' => $data], 200);
+            $batas = GajiDepartemen::getCurrentMonthNominalBatasPerDepartemen()->toArray();
+
+            $existing_batas = [];
+            foreach ($batas as $key => $value) {
+                foreach ($data as $key2 => $value2) {
+                    if($value['id_departemen'] == $value2['id_departemen']){
+                        $existing_batas[] = $value;
+                    }
+                }
+            }
+
+            return response()->json(['message' => 'Data Lembur Berhasil Ditemukan', 'data' => $data, 'batas' => $existing_batas], 200);
         } catch (Throwable $e){
             return response()->json(['message' => $e->getMessage()], 500);
         }
@@ -2932,5 +3078,47 @@ class LembureController extends Controller
             DB::rollBack();
             return response()->json(['message' => 'Error processing the file: ' . $e->getMessage()], 500);
         }
+    }
+
+    public function store_lkh(Request $request)
+    {
+        $dataValidate = [
+            'attachment_lembur' => ['mimes:jpeg,jpg,png,pdf', 'max:2048', 'required'],
+            'lembur_id' => ['required', 'exists:lemburs,id_lembur'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $lembur = Lembure::find($request->lembur_id);
+        $file = $request->file('attachment_lembur');
+
+        DB::beginTransaction();
+        try{
+
+            $fileName = $lembur->id_lembur.'-'.Str::random(5).'.'.$file->getClientOriginalExtension();
+            $file_path = $file->storeAs("attachment/lembur", $fileName);
+
+            $lembur->attachmentLembur()->create([
+                'path' => $file_path
+            ]);
+
+            DB::commit();
+            return response()->json(['message' => 'LKH Berhasil di Upload!'],200);
+        } catch (Throwable $e){
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function get_attachment_lembur(Request $request, string $id_lembur)
+    {
+        $lembur = Lembure::find($id_lembur);
+        $attachment = $lembur->attachmentLembur;
+        return response()->json(['message' => 'Data LKH Berhasil Ditemukan', 'data' => $attachment], 200);
     }
 }

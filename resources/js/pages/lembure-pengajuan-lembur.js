@@ -479,7 +479,6 @@ $(function () {
                 let jenisHari = header.jenis_hari == 'WEEKEND' ? 'WE' : 'WD';
                 let detail = response.data.detail_lembur;
                 detailCount += detail.length;
-                console.log(detailCount);
                 let tbody = $('#list-detail-lembur-edit').empty();
                 
                 $.each(detail, function (i, val){
@@ -540,7 +539,6 @@ $(function () {
                     $('#rencana_selesai_lemburEdit_' + i).attr('min', minDate);
 
                     $('#rencana_mulai_lemburEdit_' + i).on('change', function(){
-                        console.log($(this).val());
                         let startTime = moment($(this).val()).format('YYYY-MM-DDT00:00');
                         $('#rencana_selesai_lemburEdit_' + i).attr('min', startTime);
                         if($(this).val() > $('#rencana_selesai_lemburEdit_' + i).val()){
@@ -679,7 +677,6 @@ $(function () {
     // EDIT
     $('.btnAddDetailLemburEdit').on("click", function (){
         detailCount++;
-        console.log(detailCount);
         let tbody = $('#list-detail-lembur-edit');
         tbody.append(`
              <tr>
@@ -741,7 +738,6 @@ $(function () {
         $('#rencana_mulai_lemburEditNew_' + detailCount).on('change', function(){
             let startTime = moment($(this).val()).format('YYYY-MM-DDT00:00');
             $('#rencana_selesai_lemburEditNew_' + detailCount).attr('min', startTime);
-            console.log($(this).val());
             if($(this).val() > $('#rencana_selesai_lemburEditNew_' + detailCount).val()){
                 $('#rencana_selesai_lemburEditNew_' + detailCount).val($(this).val());
             }
@@ -930,6 +926,41 @@ $(function () {
                 let status = header.status;
                 let detail = response.data.detail_lembur;
                 let tbody = $('#list-detail-lembur-done').empty();
+
+                //attachment
+                let attachmentLembur = response.data.attachment;
+                let previewElement = $('.previewAttachmentLembur').empty();
+
+                if(attachmentLembur.length > 0){
+                    $.each(attachmentLembur, function (i, val){
+                        let ext = val.path.split('.').pop();
+                        if(ext == 'pdf'){
+                            previewElement.append(`
+                            <a id="attachment_${i}" href="${base_url}/storage/${val.path}" data-title="Attachment Ke-${i}" target="_blank">
+                                <img src="${base_url}/img/pdf-img.png" alt="Attachment Ke-${i}" style="width: 3.5rem;height: 3.5rem;" class="p-0">
+                            </a>`);
+                        } else {
+                            previewElement.append(`
+                            <a id="attachment_${i}" href="${base_url}/storage/${val.path}" data-title="Attachment Ke-${i}" class="image-popup-vertical-fit">
+                                <img src="${base_url}/storage/${val.path}" alt="Attachment Ke-${i}" style="width: 3.5rem;height: 3.5rem;" class="img-fluid p-0">
+                            </a>`);
+                        }
+                    });
+                } else {
+                    previewElement.append(`<p>No Attachment Uploaded</p>`);
+                }
+
+                //REINITALIZE LIGHTBOX
+                if ($('.image-popup-vertical-fit').length) {
+                    $('.image-popup-vertical-fit').magnificPopup({
+                        type: 'image',
+                        closeOnContentClick: true,
+                        mainClass: 'mfp-img-mobile',
+                        image: {
+                            verticalFit: true
+                        }
+                    });
+                }
                 
                 $.each(detail, function (i, val){
                     tbody.append(`
@@ -1004,7 +1035,6 @@ $(function () {
                     })
 
                     $('#is_aktual_approved_' + i).on('change', function(){
-                        console.log($(this).is(':checked'), $(this).val());
                         if ($(this).is(':checked')) {
                             $(this).attr('checked', true);
                             if ($(this).closest('tr').hasClass('bg-danger')) {
@@ -1249,5 +1279,160 @@ $(function () {
             },
         }); 
     })
+
+    //ATTACHMENT LEMBUR (LKH) HANDLING
+    function checkIfImage(fileType) {
+        const imageMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/bmp']; 
+        return imageMimeTypes.includes(fileType.toLowerCase());
+    }   
+
+    function compressAndDisplayImageSave(input, idLembur ) {
+        if (input.files && input.files[0]) {
+          var reader = new FileReader();
+      
+          reader.onload = function (e) {
+            var image = new Image();
+            const isImage = checkIfImage(input.files[0].type);
+            if (isImage) {
+                image.onload = function () {
+                var canvas = document.createElement("canvas");
+                var ctx = canvas.getContext("2d");
+        
+                const maxWidth = 1280;
+                const maxHeight = 720; 
+                const ratio = Math.min(maxWidth / image.width, maxHeight / image.height);
+                canvas.width = Math.round(image.width * ratio);
+                canvas.height = Math.round(image.height * ratio);
+                ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+        
+                    const quality = 0.9; 
+                    const compressedImageData = canvas.toDataURL("image/jpeg", quality);
+                    const blob = dataURItoBlob(compressedImageData);
+
+                    const fileName = input.files[0].name.split('.')[0] + '-compressed.jpg';
+                    const fileType = input.files[0].type; 
+                    const compressedFile = new File([blob], fileName, {type: fileType});
+
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(compressedFile);
+                    input.files = dataTransfer.files;
+            
+                    let formData = new FormData();
+                    formData.append('lembur_id', idLembur);
+                    formData.append('attachment_lembur', compressedFile);
+                    let url = base_url + '/lembure/pengajuan-lembur/store-lkh';
+                    $.ajax({
+                        url: url,
+                        type: "POST",
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        dataType: "JSON",
+                        success: function (data) {
+                            showToast({ title: data.message });
+                            getPreviewAttachmentLembur(idLembur);
+                            $('#attachment_lembur').val('');
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                        }
+                    });
+                
+                };
+            } else {
+                let formData = new FormData();
+                formData.append('lembur_id', idLembur);
+                formData.append('attachment_lembur', input.files[0]);
+                let url = base_url + '/lembure/pengajuan-lembur/store-lkh';
+                
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    dataType: "JSON",
+                    success: function (data) {
+                        showToast({ title: data.message });
+                        getPreviewAttachmentLembur(idLembur);
+                        $('#attachment_lembur').val('');
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                    }
+                });
+            }
+      
+            image.src = e.target.result;
+          };
+      
+          reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $('#attachment_lembur').on("change", function () {
+        loadingSwalShow();
+        let idLembur = $('#id_lemburDone').val();
+        compressAndDisplayImageSave(this, idLembur);
+    });
+
+    function dataURItoBlob(dataURI) {
+        const byteString = atob(dataURI.split(',')[1]);
+        const mimeType = dataURI.split(',')[0].split(':')[1].split(';')[0];
+        const arrayBuffer = new ArrayBuffer(byteString.length);
+        const intArray = new Uint8Array(arrayBuffer);
+        for (let i = 0; i < byteString.length; i++) {
+          intArray[i] = byteString.charCodeAt(i);
+        }
+        const blob = new Blob([arrayBuffer], { type: mimeType });
+        return blob;
+    }
+
+    function getPreviewAttachmentLembur(idLembur){
+        let url = base_url + '/lembure/pengajuan-lembur/get-attachment-lembur/' + idLembur;
+        $.ajax({
+            url: url,
+            method: "GET",
+            dataType: "JSON",
+            success: function (response) {
+                let attachmentLembur = response.data;
+                let previewElement = $('.previewAttachmentLembur').empty();
+
+                if(attachmentLembur.length > 0){
+                    $.each(attachmentLembur, function (i, val){
+                        let ext = val.path.split('.').pop();
+                        if(ext == 'pdf'){
+                            previewElement.append(`
+                            <a id="attachment_${i}" href="${base_url}/storage/${val.path}" data-title="Attachment Ke-${i}" target="_blank">
+                                <img src="${base_url}/img/pdf-img.png" alt="Attachment Ke-${i}" style="width: 3.5rem;height: 3.5rem;" class="p-0">
+                            </a>`);
+                        } else {
+                            previewElement.append(`
+                            <a id="attachment_${i}" href="${base_url}/storage/${val.path}" data-title="Attachment Ke-${i}" class="image-popup-vertical-fit">
+                                <img src="${base_url}/storage/${val.path}" alt="Attachment Ke-${i}" style="width: 3.5rem;height: 3.5rem;" class="img-fluid p-0">
+                            </a>`);
+                        }
+                    });
+                } else {
+                    previewElement.append(`<p>No Attachment Uploaded</p>`);
+                }
+
+                //REINITALIZE LIGHTBOX
+                if ($('.image-popup-vertical-fit').length) {
+                    $('.image-popup-vertical-fit').magnificPopup({
+                        type: 'image',
+                        closeOnContentClick: true,
+                        mainClass: 'mfp-img-mobile',
+                        image: {
+                            verticalFit: true
+                        }
+                    });
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        }); 
+    }
 
 });

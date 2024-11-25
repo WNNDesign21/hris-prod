@@ -24,17 +24,14 @@
                                         <p>Status : <span id="statusDone"></span></p>
                                         <p>Tanggal : <span id="text_tanggalDone"></span></p>
                                         <p>Jenis Hari : <span id="jenis_hariDone"></span></p>
-                                        <div class="col-lg-4 col-md-6 col-12">
-                                            <div class="form-group">
-                                                <label for="attachment-lembur">Laporan Kerja Harian</label>
-                                                <br>
-                                                <small class="text-fade">Note : Ukuran file maksimal 2MB/File, Maksimal
-                                                    5 file
-                                                    (PDF/IMG)</small>
-                                                <input type="file" class="form-control" name="attachment_lembur[]"
-                                                    id="attachment-lembur" multiple
-                                                    placeholder="Upload Laporan Kerja Harian Disini.">
+                                        <div class="col-12 mb-4">
+                                            <p class="fw-bold">Lampiran LKH</p>
+                                            <div class="row d-inline-block previewAttachmentLembur">
                                             </div>
+                                        </div>
+                                        <div class="col-lg-4 col-12">
+                                            <input type="file" class="form-control" name="attachment_lembur"
+                                                id="attachment_lembur">
                                         </div>
                                     </div>
                                 </div>

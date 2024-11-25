@@ -128,7 +128,7 @@ $(function () {
         refreshTable();
     })
 
-    $('#setting-upah-lembur-table').on('input', '.inputUpdahLembur', function () {
+    $('#setting-upah-lembur-table').on('input', '.inputUpahLembur', function () {
         let inputValue = $(this).val();
 
         if (!/^\d+$/.test(inputValue)) {
@@ -144,7 +144,7 @@ $(function () {
         let karyawanId = $(this).data('karyawan-id');
         let formData = new FormData();
         formData.append('id_setting_lembur_karyawan', idSettingLemburKaryawan);
-        formData.append('gaji', $(this).closest('tr').find('.inputUpdahLembur').val());
+        formData.append('gaji', $(this).closest('tr').find('.inputUpahLembur').val());
         formData.append('karyawan_id', karyawanId);
         formData.append('_method', 'PATCH');
 
