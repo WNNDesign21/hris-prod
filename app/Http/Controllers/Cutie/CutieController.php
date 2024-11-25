@@ -2346,7 +2346,7 @@ class CutieController extends Controller
                                 $tanggal_cuti[] = $r->format('Y-m-d');
                             }
                         } else {
-                            $tanggal_cuti[] = $r->format('Y-m-d');
+                            $tanggal_cuti[] = $c->rencana_mulai_cuti;
                         }
                     }
 

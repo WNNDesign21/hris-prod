@@ -181,6 +181,6 @@ class Cutie extends Model
 
     public static function countData($dataFilter)
     {
-        return self::_query($dataFilter)->count();
+        return self::_query($dataFilter)->get()->count();
     }
 }
