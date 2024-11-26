@@ -19,7 +19,8 @@
                                         placeholder="Tuliskan alasan menolak pengajuan lembur ini!" style="width: 100%;"></textarea>
                                 </div>
                                 <div class="d-flex justify-content-end mt-2">
-                                    <button type="submit" class="btn btn-danger"><i class="far fa-times-circle"></i>
+                                    <button type="submit" class="btn btn-danger" id="btnSubmitReject"><i
+                                            class="far fa-times-circle"></i>
                                         Reject</button>
                                 </div>
                             </div>

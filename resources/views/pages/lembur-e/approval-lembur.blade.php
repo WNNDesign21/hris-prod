@@ -39,12 +39,15 @@
                 </div>
                 <div class="box-body">
                     <div class="table-responsive">
-                        <table id="approval-table" class="table table-striped table-bordered display" style="width:100%">
+                        <table id="approval-table" class="table table-striped table-bordered display nowrap"
+                            style="width:100%">
                             <thead>
                                 <tr>
                                     <th>ID Lembur</th>
                                     <th>Issued At</th>
+                                    <th>Rencana Mulai</th>
                                     <th>Issued By</th>
+                                    <th>Departemen</th>
                                     <th>Jenis Hari</th>
                                     <th>Total Durasi</th>
                                     <th>Total Nominal</th>

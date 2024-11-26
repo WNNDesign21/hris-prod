@@ -136,6 +136,10 @@ class Lembure extends Model
                     $data->whereIn('lemburs.status', $dataFilter['status']);
                 } 
 
+                if(isset($dataFilter['departemen'])){
+                    $data->where('departemens.id_departemen', $dataFilter['departemen']);
+                } 
+
                 if(isset($dataFilter['urutan'])){
                     if($dataFilter['urutan'] == 'NO'){
                         $data->orderBy('lemburs.issued_date', 'DESC');

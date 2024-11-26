@@ -60,4 +60,5 @@
     @include('pages.lembur-e.modal-edit-pengajuan-lembur')
     @include('pages.lembur-e.modal-done-pengajuan-lembur')
     @include('pages.lembur-e.modal-detail-lembur')
+    @include('pages.lembur-e.modal-reject-lembur')
 @endsection

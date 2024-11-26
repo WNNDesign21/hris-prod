@@ -14,7 +14,7 @@ class GajiDepartemen extends Model
     protected $primaryKey = 'id_gaji_departemen';
 
     protected $fillable = [
-        'departemen_id','periode','total_gaji','nominal_batas_lembur', 'organisasi_id'
+        'departemen_id','periode','total_gaji','nominal_batas_lembur', 'organisasi_id', 'presentase'
     ];
 
     public function departemen()
@@ -29,6 +29,7 @@ class GajiDepartemen extends Model
             'gaji_departemens.departemen_id',
             'gaji_departemens.organisasi_id',
             'gaji_departemens.periode',
+            'gaji_departemens.presentase',
             'gaji_departemens.total_gaji',
             'gaji_departemens.nominal_batas_lembur',
             'departemens.nama as nama_departemen',

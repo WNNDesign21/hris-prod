@@ -20,6 +20,16 @@
                                 </select>
                             </div>
                             <div class="form-group">
+                                <label for="filterDepartemen">DEPARTEMEN</label>
+                                <select name="filterDepartemen" id="filterDepartemen" class="form-control"
+                                    style="width: 100%;">
+                                    <option value="">SEMUA DEPARTEMEN</option>
+                                    @foreach ($departemens as $item)
+                                        <option value="{{ $item->id_departemen }}">{{ $item->nama }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group">
                                 <label for="filterJenisHari">JENIS HARI</label>
                                 <select name="filterJenisHari" id="filterJenisHari" class="form-control"
                                     style="width: 100%;" multiple>
@@ -27,17 +37,8 @@
                                     <option value="WE">WEEKEND</option>
                                 </select>
                             </div>
-                            {{-- <div class="form-group">
-                                <label for="filterAksi">Aksi</label>
-                                <select name="filterAksi" id="filterAksi" class="form-control" style="width: 100%;">
-                                    <option value="">NO FILTER</option>
-                                    <option value="CHECKED">MUST BE CHECKED</option>
-                                    <option value="APPROVED">MUST BE APPROVED</option>
-                                    <option value="LEGALIZED">MUST BE LEGALIZED</option>
-                                </select>
-                            </div> --}}
                             <div class="form-group">
-                                <label for="filterStatus">Status</label>
+                                <label for="filterStatus">STATUS</label>
                                 <select name="filterStatus" id="filterStatus" class="form-control" style="width: 100%;"
                                     multiple>
                                     <option value="WAITING">WAITING</option>
