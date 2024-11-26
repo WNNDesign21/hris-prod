@@ -37,9 +37,14 @@
                     </li>
                     <!-- User Account-->
                     <li class="dropdown user user-menu">
-                        <a href="#" class="waves-effect waves-light dropdown-toggle" data-bs-toggle="dropdown"
-                            title="User">
+                        <a href="#" class="btn btn-light dropdown-toggle position-relative"
+                            data-bs-toggle="dropdown" title="User">
                             <i class="icon-User"><span class="path1"></span><span class="path2"></span></i>
+                            {{-- <span
+                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                style="font-size: 1rem;z-index:2;">
+                                1
+                            </span> --}}
                         </a>
                         <ul class="dropdown-menu animated flipInX">
                             <li class="user-body">
@@ -52,9 +57,19 @@
                                             class="ti-write text-muted me-2"></i>
                                         Kontrak</a>
                                     <div class="dropdown-divider"></div>
+                                    {{-- <a class="dropdown-item btnAgendaLembur position-relative" href="#"><i
+                                            class="ti-agenda text-muted me-2"></i>
+                                        Agenda Lembur
+                                        <span
+                                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                            style="font-size: 1rem;z-index:2;">
+                                            1
+                                        </span></a>
+                                    <div class="dropdown-divider"></div> --}}
                                     <a class="dropdown-item btnLembur" href="#"><i
                                             class="ti-time text-muted me-2"></i>
-                                        Slip Lembur</a>
+                                        Slip Lembur
+                                    </a>
                                     <div class="dropdown-divider"></div>
                                 @endhasanyrole
                                 <a class="dropdown-item" href="{{ route('logout') }}"
@@ -85,6 +100,7 @@
         @include('pages.menu.modal-profile')
         @include('pages.menu.modal-kontrak')
         @include('pages.menu.modal-lembur')
+        @include('pages.menu.modal-agenda-lembur')
     </div>
 
 

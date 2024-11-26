@@ -276,12 +276,10 @@ $(function () {
                     </input>
                 </td>
                 <td>
-                    <input id="rencana_mulai_lembur_${count}" name="rencana_mulai_lembur[]" type="datetime-local" class="form-control rencanaMulaiLembur"
-                            data-td-target="#datetimepicker_rencana_mulai_${count}" data-urutan="${count}">
+                    <input id="rencana_mulai_lembur_${count}" name="rencana_mulai_lembur[]" type="datetime-local" class="form-control rencanaMulaiLembur" data-urutan="${count}">
                 </td>
                 <td>
-                    <input id="rencana_selesai_lembur_${count}" name="rencana_selesai_lembur[]" type="datetime-local" class="form-control rencanaSelesaiLembur"
-                            data-td-target="#datetimepicker_rencana_selesai_${count}" data-urutan="${count}">
+                    <input id="rencana_selesai_lembur_${count}" name="rencana_selesai_lembur[]" type="datetime-local" class="form-control rencanaSelesaiLembur" data-urutan="${count}">
                 </td>
                 <td>
                     <div class="btn-group">
@@ -321,19 +319,20 @@ $(function () {
         $('#rencana_mulai_lembur_' + count).attr('min', minDate);
         $('#rencana_selesai_lembur_' + count).attr('min', minDate);
 
-        $('#rencana_mulai_lembur_' + count).on('change', function(){
-            let startTime = moment($(this).val()).format('YYYY-MM-DDT00:00');
-            $('#rencana_selesai_lembur_' + count).attr('min', startTime);
-            if($(this).val() > $('#rencana_selesai_lembur_' + count).val()){
-                $('#rencana_selesai_lembur_' + count).val($(this).val());
-            }
-        });
+        // $('#rencana_mulai_lembur_' + count).on('change', function(){
+        //     let startTime = moment($(this).val()).format('YYYY-MM-DDT00:00');
+        //     $('#rencana_selesai_lembur_' + count).attr('min', startTime);
+        //     if($(this).val() > $('#rencana_selesai_lembur_' + count).val()){
+        //         $('#rencana_selesai_lembur_' + count).val($(this).val());
+        //     }
+        // });
 
-        $('#rencana_selesai_lembur_' + count).on('change', function(){
-            if($(this).val() < $('#rencana_mulai_lembur_' + count).val()){
-                $(this).val( $('#rencana_mulai_lembur_' + count).val());
-            }
-        })
+        // $('#rencana_selesai_lembur_' + count).on('change', function(){
+        //     if($(this).val() < $('#rencana_mulai_lembur_' + count).val()){
+        //         $(this).val( $('#rencana_mulai_lembur_' + count).val());
+        //     }
+        // })
+        
 
         if(jumlah_detail_lembur == 0){
             $('.btnSubmitDetailLembur').attr('disabled', true);
@@ -540,20 +539,6 @@ $(function () {
                     $('#rencana_mulai_lemburEdit_' + i).attr('min', minDate);
                     $('#rencana_selesai_lemburEdit_' + i).attr('min', minDate);
 
-                    $('#rencana_mulai_lemburEdit_' + i).on('change', function(){
-                        let startTime = moment($(this).val()).format('YYYY-MM-DDT00:00');
-                        $('#rencana_selesai_lemburEdit_' + i).attr('min', startTime);
-                        if($(this).val() > $('#rencana_selesai_lemburEdit_' + i).val()){
-                            $('#rencana_selesai_lemburEdit_' + i).val($(this).val());
-                        }
-                    });
-
-                    $('#rencana_selesai_lemburEdit_' + i).on('change', function(){
-                        if($(this).val() < $('#rencana_mulai_lemburEdit_' + i).val()){
-                            $(this).val($(this).data('selesai'));
-                        }
-                    })
-
                     selectedKaryawanLembur(i, val.karyawan_id);
                     $('#job_descriptionEdit_' + i).val(val.deskripsi_pekerjaan);
                     $('#rencana_mulai_lemburEdit_' + i).val(val.rencana_mulai_lembur);
@@ -627,37 +612,37 @@ $(function () {
     }
 
      //Rencana Mulai & Selesai Lembur Logic
-    $('#table-detail-lembur').on("change", '.rencanaMulaiLembur', function () {
-        let urutan = $(this).data('urutan');
-        let startTime = $(this).val();
-        // $('#rencana_selesai_lembur_' + urutan).val('').attr('min', startTime);
-    });
+    // $('#table-detail-lembur').on("change", '.rencanaMulaiLembur', function () {
+    //     let urutan = $(this).data('urutan');
+    //     let startTime = $(this).val();
+    //     // $('#rencana_selesai_lembur_' + urutan).val('').attr('min', startTime);
+    // });
 
-    $('#table-detail-lembur').on("change", '.rencanaSelesaiLembur' , function () {
-        let urutan = $(this).data('urutan');
-        let startTime = $('#rencana_mulai_lembur_' + urutan).val();
-        let endTime = $(this).val();
-        if (endTime < startTime) {
-            $(this).val('');
-            showToast({ title: "Waktu selesai lembur tidak boleh kurang dari waktu mulai lembur", icon: "error" });
-        }
-    });
+    // $('#table-detail-lembur').on("change", '.rencanaSelesaiLembur' , function () {
+    //     let urutan = $(this).data('urutan');
+    //     let startTime = $('#rencana_mulai_lembur_' + urutan).val();
+    //     let endTime = $(this).val();
+    //     if (endTime < startTime) {
+    //         $(this).val('');
+    //         showToast({ title: "Waktu selesai lembur tidak boleh kurang dari waktu mulai lembur", icon: "error" });
+    //     }
+    // });
 
-    $('#table-detail-lembur-edit').on("change", '.rencanaMulaiLemburEditNew', function () {
-        let urutan = $(this).data('urutan');
-        let startTime = $(this).val();
-        $('#rencana_selesai_lemburEditNew_' + urutan).val('').attr('min', startTime);
-    });
+    // $('#table-detail-lembur-edit').on("change", '.rencanaMulaiLemburEditNew', function () {
+    //     let urutan = $(this).data('urutan');
+    //     let startTime = $(this).val();
+    //     $('#rencana_selesai_lemburEditNew_' + urutan).val('').attr('min', startTime);
+    // });
 
-    $('#table-detail-lembur-edit').on("change", '.rencanaSelesaiLemburEditNew' , function () {
-        let urutan = $(this).data('urutan');
-        let startTime = $('#rencana_mulai_lemburEditNew_' + urutan).val();
-        let endTime = $(this).val();
-        if (endTime < startTime) {
-            $(this).val('');
-            showToast({ title: "Waktu selesai lembur tidak boleh kurang dari waktu mulai lembur", icon: "error" });
-        }
-    });
+    // $('#table-detail-lembur-edit').on("change", '.rencanaSelesaiLemburEditNew' , function () {
+    //     let urutan = $(this).data('urutan');
+    //     let startTime = $('#rencana_mulai_lemburEditNew_' + urutan).val();
+    //     let endTime = $(this).val();
+    //     if (endTime < startTime) {
+    //         $(this).val('');
+    //         showToast({ title: "Waktu selesai lembur tidak boleh kurang dari waktu mulai lembur", icon: "error" });
+    //     }
+    // });
 
     // $('#table-detail-lembur-edit').on("change", '.rencanaMulaiLemburEdit', function () {
     //     let urutan = $(this).data('urutan');
@@ -675,6 +660,55 @@ $(function () {
     //         showToast({ title: "Waktu selesai lembur tidak boleh kurang dari waktu mulai lembur", icon: "error" });
     //     }
     // });
+
+    //NEW 
+    $('#table-detail-lembur').on('change','.rencanaMulaiLembur', function(){
+        let urutan = $(this).data('urutan');
+        let startTime = moment($(this).val()).format('YYYY-MM-DDT00:00');
+        $('#rencana_selesai_lembur_' + urutan).attr('min', startTime);
+        if($(this).val() > $('#rencana_selesai_lembur_' + urutan).val()){
+            $('#rencana_selesai_lembur_' + urutan).val($(this).val());
+        }
+    });
+
+    $('#table-detail-lembur').on('change', '.rencanaSelesaiLembur', function(){
+        let urutan = $(this).data('urutan');
+        if($(this).val() < $('#rencana_mulai_lembur_' + urutan).val()){
+            $(this).val( $('#rencana_mulai_lembur_' + urutan).val());
+        }
+    })
+
+    $('#table-detail-lembur-edit').on('change', '.rencanaMulaiLemburEdit', function(){
+        let urutan = $(this).data('urutan');
+        let startTime = moment($(this).val()).format('YYYY-MM-DDT00:00');
+        $('#rencana_selesai_lemburEdit_' + urutan).attr('min', startTime);
+        if($(this).val() > $('#rencana_selesai_lemburEdit_' + urutan).val()){
+            $('#rencana_selesai_lemburEdit_' + urutan).val($(this).val());
+        }
+    });
+
+    $('#table-detail-lembur-edit').on('change', '.rencanaSelesaiLemburEdit', function(){
+        let urutan = $(this).data('urutan');
+        if($(this).val() < $('#rencana_mulai_lemburEdit_' + urutan).val()){
+            $(this).val($(this).data('selesai'));
+        }
+    })
+
+    $('#table-detail-lembur-edit').on('change', '.rencanaMulaiLemburEditNew', function(){
+        let urutan = $(this).data('urutan');
+        let startTime = moment($(this).val()).format('YYYY-MM-DDT00:00');
+        $('#rencana_selesai_lemburEditNew_' + urutan).attr('min', startTime);
+        if($(this).val() > $('#rencana_selesai_lemburEditNew_' + urutan).val()){
+            $('#rencana_selesai_lemburEditNew_' + urutan).val($(this).val());
+        }
+    });
+
+    $('#table-detail-lembur-edit').on('change', '.rencanaSelesaiLemburEditNew',  function(){
+        let urutan = $(this).data('urutan');
+        if($(this).val() < $('#rencana_mulai_lemburEditNew_' + urutan).val()){
+            $(this).val( $('#rencana_mulai_lemburEditNew_' + urutan).val());
+        }
+    })
 
     // EDIT
     $('.btnAddDetailLemburEdit').on("click", function (){
@@ -736,20 +770,6 @@ $(function () {
          
         $('#rencana_mulai_lemburEditNew_' + detailCount).attr('min', minDate);
         $('#rencana_selesai_lemburEditNew_' + detailCount).attr('min', minDate);
-
-        $('#rencana_mulai_lemburEditNew_' + detailCount).on('change', function(){
-            let startTime = moment($(this).val()).format('YYYY-MM-DDT00:00');
-            $('#rencana_selesai_lemburEditNew_' + detailCount).attr('min', startTime);
-            if($(this).val() > $('#rencana_selesai_lemburEditNew_' + detailCount).val()){
-                $('#rencana_selesai_lemburEditNew_' + detailCount).val($(this).val());
-            }
-        });
-
-        $('#rencana_selesai_lemburEditNew_' + detailCount).on('change', function(){
-            if($(this).val() < $('#rencana_mulai_lemburEditNew_' + detailCount).val()){
-                $(this).val( $('#rencana_mulai_lemburEditNew_' + detailCount).val());
-            }
-        })
 
         if(detailCount == 0){
             $('.btnUpdateDetailLembur').attr('disabled', true);
