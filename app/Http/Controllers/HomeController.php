@@ -40,6 +40,7 @@ class HomeController extends Controller
         $profile = auth()->user()?->karyawan;
         $dataProfile = [];
         $dataKontrak = [];
+        $dataAgendaLembur = [];
         if($profile){
             if($profile?->status_karyawan == 'AT'){
                 $status = 'AKTIF';
@@ -119,6 +120,22 @@ class HomeController extends Controller
                     'attachment' => $kontrak->attachment ? asset('storage/'.$kontrak->attachment) : null
                 ];
             }
+
+            $agenda_lembur = DetailLembur::where('karyawan_id', auth()->user()->karyawan->id_karyawan)->whereHas('lembur', function ($query) {
+                $query->whereIn('status', ['WAITING', 'PLANNED']);
+            })->orderBy('rencana_mulai_lembur', 'ASC')->get();
+            if($agenda_lembur){
+                foreach ($agenda_lembur as $item){
+                    $dataAgendaLembur[] = [
+                        'lembur_id' => $item->lembur_id,
+                        'rencana_mulai_lembur' => Carbon::parse($item->rencana_mulai_lembur)->format('d M Y H:i'),
+                        'rencana_selesai_lembur' => Carbon::parse($item->rencana_selesai_lembur)->format('d M Y H:i'),
+                        'total_durasi_lembur' => $item->total_durasi_lembur / 60 . ' Jam',
+                        'deskripsi_pekerjaan' => $item->deskripsi_pekerjaan,
+                        'status' => $item->lembur->status == 'WAITING' ? '<span class="badge badge-warning">WAITING</span>' : '<span class="badge badge-info">PLANNED</span>',
+                    ];
+                }
+            }
         } else {
             $dataProfile = [
                 'ni_karyawan' => null,
@@ -166,6 +183,7 @@ class HomeController extends Controller
             'page' => 'menu',
             'profile' => $dataProfile,
             'kontrak' => $dataKontrak,
+            'agendaLembur' => $dataAgendaLembur,
         ];
         return view('pages.menu.index', $dataPage);
     }
