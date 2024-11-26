@@ -6,6 +6,7 @@ use Exception;
 use App\Models\Cutie;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Spatie\Activitylog\Models\Activity;
 
 class UpdateStatusOnleave extends Command
 {
@@ -38,7 +39,9 @@ class UpdateStatusOnleave extends Command
                 'status_cuti' => 'ON LEAVE',
                 'aktual_mulai_cuti' => $today
             ]);
-            activity('update_status_onleave')->withProperties($cuti)->performedOn($cuti)->log('Update Status Onleave Cuti Otomatis per tanggal -'. $today);
+
+            activity('update_status_onleave')->log('Update Status Onleave Cuti Otomatis per tanggal -'. $today);
+
             DB::commit();
             $this->info('Status cuti karyawan berhasil diperbarui');
         } catch (Exception $e) {
