@@ -38,6 +38,7 @@
                                     <th>Departemen</th>
                                     <th>Periode</th>
                                     <th>Batas Nominal Lembur</th>
+                                    <th>Presentase (%)</th>
                                     <th>Total Gaji</th>
                                 </tr>
                             </thead>

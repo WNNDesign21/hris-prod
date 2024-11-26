@@ -54,9 +54,11 @@ class LembureController extends Controller
 
     public function approval_lembur_view()
     {
+        $departemens = Departemen::all();
         $dataPage = [
             'pageTitle' => "Lembur-E - Approval Lembur",
             'page' => 'lembure-approval-lembur',
+            'departemens' => $departemens
         ];
         return view('pages.lembur-e.approval-lembur', $dataPage);
     }
@@ -188,7 +190,7 @@ class LembureController extends Controller
                 $nestedData['actual_legalized_by'] = $data->actual_legalized_by ? '✅<br><small class="text-bold">'.$data?->actual_legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_legalized_at)->diffForHumans().'</small>': '';
                 $nestedData['aksi'] = '<div class="btn-group btn-group-sm">
                     <button type="button" class="waves-effect waves-light btn btn-sm btn-info btnDetail" data-id-lembur="'.$data->id_lembur.'" data-is-member="'.($is_member ? 'true' : 'false').'"><i class="fas fa-eye"></i> Detail</button>
-                    '.($data->status == 'PLANNED' && $data->issued_by == auth()->user()->karyawan->id_karyawan ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnDone" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-check-circle"></i> Done</button>' : '').'
+                    '.($data->status == 'PLANNED' && $data->issued_by == auth()->user()->karyawan->id_karyawan ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnDone" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-check-circle"></i> Done</button><button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnRejectLembur" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-times-circle"></i> Cancel</button>' : '').'
                     '.($data->plan_checked_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-edit"></i> Edit</button>' : '').'
                     '.($data->plan_checked_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-trash"></i> Delete</button>' : '').'
                 </div>';
@@ -216,16 +218,17 @@ class LembureController extends Controller
         $columns = array(
             0 => 'lemburs.id_lembur',
             1 => 'lemburs.issued_date',
-            2 => 'karyawans.nama',
-            3 => 'lemburs.jenis_hari',
-            4 => 'lemburs.total_durasi',
-            6 => 'lemburs.status',
-            7 => 'lemburs.plan_checked_by',
-            8=> 'lemburs.plan_approved_by',
-            9 => 'lemburs.plan_legalized_by',
-            10 => 'lemburs.actual_checked_by',
-            11 => 'lemburs.actual_approved_by',
-            12 => 'lemburs.actual_legalized_by'
+            3 => 'karyawans.nama',
+            4 => 'departemens.nama',
+            5 => 'lemburs.jenis_hari',
+            6 => 'lemburs.total_durasi',
+            8 => 'lemburs.status',
+            9 => 'lemburs.plan_checked_by',
+            10=> 'lemburs.plan_approved_by',
+            11 => 'lemburs.plan_legalized_by',
+            12 => 'lemburs.actual_checked_by',
+            13 => 'lemburs.actual_approved_by',
+            14 => 'lemburs.actual_legalized_by'
         );
 
         $limit = $request->input('length');
@@ -285,6 +288,11 @@ class LembureController extends Controller
         $filterMustChecked = $request->mustChecked;
         if ($filterMustChecked) {
             $dataFilter['mustChecked'] = $filterMustChecked;
+        }
+
+        $filterDepartemen = $request->departemen;
+        if ($filterDepartemen) {
+            $dataFilter['departemen'] = $filterDepartemen;
         }
 
         $filterStatus = $request->status;
@@ -499,7 +507,9 @@ class LembureController extends Controller
 
                 $nestedData['id_lembur'] = $data->id_lembur;
                 $nestedData['issued_date'] = Carbon::parse($data->issued_date)->locale('id')->translatedFormat('l, d F Y');
+                $nestedData['rencana_mulai_lembur'] = Carbon::parse($data->detailLembur[0]->rencana_mulai_lembur)->locale('id')->translatedFormat('l, d F Y');
                 $nestedData['issued_by'] = $data->nama_karyawan;
+                $nestedData['departemen'] = $data?->nama_departemen;
                 $nestedData['jenis_hari'] = $data->jenis_hari;
                 $nestedData['total_durasi'] = $jam . ' Jam ' . $menit . ' Menit';
                 $nestedData['total_nominal'] = 'Rp. ' . number_format($total_nominal, 0, ',', '.');
@@ -601,7 +611,7 @@ class LembureController extends Controller
             0 => 'departemens.nama',
             1 => 'gaji_departemens.periode',
             2 => 'gaji_departemens.nominal_batas_lembur',
-            3 => 'gaji_departemens.total_gaji',
+            4 => 'gaji_departemens.total_gaji',
         );
 
         $limit = $request->input('length');
@@ -629,18 +639,25 @@ class LembureController extends Controller
         $dataTable = [];
 
         if (!empty($setting_upah_lembur)) {
+            $count = 0;
             foreach ($setting_upah_lembur as $data) {
                 $nestedData['departemen'] = $data->nama_departemen;
                 $nestedData['periode'] = Carbon::parse($data->periode)->format('F Y');
                 $nestedData['nominal_batas_lembur'] = 'Rp. ' . number_format($data->nominal_batas_lembur, 0, ',', '.');
+                $nestedData['presentase'] = '
+                    <div class="input-group mb-3">
+                        <input type="number" value="' . ($data->presentase ?? 0) . '" min="0" class="form-control inputGajiDepartemen" id="presentase_'.$count.'"/>
+                    </div>
+                ';
                 $nestedData['total_gaji'] = '
                     <div class="input-group mb-3">
-                        <input type="number" value="' . ($data->total_gaji) . '" min="0" class="form-control inputGajiDepartemen"/>
-                        <button class="btn btn-warning updateGajiDepartemen" type="button" data-id-gaji-departemen="' . $data->id_gaji_departemen . '" data-departemen-id="'.$data->id_departemen.'"><i class="fas fa-save"></i></button>
+                        <input type="number" value="' . ($data->total_gaji ?? 0) . '" min="0" class="form-control inputGajiDepartemen" id="total_gaji_'.$count.'"/>
+                        <button class="btn btn-warning updateGajiDepartemen" type="button" data-id-gaji-departemen="' . $data->id_gaji_departemen . '" data-departemen-id="'.$data->departemen_id.'" data-urutan="'.$count.'"><i class="fas fa-save"></i></button>
                     </div>
                 ';
 
                 $dataTable[] = $nestedData;
+                $count++;
             }
         }
 
@@ -1498,6 +1515,7 @@ class LembureController extends Controller
     {
         $dataValidate = [
             'total_gaji' => ['required', 'numeric', 'min:0'],
+            'presentase' => ['required', 'numeric', 'min:0'],
             'id_gaji_departemen' => ['required'],
         ];
 
@@ -1511,9 +1529,11 @@ class LembureController extends Controller
         DB::beginTransaction();
         try{
             $gaji_departemen = GajiDepartemen::find($request->id_gaji_departemen);
-            $nominal_batas_lembur = intval($request->total_gaji * 0.15);
+            $presentase = $request->presentase;
+            $nominal_batas_lembur = intval($request->total_gaji * ($presentase / 100));
             if($gaji_departemen){
                 $gaji_departemen->total_gaji = $request->total_gaji;
+                $gaji_departemen->presentase = $presentase;
                 $gaji_departemen->nominal_batas_lembur = $nominal_batas_lembur;
                 $gaji_departemen->save();
             } 

@@ -47,6 +47,7 @@ $(function () {
         { data: "departemen" },
         { data: "periode" },
         { data: "nominal_batas_lembur" },
+        { data: "presentase" },
         { data: "total_gaji" },
     ];
 
@@ -108,8 +109,13 @@ $(function () {
             },
         },
         // responsive: true,
+        scrollX: true,
         columns: columnsTable,
         columnDefs: [
+            {
+                orderable: false,
+                targets: [-2],
+            },
             {
                 targets: [-1],
                 createdCell: function (td, cellData, rowData, row, col) {
@@ -146,10 +152,14 @@ $(function () {
         loadingSwalShow();
         let idGajiDepartemen = $(this).data('id-gaji-departemen');
         let departemenId = $(this).data('departemen-id');
+        let urutan = $(this).data('urutan');
+        let presentase = $('#presentase_'+urutan).val();
+        let totalGaji = $('#total_gaji_'+urutan).val();
         let formData = new FormData();
         formData.append('id_gaji_departemen', idGajiDepartemen);
-        formData.append('total_gaji', $(this).closest('tr').find('.inputGajiDepartemen').val());
+        formData.append('total_gaji', totalGaji);
         formData.append('departemen_id', departemenId);
+        formData.append('presentase', presentase);
         formData.append('_method', 'PATCH');
 
         let url = base_url + '/lembure/setting-gaji-departemen/update';

@@ -105,7 +105,9 @@ $(function () {
     var columnsTable = [
         { data: "id_lembur" },
         { data: "issued_date" },
+        { data: "rencana_mulai_lembur" },
         { data: "issued_by" },
+        { data: "departemen" },
         { data: "jenis_hari" },
         { data: "total_durasi"},
         { data: "total_nominal"},
@@ -136,12 +138,14 @@ $(function () {
                 var jenisHari = $('#filterJenisHari').val();
                 var aksi = $('#filterAksi').val();
                 var status = $('#filterStatus').val();
+                var departemen = $('#filterDepartemen').val();
 
                 dataFilter.urutan = urutan;
                 dataFilter.jenisHari = jenisHari;
                 dataFilter.aksi = aksi;
                 dataFilter.status = status;
                 dataFilter.mustChecked = mustChecked;
+                dataFilter.departemen = departemen;
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.responseJSON.data) {
@@ -183,10 +187,11 @@ $(function () {
         },
         // responsive: true,
         columns: columnsTable,
+        scrollX: true,
         columnDefs: [
             {
                 orderable: false,
-                targets: [0,5,-1],
+                targets: [2,7,-1],
             },
             {
                 targets: [-1],
@@ -1637,6 +1642,7 @@ $(function () {
 
     $('.btnResetFilter').on('click', function(){
         $('#filterUrutan').val('');
+        $('#filterDepartemen').val('');
         $('#filterJenisHari').val([]);
         $('#filterAksi').val('');
         $('#filterStatus').val([]);
@@ -1652,6 +1658,9 @@ $(function () {
         dropdownParent: $('#modal-filter')
     });
     $('#filterStatus').select2({
+        dropdownParent: $('#modal-filter')
+    });
+    $('#filterDepartemen').select2({
         dropdownParent: $('#modal-filter')
     });
 
