@@ -70,21 +70,23 @@ $(function () {
                 // }
 
                 let target = [];
-                $.each(batas, function(key, value) {
-                    if (value == 0) return;
+                if(batas){
+                  $.each(batas, function(key, value) {
+                    if (value == null || value == 0) return;
                     target.push({
-                        y: value,
-                        borderColor: '#FF0000', 
-                        label: {
-                            borderColor: '#FF0000',
-                            style: {
-                                color: '#fff',
-                                background: '#FF0000'
-                            },
-                            text: key.toUpperCase() + ' : Rp ' + value.toLocaleString('id-ID')
-                        }
-                    })
-                })
+                          y: value,
+                          borderColor: '#FF0000', 
+                          label: {
+                              borderColor: '#FF0000',
+                              style: {
+                                  color: '#fff',
+                                  background: '#FF0000'
+                              },
+                              text: key.toUpperCase() + ' : Rp ' + value.toLocaleString('id-ID')
+                          }
+                      })
+                  })
+                } 
 
                 var options = {
                     annotations: {
@@ -200,7 +202,7 @@ $(function () {
                       x: departmentName,
                       y: val.total_nominal,
                       goals: [{
-                        value: batas[index]['id_departemen'] == val.id_departemen ? batas[index]['nominal_batas_lembur'] : 0,
+                        value: batas.length > 0 && (batas[index]['id_departemen'] == val.id_departemen) ? batas[index]['nominal_batas_lembur'] : 0,
                         name: 'Batas Budget Lembur',
                         strokeWidth: 5,
                         strokeColor: '#FF0000',
