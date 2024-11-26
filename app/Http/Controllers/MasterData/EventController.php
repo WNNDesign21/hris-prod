@@ -62,7 +62,7 @@ class EventController extends Controller
 
         if (!empty($event)) {
             foreach ($event as $data) {
-                $nestedData['jenis_event'] = $data->jenis_event == 'EP' ? 'Event Perusahaan' : 'Cuti Bersama';
+                $nestedData['jenis_event'] = $data->jenis_event == 'EP' ? 'Event Perusahaan' : ($data->jenis_event == 'CB' ? 'Cuti Bersama' : 'Libur Nasional');
                 $nestedData['keterangan'] = $data->keterangan;
                 $nestedData['durasi'] = $data->durasi.' Hari';
                 $nestedData['tanggal_mulai'] = Carbon::parse($data->tanggal_mulai)->format('d-m-Y');
@@ -110,7 +110,7 @@ class EventController extends Controller
     public function store(Request $request)
     {
         $dataValidate = [
-            'jenis_event' => ['required'],
+            'jenis_event' => ['required', 'in:EP,CB,LN'],
             'keterangan' => ['required'],
             'tanggal_mulai' => ['required', 'date'],
             'tanggal_selesai' => ['required', 'date'],

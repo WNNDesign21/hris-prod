@@ -201,4 +201,31 @@ function($) {
     $('.btnLembur').on('click', function (){
         openLembur();
     })
+
+    // MODAL PROFILE
+    var modalAgendaLemburOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalAgendaLembur = new bootstrap.Modal(
+        document.getElementById("modal-agenda-lembur"),
+        modalAgendaLemburOptions
+    );
+
+    function openAgendaLembur() {
+        modalAgendaLembur.show();
+    }
+
+    function closeAgendaLembur() {
+        modalAgendaLembur.hide();
+    }
+
+    $('.btnCloseAgendaLembur').on('click', function (){
+        closeAgendaLembur();
+    })
+
+    $('.btnAgendaLembur').on('click', function (){
+        openAgendaLembur();
+    })
 }(window.jQuery);

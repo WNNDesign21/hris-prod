@@ -19,6 +19,7 @@
                                         style="width:100%;">
                                         <option value="">Pilih Jenis Event</option>
                                         <option value="CB">Cuti Bersama</option>
+                                        <option value="LN">Libur Nasional</option>
                                         <option value="EP">Event Perusahaan</option>
                                     </select>
                                 </div>
