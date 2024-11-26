@@ -113,16 +113,16 @@ class LembureController extends Controller
         $columns = array(
             0 => 'lemburs.id_lembur',
             1 => 'lemburs.issued_date',
-            2 => 'karyawans.nama',
-            3 => 'lemburs.jenis_hari',
-            4 => 'lemburs.total_durasi',
-            5 => 'lemburs.status',
-            6 => 'lemburs.plan_checked_by',
-            7=> 'lemburs.plan_approved_by',
-            8 => 'lemburs.plan_legalized_by',
-            9 => 'lemburs.actual_checked_by',
-            10 => 'lemburs.actual_approved_by',
-            11 => 'lemburs.actual_legalized_by'
+            3 => 'karyawans.nama',
+            4 => 'lemburs.jenis_hari',
+            5 => 'lemburs.total_durasi',
+            6 => 'lemburs.status',
+            7 => 'lemburs.plan_checked_by',
+            8=> 'lemburs.plan_approved_by',
+            9 => 'lemburs.plan_legalized_by',
+            10 => 'lemburs.actual_checked_by',
+            11 => 'lemburs.actual_approved_by',
+            12 => 'lemburs.actual_legalized_by'
         );
 
         $limit = $request->input('length');
@@ -178,6 +178,7 @@ class LembureController extends Controller
 
                 $nestedData['id_lembur'] = $data->id_lembur;
                 $nestedData['issued_date'] = Carbon::parse($data->issued_date)->locale('id')->translatedFormat('l, d F Y');
+                $nestedData['rencana_mulai_lembur'] = Carbon::parse($data->detailLembur[0]->rencana_mulai_lembur)->locale('id')->translatedFormat('l, d F Y');
                 $nestedData['issued_by'] = $data->nama_karyawan;
                 $nestedData['jenis_hari'] = $data->jenis_hari;
                 $nestedData['total_durasi'] = $jam . ' Jam ' . $menit . ' Menit';

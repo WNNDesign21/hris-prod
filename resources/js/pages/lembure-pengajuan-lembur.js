@@ -115,6 +115,7 @@ $(function () {
     var columnsTable = [
         { data: "id_lembur" },
         { data: "issued_date" },
+        { data: "rencana_mulai_lembur" },
         { data: "issued_by" },
         { data: "jenis_hari" },
         { data: "total_durasi"},
@@ -191,7 +192,7 @@ $(function () {
         columnDefs: [
             {
                 orderable: false,
-                targets: [0,-1],
+                targets: [2,-1],
             },
             {
                 targets: [-1],
