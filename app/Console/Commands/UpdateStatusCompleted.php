@@ -6,6 +6,8 @@ use Exception;
 use App\Models\Cutie;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Spatie\Activitylog\Models\Activity;
+
 
 class UpdateStatusCompleted extends Command
 {
@@ -38,7 +40,7 @@ class UpdateStatusCompleted extends Command
                 'status_cuti' => 'COMPLETED',
                 'aktual_selesai_cuti' => $today
             ]);
-            activity('update_status_completed')->withProperties($cuti)->performedOn($cuti)->log('Update Status Completed Cuti Otomatis per tanggal -'. $today);
+            activity('update_status_completed')->log('Update Status Completed Cuti Otomatis per tanggal -'. $today);
             DB::commit();
             $this->info('Status cuti karyawan berhasil diperbarui');
         } catch (Exception $e) {
