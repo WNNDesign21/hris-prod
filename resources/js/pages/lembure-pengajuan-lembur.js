@@ -115,6 +115,7 @@ $(function () {
     var columnsTable = [
         { data: "id_lembur" },
         { data: "issued_date" },
+        { data: "rencana_mulai_lembur" },
         { data: "issued_by" },
         { data: "jenis_hari" },
         { data: "total_durasi"},
@@ -186,11 +187,12 @@ $(function () {
             },
         },
         // responsive: true,
+        scrollX: true,
         columns: columnsTable,
         columnDefs: [
             {
                 orderable: false,
-                targets: [0,-1],
+                targets: [2,-1],
             },
             {
                 targets: [-1],
@@ -274,26 +276,10 @@ $(function () {
                     </input>
                 </td>
                 <td>
-                    <div class="input-group" id="datetimepicker_rencana_mulai_${count}" data-td-target-input="nearest"
-                        data-td-target-toggle="nearest">
-                        <input id="rencana_mulai_lembur_${count}" name="rencana_mulai_lembur[]" type="text" class="form-control rencanaMulaiLembur"
-                            data-td-target="#datetimepicker_rencana_mulai_${count}" data-urutan="${count}">
-                        <span class="input-group-text" data-td-target="#datetimepicker_rencana_mulai_${count}"
-                            data-td-toggle="datetimepicker">
-                            <i class="fa fa-calendar"></i>
-                        </span>
-                    </div>
+                    <input id="rencana_mulai_lembur_${count}" name="rencana_mulai_lembur[]" type="datetime-local" class="form-control rencanaMulaiLembur" data-urutan="${count}">
                 </td>
                 <td>
-                    <div class="input-group" id="datetimepicker_rencana_selesai_${count}" data-td-target-input="nearest"
-                        data-td-target-toggle="nearest">
-                        <input id="rencana_selesai_lembur_${count}" name="rencana_selesai_lembur[]" type="text" class="form-control rencanaSelesaiLembur"
-                            data-td-target="#datetimepicker_rencana_selesai_${count}" data-urutan="${count}">
-                        <span class="input-group-text" data-td-target="#datetimepicker_rencana_selesai_${count}"
-                            data-td-toggle="datetimepicker">
-                            <i class="fa fa-calendar"></i>
-                        </span>
-                    </div>
+                    <input id="rencana_selesai_lembur_${count}" name="rencana_selesai_lembur[]" type="datetime-local" class="form-control rencanaSelesaiLembur" data-urutan="${count}">
                 </td>
                 <td>
                     <div class="btn-group">
@@ -307,27 +293,45 @@ $(function () {
 
 
         //DATE
-        const rencanaMulaiElement = document.getElementById('rencana_mulai_lembur_'+count);
-        const rencanaSelesaiElement = document.getElementById('rencana_selesai_lembur_'+count);
-        let now = moment().format('YYYY-MM-DD 00:00');
+        // const rencanaMulaiElement = document.getElementById('rencana_mulai_lembur_'+count);
+        // const rencanaSelesaiElement = document.getElementById('rencana_selesai_lembur_'+count);
+        // let now = moment().format('YYYY-MM-DD 00:00');
         
-        initializeTempus(rencanaMulaiElement, now);
-        initializeTempus(rencanaSelesaiElement, now);
-        rencanaMulaiElement.value = now;
-        rencanaSelesaiElement.value = now;
+        // initializeTempus(rencanaMulaiElement, now);
+        // initializeTempus(rencanaSelesaiElement, now);
+        // rencanaMulaiElement.value = now;
+        // rencanaSelesaiElement.value = now;
 
-        rencanaMulaiElement.addEventListener('change', function() {
-            const selectedValue = this.value;
-            rencanaSelesaiElement.value = selectedValue;
-            initializeTempus(rencanaSelesaiElement, selectedValue);
-        });
+        // rencanaMulaiElement.addEventListener('change', function() {
+        //     const selectedValue = this.value;
+        //     rencanaSelesaiElement.value = selectedValue;
+        //     initializeTempus(rencanaSelesaiElement, selectedValue);
+        // });
         
-        rencanaSelesaiElement.addEventListener('change', function() {
-            if(this.value < rencanaMulaiElement.value){
-                rencanaMulaiElement.value = this.value;
-            }
-        });
+        // rencanaSelesaiElement.addEventListener('change', function() {
+        //     if(this.value < rencanaMulaiElement.value){
+        //         rencanaMulaiElement.value = this.value;
+        //     }
+        // });
 
+        let minDate = moment().format('YYYY-MM-DDT00:00');
+         
+        $('#rencana_mulai_lembur_' + count).attr('min', minDate);
+        $('#rencana_selesai_lembur_' + count).attr('min', minDate);
+
+        // $('#rencana_mulai_lembur_' + count).on('change', function(){
+        //     let startTime = moment($(this).val()).format('YYYY-MM-DDT00:00');
+        //     $('#rencana_selesai_lembur_' + count).attr('min', startTime);
+        //     if($(this).val() > $('#rencana_selesai_lembur_' + count).val()){
+        //         $('#rencana_selesai_lembur_' + count).val($(this).val());
+        //     }
+        // });
+
+        // $('#rencana_selesai_lembur_' + count).on('change', function(){
+        //     if($(this).val() < $('#rencana_mulai_lembur_' + count).val()){
+        //         $(this).val( $('#rencana_mulai_lembur_' + count).val());
+        //     }
+        // })
         
 
         if(jumlah_detail_lembur == 0){
@@ -360,8 +364,6 @@ $(function () {
                 let filteredData = data.results.filter(function (item) {
                 return !selectedIds.includes(item.id);
                 });
-
-                params.page = params.page || 1;
 
                 return {
                     results: filteredData,
@@ -478,7 +480,6 @@ $(function () {
                 let jenisHari = header.jenis_hari == 'WEEKEND' ? 'WE' : 'WD';
                 let detail = response.data.detail_lembur;
                 detailCount += detail.length;
-                console.log(detailCount);
                 let tbody = $('#list-detail-lembur-edit').empty();
                 
                 $.each(detail, function (i, val){
@@ -496,26 +497,12 @@ $(function () {
                                 </input>
                             </td>
                             <td>
-                                <div class="input-group" id="datetimepicker_rencana_mulaiEdit_${i}" data-td-target-input="nearest"
-                                    data-td-target-toggle="nearest">
-                                    <input id="rencana_mulai_lemburEdit_${i}" name="rencana_mulai_lemburEdit[]" type="text" class="form-control rencanaMulaiLemburEdit"
-                                        data-td-target="#datetimepicker_rencana_mulaiEdit_${i}" data-urutan="${i}" data-mulai="${val.rencana_mulai_lembur}" required>
-                                    <span class="input-group-text" data-td-target="#datetimepicker_rencana_mulaiEdit_${i}"
-                                        data-td-toggle="datetimepicker">
-                                        <i class="fa fa-calendar"></i>
-                                    </span>
-                                </div>
+                                <input id="rencana_mulai_lemburEdit_${i}" name="rencana_mulai_lemburEdit[]" type="datetime-local" class="form-control rencanaMulaiLemburEdit"
+                                        data-urutan="${i}" data-mulai="${val.rencana_mulai_lembur}" required>
                             </td>
                             <td>
-                                <div class="input-group" id="datetimepicker_rencana_selesaiEdit_${i}" data-td-target-input="nearest"
-                                    data-td-target-toggle="nearest">
-                                    <input id="rencana_selesai_lemburEdit_${i}" name="rencana_selesai_lemburEdit[]" type="text" class="form-control rencanaSelesaiLemburEdit"
-                                        data-td-target="#datetimepicker_rencana_selesaiEdit_${i}" data-urutan="${i}" data-selesai="${val.rencana_selesai_lembur}" required>
-                                    <span class="input-group-text" data-td-target="#datetimepicker_rencana_selesaiEdit_${i}"
-                                        data-td-toggle="datetimepicker">
-                                        <i class="fa fa-calendar"></i>
-                                    </span>
-                                </div>
+                                <input id="rencana_selesai_lemburEdit_${i}" name="rencana_selesai_lemburEdit[]" type="datetime-local" class="form-control rencanaSelesaiLemburEdit"
+                                         data-urutan="${i}" data-selesai="${val.rencana_selesai_lembur}" required>
                             </td>
                             <td>
                                 -
@@ -525,27 +512,32 @@ $(function () {
 
 
                     //DATE
-                    const rencanaMulaiElement = document.getElementById('rencana_mulai_lemburEdit_'+i);
-                    const rencanaSelesaiElement = document.getElementById('rencana_selesai_lemburEdit_'+i);
-                    let minDateMulai = moment(val.rencana_mulai_lembur).format('YYYY-MM-DD 00:00');
+                    // const rencanaMulaiElement = document.getElementById('rencana_mulai_lemburEdit_'+i);
+                    // const rencanaSelesaiElement = document.getElementById('rencana_selesai_lemburEdit_'+i);
+                    // let minDateMulai = moment(val.rencana_mulai_lembur).format('YYYY-MM-DD 00:00');
                     
-                    initializeTempus(rencanaMulaiElement, minDateMulai);
-                    initializeTempus(rencanaSelesaiElement, minDateMulai);
+                    // initializeTempus(rencanaMulaiElement, minDateMulai);
+                    // initializeTempus(rencanaSelesaiElement, minDateMulai);
 
-                    rencanaMulaiElement.addEventListener('change', function() {
-                        const selectedValue = this.value;
-                        rencanaSelesaiElement.value = selectedValue;
-                        if(rencanaSelesaiElement.value < selectedValue){
-                            rencanaSelesaiElement.value = selectedValue;
-                        }
-                        initializeTempus(rencanaSelesaiElement, this.value);
-                    });
+                    // rencanaMulaiElement.addEventListener('change', function() {
+                    //     const selectedValue = this.value;
+                    //     rencanaSelesaiElement.value = selectedValue;
+                    //     if(rencanaSelesaiElement.value < selectedValue){
+                    //         rencanaSelesaiElement.value = selectedValue;
+                    //     }
+                    //     initializeTempus(rencanaSelesaiElement, this.value);
+                    // });
 
-                    rencanaSelesaiElement.addEventListener('change', function() {
-                        if(this.value < rencanaMulaiElement.value){
-                            rencanaMulaiElement.value = this.value;
-                        }
-                    });
+                    // rencanaSelesaiElement.addEventListener('change', function() {
+                    //     if(this.value < rencanaMulaiElement.value){
+                    //         rencanaMulaiElement.value = this.value;
+                    //     }
+                    // });
+
+                    let minDate = moment(val.rencana_mulai_lembur).format('YYYY-MM-DDT00:00');
+         
+                    $('#rencana_mulai_lemburEdit_' + i).attr('min', minDate);
+                    $('#rencana_selesai_lemburEdit_' + i).attr('min', minDate);
 
                     selectedKaryawanLembur(i, val.karyawan_id);
                     $('#job_descriptionEdit_' + i).val(val.deskripsi_pekerjaan);
@@ -620,59 +612,107 @@ $(function () {
     }
 
      //Rencana Mulai & Selesai Lembur Logic
-    $('#table-detail-lembur').on("change", '.rencanaMulaiLembur', function () {
-        let urutan = $(this).data('urutan');
-        let startTime = $(this).val();
-        // $('#rencana_selesai_lembur_' + urutan).val('').attr('min', startTime);
-    });
+    // $('#table-detail-lembur').on("change", '.rencanaMulaiLembur', function () {
+    //     let urutan = $(this).data('urutan');
+    //     let startTime = $(this).val();
+    //     // $('#rencana_selesai_lembur_' + urutan).val('').attr('min', startTime);
+    // });
 
-    $('#table-detail-lembur').on("change", '.rencanaSelesaiLembur' , function () {
+    // $('#table-detail-lembur').on("change", '.rencanaSelesaiLembur' , function () {
+    //     let urutan = $(this).data('urutan');
+    //     let startTime = $('#rencana_mulai_lembur_' + urutan).val();
+    //     let endTime = $(this).val();
+    //     if (endTime < startTime) {
+    //         $(this).val('');
+    //         showToast({ title: "Waktu selesai lembur tidak boleh kurang dari waktu mulai lembur", icon: "error" });
+    //     }
+    // });
+
+    // $('#table-detail-lembur-edit').on("change", '.rencanaMulaiLemburEditNew', function () {
+    //     let urutan = $(this).data('urutan');
+    //     let startTime = $(this).val();
+    //     $('#rencana_selesai_lemburEditNew_' + urutan).val('').attr('min', startTime);
+    // });
+
+    // $('#table-detail-lembur-edit').on("change", '.rencanaSelesaiLemburEditNew' , function () {
+    //     let urutan = $(this).data('urutan');
+    //     let startTime = $('#rencana_mulai_lemburEditNew_' + urutan).val();
+    //     let endTime = $(this).val();
+    //     if (endTime < startTime) {
+    //         $(this).val('');
+    //         showToast({ title: "Waktu selesai lembur tidak boleh kurang dari waktu mulai lembur", icon: "error" });
+    //     }
+    // });
+
+    // $('#table-detail-lembur-edit').on("change", '.rencanaMulaiLemburEdit', function () {
+    //     let urutan = $(this).data('urutan');
+    //     let startTime = $(this).val();
+    //     $('#rencana_selesai_lemburEdit_' + urutan).val('').attr('min', startTime);
+    // });
+
+    // $('#table-detail-lembur-edit').on("change", '.rencanaSelesaiLemburEdit' , function () {
+    //     let urutan = $(this).data('urutan');
+    //     let startTime = $('#rencana_mulai_lemburEdit_' + urutan).val();
+    //     let endTime = $(this).val();
+    //     let oldEndTime = $(this).data('selesai');
+    //     if (endTime < startTime) {
+    //         $(this).val(oldEndTime);
+    //         showToast({ title: "Waktu selesai lembur tidak boleh kurang dari waktu mulai lembur", icon: "error" });
+    //     }
+    // });
+
+    //NEW 
+    $('#table-detail-lembur').on('change','.rencanaMulaiLembur', function(){
         let urutan = $(this).data('urutan');
-        let startTime = $('#rencana_mulai_lembur_' + urutan).val();
-        let endTime = $(this).val();
-        if (endTime < startTime) {
-            $(this).val('');
-            showToast({ title: "Waktu selesai lembur tidak boleh kurang dari waktu mulai lembur", icon: "error" });
+        let startTime = moment($(this).val()).format('YYYY-MM-DDT00:00');
+        $('#rencana_selesai_lembur_' + urutan).attr('min', startTime);
+        if($(this).val() > $('#rencana_selesai_lembur_' + urutan).val()){
+            $('#rencana_selesai_lembur_' + urutan).val($(this).val());
         }
     });
 
-    $('#table-detail-lembur-edit').on("change", '.rencanaMulaiLemburEditNew', function () {
+    $('#table-detail-lembur').on('change', '.rencanaSelesaiLembur', function(){
         let urutan = $(this).data('urutan');
-        let startTime = $(this).val();
-        $('#rencana_selesai_lemburEditNew_' + urutan).val('').attr('min', startTime);
-    });
+        if($(this).val() < $('#rencana_mulai_lembur_' + urutan).val()){
+            $(this).val( $('#rencana_mulai_lembur_' + urutan).val());
+        }
+    })
 
-    $('#table-detail-lembur-edit').on("change", '.rencanaSelesaiLemburEditNew' , function () {
+    $('#table-detail-lembur-edit').on('change', '.rencanaMulaiLemburEdit', function(){
         let urutan = $(this).data('urutan');
-        let startTime = $('#rencana_mulai_lemburEditNew_' + urutan).val();
-        let endTime = $(this).val();
-        if (endTime < startTime) {
-            $(this).val('');
-            showToast({ title: "Waktu selesai lembur tidak boleh kurang dari waktu mulai lembur", icon: "error" });
+        let startTime = moment($(this).val()).format('YYYY-MM-DDT00:00');
+        $('#rencana_selesai_lemburEdit_' + urutan).attr('min', startTime);
+        if($(this).val() > $('#rencana_selesai_lemburEdit_' + urutan).val()){
+            $('#rencana_selesai_lemburEdit_' + urutan).val($(this).val());
         }
     });
 
-    $('#table-detail-lembur-edit').on("change", '.rencanaMulaiLemburEdit', function () {
+    $('#table-detail-lembur-edit').on('change', '.rencanaSelesaiLemburEdit', function(){
         let urutan = $(this).data('urutan');
-        let startTime = $(this).val();
-        $('#rencana_selesai_lemburEdit_' + urutan).val('').attr('min', startTime);
-    });
+        if($(this).val() < $('#rencana_mulai_lemburEdit_' + urutan).val()){
+            $(this).val($(this).data('selesai'));
+        }
+    })
 
-    $('#table-detail-lembur-edit').on("change", '.rencanaSelesaiLemburEdit' , function () {
+    $('#table-detail-lembur-edit').on('change', '.rencanaMulaiLemburEditNew', function(){
         let urutan = $(this).data('urutan');
-        let startTime = $('#rencana_mulai_lemburEdit_' + urutan).val();
-        let endTime = $(this).val();
-        let oldEndTime = $(this).data('selesai');
-        if (endTime < startTime) {
-            $(this).val(oldEndTime);
-            showToast({ title: "Waktu selesai lembur tidak boleh kurang dari waktu mulai lembur", icon: "error" });
+        let startTime = moment($(this).val()).format('YYYY-MM-DDT00:00');
+        $('#rencana_selesai_lemburEditNew_' + urutan).attr('min', startTime);
+        if($(this).val() > $('#rencana_selesai_lemburEditNew_' + urutan).val()){
+            $('#rencana_selesai_lemburEditNew_' + urutan).val($(this).val());
         }
     });
+
+    $('#table-detail-lembur-edit').on('change', '.rencanaSelesaiLemburEditNew',  function(){
+        let urutan = $(this).data('urutan');
+        if($(this).val() < $('#rencana_mulai_lemburEditNew_' + urutan).val()){
+            $(this).val( $('#rencana_mulai_lemburEditNew_' + urutan).val());
+        }
+    })
 
     // EDIT
     $('.btnAddDetailLemburEdit').on("click", function (){
         detailCount++;
-        console.log(detailCount);
         let tbody = $('#list-detail-lembur-edit');
         tbody.append(`
              <tr>
@@ -687,26 +727,12 @@ $(function () {
                     </input>
                 </td>
                 <td>
-                    <div class="input-group" id="datetimepicker_rencana_mulaiEditNew_${detailCount}" data-td-target-input="nearest"
-                        data-td-target-toggle="nearest">
-                        <input id="rencana_mulai_lemburEditNew_${detailCount}" name="rencana_mulai_lemburEditNew[]" type="text" class="form-control rencanaMulaiLemburEditNew"
-                            data-td-target="#datetimepicker_rencana_mulaiEditNew_${detailCount}" data-urutan="${detailCount}" required>
-                        <span class="input-group-text" data-td-target="#datetimepicker_rencana_mulaiEditNew_${detailCount}"
-                            data-td-toggle="datetimepicker">
-                            <i class="fa fa-calendar"></i>
-                        </span>
-                    </div>
+                    <input id="rencana_mulai_lemburEditNew_${detailCount}" name="rencana_mulai_lemburEditNew[]" type="datetime-local" class="form-control rencanaMulaiLemburEditNew"
+                             data-urutan="${detailCount}" required>
                 </td>
                 <td>
-                    <div class="input-group" id="datetimepicker_rencana_selesaiEditNew_${detailCount}" data-td-target-input="nearest"
-                        data-td-target-toggle="nearest">
-                        <input id="rencana_selesai_lemburEditNew_${detailCount}" name="rencana_selesai_lemburEditNew[]" type="text" class="form-control rencanaSelesaiLemburEditNew"
-                            data-td-target="#datetimepicker_rencana_selesaiEditNew_${detailCount}" data-urutan="${detailCount}" required>
-                        <span class="input-group-text" data-td-target="#datetimepicker_rencana_selesaiEditNew_${detailCount}"
-                            data-td-toggle="datetimepicker">
-                            <i class="fa fa-calendar"></i>
-                        </span>
-                    </div>
+                    <input id="rencana_selesai_lemburEditNew_${detailCount}" name="rencana_selesai_lemburEditNew[]" type="datetime-local" class="form-control rencanaSelesaiLemburEditNew"
+                            data-urutan="${detailCount}" required>
                 </td>
                 <td>
                     <div class="btn-group">
@@ -718,27 +744,32 @@ $(function () {
             </tr>
         `)
 
-        const rencanaMulaiElement = document.getElementById('rencana_mulai_lemburEditNew_'+detailCount);
-        const rencanaSelesaiElement = document.getElementById('rencana_selesai_lemburEditNew_'+detailCount);
-        let now = moment().format('YYYY-MM-DD 00:00');
+        // const rencanaMulaiElement = document.getElementById('rencana_mulai_lemburEditNew_'+detailCount);
+        // const rencanaSelesaiElement = document.getElementById('rencana_selesai_lemburEditNew_'+detailCount);
+        // let now = moment().format('YYYY-MM-DD 00:00');
         
-        initializeTempus(rencanaMulaiElement, now);
-        initializeTempus(rencanaSelesaiElement, now);
+        // initializeTempus(rencanaMulaiElement, now);
+        // initializeTempus(rencanaSelesaiElement, now);
 
-        rencanaMulaiElement.addEventListener('change', function() {
-            const selectedValue = this.value;
-            rencanaSelesaiElement.value = selectedValue;
-            if(rencanaSelesaiElement.value < selectedValue){
-                rencanaSelesaiElement.value = selectedValue;
-            }
-            initializeTempus(rencanaSelesaiElement, this.value);
-        });
+        // rencanaMulaiElement.addEventListener('change', function() {
+        //     const selectedValue = this.value;
+        //     rencanaSelesaiElement.value = selectedValue;
+        //     if(rencanaSelesaiElement.value < selectedValue){
+        //         rencanaSelesaiElement.value = selectedValue;
+        //     }
+        //     initializeTempus(rencanaSelesaiElement, this.value);
+        // });
 
-        rencanaSelesaiElement.addEventListener('change', function() {
-            if(this.value < rencanaMulaiElement.value){
-                rencanaMulaiElement.value = this.value;
-            }
-        });
+        // rencanaSelesaiElement.addEventListener('change', function() {
+        //     if(this.value < rencanaMulaiElement.value){
+        //         rencanaMulaiElement.value = this.value;
+        //     }
+        // });
+
+        let minDate = moment().format('YYYY-MM-DDT00:00');
+         
+        $('#rencana_mulai_lemburEditNew_' + detailCount).attr('min', minDate);
+        $('#rencana_selesai_lemburEditNew_' + detailCount).attr('min', minDate);
 
         if(detailCount == 0){
             $('.btnUpdateDetailLembur').attr('disabled', true);
@@ -789,30 +820,30 @@ $(function () {
         });
     })
 
-    $('#table-detail-lembur-edit').on("click",'.btnDeleteDetailLemburEdit', function (){
-        detailCount--;
-        let urutan = $(this).data('urutan');
-        $(`#btn_delete_detail_lemburEdit_${urutan}`).closest('tr').remove();
+    // $('#table-detail-lembur-edit').on("click",'.btnDeleteDetailLemburEdit', function (){
+    //     detailCount--;
+    //     let urutan = $(this).data('urutan');
+    //     $(`#btn_delete_detail_lemburEdit_${urutan}`).closest('tr').remove();
 
-        if(detailCount == 0){
-            $('.btnUpdateDetailLembur').attr('disabled', true);
-        } else {
-            $('.btnUpdateDetailLembur').attr('disabled', false);
-        }
-    });
+    //     if(detailCount == 0){
+    //         $('.btnUpdateDetailLembur').attr('disabled', true);
+    //     } else {
+    //         $('.btnUpdateDetailLembur').attr('disabled', false);
+    //     }
+    // });
 
-    $('#table-detail-lembur-edit').on("click",'.btnDeleteDetailLemburEditNew', function (){
-        detailCount--;
-        console.log(detailCount);
-        let urutan = $(this).data('urutan');
-        $(`#btn_delete_detail_lemburEditNew_${urutan}`).closest('tr').remove();
+    // $('#table-detail-lembur-edit').on("click",'.btnDeleteDetailLemburEditNew', function (){
+    //     detailCount--;
+    //     console.log(detailCount);
+    //     let urutan = $(this).data('urutan');
+    //     $(`#btn_delete_detail_lemburEditNew_${urutan}`).closest('tr').remove();
 
-        if(detailCount == 0){
-            $('.btnUpdateDetailLembur').attr('disabled', true);
-        } else {
-            $('.btnUpdateDetailLembur').attr('disabled', false);
-        }
-    });
+    //     if(detailCount == 0){
+    //         $('.btnUpdateDetailLembur').attr('disabled', true);
+    //     } else {
+    //         $('.btnUpdateDetailLembur').attr('disabled', false);
+    //     }
+    // });
 
     // DELETE
     $('#lembur-table').on('click', '.btnDelete', function (){
@@ -882,22 +913,22 @@ $(function () {
         closeDone();
     })
 
-    $('#table-detail-lembur-done').on("change", '.aktualMulaiLembur', function () {
-        let urutan = $(this).data('urutan');
-        let startTime = $(this).val();
-        $('#aktual_selesai_lembur_' + urutan).val('').attr('min', startTime);
-    });
+    // $('#table-detail-lembur-done').on("change", '.aktualMulaiLembur', function () {
+    //     let urutan = $(this).data('urutan');
+    //     let startTime = $(this).val();
+    //     $('#aktual_selesai_lembur_' + urutan).val('').attr('min', startTime);
+    // });
 
-    $('#table-detail-lembur-done').on("change", '.aktualSelesaiLembur' , function () {
-        let urutan = $(this).data('urutan');
-        let startTime = $('#aktual_mulai_lembur_' + urutan).val();
-        let endTime = $(this).val();
-        let oldEndTime = $(this).data('selesai');
-        if (endTime < startTime) {
-            $(this).val(oldEndTime);
-            showToast({ title: "Waktu selesai lembur tidak boleh kurang dari waktu mulai lembur", icon: "error" });
-        }
-    });
+    // $('#table-detail-lembur-done').on("change", '.aktualSelesaiLembur' , function () {
+    //     let urutan = $(this).data('urutan');
+    //     let startTime = $('#aktual_mulai_lembur_' + urutan).val();
+    //     let endTime = $(this).val();
+    //     let oldEndTime = $(this).data('selesai');
+    //     if (endTime < startTime) {
+    //         $(this).val(oldEndTime);
+    //         showToast({ title: "Waktu selesai lembur tidak boleh kurang dari waktu mulai lembur", icon: "error" });
+    //     }
+    // });
 
     $('#lembur-table').on('click', '.btnDone', function(){
         loadingSwalShow();
@@ -917,6 +948,41 @@ $(function () {
                 let status = header.status;
                 let detail = response.data.detail_lembur;
                 let tbody = $('#list-detail-lembur-done').empty();
+
+                //attachment
+                let attachmentLembur = response.data.attachment;
+                let previewElement = $('.previewAttachmentLembur').empty();
+
+                if(attachmentLembur.length > 0){
+                    $.each(attachmentLembur, function (i, val){
+                        let ext = val.path.split('.').pop();
+                        if(ext == 'pdf'){
+                            previewElement.append(`
+                            <a id="attachment_${i}" href="${base_url}/storage/${val.path}" data-title="Attachment Ke-${i}" target="_blank">
+                                <img src="${base_url}/img/pdf-img.png" alt="Attachment Ke-${i}" style="width: 3.5rem;height: 3.5rem;" class="p-0">
+                            </a>`);
+                        } else {
+                            previewElement.append(`
+                            <a id="attachment_${i}" href="${base_url}/storage/${val.path}" data-title="Attachment Ke-${i}" class="image-popup-vertical-fit">
+                                <img src="${base_url}/storage/${val.path}" alt="Attachment Ke-${i}" style="width: 3.5rem;height: 3.5rem;" class="img-fluid p-0">
+                            </a>`);
+                        }
+                    });
+                } else {
+                    previewElement.append(`<p>No Attachment Uploaded</p>`);
+                }
+
+                //REINITALIZE LIGHTBOX
+                if ($('.image-popup-vertical-fit').length) {
+                    $('.image-popup-vertical-fit').magnificPopup({
+                        type: 'image',
+                        closeOnContentClick: true,
+                        mainClass: 'mfp-img-mobile',
+                        image: {
+                            verticalFit: true
+                        }
+                    });
+                }
                 
                 $.each(detail, function (i, val){
                     tbody.append(`
@@ -929,26 +995,10 @@ $(function () {
                                 <div id="job_description_${i}" class="${val.is_rencana_approved == 'N' ? 'text-white' : ''}"></div>
                             </td>
                             <td>
-                                ${val.is_rencana_approved !== 'N' ? `<div class="input-group" id="datetimepicker_aktual_mulai_${i}" data-td-target-input="nearest"
-                                    data-td-target-toggle="nearest">
-                                    <input id="aktual_mulai_lembur_${i}" name="aktual_mulai_lembur[]" type="text" class="form-control aktualMulaiLembur"
-                                        data-td-target="#datetimepicker_aktual_mulai_${i}" data-urutan="${i}" data-mulai="${val.rencana_mulai_lembur}" required>
-                                    <span class="input-group-text" data-td-target="#datetimepicker_aktual_mulai_${i}"
-                                        data-td-toggle="datetimepicker">
-                                        <i class="fa fa-calendar"></i>
-                                    </span>
-                                </div>` : `-`}
+                                ${val.is_rencana_approved !== 'N' ? `<input id="aktual_mulai_lembur_${i}" name="aktual_mulai_lembur[]" type="datetime-local" class="form-control aktualMulaiLembur" data-urutan="${i}" data-mulai="${val.rencana_mulai_lembur}" required>` : `-`}
                             </td>
                             <td>
-                                ${val.is_rencana_approved !== 'N' ? `<div class="input-group" id="datetimepicker_aktual_selesai_${i}" data-td-target-input="nearest"
-                                    data-td-target-toggle="nearest">
-                                    <input id="aktual_selesai_lembur_${i}" name="aktual_selesai_lembur[]" type="text" class="form-control aktualSelesaiLembur"
-                                        data-td-target="#datetimepicker_aktual_selesai_${i}" data-urutan="${i}" data-selesai="${val.rencana_selesai_lembur}" required>
-                                    <span class="input-group-text" data-td-target="#datetimepicker_aktual_selesai_${i}"
-                                        data-td-toggle="datetimepicker">
-                                        <i class="fa fa-calendar"></i>
-                                    </span>
-                                </div>` : `-`}
+                                ${val.is_rencana_approved !== 'N' ? `<input id="aktual_selesai_lembur_${i}" name="aktual_selesai_lembur[]" type="datetime-local" class="form-control aktualSelesaiLembur" data-urutan="${i}" data-selesai="${val.rencana_selesai_lembur}" required>` : `-`}
                             </td>
                             <td>
                             ${val.is_rencana_approved !== 'N' ? `<input type="text" name="keterangan[]"
@@ -963,32 +1013,50 @@ $(function () {
                         </tr>
                     `)
 
-                    if(val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N'){
-                        const aktualMulaiElement = document.getElementById('aktual_mulai_lembur_'+i);
-                        const aktualSelesaiElement = document.getElementById('aktual_selesai_lembur_'+i);
-                        let mulai = moment(val.rencana_mulai_lembur).format('YYYY-MM-DD 00:00');
+                    // if(val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N'){
+                    //     const aktualMulaiElement = document.getElementById('aktual_mulai_lembur_'+i);
+                    //     const aktualSelesaiElement = document.getElementById('aktual_selesai_lembur_'+i);
+                    //     let mulai = moment(val.rencana_mulai_lembur).format('YYYY-MM-DD 00:00');
                         
-                        initializeTempus(aktualMulaiElement, mulai);
-                        initializeTempus(aktualSelesaiElement, mulai);
+                    //     initializeTempus(aktualMulaiElement, mulai);
+                    //     initializeTempus(aktualSelesaiElement, mulai);
 
-                        aktualMulaiElement.addEventListener('change', function() {
-                            const selectedValue = this.value;
-                            aktualSelesaiElement.value = selectedValue;
-                            if(aktualSelesaiElement.value < selectedValue){
-                                aktualSelesaiElement.value = selectedValue;
-                            }
-                            initializeTempus(aktualSelesaiElement, this.value);
-                        });
+                    //     aktualMulaiElement.addEventListener('change', function() {
+                    //         const selectedValue = this.value;
+                    //         aktualSelesaiElement.value = selectedValue;
+                    //         if(aktualSelesaiElement.value < selectedValue){
+                    //             aktualSelesaiElement.value = selectedValue;
+                    //         }
+                    //         initializeTempus(aktualSelesaiElement, this.value);
+                    //     });
 
-                        aktualSelesaiElement.addEventListener('change', function() {
-                            if(this.value < aktualMulaiElement.value){
-                                this.value = this.dataset.selesai;
-                            }
-                        });
-                    }
+                    //     aktualSelesaiElement.addEventListener('change', function() {
+                    //         if(this.value < aktualMulaiElement.value){
+                    //             this.value = this.dataset.selesai;
+                    //         }
+                    //     });
+                    // }
+
+                    let minDate = moment(val.rencana_mulai_lembur).format('YYYY-MM-DDT00:00');
+         
+                    $('#aktual_mulai_lembur_' + i).attr('min', minDate);
+                    $('#aktual_selesai_lembur_' + i).attr('min', minDate);
+
+                    $('#aktual_mulai_lembur_' + i).on('change', function(){
+                        let startTime = moment($(this).val()).format('YYYY-MM-DDT00:00');
+                        $('#aktual_selesai_lembur_' + i).attr('min', startTime);
+                        if($(this).val() > $('#aktual_selesai_lembur_' + i).val()){
+                            $('#aktual_selesai_lembur_' + i).val($(this).val());
+                        }
+                    });
+
+                    $('#aktual_selesai_lembur_' + i).on('change', function(){
+                        if($(this).val() < $('#aktual_mulai_lembur_' + i).val()){
+                            $(this).val($(this).data('selesai'));
+                        }
+                    })
 
                     $('#is_aktual_approved_' + i).on('change', function(){
-                        console.log($(this).is(':checked'), $(this).val());
                         if ($(this).is(':checked')) {
                             $(this).attr('checked', true);
                             if ($(this).closest('tr').hasClass('bg-danger')) {
@@ -1126,6 +1194,42 @@ $(function () {
                 let status = header.status;
                 let detail = response.data.detail_lembur;
                 let tbody = $('#list-detail-approval-lembur').empty();
+
+                //attachment
+                let attachmentLembur = response.data.attachment;
+                let previewElement = $('.previewAttachmentLembur').empty();
+
+                if(attachmentLembur.length > 0){
+                    $.each(attachmentLembur, function (i, val){
+                        let ext = val.path.split('.').pop();
+                        if(ext == 'pdf'){
+                            previewElement.append(`
+                            <a id="attachment_${i}" href="${base_url}/storage/${val.path}" data-title="Attachment Ke-${i}" target="_blank">
+                                <img src="${base_url}/img/pdf-img.png" alt="Attachment Ke-${i}" style="width: 3.5rem;height: 3.5rem;" class="p-0">
+                            </a>`);
+                        } else {
+                            previewElement.append(`
+                            <a id="attachment_${i}" href="${base_url}/storage/${val.path}" data-title="Attachment Ke-${i}" class="image-popup-vertical-fit">
+                                <img src="${base_url}/storage/${val.path}" alt="Attachment Ke-${i}" style="width: 3.5rem;height: 3.5rem;" class="img-fluid p-0">
+                            </a>`);
+                        }
+                    });
+                } else {
+                    previewElement.append(`<p>No Attachment Uploaded</p>`);
+                }
+
+                //REINITALIZE LIGHTBOX
+                if ($('.image-popup-vertical-fit').length) {
+                    $('.image-popup-vertical-fit').magnificPopup({
+                        type: 'image',
+                        closeOnContentClick: true,
+                        mainClass: 'mfp-img-mobile',
+                        image: {
+                            verticalFit: true
+                        }
+                    });
+                }
+                
                 
                 $.each(detail, function (i, val){
                     tbody.append(`
@@ -1197,5 +1301,219 @@ $(function () {
             },
         }); 
     })
+
+    //ATTACHMENT LEMBUR (LKH) HANDLING
+    function checkIfImage(fileType) {
+        const imageMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/bmp']; 
+        return imageMimeTypes.includes(fileType.toLowerCase());
+    }   
+
+    function compressAndDisplayImageSave(input, idLembur ) {
+        if (input.files && input.files[0]) {
+          var reader = new FileReader();
+      
+          reader.onload = function (e) {
+            var image = new Image();
+            const isImage = checkIfImage(input.files[0].type);
+            if (isImage) {
+                image.onload = function () {
+                var canvas = document.createElement("canvas");
+                var ctx = canvas.getContext("2d");
+        
+                const maxWidth = 1280;
+                const maxHeight = 720; 
+                const ratio = Math.min(maxWidth / image.width, maxHeight / image.height);
+                canvas.width = Math.round(image.width * ratio);
+                canvas.height = Math.round(image.height * ratio);
+                ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+        
+                    const quality = 0.9; 
+                    const compressedImageData = canvas.toDataURL("image/jpeg", quality);
+                    const blob = dataURItoBlob(compressedImageData);
+
+                    const fileName = input.files[0].name.split('.')[0] + '-compressed.jpg';
+                    const fileType = input.files[0].type; 
+                    const compressedFile = new File([blob], fileName, {type: fileType});
+
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(compressedFile);
+                    input.files = dataTransfer.files;
+            
+                    let formData = new FormData();
+                    formData.append('lembur_id', idLembur);
+                    formData.append('attachment_lembur', compressedFile);
+                    let url = base_url + '/lembure/pengajuan-lembur/store-lkh';
+                    $.ajax({
+                        url: url,
+                        type: "POST",
+                        data: formData,
+                        contentType: false,
+                        processData: false,
+                        dataType: "JSON",
+                        success: function (data) {
+                            showToast({ title: data.message });
+                            getPreviewAttachmentLembur(idLembur);
+                            $('#attachment_lembur').val('');
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                        }
+                    });
+                
+                };
+            } else {
+                let formData = new FormData();
+                formData.append('lembur_id', idLembur);
+                formData.append('attachment_lembur', input.files[0]);
+                let url = base_url + '/lembure/pengajuan-lembur/store-lkh';
+                
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    dataType: "JSON",
+                    success: function (data) {
+                        showToast({ title: data.message });
+                        getPreviewAttachmentLembur(idLembur);
+                        $('#attachment_lembur').val('');
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                    }
+                });
+            }
+      
+            image.src = e.target.result;
+          };
+      
+          reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    $('#attachment_lembur').on("change", function () {
+        loadingSwalShow();
+        let idLembur = $('#id_lemburDone').val();
+        compressAndDisplayImageSave(this, idLembur);
+    });
+
+    function dataURItoBlob(dataURI) {
+        const byteString = atob(dataURI.split(',')[1]);
+        const mimeType = dataURI.split(',')[0].split(':')[1].split(';')[0];
+        const arrayBuffer = new ArrayBuffer(byteString.length);
+        const intArray = new Uint8Array(arrayBuffer);
+        for (let i = 0; i < byteString.length; i++) {
+          intArray[i] = byteString.charCodeAt(i);
+        }
+        const blob = new Blob([arrayBuffer], { type: mimeType });
+        return blob;
+    }
+
+    function getPreviewAttachmentLembur(idLembur){
+        let url = base_url + '/lembure/pengajuan-lembur/get-attachment-lembur/' + idLembur;
+        $.ajax({
+            url: url,
+            method: "GET",
+            dataType: "JSON",
+            success: function (response) {
+                let attachmentLembur = response.data;
+                let previewElement = $('.previewAttachmentLembur').empty();
+
+                if(attachmentLembur.length > 0){
+                    $.each(attachmentLembur, function (i, val){
+                        let ext = val.path.split('.').pop();
+                        if(ext == 'pdf'){
+                            previewElement.append(`
+                            <a id="attachment_${i}" href="${base_url}/storage/${val.path}" data-title="Attachment Ke-${i}" target="_blank">
+                                <img src="${base_url}/img/pdf-img.png" alt="Attachment Ke-${i}" style="width: 3.5rem;height: 3.5rem;" class="p-0">
+                            </a>`);
+                        } else {
+                            previewElement.append(`
+                            <a id="attachment_${i}" href="${base_url}/storage/${val.path}" data-title="Attachment Ke-${i}" class="image-popup-vertical-fit">
+                                <img src="${base_url}/storage/${val.path}" alt="Attachment Ke-${i}" style="width: 3.5rem;height: 3.5rem;" class="img-fluid p-0">
+                            </a>`);
+                        }
+                    });
+                } else {
+                    previewElement.append(`<p>No Attachment Uploaded</p>`);
+                }
+
+                //REINITALIZE LIGHTBOX
+                if ($('.image-popup-vertical-fit').length) {
+                    $('.image-popup-vertical-fit').magnificPopup({
+                        type: 'image',
+                        closeOnContentClick: true,
+                        mainClass: 'mfp-img-mobile',
+                        image: {
+                            verticalFit: true
+                        }
+                    });
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        }); 
+    }
+
+    //REJECT
+    $('.btnRejectClose').on("click", function (){
+        closeReject();
+    })
+
+    var modalRejectLemburOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalRejectLembur = new bootstrap.Modal(
+        document.getElementById("modal-reject-lembur"),
+        modalRejectLemburOptions
+    );
+    
+    function openReject() {
+        $('.modal-title').text('Alasan Cancel')
+        $('#btnSubmitReject').text('Cancel')
+        modalRejectLembur.show();
+    }
+
+    function closeReject() {
+        modalRejectLembur.hide();
+    }
+
+    $('#lembur-table').on("click", '.btnRejectLembur', function () {
+        let idLembur = $(this).data('id-lembur');
+        let url = base_url + '/lembure/approval-lembur/rejected/' + idLembur;
+        $('#form-reject-lembur').attr('action', url);
+        openReject();
+    })
+
+    $('#form-reject-lembur').on('submit', function (e){
+        loadingSwalShow();
+        e.preventDefault();
+        let url = $('#form-reject-lembur').attr('action');
+
+        var formData = new FormData($('#form-reject-lembur')[0]);
+        $.ajax({
+            url: url,
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (data) {
+                showToast({ title: data.message });
+                refreshTable();
+                closeReject();
+                loadingSwalClose();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        })
+    });
+
 
 });

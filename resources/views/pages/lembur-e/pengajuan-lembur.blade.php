@@ -36,6 +36,7 @@
                                 <tr>
                                     <th>ID Lembur</th>
                                     <th>Issued At</th>
+                                    <th>Rencana Mulai</th>
                                     <th>Issued By</th>
                                     <th>Jenis Hari</th>
                                     <th>Total Durasi</th>
@@ -60,4 +61,5 @@
     @include('pages.lembur-e.modal-edit-pengajuan-lembur')
     @include('pages.lembur-e.modal-done-pengajuan-lembur')
     @include('pages.lembur-e.modal-detail-lembur')
+    @include('pages.lembur-e.modal-reject-lembur')
 @endsection

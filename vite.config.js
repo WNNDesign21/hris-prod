@@ -35,6 +35,7 @@ export default defineConfig({
                 'resources/js/pages/lembure-setting-upah-lembur.js',
                 'resources/js/pages/lembure-setting-lembur.js',
                 'resources/js/pages/lembure-dashboard.js',
+                'resources/js/pages/lembure-setting-gaji-departemen.js'
             ],
             // refresh: true,
             refresh: ["resources/views/**", "resources/css/**", "app/Http/**"],

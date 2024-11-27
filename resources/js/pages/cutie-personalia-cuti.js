@@ -159,6 +159,7 @@ $(function () {
             },
         },
         // responsive: true,
+        scrollX: true,
         columns: columnsTable,
         columnDefs: [
             {

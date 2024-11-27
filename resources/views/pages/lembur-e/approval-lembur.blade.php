@@ -28,17 +28,26 @@
                                 <button type="button" class="btn btn-warning waves-effect btnFilter"><i
                                         class="fas fa-filter"></i></button>
                             @endif
+                            @if (auth()->user()->hasRole('atasan') &&
+                                    (auth()->user()->karyawan->posisi[0]->jabatan_id == '3' ||
+                                        auth()->user()->karyawan->posisi[0]->jabatan_id == '4'))
+                                <button type="button" class="btn btn-success waves-effect btnMustChecked"><i
+                                        class="far fa-check-circle"></i> Must Checked</button>
+                            @endif
                         </div>
                     </div>
                 </div>
                 <div class="box-body">
                     <div class="table-responsive">
-                        <table id="approval-table" class="table table-striped table-bordered display" style="width:100%">
+                        <table id="approval-table" class="table table-striped table-bordered display nowrap"
+                            style="width:100%">
                             <thead>
                                 <tr>
                                     <th>ID Lembur</th>
                                     <th>Issued At</th>
+                                    <th>Rencana Mulai</th>
                                     <th>Issued By</th>
+                                    <th>Departemen</th>
                                     <th>Jenis Hari</th>
                                     <th>Total Durasi</th>
                                     <th>Total Nominal</th>

@@ -45,7 +45,7 @@ class LemburHarian extends Model
         $organisasi_id = auth()->user()->organisasi_id;
         $year = date('Y');
         $data = self::selectRaw(
-            'departemens.nama as departemen, 
+            '
             SUM(CASE WHEN EXTRACT(MONTH FROM lembur_harians.tanggal_lembur) = 1 THEN lembur_harians.total_nominal_lembur ELSE 0 END) as januari,
             SUM(CASE WHEN EXTRACT(MONTH FROM lembur_harians.tanggal_lembur) = 2 THEN lembur_harians.total_nominal_lembur ELSE 0 END) as februari,
             SUM(CASE WHEN EXTRACT(MONTH FROM lembur_harians.tanggal_lembur) = 3 THEN lembur_harians.total_nominal_lembur ELSE 0 END) as maret,
@@ -80,10 +80,10 @@ class LemburHarian extends Model
         }
         
         $data->whereNotNull('departemens.nama')
-        ->whereYear('lembur_harians.tanggal_lembur', $year)
-        ->groupBy('departemens.nama');
+        ->whereYear('lembur_harians.tanggal_lembur', $year);
+        // ->groupBy('departemens.nama','departemens.id_departemen');
 
-        return $data->get();
+        return $data->first();
     }
 
     public static function getWeeklyLemburPerDepartemen()
@@ -132,6 +132,7 @@ class LemburHarian extends Model
         $month = date('m');
         $data = self::selectRaw(
             'departemens.nama as departemen, 
+            departemens.id_departemen,
             SUM(lembur_harians.total_nominal_lembur) as total_nominal,
             SUM(lembur_harians.total_durasi_lembur) as total_durasi'
         )
@@ -157,7 +158,7 @@ class LemburHarian extends Model
         $data->whereNotNull('departemens.nama')
         ->whereYear('lembur_harians.tanggal_lembur', $year)
         ->whereMonth('lembur_harians.tanggal_lembur', $month)
-        ->groupBy('departemens.nama');
+        ->groupBy('departemens.nama','departemens.id_departemen');
 
         return $data->get();
     }

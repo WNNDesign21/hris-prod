@@ -15,6 +15,8 @@ use App\Models\DetailLembur;
 use App\Models\LemburHarian;
 use Illuminate\Http\Request;
 use App\Models\SettingLembur;
+use App\Models\GajiDepartemen;
+use App\Models\AttachmentLembur;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
@@ -52,9 +54,11 @@ class LembureController extends Controller
 
     public function approval_lembur_view()
     {
+        $departemens = Departemen::all();
         $dataPage = [
             'pageTitle' => "Lembur-E - Approval Lembur",
             'page' => 'lembure-approval-lembur',
+            'departemens' => $departemens
         ];
         return view('pages.lembur-e.approval-lembur', $dataPage);
     }
@@ -84,6 +88,15 @@ class LembureController extends Controller
         return view('pages.lembur-e.setting-lembur', $dataPage);
     }
 
+    public function setting_gaji_departemen_view()
+    {
+        $dataPage = [
+            'pageTitle' => "Lembur-E - Setting Gaji Departemen",
+            'page' => 'lembure-setting-gaji-departemen',
+        ];
+        return view('pages.lembur-e.setting-gaji-departemen', $dataPage);
+    }
+
     public function export_report_lembur_view()
     {
         $departments = Departemen::all();
@@ -100,16 +113,16 @@ class LembureController extends Controller
         $columns = array(
             0 => 'lemburs.id_lembur',
             1 => 'lemburs.issued_date',
-            2 => 'karyawans.nama',
-            3 => 'lemburs.jenis_hari',
-            4 => 'lemburs.total_durasi',
-            5 => 'lemburs.status',
-            6 => 'lemburs.plan_checked_by',
-            7=> 'lemburs.plan_approved_by',
-            8 => 'lemburs.plan_legalized_by',
-            9 => 'lemburs.actual_checked_by',
-            10 => 'lemburs.actual_approved_by',
-            11 => 'lemburs.actual_legalized_by'
+            3 => 'karyawans.nama',
+            4 => 'lemburs.jenis_hari',
+            5 => 'lemburs.total_durasi',
+            6 => 'lemburs.status',
+            7 => 'lemburs.plan_checked_by',
+            8=> 'lemburs.plan_approved_by',
+            9 => 'lemburs.plan_legalized_by',
+            10 => 'lemburs.actual_checked_by',
+            11 => 'lemburs.actual_approved_by',
+            12 => 'lemburs.actual_legalized_by'
         );
 
         $limit = $request->input('length');
@@ -165,6 +178,7 @@ class LembureController extends Controller
 
                 $nestedData['id_lembur'] = $data->id_lembur;
                 $nestedData['issued_date'] = Carbon::parse($data->issued_date)->locale('id')->translatedFormat('l, d F Y');
+                $nestedData['rencana_mulai_lembur'] = Carbon::parse($data->detailLembur[0]->rencana_mulai_lembur)->locale('id')->translatedFormat('l, d F Y');
                 $nestedData['issued_by'] = $data->nama_karyawan;
                 $nestedData['jenis_hari'] = $data->jenis_hari;
                 $nestedData['total_durasi'] = $jam . ' Jam ' . $menit . ' Menit';
@@ -177,7 +191,7 @@ class LembureController extends Controller
                 $nestedData['actual_legalized_by'] = $data->actual_legalized_by ? '✅<br><small class="text-bold">'.$data?->actual_legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_legalized_at)->diffForHumans().'</small>': '';
                 $nestedData['aksi'] = '<div class="btn-group btn-group-sm">
                     <button type="button" class="waves-effect waves-light btn btn-sm btn-info btnDetail" data-id-lembur="'.$data->id_lembur.'" data-is-member="'.($is_member ? 'true' : 'false').'"><i class="fas fa-eye"></i> Detail</button>
-                    '.($data->status == 'PLANNED' && $data->issued_by == auth()->user()->karyawan->id_karyawan ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnDone" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-check-circle"></i> Done</button>' : '').'
+                    '.($data->status == 'PLANNED' && $data->issued_by == auth()->user()->karyawan->id_karyawan ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnDone" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-check-circle"></i> Done</button><button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnRejectLembur" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-times-circle"></i> Cancel</button>' : '').'
                     '.($data->plan_checked_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-edit"></i> Edit</button>' : '').'
                     '.($data->plan_checked_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-trash"></i> Delete</button>' : '').'
                 </div>';
@@ -205,16 +219,17 @@ class LembureController extends Controller
         $columns = array(
             0 => 'lemburs.id_lembur',
             1 => 'lemburs.issued_date',
-            2 => 'karyawans.nama',
-            3 => 'lemburs.jenis_hari',
-            4 => 'lemburs.total_durasi',
-            6 => 'lemburs.status',
-            7 => 'lemburs.plan_checked_by',
-            8=> 'lemburs.plan_approved_by',
-            9 => 'lemburs.plan_legalized_by',
-            10 => 'lemburs.actual_checked_by',
-            11 => 'lemburs.actual_approved_by',
-            12 => 'lemburs.actual_legalized_by'
+            3 => 'karyawans.nama',
+            4 => 'departemens.nama',
+            5 => 'lemburs.jenis_hari',
+            6 => 'lemburs.total_durasi',
+            8 => 'lemburs.status',
+            9 => 'lemburs.plan_checked_by',
+            10=> 'lemburs.plan_approved_by',
+            11 => 'lemburs.plan_legalized_by',
+            12 => 'lemburs.actual_checked_by',
+            13 => 'lemburs.actual_approved_by',
+            14 => 'lemburs.actual_legalized_by'
         );
 
         $limit = $request->input('length');
@@ -269,6 +284,16 @@ class LembureController extends Controller
         $filterAksi = $request->aksi;
         if (!empty($filterAksi)) {
             $dataFilter['aksi'] = $filterAksi;
+        }
+
+        $filterMustChecked = $request->mustChecked;
+        if ($filterMustChecked) {
+            $dataFilter['mustChecked'] = $filterMustChecked;
+        }
+
+        $filterDepartemen = $request->departemen;
+        if ($filterDepartemen) {
+            $dataFilter['departemen'] = $filterDepartemen;
         }
 
         $filterStatus = $request->status;
@@ -483,7 +508,9 @@ class LembureController extends Controller
 
                 $nestedData['id_lembur'] = $data->id_lembur;
                 $nestedData['issued_date'] = Carbon::parse($data->issued_date)->locale('id')->translatedFormat('l, d F Y');
+                $nestedData['rencana_mulai_lembur'] = Carbon::parse($data->detailLembur[0]->rencana_mulai_lembur)->locale('id')->translatedFormat('l, d F Y');
                 $nestedData['issued_by'] = $data->nama_karyawan;
+                $nestedData['departemen'] = $data?->nama_departemen;
                 $nestedData['jenis_hari'] = $data->jenis_hari;
                 $nestedData['total_durasi'] = $jam . ' Jam ' . $menit . ' Menit';
                 $nestedData['total_nominal'] = 'Rp. ' . number_format($total_nominal, 0, ',', '.');
@@ -556,12 +583,82 @@ class LembureController extends Controller
                 $nestedData['nama'] = $data->nama;
                 $nestedData['gaji'] = '
                     <div class="input-group mb-3">
-                        <input type="number" value="' . ($data->gaji ?? 0) . '" min="0" class="form-control inputUpdahLembur"/>
+                        <input type="number" value="' . ($data->gaji ?? 0) . '" min="0" class="form-control inputUpahLembur"/>
                         <button class="btn btn-warning updateUpahLembur" type="button" data-id-setting-lembur-karyawan="' . $data->id_setting_lembur_karyawan . '" data-karyawan-id="'.$data->id_karyawan.'"><i class="fas fa-save"></i></button>
                     </div>
                 ';
 
                 $dataTable[] = $nestedData;
+            }
+        }
+
+        $json_data = array(
+            "draw" => intval($request->input('draw')),
+            "recordsTotal" => intval($totalData),
+            "recordsFiltered" => intval($totalFiltered),
+            "data" => $dataTable,
+            "order" => $order,
+            "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
+            "dir" => $dir,
+            "column"=>$request->input('order.0.column')
+        );
+
+        return response()->json($json_data, 200);
+    }
+
+    public function setting_gaji_departemen_datatable(Request $request)
+    {
+        $columns = array(
+            0 => 'departemens.nama',
+            1 => 'gaji_departemens.periode',
+            2 => 'gaji_departemens.nominal_batas_lembur',
+            4 => 'gaji_departemens.total_gaji',
+        );
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = (!empty($request->input('order.0.column'))) ? $columns[$request->input('order.0.column')] : $columns[0];
+        $dir = (!empty($request->input('order.0.dir'))) ? $request->input('order.0.dir') : "DESC";
+
+        $settings['start'] = $start;
+        $settings['limit'] = $limit;
+        $settings['dir'] = $dir;
+        $settings['order'] = $order;
+
+        $dataFilter = [];
+        $search = $request->input('search.value');
+        if (!empty($search)) {
+            $dataFilter['search'] = $search;
+        }
+
+        $totalData = GajiDepartemen::all()->count();
+        $totalFiltered = $totalData;
+
+        $setting_upah_lembur = GajiDepartemen::getData($dataFilter, $settings);
+        $totalFiltered = GajiDepartemen::countData($dataFilter);
+
+        $dataTable = [];
+
+        if (!empty($setting_upah_lembur)) {
+            $count = 0;
+            foreach ($setting_upah_lembur as $data) {
+                $nestedData['departemen'] = $data->nama_departemen;
+                $nestedData['periode'] = Carbon::parse($data->periode)->format('F Y');
+                $nestedData['nominal_batas_lembur'] = 'Rp. ' . number_format($data->nominal_batas_lembur, 0, ',', '.');
+                $nestedData['presentase'] = '
+                    <div class="input-group mb-3">
+                        <input type="number" value="' . ($data->presentase ?? 0) . '" min="0" class="form-control inputGajiDepartemen" id="presentase_'.$count.'"/>
+                    </div>
+                ';
+                $nestedData['total_gaji'] = '
+                    <div class="input-group mb-3">
+                        <input type="number" value="' . ($data->total_gaji ?? 0) . '" min="0" class="form-control inputGajiDepartemen" id="total_gaji_'.$count.'"/>
+                        <button class="btn btn-warning updateGajiDepartemen" type="button" data-id-gaji-departemen="' . $data->id_gaji_departemen . '" data-departemen-id="'.$data->departemen_id.'" data-urutan="'.$count.'"><i class="fas fa-save"></i></button>
+                    </div>
+                ';
+
+                $dataTable[] = $nestedData;
+                $count++;
             }
         }
 
@@ -596,11 +693,8 @@ class LembureController extends Controller
             'jenis_hari' => ['required','in:WD,WE'],
             'karyawan_id.*' => ['required', 'distinct'],
             'job_description.*' => ['required'],
-            //OLD VERSION DATE
-            // 'rencana_mulai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i'],
-            // 'rencana_selesai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i'],
-            'rencana_mulai_lembur.*' => ['required', 'date_format:Y-m-d H:i'],
-            'rencana_selesai_lembur.*' => ['required', 'date_format:Y-m-d H:i', 'after:rencana_mulai_lembur.*'],
+            'rencana_mulai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'before:rencana_selesai_lembur.*', 'after_or_equal:today'],
+            'rencana_selesai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'after:rencana_mulai_lembur.*'],
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -1046,8 +1140,8 @@ class LembureController extends Controller
     public function pembulatan_menit_ke_bawah($datetime)
     {
         //OLD VERSION DATE
-        // $datetime = Carbon::createFromFormat('Y-m-d\TH:i', $datetime);
-        $datetime = Carbon::parse($datetime);
+        $datetime = Carbon::createFromFormat('Y-m-d\TH:i', $datetime);
+        // $datetime = Carbon::parse($datetime);
         $minute = $datetime->minute;
         $minute = $minute - ($minute % 15);
         $datetime->minute($minute)->second(0);
@@ -1079,8 +1173,8 @@ class LembureController extends Controller
             'jenis_hariEdit' => ['required','in:WD,WE'],
             'karyawan_idEdit.*' => ['required', 'distinct'],
             'job_descriptionEdit.*' => ['required'],
-            'rencana_mulai_lemburEdit.*' => ['required', 'date_format:Y-m-d H:i'],
-            'rencana_selesai_lemburEdit.*' => ['required', 'date_format:Y-m-d H:i', 'after:rencana_mulai_lemburEdit.*'],
+            'rencana_mulai_lemburEdit.*' => ['required', 'date_format:Y-m-d\TH:i', 'before:rencana_selesai_lemburEdit.*'],
+            'rencana_selesai_lemburEdit.*' => ['required', 'date_format:Y-m-d\TH:i', 'after:rencana_mulai_lemburEdit.*'],
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -1123,8 +1217,8 @@ class LembureController extends Controller
                 $dataValidate = [
                     'karyawan_idEditNew.*' => ['required', 'distinct'],
                     'job_descriptionEditNew.*' => ['required'],
-                    'rencana_mulai_lemburEditNew.*' => ['required', 'date_format:Y-m-d H:i'],
-                    'rencana_selesai_lemburEditNew.*' => ['required', 'date_format:Y-m-d H:i', 'after:rencana_mulai_lemburEditNew.*'],
+                    'rencana_mulai_lemburEditNew.*' => ['required', 'date_format:Y-m-d\TH:i', 'before:rencana_selesai_lemburEditNew.*'],
+                    'rencana_selesai_lemburEditNew.*' => ['required', 'date_format:Y-m-d\TH:i', 'after:rencana_mulai_lemburEditNew.*'],
                 ];
         
                 $validator = Validator::make(request()->all(), $dataValidate);
@@ -1376,6 +1470,83 @@ class LembureController extends Controller
         }
     }
 
+    public function store_setting_gaji_departemen(Request $request)
+    {
+        $dataValidate = [
+            'periode' => ['required', 'date_format:Y-m']
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $periode = $request->periode.'-01';
+
+        DB::beginTransaction();
+        try{
+            $gaji_departemen_exist = GajiDepartemen::whereDate('periode', $periode)->exists();
+
+            if($gaji_departemen_exist){
+                DB::rollback();
+                return response()->json(['message' => 'Gaji Departemen sudah ada, silahkan update nominalnya pada tabel!'], 402);
+            }
+
+            $departemens = Departemen::all();
+            if($departemens){
+                foreach($departemens as $dept){
+                    GajiDepartemen::create([
+                        'departemen_id' => $dept->id_departemen,
+                        'organisasi_id' => auth()->user()->organisasi_id,
+                        'periode' => $periode,
+                    ]);
+                }
+            }
+            DB::commit();
+            return response()->json(['message' => 'Gaji Departemen periode'.Carbon::parse($periode)->format('F Y').' Berhasil di Tambahkan!'], 200);
+        } catch (Throwable $e) {
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function update_setting_gaji_departemen(Request $request)
+    {
+        $dataValidate = [
+            'total_gaji' => ['required', 'numeric', 'min:0'],
+            'presentase' => ['required', 'numeric', 'min:0'],
+            'id_gaji_departemen' => ['required'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        DB::beginTransaction();
+        try{
+            $gaji_departemen = GajiDepartemen::find($request->id_gaji_departemen);
+            $presentase = $request->presentase;
+            $nominal_batas_lembur = intval($request->total_gaji * ($presentase / 100));
+            if($gaji_departemen){
+                $gaji_departemen->total_gaji = $request->total_gaji;
+                $gaji_departemen->presentase = $presentase;
+                $gaji_departemen->nominal_batas_lembur = $nominal_batas_lembur;
+                $gaji_departemen->save();
+            } 
+            
+            DB::commit();
+            return response()->json(['message' => 'Gaji Departemen Berhasil di Update!'], 200);
+        } catch (Throwable $e) {
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
     /**
      * Remove the specified resource from storage.
      */
@@ -1411,13 +1582,32 @@ class LembureController extends Controller
 
         if (!empty($search)) {
             if(auth()->user()->karyawan->posisi[0]->jabatan_id == 5){
-                $query->where('users.organisasi_id', $organisasi_id);
-                $query->whereIn('posisis.id_posisi', $id_posisi_members);
-                $query->where('karyawans.id_karyawan', auth()->user()->karyawan->id_karyawan);
-                $query->where(function ($dat) use ($search) {
-                    $dat->where('karyawans.id_karyawan', 'ILIKE', "%{$search}%")
-                        ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%");
+
+                //Bug
+                // $query->where('users.organisasi_id', $organisasi_id);
+                // $query->whereIn('posisis.id_posisi', $id_posisi_members);
+                // $query->where(function ($dat) use ($search) {
+                //     $dat->where('karyawans.id_karyawan', 'ILIKE', "%{$search}%")
+                //         ->whereIn('posisis.id_posisi', $id_posisi_members)
+                //         ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%");
+                // });
+                // $query->orWhere(function ($dat) use ($search) {
+                //     $dat->where('karyawans.id_karyawan', 'ILIKE', "%{$search}%")
+                //         ->whereIn('posisis.id_posisi', $id_posisi_members)
+                //         ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%")
+                //         ->orWhere('karyawans.id_karyawan', auth()->user()->karyawan->id_karyawan);
+                // });
+
+                //Sementara
+                $query->where('users.organisasi_id', $organisasi_id)
+                ->whereIn('posisis.id_posisi', $id_posisi_members)
+                ->where(function ($dat) use ($search) {
+                    $dat->where(function ($subQuery) use ($search) {
+                        $subQuery->where('karyawans.id_karyawan', 'ILIKE', "%{$search}%")
+                                 ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%");
+                    });
                 });
+
             } else {
                 $query->where('karyawans.id_karyawan', auth()->user()->karyawan->id_karyawan);
             }
@@ -1607,10 +1797,10 @@ class LembureController extends Controller
                     'organisasi_id' => $data->organisasi_id,
                     'departemen_id' => $data->departemen_id,
                     'divisi_id' => $data->divisi_id,
-                    'rencana_mulai_lembur' => $data->rencana_mulai_lembur ? Carbon::parse($data->rencana_mulai_lembur)->format('Y-m-d H:i') : null,
-                    'rencana_selesai_lembur' => $data->rencana_selesai_lembur ? Carbon::parse($data->rencana_selesai_lembur)->format('Y-m-d H:i') : null,
-                    'aktual_mulai_lembur' => $data->aktual_mulai_lembur ? Carbon::parse($data->aktual_mulai_lembur)->format('Y-m-d H:i') : null,
-                    'aktual_selesai_lembur' => $data->aktual_selesai_lembur ? Carbon::parse($data->aktual_selesai_lembur)->format('Y-m-d H:i') : null,
+                    'rencana_mulai_lembur' => $data->rencana_mulai_lembur ? Carbon::parse($data->rencana_mulai_lembur)->format('Y-m-d\TH:i') : null,
+                    'rencana_selesai_lembur' => $data->rencana_selesai_lembur ? Carbon::parse($data->rencana_selesai_lembur)->format('Y-m-d\TH:i') : null,
+                    'aktual_mulai_lembur' => $data->aktual_mulai_lembur ? Carbon::parse($data->aktual_mulai_lembur)->format('Y-m-d\TH:i') : null,
+                    'aktual_selesai_lembur' => $data->aktual_selesai_lembur ? Carbon::parse($data->aktual_selesai_lembur)->format('Y-m-d\TH:i') : null,
                     'is_rencana_approved' => $data->is_rencana_approved,
                     'is_aktual_approved' => $data->is_aktual_approved,
                     'deskripsi_pekerjaan' => $data->deskripsi_pekerjaan,
@@ -1623,6 +1813,7 @@ class LembureController extends Controller
 
             $data = [
                 'header' => $lembur,
+                'attachment' => $lembur->attachmentLembur,
                 'detail_lembur' => $data_detail_lembur,
                 'text_tanggal' => Carbon::parse($data->rencana_mulai_lembur)->locale('id')->translatedFormat('l, d F Y'),
             ];
@@ -1718,8 +1909,8 @@ class LembureController extends Controller
     {
         $dataValidate = [
             'is_planned' => ['required', 'in:Y,N'],
-            'mulai_lembur.*' => ['required', 'date_format:Y-m-d H:i'],
-            'selesai_lembur.*' => ['required', 'date_format:Y-m-d H:i', 'after:mulai_lembur.*'],
+            'mulai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'before:selesai_lembur.*'],
+            'selesai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'after:mulai_lembur.*'],
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -1872,8 +2063,8 @@ class LembureController extends Controller
     {
         $dataValidate = [
             'is_planned' => ['required', 'in:Y,N'],
-            'mulai_lembur.*' => ['required', 'date_format:Y-m-d H:i'],
-            'selesai_lembur.*' => ['required', 'date_format:Y-m-d H:i', 'after:mulai_lembur.*'],
+            'mulai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'before:selesai_lembur.*'],
+            'selesai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'after:mulai_lembur.*'],
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -2167,8 +2358,8 @@ class LembureController extends Controller
     public function done(Request $request, string $id_lembur)
     {
         $dataValidate = [
-            'aktual_mulai_lembur.*' => ['required', 'date_format:Y-m-d H:i'],
-            'aktual_selesai_lembur.*' => ['required', 'date_format:Y-m-d H:i', 'after:aktual_mulai_lembur.*'],
+            'aktual_mulai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'before:aktual_selesai_lembur.*'],
+            'aktual_selesai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'after:aktual_mulai_lembur.*'],
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -2273,8 +2464,8 @@ class LembureController extends Controller
                 'total_durasi' => $total_durasi_aktual,
                 'status' => 'COMPLETED'
             ]);
-
             $lembur->save();
+
             DB::commit();
             return response()->json(['message' => 'Aktual Lembur berhasil di Konfirmasi!'],200);
         } catch (Throwable $e){
@@ -2288,7 +2479,9 @@ class LembureController extends Controller
     {
         try{
             $data = LemburHarian::getMonthlyLemburPerDepartemen()->toArray();
-            return response()->json(['message' => 'Data Lembur Berhasil Ditemukan', 'data' => $data], 200);
+            $batas = GajiDepartemen::getMonthlyNominalBatasAllDepartemen()->toArray();
+
+            return response()->json(['message' => 'Data Lembur Berhasil Ditemukan', 'data' => $data, 'batas' => $batas], 200);
         } catch (Throwable $e){
             return response()->json(['message' => $e->getMessage()], 500);
         }
@@ -2308,7 +2501,18 @@ class LembureController extends Controller
     {
         try{
             $data = LemburHarian::getCurrentMonthLemburPerDepartemen()->toArray();
-            return response()->json(['message' => 'Data Lembur Berhasil Ditemukan', 'data' => $data], 200);
+            $batas = GajiDepartemen::getCurrentMonthNominalBatasPerDepartemen()->toArray();
+
+            $existing_batas = [];
+            foreach ($batas as $key => $value) {
+                foreach ($data as $key2 => $value2) {
+                    if($value['id_departemen'] == $value2['id_departemen']){
+                        $existing_batas[] = $value;
+                    }
+                }
+            }
+
+            return response()->json(['message' => 'Data Lembur Berhasil Ditemukan', 'data' => $data, 'batas' => $existing_batas], 200);
         } catch (Throwable $e){
             return response()->json(['message' => $e->getMessage()], 500);
         }
@@ -2895,5 +3099,47 @@ class LembureController extends Controller
             DB::rollBack();
             return response()->json(['message' => 'Error processing the file: ' . $e->getMessage()], 500);
         }
+    }
+
+    public function store_lkh(Request $request)
+    {
+        $dataValidate = [
+            'attachment_lembur' => ['mimes:jpeg,jpg,png,pdf', 'max:2048', 'required'],
+            'lembur_id' => ['required', 'exists:lemburs,id_lembur'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $lembur = Lembure::find($request->lembur_id);
+        $file = $request->file('attachment_lembur');
+
+        DB::beginTransaction();
+        try{
+
+            $fileName = $lembur->id_lembur.'-'.Str::random(5).'.'.$file->getClientOriginalExtension();
+            $file_path = $file->storeAs("attachment/lembur", $fileName);
+
+            $lembur->attachmentLembur()->create([
+                'path' => $file_path
+            ]);
+
+            DB::commit();
+            return response()->json(['message' => 'LKH Berhasil di Upload!'],200);
+        } catch (Throwable $e){
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function get_attachment_lembur(Request $request, string $id_lembur)
+    {
+        $lembur = Lembure::find($id_lembur);
+        $attachment = $lembur->attachmentLembur;
+        return response()->json(['message' => 'Data LKH Berhasil Ditemukan', 'data' => $attachment], 200);
     }
 }

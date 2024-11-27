@@ -6,6 +6,7 @@ use Closure;
 use App\Models\Cutie;
 use App\Models\Posisi;
 use App\Models\Karyawan;
+use App\Models\DetailLembur;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -45,6 +46,7 @@ class NotificationMiddleware
                 ->get();
 
             $rejected_cuti = [];
+            $agenda_lembur = [];
 
         } elseif ($user->hasRole('atasan')){
             $me = auth()->user()->karyawan;
@@ -103,6 +105,10 @@ class NotificationMiddleware
             ->whereRaw('DATE(rejected_at) <= (rencana_mulai_cuti + INTERVAL \'3 days\')')
             ->get()->toArray();
 
+            $agenda_lembur = DetailLembur::where('karyawan_id', auth()->user()->karyawan->id_karyawan)->whereHas('lembur', function ($query) {
+                $query->whereIn('status', ['WAITING', 'PLANNED']);
+            })->orderBy('rencana_mulai_lembur', 'ASC')->get();
+
         } else {
             $me = auth()->user()->karyawan;
             $my_cutie = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari',[$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
@@ -129,6 +135,10 @@ class NotificationMiddleware
                 ->whereRaw('(tanggal_selesai - ?) <= 30', [$today])
                 ->selectRaw('*, (tanggal_selesai - ?) as jumlah_hari', [$today])
                 ->get();
+
+            $agenda_lembur = DetailLembur::where('karyawan_id', auth()->user()->karyawan->id_karyawan)->whereHas('lembur', function ($query) {
+                $query->whereIn('status', ['WAITING', 'PLANNED']);
+            })->orderBy('rencana_mulai_lembur', 'ASC')->get();
         }
 
         $notification = [
@@ -140,6 +150,7 @@ class NotificationMiddleware
             'count_cutie_approval' => $cutie_approval ? $cutie_approval->count() : 0,
             'count_rejected_cuti' => count($rejected_cuti),
             'rejected_cuti' => $rejected_cuti,
+            'agenda_lembur' => $agenda_lembur ? $agenda_lembur->count() : 0,
         ];
         view()->share('notification', $notification);
         return $next($request);

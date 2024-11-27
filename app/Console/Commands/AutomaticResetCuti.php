@@ -2,10 +2,13 @@
 
 namespace App\Console\Commands;
 
+use Exception;
 use App\Models\Karyawan;
 use App\Models\ResetCuti;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Spatie\Activitylog\Models\Activity;
+
 
 class AutomaticResetCuti extends Command
 {
@@ -82,7 +85,7 @@ class AutomaticResetCuti extends Command
                     $kry->save();
                 }
 
-                activity('automatic_reset_cuti')->withProperties($karyawan)->performedOn($karyawan)->log('Reset Cuti Karyawan per tanggal -'. $today);
+                activity('automatic_reset_cuti')->log('Reset Cuti Karyawan per tanggal -'. $today);
                 
                 if(!$reset_cuti_today){
                     ResetCuti::create([

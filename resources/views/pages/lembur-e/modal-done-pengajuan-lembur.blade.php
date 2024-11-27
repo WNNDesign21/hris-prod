@@ -6,7 +6,8 @@
                 <button type="button" class="btn-close btnCloseDone" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="#" method="POST" enctype="multipart/form-data" id="form-detail-lembur-done">
+                <form action="#" method="POST" enctype="multipart/form-data" id="form-detail-lembur-done"
+                    class="dropzone" style="border:none!important;">
                     @csrf
                     @method('PATCH')
                     <div class="form-group">
@@ -23,6 +24,15 @@
                                         <p>Status : <span id="statusDone"></span></p>
                                         <p>Tanggal : <span id="text_tanggalDone"></span></p>
                                         <p>Jenis Hari : <span id="jenis_hariDone"></span></p>
+                                        <div class="col-12 mb-4">
+                                            <p class="fw-bold">Lampiran LKH</p>
+                                            <div class="row d-inline-block previewAttachmentLembur">
+                                            </div>
+                                        </div>
+                                        <div class="col-lg-4 col-12">
+                                            <input type="file" class="form-control" name="attachment_lembur"
+                                                id="attachment_lembur">
+                                        </div>
                                     </div>
                                 </div>
                                 <!-- /.box-header -->

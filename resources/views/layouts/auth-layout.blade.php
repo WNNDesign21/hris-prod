@@ -47,7 +47,7 @@
 
     <!-- jQuery -->
     <script src="{{ asset('assets/vendor_plugins/jquery/jquery.min.js') }}"></script>
-    <script src="{{ asset('assets/vendor_components/apexcharts-bundle/dist/apexcharts.js') }}"></script>
+    <script src="{{ asset('assets/vendor_components/apexcharts-bundle-new/dist/apexcharts.js') }}"></script>
 
     <!-- Vendor JS -->
     <script src="{{ asset('js/vendors.min.js') }}"></script>
@@ -66,6 +66,7 @@
     <script src="{{ asset('assets/vendor_components/nestable/jquery.nestable.js') }}"></script>
     <script src="{{ asset('assets/vendor_components/moment/min/moment.min.js') }}"></script>
     <script src="{{ asset('assets/vendor_components/fullcalendar/fullcalendar.js') }}"></script>
+    <script src="{{ asset('assets/vendor_plugins/polyfill/datetime-polyfill.js') }}"></script>
 
     <!-- EduAdmin App -->
     <script src="{{ asset('js/template.js') }}"></script>
@@ -183,6 +184,10 @@
 
     @if ($page == 'lembure-setting-lembur')
         @vite(['resources/js/pages/lembure-setting-lembur.js'])
+    @endif
+
+    @if ($page == 'lembure-setting-gaji-departemen')
+        @vite(['resources/js/pages/lembure-setting-gaji-departemen.js'])
     @endif
 
     @if ($page == 'lembure-dashboard')

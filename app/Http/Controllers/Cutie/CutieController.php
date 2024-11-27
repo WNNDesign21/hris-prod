@@ -252,7 +252,7 @@ class CutieController extends Controller
                 $nestedData['aksi'] = '
                 <div class="btn-group btn-group-sm">'.
                     // ($data->checked1_by == null && $data->checked2_by == null && $data->approved_by == null && $data->legalized_by == null && $data->rejected_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id="'.$data->id_cuti.'"><i class="fas fa-edit"></i> Edit</button><button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button>' : '').
-                    ($data->status_cuti !== 'CANCELED' ? (date('Y-m-d') <= $data->rencana_mulai_cuti && $data->rejected_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnCancel" data-id="'.$data->id_cuti.'"><i class="fas fa-history"></i> Cancel </button>' : '') : '').
+                    ($data->status_cuti !== 'CANCELED' ? (date('Y-m-d') < $data->rencana_mulai_cuti && $data->rejected_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnCancel" data-id="'.$data->id_cuti.'"><i class="fas fa-history"></i> Cancel </button>' : '') : '').
                     ($data->checked1_by == null && $data->checked2_by == null && $data->approved_by == null && $data->legalized_by == null && $data->rejected_by == null && $data->status_cuti !== 'CANCELED' ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button>' : '').
                     // ($data->status_cuti == 'SCHEDULED' && $data->status_dokumen == 'APPROVED' && $data->approved_by !== null && $data->aktual_mulai_cuti == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-info btnMulai" data-id="'.$data->id_cuti.'"><i class="fas fa-play-circle"></i> Mulai </button>' : '').
                     // ($data->status_cuti == 'ON LEAVE' && $data->status_dokumen == 'APPROVED' && $data->approved_by !== null && $data->aktual_mulai_cuti !== null && $data->aktual_selesai_cuti == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-primary btnSelesai" data-id="'.$data->id_cuti.'"><i class="fas fa-calendar-check"></i> Selesai </button>' : '').
@@ -1001,8 +1001,8 @@ class CutieController extends Controller
         if($jenis_cuti == 'PRIBADI'){
             $dataValidate = [
                 'jenis_cuti' => ['required'],
-                'rencana_mulai_cuti' => ['date','required'],
-                'rencana_selesai_cuti' => ['date','required'],
+                'rencana_mulai_cuti' => ['date','required', 'after_or_equal:'.Carbon::now()->addDays(7)->format('Y-m-d')],
+                'rencana_selesai_cuti' => ['date','required', 'after_or_equal:rencana_mulai_cuti'],
                 'alasan_cuti' => ['required'],
                 'durasi_cuti' => ['numeric','required'],
             ];
@@ -2346,7 +2346,7 @@ class CutieController extends Controller
                                 $tanggal_cuti[] = $r->format('Y-m-d');
                             }
                         } else {
-                            $tanggal_cuti[] = $r->format('Y-m-d');
+                            $tanggal_cuti[] = $c->rencana_mulai_cuti;
                         }
                     }
 

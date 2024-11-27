@@ -68,6 +68,12 @@
                                 <span>Setting Lembur</span>
                             </a>
                         </li>
+                        <li class="{{ $page == 'lembure-setting-gaji-departemen' ? 'active' : '' }}">
+                            <a href="{{ route('lembure.setting-gaji-departemen') }}">
+                                <i class="icon-Building"><span class="path1"></span><span class="path2"></span></i>
+                                <span>Setting Gaji Departemen</span>
+                            </a>
+                        </li>
                         <li class="{{ $page == 'lembure-export-report-lembur' ? 'active' : '' }}">
                             <a href="{{ route('lembure.export-report-lembur') }}">
                                 <i class="icon-Export"><span class="path1"></span><span class="path2"></span></i>

@@ -3,6 +3,8 @@
 namespace App\Console\Commands;
 
 use Exception;
+use App\Models\Cutie;
+use App\Models\Karyawan;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
@@ -85,8 +87,9 @@ class AutomaticRejectCuti extends Command
                     }
                 }
             }
-            DB::commit();
+            activity('automatic_reject_cuti')->log('Reject Cuti Karyawan per tanggal -'. $today);
             $this->info('Sisa cuti karyawan berhasil dikembalikan dan pengajuan cuti ditolak otomatis');
+            DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
             $this->error('Terjadi kesalahan: ' . $e->getMessage());

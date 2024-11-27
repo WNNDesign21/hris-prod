@@ -7,6 +7,7 @@ use App\Models\Karyawan;
 use App\Models\Departemen;
 use App\Models\Organisasi;
 use App\Models\DetailLembur;
+use App\Models\AttachmentLembur;
 use Illuminate\Database\Eloquent\Model;
 use Iksaku\Laravel\MassUpdate\MassUpdatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -35,6 +36,11 @@ class Lembure extends Model
     //         return $query;
     //     }
     // }
+
+    public function attachmentLembur()
+    {
+        return $this->hasMany(AttachmentLembur::class, 'lembur_id', 'id_lembur');
+    }
 
     public function organisasi()
     {
@@ -130,6 +136,10 @@ class Lembure extends Model
                     $data->whereIn('lemburs.status', $dataFilter['status']);
                 } 
 
+                if(isset($dataFilter['departemen'])){
+                    $data->where('departemens.id_departemen', $dataFilter['departemen']);
+                } 
+
                 if(isset($dataFilter['urutan'])){
                     if($dataFilter['urutan'] == 'NO'){
                         $data->orderBy('lemburs.issued_date', 'DESC');
@@ -165,12 +175,21 @@ class Lembure extends Model
 
         if (isset($dataFilter['member_posisi_ids'])) {
             $data->whereIn('posisis.id_posisi', $dataFilter['member_posisi_ids']);
-            if(isset($dataFilter['status'])){
-                $data->whereIn('lemburs.status', $dataFilter['status']);
+            if($dataFilter['mustChecked'] == 'true'){
+                $data->whereNull('lemburs.plan_checked_by');
+                $data->orWhere(function ($query) use ($dataFilter) {
+                    $query->whereIn('posisis.id_posisi', $dataFilter['member_posisi_ids']);
+                    $query->where('lemburs.status', 'COMPLETED');
+                    $query->whereNull('lemburs.actual_checked_by');
+                });
             } else {
-                $data->orderByRaw("(lemburs.status = 'WAITING' AND lemburs.plan_checked_by IS NULL) OR (lemburs.status = 'WAITING' AND lemburs.plan_checked_by IS NOT NULL) DESC");
-                $data->orderByRaw("lemburs.status = 'COMPLETED' AND lemburs.actual_checked_by IS NULL DESC");
-                $data->orderByRaw("lemburs.status = 'REJECTED' ASC");
+                if(isset($dataFilter['status'])){
+                    $data->whereIn('lemburs.status', $dataFilter['status']);
+                } else {
+                    $data->orderByRaw("(lemburs.status = 'WAITING' AND lemburs.plan_checked_by IS NULL) OR (lemburs.status = 'WAITING' AND lemburs.plan_checked_by IS NOT NULL) DESC");
+                    $data->orderByRaw("lemburs.status = 'COMPLETED' AND lemburs.actual_checked_by IS NULL DESC");
+                    $data->orderByRaw("lemburs.status = 'REJECTED' ASC");
+                }
             }
         }
 
