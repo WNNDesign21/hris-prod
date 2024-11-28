@@ -165,6 +165,26 @@ class Cutie extends Model
                     ->orWhere('kp.nama_pengganti', 'ILIKE', "%{$search}%");
             });
         }
+        $data->orderByRaw("CASE 
+            WHEN status_dokumen = 'WAITING' AND status_cuti != 'CANCELED' THEN 1
+            WHEN status_dokumen = 'REJECTED' OR status_cuti = 'CANCELED' THEN 3
+            ELSE 2
+        END");
+        
+        if(auth()->user()->hasRole('personalia')){
+            $data->orderByRaw("CASE 
+                WHEN approved_by IS NOT NULL AND legalized_by IS NULL THEN 0
+                ELSE 1
+            END, cutis.created_at DESC");
+        }
+
+        if (isset($dataFilter['member_posisi_id'])) { 
+            $data->orderByRaw("CASE 
+                WHEN (checked1_by IS NULL OR checked2_by IS NULL OR approved_by IS NULL) AND (status_dokumen = 'WAITING' AND status_cuti != 'CANCELED') THEN 0
+                ELSE 1
+            END, cutis.created_at DESC");
+        }
+
         $data->groupBy('id_cuti', 'cutis.created_at', 'rencana_mulai_cuti', 'rencana_selesai_cuti', 'aktual_mulai_cuti', 'aktual_selesai_cuti', 'durasi_cuti', 'jenis_cuti', 'alasan_cuti', 'checked1_at', 'checked2_at',  'approved_at', 'legalized_at','checked1_by', 'checked2_by',  'approved_by', 'legalized_by', 'status_dokumen', 'status_cuti', 'attachment', 'kp.nama_pengganti', 'jc.jenis_cuti_khusus', 'karyawans.nama', 'cutis.karyawan_id', 'karyawan_pengganti_id','departemens.nama');
 
         $result = $data;
