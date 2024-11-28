@@ -878,8 +878,13 @@ class LembureController extends Controller
 
             // Kondisi jika lintas hari
             if ($start->format('Y-m-d') !== $end->format('Y-m-d')) {
-                $breakStart = Carbon::parse($start->format('Y-m-d') . ' ' . $break['start'])->addDay();
-                $breakEnd = Carbon::parse($start->format('Y-m-d') . ' ' . $break['end'])->addDay();
+                if($start->format('H:i') > $break['start']){
+                    $breakStart = Carbon::parse($start->format('Y-m-d') . ' ' . $break['start'])->addDay();
+                    $breakEnd = Carbon::parse($start->format('Y-m-d') . ' ' . $break['end'])->addDay();
+                } else {
+                    $breakStart = Carbon::parse($start->format('Y-m-d') . ' ' . $break['start']);
+                    $breakEnd = Carbon::parse($start->format('Y-m-d') . ' ' . $break['end']);
+                }
             } else {
                 $breakStart = Carbon::parse($start->format('Y-m-d') . ' ' . $break['start']);
                 $breakEnd = Carbon::parse($start->format('Y-m-d') . ' ' . $break['end']);
@@ -901,7 +906,7 @@ class LembureController extends Controller
                     $duration -= abs($end->diffInMinutes($start));
                 }
             }
-        }        
+        }
 
         //OLD
         // foreach ($breaks as $break) {
@@ -969,8 +974,20 @@ class LembureController extends Controller
         }
 
         foreach ($breaks as $break) {
-            $breakStart = Carbon::parse($start->format('Y-m-d') . ' ' . $break['start']);
-            $breakEnd = Carbon::parse($start->format('Y-m-d') . ' ' . $break['end']);
+            // $breakStart = Carbon::parse($start->format('Y-m-d') . ' ' . $break['start']);
+            // $breakEnd = Carbon::parse($start->format('Y-m-d') . ' ' . $break['end']);
+            if ($start->format('Y-m-d') !== $end->format('Y-m-d')) {
+                if($start->format('H:i') > $break['start']){
+                    $breakStart = Carbon::parse($start->format('Y-m-d') . ' ' . $break['start'])->addDay();
+                    $breakEnd = Carbon::parse($start->format('Y-m-d') . ' ' . $break['end'])->addDay();
+                } else {
+                    $breakStart = Carbon::parse($start->format('Y-m-d') . ' ' . $break['start']);
+                    $breakEnd = Carbon::parse($start->format('Y-m-d') . ' ' . $break['end']);
+                }
+            } else {
+                $breakStart = Carbon::parse($start->format('Y-m-d') . ' ' . $break['start']);
+                $breakEnd = Carbon::parse($start->format('Y-m-d') . ' ' . $break['end']);
+            }
 
             //Revisi
             if ($start->lessThanOrEqualTo($breakEnd) && $end->greaterThanOrEqualTo($breakStart)) {

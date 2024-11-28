@@ -37,7 +37,9 @@
                                 </div>
                                 <!-- /.box-header -->
                                 <div class="box-body px-4 py-0">
-                                    <div class="table-responsive">
+                                    <div class="row" id="list-detail-lembur-done">
+                                    </div>
+                                    {{-- <div class="table-responsive">
                                         <table class="table table-bordered mb-0" id="table-detail-lembur-done">
                                             <thead class="table-primary">
                                                 <tr>
@@ -52,7 +54,7 @@
                                             <tbody id="list-detail-lembur-done">
                                             </tbody>
                                         </table>
-                                    </div>
+                                    </div> --}}
                                 </div>
                                 <!-- /.box-body -->
                             </div>

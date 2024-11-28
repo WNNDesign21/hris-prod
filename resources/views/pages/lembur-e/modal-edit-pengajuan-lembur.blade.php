@@ -37,7 +37,9 @@
                                 </div>
                                 <!-- /.box-header -->
                                 <div class="box-body px-4 py-0">
-                                    <div class="table-responsive">
+                                    <div class="row" id="list-detail-lembur-edit">
+                                    </div>
+                                    {{-- <div class="table-responsive">
                                         <table class="table mb-0" id="table-detail-lembur-edit">
                                             <thead class="table-primary">
                                                 <tr>
@@ -49,41 +51,9 @@
                                                 </tr>
                                             </thead>
                                             <tbody id="list-detail-lembur-edit">
-                                                {{-- <tr>
-                                                    <td>
-                                                        <select name="karyawan_id[]" id="karyawan_id"
-                                                            class="form-control" style="width: 100%;">
-                                                        </select>
-                                                    </td>
-                                                    <td>
-                                                        <input type="text" name="job_description[]"
-                                                            id="job_description" class="form-control"
-                                                            style="width: 100%;">
-                                                        </input>
-                                                    </td>
-                                                    <td>
-                                                        <input type="datetime-local" name="rencana_mulai_lembur[]"
-                                                            id="rencana_mulai_lembur" class="form-control"
-                                                            style="width: 100%;">
-                                                        </input>
-                                                    </td>
-                                                    <td>
-                                                        <input type="datetime-local" name="rencana_selesai_lembur[]"
-                                                            id="rencana_selesai_lembur" class="form-control"
-                                                            style="width: 100%;">
-                                                        </input>
-                                                    </td>
-                                                    <td>
-                                                        <div class="btn-group">
-                                                            <button type="button"
-                                                                class="btn btn-danger waves-effect btnDelete"><i
-                                                                    class="fas fa-trash"></i></button>
-                                                        </div>
-                                                    </td>
-                                                </tr> --}}
                                             </tbody>
                                         </table>
-                                    </div>
+                                    </div> --}}
                                 </div>
                                 <!-- /.box-body -->
                             </div>
