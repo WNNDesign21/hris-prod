@@ -1,8 +1,10 @@
 @extends('layouts.guest-layout')
 
 @section('content')
-    <div class="content-top-agile p-40">
-        <img src="{{ asset('img/tcf/logo.png') }}" alt="TCF Logo" class="rounded-circle">
+    <div class="content-top-agile pt-40 pb-20 px-20">
+        <img src="{{ asset('img/tcf/logo.png') }}" alt="TCF Logo" class="rounded-circle mb-3" style="max-width: 30%;">
+        <h3>WELCOME TO SUPERAPPS</h5>
+            <h5 class="text-fade">PT TRI CENTRUM FORTUNA</h5>
     </div>
     <div class="p-40 pt-0">
         <form method="POST" action="{{ route('login') }}">
