@@ -3159,4 +3159,49 @@ class LembureController extends Controller
         $attachment = $lembur->attachmentLembur;
         return response()->json(['message' => 'Data LKH Berhasil Ditemukan', 'data' => $attachment], 200);
     }
+
+    public function get_calculation_durasi_and_nominal_lembur(Request $request, int $id_detail_lembur)
+    {
+        $dataValidate = [
+            'mulai_lembur' => ['required', 'date_format:Y-m-d\TH:i', 'before:selesai_lembur'],
+            'selesai_lembur' => ['required', 'date_format:Y-m-d\TH:i', 'after:mulai_lembur'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $detail_lembur = DetailLembur::find($id_detail_lembur);
+        $status = $detail_lembur->lembur->status;
+        $jenis_hari = $detail_lembur->lembur->jenis_hari == 'WEEKDAY' ? 'WD' : 'WE';
+        $karyawan_id = $detail_lembur->karyawan_id;
+        $mulai_lembur = $request->mulai_lembur;
+        $selesai_lembur = $request->selesai_lembur;
+
+        try{
+            $datetime_mulai_lembur = $this->pembulatan_menit_ke_bawah($mulai_lembur);
+            $datetime_selesai_lembur = $this->pembulatan_menit_ke_bawah($selesai_lembur);
+            $durasi = $this->calculate_overtime_per_minutes($datetime_mulai_lembur, $datetime_selesai_lembur, $detail_lembur->karyawan->user->organisasi_id, $jenis_hari, $karyawan_id);
+            $nominal = $this->calculate_overtime_nominal($jenis_hari, $durasi, $karyawan_id);
+
+            $hours = floor($durasi / 60);
+            $minutes = $durasi % 60;
+
+            $durasi_text = $hours . ' jam ' . $minutes . ' menit';
+            $nominal_text = 'Rp ' . number_format($nominal, 0, ',', '.');
+
+            $data = [
+                'durasi' => $durasi_text,
+                'nominal' => $nominal_text
+            ];
+            return response()->json(['message' => 'Data Durasi dan Nominal Lembur Berhasil Ditemukan', 'data' => $data], 200);
+        } catch (Throwable $e){
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+
+        // return response()->json(['message' => 'Data Durasi dan Nominal Lembur Berhasil Ditemukan', 'durasi' => $durasi, 'nominal' => $nominal], 200);
+    }
 }

@@ -35,73 +35,9 @@
                                     </div>
                                 </div>
                                 <!-- /.box-header -->
-                                <div class="box-body px-4 py-0">
+                                <div class="box-body px-1 py-0">
                                     <div class="row" id="list-detail-lembur">
-                                        {{-- <div class="col-12">
-                                            <div class="box box-bordered border-info">
-                                                <div class="box-header with-border">
-                                                    <div class="row">
-                                                        <div class="col-12 d-flex justify-content-end">
-                                                            <div class="btn-group">
-                                                                <button type="button"
-                                                                    class="btn btn-danger waves-effect btnDeleteDetailLemburEditNew"
-                                                                    data-urutan="${detailCount}"
-                                                                    id="btn_delete_detail_lemburEditNew_${detailCount}"><i
-                                                                        class="fas fa-trash"></i></button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="box-body">
-                                                    <div class="row">
-                                                        <div class="col-6 col-lg-3">
-                                                            <div class="form-group">
-                                                                <label for="karyawan">Karyawan</label>
-                                                                <input type="text" class="form-control"
-                                                                    style="width:100%;">
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-6 col-lg-3">
-                                                            <div class="form-group">
-                                                                <label for="karyawan">Job Description</label>
-                                                                <input type="text" class="form-control"
-                                                                    style="width:100%;">
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-6 col-lg-3">
-                                                            <div class="form-group">
-                                                                <label for="karyawan">Rencana Mulai</label>
-                                                                <input type="text" class="form-control"
-                                                                    style="width:100%;">
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-6 col-lg-3">
-                                                            <div class="form-group">
-                                                                <label for="karyawan">Rencana Selesai</label>
-                                                                <input type="text" class="form-control"
-                                                                    style="width:100%;">
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div> --}}
                                     </div>
-                                    {{-- <div class="table-responsive">
-                                        <table class="table mb-0" id="table-detail-lembur">
-                                            <thead class="table-primary">
-                                                <tr>
-                                                    <th style="width: 35%;">Karyawan</th>
-                                                    <th style="width: 20%;">Job Description</th>
-                                                    <th style="width: 20%;">Rencana Mulai</th>
-                                                    <th style="width: 20%;">Rencana Selesai</th>
-                                                    <th style="width: 5%;">Aksi</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="list-detail-lembur">
-                                            </tbody>
-                                        </table>
-                                    </div> --}}
                                 </div>
                                 <!-- /.box-body -->
                             </div>
