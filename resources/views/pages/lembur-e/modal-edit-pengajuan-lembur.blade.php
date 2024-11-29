@@ -36,24 +36,9 @@
                                     </div>
                                 </div>
                                 <!-- /.box-header -->
-                                <div class="box-body px-4 py-0">
+                                <div class="box-body px-1 py-0">
                                     <div class="row" id="list-detail-lembur-edit">
                                     </div>
-                                    {{-- <div class="table-responsive">
-                                        <table class="table mb-0" id="table-detail-lembur-edit">
-                                            <thead class="table-primary">
-                                                <tr>
-                                                    <th style="width: 20%;">Karyawan</th>
-                                                    <th style="width: 35%;">Job Description</th>
-                                                    <th style="width: 20%;">Rencana Mulai </th>
-                                                    <th style="width: 20%;">Rencana Selesai </th>
-                                                    <th style="width: 5%;">Aksi</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="list-detail-lembur-edit">
-                                            </tbody>
-                                        </table>
-                                    </div> --}}
                                 </div>
                                 <!-- /.box-body -->
                             </div>
