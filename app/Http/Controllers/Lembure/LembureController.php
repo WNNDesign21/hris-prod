@@ -43,6 +43,21 @@ class LembureController extends Controller
         return view('pages.lembur-e.index', $dataPage);
     }
 
+    public function detail_lembur_view()
+    {
+        if(auth()->user()->karyawan && auth()->user()->karyawan->posisi[0]->jabatan_id >= 5){
+            return redirect()->route('lembure.pengajuan-lembur');
+        }
+
+        $departemens = Departemen::all();
+        $dataPage = [
+            'pageTitle' => "Lembur-E - Leaderboard Lembur",
+            'page' => 'lembure-detail-lembur',
+            'departemens' => $departemens
+        ];
+        return view('pages.lembur-e.detail-lembur', $dataPage);
+    }
+
     public function pengajuan_lembur_view()
     {
         $dataPage = [
@@ -522,6 +537,95 @@ class LembureController extends Controller
                 $nestedData['actual_approved_by'] = !$rejected ? $button_approved_actual : '';
                 $nestedData['actual_legalized_by'] = !$rejected ? $button_legalized_actual : '';
                 $nestedData['action'] = '<button type="button" class="waves-effect waves-light btn btn-sm btn-info btnDetail" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-eye"></i> Detail</button>';
+
+                $dataTable[] = $nestedData;
+            }
+        }
+
+        $json_data = array(
+            "draw" => intval($request->input('draw')),
+            "recordsTotal" => intval($totalData),
+            "recordsFiltered" => intval($totalFiltered),
+            "data" => $dataTable,
+            "order" => $order,
+            "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
+            "dir" => $dir,
+            "column"=>$request->input('order.0.column')
+        );
+
+        return response()->json($json_data, 200);
+    }
+
+    public function detail_lembur_datatable(Request $request)
+    {
+        $columns = array(
+            0 => 'detail_lemburs.lembur_id',
+            1 => 'karyawans.nama',
+            2 => 'posisis.nama',
+            3 => 'departemens.nama',
+            4 => 'detail_lemburs.aktual_mulai_lembur',
+            5 => 'detail_lemburs.aktual_selesai_lembur',
+            6 => 'detail_lemburs.durasi',
+            7 => 'detail_lemburs.nominal',
+        );
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = (!empty($request->input('order.0.column'))) ? $columns[$request->input('order.0.column')] : $columns[0];
+        $dir = (!empty($request->input('order.0.dir'))) ? $request->input('order.0.dir') : "ASC";
+
+        $settings['start'] = $start;
+        $settings['limit'] = $limit;
+        $settings['dir'] = $dir;
+        $settings['order'] = $order;
+
+        $dataFilter = [];
+        $search = $request->input('search.value');
+        if (!empty($search)) {
+            $dataFilter['search'] = $search;
+        }
+
+        $filterPeriode = $request->periode;
+        if(isset($filterPeriode)){
+            $dataFilter['month'] = Carbon::parse($filterPeriode)->format('m');
+            $dataFilter['year'] = Carbon::parse($filterPeriode)->format('Y');
+        } else {
+            $dataFilter['month'] = date('m');
+            $dataFilter['year'] = date('Y');
+        }
+
+        if (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id == 4 || auth()->user()->karyawan->posisi[0]->jabatan_id == 3)){
+            $posisi = auth()->user()->karyawan->posisi;
+            $member_posisi_ids = $this->get_member_posisi($posisi);
+            $dataFilter['member_posisi_ids'] = $member_posisi_ids;
+        } 
+
+        $filterDepartemen = $request->departemen;
+        if(isset($filterDepartemen)){
+            $dataFilter['departemen'] = $filterDepartemen;
+        }
+
+        $totalData = DetailLembur::all()->count();
+        $totalFiltered = $totalData;
+
+        $leaderboard = DetailLembur::getData($dataFilter, $settings);
+        $totalFiltered = DetailLembur::countData($dataFilter);
+        $dataTable = [];
+
+        if (!empty($leaderboard)) {
+
+            foreach ($leaderboard as $data) {
+                $jam = floor($data->durasi / 60);
+                $menit = $data->durasi % 60;
+
+                $nestedData['lembur_id'] = $data->lembur_id;
+                $nestedData['nama'] = $data->nama;
+                $nestedData['posisi'] = $data->posisi;
+                $nestedData['departemen'] = $data->departemen ?? $data->divisi ?? '-';
+                $nestedData['mulai'] = Carbon::parse($data->aktual_mulai_lembur)->format('Y-m-d H:i');
+                $nestedData['selesai'] = Carbon::parse($data->aktual_selesai_lembur)->format('Y-m-d H:i');
+                $nestedData['durasi'] = $jam.' jam '.$menit.' menit';
+                $nestedData['nominal'] = 'Rp. ' . number_format($data->nominal, 0, ',', '.');
 
                 $dataTable[] = $nestedData;
             }
@@ -2530,6 +2634,43 @@ class LembureController extends Controller
             }
 
             return response()->json(['message' => 'Data Lembur Berhasil Ditemukan', 'data' => $data, 'batas' => $existing_batas], 200);
+        } catch (Throwable $e){
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function get_leaderboard_user_monthly(Request $request)
+    {
+        try{
+            $dataFilter = [];
+
+            if (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id == 4 || auth()->user()->karyawan->posisi[0]->jabatan_id == 3)){
+                $posisi = auth()->user()->karyawan->posisi;
+                $member_posisi_ids = $this->get_member_posisi($posisi);
+                $dataFilter['member_posisi_ids'] = $member_posisi_ids;
+            }
+
+            $filterPeriode = $request->periode;
+            if(isset($filterPeriode)){
+                $dataFilter['month'] = Carbon::parse($filterPeriode)->format('m');
+                $dataFilter['year'] = Carbon::parse($filterPeriode)->format('Y');
+            } else {
+                $dataFilter['month'] = date('m');
+                $dataFilter['year'] = date('Y');
+            }
+
+            $filterLimit = $request->limit;
+            if(isset($filterLimit)){
+                $dataFilter['limit'] = $filterLimit;
+            }
+
+            $filterDepartemen = $request->departemen;
+            if(isset($filterDepartemen)){
+                $dataFilter['departemen'] = $filterDepartemen;
+            }
+
+            $data = DetailLembur::getLeaderboardUserMonthly($dataFilter)->toArray();
+            return response()->json(['message' => 'Data Lembur Berhasil Ditemukan', 'data' => $data], 200);
         } catch (Throwable $e){
             return response()->json(['message' => $e->getMessage()], 500);
         }

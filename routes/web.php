@@ -247,6 +247,13 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
         // DASHBOARD
         Route::get('/dashboard', [LembureController::class, 'index'])->name('lembure.dashboard')->middleware('role:personalia|atasan');
 
+        // LEADERBOARD LEMBUR
+        Route::group(['middleware' => ['role:atasan|personalia']], function () {
+            Route::get('/detail-lembur', [LembureController::class, 'detail_lembur_view'])->name('lembure.detail-lembur');
+            Route::post('/detail-lembur-datatable', [LembureController::class, 'detail_lembur_datatable']);
+            Route::post('/detail-lembur/get-leaderboard-user-monthly',[LembureController::class, 'get_leaderboard_user_monthly']); 
+        });
+
         Route::group(['middleware' => ['role:atasan|member']], function () {
         // PENGAJUAN LEMBUR (LEADER)
             Route::get('/pengajuan-lembur', [LembureController::class, 'pengajuan_lembur_view'])->name('lembure.pengajuan-lembur');

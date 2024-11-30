@@ -13,6 +13,12 @@
                                 <span>Dashboard</span>
                             </a>
                         </li>
+                        <li class="{{ $page == 'lembure-detail-lembur' ? 'active' : '' }}">
+                            <a href="{{ route('lembure.detail-lembur') }}">
+                                <i class="icon-Stairs"><span class="path1"></span><span class="path2"></span></i>
+                                <span>Detail Lembur</span>
+                            </a>
+                        </li>
                     @endif
                     @if (auth()->user()->karyawan && ($lembure['is_leader'] || !$lembure['has_leader']))
                         <li
