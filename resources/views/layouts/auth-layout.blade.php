@@ -194,6 +194,10 @@
         @vite(['resources/js/pages/lembure-dashboard.js'])
     @endif
 
+    @if ($page == 'lembure-detail-lembur')
+        @vite(['resources/js/pages/lembure-detail-lembur.js'])
+    @endif
+
 </body>
 
 </html>

@@ -112,6 +112,21 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
+        'superapps' => [
+            'driver' => 'pgsql',
+            'url' => env('DATABASE_URL_SUPERAPPS'),
+            'host' => env('DB_HOST_SUPERAPPS', '127.0.0.1'),
+            'port' => env('DB_PORT_SUPERAPPS', '5432'),
+            'database' => env('DB_DATABASE_SUPERAPPS', 'forge'),
+            'username' => env('DB_USERNAME_SUPERAPPS', 'forge'),
+            'password' => env('DB_PASSWORD_SUPERAPPS', ''),
+            'charset' => env('DB_CHARSET', 'utf8'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => 'public',
+            'sslmode' => 'prefer',
+        ],
+
     ],
 
     /*
