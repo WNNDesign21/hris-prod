@@ -133,12 +133,20 @@ class DetailLembur extends Model
         ->leftJoin('karyawan_posisi', 'karyawan_posisi.karyawan_id', 'karyawans.id_karyawan')
         ->leftJoin('posisis', 'posisis.id_posisi', 'karyawan_posisi.posisi_id')
 
-        ->whereNotNull('lemburs.actual_legalized_by')
         ->where('lemburs.status', 'COMPLETED')
         ->whereNotNull('lemburs.actual_legalized_by');
 
-        if(auth()->user()->hasRole('personalia') || auth()->user()->karyawan->posisi[0]->jabatan_id <= 2 && auth()->user()->karyawan->posisi[0]->divisi_id == null){
+        if(auth()->user()->hasRole('personalia') || auth()->user()->karyawan->posisi[0]->jabatan_id <= 2 && auth()->user()->karyawan->posisi[0]->organisasi_id !== null){
             $data->where('detail_lemburs.organisasi_id', auth()->user()->organisasi_id);
+        } elseif (auth()->user()->karyawan && auth()->user()->karyawan->posisi[0]->jabatan_id <= 2 && auth()->user()->karyawan->posisi[0]->divisi_id !== null && auth()->user()->karyawan->posisi[0]->organisasi_id == null){
+            $posisis = auth()->user()->karyawan->posisi;
+            $divisi_ids = [];
+            foreach ($posisis as $posisi){
+                if($posisi->divisi_id !== null){
+                    $divisi_ids[] = $posisi->divisi_id;
+                }
+            }
+            $data->whereIn('detail_lemburs.divisi_id', $divisi_ids);
         }
 
         if(isset($dataFilter['departemen'])){
@@ -183,8 +191,17 @@ class DetailLembur extends Model
         ->where('lemburs.status', 'COMPLETED')
         ->whereNotNull('lemburs.actual_legalized_by');
 
-        if(auth()->user()->hasRole('personalia') || auth()->user()->karyawan->posisi[0]->jabatan_id <= 2 && auth()->user()->karyawan->posisi[0]->divisi_id == null){
+        if(auth()->user()->hasRole('personalia') || auth()->user()->karyawan->posisi[0]->jabatan_id <= 2 && auth()->user()->karyawan->posisi[0]->organisasi_id !== null){
             $data->where('detail_lemburs.organisasi_id', auth()->user()->organisasi_id);
+        } elseif (auth()->user()->karyawan && auth()->user()->karyawan->posisi[0]->jabatan_id <= 2 && auth()->user()->karyawan->posisi[0]->divisi_id !== null && auth()->user()->karyawan->posisi[0]->organisasi_id == null){
+            $posisis = auth()->user()->karyawan->posisi;
+            $divisi_ids = [];
+            foreach ($posisis as $posisi){
+                if($posisi->divisi_id !== null){
+                    $divisi_ids[] = $posisi->divisi_id;
+                }
+            }
+            $data->whereIn('detail_lemburs.divisi_id', $divisi_ids);
         }
 
         if (isset($dataFilter['member_posisi_ids'])) {

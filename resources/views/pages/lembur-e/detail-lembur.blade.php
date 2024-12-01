@@ -19,21 +19,16 @@
                 <div class="box-body d-flex justify-content-between">
                     <div class="row">
                         <h4 class="box-title">Detail Lembur</h4>
-                        <h3
-                            class="{{ auth()->user()->karyawan && auth()->user()->karyawan->posisi[0]->jabatan_id > 2 ? 'd-none' : '' }}">
+                        <h3>
                             Filter Status : <span id="filterStatus">-</span></h3>
                     </div>
                     <div>
                         <div class="btn-group">
                             <button type="button" class="btn btn-info waves-effect btnReload"><i
                                     class="fas fa-sync-alt"></i></button>
-                            @if (auth()->user()->hasRole('personalia') ||
-                                    (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 &&
-                                        auth()->user()->karyawan->posisi[0]->divisi_id == null))
-                                <button type="button" class="btn btn-warning waves-effect btnFilter">
-                                    <i class="fas fa-filter"></i>
-                                </button>
-                            @endif
+                            <button type="button" class="btn btn-warning waves-effect btnFilter">
+                                <i class="fas fa-filter"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -56,8 +51,8 @@
                                 <tr>
                                     <th>ID Lembur</th>
                                     <th>Nama</th>
-                                    <th>Departemen</th>
                                     <th>Posisi</th>
+                                    <th>Departemen</th>
                                     <th>Mulai</th>
                                     <th>Selesai</th>
                                     <th>Durasi</th>

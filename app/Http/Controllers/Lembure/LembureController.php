@@ -49,7 +49,29 @@ class LembureController extends Controller
             return redirect()->route('lembure.pengajuan-lembur');
         }
 
-        $departemens = Departemen::all();
+        if(auth()->user()->hasRole('personalia') || (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->organisasi_id !== null)){
+            $departemens = Departemen::all();
+        } else {
+            $posisis = auth()->user()->karyawan->posisi;
+            $departemen_ids = [];
+            $divisi_ids = [];
+            foreach ($posisis as $posisi){
+                if($posisi->departemen_id !== null){
+                    $departemen_ids[] = $posisi->departemen_id;
+                }
+
+                if($posisi->divisi_id !== null){
+                    $divisi_ids[] = $posisi->divisi_id;
+                }
+            }
+
+            if(!empty($departemen_ids)){
+                $departemens = Departemen::whereIn('id_departemen', $departemen_ids)->get();
+            } else {
+                $departemens = Departemen::whereIn('divisi_id', $divisi_ids)->get();
+            }
+        }
+
         $dataPage = [
             'pageTitle' => "Lembur-E - Leaderboard Lembur",
             'page' => 'lembure-detail-lembur',
