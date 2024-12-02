@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Cutie\CutieController;
+use App\Http\Controllers\Izine\IzineController;
 use App\Http\Controllers\Lembure\LembureController;
 use App\Http\Controllers\MasterData\AkunController;
 use App\Http\Controllers\MasterData\GrupController;
@@ -302,6 +303,13 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
             Route::post('/export-report-lembur/slip-lembur-perbulan', [LembureController::class, 'export_slip_lembur_perbulan'])->name('lembure.export-report-lembur.export-slip-lembur-perbulan');
         });
      });
+
+     Route::group(['prefix' => 'izine'], function () {
+        Route::group(['middleware' => ['role:atasan|member']], function () {
+                Route::get('/izin-pribadi', [IzineController::class, 'izin_pribadi_view'])->name('izine.izin-pribadi');
+                Route::post('/izin-pribadi-datatable', [IzineController::class, 'izin_pribadi_datatable']);
+            });
+      });
 });
 
 

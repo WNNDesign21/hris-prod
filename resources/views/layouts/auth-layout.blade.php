@@ -198,6 +198,10 @@
         @vite(['resources/js/pages/lembure-detail-lembur.js'])
     @endif
 
+    @if ($page == 'izine-izin-pribadi')
+        @vite(['resources/js/pages/izine-izin-pribadi.js'])
+    @endif
+
 </body>
 
 </html>
