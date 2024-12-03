@@ -89,15 +89,9 @@
 
 
                 {{-- CARD IZIN SYSTEM --}}
-                <div class="col-lg-6 col-12">
-                    <a href="{{ route('izine.izin-pribadi') }}" class="box pull-up">
+                {{-- <div class="col-lg-6 col-12">
+                    <a href="{{ route('izine.pengajuan-izin') }}" class="box pull-up">
                         <div class="box-body position-relative">
-                            {{-- @if ($notification['count_cutie_approval'] + $notification['count_my_cutie'] + $notification['count_rejected_cuti'] > 0)
-                                <span class="position-absolute top-0 start-95 translate-middle badge bg-danger">
-                                    <i class="ti-bell"></i>
-                                    {{ $notification['count_cutie_approval'] + $notification['count_my_cutie'] + $notification['count_rejected_cuti'] }}
-                                </span>
-                            @endif --}}
                             <div class="d-flex align-items-center">
                                 <div class="icon bg-primary-light rounded-circle w-60 h-60 text-center l-h-80">
                                     <span class="fs-30 icon-Clipboard"><span class="path1"></span><span
@@ -106,14 +100,13 @@
                                 </div>
                                 <div class="ms-15">
                                     <h5 class="mb-0">Izin-E</h5>
-                                    <p class="text-fade fs-12 mb-0">Sistem Izin Digital seperti Sakit, Izin Tidak Masuk, dan
-                                        Izin
-                                        Setengah Hari</p>
+                                    <p class="text-fade fs-12 mb-0">Sistem Izin Digital seperti Izin Tidak Masuk, Izin 1/2
+                                        Hari dan Sakit</p>
                                 </div>
                             </div>
                         </div>
                     </a>
-                </div>
+                </div> --}}
             </div>
         </div>
 

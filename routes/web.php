@@ -70,6 +70,8 @@ Route::get('/get-approval-lembur-notification', [HomeController::class, 'get_app
 Route::get('/get-planned-pengajuan-lembur-notification', [HomeController::class, 'get_planned_pengajuan_lembur_notification'])->middleware('lembure');
 Route::get('/lembure/pengajuan-lembur/get-attachment-lembur/{idLembur}',[LembureController::class, 'get_attachment_lembur']);
 
+Route::get('/izine/pengajuan-izin/get-data-izin/{idIzin}',[IzineController::class, 'get_data_izin']);
+
 Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
     // MENU UTAMA
     Route::get('/home', [HomeController::class, 'index'])->name('root');
@@ -306,8 +308,10 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
 
      Route::group(['prefix' => 'izine'], function () {
         Route::group(['middleware' => ['role:atasan|member']], function () {
-                Route::get('/izin-pribadi', [IzineController::class, 'izin_pribadi_view'])->name('izine.izin-pribadi');
-                Route::post('/izin-pribadi-datatable', [IzineController::class, 'izin_pribadi_datatable']);
+                Route::get('/pengajuan-izin', [IzineController::class, 'pengajuan_izin_view'])->name('izine.pengajuan-izin');
+                Route::post('/pengajuan-izin-datatable', [IzineController::class, 'pengajuan_izin_datatable']);
+                Route::post('/pengajuan-izin/store',[IzineController::class, 'store'])->name('izine.pengajuan-izin.store');
+                Route::delete('/pengajuan-izin/delete/{idIzin}',[IzineController::class, 'delete'])->name('izine.pengajuan-izin.delete');
             });
       });
 });

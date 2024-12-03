@@ -7,36 +7,36 @@
                 <ul class="sidebar-menu" data-widget="tree">
                     <li class="header">Izin-E Menu</li>
                     @if (auth()->user()->hasRole('atasan') || auth()->user()->hasRole('member'))
-                        <li class="{{ $page == 'izine-izin-pribadi' ? 'active' : '' }}">
-                            <a href="{{ route('izine.izin-pribadi') }}">
+                        <li class="{{ $page == 'izine-pengajuan-izin' ? 'active' : '' }}">
+                            <a href="{{ route('izine.pengajuan-izin') }}">
                                 <i class="icon-User"><span class="path1"></span><span class="path2"></span></i>
-                                <span>Izin Pribadi</span>
+                                <span>Pengajuan Izin</span>
                             </a>
                         </li>
                     @endif
-                    @if (auth()->user()->hasRole('atasan') || auth()->user()->hasRole('personalia'))
-                        <li class="{{ $page == 'izine-izin-pribadi' ? 'active' : '' }}">
-                            <a href="{{ route('izine.izin-pribadi') }}">
+                    {{-- @if (auth()->user()->hasRole('atasan') || auth()->user()->hasRole('personalia'))
+                        <li class="{{ $page == 'izine-pengajuan-izin' ? 'active' : '' }}">
+                            <a href="{{ route('izine.pengajuan-izin') }}">
                                 <i class="icon-Adress-book1"><span class="path1"></span><span
                                         class="path2"></span></i>
                                 <span>Izin Tidak Masuk</span>
                             </a>
                         </li>
-                        <li class="{{ $page == 'izine-izin-pribadi' ? 'active' : '' }}">
-                            <a href="{{ route('izine.izin-pribadi') }}">
+                        <li class="{{ $page == 'izine-pengajuan-izin' ? 'active' : '' }}">
+                            <a href="{{ route('izine.pengajuan-izin') }}">
                                 <i class="icon-Adress-book1"><span class="path1"></span><span
                                         class="path2"></span></i>
                                 <span>Izin Setengah Hari</span>
                             </a>
                         </li>
-                        <li class="{{ $page == 'izine-izin-pribadi' ? 'active' : '' }}">
-                            <a href="{{ route('izine.izin-pribadi') }}">
+                        <li class="{{ $page == 'izine-pengajuan-izin' ? 'active' : '' }}">
+                            <a href="{{ route('izine.pengajuan-izin') }}">
                                 <i class="icon-Adress-book1"><span class="path1"></span><span
                                         class="path2"></span></i>
                                 <span>Izin Sakit</span>
                             </a>
                         </li>
-                    @endif
+                    @endif --}}
                 </ul>
             </div>
         </div>

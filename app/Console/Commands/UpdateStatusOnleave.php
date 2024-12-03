@@ -35,6 +35,7 @@ class UpdateStatusOnleave extends Command
         try {
             $cuti = Cutie::where('status_cuti', 'SCHEDULED')
                 ->whereDate('rencana_mulai_cuti', $today)
+                ->where('status_dokumen', 'APPROVED')
                 ->update([
                 'status_cuti' => 'ON LEAVE',
                 'aktual_mulai_cuti' => $today

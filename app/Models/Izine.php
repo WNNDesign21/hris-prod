@@ -13,15 +13,19 @@ class Izine extends Model
 
     protected $table = 'izins';
     protected $primaryKey = 'id_izin';
+    public $incrementing = false;
 
     protected $fillable = [
+        'id_izin',
         'karyawan_id',
         'organisasi_id',
         'departemen_id',
         'divisi_id',
         'jenis_izin',
-        'tanggal_mulai',
-        'tanggal_selesai',
+        'rencana_mulai_or_masuk',
+        'rencana_selesai_or_keluar',
+        'aktual_mulai_or_masuk',
+        'aktual_selesai_or_keluar',
         'durasi',
         'keterangan',
         'karyawan_pengganti_id',
@@ -34,7 +38,6 @@ class Izine extends Model
         'rejected_at',
         'rejected_by',
         'rejected_note',
-        'attachment',
     ];
 
     public function karyawan()
@@ -58,8 +61,10 @@ class Izine extends Model
             'izins.departemen_id',
             'izins.divisi_id',
             'izins.jenis_izin',
-            'izins.tanggal_mulai',
-            'izins.tanggal_selesai',
+            'izins.rencana_mulai_or_masuk',
+            'izins.rencana_selesai_or_keluar',
+            'izins.aktual_mulai_or_masuk',
+            'izins.aktual_selesai_or_keluar',
             'izins.durasi',
             'izins.keterangan',
             'izins.karyawan_pengganti_id',
@@ -72,7 +77,6 @@ class Izine extends Model
             'izins.rejected_at',
             'izins.rejected_by',
             'izins.rejected_note',
-            'izins.attachment',
             'karyawans.nama as nama_karyawan',
             'kp.nama_pengganti as nama_pengganti',
             'departemens.nama as nama_departemen',
@@ -102,10 +106,10 @@ class Izine extends Model
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
             $data->where(function ($query) use ($search) {
-                $query->where('rencana_mulai_cuti', 'ILIKE', "%{$search}%")
-                    ->orWhere('rencana_selesai_cuti', 'ILIKE', "%{$search}%")
-                    ->orWhere('aktual_mulai_cuti', 'ILIKE', "%{$search}%")
-                    ->orWhere('aktual_selesai_cuti', 'ILIKE', "%{$search}%");
+                $query->where('izins.rencana_mulai_or_masuk', 'ILIKE', "%{$search}%")
+                    ->orWhere('izins.rencana_selesai_or_keluar', 'ILIKE', "%{$search}%")
+                    ->orWhere('izins.aktual_mulai_or_masuk', 'ILIKE', "%{$search}%")
+                    ->orWhere('izins.aktual_selesai_or_keluar', 'ILIKE', "%{$search}%");
             });
         }
 

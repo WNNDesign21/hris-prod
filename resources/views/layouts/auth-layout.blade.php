@@ -198,8 +198,8 @@
         @vite(['resources/js/pages/lembure-detail-lembur.js'])
     @endif
 
-    @if ($page == 'izine-izin-pribadi')
-        @vite(['resources/js/pages/izine-izin-pribadi.js'])
+    @if ($page == 'izine-pengajuan-izin')
+        @vite(['resources/js/pages/izine-pengajuan-izin.js'])
     @endif
 
 </body>

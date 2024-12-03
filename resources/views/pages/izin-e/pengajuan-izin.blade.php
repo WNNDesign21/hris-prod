@@ -18,7 +18,7 @@
             <div class="box">
                 <div class="box-header d-flex justify-content-between">
                     <div class="row">
-                        <h4 class="box-title">List Izin Pribadi</h4>
+                        <h4 class="box-title">List Pengajuan Izin</h4>
                     </div>
                     <div>
                         <div class="btn-group">
@@ -31,19 +31,21 @@
                 </div>
                 <div class="box-body">
                     <div class="table-responsive">
-                        <table id="izin-pribadi-table" class="table table-striped table-bordered display"
+                        <table id="pengajuan-izin-table" class="table table-striped table-bordered display"
                             style="width:100%">
                             <thead>
                                 <tr>
-                                    <th>Tanggal Mulai</th>
-                                    <th>Tanggal Selesai</th>
+                                    <th>ID Izin</th>
+                                    <th>Rencana Mulai / Masuk</th>
+                                    <th>Rencana Selesai / Keluar</th>
+                                    <th>Aktual Mulai / Masuk</th>
+                                    <th>Aktual Selesai / Keluar</th>
                                     <th>Jenis Izin</th>
                                     <th>Durasi</th>
                                     <th>Keterangan</th>
                                     <th>Checked</th>
                                     <th>Approved</th>
                                     <th>Legalized</th>
-                                    <th>Lampiran</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>
@@ -54,5 +56,6 @@
             </div>
         </div>
     </div>
-    @include('pages.izin-e.modal-input-izin-pribadi')
+    @include('pages.izin-e.modal-pengajuan-izin')
+    @include('pages.izin-e.modal-edit-pengajuan-izin')
 @endsection

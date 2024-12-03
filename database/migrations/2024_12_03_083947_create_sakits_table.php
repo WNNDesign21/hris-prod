@@ -11,22 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('izins', function (Blueprint $table) {
-            $table->string('id_izin')->primary();
+        Schema::create('sakits', function (Blueprint $table) {
+            $table->increments('id_sakit');
             $table->string('karyawan_id');
             $table->unsignedInteger('organisasi_id');
             $table->unsignedInteger('departemen_id')->nullable();
             $table->unsignedInteger('divisi_id')->nullable();
-            $table->enum('jenis_izin', ['TM', 'SH']);
-            $table->timestamp('rencana_mulai_or_masuk')->nullable();
-            $table->timestamp('rencana_selesai_or_keluar')->nullable();
-            $table->timestamp('aktual_mulai_or_masuk')->nullable();
-            $table->timestamp('aktual_selesai_or_keluar')->nullable();
+            $table->date('tanggal_mulai');
+            $table->date('tanggal_selesai')->nullable();
             $table->integer('durasi')->default(0);
             $table->text('keterangan')->nullable();
             $table->string('karyawan_pengganti_id')->nullable();
-            $table->timestamp('checked_at')->nullable();
-            $table->string('checked_by')->nullable();
             $table->timestamp('approved_at')->nullable();
             $table->string('approved_by')->nullable();
             $table->timestamp('legalized_at')->nullable();
@@ -34,6 +29,7 @@ return new class extends Migration
             $table->timestamp('rejected_at')->nullable();
             $table->string('rejected_by')->nullable();
             $table->text('rejected_note')->nullable();
+            $table->string('attachment')->nullable();
 
             $table->timestamps();
             $table->foreign('karyawan_id')->references('id_karyawan')->on('karyawans')->restrictOnDelete();
@@ -46,6 +42,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('izins');
+        Schema::dropIfExists('sakits');
     }
 };
