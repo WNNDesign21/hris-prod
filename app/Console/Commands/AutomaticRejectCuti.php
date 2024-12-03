@@ -60,7 +60,7 @@ class AutomaticRejectCuti extends Command
                         $ct->save();
 
                     //KONDISI JIKA TIDAK ADA YANG DISETUJUI
-                    } elseif ($ct->checked1_by == null && $ct->checked2_by == null && $ct->checked3_by == null){
+                    } elseif ($ct->checked1_by == null && $ct->checked2_by == null && $ct->approved_by == null){
                         $ct->update([
                             'status_dokumen' => 'REJECTED',
                             'rejected_at' => now(),
