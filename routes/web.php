@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Cutie\CutieController;
+use App\Http\Controllers\Izine\IzineController;
 use App\Http\Controllers\Lembure\LembureController;
 use App\Http\Controllers\MasterData\AkunController;
 use App\Http\Controllers\MasterData\GrupController;
@@ -68,6 +69,8 @@ Route::post('/lembure/dashboard-lembur/get-current-month-lembur-per-departemen',
 Route::get('/get-approval-lembur-notification', [HomeController::class, 'get_approval_lembur_notification'])->middleware('lembure');
 Route::get('/get-planned-pengajuan-lembur-notification', [HomeController::class, 'get_planned_pengajuan_lembur_notification'])->middleware('lembure');
 Route::get('/lembure/pengajuan-lembur/get-attachment-lembur/{idLembur}',[LembureController::class, 'get_attachment_lembur']);
+
+Route::get('/izine/pengajuan-izin/get-data-izin/{idIzin}',[IzineController::class, 'get_data_izin']);
 
 Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
     // MENU UTAMA
@@ -302,6 +305,15 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
             Route::post('/export-report-lembur/slip-lembur-perbulan', [LembureController::class, 'export_slip_lembur_perbulan'])->name('lembure.export-report-lembur.export-slip-lembur-perbulan');
         });
      });
+
+     Route::group(['prefix' => 'izine'], function () {
+        Route::group(['middleware' => ['role:atasan|member']], function () {
+                Route::get('/pengajuan-izin', [IzineController::class, 'pengajuan_izin_view'])->name('izine.pengajuan-izin');
+                Route::post('/pengajuan-izin-datatable', [IzineController::class, 'pengajuan_izin_datatable']);
+                Route::post('/pengajuan-izin/store',[IzineController::class, 'store'])->name('izine.pengajuan-izin.store');
+                Route::delete('/pengajuan-izin/delete/{idIzin}',[IzineController::class, 'delete'])->name('izine.pengajuan-izin.delete');
+            });
+      });
 });
 
 

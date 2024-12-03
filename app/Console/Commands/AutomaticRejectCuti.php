@@ -32,7 +32,7 @@ class AutomaticRejectCuti extends Command
         DB::beginTransaction();
         try {
             $today = date('Y-m-d');
-            $cuti = Cutie::where('status_dokumen', 'WAITING')->whereDate('rencana_mulai_cuti', $today);
+            $cuti = Cutie::where('status_dokumen', 'WAITING')->whereDate('rencana_mulai_cuti', $today)->where('status_cuti', '!=', 'CANCELED');
             $data_cuti = $cuti->get();
 
             if($data_cuti){
@@ -43,10 +43,13 @@ class AutomaticRejectCuti extends Command
                         if($ct->checked1_by == null){
                             $ct->checked1_by = 'SYSTEM';
                             $ct->checked1_at = now();
-                        } elseif($ct->checked2_by == null){
+                        } 
+                        if ($ct->checked2_by == null){
                             $ct->checked2_by = 'SYSTEM';
                             $ct->checked2_at = now();
-                        } elseif($ct->approved_by == null){
+                        } 
+                        
+                        if ($ct->approved_by == null){
                             $ct->approved_by = 'SYSTEM';
                             $ct->approved_at = now();
                         }
@@ -57,7 +60,7 @@ class AutomaticRejectCuti extends Command
                         $ct->save();
 
                     //KONDISI JIKA TIDAK ADA YANG DISETUJUI
-                    } elseif ($ct->checked1_by == null && $ct->checked2_by == null && $ct->checked3_by == null){
+                    } elseif ($ct->checked1_by == null && $ct->checked2_by == null && $ct->approved_by == null){
                         $ct->update([
                             'status_dokumen' => 'REJECTED',
                             'rejected_at' => now(),
