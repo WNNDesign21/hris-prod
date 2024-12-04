@@ -24,7 +24,7 @@ class IzineController extends Controller
     public function pengajuan_izin_view()
     {
         $dataPage = [
-            'pageTitle' => "Izine - Pengajuan Izin",
+            'pageTitle' => "Izin-E - Pengajuan Izin",
             'page' => 'izine-pengajuan-izin',
         ];
         return view('pages.izin-e.pengajuan-izin', $dataPage);
@@ -261,9 +261,70 @@ class IzineController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id_izin)
     {
-        //
+        $izin = Izine::find($id_izin);
+        $keterangan = $request->keteranganEdit;
+        
+        //IZIN TIDAK MASUK
+        $rencana_mulai_or_masuk = $request->rencana_mulai_or_masukEdit;
+        $rencana_selesai_or_keluar = $request->rencana_selesai_or_keluarEdit;
+
+        //IZIN SETENGAH HARI
+        $rencana_masuk_or_keluar = $request->rencana_masuk_or_keluarEdit;
+        $masuk_or_keluar = $request->masuk_or_keluarEdit;
+        if($izin->jenis_izin == 'TM'){
+            $dataValidate = [
+                'keteranganEdit' => ['required'],
+                'rencana_mulai_or_masukEdit' => ['required', 'date_format:Y-m-d', 'before_or_equal:rencana_selesai_or_keluarEdit', 'after_or_equal:today'],
+                'rencana_selesai_or_keluarEdit' => ['required', 'date_format:Y-m-d', 'after_or_equal:rencana_mulai_or_masukEdit'],
+            ];
+        } else {
+            $dataValidate = [
+                'keteranganEdit' => ['required'],
+                'masuk_or_keluarEdit' => ['required', 'in:M,K'],
+                'rencana_masuk_or_keluarEdit' => ['required', 'date_format:Y-m-d\TH:i', 'after_or_equal:now'],
+            ];
+        }
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        DB::beginTransaction();
+        try{
+            if ($izin->jenis_izin == 'TM'){
+                $izin->update([
+                    'durasi' => Carbon::parse($rencana_mulai_or_masuk)->diffInDays(Carbon::parse($rencana_selesai_or_keluar)) + 1,
+                    'rencana_mulai_or_masuk' => $rencana_mulai_or_masuk,
+                    'rencana_selesai_or_keluar' => $rencana_selesai_or_keluar,
+                    'keterangan' => $keterangan
+                ]);
+            } else {
+                if($masuk_or_keluar == 'M'){
+                    $izin->update([
+                        'rencana_mulai_or_masuk' => $rencana_masuk_or_keluar,
+                        'rencana_selesai_or_keluar' => null,
+                        'keterangan' => $keterangan
+                    ]);
+                } else {
+                    $izin->update([
+                        'rencana_mulai_or_masuk' => null,
+                        'rencana_selesai_or_keluar' => $rencana_masuk_or_keluar,
+                        'keterangan' => $keterangan
+                    ]);
+                }
+            }
+
+            DB::commit();
+            return response()->json(['message' => 'Izin berhasil diubah!'], 200);
+        } catch (Throwable $e) {
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 
     /**

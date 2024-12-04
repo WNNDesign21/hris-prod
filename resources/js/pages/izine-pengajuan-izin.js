@@ -227,7 +227,7 @@ $(function () {
         $('#rencana_selesai_or_keluar').on('change', function(){
             let rencana_selesai = $(this).val();
             if(rencana_selesai < $('#rencana_mulai_or_masuk').val()){
-                rencana_selesai.val($('#rencana_mulai_or_masuk').val());
+                $(this).val($('#rencana_mulai_or_masuk').val());
             }
         })
     }
@@ -252,7 +252,7 @@ $(function () {
     $('#rencana_selesai_or_keluar').on('change', function(){
         let rencana_selesai = $(this).val();
         if(rencana_selesai < $('#rencana_mulai_or_masuk').val()){
-            rencana_selesai.val($('#rencana_mulai_or_masuk').val());
+            $(this).val($('#rencana_mulai_or_masuk').val());
         }
     })
 
@@ -292,7 +292,7 @@ $(function () {
             $('#rencana_selesai_or_keluar').on('change', function(){
                 let rencana_selesai = $(this).val();
                 if(rencana_selesai < $('#rencana_mulai_or_masuk').val()){
-                    rencana_selesai.val($('#rencana_mulai_or_masuk').val());
+                    $(this).val($('#rencana_mulai_or_masuk').val());
                 }
             })
         }else{
@@ -336,6 +336,33 @@ $(function () {
                 showToast({ title: data.message });
                 refreshTable();
                 closeInputForm();
+                loadingSwalClose();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        })
+    });
+
+    $('#form-pengajuan-izin-edit').on('submit', function (e){
+        loadingSwalShow();
+        e.preventDefault();
+        let idIzin = $('#id_izinEdit').val();
+        let url = base_url + '/izine/pengajuan-izin/update/' + idIzin;
+        var formData = new FormData($('#form-pengajuan-izin-edit')[0]);
+        $.ajax({
+            url: url,
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (data) {
+                updateNotification();
+                showToast({ title: data.message });
+                refreshTable();
+                closeFormEdit();
                 loadingSwalClose();
             },
             error: function (jqXHR, textStatus, errorThrown) {
@@ -427,7 +454,7 @@ $(function () {
                     $('#rencana_selesai_or_keluar').on('change', function(){
                         let rencana_selesai = $(this).val();
                         if(rencana_selesai < $('#rencana_mulai_or_masuk').val()){
-                            rencana_selesai.val($('#rencana_mulai_or_masuk').val());
+                            $(this).val($('#rencana_mulai_or_masuk').val());
                         }
                     })
 

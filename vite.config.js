@@ -38,6 +38,7 @@ export default defineConfig({
                 'resources/js/pages/lembure-dashboard.js',
                 'resources/js/pages/lembure-setting-gaji-departemen.js',
                 'resources/js/pages/izine-pengajuan-izin.js',
+                'resources/js/pages/izine-lapor-skd.js',
             ],
             // refresh: true,
             refresh: ["resources/views/**", "resources/css/**", "app/Http/**"],

@@ -156,7 +156,7 @@ class DetailLembur extends Model
         if (isset($dataFilter['member_posisi_ids'])) {
             $data->whereIn('posisis.id_posisi', $dataFilter['member_posisi_ids']);
         }
-        
+
         $data->whereMonth('detail_lemburs.aktual_mulai_lembur', (int) $dataFilter['month']);
         $data->whereYear('detail_lemburs.aktual_mulai_lembur', (int) $dataFilter['year']);
         $data->limit(((int) $dataFilter['limit']) ?? 50);
@@ -242,5 +242,46 @@ class DetailLembur extends Model
     public static function countData($dataFilter)
     {
         return self::_query($dataFilter)->get()->count();
+    }
+
+    public static function generateLemburHarian()
+    {
+        //RAW QUERY NYA 
+        // SELECT
+        //     detail_lemburs.organisasi_id,
+        //     detail_lemburs.departemen_id,
+        //     detail_lemburs.divisi_id,
+        //     DATE(detail_lemburs.aktual_mulai_lembur) AS tanggal_lembur,
+        //     SUM(detail_lemburs.nominal) as total_nominal_lembur,
+        //     SUM(detail_lemburs.durasi) as total_durasi_lembur
+        // FROM detail_lemburs
+        // LEFT JOIN lemburs ON lemburs.id_lembur = detail_lemburs.lembur_id
+        // WHERE detail_lemburs.is_aktual_approved = 'Y'
+        // AND lemburs.status = 'COMPLETED' AND lemburs.actual_legalized_by IS NOT NULL
+        // GROUP BY
+        //     detail_lemburs.organisasi_id,
+        //     detail_lemburs.departemen_id,
+        //     detail_lemburs.divisi_id,
+        //     DATE(detail_lemburs.aktual_mulai_lembur)	
+        // ORDER BY tanggal_lembur ASC;
+        
+        $data = self::selectRaw('
+            detail_lemburs.organisasi_id,
+            detail_lemburs.departemen_id,
+            detail_lemburs.divisi_id,
+            DATE(detail_lemburs.aktual_mulai_lembur) AS tanggal_lembur,
+            SUM(detail_lemburs.nominal) as total_nominal_lembur,
+            SUM(detail_lemburs.durasi) as total_durasi_lembur
+        ')
+        ->leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
+
+        ->where('detail_lemburs.is_aktual_approved', 'Y')
+        ->where('lemburs.status', 'COMPLETED')
+        ->whereNotNull('lemburs.actual_legalized_by')
+        ->groupByRaw('detail_lemburs.organisasi_id, detail_lemburs.departemen_id, detail_lemburs.divisi_id, DATE(detail_lemburs.aktual_mulai_lembur)')
+        ->orderBy('tanggal_lembur', 'ASC')
+        ->get();
+
+        return $data;
     }
 }

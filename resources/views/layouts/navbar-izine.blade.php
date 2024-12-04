@@ -13,6 +13,12 @@
                                 <span>Pengajuan Izin</span>
                             </a>
                         </li>
+                        <li class="{{ $page == 'izine-lapor-skd' ? 'active' : '' }}">
+                            <a href="{{ route('izine.lapor-skd') }}">
+                                <i class="icon-Bed"><span class="path1"></span><span class="path2"></span></i>
+                                <span>Lapor SKD</span>
+                            </a>
+                        </li>
                     @endif
                     {{-- @if (auth()->user()->hasRole('atasan') || auth()->user()->hasRole('personalia'))
                         <li class="{{ $page == 'izine-pengajuan-izin' ? 'active' : '' }}">

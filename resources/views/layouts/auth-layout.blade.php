@@ -202,6 +202,10 @@
         @vite(['resources/js/pages/izine-pengajuan-izin.js'])
     @endif
 
+    @if ($page == 'izine-lapor-skd')
+        @vite(['resources/js/pages/izine-lapor-skd.js'])
+    @endif
+
 </body>
 
 </html>

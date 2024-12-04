@@ -558,10 +558,10 @@ class KontrakController extends Controller
         }
         $templateProcessor = new TemplateProcessor($templatePath);
         $tanggal_lahir = Carbon::parse($kontrak->karyawan->tanggal_lahir)->locale('id')->isoFormat('LL');
-        $day = $this->get_nama_hari($kontrak->issued_date);
-        $issued_date = Carbon::parse($kontrak->issued_date)->format('d/m/Y');
-        $issued_date_format = Carbon::parse($kontrak->issued_date)->locale('id')->isoFormat('LL');
-        $issued_date_text = $this->tanggal_to_kalimat($kontrak->issued_date);
+        $day = $this->get_nama_hari($kontrak->tanggal_mulai);
+        $issued_date = Carbon::parse($kontrak->tanggal_mulai)->format('d/m/Y');
+        $issued_date_format = Carbon::parse($kontrak->tanggal_mulai)->locale('id')->isoFormat('LL');
+        $issued_date_text = $this->tanggal_to_kalimat($kontrak->tanggal_mulai);
         $tanggal_mulai = Carbon::parse($kontrak->tanggal_mulai)->format('d/m/Y');
         $tanggal_mulai_text = $this->tanggal_to_kalimat($kontrak->tanggal_mulai);
 
@@ -581,7 +581,7 @@ class KontrakController extends Controller
         $salary_rupiah = 'Rp. ' . number_format($salary, 0, ',', '.').' ,-';
         $salary_text = $this->terbilang($salary).'Rupiah';
         $tempat_administrasi = $kontrak->tempat_administrasi;
-        $year = Carbon::parse($kontrak->issued_date)->format('Y');
+        $year = Carbon::parse($kontrak->tanggal_mulai)->format('Y');
 
         $templateProcessor->setValue('nama', $kontrak->karyawan->nama);
         $templateProcessor->setValue('no_surat', $kontrak->no_surat);
