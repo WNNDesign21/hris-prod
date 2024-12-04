@@ -136,7 +136,7 @@ class DetailLembur extends Model
         ->where('lemburs.status', 'COMPLETED')
         ->whereNotNull('lemburs.actual_legalized_by');
 
-        if(auth()->user()->hasRole('personalia') || auth()->user()->karyawan->posisi[0]->jabatan_id <= 2 && auth()->user()->karyawan->posisi[0]->organisasi_id !== null){
+        if(auth()->user()->hasRole('personalia') || (auth()->user()->karyawan->posisi[0]->jabatan_id <= 2 && auth()->user()->karyawan->posisi[0]->organisasi_id !== null)){
             $data->where('detail_lemburs.organisasi_id', auth()->user()->organisasi_id);
         } elseif (auth()->user()->karyawan && auth()->user()->karyawan->posisi[0]->jabatan_id <= 2 && auth()->user()->karyawan->posisi[0]->divisi_id !== null && auth()->user()->karyawan->posisi[0]->organisasi_id == null){
             $posisis = auth()->user()->karyawan->posisi;
@@ -157,9 +157,9 @@ class DetailLembur extends Model
             $data->whereIn('posisis.id_posisi', $dataFilter['member_posisi_ids']);
         }
         
-        $data->whereMonth('detail_lemburs.aktual_mulai_lembur', $dataFilter['month']);
-        $data->whereYear('detail_lemburs.aktual_mulai_lembur', $dataFilter['year']);
-        $data->limit($dataFilter['limit'] ?? 50);
+        $data->whereMonth('detail_lemburs.aktual_mulai_lembur', (int) $dataFilter['month']);
+        $data->whereYear('detail_lemburs.aktual_mulai_lembur', (int) $dataFilter['year']);
+        $data->limit(((int) $dataFilter['limit']) ?? 50);
         $data->offset(0);
 
         $data->groupBy('karyawans.nama', 'departemens.nama', 'divisis.nama', 'detail_lemburs.departemen_id');
@@ -187,11 +187,10 @@ class DetailLembur extends Model
         ->leftJoin('karyawan_posisi', 'karyawan_posisi.karyawan_id', 'karyawans.id_karyawan')
         ->leftJoin('posisis', 'posisis.id_posisi', 'karyawan_posisi.posisi_id')
 
-        ->whereNotNull('lemburs.actual_legalized_by')
         ->where('lemburs.status', 'COMPLETED')
         ->whereNotNull('lemburs.actual_legalized_by');
 
-        if(auth()->user()->hasRole('personalia') || auth()->user()->karyawan->posisi[0]->jabatan_id <= 2 && auth()->user()->karyawan->posisi[0]->organisasi_id !== null){
+        if(auth()->user()->hasRole('personalia') || (auth()->user()->karyawan->posisi[0]->jabatan_id <= 2 && auth()->user()->karyawan->posisi[0]->organisasi_id !== null)){
             $data->where('detail_lemburs.organisasi_id', auth()->user()->organisasi_id);
         } elseif (auth()->user()->karyawan && auth()->user()->karyawan->posisi[0]->jabatan_id <= 2 && auth()->user()->karyawan->posisi[0]->divisi_id !== null && auth()->user()->karyawan->posisi[0]->organisasi_id == null){
             $posisis = auth()->user()->karyawan->posisi;
@@ -213,11 +212,11 @@ class DetailLembur extends Model
         }
 
         if (isset($dataFilter['month'])) {
-            $data->whereMonth('detail_lemburs.aktual_mulai_lembur', $dataFilter['month']);
+            $data->whereMonth('detail_lemburs.aktual_mulai_lembur', (int) $dataFilter['month']);
         }
 
         if (isset($dataFilter['year'])) {
-            $data->whereYear('detail_lemburs.aktual_mulai_lembur', $dataFilter['year']);
+            $data->whereYear('detail_lemburs.aktual_mulai_lembur', (int) $dataFilter['year']);
         }
 
         if (isset($dataFilter['search'])) {

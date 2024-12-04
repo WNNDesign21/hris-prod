@@ -2690,7 +2690,6 @@ class LembureController extends Controller
             if(isset($filterDepartemen)){
                 $dataFilter['departemen'] = $filterDepartemen;
             }
-
             $data = DetailLembur::getLeaderboardUserMonthly($dataFilter)->toArray();
             return response()->json(['message' => 'Data Lembur Berhasil Ditemukan', 'data' => $data], 200);
         } catch (Throwable $e){
