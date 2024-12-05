@@ -842,6 +842,15 @@ class LembureController extends Controller
 
         DB::beginTransaction();
         try {
+
+            $date = Carbon::parse($rencana_mulai_lemburs[0])->format('Y-m-d');
+            foreach ($rencana_mulai_lemburs as $key => $start) {
+                if (Carbon::parse($start)->format('Y-m-d') !== $date) {
+                    DB::rollback();
+                    return response()->json(['message' => 'Seluruh rencana mulai lembur harus berada pada tanggal yang sama!'], 402);
+                }
+            }
+
             $header = Lembure::create([
                 'id_lembur' => 'LEMBUR-' . Str::random(4).'-'. date('YmdHis'),
                 'issued_by' => $issued_by,
@@ -2075,6 +2084,14 @@ class LembureController extends Controller
             $lembur = Lembure::find($id_lembur);
             $detail_lembur = $lembur->detailLembur;
 
+            $date = Carbon::parse($mulai_lemburs[0])->format('Y-m-d');
+            foreach ($mulai_lemburs as $key => $start) {
+                if (Carbon::parse($start)->format('Y-m-d') !== $date) {
+                    DB::rollback();
+                    return response()->json(['message' => 'Seluruh tanggal mulai lembur harus berada pada tanggal yang sama!'], 402);
+                }
+            }
+
             if($is_planned == 'N'){
                 if(!$checked_detail){
                     DB::commit();
@@ -2228,6 +2245,14 @@ class LembureController extends Controller
         try{
             $lembur = Lembure::find($id_lembur);
             $detail_lembur = $lembur->detailLembur;
+
+            $date = Carbon::parse($mulai_lemburs[0])->format('Y-m-d');
+            foreach ($mulai_lemburs as $key => $start) {
+                if (Carbon::parse($start)->format('Y-m-d') !== $date) {
+                    DB::rollback();
+                    return response()->json(['message' => 'Seluruh tanggal mulai lembur harus berada pada tanggal yang sama!'], 402);
+                }
+            }
 
             if($is_planned == 'N'){
                 if(!$approved_detail){
@@ -2420,30 +2445,33 @@ class LembureController extends Controller
                 $lembur->actual_legalized_by = $karyawan;
                 $lembur->actual_legalized_at = now();
 
-                // CREATE LEMBUR HARIAN DATA
-                $total_nominal = $lembur->detailLembur->where('is_aktual_approved', 'Y')->sum('nominal');
-                $total_durasi = $lembur->detailLembur->where('is_aktual_approved', 'Y')->sum('durasi');
-                $aktual_mulai_lembur = $lembur->detailLembur->where('is_aktual_approved', 'Y')->first()->aktual_mulai_lembur;
-
-                $organisasi_id = auth()->user()->organisasi_id;
+                //NEW 
+                $detail_lembur = $lembur->detailLembur->where('is_aktual_approved', 'Y');
                 $departemen_id = $lembur?->departemen_id;
                 $divisi_id = $lembur?->divisi_id;
-                $tanggal_lembur = Carbon::parse($aktual_mulai_lembur)->format('Y-m-d');
-                
-                $lembur_harian = LemburHarian::whereDate('tanggal_lembur', $tanggal_lembur)->where('organisasi_id', $organisasi_id)->where('departemen_id', $departemen_id)->where('divisi_id', $divisi_id)->first();
-                if ($lembur_harian){
-                    $lembur_harian->total_durasi_lembur = $lembur_harian->total_durasi_lembur + $total_durasi;
-                    $lembur_harian->total_nominal_lembur = $lembur_harian->total_nominal_lembur + $total_nominal;
-                    $lembur_harian->save();
-                } else {
-                    $lembur_harian = LemburHarian::create([
-                        'tanggal_lembur' => $tanggal_lembur,
-                        'total_durasi_lembur' => $total_durasi,
-                        'total_nominal_lembur' => $total_nominal,
-                        'organisasi_id' => $organisasi_id,
-                        'departemen_id' => $departemen_id,
-                        'divisi_id' => $divisi_id,
-                    ]);
+                $organisasi_id = auth()->user()->organisasi_id;
+
+                foreach ($detail_lembur as $item){
+                    $total_nominal = $item->nominal;
+                    $total_durasi = $item->durasi;
+                    $aktual_mulai_lembur = $item->aktual_mulai_lembur;
+    
+                    $tanggal_lembur = Carbon::parse($aktual_mulai_lembur)->format('Y-m-d');
+                    $lembur_harian = LemburHarian::whereDate('tanggal_lembur', $tanggal_lembur)->where('organisasi_id', $organisasi_id)->where('departemen_id', $departemen_id)->where('divisi_id', $divisi_id)->first();
+                    if ($lembur_harian){
+                        $lembur_harian->total_durasi_lembur = $lembur_harian->total_durasi_lembur + $total_durasi;
+                        $lembur_harian->total_nominal_lembur = $lembur_harian->total_nominal_lembur + $total_nominal;
+                        $lembur_harian->save();
+                    } else {
+                        $lembur_harian = LemburHarian::create([
+                            'tanggal_lembur' => $tanggal_lembur,
+                            'total_durasi_lembur' => $total_durasi,
+                            'total_nominal_lembur' => $total_nominal,
+                            'organisasi_id' => $organisasi_id,
+                            'departemen_id' => $departemen_id,
+                            'divisi_id' => $divisi_id,
+                        ]);
+                    }
                 }
             }
 
