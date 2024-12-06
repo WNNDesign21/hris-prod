@@ -37,6 +37,7 @@
                                     <th>Tanggal Mulai</th>
                                     <th>Tanggal Selesai</th>
                                     <th>Durasi</th>
+                                    <th>Keterangan</th>
                                     <th>Lampiran</th>
                                     <th>Approved</th>
                                     <th>Legalized</th>
@@ -51,4 +52,5 @@
         </div>
     </div>
     @include('pages.izin-e.modal-lapor-skd')
+    @include('pages.izin-e.modal-edit-lapor-skd')
 @endsection

@@ -75,6 +75,7 @@ Route::get('/get-planned-pengajuan-lembur-notification', [HomeController::class,
 Route::get('/lembure/pengajuan-lembur/get-attachment-lembur/{idLembur}',[LembureController::class, 'get_attachment_lembur']);
 
 Route::get('/izine/pengajuan-izin/get-data-izin/{idIzin}',[IzineController::class, 'get_data_izin']);
+Route::get('/izine/lapor-skd/get-data-sakit/{idSakit}',[SakiteController::class, 'get_data_sakit']);
 
 Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
     // MENU UTAMA

@@ -1,3 +1,5 @@
+import { load } from "@eonasdan/tempus-dominus/dist/plugins/fa-five";
+
 $(function () {
     $.ajaxSetup({
         headers: {
@@ -68,6 +70,7 @@ $(function () {
         { data: "tanggal_mulai" },
         { data: "tanggal_selesai" },
         { data: "durasi" },
+        { data: "keterangan" },
         { data: "lampiran" },
         { data: "approved_by" },
         { data: "legalized_by" },
@@ -131,6 +134,26 @@ $(function () {
                 }
             },
         },
+        initComplete: function () {
+            $('.image-popup-vertical-fit').magnificPopup({
+                type: 'image',
+                closeOnContentClick: true,
+                mainClass: 'mfp-img-mobile',
+                image: {
+                    verticalFit: true
+                }
+            });
+        },
+        drawCallback: function () { 
+            $('.image-popup-vertical-fit').magnificPopup({
+                type: 'image',
+                closeOnContentClick: true,
+                mainClass: 'mfp-img-mobile',
+                image: {
+                    verticalFit: true
+                }
+            });
+        },
         // responsive: true,
         scrollX: true,
         columns: columnsTable,
@@ -166,6 +189,15 @@ $(function () {
         closeInputForm();
     })
 
+    $('.btnEdit').on("click", function (){
+        openEditForm();
+    })
+
+    $('.btnCloseEdit').on("click", function (){
+        resetFormEdit();
+        closeEditForm();
+    })
+
     function resetForm() {
         $('#tanggal_mulai').val('');
         $('#tanggal_selesai').val('');
@@ -176,6 +208,21 @@ $(function () {
             base_url + "/img/no-image.png"
         );
         $("#imageReview").attr(
+            "src",
+            base_url + "/img/no-image.png"
+        );
+    }
+
+    function resetFormEdit() {
+        $('#tanggal_mulaiEdit').val('');
+        $('#tanggal_selesaiEdit').val('');
+        $('#lampiran_skdEdit').val('');
+        $('#keteranganEdit').val('');
+        $("#linkFotoEdit").attr(
+            "href",
+            base_url + "/img/no-image.png"
+        );
+        $("#imageReviewEdit").attr(
             "src",
             base_url + "/img/no-image.png"
         );
@@ -200,17 +247,53 @@ $(function () {
         modalInputLaporSkd.hide();
     }
 
+    var modalEditLaporSkdOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalEditLaporSkd = new bootstrap.Modal(
+        document.getElementById("modal-lapor-skd-edit"),
+        modalEditLaporSkdOptions
+    );
+
+    function openEditForm() {
+        modalEditLaporSkd.show();
+    }
+
+    function closeEditForm() {
+        modalEditLaporSkd.hide();
+    }
+
+    //INPUT
     $('#tanggal_mulai').on('change', function(){
         let tanggal_mulai = $(this).val();
         if(tanggal_mulai > $('#tanggal_selesai').val()){
-            $('#tanggal_selesai').val(tanggal_mulai);
+            $('#tanggal_selesai').val('');
+            $('#tanggal_selesai').attr('min', tanggal_mulai);
         }
     });
 
     $('#tanggal_selesai').on('change', function(){
         let tanggal_selesai = $(this).val();
         if(tanggal_selesai < $('#tanggal_mulai').val()){
-            $(this).val($('#tanggal_mulai').val());
+            $(this).val('');
+        }
+    })
+
+    //EDIT
+    $('#tanggal_mulaiEdit').on('change', function(){
+        let tanggal_mulai = $(this).val();
+        if(tanggal_mulai > $('#tanggal_selesaiEdit').val()){
+            $('#tanggal_selesaiEdit').val('');
+            $('#tanggal_selesaiEdit').attr('min', tanggal_mulai);
+        }
+    });
+
+    $('#tanggal_selesaiEdit').on('change', function(){
+        let tanggal_selesai = $(this).val();
+        if(tanggal_selesai < $('#tanggal_mulaiEdit').val()){
+            $(this).val('');
         }
     })
 
@@ -227,6 +310,19 @@ $(function () {
         );
     });
 
+    $("#btnResetLampiranSkdEdit").on("click", function () {
+        const input = document.getElementById("lampiran_skdEdit");
+        input.value = "";
+        $("#linkFotoEdit").attr(
+            "href",
+            base_url + "/img/no-image.png"
+        );
+        $("#imageReviewEdit").attr(
+            "src",
+            base_url + "/img/no-image.png"
+        );
+    });
+
 
     //UPLOAD IMAGE WHILE FILE
     $("#btnUploadLampiranSkd").on("click", function () {
@@ -236,6 +332,18 @@ $(function () {
         $("#lampiran_skd").on("change", function () {
             var linkFoto = "linkFoto";
             var review = "imageReview";
+
+            compressAndDisplayImageSave(this, review, linkFoto);
+        });
+    });
+
+    $("#btnUploadLampiranSkdEdit").on("click", function () {
+        let input = document.getElementById("lampiran_skdEdit");
+        input.click();
+
+        $("#lampiran_skdEdit").on("change", function () {
+            var linkFoto = "linkFotoEdit";
+            var review = "imageReviewEdit";
 
             compressAndDisplayImageSave(this, review, linkFoto);
         });
@@ -335,4 +443,95 @@ $(function () {
             },
         })
     });
+
+    $('#form-lapor-skd-edit').on('submit', function (e){
+        loadingSwalShow();
+        e.preventDefault();
+        let idSakit = $('#id_sakitEdit').val();
+        let url = base_url + '/izine/lapor-skd/update/' + idSakit;
+        var formData = new FormData($('#form-lapor-skd-edit')[0]);
+        $.ajax({
+            url: url,
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (data) {
+                updateNotification();
+                showToast({ title: data.message });
+                refreshTable();
+                closeEditForm();
+                loadingSwalClose();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        })
+    });
+
+    $('#lapor-skd-table').on('click', '.btnEdit', function (){
+        loadingSwalShow();
+        let idSakit = $(this).data('id-sakit');
+        $.ajax({
+            url: base_url + '/izine/lapor-skd/get-data-sakit/' + idSakit,
+            method: 'GET',
+            success: function(response){
+                openEditForm();
+                $('#tanggal_mulaiEdit').val(response.data.tanggal_mulai);
+                $('#tanggal_selesaiEdit').val(response.data.tanggal_selesai);
+                $('#keteranganEdit').val(response.data.keterangan);
+                $('#id_sakitEdit').val(response.data.id_sakit);
+                $("#linkFotoEdit").attr(
+                    "href",
+                    response.data.attachment
+                );
+                $("#imageReviewEdit").attr(
+                    "src",
+                    response.data.attachment
+                );
+                loadingSwalClose();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        })
+    })
+
+    $('#lapor-skd-table').on('click', '.btnDelete', function (){
+        var idSakit = $(this).data('id-sakit');
+        Swal.fire({
+            title: "Delete Laporan SKD",
+            text: "Apakah kamu yakin untuk menghapus Laporan SKD ini?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
+            allowOutsideClick: false,
+        }).then((result) => {
+            if (result.value) {
+                loadingSwalShow();
+                var url = base_url + '/izine/lapor-skd/delete/' + idSakit;
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: {
+                        _method: "delete",
+                    },
+                    dataType: "JSON",
+                    success: function (data) {
+                        loadingSwalClose();
+                        refreshTable();
+                        showToast({ title: data.message });
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                    },
+                });
+            }
+        });
+    })
 });

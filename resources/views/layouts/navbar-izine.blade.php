@@ -20,6 +20,22 @@
                             </a>
                         </li>
                     @endif
+                    @if (auth()->user()->hasRole('atasan') && auth()->user()->karyawan->posisi[0]->jabatan_id <= 4)
+                        <li class="{{ $page == 'izine-lapor-skd' ? 'active' : '' }}">
+                            <a href="{{ route('izine.lapor-skd') }}">
+                                <i class="icon-Double-check"><span class="path1"></span><span
+                                        class="path2"></span></i>
+                                <span>Approval Izin</span>
+                            </a>
+                        </li>
+                        <li class="{{ $page == 'izine-lapor-skd' ? 'active' : '' }}">
+                            <a href="{{ route('izine.lapor-skd') }}">
+                                <i class="icon-Double-check"><span class="path1"></span><span
+                                        class="path2"></span></i>
+                                <span>Approval SKD</span>
+                            </a>
+                        </li>
+                    @endif
                     {{-- @if (auth()->user()->hasRole('atasan') || auth()->user()->hasRole('personalia'))
                         <li class="{{ $page == 'izine-pengajuan-izin' ? 'active' : '' }}">
                             <a href="{{ route('izine.pengajuan-izin') }}">

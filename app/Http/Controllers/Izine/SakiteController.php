@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Izine;
 
 use Throwable;
+use Carbon\Carbon;
 use App\Models\Sakite;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class SakiteController extends Controller
@@ -67,26 +69,42 @@ class SakiteController extends Controller
 
         if (!empty($sakite)) {
             foreach ($sakite as $data) {
-                $durasi = $data->durasi . ' Hari';
-
+                $durasi = $data->tanggal_selesai ? $data->durasi.' Hari' : '-';
                 $tanggal_mulai = $data->tanggal_mulai ? Carbon::parse($data->tanggal_mulai)->format('d M Y') : '-';
                 $tanggal_selesai = $data->tanggal_selesai ? Carbon::parse($data->tanggal_selesai)->format('d M Y') : '-';
 
                 if($data->attachment){
-                    $lampiran = '<a id="linkFoto'.$data->id_sakit.'" href="' . asset('img/no-image.png') . '"
+                    $lampiran = '<a id="linkFoto'.$data->id_sakit.'" href="' . asset('storage/'.$data->attachment) . '"
                                     class="image-popup-vertical-fit" data-title="Lampiran SKD">
-                                    <img id="imageReview'.$data->id_sakit.'" src="' . asset('img/no-image.png') . '" alt="Image Foto"
+                                    <img id="imageReview'.$data->id_sakit.'" src="' . asset('storage/'.$data->attachment) . '" alt="Image Foto"
                                         style="width: 150px;height: 150px;" class="img-fluid">
                                 </a>';
+                } else {
+                    $lampiran = 'Need Upload';
+                }
+
+                //Kondisi tombol aksi
+                if ($data->attachment && $data->approved_by) {
+                    $aksi = '-';
+                } else {
+                    $aksi = '<div class="btn-group">
+                                <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" data-id-sakit="'.$data->id_sakit.'">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button type="button" class="waves-effect waves-light btn btn-danger btnDelete" data-id-sakit="'.$data->id_sakit.'">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>';
                 }
 
                 $nestedData['tanggal_mulai'] = $tanggal_mulai;
                 $nestedData['tanggal_selesai'] = $tanggal_selesai;
+                $nestedData['keterangan'] = $data->keterangan;
                 $nestedData['durasi'] = $durasi;
-                $nestedData['lampiran'] = $data->attachment;
+                $nestedData['lampiran'] = $lampiran;
                 $nestedData['approved_by'] = $data->approved_by;
                 $nestedData['legalized_by'] = $data->legalized_by;
-                $nestedData['aksi'] = '';
+                $nestedData['aksi'] = $aksi;
 
                 $dataTable[] = $nestedData;
             }
@@ -119,11 +137,21 @@ class SakiteController extends Controller
      */
     public function store(Request $request)
     {
-        $dataValidate = [
-            'lampiran_skd' => ['mimes:jpg,png,jpeg', 'max:2048'],
-            'tanggal_mulai' => ['required', 'date_format:Y-m-d', 'before_or_equal:tanggal_selesai'],
-            'tanggal_selesai' => ['required', 'date_format:Y-m-d', 'after_or_equal:tanggal_mulai'],
-        ];
+
+        if($request->hasFile('lampiran_skd')){
+            $dataValidate = [
+                'lampiran_skd' => ['mimes:jpg,png,jpeg', 'max:2048'],
+                'tanggal_mulai' => ['required', 'date_format:Y-m-d', 'before_or_equal:tanggal_selesai'],
+                'tanggal_selesai' => ['required', 'date_format:Y-m-d', 'after_or_equal:tanggal_mulai'],
+            ];
+        } else {
+            $dataValidate = [
+                'lampiran_skd' => ['mimes:jpg,png,jpeg', 'max:2048'],
+                'tanggal_mulai' => ['required', 'date_format:Y-m-d'],
+                'tanggal_selesai' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:tanggal_mulai'],
+                'keterangan' => ['required'],
+            ];
+        }
 
         $validator = Validator::make(request()->all(), $dataValidate);
 
@@ -142,6 +170,7 @@ class SakiteController extends Controller
             $departemen_id = auth()->user()->karyawan->posisi[0]->departemen_id;
             $divisi_id = auth()->user()->karyawan->posisi[0]->divisi_id;
             $organisasi_id = auth()->user()->organisasi_id;
+            $durasi = $tanggal_selesai ? Carbon::parse($tanggal_mulai)->diffInDays(Carbon::parse($tanggal_selesai)) + 1 : 0;
 
             if ($request->hasFile('lampiran_skd')) {
                 $fileName = 'SKD-'.Str::random(5).'-'.date('YmdHis').'.'.$lampiran_skd->getClientOriginalExtension();
@@ -156,6 +185,7 @@ class SakiteController extends Controller
                     'tanggal_selesai' => $tanggal_selesai,  
                     'keterangan' => $keterangan,    
                     'attachment' => $file_path,
+                    'durasi' => $durasi,
                 ]);
             } else {
                 $sakit = Sakite::create([
@@ -165,7 +195,8 @@ class SakiteController extends Controller
                     'divisi_id' => $divisi_id,
                     'tanggal_mulai' => $tanggal_mulai,
                     'tanggal_selesai' => $tanggal_selesai,  
-                    'keterangan' => $keterangan,    
+                    'keterangan' => $keterangan,  
+                    'durasi' => $durasi,  
                 ]);
             }
 
@@ -196,9 +227,94 @@ class SakiteController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $id_sakit)
     {
-        //
+        if($request->hasFile('lampiran_skdEdit')){
+            $dataValidate = [
+                'lampiran_skdEdit' => ['mimes:jpg,png,jpeg', 'max:2048'],
+                'tanggal_mulaiEdit' => ['required', 'date_format:Y-m-d', 'before_or_equal:tanggal_selesaiEdit'],
+                'tanggal_selesaiEdit' => ['required', 'date_format:Y-m-d', 'after_or_equal:tanggal_mulaiEdit'],
+            ];
+        } else {
+            $dataValidate = [
+                'lampiran_skdEdit' => ['mimes:jpg,png,jpeg', 'max:2048'],
+                'tanggal_mulaiEdit' => ['required', 'date_format:Y-m-d'],
+                'tanggal_selesaiEdit' => ['nullable', 'date_format:Y-m-d', 'after_or_equal:tanggal_mulaiEdit'],
+                'keteranganEdit' => ['required'],
+            ];
+        }
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        DB::beginTransaction();
+        try {
+            $lampiran_skd = $request->file('lampiran_skdEdit');
+            $tanggal_mulai = $request->tanggal_mulaiEdit;
+            $tanggal_selesai = $request->tanggal_selesaiEdit;
+            $keterangan = $request->keteranganEdit;
+            $durasi = $tanggal_selesai ? Carbon::parse($tanggal_mulai)->diffInDays(Carbon::parse($tanggal_selesai)) + 1 : 0;
+            $sakit = Sakite::find($id_sakit);
+
+            if ($request->hasFile('lampiran_skdEdit')) {
+                $fileName = 'SKD-'.Str::random(5).'-'.date('YmdHis').'.'.$lampiran_skd->getClientOriginalExtension();
+                $file_path = $lampiran_skd->storeAs("attachment/skd", $fileName);
+
+                if ($sakit->attachment) {
+                    Storage::delete($sakit->attachment);
+                }
+
+                $sakit->update([
+                    'tanggal_mulai' => $tanggal_mulai,
+                    'tanggal_selesai' => $tanggal_selesai,  
+                    'keterangan' => $keterangan,    
+                    'attachment' => $file_path,
+                    'durasi' => $durasi,
+                ]);
+            } else {
+                if(!$tanggal_selesai){
+                    if($sakit->attachment){
+                        Storage::delete($sakit->attachment);
+                        $sakit->update([
+                            'tanggal_mulai' => $tanggal_mulai,
+                            'tanggal_selesai' => $tanggal_selesai,  
+                            'keterangan' => $keterangan,  
+                            'attachment' => null,
+                            'durasi' => $durasi,
+                        ]);
+                    } else {
+                        $sakit->update([
+                            'tanggal_mulai' => $tanggal_mulai,
+                            'tanggal_selesai' => $tanggal_selesai,  
+                            'keterangan' => $keterangan,  
+                            'durasi' => $durasi,  
+                        ]);
+                    }
+                } else {
+                    if($sakit->attachment){
+                        $sakit->update([
+                            'tanggal_mulai' => $tanggal_mulai,
+                            'tanggal_selesai' => $tanggal_selesai,  
+                            'keterangan' => $keterangan,  
+                            'durasi' => $durasi,  
+                        ]);
+                    } else {
+                        DB::rollBack();
+                        return response()->json(['message' => 'Lampirkan SKD jika tanggal selesai sudah ada!'], 402);
+                    }
+                } 
+            }
+
+            DB::commit();
+            return response()->json(['message' => 'Lapor SKD berhasil diupdate!'], 200);
+        } catch (Throwable $e) {
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 
     /**
@@ -207,5 +323,44 @@ class SakiteController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function get_data_sakit(string $id_sakit)
+    {
+        $sakit = Sakite::find($id_sakit);
+        $data = [];
+
+        try {
+
+            if ($sakit) {
+                $data['id_sakit'] = $sakit->id_sakit;
+                $data['tanggal_mulai'] = $sakit->tanggal_mulai;
+                $data['tanggal_selesai'] = $sakit->tanggal_selesai;
+                $data['keterangan'] = $sakit->keterangan;
+                $data['attachment'] = $sakit->attachment ? asset('storage/'.$sakit->attachment) : asset('img/no-image.png');
+            } else {
+                return response()->json(['message' => 'Data tidak ditemukan'], 404);
+            }
+            return response()->json(['message' => 'Data berhasil ditemukan', 'data' => $data], 200);
+        } catch (Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function delete(string $id_sakit)
+    {
+        DB::beginTransaction();
+        try {
+            $sakit = Sakite::find($id_sakit);
+            if ($sakit->attachment) {
+                Storage::delete($sakit->attachment);
+            }
+            $sakit->delete();
+            DB::commit();
+            return response()->json(['message' => 'Data berhasil dihapus'], 200);
+        } catch (Throwable $e) {
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 }
