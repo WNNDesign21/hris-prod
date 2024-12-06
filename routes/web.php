@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Cutie\CutieController;
 use App\Http\Controllers\Izine\IzineController;
+use App\Http\Controllers\Izine\SakiteController;
 use App\Http\Controllers\Lembure\LembureController;
 use App\Http\Controllers\MasterData\AkunController;
 use App\Http\Controllers\MasterData\GrupController;
@@ -27,6 +28,9 @@ Auth::routes();
 Route::get('/', function () {
     return redirect('/login');
 });
+
+//Generate Lembur Harian untuk Chart
+// Route::get('/generate-lembur-harian', [LembureController::class, 'generate_lembur_harian']);
 
 /** MASTER DATA - AJAX */
 Route::get('/master-data/posisi/get-data-by-jabatan/{idJabatan}',[PosisiController::class, 'get_data_by_jabatan']);
@@ -71,6 +75,7 @@ Route::get('/get-planned-pengajuan-lembur-notification', [HomeController::class,
 Route::get('/lembure/pengajuan-lembur/get-attachment-lembur/{idLembur}',[LembureController::class, 'get_attachment_lembur']);
 
 Route::get('/izine/pengajuan-izin/get-data-izin/{idIzin}',[IzineController::class, 'get_data_izin']);
+Route::get('/izine/lapor-skd/get-data-sakit/{idSakit}',[SakiteController::class, 'get_data_sakit']);
 
 Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
     // MENU UTAMA
@@ -308,11 +313,26 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
 
      Route::group(['prefix' => 'izine'], function () {
         Route::group(['middleware' => ['role:atasan|member']], function () {
-                Route::get('/pengajuan-izin', [IzineController::class, 'pengajuan_izin_view'])->name('izine.pengajuan-izin');
-                Route::post('/pengajuan-izin-datatable', [IzineController::class, 'pengajuan_izin_datatable']);
-                Route::post('/pengajuan-izin/store',[IzineController::class, 'store'])->name('izine.pengajuan-izin.store');
-                Route::delete('/pengajuan-izin/delete/{idIzin}',[IzineController::class, 'delete'])->name('izine.pengajuan-izin.delete');
-            });
+            Route::get('/pengajuan-izin', [IzineController::class, 'pengajuan_izin_view'])->name('izine.pengajuan-izin');
+            Route::post('/pengajuan-izin-datatable', [IzineController::class, 'pengajuan_izin_datatable']);
+            Route::post('/pengajuan-izin/store',[IzineController::class, 'store'])->name('izine.pengajuan-izin.store');
+            Route::delete('/pengajuan-izin/delete/{idIzin}',[IzineController::class, 'delete'])->name('izine.pengajuan-izin.delete');
+            Route::patch('/pengajuan-izin/update/{idIzin}',[IzineController::class, 'update'])->name('izine.pengajuan-izin.update');
+
+            Route::get('/lapor-skd', [SakiteController::class, 'lapor_skd_view'])->name('izine.lapor-skd');
+            Route::post('/lapor-skd-datatable', [SakiteController::class, 'lapor_skd_datatable']);
+            Route::post('/lapor-skd/store',[SakiteController::class, 'store'])->name('izine.lapor-skd.store');
+            Route::delete('/lapor-skd/delete/{idSakit}',[SakiteController::class, 'delete'])->name('izine.lapor-skd.delete');
+            Route::patch('/lapor-skd/update/{idSakit}',[SakiteController::class, 'update'])->name('izine.lapor-skd.update');
+        });
+
+        Route::group(['middleware' => ['role:atasan']], function () {
+            //IZIN
+            Route::get('/approval-izin', [IzineController::class, 'approval_izin_view'])->name('izine.approval-izin');
+
+            //SKD
+            Route::get('/approval-skd', [SakiteController::class, 'approval_skd_view'])->name('izine.approval-skd');
+        });
       });
 });
 

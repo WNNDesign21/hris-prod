@@ -2,35 +2,28 @@
 
 namespace App\Models;
 
-use App\Models\Karyawan;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
-class Izine extends Model
+class Sakite extends Model
 {
     use HasFactory;
 
-    protected $table = 'izins';
-    protected $primaryKey = 'id_izin';
-    public $incrementing = false;
+    protected $table = 'sakits';
+    protected $primaryKey = 'id_sakit';
 
     protected $fillable = [
-        'id_izin',
+        'id_sakit',
         'karyawan_id',
         'organisasi_id',
         'departemen_id',
         'divisi_id',
-        'jenis_izin',
-        'rencana_mulai_or_masuk',
-        'rencana_selesai_or_keluar',
-        'aktual_mulai_or_masuk',
-        'aktual_selesai_or_keluar',
+        'tanggal_mulai',
+        'tanggal_selesai',
         'durasi',
         'keterangan',
         'karyawan_pengganti_id',
-        'checked_at',
-        'checked_by',
         'approved_at',
         'approved_by',
         'legalized_at',
@@ -38,6 +31,7 @@ class Izine extends Model
         'rejected_at',
         'rejected_by',
         'rejected_note',
+        'attachment',
     ];
 
     public function karyawan()
@@ -55,48 +49,44 @@ class Izine extends Model
 
         $getKaryawanPengganti = Karyawan::select("id_karyawan as kp_id", "nama as nama_pengganti");
         $data = self::select(
-            'izins.id_izin',
-            'izins.karyawan_id',
-            'izins.organisasi_id',
-            'izins.departemen_id',
-            'izins.divisi_id',
-            'izins.jenis_izin',
-            'izins.rencana_mulai_or_masuk',
-            'izins.rencana_selesai_or_keluar',
-            'izins.aktual_mulai_or_masuk',
-            'izins.aktual_selesai_or_keluar',
-            'izins.durasi',
-            'izins.keterangan',
-            'izins.karyawan_pengganti_id',
-            'izins.checked_at',
-            'izins.checked_by',
-            'izins.approved_at',
-            'izins.approved_by',
-            'izins.legalized_at',
-            'izins.legalized_by',
-            'izins.rejected_at',
-            'izins.rejected_by',
-            'izins.rejected_note',
+            'sakits.id_sakit',
+            'sakits.karyawan_id',
+            'sakits.organisasi_id',
+            'sakits.departemen_id',
+            'sakits.divisi_id',
+            'sakits.tanggal_mulai',
+            'sakits.tanggal_selesai',
+            'sakits.durasi',
+            'sakits.keterangan',
+            'sakits.karyawan_pengganti_id',
+            'sakits.approved_at',
+            'sakits.approved_by',
+            'sakits.legalized_at',
+            'sakits.legalized_by',
+            'sakits.rejected_at',
+            'sakits.rejected_by',
+            'sakits.rejected_note',
+            'sakits.attachment',
             'karyawans.nama as nama_karyawan',
             'kp.nama_pengganti as nama_pengganti',
             'departemens.nama as nama_departemen',
             'divisis.nama as nama_divisi'
             )
-            ->leftJoin('karyawans', 'izins.karyawan_id', 'karyawans.id_karyawan')
+            ->leftJoin('karyawans', 'sakits.karyawan_id', 'karyawans.id_karyawan')
             ->leftJoinSub($getKaryawanPengganti, 'kp', function (JoinClause $joinKaryawanPengganti) {
-                $joinKaryawanPengganti->on('izins.karyawan_pengganti_id', 'kp.kp_id');
+                $joinKaryawanPengganti->on('sakits.karyawan_pengganti_id', 'kp.kp_id');
             })
-            ->leftJoin('karyawan_posisi', 'izins.karyawan_id', 'karyawan_posisi.karyawan_id')
+            ->leftJoin('karyawan_posisi', 'sakits.karyawan_id', 'karyawan_posisi.karyawan_id')
             ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
             ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
-            ->leftJoin('divisis', 'izins.divisi_id', 'divisis.id_divisi');
+            ->leftJoin('divisis', 'sakits.divisi_id', 'divisis.id_divisi');
         
         if (isset($dataFilter['organisasi_id'])) {
-            $data->where('izins.organisasi_id', $dataFilter['organisasi_id']);
+            $data->where('sakits.organisasi_id', $dataFilter['organisasi_id']);
         }
 
         if (isset($dataFilter['karyawan_id'])) {
-            $data->where('izins.karyawan_id', $dataFilter['karyawan_id']);
+            $data->where('sakits.karyawan_id', $dataFilter['karyawan_id']);
         }
 
         if (isset($dataFilter['member_posisi_id'])) {
@@ -106,10 +96,8 @@ class Izine extends Model
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
             $data->where(function ($query) use ($search) {
-                $query->where('izins.rencana_mulai_or_masuk', 'ILIKE', "%{$search}%")
-                    ->orWhere('izins.rencana_selesai_or_keluar', 'ILIKE', "%{$search}%")
-                    ->orWhere('izins.aktual_mulai_or_masuk', 'ILIKE', "%{$search}%")
-                    ->orWhere('izins.aktual_selesai_or_keluar', 'ILIKE', "%{$search}%");
+                $query->where('sakits.tanggal_mulai', 'ILIKE', "%{$search}%")
+                    ->orWhere('sakits.tanggal_selesai', 'ILIKE', "%{$search}%");
             });
         }
 
