@@ -436,6 +436,7 @@ $(function () {
                 refreshTable();
                 closeInputForm();
                 loadingSwalClose();
+                resetForm();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 loadingSwalClose();

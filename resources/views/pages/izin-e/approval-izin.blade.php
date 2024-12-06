@@ -44,6 +44,7 @@
                                     <th>Aktual Mulai / Masuk</th>
                                     <th>Aktual Selesai / Keluar</th>
                                     <th>Jenis Izin</th>
+                                    <th>Karyawan Pengganti</th>
                                     <th>Durasi</th>
                                     <th>Keterangan</th>
                                     <th>Checked</th>

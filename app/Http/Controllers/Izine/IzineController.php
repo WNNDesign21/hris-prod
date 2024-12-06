@@ -6,6 +6,7 @@ use Throwable;
 use Carbon\Carbon;
 use App\Models\Izine;
 use App\Models\Posisi;
+use App\Models\Karyawan;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -189,11 +190,24 @@ class IzineController extends Controller
             $dataFilter['search'] = $search;
         }
 
-        //FILTER DATA
+        $is_can_checked = false;
+        $is_can_approved = false;
+        $is_can_legalized = false;
 
+        // FILTER PERSONALIA
+        if(auth()->user()->hasRole('personalia')){
+            $dataFilter['organisasi_id'] = $organisasi_id;
+            $is_can_legalized = true;
+        } 
 
-        //MENCARI MEMBER
-        if(auth()->user()->hasRole('atasan')){
+        //FILTER PLANT HEAD
+        if(auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->organisasi_id !== null){
+            $dataFilter['organisasi_id'] = $organisasi_id;
+            $is_can_approved = true;
+        }
+
+        //FILTER MEMBER
+        if (auth()->user()->hasRole('atasan') && auth()->user()->karyawan->posisi[0]->jabatan_id >= 3){
             $posisi = auth()->user()->karyawan->posisi;
             $id_posisi_members = $this->get_member_posisi($posisi);
 
@@ -202,9 +216,17 @@ class IzineController extends Controller
                 array_splice($id_posisi_members, $index, 1);
             }
 
+            if (auth()->user()->karyawan->posisi[0]->jabatan_id >= 4){
+                $is_can_checked = true;
+            } 
+
+            if (auth()->user()->karyawan->posisi[0]->jabatan_id <= 4){
+                $is_can_approved = true;
+            }
+
             $dataFilter['member_posisi_id'] = $id_posisi_members;
-        }
-        
+        } 
+
         $izine = Izine::getData($dataFilter, $settings);
         $totalFiltered = Izine::countData($dataFilter);
 
@@ -212,37 +234,26 @@ class IzineController extends Controller
 
         if (!empty($izine)) {
             foreach ($izine as $data) {
-                $posisi_karyawan = Karyawan::find($data->karyawan_id)->posisi;
+                $karyawan = Karyawan::find($data->karyawan_id);
+                $posisi = $karyawan->posisi;
+                $has_section_head = false;
+                $has_department_head = false;
 
-                foreach($posisi_karyawan as $ps){
-                    $id_posisi_parents = $this->get_parent_posisi($ps);
-                }
-
-
-                $nestedData['nama'] = $data->nama_karyawan;
-                $nestedData['departemen'] = $data->nama_departemen;
-                $nestedData['rencana_mulai_cuti'] = Carbon::parse($data->rencana_mulai_cuti)->format('d M Y');
-                $nestedData['rencana_selesai_cuti'] = Carbon::parse($data->rencana_selesai_cuti)->format('d M Y');
-                $nestedData['aktual_mulai_cuti'] = $data->aktual_mulai_cuti ? Carbon::parse($data->aktual_selesai_cuti)->format('d M Y') : '-';
-                $nestedData['aktual_selesai_cuti'] = $data->aktual_selesai_cuti ? Carbon::parse($data->aktual_selesai_cuti)->format('d M Y') : '-';
-                $nestedData['durasi'] = $data->durasi_cuti.' Hari';
-                $nestedData['jenis'] = $data->jenis_cuti !== 'KHUSUS' ? $data->jenis_cuti : $data->jenis_cuti.' <small class="text-fade">('.$data->jenis_cuti_khusus.')</small>';
-                $nestedData['checked_1'] = $rejected == null ? $btn_group_1 : $rejected;
-                $nestedData['checked_2'] = $rejected == null ? $btn_group_2 : $rejected;
-                $nestedData['approved'] = $rejected == null ? $btn_group_3 : $rejected;
-                $nestedData['legalized'] = $rejected == null ? $legalized : $rejected;
-                $nestedData['status_dokumen'] = $data->status_dokumen == 'WAITING' ? '<span class="badge badge-pill badge-warning">'.$data->status_dokumen.'</span>' : ($data->status_dokumen == 'APPROVED' ? '<span class="badge badge-pill badge-success">'.$data->status_dokumen.'</span>' : '<span class="badge badge-pill badge-danger btnAlasan" data-alasan="'.$data->rejected_note.'" style="cursor:pointer;">'.$data->status_dokumen.'</span>');
-                $nestedData['status'] = $status_cuti;
-                $nestedData['alasan'] = $data->alasan_cuti;
-                $nestedData['karyawan_pengganti'] = $btn_karyawan_pengganti;
-                // $nestedData['created_at'] = Carbon::parse($data->created_at)->diffForHumans() ;
-                $nestedData['created_at'] = Carbon::parse($data->created_at)->format('d M Y H:i:s');
-                $nestedData['attachment'] = $data->jenis_cuti !== 'SAKIT' ? 'No Attachment Needed' : '<a href="'.asset('storage/'.$data->attachment).'" target="_blank">Lihat</a>';
-                $nestedData['aksi'] = '
-                <div class="btn-group btn-group-sm">'.
-                    ($data->checked_by == null || $data->approved_by == null || $data->legalized_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id="'.$data->id_cuti.'"><i class="fas fa-edit"></i> Edit</button><button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button>' : '').'
-                </div>
-                ';
+                $nestedData['id_izin'] = $data->id_izin;
+                $nestedData['nama'] = $data->nama;
+                $nestedData['departemen'] = $data->departemen;
+                $nestedData['posisi'] = $data->posisi;
+                $nestedData['rencana_mulai_or_masuk'] = $data->rencana_mulai_or_masuk;
+                $nestedData['rencana_selesai_or_keluar'] = $data->rencana_selesai_or_keluar;
+                $nestedData['aktual_mulai_or_masuk'] = $data->aktual_mulai_or_masuk;
+                $nestedData['aktual_selesai_or_keluar'] = $data->aktual_selesai_or_keluar;
+                $nestedData['jenis_izin'] = $data->jenis_izin;
+                $nestedData['karyawan_pengganti'] = $data->karyawan_pengganti;
+                $nestedData['durasi'] = $data->durasi;
+                $nestedData['keterangan'] = $data->keterangan;
+                $nestedData['checked_by'] = $data->checked_by;
+                $nestedData['approved_by'] = $data->approved_by;
+                $nestedData['legalized_by'] = $data->legalized_by;
 
                 $dataTable[] = $nestedData;
             }
@@ -542,6 +553,18 @@ class IzineController extends Controller
             $data = array_merge($data, $this->get_parent_posisi($parent));
         }
         $data[] = $posisi->parent_id;
+        return $data;
+    }
+
+    function get_member_posisi($posisis)
+    {
+        $data = [];
+        foreach ($posisis as $ps) {
+            if ($ps->children) {
+                $data = array_merge($data, $this->get_member_posisi($ps->children));
+            }
+            $data[] = $ps->id_posisi;
+        }
         return $data;
     }
 }

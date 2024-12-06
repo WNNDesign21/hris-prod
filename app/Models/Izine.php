@@ -53,7 +53,7 @@ class Izine extends Model
     private static function _query($dataFilter)
     {
 
-        $getKaryawanPengganti = Karyawan::select("id_karyawan as kp_id", "nama as nama_pengganti");
+        $getKaryawanPengganti = Karyawan::select("id_karyawan as kp_id", "nama as karyawan_pengganti");
         $data = self::select(
             'izins.id_izin',
             'izins.karyawan_id',
@@ -77,10 +77,10 @@ class Izine extends Model
             'izins.rejected_at',
             'izins.rejected_by',
             'izins.rejected_note',
-            'karyawans.nama as nama_karyawan',
-            'kp.nama_pengganti as nama_pengganti',
-            'departemens.nama as nama_departemen',
-            'divisis.nama as nama_divisi'
+            'karyawans.nama as nama',
+            'kp.karyawan_pengganti as karyawan_pengganti',
+            'departemens.nama as departemen',
+            'divisis.nama as divisi'
             )
             ->leftJoin('karyawans', 'izins.karyawan_id', 'karyawans.id_karyawan')
             ->leftJoinSub($getKaryawanPengganti, 'kp', function (JoinClause $joinKaryawanPengganti) {

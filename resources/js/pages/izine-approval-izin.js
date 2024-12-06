@@ -55,134 +55,141 @@ $(function () {
 
     // function updatePengajuanCutiNotification(){
     //     $.ajax({
-    //         url: base_url + '/get-lapor-skd-notification',
+    //         url: base_url + '/get-approval-izin-notification',
     //         method: 'GET',
     //         success: function(response){
-    //             $('.notification-lapor-skd').html(response.data);
+    //             $('.notification-approval-izin').html(response.data);
     //         }
     //     })
     // }
     
-    // var columnsTable = [
-    //     { data: "tanggal_mulai" },
-    //     { data: "tanggal_selesai" },
-    //     { data: "durasi" },
-    //     { data: "keterangan" },
-    //     { data: "lampiran" },
-    //     { data: "approved_by" },
-    //     { data: "legalized_by" },
-    //     { data: "aksi" },
-    // ];
+    var columnsTable = [
+        { data: "id_izin" },
+        { data: "nama" },
+        { data: "departemen" },
+        { data: "posisi" },
+        { data: "rencana_mulai_or_masuk" },
+        { data: "rencana_selesai_or_keluar" },
+        { data: "aktual_mulai_or_masuk" },
+        { data: "aktual_selesai_or_keluar" },
+        { data: "jenis_izin" },
+        { data: "karyawan_pengganti" },
+        { data: "durasi" },
+        { data: "keterangan" },
+        { data: "checked_by" },
+        { data: "approved_by" },
+        { data: "legalized_by" }
+    ];
 
-    // var laporSkdTable = $("#lapor-skd-table").DataTable({
-    //     search: {
-    //         return: true,
-    //     },
-    //     order: [[0, "DESC"]],
-    //     processing: true,
-    //     serverSide: true,
-    //     ajax: {
-    //         url: base_url + "/izine/lapor-skd-datatable",
-    //         dataType: "json",
-    //         type: "POST",
-    //         data: function (dataFilter) {
-    //         },
-    //         error: function (jqXHR, textStatus, errorThrown) {
-    //             if (jqXHR.responseJSON.data) {
-    //                 var error = jqXHR.responseJSON.data.error;
-    //                 Swal.fire({
-    //                     icon: "error",
-    //                     title: " <br>Application error!",
-    //                     html:
-    //                         '<div class="alert alert-danger text-left" role="alert">' +
-    //                         "<p>Error Message: <strong>" +
-    //                         error +
-    //                         "</strong></p>" +
-    //                         "</div>",
-    //                     allowOutsideClick: false,
-    //                     showConfirmButton: true,
-    //                 }).then(function () {
-    //                     refreshTable();
-    //                 });
-    //             } else {
-    //                 var message = jqXHR.responseJSON.message;
-    //                 var errorLine = jqXHR.responseJSON.line;
-    //                 var file = jqXHR.responseJSON.file;
-    //                 Swal.fire({
-    //                     icon: "error",
-    //                     title: " <br>Application error!",
-    //                     html:
-    //                         '<div class="alert alert-danger text-left" role="alert">' +
-    //                         "<p>Error Message: <strong>" +
-    //                         message +
-    //                         "</strong></p>" +
-    //                         "<p>File: " +
-    //                         file +
-    //                         "</p>" +
-    //                         "<p>Line: " +
-    //                         errorLine +
-    //                         "</p>" +
-    //                         "</div>",
-    //                     allowOutsideClick: false,
-    //                     showConfirmButton: true,
-    //                 }).then(function () {
-    //                     refreshTable();
-    //                 });
-    //             }
-    //         },
-    //     },
-    //     initComplete: function () {
-    //         $('.image-popup-vertical-fit').magnificPopup({
-    //             type: 'image',
-    //             closeOnContentClick: true,
-    //             mainClass: 'mfp-img-mobile',
-    //             image: {
-    //                 verticalFit: true
-    //             }
-    //         });
-    //     },
-    //     drawCallback: function () { 
-    //         $('.image-popup-vertical-fit').magnificPopup({
-    //             type: 'image',
-    //             closeOnContentClick: true,
-    //             mainClass: 'mfp-img-mobile',
-    //             image: {
-    //                 verticalFit: true
-    //             }
-    //         });
-    //     },
-    //     // responsive: true,
-    //     scrollX: true,
-    //     columns: columnsTable,
-    //     columnDefs: [
-    //         {
-    //             orderable: false,
-    //             targets: [-1],
-    //         },
-    //         {
-    //             targets: [-1],
-    //             createdCell: function (td, cellData, rowData, row, col) {
-    //                 // $(td).addClass("text-center");
-    //             },
-    //         },
-    //     ],
-    // })
+    var laporSkdTable = $("#approval-izin-table").DataTable({
+        search: {
+            return: true,
+        },
+        order: [[0, "DESC"]],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: base_url + "/izine/approval-izin-datatable",
+            dataType: "json",
+            type: "POST",
+            data: function (dataFilter) {
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR.responseJSON.data) {
+                    var error = jqXHR.responseJSON.data.error;
+                    Swal.fire({
+                        icon: "error",
+                        title: " <br>Application error!",
+                        html:
+                            '<div class="alert alert-danger text-left" role="alert">' +
+                            "<p>Error Message: <strong>" +
+                            error +
+                            "</strong></p>" +
+                            "</div>",
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                    }).then(function () {
+                        refreshTable();
+                    });
+                } else {
+                    var message = jqXHR.responseJSON.message;
+                    var errorLine = jqXHR.responseJSON.line;
+                    var file = jqXHR.responseJSON.file;
+                    Swal.fire({
+                        icon: "error",
+                        title: " <br>Application error!",
+                        html:
+                            '<div class="alert alert-danger text-left" role="alert">' +
+                            "<p>Error Message: <strong>" +
+                            message +
+                            "</strong></p>" +
+                            "<p>File: " +
+                            file +
+                            "</p>" +
+                            "<p>Line: " +
+                            errorLine +
+                            "</p>" +
+                            "</div>",
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                    }).then(function () {
+                        refreshTable();
+                    });
+                }
+            },
+        },
+        initComplete: function () {
+            $('.image-popup-vertical-fit').magnificPopup({
+                type: 'image',
+                closeOnContentClick: true,
+                mainClass: 'mfp-img-mobile',
+                image: {
+                    verticalFit: true
+                }
+            });
+        },
+        drawCallback: function () { 
+            $('.image-popup-vertical-fit').magnificPopup({
+                type: 'image',
+                closeOnContentClick: true,
+                mainClass: 'mfp-img-mobile',
+                image: {
+                    verticalFit: true
+                }
+            });
+        },
+        // responsive: true,
+        scrollX: true,
+        columns: columnsTable,
+        columnDefs: [
+            {
+                orderable: false,
+                targets: [-1],
+            },
+            {
+                targets: [-1],
+                createdCell: function (td, cellData, rowData, row, col) {
+                    // $(td).addClass("text-center");
+                },
+            },
+        ],
+    })
 
-    // //REFRESH TABLE
-    // function refreshTable() {
-    //     laporSkdTable.search("").draw();
-    // }
+    //REFRESH TABLE
+    function refreshTable() {
+        laporSkdTable.search("").draw();
+    }
 
-    // //RELOAD TABLE
-    // $('.btnReload').on("click", function (){
-    //     refreshTable();
-    // })
+    //RELOAD TABLE
+    $('.btnReload').on("click", function (){
+        refreshTable();
+    })
 
-    // $('.btnAdd').on("click", function (){
-    //     openInputForm();
-    // })
+    $('.btnAdd').on("click", function (){
+        openInputForm();
+    })
 
-    // $('.btnClose').on("click", function (){
-    //     closeInputForm();
-    // })
+    $('.btnClose').on("click", function (){
+        closeInputForm();
+    })
 });
