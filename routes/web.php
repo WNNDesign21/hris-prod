@@ -325,6 +325,14 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
             Route::delete('/lapor-skd/delete/{idSakit}',[SakiteController::class, 'delete'])->name('izine.lapor-skd.delete');
             Route::patch('/lapor-skd/update/{idSakit}',[SakiteController::class, 'update'])->name('izine.lapor-skd.update');
         });
+
+        Route::group(['middleware' => ['role:atasan']], function () {
+            //IZIN
+            Route::get('/approval-izin', [IzineController::class, 'approval_izin_view'])->name('izine.approval-izin');
+
+            //SKD
+            Route::get('/approval-skd', [SakiteController::class, 'approval_skd_view'])->name('izine.approval-skd');
+        });
       });
 });
 

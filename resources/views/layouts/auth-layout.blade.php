@@ -206,6 +206,14 @@
         @vite(['resources/js/pages/izine-lapor-skd.js'])
     @endif
 
+    @if ($page == 'izine-approval-izin')
+        @vite(['resources/js/pages/izine-approval-izin.js'])
+    @endif
+
+    @if ($page == 'izine-approval-skd')
+        @vite(['resources/js/pages/izine-approval-skd.js'])
+    @endif
+
 </body>
 
 </html>

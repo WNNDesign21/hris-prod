@@ -31,6 +31,15 @@ class SakiteController extends Controller
         return view('pages.izin-e.lapor-skd', $dataPage);
     }
 
+    public function approval_skd_view()
+    {
+        $dataPage = [
+            'pageTitle' => "Izin-E - Approval SKD",
+            'page' => 'izine-approval-skd',
+        ];
+        return view('pages.izin-e.approval-skd', $dataPage);
+    }
+
     public function lapor_skd_datatable(Request $request)
     {
 
