@@ -24,8 +24,8 @@
                         <div class="btn-group">
                             <button type="button" class="btn btn-info waves-effect btnReload"><i
                                     class="fas fa-sync-alt"></i></button>
-                            <button type="button" class="btn btn-success waves-effect btnAdd"><i
-                                    class="fas fa-plus"></i></button>
+                            <button type="button" class="btn btn-warning waves-effect btnFilter"><i
+                                    class="fas fa-filter"></i></button>
                         </div>
                     </div>
                 </div>
@@ -44,7 +44,6 @@
                                     <th>Aktual Mulai / Masuk</th>
                                     <th>Aktual Selesai / Keluar</th>
                                     <th>Jenis Izin</th>
-                                    <th>Karyawan Pengganti</th>
                                     <th>Durasi</th>
                                     <th>Keterangan</th>
                                     <th>Checked</th>
@@ -59,4 +58,5 @@
             </div>
         </div>
     </div>
+    @include('pages.izin-e.modal-reject-izin')
 @endsection

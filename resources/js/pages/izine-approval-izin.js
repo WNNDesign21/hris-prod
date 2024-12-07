@@ -73,7 +73,6 @@ $(function () {
         { data: "aktual_mulai_or_masuk" },
         { data: "aktual_selesai_or_keluar" },
         { data: "jenis_izin" },
-        { data: "karyawan_pengganti" },
         { data: "durasi" },
         { data: "keterangan" },
         { data: "checked_by" },
@@ -191,5 +190,172 @@ $(function () {
 
     $('.btnClose').on("click", function (){
         closeInputForm();
+    })
+
+     // MODAL REJECT
+     var modalRejectOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalReject = new bootstrap.Modal(
+        document.getElementById("modal-reject-izin"),
+        modalRejectOptions
+    );
+
+    function openReject() {
+        modalReject.show();
+    }
+
+    function closeReject() {
+        modalReject.hide();
+        $('#rejected_note').val('');
+    }
+
+    $('#approval-izin-table').on('click', '.btnReject', function(){
+        let idIzin = $(this).data('id-izin');
+        let url = base_url + '/izine/approval-izin/rejected/' + idIzin;
+        $('#form-reject-izin').attr('action', url);
+        openReject();
+    });
+
+    $('#form-reject-izin').on('submit', function (e) {
+        loadingSwalShow();
+        e.preventDefault();
+        let url = $(this).attr('action');
+        var formData = new FormData($(this)[0]);
+        $.ajax({
+            url: url,
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (data) {
+                showToast({ title: data.message });
+                refreshTable();
+                closeReject();
+                loadingSwalClose();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        })
+
+    })
+
+    $('#approval-izin-table').on('click', '.btnChecked', function(){
+        let idIzin = $(this).data('id-izin');
+        let url = base_url + '/izine/approval-izin/checked/' + idIzin;
+        var formData = new FormData();
+        formData.append('_method', 'PATCH');
+        Swal.fire({
+            title: "Checked Izin",
+            text: "Data yang sudah di checked tidak bisa diubah!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Tandai sebagai Checked!",
+            allowOutsideClick: false,
+        }).then((result) => {
+            if (result.value) {
+                loadingSwalShow();
+                $.ajax({
+                    url: url,
+                    data : formData,
+                    method:"POST",
+                    contentType: false,
+                    processData: false,
+                    dataType: "JSON",
+                    success: function (data) {
+                        showToast({ title: data.message });
+                        refreshTable();
+                        loadingSwalClose();
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        loadingSwalClose();
+                        showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                    },
+                });
+            }
+        });
+    });
+
+    $('#approval-izin-table').on('click', '.btnApproved', function(){
+        let idIzin = $(this).data('id-izin');
+        let url = base_url + '/izine/approval-izin/approved/' + idIzin;
+        var formData = new FormData();
+        formData.append('_method', 'PATCH');
+        Swal.fire({
+            title: "Approved Izin",
+            text: "Data yang sudah di approved tidak bisa diubah!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Tandai sebagai Approved!",
+            allowOutsideClick: false,
+        }).then((result) => {
+            if (result.value) {
+                loadingSwalShow();
+                $.ajax({
+                    url: url,
+                    data : formData,
+                    method:"POST",
+                    contentType: false,
+                    processData: false,
+                    dataType: "JSON",
+                    success: function (data) {
+                        showToast({ title: data.message });
+                        refreshTable();
+                        loadingSwalClose();
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        loadingSwalClose();
+                        showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                    },
+                });
+            }
+        });
+    })
+
+    $('#approval-izin-table').on('click', '.btnLegalized', function(){
+        let idIzin = $(this).data('id-izin');
+        let url = base_url + '/izine/approval-izin/legalized/' + idIzin;
+        var formData = new FormData();
+        formData.append('_method', 'PATCH');
+        Swal.fire({
+            title: "Legalized Izin",
+            text: "Data yang sudah di legalized tidak bisa diubah!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Tandai sebagai Legalized!",
+            allowOutsideClick: false,
+        }).then((result) => {
+            if (result.value) {
+                loadingSwalShow();
+                $.ajax({
+                    url: url,
+                    data : formData,
+                    method:"POST",
+                    contentType: false,
+                    processData: false,
+                    dataType: "JSON",
+                    success: function (data) {
+                        showToast({ title: data.message });
+                        refreshTable();
+                        loadingSwalClose();
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        loadingSwalClose();
+                        showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                    },
+                });
+            }
+        });
     })
 });

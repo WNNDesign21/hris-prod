@@ -80,7 +80,8 @@ class Izine extends Model
             'karyawans.nama as nama',
             'kp.karyawan_pengganti as karyawan_pengganti',
             'departemens.nama as departemen',
-            'divisis.nama as divisi'
+            'divisis.nama as divisi',
+            'posisis.nama as posisi'
             )
             ->leftJoin('karyawans', 'izins.karyawan_id', 'karyawans.id_karyawan')
             ->leftJoinSub($getKaryawanPengganti, 'kp', function (JoinClause $joinKaryawanPengganti) {

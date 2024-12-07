@@ -312,24 +312,26 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
      });
 
      Route::group(['prefix' => 'izine'], function () {
-        Route::group(['middleware' => ['role:atasan|member']], function () {
-            Route::get('/pengajuan-izin', [IzineController::class, 'pengajuan_izin_view'])->name('izine.pengajuan-izin');
-            Route::post('/pengajuan-izin-datatable', [IzineController::class, 'pengajuan_izin_datatable']);
-            Route::post('/pengajuan-izin/store',[IzineController::class, 'store'])->name('izine.pengajuan-izin.store');
-            Route::delete('/pengajuan-izin/delete/{idIzin}',[IzineController::class, 'delete'])->name('izine.pengajuan-izin.delete');
-            Route::patch('/pengajuan-izin/update/{idIzin}',[IzineController::class, 'update'])->name('izine.pengajuan-izin.update');
+        Route::get('/pengajuan-izin', [IzineController::class, 'pengajuan_izin_view'])->name('izine.pengajuan-izin');
+        Route::post('/pengajuan-izin-datatable', [IzineController::class, 'pengajuan_izin_datatable']);
+        Route::post('/pengajuan-izin/store',[IzineController::class, 'store'])->name('izine.pengajuan-izin.store');
+        Route::delete('/pengajuan-izin/delete/{idIzin}',[IzineController::class, 'delete'])->name('izine.pengajuan-izin.delete');
+        Route::patch('/pengajuan-izin/update/{idIzin}',[IzineController::class, 'update'])->name('izine.pengajuan-izin.update');
 
-            Route::get('/lapor-skd', [SakiteController::class, 'lapor_skd_view'])->name('izine.lapor-skd');
-            Route::post('/lapor-skd-datatable', [SakiteController::class, 'lapor_skd_datatable']);
-            Route::post('/lapor-skd/store',[SakiteController::class, 'store'])->name('izine.lapor-skd.store');
-            Route::delete('/lapor-skd/delete/{idSakit}',[SakiteController::class, 'delete'])->name('izine.lapor-skd.delete');
-            Route::patch('/lapor-skd/update/{idSakit}',[SakiteController::class, 'update'])->name('izine.lapor-skd.update');
-        });
+        Route::get('/lapor-skd', [SakiteController::class, 'lapor_skd_view'])->name('izine.lapor-skd');
+        Route::post('/lapor-skd-datatable', [SakiteController::class, 'lapor_skd_datatable']);
+        Route::post('/lapor-skd/store',[SakiteController::class, 'store'])->name('izine.lapor-skd.store');
+        Route::delete('/lapor-skd/delete/{idSakit}',[SakiteController::class, 'delete'])->name('izine.lapor-skd.delete');
+        Route::patch('/lapor-skd/update/{idSakit}',[SakiteController::class, 'update'])->name('izine.lapor-skd.update');
 
         Route::group(['middleware' => ['role:atasan|personalia']], function () {
             //IZIN
             Route::get('/approval-izin', [IzineController::class, 'approval_izin_view'])->name('izine.approval-izin');
             Route::post('/approval-izin-datatable', [IzineController::class, 'approval_izin_datatable']);
+            Route::patch('/approval-izin/checked/{idIzin}', [IzineController::class, 'checked'])->name('izine.approval-izin.checked');
+            Route::patch('/approval-izin/approved/{idIzin}', [IzineController::class, 'approved'])->name('izine.approval-izin.approved');
+            Route::patch('/approval-izin/legalized/{idIzin}', [IzineController::class, 'legalized'])->name('izine.approval-izin.legalized');
+            Route::patch('/approval-izin/rejected/{idIzin}', [IzineController::class, 'rejected'])->name('izine.approval-izin.rejected');
 
             //SKD
             Route::get('/approval-skd', [SakiteController::class, 'approval_skd_view'])->name('izine.approval-skd');

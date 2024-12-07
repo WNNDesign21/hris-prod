@@ -20,7 +20,8 @@
                             </a>
                         </li>
                     @endif
-                    @if (auth()->user()->hasRole('atasan') && auth()->user()->karyawan->posisi[0]->jabatan_id <= 4)
+                    @if (auth()->user()->hasRole('personalia') ||
+                            (auth()->user()->hasRole('atasan') && auth()->user()->karyawan->posisi[0]->jabatan_id <= 4))
                         <li class="{{ $page == 'izine-approval-izin' ? 'active' : '' }}">
                             <a href="{{ route('izine.approval-izin') }}">
                                 <i class="icon-Double-check"><span class="path1"></span><span
@@ -36,29 +37,6 @@
                             </a>
                         </li>
                     @endif
-                    {{-- @if (auth()->user()->hasRole('atasan') || auth()->user()->hasRole('personalia'))
-                        <li class="{{ $page == 'izine-pengajuan-izin' ? 'active' : '' }}">
-                            <a href="{{ route('izine.pengajuan-izin') }}">
-                                <i class="icon-Adress-book1"><span class="path1"></span><span
-                                        class="path2"></span></i>
-                                <span>Izin Tidak Masuk</span>
-                            </a>
-                        </li>
-                        <li class="{{ $page == 'izine-pengajuan-izin' ? 'active' : '' }}">
-                            <a href="{{ route('izine.pengajuan-izin') }}">
-                                <i class="icon-Adress-book1"><span class="path1"></span><span
-                                        class="path2"></span></i>
-                                <span>Izin Setengah Hari</span>
-                            </a>
-                        </li>
-                        <li class="{{ $page == 'izine-pengajuan-izin' ? 'active' : '' }}">
-                            <a href="{{ route('izine.pengajuan-izin') }}">
-                                <i class="icon-Adress-book1"><span class="path1"></span><span
-                                        class="path2"></span></i>
-                                <span>Izin Sakit</span>
-                            </a>
-                        </li>
-                    @endif --}}
                 </ul>
             </div>
         </div>
