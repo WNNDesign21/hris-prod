@@ -40,7 +40,6 @@
                                     <th>Posisi</th>
                                     <th>Tanggal Mulai</th>
                                     <th>Tanggal Selesai</th>
-                                    <th>Karyawan Pengganti</th>
                                     <th>Durasi</th>
                                     <th>Keterangan</th>
                                     <th>Lampiran</th>

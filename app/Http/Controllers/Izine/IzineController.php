@@ -139,7 +139,7 @@ class IzineController extends Controller
 
                     if($data->checked_by && $data->approved_by && $data->legalized_by){
                         if(($data->rencana_mulai_or_masuk && !$data->aktual_mulai_or_masuk) || ($data->rencana_selesai_or_keluar && !$data->selesai_mulai_or_keluar)){
-                            $aksi = '<div class="btn-group btn-group-sm"><button class="btn btn-sm btn-primary btnShowQR" data-id-izin="'.$data->id_izin.'"><i class="fas fa-qrcode"></i>  Show QR</button><button class="btn btn-sm btn-danger btnDelete" data-id-izin="'.$data->id_izin.'"><i class="fas fa-trash"></i> Delete</button></div>';
+                            $aksi = '<div class="btn-group btn-group-sm"><button class="btn btn-sm btn-primary btnShowQR" data-id-izin="'.$data->id_izin.'"><i class="fas fa-qrcode"></i>  Show QR</button><button class="btn btn-sm btn-danger btnCancel" data-id-izin="'.$data->id_izin.'"><i class="fas fa-history"></i> Cancel</button></div>';
                         }
                     }
                 }
@@ -187,19 +187,19 @@ class IzineController extends Controller
 
         $columns = array(
             0 => 'izins.id_izin',
-            0 => 'karyawans.nama',
-            1 => 'departemens.nama',
-            2 => 'posisis.nama',
-            3 => 'izins.rencana_mulai_or_masuk',
+            1 => 'karyawans.nama',
+            2 => 'departemens.nama',
+            3 => 'posisis.nama',
             4 => 'izins.rencana_mulai_or_masuk',
-            5 => 'izins.aktual_selesai_or_keluar',
+            5 => 'izins.rencana_mulai_or_masuk',
             6 => 'izins.aktual_selesai_or_keluar',
-            7 => 'izins.jenis_izin',
-            8 => 'izins.durasi',
-            9 => 'izins.keterangan',
-            10 => 'izins.checked_by',
-            11 => 'izins.approved_by',
-            12 => 'izins.legalized_by',
+            7 => 'izins.aktual_selesai_or_keluar',
+            8 => 'izins.jenis_izin',
+            9 => 'izins.durasi',
+            10 => 'izins.keterangan',
+            11 => 'izins.checked_by',
+            12 => 'izins.approved_by',
+            13 => 'izins.legalized_by',
         );
 
         $totalData = Izine::count();

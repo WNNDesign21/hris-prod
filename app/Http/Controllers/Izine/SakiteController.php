@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Izine;
+namespace App\Http\Controllers\Sakite;
 
 use Throwable;
 use Carbon\Carbon;
@@ -114,6 +114,200 @@ class SakiteController extends Controller
                 $nestedData['approved_by'] = $data->approved_by;
                 $nestedData['legalized_by'] = $data->legalized_by;
                 $nestedData['aksi'] = $aksi;
+
+                $dataTable[] = $nestedData;
+            }
+        }
+
+        $json_data = array(
+            "draw" => intval($request->input('draw')),
+            "recordsTotal" => intval($totalData),
+            "recordsFiltered" => intval($totalFiltered),
+            "data" => $dataTable,
+            "order" => $order,
+            "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
+            "dir" => $dir,
+            "column"=>$request->input('order.0.column')
+        );
+
+        return response()->json($json_data, 200);
+    }
+
+    public function approval_skd_datatable(Request $request)
+    {
+
+        $columns = array(
+            0 => 'karyawans.nama',
+            1 => 'departemens.nama',
+            2 => 'posisis.nama',
+            3 => 'sakits.tanggal_mulai',
+            4 => 'sakits.tanggal_selesai',
+            5 => 'sakits.durasi',
+            6 => 'sakits.keterangan',
+            7 => 'sakits.attachment',
+            8 => 'sakits.approved_by',
+            9 => 'sakits.legalized_by',
+        );
+
+        $totalData = Sakite::count();
+        $totalFiltered = $totalData;
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = (!empty($request->input('order.0.column'))) ? $columns[$request->input('order.0.column')] : $columns[0];
+        $dir = (!empty($request->input('order.0.dir'))) ? $request->input('order.0.dir') : "DESC";
+
+        $settings['start'] = $start;
+        $settings['limit'] = $limit;
+        $settings['dir'] = $dir;
+        $settings['order'] = $order;
+
+        $dataFilter = [];
+        $search = $request->input('search.value');
+        if (!empty($search)) {
+            $dataFilter['search'] = $search;
+        }
+
+        $is_can_approved = false;
+        $is_can_legalized = false;
+        $organisasi_id = auth()->user()->organisasi_id;
+
+        // FILTER PERSONALIA
+        if(auth()->user()->hasRole('personalia')){
+            $dataFilter['organisasi_id'] = $organisasi_id;
+            $is_can_legalized = true;
+        } 
+
+        //FILTER MEMBER
+        if (auth()->user()->hasRole('atasan')){
+            $posisi = auth()->user()->karyawan->posisi;
+            $id_posisi_members = $this->get_member_posisi($posisi);
+
+            foreach ($posisi as $ps){
+                $index = array_search($ps->id_posisi, $id_posisi_members);
+                array_splice($id_posisi_members, $index, 1);
+            }
+
+            if (auth()->user()->karyawan->posisi[0]->jabatan_id >= 4){
+                $is_can_checked = true;
+            } 
+
+            if (auth()->user()->karyawan->posisi[0]->jabatan_id <= 4){
+                $is_can_approved = true;
+            }
+
+            $dataFilter['member_posisi_id'] = $id_posisi_members;
+        } 
+
+        $izine = Sakite::getData($dataFilter, $settings);
+        $totalFiltered = Sakite::countData($dataFilter);
+
+        $dataTable = [];
+
+        if (!empty($izine)) {
+            foreach ($izine as $data) {
+                $karyawan = Karyawan::find($data->karyawan_id);
+                $posisi = $karyawan->posisi;
+                $has_leader = $this->has_leader($posisi);
+                $has_section_head = $this->has_section_head($posisi);
+                $has_department_head = $this->has_department_head($posisi);
+                $legalized_by = 'Need Legalized';
+                $approved_by = 'Need Approved';
+                $checked_by = 'Need Checked';
+                $karyawan_pengganti = '-';
+
+                //JENIS IZIN
+                if ($data->jenis_izin == 'TM') {
+                    $jenis_izin = '<span class="badge badge-primary">Tidak Masuk</span>';
+                    $durasi = $data->durasi . ' Hari';
+                    $rencana_mulai_or_masuk = $data->rencana_mulai_or_masuk ? Carbon::parse($data->rencana_mulai_or_masuk)->format('d M Y') : '-';
+                    $rencana_selesai_or_keluar = $data->rencana_selesai_or_keluar ? Carbon::parse($data->rencana_selesai_or_keluar)->format('d M Y') : '-';
+                    $aktual_mulai_or_masuk = $data->aktual_mulai_or_masuk ? Carbon::parse($data->aktual_mulai_or_masuk)->format('d M Y') : '-';
+                    $aktual_selesai_or_keluar = $data->aktual_selesai_or_keluar ? Carbon::parse($data->aktual_selesai_or_keluar)->format('d M Y') : '-';
+                } else {
+                    $jenis_izin = '<span class="badge badge-info">1/2 Hari</span>';
+                    $durasi = '-';
+                    $rencana_mulai_or_masuk = $data->rencana_mulai_or_masuk ? Carbon::parse($data->rencana_mulai_or_masuk)->format('d M Y, H:i').' WIB' : '-';
+                    $rencana_selesai_or_keluar = $data->rencana_selesai_or_keluar ? Carbon::parse($data->rencana_selesai_or_keluar)->format('d M Y, H:i').' WIB' : '-';
+                    $aktual_mulai_or_masuk = $data->aktual_mulai_or_masuk ? Carbon::parse($data->aktual_mulai_or_masuk)->format('d M Y, H:i').' WIB' : '-';
+                    $aktual_selesai_or_keluar = $data->aktual_selesai_or_keluar ? Carbon::parse($data->aktual_selesai_or_keluar)->format('d M Y, H:i').' WIB' : '-';
+                }
+
+                if($data->approved_by){
+                    $approved_by = '✅<br><small class="text-bold">'.$data->approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->approved_at)->diffForHumans().'</small>';
+                }
+
+                if($data->legalized_by){
+                    $legalized_by = '✅<br><small class="text-bold">'.$data->legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->legalized_at)->diffForHumans().'</small>';
+                }
+        
+
+                //TOMBOL APPROVED
+                if ($is_can_approved){
+                    $my_posisi = auth()->user()->karyawan->posisi[0]->jabatan_id;
+
+                    //KONDISI UNTUK SECTION HEAD
+                    if($has_leader && $my_posisi == 4){
+                        if($data->checked_by && !$data->approved_by){
+                            $approved_by = '<div class="btn-group"><button class="btn btn-sm btn-success btnApproved" data-id-izin="'.$data->id_izin.'"><i class="fas fa-thumbs-up"></i> Approved</button><button type="button" class="btn btn-sm btn-danger waves-effect btnReject" data-id-izin="'.$data->id_izin.'"><i class="far fa-times-circle"></i> Reject</button></div>';
+                        } 
+                    }
+
+                    if(!$has_leader && $my_posisi == 4){
+                        if(!$data->approved_by){
+                            $approved_by = '<div class="btn-group"><button class="btn btn-sm btn-success btnApproved" data-id-izin="'.$data->id_izin.'"><i class="fas fa-thumbs-up"></i> Approved</button><button type="button" class="btn btn-sm btn-danger waves-effect btnReject" data-id-izin="'.$data->id_izin.'"><i class="far fa-times-circle"></i> Reject</button></div>';
+                        } 
+                    }
+
+                    //KONDISI UNTUK DEPT HEAD
+                    if($has_leader && !$has_section_head && $my_posisi == 3){
+                        if($data->checked_by && !$data->approved_by){
+                            $approved_by = '<div class="btn-group"><button class="btn btn-sm btn-success btnApproved" data-id-izin="'.$data->id_izin.'"><i class="fas fa-thumbs-up"></i> Approved</button><button type="button" class="btn btn-sm btn-danger waves-effect btnReject" data-id-izin="'.$data->id_izin.'"><i class="far fa-times-circle"></i> Reject</button></div>';
+                        } 
+                    }
+
+                    if(!$has_leader && !$has_section_head && $my_posisi == 3){
+                        if(!$data->approved_by){
+                            $approved_by = '<div class="btn-group"><button class="btn btn-sm btn-success btnApproved" data-id-izin="'.$data->id_izin.'"><i class="fas fa-thumbs-up"></i> Approved</button><button type="button" class="btn btn-sm btn-danger waves-effect btnReject" data-id-izin="'.$data->id_izin.'"><i class="far fa-times-circle"></i> Reject</button></div>';
+                        } 
+                    }
+
+                    //KONDISI UNTUK DIV / PLANT HEAD
+                    if(!$has_leader && !$has_section_head && !$has_department_head){
+                        if(!$data->approved_by){
+                            $approved_by = '<div class="btn-group"><button class="btn btn-sm btn-success btnApproved" data-id-izin="'.$data->id_izin.'"><i class="fas fa-thumbs-up"></i> Approved</button><button type="button" class="btn btn-sm btn-danger waves-effect btnReject" data-id-izin="'.$data->id_izin.'"><i class="far fa-times-circle"></i> Reject</button></div>';
+                        } 
+                    }
+                }
+
+                //TOMBOL LEGALIZED
+                if ($is_can_legalized){
+                    if(!$data->legalized_by){
+                        $legalized_by = '<div class="btn-group"><button class="btn btn-sm btn-success btnLegalized" data-id-izin="'.$data->id_izin.'"><i class="fas fa-thumbs-up"></i> Legalized</button><button type="button" class="btn btn-sm btn-danger waves-effect btnReject" data-id-izin="'.$data->id_izin.'"><i class="far fa-times-circle"></i> Reject</button></div>';
+                    }
+                }
+
+                //REJECTED
+                if ($data->rejected_by){
+                    $checked_by = '<span class="badge badge-danger mb-1">REJECTED</span><br><small class="text-fade">❌ '.$data->rejected_by.'<br>'.Carbon::parse($data->rejected_at)->format('Y-m-d').'</small><br><small class="text-fade"> Note : '.$data->rejected_note.'</small>';
+                    $approved_by = '<span class="badge badge-danger mb-1">REJECTED</span><br><small class="text-fade">❌ '.$data->rejected_by.'<br>'.Carbon::parse($data->rejected_at)->format('Y-m-d').'</small><br><small class="text-fade"> Note : '.$data->rejected_note.'</small>';
+                    $legalized_by = '<span class="badge badge-danger mb-1">REJECTED</span><br><small class="text-fade">❌ '.$data->rejected_by.'<br>'.Carbon::parse($data->rejected_at)->format('Y-m-d').'</small><br><small class="text-fade"> Note : '.$data->rejected_note.'</small>';
+                }
+
+                $nestedData['id_izin'] = $data->id_izin;
+                $nestedData['nama'] = $data->nama;
+                $nestedData['departemen'] = $data->departemen;
+                $nestedData['posisi'] = $data->posisi;
+                $nestedData['rencana_mulai_or_masuk'] = $rencana_mulai_or_masuk;
+                $nestedData['rencana_selesai_or_keluar'] = $rencana_selesai_or_keluar;
+                $nestedData['aktual_mulai_or_masuk'] = $aktual_mulai_or_masuk;
+                $nestedData['aktual_selesai_or_keluar'] = $aktual_selesai_or_keluar;
+                $nestedData['jenis_izin'] = $jenis_izin;
+                $nestedData['durasi'] = $durasi;
+                $nestedData['keterangan'] = $data->keterangan;
+                $nestedData['checked_by'] = $checked_by;
+                $nestedData['approved_by'] = $approved_by;
+                $nestedData['legalized_by'] = $legalized_by;
 
                 $dataTable[] = $nestedData;
             }

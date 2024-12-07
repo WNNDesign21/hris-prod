@@ -67,10 +67,10 @@ class Sakite extends Model
             'sakits.rejected_by',
             'sakits.rejected_note',
             'sakits.attachment',
-            'karyawans.nama as nama_karyawan',
-            'kp.nama_pengganti as nama_pengganti',
-            'departemens.nama as nama_departemen',
-            'divisis.nama as nama_divisi'
+            'karyawans.nama as nama',
+            'kp.nama_pengganti as karyawan_pengganti',
+            'departemens.nama as departemen',
+            'divisis.nama as divisi'
             )
             ->leftJoin('karyawans', 'sakits.karyawan_id', 'karyawans.id_karyawan')
             ->leftJoinSub($getKaryawanPengganti, 'kp', function (JoinClause $joinKaryawanPengganti) {
