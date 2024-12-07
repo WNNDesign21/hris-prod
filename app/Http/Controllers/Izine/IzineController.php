@@ -139,7 +139,7 @@ class IzineController extends Controller
 
                     if($data->checked_by && $data->approved_by && $data->legalized_by){
                         if(($data->rencana_mulai_or_masuk && !$data->aktual_mulai_or_masuk) || ($data->rencana_selesai_or_keluar && !$data->selesai_mulai_or_keluar)){
-                            $aksi = '<div class="btn-group btn-group-sm"><button class="btn btn-sm btn-primary btnShowQR"><i class="fas fa-qrcode"></i>  Show QR</button><button class="btn btn-sm btn-danger btnDelete" data-id-izin="'.$data->id_izin.'"><i class="fas fa-trash"></i> Delete</button></div>';
+                            $aksi = '<div class="btn-group btn-group-sm"><button class="btn btn-sm btn-primary btnShowQR" data-id-izin="'.$data->id_izin.'"><i class="fas fa-qrcode"></i>  Show QR</button><button class="btn btn-sm btn-danger btnDelete" data-id-izin="'.$data->id_izin.'"><i class="fas fa-trash"></i> Delete</button></div>';
                         }
                     }
                 }
@@ -613,7 +613,7 @@ class IzineController extends Controller
 
             $izine->delete();
             DB::commit();
-            return response()->json(['message' => 'Pengajuan Izin Dihapus!'],200);
+            return response()->json(['message' => 'Berhasil membatalkan pengajuan izin'],200);
         } catch(Throwable $error){
             DB::rollBack();
             return response()->json(['message' => $error->getMessage()], 500);
@@ -807,6 +807,39 @@ class IzineController extends Controller
 
             DB::commit();
             return response()->json(['message' => 'Izin berhasil di Approved!'], 200);
+        } catch (Throwable $e) {
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function done(Request $request, string $id_izin)
+    {
+        $izin = Izine::find($id_izin);
+
+        DB::beginTransaction();
+        try{
+            $aktual_mulai_or_masuk = $request->aktual_mulai_or_masukAktual;
+            $aktual_selesai_or_keluar = $request->aktual_selesai_or_keluarAktual;
+
+            $dataValidate = [
+                'aktual_mulai_or_masukAktual' => ['required', 'date_format:Y-m-d', 'before_or_equal:aktual_selesai_or_keluarAktual', 'after_or_equal:' . $izin->rencana_mulai_or_masuk],
+                'aktual_selesai_or_keluarAktual' => ['required', 'date_format:Y-m-d', 'after_or_equal:aktual_mulai_or_masukAktual'],
+            ];
+
+            $validator = Validator::make(request()->all(), $dataValidate);
+        
+            if ($validator->fails()) {
+                $errors = $validator->errors()->all();
+                return response()->json(['message' => $errors], 402);
+            }
+            
+            $izin->aktual_mulai_or_masuk = $aktual_mulai_or_masuk;
+            $izin->aktual_selesai_or_keluar = $aktual_selesai_or_keluar;
+            $izin->save();
+
+            DB::commit();
+            return response()->json(['message' => 'Izin berhasil diubah!'], 200);
         } catch (Throwable $e) {
             DB::rollBack();
             return response()->json(['message' => $e->getMessage()], 500);

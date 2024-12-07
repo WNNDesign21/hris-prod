@@ -58,4 +58,6 @@
     </div>
     @include('pages.izin-e.modal-pengajuan-izin')
     @include('pages.izin-e.modal-edit-pengajuan-izin')
+    @include('pages.izin-e.modal-aktual-pengajuan-izin')
+    @include('pages.izin-e.modal-show-qrcode')
 @endsection
