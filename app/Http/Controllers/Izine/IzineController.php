@@ -7,6 +7,7 @@ use Carbon\Carbon;
 use App\Models\Izine;
 use App\Models\Posisi;
 use App\Models\Karyawan;
+use App\Models\Departemen;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -38,9 +39,33 @@ class IzineController extends Controller
 
     public function approval_izin_view()
     {
+        if(auth()->user()->hasRole('personalia') || (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->organisasi_id !== null)){
+            $departemens = Departemen::all();
+        } else {
+            $posisis = auth()->user()->karyawan->posisi;
+            $departemen_ids = [];
+            $divisi_ids = [];
+            foreach ($posisis as $posisi){
+                if($posisi->departemen_id !== null){
+                    $departemen_ids[] = $posisi->departemen_id;
+                }
+
+                if($posisi->divisi_id !== null){
+                    $divisi_ids[] = $posisi->divisi_id;
+                }
+            }
+
+            if(!empty($departemen_ids)){
+                $departemens = Departemen::whereIn('id_departemen', $departemen_ids)->get();
+            } else {
+                $departemens = Departemen::whereIn('divisi_id', $divisi_ids)->get();
+            }
+        }
+
         $dataPage = [
             'pageTitle' => "Izin-E - Approval Izin",
             'page' => 'izine-approval-izin',
+            'departemens' => $departemens
         ];
         return view('pages.izin-e.approval-izin', $dataPage);
     }
@@ -252,6 +277,22 @@ class IzineController extends Controller
 
             $dataFilter['member_posisi_id'] = $id_posisi_members;
         } 
+
+        // FILTER CUSTOM
+        $filterUrutan = $request->urutan;
+        if(isset($filterUrutan)){
+            $dataFilter['urutan'] = $filterUrutan;
+        }
+
+        $filterDepartemen = $request->departemen;
+        if(isset($filterDepartemen)){
+            $dataFilter['departemen'] = $filterDepartemen;
+        }
+
+        $filterStatus = $request->status;
+        if(isset($filterStatus)){
+            $dataFilter['status'] = $filterStatus;
+        }
 
         $izine = Izine::getData($dataFilter, $settings);
         $totalFiltered = Izine::countData($dataFilter);

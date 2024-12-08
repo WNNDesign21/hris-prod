@@ -104,6 +104,36 @@ class Izine extends Model
             $data->whereIn('posisis.id_posisi', $dataFilter['member_posisi_id']);
         }
 
+        //FILTER CUSTOM
+        if (isset($dataFilter['status'])) {
+            $status = $dataFilter['status'];
+            if ($status == 1) {
+                $data->whereNull('izins.checked_by')->whereNull('izins.rejected_by');
+            } elseif ($status == 2) {
+                $data->whereNull('izins.approved_by')->whereNotNull('izins.checked_by')->whereNull('izins.rejected_by');
+            } elseif ($status == 3)  {
+                $data->whereNull('izins.legalized_by')->whereNull('izins.rejected_by');
+            } else {
+                $data->whereNotNull('izins.rejected_by');
+            }
+        }
+
+        if (isset($dataFilter['departemen'])) {
+            $departemen = $dataFilter['departemen'];
+            $data->where('izins.departemen_id', $departemen);
+        }
+
+        if (isset($dataFilter['urutan'])) {
+            $urutan = $dataFilter['urutan'];
+            if($urutan == 'ON') {
+                $data->orderBy('izins.rencana_mulai_or_masuk', 'ASC');
+            } else {
+                $data->orderBy('izins.rencana_mulai_or_masuk', 'DESC');
+            }
+        } else {
+            $data->orderBy('izins.rencana_mulai_or_masuk', 'DESC');
+        }
+
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
             $data->where(function ($query) use ($search) {

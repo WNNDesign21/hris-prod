@@ -70,7 +70,8 @@ class Sakite extends Model
             'karyawans.nama as nama',
             'kp.nama_pengganti as karyawan_pengganti',
             'departemens.nama as departemen',
-            'divisis.nama as divisi'
+            'divisis.nama as divisi',
+            'posisis.nama as posisi',
             )
             ->leftJoin('karyawans', 'sakits.karyawan_id', 'karyawans.id_karyawan')
             ->leftJoinSub($getKaryawanPengganti, 'kp', function (JoinClause $joinKaryawanPengganti) {
@@ -93,11 +94,42 @@ class Sakite extends Model
             $data->whereIn('posisis.id_posisi', $dataFilter['member_posisi_id']);
         }
 
+        //FILTER CUSTOM
+        if (isset($dataFilter['status'])) {
+            $status = $dataFilter['status'];
+            if ($status == 1) {
+                $data->whereNotNull('sakits.attachment')->whereNull('sakits.approved_by')->whereNull('sakits.rejected_by');
+            } elseif ($status == 2) {
+                $data->whereNotNull('sakits.attachment')->whereNull('sakits.legalized_by')->whereNull('sakits.rejected_by');
+            } else {
+                $data->whereNotNull('sakits.rejected_by');
+            }
+        }
+
+        if (isset($dataFilter['departemen'])) {
+            $departemen = $dataFilter['departemen'];
+            $data->where('sakits.departemen_id', $departemen);
+        }
+
+        if (isset($dataFilter['urutan'])) {
+            $urutan = $dataFilter['urutan'];
+            if($urutan == 'ON') {
+                $data->orderBy('sakits.tanggal_mulai', 'ASC');
+            } else {
+                $data->orderBy('sakits.tanggal_mulai', 'ASC');
+            }
+        } else {
+            $data->orderBy('sakits.tanggal_mulai', 'DESC');
+        }
+
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
             $data->where(function ($query) use ($search) {
                 $query->where('sakits.tanggal_mulai', 'ILIKE', "%{$search}%")
-                    ->orWhere('sakits.tanggal_selesai', 'ILIKE', "%{$search}%");
+                    ->orWhere('sakits.tanggal_selesai', 'ILIKE', "%{$search}%")
+                    ->orWhere('posisis.nama', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%")
+                    ->orWhere('departemens.nama', 'ILIKE', "%{$search}%");
             });
         }
 

@@ -54,4 +54,6 @@
             </div>
         </div>
     </div>
+    @include('pages.izin-e.modal-reject-skd')
+    @include('pages.izin-e.modal-filter-skd')
 @endsection

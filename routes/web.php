@@ -345,6 +345,10 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
 
             //SKD
             Route::get('/approval-skd', [SakiteController::class, 'approval_skd_view'])->name('izine.approval-skd');
+            Route::post('/approval-skd-datatable', [SakiteController::class, 'approval_skd_datatable']);
+            Route::patch('/approval-skd/approved/{idIzin}', [SakiteController::class, 'approved'])->name('izine.approval-skd.approved');
+            Route::patch('/approval-skd/legalized/{idIzin}', [SakiteController::class, 'legalized'])->name('izine.approval-skd.legalized');
+            Route::patch('/approval-skd/rejected/{idIzin}', [SakiteController::class, 'rejected'])->name('izine.approval-skd.rejected');
         });
       });
 });

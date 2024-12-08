@@ -59,4 +59,5 @@
         </div>
     </div>
     @include('pages.izin-e.modal-reject-izin')
+    @include('pages.izin-e.modal-filter-izin')
 @endsection

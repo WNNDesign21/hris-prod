@@ -80,7 +80,7 @@ $(function () {
         { data: "legalized_by" }
     ];
 
-    var laporSkdTable = $("#approval-izin-table").DataTable({
+    var approvalIzinTable = $("#approval-izin-table").DataTable({
         search: {
             return: true,
         },
@@ -92,6 +92,13 @@ $(function () {
             dataType: "json",
             type: "POST",
             data: function (dataFilter) {
+                let urutan = $('#filterUrutan').val();
+                let departemen = $('#filterDepartemen').val();
+                let status = $('#filterStatus').val();
+
+                dataFilter.urutan = urutan;
+                dataFilter.departemen = departemen;
+                dataFilter.status = status;
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.responseJSON.data) {
@@ -176,7 +183,12 @@ $(function () {
 
     //REFRESH TABLE
     function refreshTable() {
-        laporSkdTable.search("").draw();
+        var searchValue = approvalIzinTable.search();
+        if (searchValue) {
+            approvalIzinTable.search(searchValue).draw();
+        } else {
+            approvalIzinTable.search("").draw();
+        }
     }
 
     //RELOAD TABLE
@@ -358,4 +370,53 @@ $(function () {
             }
         });
     })
+
+    // FILTER
+    $('.btnFilter').on("click", function (){
+        openFilter();
+    });
+
+    $('.btnCloseFilter').on("click", function (){
+        closeFilter();
+    });
+
+    var modalFilterOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalFilter = new bootstrap.Modal(
+        document.getElementById("modal-filter"),
+        modalFilterOptions
+    );
+    
+    function openFilter() {
+        modalFilter.show();
+    }
+
+    function closeFilter() {
+        modalFilter.hide();
+    }
+
+    $('.btnResetFilter').on('click', function(){
+        $('#filterUrutan').val('');
+        $('#filterDepartemen').val('');
+        $('#filterStatus').val('');
+    })
+
+    $('#filterUrutan').select2({
+        dropdownParent: $('#modal-filter')
+    });
+ 
+    $('#filterStatus').select2({
+        dropdownParent: $('#modal-filter')
+    });
+    $('#filterDepartemen').select2({
+        dropdownParent: $('#modal-filter')
+    });
+
+    $(".btnSubmitFilter").on("click", function () {
+        approvalIzinTable.draw();
+        closeFilter();
+    });
 });
