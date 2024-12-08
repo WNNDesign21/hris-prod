@@ -43,25 +43,15 @@ $(function () {
         });
     }
 
-    function updateNotification(){
+    function updateApprovalIzinNotification(){
         $.ajax({
-            url: base_url + '/get-notification',
+            url: base_url + '/get-approval-izin-notification',
             method: 'GET',
             success: function(response){
-                $('.notifications-menu').html(response.data);
+                $('.notification-approval-izin').html(response.data);
             }
         })
     }
-
-    // function updatePengajuanCutiNotification(){
-    //     $.ajax({
-    //         url: base_url + '/get-approval-izin-notification',
-    //         method: 'GET',
-    //         success: function(response){
-    //             $('.notification-approval-izin').html(response.data);
-    //         }
-    //     })
-    // }
     
     var columnsTable = [
         { data: "id_izin" },
@@ -244,6 +234,7 @@ $(function () {
             processData: false,
             dataType: "JSON",
             success: function (data) {
+                updateApprovalIzinNotification();
                 showToast({ title: data.message });
                 refreshTable();
                 closeReject();
@@ -282,6 +273,7 @@ $(function () {
                     processData: false,
                     dataType: "JSON",
                     success: function (data) {
+                        updateApprovalIzinNotification();
                         showToast({ title: data.message });
                         refreshTable();
                         loadingSwalClose();
@@ -320,6 +312,7 @@ $(function () {
                     processData: false,
                     dataType: "JSON",
                     success: function (data) {
+                        updateApprovalIzinNotification();
                         showToast({ title: data.message });
                         refreshTable();
                         loadingSwalClose();
@@ -358,6 +351,7 @@ $(function () {
                     processData: false,
                     dataType: "JSON",
                     success: function (data) {
+                        updateApprovalIzinNotification();
                         showToast({ title: data.message });
                         refreshTable();
                         loadingSwalClose();

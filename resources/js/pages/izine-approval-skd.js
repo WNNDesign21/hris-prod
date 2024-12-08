@@ -43,25 +43,25 @@ $(function () {
         });
     }
 
-    function updateNotification(){
-        $.ajax({
-            url: base_url + '/get-notification',
-            method: 'GET',
-            success: function(response){
-                $('.notifications-menu').html(response.data);
-            }
-        })
-    }
-
-    // function updatePengajuanCutiNotification(){
+    // function updateNotification(){
     //     $.ajax({
-    //         url: base_url + '/get-approval-skd-notification',
+    //         url: base_url + '/get-notification',
     //         method: 'GET',
     //         success: function(response){
-    //             $('.notification-approval-skd').html(response.data);
+    //             $('.notifications-menu').html(response.data);
     //         }
     //     })
     // }
+
+    function updateApprovalSkdNotification(){
+        $.ajax({
+            url: base_url + '/get-approval-skd-notification',
+            method: 'GET',
+            success: function(response){
+                $('.notification-approval-skd').html(response.data);
+            }
+        })
+    }
     
     var columnsTable = [
         { data: "nama" },
@@ -236,6 +236,7 @@ $(function () {
             processData: false,
             dataType: "JSON",
             success: function (data) {
+                updateApprovalSkdNotification();
                 showToast({ title: data.message });
                 refreshTable();
                 closeReject();
@@ -274,6 +275,7 @@ $(function () {
                     processData: false,
                     dataType: "JSON",
                     success: function (data) {
+                        updateApprovalSkdNotification();
                         showToast({ title: data.message });
                         refreshTable();
                         loadingSwalClose();
@@ -312,6 +314,7 @@ $(function () {
                     processData: false,
                     dataType: "JSON",
                     success: function (data) {
+                        updateApprovalSkdNotification();
                         showToast({ title: data.message });
                         refreshTable();
                         loadingSwalClose();

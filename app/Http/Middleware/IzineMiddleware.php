@@ -25,7 +25,7 @@ class IzineMiddleware
         $organisasi_id = $user->organisasi_id;
         $pengajuan_izin = 0;
         $approval_izin = 0;
-        $laporan_skd = 0;
+        $lapor_skd = 0;
         $approval_skd = 0;
 
         if($user->karyawan && $user->karyawan->posisi){
@@ -45,7 +45,7 @@ class IzineMiddleware
                 });
             })->count();
 
-            $laporan_skd = Sakite::where('karyawan_id', $user->karyawan->id_karyawan)->whereNull('rejected_by')->whereNull('attachment')->count();
+            $lapor_skd = Sakite::where('karyawan_id', $user->karyawan->id_karyawan)->whereNull('rejected_by')->whereNull('attachment')->count();
         }
 
         //HRD
@@ -204,8 +204,8 @@ class IzineMiddleware
             'pengajuan_izin' => $pengajuan_izin,
             'approval_izin' => $approval_izin,
             'approval_skd' => $approval_skd,
-            'laporan_skd' => $laporan_skd,
-            'total_izine_notification' => $pengajuan_izin + $approval_izin + $approval_skd + $laporan_skd
+            'lapor_skd' => $lapor_skd,
+            'total_izine_notification' => $pengajuan_izin + $approval_izin + $approval_skd + $lapor_skd
         ];
 
         view()->share('izine', $izine);

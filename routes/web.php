@@ -88,11 +88,17 @@ Route::group(['middleware' => ['auth']], function () {
 
 Route::group(['middleware' => ['auth', 'notifikasi']], function () {
     // MENU UTAMA
+    
+    //HOME CONTROLLER
     Route::get('/home', [HomeController::class, 'index'])->name('root')->middleware(['lembure','izine']);
     Route::get('/get-notification', [HomeController::class, 'get_notification']);
     Route::get('/get-pengajuan-cuti-notification', [HomeController::class, 'get_pengajuan_cuti_notification']);
     Route::get('/get-member-cuti-notification', [HomeController::class, 'get_member_cuti_notification']);
     Route::get('/get-list-cuti-notification', [HomeController::class, 'get_list_cuti_notification']);
+    Route::get('/get-pengajuan-izin-notification', [HomeController::class, 'get_pengajuan_izin_notification']);
+    Route::get('/get-approval-izin-notification', [HomeController::class, 'get_approval_izin_notification']);
+    Route::get('/get-lapor-skd-notification', [HomeController::class, 'get_lapor_skd_notification']);
+    Route::get('/get-approval-skd-notification', [HomeController::class, 'get_approval_skd_notification']);
     Route::post('/export-slip-lembur', [HomeController::class, 'export_slip_lembur'])->name('home.export-slip-lembur');
 
     /** MASTER DATA FEATURE */

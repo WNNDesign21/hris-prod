@@ -331,7 +331,7 @@ $(function () {
             processData: false,
             dataType: "JSON",
             success: function (data) {
-                updateNotification();
+                updatePengajuanCutiNotification();
                 showToast({ title: data.message });
                 refreshTable();
                 closeInputForm();
@@ -358,7 +358,7 @@ $(function () {
             processData: false,
             dataType: "JSON",
             success: function (data) {
-                updateNotification();
+                updatePengajuanCutiNotification();
                 showToast({ title: data.message });
                 refreshTable();
                 closeFormEdit();
@@ -395,6 +395,7 @@ $(function () {
                     },
                     dataType: "JSON",
                     success: function (data) {
+                        updatePengajuanCutiNotification();
                         loadingSwalClose();
                         refreshTable();
                         showToast({ title: data.message });
@@ -431,6 +432,7 @@ $(function () {
                     },
                     dataType: "JSON",
                     success: function (data) {
+                        updatePengajuanCutiNotification();
                         loadingSwalClose();
                         refreshTable();
                         showToast({ title: data.message });
@@ -645,7 +647,7 @@ $(function () {
             processData: false,
             dataType: "JSON",
             success: function (data) {
-                updateNotification();
+                updatePengajuanCutiNotification();
                 showToast({ title: data.message });
                 refreshTable();
                 closeDone();
