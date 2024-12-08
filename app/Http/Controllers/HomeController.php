@@ -219,10 +219,7 @@ class HomeController extends Controller
                 ->where(function($query) {
                     $query->whereNull('aktual_mulai_or_masuk');
                     $query->whereNull('aktual_selesai_or_keluar');
-                });
-            })
-            ->orWhere(function($query) {
-                $query->where('jenis_izin', 'SH')->whereNull('rejected_by')->whereNotNull('legalized_by')
+                })->orWhere('jenis_izin', 'SH')->whereNull('rejected_by')->whereNotNull('legalized_by')
                 ->where(function($query) {
                     $query->whereNull('aktual_mulai_or_masuk');
                     $query->orWhereNull('aktual_selesai_or_keluar');

@@ -52,4 +52,5 @@
             </div>
         </div>
     </div>
+    @include('pages.izin-e.modal-qr-scanner')
 @endsection

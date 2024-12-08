@@ -82,6 +82,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::get('/izine/pengajuan-izin/get-data-izin/{idIzin}',[IzineController::class, 'get_data_izin']);
     Route::get('/izine/lapor-skd/get-data-sakit/{idSakit}',[SakiteController::class, 'get_data_sakit']);
+    Route::get('/izine/log-book-izin/get-qrcode-detail-izin/{idIzin}',[IzineController::class, 'get_qrcode_detail_izin']);
 
 });
 
@@ -344,6 +345,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         Route::group(['middleware' => ['role:security']], function () {
             Route::get('/log-book-izin', [IzineController::class, 'log_book_izin_view'])->name('izine.log-book-izin');
             Route::post('/log-book-izin-datatable', [IzineController::class, 'log_book_izin_datatable']);
+            Route::patch('/log-book-izin/confirmed/{idIzin}',[IzineController::class, 'confirmed'])->name('izine.lapor-skd.confirmed');
         });
 
         Route::group(['middleware' => ['role:atasan|personalia']], function () {

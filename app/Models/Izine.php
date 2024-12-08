@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Karyawan;
+use App\Models\Departemen;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -43,6 +44,11 @@ class Izine extends Model
     public function karyawan()
     {
         return $this->belongsTo(Karyawan::class, 'karyawan_id', 'id_karyawan');
+    }
+
+    public function departemen()
+    {
+        return $this->belongsTo(Departemen::class, 'departemen_id', 'id_departemen');
     }
 
     public function karyawanPengganti()
@@ -121,7 +127,7 @@ class Izine extends Model
             if ($status == 1) {
                 $data->whereNull('izins.checked_by')->whereNull('izins.rejected_by');
             } elseif ($status == 2) {
-                $data->whereNull('izins.approved_by')->whereNotNull('izins.checked_by')->whereNull('izins.rejected_by');
+                $data->whereNull('izins.approved_by')->whereNull('izins.legalized_by')->whereNull('izins.rejected_by');
             } elseif ($status == 3)  {
                 $data->whereNull('izins.legalized_by')->whereNull('izins.rejected_by');
             } else {

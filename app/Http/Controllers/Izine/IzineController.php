@@ -174,7 +174,7 @@ class IzineController extends Controller
                     }
 
                     if($data->checked_by && $data->approved_by && $data->legalized_by){
-                        if(($data->rencana_mulai_or_masuk && !$data->aktual_mulai_or_masuk) || ($data->rencana_selesai_or_keluar && !$data->selesai_mulai_or_keluar)){
+                        if(($data->rencana_mulai_or_masuk && !$data->aktual_mulai_or_masuk) || ($data->rencana_selesai_or_keluar && !$data->aktual_selesai_or_keluar)){
                             $aksi = '<div class="btn-group btn-group-sm"><button class="btn btn-sm btn-primary btnShowQR" data-id-izin="'.$data->id_izin.'"><i class="fas fa-qrcode"></i>  Show QR</button><button class="btn btn-sm btn-danger btnCancel" data-id-izin="'.$data->id_izin.'"><i class="fas fa-history"></i> Cancel</button></div>';
                         }
                     }
@@ -777,6 +777,33 @@ class IzineController extends Controller
         return response()->json(['data' => $data], 200);
     }
 
+    public function get_qrcode_detail_izin(string $id_izin)
+    {
+        $izine = Izine::find($id_izin);
+        try {
+
+            if(!$izine){
+                return response()->json(['message' => 'Invalid QR Code!'], 403);
+            }
+
+            if($izine->aktual_mulai_or_masuk || $izine->aktual_selesai_or_keluar){
+                return response()->json(['message' => 'QR Code Confirmed!'], 403);
+            }
+
+            $data = [
+                'id_izin' => $izine->id_izin,
+                'nama' => $izine->karyawan->nama,
+                'departemen' => $izine->departemen->nama,
+                'jenis_izin' => '1/2 Hari',
+                'rencana' => $izine->rencana_mulai_or_masuk ? Carbon::parse($izine->rencana_mulai_or_masuk)->format('d M Y, H:i').' WIB' : ($izine->rencana_selesai_or_keluar ? Carbon::parse($izine->rencana_selesai_or_keluar)->format('d M Y, H:i').' WIB' : 'Unknown'),
+                'keterangan' => $izine->keterangan,
+            ];
+            return response()->json(['message' => 'Data izin ditemukan!', 'data' => $data], 200);
+        } catch (Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
     function has_department_head($posisi)
     {
         $has_dept_head = false;
@@ -950,6 +977,35 @@ class IzineController extends Controller
 
             DB::commit();
             return response()->json(['message' => 'Izin berhasil di Approved!'], 200);
+        } catch (Throwable $e) {
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function confirmed(Request $request, string $id_izin)
+    {
+        $izin = Izine::find($id_izin);
+
+        DB::beginTransaction();
+        try{
+            if(!auth()->user()->hasRole('security')){
+                return response()->json(['message' => 'Anda tidak memiliki akses untuk melakukan konfirmasi!'], 403);
+            }
+
+            if ($izin->aktual_mulai_or_masuk || $izin->aktual_selesai_or_keluar) {
+                return response()->json(['message' => 'Data izin sudah di konfirmasi, silahkan reload halaman!'], 403);
+            } 
+
+            if($izin->rencana_mulai_or_masuk){
+                $izin->aktual_mulai_or_masuk = now();
+            } elseif ($izin->rencana_selesai_or_keluar){
+                $izin->aktual_selesai_or_keluar = now();
+            }
+
+            $izin->save();
+            DB::commit();
+            return response()->json(['message' => 'Izin berhasil di Konfirmasi!'], 200);
         } catch (Throwable $e) {
             DB::rollBack();
             return response()->json(['message' => $e->getMessage()], 500);
