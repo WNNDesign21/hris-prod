@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Foundation\Application;
+use App\Http\Middleware\IzineMiddleware;
 use App\Http\Middleware\LembureMiddleware;
 use Illuminate\Console\Scheduling\Schedule;
 use App\Http\Middleware\NotificationMiddleware;
@@ -20,6 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
             'notifikasi' => NotificationMiddleware::class,
             'lembure' => LembureMiddleware::class,
+            'izine' => IzineMiddleware::class,
         ]);
     })
     ->withSchedule(function (Schedule $schedule) {

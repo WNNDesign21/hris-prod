@@ -86,9 +86,9 @@ Route::group(['middleware' => ['auth']], function () {
 });
 
 
-Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
+Route::group(['middleware' => ['auth', 'notifikasi']], function () {
     // MENU UTAMA
-    Route::get('/home', [HomeController::class, 'index'])->name('root');
+    Route::get('/home', [HomeController::class, 'index'])->name('root')->middleware(['lembure','izine']);
     Route::get('/get-notification', [HomeController::class, 'get_notification']);
     Route::get('/get-pengajuan-cuti-notification', [HomeController::class, 'get_pengajuan_cuti_notification']);
     Route::get('/get-member-cuti-notification', [HomeController::class, 'get_member_cuti_notification']);
@@ -259,7 +259,7 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
         });
      });
 
-     Route::group(['prefix' => 'lembure'], function () {
+     Route::group(['prefix' => 'lembure', 'middleware' => ['lembure']], function () {
 
         // DASHBOARD
         Route::get('/dashboard', [LembureController::class, 'index'])->name('lembure.dashboard')->middleware('role:personalia|atasan');
@@ -320,7 +320,7 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
         });
      });
 
-     Route::group(['prefix' => 'izine'], function () {
+     Route::group(['prefix' => 'izine', 'middleware' => ['izine']], function () {
         Route::get('/pengajuan-izin', [IzineController::class, 'pengajuan_izin_view'])->name('izine.pengajuan-izin');
         Route::post('/pengajuan-izin-datatable', [IzineController::class, 'pengajuan_izin_datatable']);
         Route::post('/pengajuan-izin/store',[IzineController::class, 'store'])->name('izine.pengajuan-izin.store');

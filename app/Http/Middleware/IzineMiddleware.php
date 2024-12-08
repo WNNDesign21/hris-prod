@@ -204,7 +204,8 @@ class IzineMiddleware
             'pengajuan_izin' => $pengajuan_izin,
             'approval_izin' => $approval_izin,
             'approval_skd' => $approval_skd,
-            'laporan_skd' => $laporan_skd
+            'laporan_skd' => $laporan_skd,
+            'total_izine_notification' => $pengajuan_izin + $approval_izin + $approval_skd + $laporan_skd
         ];
 
         view()->share('izine', $izine);
