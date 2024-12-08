@@ -73,6 +73,14 @@
                             </a>
                         </li>
                     @endif
+                    @if (auth()->user()->hasRole('security'))
+                        <li class="{{ $page == 'izine-log-book-izin' ? 'active' : '' }} notification-log-book-izin">
+                            <a href="{{ route('izine.log-book-izin') }}">
+                                <i class="icon-Bookmark"><span class="path1"></span><span class="path2"></span></i>
+                                <span>Log Book</span>
+                            </a>
+                        </li>
+                    @endif
                 </ul>
             </div>
         </div>

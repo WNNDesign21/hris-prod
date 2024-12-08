@@ -92,8 +92,19 @@ class Izine extends Model
             ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
             ->leftJoin('divisis', 'izins.divisi_id', 'divisis.id_divisi');
         
+        if (isset($dataFilter['jenis_izin'])) {
+            $data->whereIn('izins.jenis_izin', $dataFilter['jenis_izin']);
+        }
+    
         if (isset($dataFilter['organisasi_id'])) {
             $data->where('izins.organisasi_id', $dataFilter['organisasi_id']);
+        }
+
+        if (isset($dataFilter['is_security'])) {
+            $data->where(function ($query) {
+                $query->whereNotNull('izins.aktual_mulai_or_masuk')
+                    ->orWhereNotNull('izins.aktual_selesai_or_keluar');
+            });
         }
 
         if (isset($dataFilter['karyawan_id'])) {

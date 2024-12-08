@@ -75,7 +75,7 @@ class LoginController extends Controller
 
         if ($user) {
             $authenticatedUser = $this->guard()->user();
-            if ($authenticatedUser->hasAnyRole(['admin','personalia'])) {
+            if ($authenticatedUser->hasAnyRole(['admin','personalia','security'])) {
                 return true;
             } else {
                 if ($authenticatedUser->karyawan->status_karyawan === 'AT') {

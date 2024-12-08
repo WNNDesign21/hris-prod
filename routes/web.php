@@ -340,6 +340,12 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         Route::delete('/lapor-skd/delete/{idSakit}',[SakiteController::class, 'delete'])->name('izine.lapor-skd.delete');
         Route::patch('/lapor-skd/update/{idSakit}',[SakiteController::class, 'update'])->name('izine.lapor-skd.update');
 
+        //LOG BOOK
+        Route::group(['middleware' => ['role:security']], function () {
+            Route::get('/log-book-izin', [IzineController::class, 'log_book_izin_view'])->name('izine.log-book-izin');
+            Route::post('/log-book-izin-datatable', [IzineController::class, 'log_book_izin_datatable']);
+        });
+
         Route::group(['middleware' => ['role:atasan|personalia']], function () {
             //IZIN
             Route::get('/approval-izin', [IzineController::class, 'approval_izin_view'])->name('izine.approval-izin');

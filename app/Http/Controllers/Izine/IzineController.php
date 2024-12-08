@@ -28,6 +28,8 @@ class IzineController extends Controller
     {
         if(auth()->user()->hasRole('personalia')){
             return redirect()->route('izine.approval-izin');
+        } elseif (auth()->user()->hasRole('security')){
+            return redirect()->route('izine.log-book-izin');
         }
 
         $dataPage = [
@@ -35,6 +37,15 @@ class IzineController extends Controller
             'page' => 'izine-pengajuan-izin',
         ];
         return view('pages.izin-e.pengajuan-izin', $dataPage);
+    }
+
+    public function log_book_izin_view()
+    {
+        $dataPage = [
+            'pageTitle' => "Izin-E - Log Book Izin",
+            'page' => 'izine-log-book-izin',
+        ];
+        return view('pages.izin-e.log-book-izin', $dataPage);
     }
 
     public function approval_izin_view()
@@ -430,6 +441,97 @@ class IzineController extends Controller
                 $nestedData['checked_by'] = $checked_by;
                 $nestedData['approved_by'] = $approved_by;
                 $nestedData['legalized_by'] = $legalized_by;
+
+                $dataTable[] = $nestedData;
+            }
+        }
+
+        $json_data = array(
+            "draw" => intval($request->input('draw')),
+            "recordsTotal" => intval($totalData),
+            "recordsFiltered" => intval($totalFiltered),
+            "data" => $dataTable,
+            "order" => $order,
+            "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
+            "dir" => $dir,
+            "column"=>$request->input('order.0.column')
+        );
+
+        return response()->json($json_data, 200);
+    }
+
+    public function log_book_izin_datatable(Request $request)
+    {
+
+        $columns = array(
+            0 => 'izins.id_izin',
+            1 => 'izins.rencana_mulai_or_masuk',
+            2 => 'izins.rencana_selesai_or_keluar',
+            3 => 'izins.aktual_mulai_or_masuk',
+            4 => 'izins.aktual_selesai_or_keluar',
+            5 => 'izins.jenis_izin',
+            6 => 'izins.durasi',
+            7 => 'izins.keterangan',
+            8 => 'izins.checked_by',
+            9 => 'izins.approved_by',
+            10 => 'izins.legalized_by',
+        );
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = (!empty($request->input('order.0.column'))) ? $columns[$request->input('order.0.column')] : $columns[0];
+        $dir = (!empty($request->input('order.0.dir'))) ? $request->input('order.0.dir') : "DESC";
+
+        $settings['start'] = $start;
+        $settings['limit'] = $limit;
+        $settings['dir'] = $dir;
+        $settings['order'] = $order;
+
+        $dataFilter = [];
+        $search = $request->input('search.value');
+        if (!empty($search)) {
+            $dataFilter['search'] = $search;
+        }
+
+        if (auth()->user()->hasRole('security')){
+            $dataFilter['is_security'] = 'Y';
+            $dataFilter['jenis_izin'] = ['SH'];
+            $dataFilter['organisasi_id'] = auth()->user()->organisasi_id;
+        }
+
+        $totalData = Izine::count();
+        $totalFiltered = $totalData;
+        $izine = Izine::getData($dataFilter, $settings);
+        $totalFiltered = Izine::countData($dataFilter);
+        $dataTable = [];
+        
+
+        if (!empty($izine)) {
+            foreach ($izine as $data) {
+                $jenis_izin = '<span class="badge badge-info">1/2 Hari</span>';
+                $rencana = '-';
+                $aktual = '-';
+
+                if ($data->rencana_mulai_or_masuk){
+                    $rencana = Carbon::parse($data->rencana_mulai_or_masuk)->format('d M Y, H:i').' WIB';
+                } elseif ($data->rencana_selesai_or_keluar){
+                    $rencana = Carbon::parse($data->rencana_selesai_or_keluar)->format('d M Y, H:i').' WIB';
+                }
+
+                if ($data->aktual_mulai_or_masuk){
+                    $aktual = Carbon::parse($data->aktual_mulai_or_masuk)->format('d M Y, H:i').' WIB';
+                } elseif ($data->aktual_selesai_or_keluar){
+                    $aktual = Carbon::parse($data->aktual_selesai_or_keluar)->format('d M Y, H:i').' WIB';
+                }
+
+                $nestedData['id_izin'] = $data->id_izin;
+                $nestedData['nama'] = $data->nama;
+                $nestedData['departemen'] = $data->departemen;
+                $nestedData['posisi'] = $data->posisi;
+                $nestedData['rencana'] = $rencana;
+                $nestedData['aktual'] = $aktual;
+                $nestedData['jenis_izin'] = $jenis_izin;
+                $nestedData['keterangan'] = $data->keterangan;
 
                 $dataTable[] = $nestedData;
             }
