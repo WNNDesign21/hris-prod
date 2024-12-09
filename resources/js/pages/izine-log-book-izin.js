@@ -382,8 +382,7 @@ $(function () {
                 html5QrCode.stop();
             },
             (errorMessage) => {
-                showToast({ icon: "error", title: errorMessage });
-                closeQrScanner();
+                
             })
           .catch((err) => {
             showToast({ icon: "error", title: err });
