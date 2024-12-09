@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Models\Cutie;
+use App\Models\Izine;
+use App\Models\Sakite;
 use App\Models\Kontrak;
 use App\Models\Lembure;
 use App\Models\Karyawan;
@@ -203,6 +205,255 @@ class HomeController extends Controller
         ];
         
         $html = view('layouts.partials.notification-planned-pengajuan-lembur')->with(compact('lembure'))->render();
+        return response()->json(['data' => $html], 200);
+    }
+
+    public function get_pengajuan_izin_notification(){
+        $user = auth()->user();
+        $pengajuan_izin = 0;
+
+        if($user->karyawan && $user->karyawan->posisi){
+            $pengajuan_izin = Izine::where('karyawan_id', $user->karyawan->id_karyawan)
+            ->where(function($query) {
+                $query->where('jenis_izin', 'TM')->whereNull('rejected_by')->whereNotNull('legalized_by')
+                ->where(function($query) {
+                    $query->whereNull('aktual_mulai_or_masuk');
+                    $query->whereNull('aktual_selesai_or_keluar');
+                })->orWhere('jenis_izin', 'SH')->whereNull('rejected_by')->whereNotNull('legalized_by')
+                ->where(function($query) {
+                    $query->whereNull('aktual_mulai_or_masuk');
+                    $query->orWhereNull('aktual_selesai_or_keluar');
+                });
+            })->count();
+        }
+
+        $izine = [
+            'pengajuan_izin' => $pengajuan_izin,
+        ];
+
+        $html = view('layouts.partials.notification-pengajuan-izin')->with(compact('izine'))->render();
+        return response()->json(['data' => $html], 200);
+    }
+
+    public function get_lapor_skd_notification(){
+        $user = auth()->user();
+        $lapor_skd = 0;
+
+        if($user->karyawan && $user->karyawan->posisi){
+            $lapor_skd = Sakite::where('karyawan_id', $user->karyawan->id_karyawan)->whereNull('rejected_by')->whereNull('attachment')->count();
+        }
+
+        $izine = [
+            'lapor_skd' => $lapor_skd,
+        ];
+
+        $html = view('layouts.partials.notification-lapor-skd')->with(compact('izine'))->render();
+        return response()->json(['data' => $html], 200);
+    }
+
+    public function get_approval_izin_notification(){
+        $user = auth()->user();
+        $has_leader = false;
+        $has_section_head = false;
+        $has_department_head = false;
+        $organisasi_id = $user->organisasi_id;
+        $approval_izin = 0;
+
+        //HRD
+        if ($user->hasRole('personalia')){
+            $approval_izin = Izine::where('organisasi_id', $organisasi_id)->whereNull('rejected_by')->whereNull('legalized_by')->whereNotNull('approved_by')->count();
+        } 
+
+        //leader
+        if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 5){
+            $posisi = $user->karyawan->posisi;
+            $id_posisi_members = $this->get_member_posisi($posisi);
+
+            $approval_izin = Izine::leftJoin('karyawan_posisi', 'izins.karyawan_id', 'karyawan_posisi.karyawan_id')
+                            ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                            ->whereIn('posisis.id_posisi', $id_posisi_members)
+                            ->whereNull('rejected_by')
+                            ->whereNull('checked_by')
+                            ->count();
+        } 
+
+        //section head
+        if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 4){
+            $posisi = $user->karyawan->posisi;
+            $my_posisi = $posisi[0]->jabatan_id;
+            $id_posisi_members = $this->get_member_posisi($posisi);
+
+            $izins = Izine::leftJoin('karyawan_posisi', 'izins.karyawan_id', 'karyawan_posisi.karyawan_id')
+                    ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                    ->whereIn('posisis.id_posisi', $id_posisi_members)
+                    ->whereNull('rejected_by')
+                    ->whereNull('legalized_by')
+                    ->get();
+
+            foreach ($izins as $izin){
+                $posisi = $izin->karyawan->posisi;
+                $has_leader = $this->has_leader($posisi);
+                $has_section_head = $this->has_section_head($posisi);
+                $has_department_head = $this->has_department_head($posisi);
+
+                if (!$has_leader) {
+                    $approval_izin++;
+                }
+
+                if ($has_leader && !$izin->approved_by){
+                    $approval_izin++;
+                }
+            }
+        } 
+
+        //department head
+        if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 3){
+            $posisi = $user->karyawan->posisi;
+            $my_posisi = $posisi[0]->jabatan_id;
+            $id_posisi_members = $this->get_member_posisi($posisi);
+
+            $izins = Izine::leftJoin('karyawan_posisi', 'izins.karyawan_id', 'karyawan_posisi.karyawan_id')
+                    ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                    ->whereIn('posisis.id_posisi', $id_posisi_members)
+                    ->whereNull('rejected_by')
+                    ->whereNull('legalized_by')
+                    ->get();
+
+            foreach ($izins as $izin){
+                $posisi = $izin->karyawan->posisi;
+                $has_leader = $this->has_leader($posisi);
+                $has_section_head = $this->has_section_head($posisi);
+                $has_department_head = $this->has_department_head($posisi);
+
+                if (!$has_leader && !$has_section_head) {
+                    $approval_izin++;
+                }
+
+                if ($has_leader && !$has_section_head && !$izin->approved_by){
+                    $approval_izin++;
+                }
+            }
+        } 
+
+        //plant head
+        if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 2){
+            $posisi = $user->karyawan->posisi;
+            $my_posisi = $posisi[0]->jabatan_id;
+            $id_posisi_members = $this->get_member_posisi($posisi);
+
+            $izins = Izine::leftJoin('karyawan_posisi', 'izins.karyawan_id', 'karyawan_posisi.karyawan_id')
+                    ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                    ->whereIn('posisis.id_posisi', $id_posisi_members)
+                    ->whereNull('rejected_by')
+                    ->whereNull('legalized_by')
+                    ->get();
+
+            foreach ($izins as $izin){
+                $posisi = $izin->karyawan->posisi;
+                $has_leader = $this->has_leader($posisi);
+                $has_section_head = $this->has_section_head($posisi);
+                $has_department_head = $this->has_department_head($posisi);
+
+                if (!$has_leader && !$has_section_head && !$has_department_head) {
+                    $approval_izin++;
+                }
+
+                if ($has_leader && !$has_section_head && !$has_department_head && !$izin->approved_by){
+                    $approval_izin++;
+                }
+            }
+        }
+
+        $izine = [
+            'approval_izin' => $approval_izin,
+        ];
+
+        $html = view('layouts.partials.notification-approval-izin')->with(compact('izine'))->render();
+        return response()->json(['data' => $html], 200);
+    }
+
+    public function get_approval_skd_notification(){
+        $user = auth()->user();
+        $has_leader = false;
+        $has_section_head = false;
+        $has_department_head = false;
+        $organisasi_id = $user->organisasi_id;
+        $approval_skd = 0;
+
+        //HRD
+        if ($user->hasRole('personalia')){
+            $approval_skd = Sakite::where('organisasi_id', $organisasi_id)->whereNull('rejected_by')->whereNull('legalized_by')->whereNotNull('approved_by')->whereNotNull('attachment')->count();
+        } 
+
+        //section head
+        if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 4){
+            $posisi = $user->karyawan->posisi;
+            $id_posisi_members = $this->get_member_posisi($posisi);
+
+            $approval_skd = Sakite::leftJoin('karyawan_posisi', 'sakits.karyawan_id', 'karyawan_posisi.karyawan_id')
+                    ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                    ->whereIn('posisis.id_posisi', $id_posisi_members)
+                    ->whereNull('rejected_by')
+                    ->whereNull('approved_by')
+                    ->whereNotNull('attachment')
+                    ->count();
+        } 
+
+        //department head
+        if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 3){
+            $posisi = $user->karyawan->posisi;
+            $id_posisi_members = $this->get_member_posisi($posisi);
+
+            $skds = Sakite::leftJoin('karyawan_posisi', 'sakits.karyawan_id', 'karyawan_posisi.karyawan_id')
+                    ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                    ->whereIn('posisis.id_posisi', $id_posisi_members)
+                    ->whereNull('rejected_by')
+                    ->whereNull('approved_by')
+                    ->whereNotNull('attachment')
+                    ->get();
+            
+            foreach ($skds as $skd){
+                $posisi = $skd->karyawan->posisi;
+                $has_leader = $this->has_leader($posisi);
+                $has_section_head = $this->has_section_head($posisi);
+                $has_department_head = $this->has_department_head($posisi);
+
+                if (!$has_section_head) {
+                    $approval_skd++;
+                }
+            }
+        } 
+
+        //plant head
+        if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 2){
+            $posisi = $user->karyawan->posisi;
+            $id_posisi_members = $this->get_member_posisi($posisi);
+
+            $skds = Sakite::leftJoin('karyawan_posisi', 'sakits.karyawan_id', 'karyawan_posisi.karyawan_id')
+                    ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                    ->whereIn('posisis.id_posisi', $id_posisi_members)
+                    ->whereNull('rejected_by')
+                    ->whereNull('approved_by')
+                    ->whereNotNull('attachment')
+                    ->get();
+            
+            foreach ($skds as $skd){
+                $posisi = $skd->karyawan->posisi;
+                $has_leader = $this->has_leader($posisi);
+                $has_section_head = $this->has_section_head($posisi);
+                $has_department_head = $this->has_department_head($posisi);
+
+                if (!$has_section_head && !$has_department_head) {
+                    $approval_skd++;
+                }
+            }
+        }
+
+        $izine = [
+            'approval_skd' => $approval_skd,
+        ];
+
+        $html = view('layouts.partials.notification-approval-skd')->with(compact('izine'))->render();
         return response()->json(['data' => $html], 200);
     }
 

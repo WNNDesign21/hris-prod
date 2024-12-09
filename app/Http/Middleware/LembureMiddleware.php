@@ -44,7 +44,7 @@ class LembureMiddleware
                         ->whereNull('actual_legalized_by');
                 });
             })->where('organisasi_id', $organisasi_id)->count();
-        } elseif ($user->karyawan->posisi[0]->jabatan_id == 2 && $user->karyawan->posisi[0]->organisasi_id !== NULL){ 
+        } elseif ($user->karyawan && $user->karyawan->posisi[0]->jabatan_id == 2 && $user->karyawan->posisi[0]->organisasi_id !== NULL){ 
             $approval_lembur = Lembure::where(function($query) {
                 $query->where(function($query) {
                     $query->where('status', 'WAITING')
@@ -56,7 +56,7 @@ class LembureMiddleware
                         ->whereNull('actual_approved_by');
                 });
             })->where('organisasi_id', $organisasi_id)->count();
-        } elseif ($user->karyawan->posisi[0]->jabatan_id == 4 || $user->karyawan->posisi[0]->jabatan_id == 3) {
+        } elseif ($user->karyawan && $user->karyawan->posisi[0]->jabatan_id == 4 || $user->karyawan && $user->karyawan->posisi[0]->jabatan_id == 3) {
             $posisi = $user->karyawan->posisi;
             $member_posisi_ids = $this->get_member_posisi($posisi);
             $approval_lembur = Lembure::leftJoin('karyawan_posisi', 'lemburs.issued_by', 'karyawan_posisi.karyawan_id')

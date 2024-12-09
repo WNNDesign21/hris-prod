@@ -12,6 +12,9 @@
                 @if (auth()->user()->hasRole('personalia'))
                     <span class="light-logo">PERSONALIA</span>
                     <span class="dark-logo">PERSONALIA</span>
+                @elseif (auth()->user()->hasRole('security'))
+                    <span class="light-logo">SECURITY</span>
+                    <span class="dark-logo">SECURITY</span>
                 @else
                     <span class="light-logo">Hai, {{ auth()->user()->karyawan->nama }}</span>
                     <span class="dark-logo">Hai, {{ auth()->user()->karyawan->nama }}</span>

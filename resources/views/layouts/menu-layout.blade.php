@@ -27,7 +27,7 @@
         <nav class="navbar m-0 navbar-static-top">
             <div class="app-menu">
                 <h4 class="mb-0 text-primary"><i class="ti-user"></i>
-                    {{ auth()->user()->hasAnyRole(['atasan', 'member'])? auth()->user()->karyawan->nama: 'PERSONALIA' }}
+                    {{ auth()->user()->hasAnyRole(['atasan', 'member'])? auth()->user()->karyawan->nama: (auth()->user()->hasRole('personalia')? 'PERSONALIA': 'SECURITY') }}
                 </h4>
             </div>
             <div class="navbar-custom-menu r-side">

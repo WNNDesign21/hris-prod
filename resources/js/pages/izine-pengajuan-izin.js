@@ -171,23 +171,22 @@ $(function () {
         closeInputForm();
     })
 
-    // MODAL TAMBAH KARYAWAN
-    var modalInputIzinPribadiOptions = {
+    var modalInputPengajuanIzinOptions = {
         backdrop: true,
         keyboard: false,
     };
 
-    var modalInputIzinPribadi = new bootstrap.Modal(
+    var modalInputPengajuanIzin = new bootstrap.Modal(
         document.getElementById("modal-pengajuan-izin"),
-        modalInputIzinPribadiOptions
+        modalInputPengajuanIzinOptions
     );
 
     function openInputForm() {
-        modalInputIzinPribadi.show();
+        modalInputPengajuanIzin.show();
     }
 
     function closeInputForm() {
-        modalInputIzinPribadi.hide();
+        modalInputPengajuanIzin.hide();
         resetForm();
     }
     
@@ -332,7 +331,7 @@ $(function () {
             processData: false,
             dataType: "JSON",
             success: function (data) {
-                updateNotification();
+                updatePengajuanCutiNotification();
                 showToast({ title: data.message });
                 refreshTable();
                 closeInputForm();
@@ -359,7 +358,7 @@ $(function () {
             processData: false,
             dataType: "JSON",
             success: function (data) {
-                updateNotification();
+                updatePengajuanCutiNotification();
                 showToast({ title: data.message });
                 refreshTable();
                 closeFormEdit();
@@ -396,6 +395,44 @@ $(function () {
                     },
                     dataType: "JSON",
                     success: function (data) {
+                        updatePengajuanCutiNotification();
+                        loadingSwalClose();
+                        refreshTable();
+                        showToast({ title: data.message });
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                    },
+                });
+            }
+        });
+    })
+
+    $('#pengajuan-izin-table').on('click', '.btnCancel', function (){
+        var idIzin = $(this).data('id-izin');
+        console.log(idIzin);
+        Swal.fire({
+            title: "Cancel Izin",
+            text: "Setelah di cancel, data akan hilang dan tidak bisa kembali",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Cancel it!",
+            allowOutsideClick: false,
+        }).then((result) => {
+            if (result.value) {
+                loadingSwalShow();
+                var url = base_url + '/izine/pengajuan-izin/delete/' + idIzin;
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: {
+                        _method: "delete",
+                    },
+                    dataType: "JSON",
+                    success: function (data) {
+                        updatePengajuanCutiNotification();
                         loadingSwalClose();
                         refreshTable();
                         showToast({ title: data.message });
@@ -504,22 +541,22 @@ $(function () {
     })
 
     // MODAL EDIT KARYAWAN
-    var modalEditIzinPribadiOptions = {
+    var modalEditPengajuanIzinOptions = {
         backdrop: true,
         keyboard: false,
     };
 
-    var modalEditIzinPribadi = new bootstrap.Modal(
+    var modalEditPengajuanIzin = new bootstrap.Modal(
         document.getElementById("modal-pengajuan-izin-edit"),
-        modalEditIzinPribadiOptions
+        modalEditPengajuanIzinOptions
     );
 
     function openFormEdit() {
-        modalEditIzinPribadi.show();
+        modalEditPengajuanIzin.show();
     }
 
     function closeFormEdit() {
-        modalEditIzinPribadi.hide();
+        modalEditPengajuanIzin.hide();
         resetFormEdit();
     }
 
@@ -527,4 +564,176 @@ $(function () {
         $('#conditional_fieldEdit').empty();
         $('#keteranganEdit').val('');
     }
+
+    var modalDonePengajuanIzinOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalDonePengajuanIzin = new bootstrap.Modal(
+        document.getElementById("modal-aktual-pengajuan-izin"),
+        modalDonePengajuanIzinOptions
+    );
+
+    function openDone() {
+        modalDonePengajuanIzin.show();
+    }
+
+    function closeDone() {
+        modalDonePengajuanIzin.hide();
+        resetDone();
+    }
+
+    function resetDone(){
+        $('#id_izinAktual').val('');
+        $('#aktual_mulai_or_masukAktual').val('');
+        $('#aktual_selesai_or_keluarAktual').val('');
+    }
+
+    $('#pengajuan-izin-table').on('click', '.btnDone', function (){
+        loadingSwalShow();
+        var idIzin = $(this).data('id-izin');
+        var url = base_url + '/izine/pengajuan-izin/get-data-izin/' + idIzin;
+        $.ajax({
+            url: url,
+            type: "GET",
+            success: function (response) {
+                var data = response.data;
+                $('#id_izinAktual').val(data.id_izin);    
+                let minDate = moment(data.rencana_mulai_or_masuk).format('YYYY-MM-DD');
+                $('#aktual_mulai_or_masukAktual').attr('min', minDate);
+                $('#aktual_selesai_or_keluarAktual').attr('min', minDate);
+    
+                $('#aktual_mulai_or_masukAktual').on('change', function(){
+                    let aktual_mulai = $(this).val();
+                    $('#aktual_selesai_or_keluarAktual').attr('min', aktual_mulai); 
+    
+                    if(aktual_mulai > $('#aktual_selesai_or_keluarAktual').val()){
+                        $('#aktual_selesai_or_keluarAktual').val(aktual_mulai);
+                    }
+                });
+    
+                $('#aktual_selesai_or_keluarAktual').on('change', function(){
+                    let aktual_selesai = $(this).val();
+                    if(aktual_selesai < $('#aktual_mulai_or_masukAktual').val()){
+                        $(this).val($('#aktual_mulai_or_masukAktual').val());
+                    }
+                })
+
+                $('#aktual_mulai_or_masukAktual').val(moment(data.rencana_mulai_or_masuk).format('YYYY-MM-DD'));
+                $('#aktual_selesai_or_keluarAktual').val(moment(data.rencana_selesai_or_keluar).format('YYYY-MM-DD'));
+
+                loadingSwalClose();
+                openDone();
+            
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        });
+    })
+
+    $('#form-aktual-pengajuan-izin').on('submit', function (e){
+        loadingSwalShow();
+        e.preventDefault();
+        let idIzin = $('#id_izinAktual').val();
+        let url = base_url + '/izine/pengajuan-izin/done/' + idIzin;
+        var formData = new FormData($('#form-aktual-pengajuan-izin')[0]);
+        $.ajax({
+            url: url,
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (data) {
+                updatePengajuanCutiNotification();
+                showToast({ title: data.message });
+                refreshTable();
+                closeDone();
+                loadingSwalClose();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        })
+    });
+
+    $('.btnDone').on("click", function (){
+        openFormAktual();
+    })
+
+    $('.btnCloseEdit').on("click", function (){
+        closeFormEdit();
+    })
+
+    //QR CODE SYSTEM
+    var modalQrCodeOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalQrCode = new bootstrap.Modal(
+        document.getElementById("modal-show-qrcode"),
+        modalQrCodeOptions
+    );
+
+    function openQrCode() {
+        modalQrCode.show();
+    }
+
+    function closeQrCode() {
+        modalQrCode.hide();
+        refreshTable();
+    }
+
+    $('.btnCloseQrcode').on('click', function(){
+        loadingSwalShow();
+        var url = base_url + '/delete-qrcode-img';
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: {
+                _method: "delete",
+                file_path: qrCodeTemp
+            },
+            dataType: "JSON",
+            success: function (response) {
+                console.log(response);
+                loadingSwalClose();
+                closeQrCode();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        });
+    })
+
+    let qrCodeTemp;
+    $('#pengajuan-izin-table').on('click', '.btnShowQR', function (){
+        loadingSwalShow();
+        var idIzin = $(this).data('id-izin');
+        var url = base_url + '/generate-qrcode';
+        let formData = new FormData();
+        formData.append('id_izin', idIzin);
+        $.ajax({
+            url: url,
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (response) {
+                let qrCodeImg = response.data;
+                qrCodeTemp = qrCodeImg;
+                $('#qr-code').attr('src', qrCodeImg);
+                openQrCode();
+                loadingSwalClose();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        })
+    });
 });

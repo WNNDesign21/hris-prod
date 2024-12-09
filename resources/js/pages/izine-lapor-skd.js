@@ -45,25 +45,25 @@ $(function () {
         });
     }
 
-    function updateNotification(){
-        $.ajax({
-            url: base_url + '/get-notification',
-            method: 'GET',
-            success: function(response){
-                $('.notifications-menu').html(response.data);
-            }
-        })
-    }
-
-    // function updatePengajuanCutiNotification(){
+    // function updateNotification(){
     //     $.ajax({
-    //         url: base_url + '/get-lapor-skd-notification',
+    //         url: base_url + '/get-notification',
     //         method: 'GET',
     //         success: function(response){
-    //             $('.notification-lapor-skd').html(response.data);
+    //             $('.notifications-menu').html(response.data);
     //         }
     //     })
     // }
+
+    function updateLaporSkdNotification(){
+        $.ajax({
+            url: base_url + '/get-lapor-skd-notification',
+            method: 'GET',
+            success: function(response){
+                $('.notification-lapor-skd').html(response.data);
+            }
+        })
+    }
     
     //DATATABLE KARYAWAN
     var columnsTable = [
@@ -431,11 +431,12 @@ $(function () {
             processData: false,
             dataType: "JSON",
             success: function (data) {
-                updateNotification();
+                updateLaporSkdNotification();
                 showToast({ title: data.message });
                 refreshTable();
                 closeInputForm();
                 loadingSwalClose();
+                resetForm();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 loadingSwalClose();
@@ -458,7 +459,7 @@ $(function () {
             processData: false,
             dataType: "JSON",
             success: function (data) {
-                updateNotification();
+                updateLaporSkdNotification();
                 showToast({ title: data.message });
                 refreshTable();
                 closeEditForm();
@@ -523,6 +524,7 @@ $(function () {
                     },
                     dataType: "JSON",
                     success: function (data) {
+                        updateLaporSkdNotification();
                         loadingSwalClose();
                         refreshTable();
                         showToast({ title: data.message });
