@@ -187,7 +187,9 @@ $(function () {
         if(!cameraId){
             Html5Qrcode.getCameras().then(devices => {
                 if (devices && devices.length) {
-                    cameraId = devices[0].id;
+                    const rearCamera = devices.find(device => device.label.toLowerCase().includes('rear')) || devices[0];
+                    cameraId = rearCamera.id;
+                    // cameraId = devices[0].id;
                     startScanning();
                 }
             }).catch(err => {
