@@ -94,7 +94,7 @@
 
 
                 {{-- CARD IZIN SYSTEM --}}
-                {{-- <div class="col-lg-6 col-12">
+                <div class="col-lg-6 col-12">
                     <a href="{{ route('izine.pengajuan-izin') }}" class="box pull-up">
                         <div class="box-body position-relative">
                             @if ($izine['total_izine_notification'] > 0)
@@ -116,7 +116,7 @@
                             </div>
                         </div>
                     </a>
-                </div> --}}
+                </div>
             </div>
         </div>
 
