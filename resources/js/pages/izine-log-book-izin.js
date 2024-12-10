@@ -187,8 +187,9 @@ $(function () {
         if(!cameraId){
             Html5Qrcode.getCameras().then(devices => {
                 if (devices && devices.length) {
-                    const rearCamera = devices.find(device => device.label.toLowerCase().includes('rear')) || devices[0];
+                    const rearCamera = devices[1] || devices[0];
                     cameraId = rearCamera.id;
+                    console.log(rearCamera);
                     // cameraId = devices[0].id;
                     startScanning();
                 }
