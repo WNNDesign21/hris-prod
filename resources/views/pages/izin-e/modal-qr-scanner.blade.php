@@ -10,16 +10,12 @@
             <div class="modal-body">
                 <div class="row">
                     <div class="col-12 d-flex justify-content-center">
-                        <div class="form-group">
-                            <input type="file" class="form-control" id="qr-input-file" accept="image/*"
-                                style="width:100%;">
-                        </div>
-                        <div id="qr-scanner" style="min-width: 350px; height:100%;" class="d-none"></div>
+                        <div id="qr-scanner" style="min-width: 350px; height:100%;"></div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer d-flex justify-content-center">
-                <h5 class="text-center">Input QR Code disini</h5>
+                <h5 class="text-center">Scan QR disini</h5>
             </div>
         </div>
         <!-- /.modal-content -->
