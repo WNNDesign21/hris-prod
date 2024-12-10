@@ -31,14 +31,10 @@ class IzineMiddleware
         if($user->karyawan && $user->karyawan->posisi){
             $pengajuan_izin = Izine::where('karyawan_id', $user->karyawan->id_karyawan)
             ->where(function($query) {
-                $query->where('jenis_izin', 'TM')->whereNull('rejected_by')->whereNotNull('legalized_by')
+                $query->whereNull('rejected_by')->whereNotNull('legalized_by')
                 ->where(function($query) {
                     $query->whereNull('aktual_mulai_or_masuk');
                     $query->whereNull('aktual_selesai_or_keluar');
-                })->orWhere('jenis_izin', 'SH')->whereNull('rejected_by')->whereNotNull('legalized_by')
-                ->where(function($query) {
-                    $query->whereNull('aktual_mulai_or_masuk');
-                    $query->orWhereNull('aktual_selesai_or_keluar');
                 });
             })->count();
 
@@ -74,8 +70,13 @@ class IzineMiddleware
                     ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
                     ->whereIn('posisis.id_posisi', $id_posisi_members)
                     ->whereNull('rejected_by')
-                    ->whereNull('legalized_by')
-                    ->get();
+                    ->where(function($query){
+                        $query->whereNull('legalized_by')
+                        ->where(function($query){
+                            $query->whereNull('checked_by');
+                            $query->orWhereNull('approved_by');
+                        });
+                    })->get();
 
             foreach ($izins as $izin){
                 $posisi = $izin->karyawan->posisi;
@@ -97,7 +98,7 @@ class IzineMiddleware
                     ->whereIn('posisis.id_posisi', $id_posisi_members)
                     ->whereNull('rejected_by')
                     ->whereNull('approved_by')
-                    ->whereNotNull('attachment')
+                    // ->whereNotNull('attachment')
                     ->count();
         } 
 
@@ -111,8 +112,13 @@ class IzineMiddleware
                     ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
                     ->whereIn('posisis.id_posisi', $id_posisi_members)
                     ->whereNull('rejected_by')
-                    ->whereNull('legalized_by')
-                    ->get();
+                    ->where(function($query){
+                        $query->whereNull('legalized_by')
+                        ->where(function($query){
+                            $query->whereNull('checked_by');
+                            $query->orWhereNull('approved_by');
+                        });
+                    })->get();
 
             foreach ($izins as $izin){
                 $posisi = $izin->karyawan->posisi;
@@ -134,7 +140,7 @@ class IzineMiddleware
                     ->whereIn('posisis.id_posisi', $id_posisi_members)
                     ->whereNull('rejected_by')
                     ->whereNull('approved_by')
-                    ->whereNotNull('attachment')
+                    // ->whereNotNull('attachment')
                     ->get();
             
             foreach ($skds as $skd){
@@ -159,8 +165,13 @@ class IzineMiddleware
                     ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
                     ->whereIn('posisis.id_posisi', $id_posisi_members)
                     ->whereNull('rejected_by')
-                    ->whereNull('legalized_by')
-                    ->get();
+                    ->where(function($query){
+                        $query->whereNull('legalized_by')
+                        ->where(function($query){
+                            $query->whereNull('checked_by');
+                            $query->orWhereNull('approved_by');
+                        });
+                    })->get();
 
             foreach ($izins as $izin){
                 $posisi = $izin->karyawan->posisi;
@@ -182,7 +193,7 @@ class IzineMiddleware
                     ->whereIn('posisis.id_posisi', $id_posisi_members)
                     ->whereNull('rejected_by')
                     ->whereNull('approved_by')
-                    ->whereNotNull('attachment')
+                    // ->whereNotNull('attachment')
                     ->get();
             
             foreach ($skds as $skd){
