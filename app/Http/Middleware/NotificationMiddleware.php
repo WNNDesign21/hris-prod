@@ -76,7 +76,7 @@ class NotificationMiddleware
                       ->orWhereNull('status_cuti');
             })
             ->where('cutis.karyawan_id', $me->id_karyawan)
-            ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
+            // ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
             ->get();
 
             // Notif Approval
@@ -94,7 +94,7 @@ class NotificationMiddleware
                         ->orWhereNull('checked2_by');
                 })
             ->whereIn('posisis.id_posisi', $members)
-            ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
+            // ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
             ->get();
 
 
@@ -119,7 +119,7 @@ class NotificationMiddleware
                       ->orWhereNull('status_cuti');
             })
             ->where('cutis.karyawan_id', $me->id_karyawan)
-            ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
+            // ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
             ->get();
 
             $cutie_approval = null;
