@@ -18,6 +18,8 @@
                                     <select name="jenis_izin" id="jenis_izin" class="form-control" style="width: 100%;">
                                         <option value="TM">IZIN TIDAK MASUK</option>
                                         <option value="SH">IZIN 1/2 HARI</option>
+                                        {{-- <option value="KP">IZIN KELUAR PABRIK</option>
+                                        <option value="PL">IZIN PULANG</option> --}}
                                     </select>
                                 </div>
                                 <div class="form-group" id="conditional_field">
