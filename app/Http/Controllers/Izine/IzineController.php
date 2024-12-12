@@ -116,7 +116,7 @@ class IzineController extends Controller
         }
 
         $dataFilter['karyawan_id'] = auth()->user()->karyawan->id_karyawan;
-        $dataFilter['jenis_izin'] = ['TM', 'SH'];
+        $dataFilter['jenis_izin'] = ['TM', 'SH', 'KP', 'PL'];
 
         $totalData = Izine::where('karyawan_id', auth()->user()->karyawan->id_karyawan)->count();
         $totalFiltered = $totalData;
@@ -160,7 +160,7 @@ class IzineController extends Controller
                         $aksi = '<div class="btn-group btn-group-sm"><button class="btn btn-sm btn-warning btnEdit" data-id-izin="'.$data->id_izin.'"><i class="fas fa-edit"></i> Edit</button><button class="btn btn-sm btn-danger btnDelete" data-id-izin="'.$data->id_izin.'"><i class="fas fa-trash"></i> Delete</button></div>';
                     }
 
-                } else {
+                } elseif ($data->jenis_izin == 'SH') {
                     $jenis_izin = '<span class="badge badge-info">1/2 Hari</span>';
                     $durasi = '-';
                     $rencana_mulai_or_masuk = $data->rencana_mulai_or_masuk ? Carbon::parse($data->rencana_mulai_or_masuk)->format('d M Y, H:i').' WIB' : '-';
@@ -178,7 +178,41 @@ class IzineController extends Controller
                             $aksi = '<div class="btn-group btn-group-sm"><button class="btn btn-sm btn-primary btnShowQR" data-id-izin="'.$data->id_izin.'"><i class="fas fa-qrcode"></i>  Show QR</button><button class="btn btn-sm btn-danger btnCancel" data-id-izin="'.$data->id_izin.'"><i class="fas fa-history"></i> Cancel</button></div>';
                         }
                     }
-                }
+                } elseif ($data->jenis_izin == 'KP') {
+                    $jenis_izin = '<span class="badge badge-light">Keluar Pabrik</span>';
+                    $durasi =  '-';
+                    $rencana_mulai_or_masuk = $data->rencana_mulai_or_masuk ? Carbon::parse($data->rencana_mulai_or_masuk)->format('d M Y, H:i') : '-';
+                    $rencana_selesai_or_keluar = $data->rencana_selesai_or_keluar ? Carbon::parse($data->rencana_selesai_or_keluar)->format('d M Y, H:i') : '-';
+                    $aktual_mulai_or_masuk = $data->aktual_mulai_or_masuk ? Carbon::parse($data->aktual_mulai_or_masuk)->format('d M Y, H:i') : '-';
+                    $aktual_selesai_or_keluar = $data->aktual_selesai_or_keluar ? Carbon::parse($data->aktual_selesai_or_keluar)->format('d M Y, H:i') : '-';
+
+                    $aksi = '-';
+                    if($data->checked_by && $data->approved_by && $data->legalized_by && !$data->rejected_by && !$data->aktual_mulai_or_masuk){
+                        $aksi = '<div class="btn-group btn-group-sm"><button class="btn btn-sm btn-primary btnShowQR" data-id-izin="'.$data->id_izin.'"><i class="fas fa-qrcode"></i>  Show QR</button><button class="btn btn-sm btn-danger btnCancel" data-id-izin="'.$data->id_izin.'"><i class="fas fa-history"></i> Cancel</button></div>';
+                    } 
+                    
+                    if((!$data->checked_by || !$data->approved_by || !$data->legalized_by) && !$data->rejected_by){
+                        $aksi = '<div class="btn-group btn-group-sm"><button class="btn btn-sm btn-warning btnEdit" data-id-izin="'.$data->id_izin.'"><i class="fas fa-edit"></i> Edit</button><button class="btn btn-sm btn-danger btnDelete" data-id-izin="'.$data->id_izin.'"><i class="fas fa-trash"></i> Delete</button></div>';
+                    }
+                } elseif ($data->jenis_izin == 'PL') {
+                    $jenis_izin = '<span class="badge badge-dark">Pulang</span>';
+                    $durasi = '-';
+                    $rencana_mulai_or_masuk = $data->rencana_mulai_or_masuk ? Carbon::parse($data->rencana_mulai_or_masuk)->format('d M Y, H:i').' WIB' : '-';
+                    $rencana_selesai_or_keluar = $data->rencana_selesai_or_keluar ? Carbon::parse($data->rencana_selesai_or_keluar)->format('d M Y, H:i').' WIB' : '-';
+                    $aktual_mulai_or_masuk = $data->aktual_mulai_or_masuk ? Carbon::parse($data->aktual_mulai_or_masuk)->format('d M Y, H:i').' WIB' : '-';
+                    $aktual_selesai_or_keluar = $data->aktual_selesai_or_keluar ? Carbon::parse($data->aktual_selesai_or_keluar)->format('d M Y, H:i').' WIB' : '-';
+
+                    $aksi = '-';
+                    if((!$data->checked_by || !$data->approved_by || !$data->legalized_by) && !$data->rejected_by){
+                        $aksi = '<div class="btn-group btn-group-sm"><button class="btn btn-sm btn-warning btnEdit" data-id-izin="'.$data->id_izin.'"><i class="fas fa-edit"></i> Edit</button><button class="btn btn-sm btn-danger btnDelete" data-id-izin="'.$data->id_izin.'"><i class="fas fa-trash"></i> Delete</button></div>';
+                    }
+
+                    if($data->checked_by && $data->approved_by && $data->legalized_by){
+                        if($data->rencana_selesai_or_keluar && !$data->aktual_selesai_or_keluar){
+                            $aksi = '<div class="btn-group btn-group-sm"><button class="btn btn-sm btn-primary btnShowQR" data-id-izin="'.$data->id_izin.'"><i class="fas fa-qrcode"></i>  Show QR</button><button class="btn btn-sm btn-danger btnCancel" data-id-izin="'.$data->id_izin.'"><i class="fas fa-history"></i> Cancel</button></div>';
+                        }
+                    }
+                };
 
                 //REJECTED
                 if ($data->rejected_by){
@@ -330,8 +364,22 @@ class IzineController extends Controller
                     $rencana_selesai_or_keluar = $data->rencana_selesai_or_keluar ? Carbon::parse($data->rencana_selesai_or_keluar)->format('d M Y') : '-';
                     $aktual_mulai_or_masuk = $data->aktual_mulai_or_masuk ? Carbon::parse($data->aktual_mulai_or_masuk)->format('d M Y') : '-';
                     $aktual_selesai_or_keluar = $data->aktual_selesai_or_keluar ? Carbon::parse($data->aktual_selesai_or_keluar)->format('d M Y') : '-';
-                } else {
+                } elseif ($data->jenis_izin == 'SH') {
                     $jenis_izin = '<span class="badge badge-info">1/2 Hari</span>';
+                    $durasi = '-';
+                    $rencana_mulai_or_masuk = $data->rencana_mulai_or_masuk ? Carbon::parse($data->rencana_mulai_or_masuk)->format('d M Y, H:i').' WIB' : '-';
+                    $rencana_selesai_or_keluar = $data->rencana_selesai_or_keluar ? Carbon::parse($data->rencana_selesai_or_keluar)->format('d M Y, H:i').' WIB' : '-';
+                    $aktual_mulai_or_masuk = $data->aktual_mulai_or_masuk ? Carbon::parse($data->aktual_mulai_or_masuk)->format('d M Y, H:i').' WIB' : '-';
+                    $aktual_selesai_or_keluar = $data->aktual_selesai_or_keluar ? Carbon::parse($data->aktual_selesai_or_keluar)->format('d M Y, H:i').' WIB' : '-';
+                } elseif ($data->jenis_izin == 'KP') {
+                    $jenis_izin = '<span class="badge badge-light">Keluar Pabrik</span>';
+                    $durasi = '-';
+                    $rencana_mulai_or_masuk = $data->rencana_mulai_or_masuk ? Carbon::parse($data->rencana_mulai_or_masuk)->format('d M Y, H:i').' WIB' : '-';
+                    $rencana_selesai_or_keluar = $data->rencana_selesai_or_keluar ? Carbon::parse($data->rencana_selesai_or_keluar)->format('d M Y, H:i').' WIB' : '-';
+                    $aktual_mulai_or_masuk = $data->aktual_mulai_or_masuk ? Carbon::parse($data->aktual_mulai_or_masuk)->format('d M Y, H:i').' WIB' : '-';
+                    $aktual_selesai_or_keluar = $data->aktual_selesai_or_keluar ? Carbon::parse($data->aktual_selesai_or_keluar)->format('d M Y, H:i').' WIB' : '-';
+                } elseif ($data->jenis_izin == 'PL') {
+                    $jenis_izin = '<span class="badge badge-dark">Pulang</span>';
                     $durasi = '-';
                     $rencana_mulai_or_masuk = $data->rencana_mulai_or_masuk ? Carbon::parse($data->rencana_mulai_or_masuk)->format('d M Y, H:i').' WIB' : '-';
                     $rencana_selesai_or_keluar = $data->rencana_selesai_or_keluar ? Carbon::parse($data->rencana_selesai_or_keluar)->format('d M Y, H:i').' WIB' : '-';
@@ -495,7 +543,7 @@ class IzineController extends Controller
 
         if (auth()->user()->hasRole('security')){
             $dataFilter['is_security'] = 'Y';
-            $dataFilter['jenis_izin'] = ['SH'];
+            $dataFilter['jenis_izin'] = ['SH', 'KP', 'PL'];
             $dataFilter['organisasi_id'] = auth()->user()->organisasi_id;
         }
 
@@ -507,21 +555,45 @@ class IzineController extends Controller
         
 
         if (!empty($izine)) {
+            $rencana = '-';
+            $aktual = '-';
+
             foreach ($izine as $data) {
-                $jenis_izin = '<span class="badge badge-info">1/2 Hari</span>';
-                $rencana = '-';
-                $aktual = '-';
+                if($data->jenis_izin == 'SH'){
+                    $jenis_izin = '<span class="badge badge-info">1/2 Hari</span>';
+                    if ($data->rencana_mulai_or_masuk){
+                        $rencana = Carbon::parse($data->rencana_mulai_or_masuk)->format('d M Y, H:i').' WIB';
+                    } elseif ($data->rencana_selesai_or_keluar){
+                        $rencana = Carbon::parse($data->rencana_selesai_or_keluar)->format('d M Y, H:i').' WIB';
+                    }
+    
+                    if ($data->aktual_mulai_or_masuk){
+                        $aktual = Carbon::parse($data->aktual_mulai_or_masuk)->format('d M Y, H:i').' WIB';
+                    } elseif ($data->aktual_selesai_or_keluar){
+                        $aktual = Carbon::parse($data->aktual_selesai_or_keluar)->format('d M Y, H:i').' WIB';
+                    }
+                } elseif ($data->jenis_izin == 'KP') {
+                    $jenis_izin = '<span class="badge badge-light">Keluar Pabrik</span>';
+                    if ($data->rencana_selesai_or_keluar && $data->rencana_mulai_or_masuk){
+                        $rencana = Carbon::parse($data->rencana_selesai_or_keluar)->format('d M Y, H:i').' WIB - '.Carbon::parse($data->rencana_mulai_or_masuk)->format('d M Y, H:i').' WIB';
+                    }
+    
+                    if ($data->aktual_selesai_or_keluar){
+                        $aktual = Carbon::parse($data->aktual_selesai_or_keluar)->format('d M Y, H:i').' WIB - UNKNOWN';
+                    } 
+                    
+                    if ($data->aktual_mulai_or_masuk){
+                        $aktual = Carbon::parse($data->aktual_selesai_or_keluar)->format('d M Y, H:i').' WIB - '.Carbon::parse($data->aktual_mulai_or_masuk)->format('d M Y, H:i').' WIB';
+                    }
+                } elseif ($data->jenis_izin == 'PL') {
+                    $jenis_izin = '<span class="badge badge-dark">Pulang</span>';
+                    if ($data->rencana_selesai_or_keluar){
+                        $rencana = Carbon::parse($data->rencana_selesai_or_keluar)->format('d M Y, H:i').' WIB';
+                    } 
 
-                if ($data->rencana_mulai_or_masuk){
-                    $rencana = Carbon::parse($data->rencana_mulai_or_masuk)->format('d M Y, H:i').' WIB';
-                } elseif ($data->rencana_selesai_or_keluar){
-                    $rencana = Carbon::parse($data->rencana_selesai_or_keluar)->format('d M Y, H:i').' WIB';
-                }
-
-                if ($data->aktual_mulai_or_masuk){
-                    $aktual = Carbon::parse($data->aktual_mulai_or_masuk)->format('d M Y, H:i').' WIB';
-                } elseif ($data->aktual_selesai_or_keluar){
-                    $aktual = Carbon::parse($data->aktual_selesai_or_keluar)->format('d M Y, H:i').' WIB';
+                    if ($data->aktual_selesai_or_keluar){
+                        $aktual = Carbon::parse($data->aktual_selesai_or_keluar)->format('d M Y, H:i').' WIB';
+                    } 
                 }
 
                 $nestedData['id_izin'] = $data->id_izin;
@@ -581,13 +653,28 @@ class IzineController extends Controller
                 'rencana_mulai_or_masuk' => ['required', 'date_format:Y-m-d', 'before_or_equal:rencana_selesai_or_keluar', 'after_or_equal:today'],
                 'rencana_selesai_or_keluar' => ['required', 'date_format:Y-m-d', 'after_or_equal:rencana_mulai_or_masuk'],
             ];
-        } else {
+        } elseif ($jenis_izin == 'SH') {
             $dataValidate = [
                 'jenis_izin' => ['required'],
                 'keterangan' => ['required'],
                 'masuk_or_keluar' => ['required', 'in:M,K'],
                 'rencana_masuk_or_keluar' => ['required', 'date_format:Y-m-d\TH:i', 'after_or_equal:now'],
             ];
+        } elseif ($jenis_izin == 'KP') {
+            $dataValidate = [
+                'jenis_izin' => ['required'],
+                'keterangan' => ['required'],
+                'rencana_mulai_or_masuk' => ['required', 'date_format:Y-m-d\TH:i', 'after_or_equal:rencana_selesai_or_keluar'],
+                'rencana_selesai_or_keluar' => ['required', 'date_format:Y-m-d\TH:i', 'before_or_equal:rencana_mulai_or_masuk', 'after_or_equal:today'],
+            ];
+        } elseif ($jenis_izin == 'PL') {
+            $dataValidate = [
+                'jenis_izin' => ['required'],
+                'keterangan' => ['required'],
+                'rencana_selesai_or_keluar' => ['required', 'date_format:Y-m-d\TH:i', 'after_or_equal:now'],
+            ];
+        } else {
+            return response()->json(['message' => 'Jenis izin tidak ditemukan'], 404);
         }
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -617,7 +704,7 @@ class IzineController extends Controller
                     'rencana_selesai_or_keluar' => $rencana_selesai_or_keluar,
                     'keterangan' => $keterangan
                 ]);
-            } else {
+            } elseif ($jenis_izin == 'SH') {
                 if($masuk_or_keluar == 'M'){
                     $izin = Izine::create([
                         'id_izin' => 'IZIN-'.$jenis_izin.'-'. Str::random(4).'-'. date('YmdHis'),
@@ -641,6 +728,29 @@ class IzineController extends Controller
                         'keterangan' => $keterangan
                     ]);
                 }
+            } elseif ($jenis_izin == 'KP') {
+                $izin = Izine::create([
+                    'id_izin' => 'IZIN-'.$jenis_izin.'-'. Str::random(4).'-'. date('YmdHis'),
+                    'karyawan_id' => $karyawan_id,
+                    'organisasi_id' => $organisasi_id,
+                    'departemen_id' => $departemen_id,
+                    'divisi_id' => $divisi_id,
+                    'jenis_izin' => $jenis_izin,
+                    'rencana_mulai_or_masuk' => $rencana_mulai_or_masuk,
+                    'rencana_selesai_or_keluar' => $rencana_selesai_or_keluar,
+                    'keterangan' => $keterangan
+                ]);
+            } else {
+                $izin = Izine::create([
+                    'id_izin' => 'IZIN-'.$jenis_izin.'-'. Str::random(4).'-'. date('YmdHis'),
+                    'karyawan_id' => $karyawan_id,
+                    'organisasi_id' => $organisasi_id,
+                    'departemen_id' => $departemen_id,
+                    'divisi_id' => $divisi_id,
+                    'jenis_izin' => $jenis_izin,
+                    'rencana_selesai_or_keluar' => $rencana_selesai_or_keluar,
+                    'keterangan' => $keterangan
+                ]);
             }
 
             DB::commit();
@@ -688,12 +798,25 @@ class IzineController extends Controller
                 'rencana_mulai_or_masukEdit' => ['required', 'date_format:Y-m-d', 'before_or_equal:rencana_selesai_or_keluarEdit', 'after_or_equal:today'],
                 'rencana_selesai_or_keluarEdit' => ['required', 'date_format:Y-m-d', 'after_or_equal:rencana_mulai_or_masukEdit'],
             ];
-        } else {
+        } elseif ($izin->jenis_izin == 'SH') {
             $dataValidate = [
                 'keteranganEdit' => ['required'],
                 'masuk_or_keluarEdit' => ['required', 'in:M,K'],
                 'rencana_masuk_or_keluarEdit' => ['required', 'date_format:Y-m-d\TH:i', 'after_or_equal:now'],
             ];
+        } elseif ($izin->jenis_izin == 'KP') {
+            $dataValidate = [
+                'keteranganEdit' => ['required'],
+                'rencana_mulai_or_masukEdit' => ['required', 'date_format:Y-m-d', 'after_or_equal:rencana_selesai_or_keluarEdit'],
+                'rencana_selesai_or_keluarEdit' => ['required', 'date_format:Y-m-d', 'before_or_equal:rencana_mulai_or_masukEdit', 'after_or_equal:today'],
+            ];
+        } elseif ($izin->jenis_izin == 'PL') {
+            $dataValidate = [
+                'keteranganEdit' => ['required'],
+                'rencana_selesai_or_keluarEdit' => ['required', 'date_format:Y-m-d\TH:i', 'after_or_equal:now'],
+            ];
+        } else {
+            return response()->json(['message' => 'Jenis izin tidak ditemukan'], 404);
         }
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -712,7 +835,7 @@ class IzineController extends Controller
                     'rencana_selesai_or_keluar' => $rencana_selesai_or_keluar,
                     'keterangan' => $keterangan
                 ]);
-            } else {
+            } elseif ($izin->jenis_izin == 'SH') {
                 if($masuk_or_keluar == 'M'){
                     $izin->update([
                         'rencana_mulai_or_masuk' => $rencana_masuk_or_keluar,
@@ -726,6 +849,17 @@ class IzineController extends Controller
                         'keterangan' => $keterangan
                     ]);
                 }
+            } elseif ($izin->jenis_izin == 'KP') {
+                $izin->update([
+                    'rencana_mulai_or_masuk' => $rencana_mulai_or_masuk,
+                    'rencana_selesai_or_keluar' => $rencana_selesai_or_keluar,
+                    'keterangan' => $keterangan
+                ]);
+            } elseif ($izin->jenis_izin == 'PL') {
+                $izin->update([
+                    'rencana_selesai_or_keluar' => $rencana_selesai_or_keluar,
+                    'keterangan' => $keterangan
+                ]);
             }
 
             DB::commit();
@@ -772,7 +906,7 @@ class IzineController extends Controller
             'rencana_mulai_or_masuk' => $izine->rencana_mulai_or_masuk,
             'rencana_selesai_or_keluar' => $izine->rencana_selesai_or_keluar,
             'keterangan' => $izine->keterangan,
-            'masuk_or_keluar' => $izine->jenis_izin == 'TM' ? null : ($izine->rencana_mulai_or_masuk ? 'M' : 'K'),
+            'masuk_or_keluar' => $izine->jenis_izin !== 'SH' ? null : ($izine->rencana_mulai_or_masuk ? 'M' : 'K'),
         ];
         return response()->json(['data' => $data], 200);
     }
@@ -781,21 +915,49 @@ class IzineController extends Controller
     {
         $izine = Izine::find($id_izin);
         try {
+            $rencana = 'Unknown';
+            $jenis_izin = '-';
 
             if(!$izine){
                 return response()->json(['message' => 'Invalid QR Code!'], 403);
             }
 
-            if($izine->aktual_mulai_or_masuk || $izine->aktual_selesai_or_keluar){
-                return response()->json(['message' => 'QR Code Confirmed!'], 403);
+            if($izine->jenis_izin == 'SH'){
+                $jenis_izin = '1/2 Hari';
+                if($izine->aktual_mulai_or_masuk || $izine->aktual_selesai_or_keluar){
+                    return response()->json(['message' => 'QR Code Confirmed!'], 403);
+                }
+
+                $rencana = $izine->rencana_mulai_or_masuk ? Carbon::parse($izine->rencana_mulai_or_masuk)->format('d M Y, H:i').' WIB' : ($izine->rencana_selesai_or_keluar ? Carbon::parse($izine->rencana_selesai_or_keluar)->format('d M Y, H:i').' WIB' : 'Unknown');
+            } elseif ($izine->jenis_izin == 'KP') {
+                $jenis_izin = 'Keluar Pabrik';
+                if($izine->aktual_mulai_or_masuk){
+                    return response()->json(['message' => 'QR Code Confirmed!'], 403);
+                }
+
+                if($izine->aktual_selesai_or_keluar){
+                    $rencana = Carbon::parse($izine->rencana_mulai_or_masuk)->format('d M Y, H:i').' WIB';
+                } else {
+                    $rencana = Carbon::parse($izine->rencana_selesai_or_keluar)->format('d M Y, H:i').' WIB';
+                }
+
+            } elseif ($izine->jenis_izin == 'PL') {
+                $jenis_izin = 'Pulang';
+                if($izine->aktual_selesai_or_keluar){
+                    return response()->json(['message' => 'QR Code Confirmed!'], 403);
+                }
+
+                $rencana = $izine->rencana_selesai_or_keluar ? Carbon::parse($izine->rencana_selesai_or_keluar)->format('d M Y, H:i').' WIB' : 'Unknown';
+            } else {
+                return response()->json(['message' => 'Invalid QR Code!'], 403);
             }
 
             $data = [
                 'id_izin' => $izine->id_izin,
                 'nama' => $izine->karyawan->nama,
                 'departemen' => $izine->departemen->nama,
-                'jenis_izin' => '1/2 Hari',
-                'rencana' => $izine->rencana_mulai_or_masuk ? Carbon::parse($izine->rencana_mulai_or_masuk)->format('d M Y, H:i').' WIB' : ($izine->rencana_selesai_or_keluar ? Carbon::parse($izine->rencana_selesai_or_keluar)->format('d M Y, H:i').' WIB' : 'Unknown'),
+                'jenis_izin' => $jenis_izin,
+                'rencana' => $rencana,
                 'keterangan' => $izine->keterangan,
             ];
             return response()->json(['message' => 'Data izin ditemukan!', 'data' => $data], 200);
@@ -993,14 +1155,34 @@ class IzineController extends Controller
                 return response()->json(['message' => 'Anda tidak memiliki akses untuk melakukan konfirmasi!'], 403);
             }
 
-            if ($izin->aktual_mulai_or_masuk || $izin->aktual_selesai_or_keluar) {
-                return response()->json(['message' => 'Data izin sudah di konfirmasi, silahkan reload halaman!'], 403);
-            } 
-
-            if($izin->rencana_mulai_or_masuk){
-                $izin->aktual_mulai_or_masuk = now();
-            } elseif ($izin->rencana_selesai_or_keluar){
+            if ($izin->jenis_izin == 'SH') {
+                if ($izin->aktual_mulai_or_masuk || $izin->aktual_selesai_or_keluar) {
+                    return response()->json(['message' => 'Data izin sudah di konfirmasi, silahkan reload halaman!'], 403);
+                } 
+    
+                if($izin->rencana_mulai_or_masuk){
+                    $izin->aktual_mulai_or_masuk = now();
+                } elseif ($izin->rencana_selesai_or_keluar){
+                    $izin->aktual_selesai_or_keluar = now();
+                }
+            } elseif ($izin->jenis_izin == 'KP') {
+                if ($izin->aktual_mulai_or_masuk) {
+                    return response()->json(['message' => 'Data izin sudah di konfirmasi, silahkan reload halaman!'], 403);
+                } 
+                
+                if ($izin->aktual_selesai_or_keluar) {
+                    $izin->aktual_mulai_or_masuk = now();
+                } else {
+                    $izin->aktual_selesai_or_keluar = now();
+                }
+            } elseif ($izin->jenis_izin == 'PL') {
+                if ($izin->aktual_selesai_or_keluar) {
+                    return response()->json(['message' => 'Data izin sudah di konfirmasi, silahkan reload halaman!'], 403);
+                } 
+    
                 $izin->aktual_selesai_or_keluar = now();
+            } else {
+                return response()->json(['message' => 'Jenis izin tidak ditemukan'], 404);
             }
 
             $izin->save();

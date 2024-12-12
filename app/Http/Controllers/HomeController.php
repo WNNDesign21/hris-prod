@@ -217,8 +217,17 @@ class HomeController extends Controller
             ->where(function($query) {
                 $query->whereNull('rejected_by')->whereNotNull('legalized_by')
                 ->where(function($query) {
-                    $query->whereNull('aktual_mulai_or_masuk');
-                    $query->whereNull('aktual_selesai_or_keluar');
+                    $query->where(function($query) {
+                        $query->whereIn('jenis_izin', ['TM', 'SH']);
+                        $query->whereNull('aktual_mulai_or_masuk');
+                        $query->whereNull('aktual_selesai_or_keluar');
+                    })->orWhere(function($query){
+                        $query->where('jenis_izin', 'KP');
+                        $query->whereNull('aktual_mulai_or_masuk');
+                    })->orWhere(function($query){
+                        $query->where('jenis_izin', 'PL');
+                        $query->whereNull('aktual_selesai_or_keluar');
+                    });
                 });
             })->count();
         }

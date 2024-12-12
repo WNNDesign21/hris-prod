@@ -155,6 +155,8 @@ class Izine extends Model
             $search = $dataFilter['search'];
             $data->where(function ($query) use ($search) {
                 $query->where('izins.rencana_mulai_or_masuk', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%")
+                    ->orWhere('departemens.nama', 'ILIKE', "%{$search}%")
                     ->orWhere('izins.rencana_selesai_or_keluar', 'ILIKE', "%{$search}%")
                     ->orWhere('izins.aktual_mulai_or_masuk', 'ILIKE', "%{$search}%")
                     ->orWhere('izins.aktual_selesai_or_keluar', 'ILIKE', "%{$search}%");
