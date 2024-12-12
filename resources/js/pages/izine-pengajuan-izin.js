@@ -294,7 +294,7 @@ $(function () {
                     $(this).val($('#rencana_mulai_or_masuk').val());
                 }
             })
-        }else{
+        } else if (jenis_izin == 'SH'){
             $('#conditional_field').empty().append(`
                 <div class="form-group">
                     <label for="masuk_or_keluar" id="label_masuk_or_keluar">Masuk / Keluar</label>
@@ -315,6 +315,52 @@ $(function () {
             $('#masuk_or_keluar').select2({
                 dropdownParent: $('#modal-pengajuan-izin'),
             });
+        } else if (jenis_izin == 'KP') {
+            $('#conditional_field').empty().append(`
+                <div class="form-group">
+                    <label for="rencana_selesai_or_keluar" id="label_rencana_selesai_or_keluar">Rencana
+                        Keluar</label>
+                    <input type="datetime-local" name="rencana_selesai_or_keluar"
+                        id="rencana_selesai_or_keluar" class="form-control" required>
+                </div> 
+                <div class="form-group">
+                    <label for="rencana_mulai_or_masuk" id="label_rencana_mulai_or_masuk">Rencana
+                        Kembali</label>
+                    <input type="datetime-local" name="rencana_mulai_or_masuk" id="rencana_mulai_or_masuk"
+                        class="form-control" required>
+                </div>
+            `);
+
+            let minDate = moment().format('YYYY-MM-DDT00:00');
+            $('#rencana_selesai_or_keluar').attr('min', minDate);
+            $('#rencana_mulai_or_masuk').attr('min', minDate);
+
+            $('#rencana_selesai_or_keluar').on('change', function(){
+                let rencana_keluar = $(this).val();
+                $('#rencana_mulai_or_masuk').attr('min', rencana_keluar); 
+
+                if(rencana_keluar > $('#rencana_mulai_or_masuk').val()){
+                    $('#rencana_mulai_or_masuk').val(rencana_keluar);
+                }
+            });
+
+            $('#rencana_mulai_or_masuk').on('change', function(){
+                let rencana_kembali = $(this).val();
+                if(rencana_kembali < $('#rencana_selesai_or_keluar').val()){
+                    $(this).val($('#rencana_selesai_or_keluar').val());
+                }
+            })
+        } else if (jenis_izin == 'PL') {
+            $('#conditional_field').empty().append(`
+                <div class="form-group">
+                    <label for="rencana_selesai_or_keluar" id="label_rencana_selesai_or_keluar">Rencana Pulang</label>
+                    <input type="datetime-local" name="rencana_selesai_or_keluar" id="rencana_selesai_or_keluar"
+                        class="form-control" required>
+                </div>
+            `);
+
+            let minDate = moment().format('YYYY-MM-DDT00:00');
+            $('#rencana_selesai_or_keluar').attr('min', minDate);
         }
     });
 
@@ -488,16 +534,16 @@ $(function () {
                         }
                     });
         
-                    $('#rencana_selesai_or_keluar').on('change', function(){
+                    $('#rencana_selesai_or_keluarEdit').on('change', function(){
                         let rencana_selesai = $(this).val();
-                        if(rencana_selesai < $('#rencana_mulai_or_masuk').val()){
-                            $(this).val($('#rencana_mulai_or_masuk').val());
+                        if(rencana_selesai < $('#rencana_mulai_or_masukEdit').val()){
+                            $(this).val($('#rencana_mulai_or_masukEdit').val());
                         }
                     })
 
                     $('#rencana_mulai_or_masukEdit').val(moment(data.rencana_mulai_or_masuk).format('YYYY-MM-DD'));
                     $('#rencana_selesai_or_keluarEdit').val(moment(data.rencana_selesai_or_keluar).format('YYYY-MM-DD'));
-                }else{
+                } else if (data.jenis_izin == 'SH') {
                     $('#conditional_fieldEdit').empty().append(`
                         <div class="form-group">
                             <label for="masuk_or_keluarEdit" id="label_masuk_or_keluarEdit">Masuk / Keluar</label>
@@ -513,13 +559,64 @@ $(function () {
                         </div>
                     `);
         
-                    let minDate = moment(data.rencana_mulai_or_masuk ? data.rencana_mulai_or_masuk : data.rencana_selesai_or_keluar).format('YYYY-MM-DDTHH:mm');
+                    let minDate = moment(data.rencana_mulai_or_masuk ? data.rencana_mulai_or_masuk : data.rencana_selesai_or_keluar).format('YYYY-MM-DDT00:00');
                     $('#rencana_masuk_or_keluarEdit').attr('min', minDate);
                     $('#masuk_or_keluarEdit').select2({
                         dropdownParent: $('#modal-pengajuan-izin-edit'),
                     });
                     $('#masuk_or_keluarEdit').val(data.masuk_or_keluar).trigger('change');
                     $('#rencana_masuk_or_keluarEdit').val(moment(data.rencana_mulai_or_masuk ? data.rencana_mulai_or_masuk : data.rencana_selesai_or_keluar).format('YYYY-MM-DDTHH:mm'));
+                } else if (data.jenis_izin == 'KP') {
+                    $('#conditional_fieldEdit').empty().append(`
+                        <div class="form-group">
+                            <label for="rencana_selesai_or_keluarEdit" id="label_rencana_selesai_or_keluarEdit">Rencana
+                                Keluar</label>
+                            <input type="datetime-local" name="rencana_selesai_or_keluarEdit"
+                                id="rencana_selesai_or_keluarEdit" class="form-control" required>
+                        </div>  
+                        <div class="form-group">
+                            <label for="rencana_mulai_or_masukEdit" id="label_rencana_mulai_or_masukEdit">Rencana Kembali</label>
+                            <input type="datetime-local" name="rencana_mulai_or_masukEdit" id="rencana_mulai_or_masukEdit"
+                                class="form-control" required>
+                        </div>
+                        <small class="text-fade">Note : Jika izin hanya 1 hari, maka pilih Rencana Mulai dan
+                                                Selesai di tanggal yang sama!</small>     
+                    `);
+        
+                    let minDate = moment(data.rencana_selesai_or_keluar ? data.rencana_selesai_or_keluar : data.rencana_mulai_or_masuk).format('YYYY-MM-DDT00:00');
+                    $('#rencana_selesai_or_keluarEdit').attr('min', moment().format('YYYY-MM-DDT00:00'));
+                    $('#rencana_mulai_or_masukEdit').attr('min', minDate);
+        
+                    $('#rencana_selesai_or_keluarEdit').on('change', function(){
+                        let rencana_keluar = moment($(this).val()).format('YYYY-MM-DDT00:00');
+                        $('#rencana_mulai_or_masukEdit').attr('min', rencana_keluar); 
+        
+                        if(rencana_keluar > $('#rencana_mulai_or_masukEdit').val()){
+                            $('#rencana_mulai_or_masukEdit').val(rencana_keluar);
+                        }
+                    });
+        
+                    $('#rencana_mulai_or_masukEdit').on('change', function(){
+                        let rencana_kembali = moment($(this).val()).format('YYYY-MM-DDTHH:mm');
+                        if(rencana_kembali < $('#rencana_selesai_or_keluarEdit').val()){
+                            $(this).val($('#rencana_selesai_or_keluarEdit').val());
+                        }
+                    })
+
+                    $('#rencana_selesai_or_keluarEdit').val(moment(data.rencana_selesai_or_keluar).format('YYYY-MM-DDTHH:mm'));
+                    $('#rencana_mulai_or_masukEdit').val(moment(data.rencana_mulai_or_masuk).format('YYYY-MM-DDTHH:mm'));
+                } else if (data.jenis_izin == 'PL') {
+                    $('#conditional_fieldEdit').empty().append(`
+                        <div class="form-group">
+                            <label for="rencana_selesai_or_keluarEdit" id="label_rencana_selesai_or_keluarEdit">Jam Keluar</label>
+                            <input type="datetime-local" name="rencana_selesai_or_keluarEdit" id="rencana_selesai_or_keluarEdit"
+                                class="form-control" required>
+                        </div>
+                    `);
+        
+                    let minDate = moment(data.rencana_selesai_or_keluar ? data.rencana_selesai_or_keluar : data.rencana_mulai_or_masuk).format('YYYY-MM-DDT00:00');
+                    $('#rencana_selesai_or_keluarEdit').attr('min', minDate);
+                    $('#rencana_selesai_or_keluarEdit').val(moment(data.rencana_selesai_or_keluar ? data.rencana_selesai_or_keluar : data.rencana_mulai_or_masuk).format('YYYY-MM-DDTHH:mm'));
                 }
 
                 loadingSwalClose();
