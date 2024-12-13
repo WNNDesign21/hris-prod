@@ -80,7 +80,7 @@ class DetailLembur extends Model
         ->whereDate('detail_lemburs.aktual_mulai_lembur', $date)
         ->orderBy('detail_lemburs.aktual_mulai_lembur');
 
-        return $data->first();
+        return $data->get();
     }
 
     public static function getReportMonthlyPerDepartemen($month, $year)
