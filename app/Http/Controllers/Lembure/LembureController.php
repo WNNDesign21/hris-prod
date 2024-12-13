@@ -3059,69 +3059,97 @@ class LembureController extends Controller
             $total_spl = 0;
             for($i = 0; $i <= Carbon::parse($start)->diffInDays(Carbon::parse($end)); $i++){
                 $date = Carbon::parse($start)->addDays($i)->toDateString();
-                $slipLembur = DetailLembur::getSlipLemburPerDepartemen($kry->id_karyawan, $date);
-                $upah_lembur_per_jam = $slipLembur ? $slipLembur->gaji_lembur / $slipLembur->pembagi_upah_lembur : $upah_lembur_per_jam_setting;
+                $slipLemburs = DetailLembur::getSlipLemburPerDepartemen($kry->id_karyawan, $date);
 
-                if($slipLembur){
-                    $total_jam += $slipLembur->durasi;
-                    $total_konversi_jam += $slipLembur->durasi_konversi_lembur;
-                    $total_uang_makan += $slipLembur->uang_makan;
-                    $total_spl += $slipLembur->nominal;
-                    $sheet->setCellValue('A'.$row, $i+1);
-                    $sheet->setCellValue('B'.$row, Carbon::parse($date)->locale('id')->translatedFormat('l'));
-
-                    //JIKA WEEKEND UBAH STYLE CELL
-                    if(Carbon::parse($date)->isWeekend()){
-                        $sheet->getStyle('B'.$row)->applyFromArray([
-                            'fill' => [
-                                'fillType' => Fill::FILL_SOLID,
-                                'startColor' => [
+                if($slipLemburs->count() > 0){
+                    foreach($slipLemburs as $index => $slipLembur){
+                        $upah_lembur_per_jam = $slipLembur ? $slipLembur->gaji_lembur / $slipLembur->pembagi_upah_lembur : $upah_lembur_per_jam_setting;
+                        $total_jam += $slipLembur->durasi;
+                        $total_konversi_jam += $slipLembur->durasi_konversi_lembur;
+                        $total_uang_makan += $slipLembur->uang_makan;
+                        $total_spl += $slipLembur->nominal;
+                        $sheet->setCellValue('A'.$row, $i+1);
+                        $sheet->setCellValue('B'.$row, Carbon::parse($date)->locale('id')->translatedFormat('l'));
+    
+                        //JIKA WEEKEND UBAH STYLE CELL
+                        if(Carbon::parse($date)->isWeekend()){
+                            $sheet->getStyle('B'.$row)->applyFromArray([
+                                'fill' => [
+                                    'fillType' => Fill::FILL_SOLID,
+                                    'startColor' => [
+                                        'argb' => 'FFFF0000',
+                                    ],
+                                ],
+                                'font' => [
+                                    'color' => [
+                                        'argb' => 'FFFFFFFF',
+                                    ],
+                                ],
+                            ]);
+                        }
+    
+                        $sheet->setCellValue('C'.$row, Carbon::parse($date)->format('d-m-Y'));
+                        $sheet->setCellValue('D'.$row, Carbon::parse($slipLembur->aktual_mulai_lembur)->format('H:i'));
+                        $sheet->setCellValue('E'.$row, Carbon::parse($slipLembur->aktual_selesai_lembur)->format('H:i'));
+                        $sheet->setCellValue('F'.$row, number_format($slipLembur->durasi_istirahat / 100 , 2));
+                        $sheet->setCellValue('G'.$row, Carbon::parse($slipLembur->aktual_selesai_lembur)->subMinutes($slipLembur->durasi_istirahat)->format('H:i'));
+                        $sheet->setCellValue('H'.$row, number_format($slipLembur->durasi / 60, 2));
+                        $sheet->setCellValue('I'.$row, number_format($slipLembur->durasi_konversi_lembur / 60, 2));
+                        $sheet->setCellValue('J'.$row, $slipLembur->uang_makan);
+                        $sheet->setCellValue('K'.$row, 'Rp ' . number_format($upah_lembur_per_jam, 0, ',', '.'));
+                        $sheet->setCellValue('L'.$row, 'Rp '. number_format($slipLembur->nominal, 0, ',', '.'));
+    
+                        //STYLE CELL
+                        $sheet->getStyle('C'.$row)->applyFromArray([
+                            'alignment' => [
+                                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                                'vertical' => Alignment::VERTICAL_CENTER,
+                            ],
+                        ]);
+                        $sheet->getStyle('J'.$row.':K'.$row)->applyFromArray([
+                            'font' => [
+                                'color' => [
                                     'argb' => 'FFFF0000',
                                 ],
                             ],
-                            'font' => [
-                                'color' => [
-                                    'argb' => 'FFFFFFFF',
+                        ]);
+                        $sheet->getStyle('A'.$row.':L'.$row)->applyFromArray([
+                            'borders' => [
+                                'allBorders' => [
+                                    'borderStyle' => Border::BORDER_THIN,
+                                    'color' => ['argb' => 'FF000000'],
                                 ],
                             ],
                         ]);
+
+                        if ($slipLemburs->count() > 1 && $index == 0) {
+                            //STYLE CELL
+                            $sheet->getStyle('C'.$row)->applyFromArray([
+                                'alignment' => [
+                                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                                    'vertical' => Alignment::VERTICAL_CENTER,
+                                ],
+                            ]);
+                            $sheet->getStyle('J'.$row.':K'.$row)->applyFromArray([
+                                'font' => [
+                                    'color' => [
+                                        'argb' => 'FFFF0000',
+                                    ],
+                                ],
+                            ]);
+                            $sheet->getStyle('A'.$row.':K'.$row)->applyFromArray([
+                                'borders' => [
+                                    'allBorders' => [
+                                        'borderStyle' => Border::BORDER_THIN,
+                                        'color' => ['argb' => 'FF000000'],
+                                    ],
+                                ],
+                            ]);
+                            $row++;
+                        }
                     }
-
-                    $sheet->setCellValue('C'.$row, Carbon::parse($date)->format('d-m-Y'));
-                    $sheet->setCellValue('D'.$row, Carbon::parse($slipLembur->aktual_mulai_lembur)->format('H:i'));
-                    $sheet->setCellValue('E'.$row, Carbon::parse($slipLembur->aktual_selesai_lembur)->format('H:i'));
-                    $sheet->setCellValue('F'.$row, number_format($slipLembur->durasi_istirahat / 100 , 2));
-                    $sheet->setCellValue('G'.$row, Carbon::parse($slipLembur->aktual_selesai_lembur)->subMinutes($slipLembur->durasi_istirahat)->format('H:i'));
-                    $sheet->setCellValue('H'.$row, number_format($slipLembur->durasi / 60, 2));
-                    $sheet->setCellValue('I'.$row, number_format($slipLembur->durasi_konversi_lembur / 60, 2));
-                    $sheet->setCellValue('J'.$row, $slipLembur->uang_makan);
-                    $sheet->setCellValue('K'.$row, 'Rp ' . number_format($upah_lembur_per_jam, 0, ',', '.'));
-                    $sheet->setCellValue('L'.$row, 'Rp '. number_format($slipLembur->nominal, 0, ',', '.'));
-
-                    //STYLE CELL
-                $sheet->getStyle('C'.$row)->applyFromArray([
-                    'alignment' => [
-                        'horizontal' => Alignment::HORIZONTAL_CENTER,
-                        'vertical' => Alignment::VERTICAL_CENTER,
-                    ],
-                ]);
-                $sheet->getStyle('J'.$row.':K'.$row)->applyFromArray([
-                    'font' => [
-                        'color' => [
-                            'argb' => 'FFFF0000',
-                        ],
-                    ],
-                ]);
-                $sheet->getStyle('A'.$row.':L'.$row)->applyFromArray([
-                    'borders' => [
-                        'allBorders' => [
-                            'borderStyle' => Border::BORDER_THIN,
-                            'color' => ['argb' => 'FF000000'],
-                        ],
-                    ],
-                ]);
-
                 } else {
+                    $upah_lembur_per_jam = $slipLemburs->count() > 0 ? $slipLemburs[0]->gaji_lembur / $slipLemburs[0]->pembagi_upah_lembur : $upah_lembur_per_jam_setting;
                     $sheet->setCellValue('A'.$row, $i+1);
                     $sheet->setCellValue('B'.$row, Carbon::parse($date)->locale('id')->translatedFormat('l'));
 
