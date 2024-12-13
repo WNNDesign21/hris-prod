@@ -218,6 +218,10 @@
         @vite(['resources/js/pages/izine-log-book-izin.js'])
     @endif
 
+    @if ($page == 'izine-export')
+        @vite(['resources/js/pages/izine-export.js'])
+    @endif
+
 </body>
 
 </html>

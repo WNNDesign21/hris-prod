@@ -81,6 +81,17 @@ class IzineController extends Controller
         return view('pages.izin-e.approval-izin', $dataPage);
     }
 
+    public function export_view()
+    {
+        $departments = Departemen::all();
+        $dataPage = [
+            'pageTitle' => "Izin-E - Export Izin & SKD",
+            'page' => 'izine-export',
+            'departments' => $departments
+        ];
+        return view('pages.izin-e.export-izin', $dataPage);
+    }
+
 
     public function pengajuan_izin_datatable(Request $request)
     {
