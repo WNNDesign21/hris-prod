@@ -6,6 +6,7 @@ use Throwable;
 use Carbon\Carbon;
 use App\Models\Izine;
 use App\Models\Posisi;
+use App\Models\Sakite;
 use App\Models\Karyawan;
 use App\Models\Departemen;
 use Illuminate\Support\Str;
@@ -1274,5 +1275,240 @@ class IzineController extends Controller
             DB::rollBack();
             return response()->json(['message' => $e->getMessage()], 500);
         }
+    }
+
+    public function export_izin_dan_skd(Request $request){
+
+        $departemen = $request->departemen;
+        $export_data = $request->export_data;
+        $periode = $request->periode;
+        $organisasi_id = auth()->user()->organisasi_id;
+        $izins = null;
+        $skds = null;
+        
+        if($export_data == 'IZIN'){
+            $izins = Izine::where('organisasi_id',$organisasi_id)->whereNull('rejected_by')->whereNotNull('legalized_by');
+            if($departemen){
+                $izins->where('departemen_id', $departemen);
+            }
+
+            if($periode){
+                $month = Carbon::parse($periode)->format('m');
+                $year = Carbon::parse($periode)->format('Y');
+                $izins->where(function($query){
+                    $query->where(function($query){
+                        $query->where('jenis_izin', 'TM')->whereMonth('aktual_mulai_or_masuk', $month)->whereYear('aktual_mulai_or_masuk', $year);
+                    })->orWhere(function($query){
+                        $query->where('jenis_izin', 'SH')
+                        ->where(function($query){
+                            $query->whereMonth('rencana_selesai_or_keluar', $month)->whereYear('rencana_selesai_or_keluar', $year)
+                            ->whereMonth('aktual_selesai_or_keluar', $month)->whereYear('aktual_selesai_or_keluar', $year);
+                        })->orWhere(function($query){
+                            $query->whereMonth('rencana_mulai_or_masuk', $month)->whereYear('rencana_mulai_or_masuk', $year)
+                            ->whereMonth('aktual_mulai_or_masuk', $month)->whereYear('aktual_mulai_or_masuk', $year);
+                        });
+                    })->orWhere(function($query){
+                        $query->where('jenis_izin', 'KP')->whereMonth('rencana_mulai_or_masuk', $month)->whereYear('rencana_mulai_or_masuk', $year)
+                        ->whereMonth('aktual_mulai_or_masuk', $month)->whereYear('aktual_mulai_or_masuk', $year);
+                    })->orWhere(function($query){
+                        $query->where('jenis_izin', 'PL')->whereMonth('aktual_selesai_or_keluar', $month)->whereYear('aktual_selesai_or_keluar', $year);
+                    });
+                });
+            }
+        }
+
+        if($export_data == 'SKD'){
+            $skds = Sakite::where('organisasi_id',$organisasi_id)->whereNull('rejected_by')->whereNotNull('legalized_by')->whereNotNull('attachment');
+            if($departemen){
+                $skds->where('departemen_id', $departemen);
+            }
+
+            if($periode){
+                $month = Carbon::parse($periode)->format('m');
+                $year = Carbon::parse($periode)->format('Y');
+                $skds->whereMonth('tanggal_mulai', $month)->whereYear('tanggal_mulai', $year);
+            }
+        }
+
+        if(!$izins && !$skds){
+            $izins = Izine::where('organisasi_id',$organisasi_id)->whereNull('rejected_by')->whereNotNull('legalized_by');
+            $skds = Sakite::where('organisasi_id',$organisasi_id)->whereNull('rejected_by')->whereNotNull('legalized_by')->whereNotNull('attachment');
+            
+            if($departemen){
+                $izins->where('departemen_id', $departemen);
+                $skds->where('departemen_id', $departemen);
+            }
+
+            if($periode){
+                $month = Carbon::parse($periode)->format('m');
+                $year = Carbon::parse($periode)->format('Y');
+                $izins->where(function($query){
+                    $query->where(function($query){
+                        $query->where('jenis_izin', 'TM')->whereMonth('aktual_mulai_or_masuk', $month)->whereYear('aktual_mulai_or_masuk', $year);
+                    })->orWhere(function($query){
+                        $query->where('jenis_izin', 'SH')
+                        ->where(function($query){
+                            $query->whereMonth('rencana_selesai_or_keluar', $month)->whereYear('rencana_selesai_or_keluar', $year)
+                            ->whereMonth('aktual_selesai_or_keluar', $month)->whereYear('aktual_selesai_or_keluar', $year);
+                        })->orWhere(function($query){
+                            $query->whereMonth('rencana_mulai_or_masuk', $month)->whereYear('rencana_mulai_or_masuk', $year)
+                            ->whereMonth('aktual_mulai_or_masuk', $month)->whereYear('aktual_mulai_or_masuk', $year);
+                        });
+                    })->orWhere(function($query){
+                        $query->where('jenis_izin', 'KP')->whereMonth('rencana_mulai_or_masuk', $month)->whereYear('rencana_mulai_or_masuk', $year)
+                        ->whereMonth('aktual_mulai_or_masuk', $month)->whereYear('aktual_mulai_or_masuk', $year);
+                    })->orWhere(function($query){
+                        $query->where('jenis_izin', 'PL')->whereMonth('aktual_selesai_or_keluar', $month)->whereYear('aktual_selesai_or_keluar', $year);
+                    });
+                });
+
+                $skds->whereMonth('tanggal_mulai', $month)->whereYear('tanggal_mulai', $year);
+            }
+        }
+
+
+        //CREATE EXCEL FILE
+        $spreadsheet = new Spreadsheet();
+
+        $fillStyle = [
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['argb' => 'FF000000'],
+                ],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_LEFT,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+           'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => [
+                    'argb' => 'FF000000'
+                ]
+            ],
+            'font' => [
+                'bold' => true,
+                'color' => ['argb' => 'FFFFFFFF'],
+                'size' => 12,
+            ],
+        ];
+
+        if($izins){
+            $sheet = $spreadsheet->getActiveSheet();
+            $sheet->setTitle(Carbon::parse($periode)->format('F Y'));
+            $row = 1;
+            $col = 'A';
+            $headers = [
+                'No',
+                'Nomor Induk Karyawan',
+                'Nama',
+                'Departemen',
+                'Jenis Izin',
+                'Aktual Mulai',
+                'Aktual Selesai',
+                'Keterangan',
+            ];
+
+            foreach ($headers as $header) {
+                $sheet->setCellValue($col . '1', $header);
+                $sheet->getStyle($col . '1')->applyFromArray($fillStyle);
+                $col++;
+            }
+
+            $row = 2;
+
+            $columns = range('A', 'G');
+            foreach ($columns as $column) {
+                $sheet->getColumnDimension($column)->setAutoSize(true);
+            }
+            $sheet->setAutoFilter('A1:G1');
+
+            $izins = $izins->get();
+            foreach ($izins as $izin) {
+
+                if ($izin->jenis_izin == 'TM') {
+                    $jenis_izin = 'Tidak Masuk';
+                } elseif ($izin->jenis_izin == 'SH') {
+                    $jenis_izin = '1/2 Hari';
+                } elseif ($izin->jenis_izin == 'KP') {
+                    $jenis_izin = 'Keluar Pabrik';
+                } elseif ($izin->jenis_izin == 'PL') {
+                    $jenis_izin = 'Pulang';
+                } else {
+                    $jenis_izin = 'Lainnya';
+                }
+
+                $sheet->setCellValue('A' . $row, $row - 1);
+                $sheet->setCellValue('B' . $row, $izin->karyawan->ni_karyawan);
+                $sheet->setCellValue('C' . $row, $izin->karyawan->nama);
+                $sheet->setCellValue('D' . $row, $izin->departemen->nama);
+                $sheet->setCellValue('E' . $row, $jenis_izin);
+                $sheet->setCellValue('F' . $row, $izin->aktual_mulai_or_masuk);
+                $sheet->setCellValue('G' . $row, $izin->aktual_selesai_or_keluar);
+                $sheet->setCellValue('H' . $row, $izin->keterangan);
+                $row++;
+            }
+        }
+
+        if($skds){
+
+            if($izins){
+                $sheet = $spreadsheet->createSheet();
+            } else {
+                $sheet = $spreadsheet->getActiveSheet();
+            }
+
+            $sheet->setTitle(Carbon::parse($periode)->format('F Y'));
+            $row = 1;
+            $col = 'A';
+            $headers = [
+                'No',
+                'Nomor Induk Karyawan',
+                'Nama',
+                'Departemen',
+                'Tanggal Mulai',
+                'Tanggal Selesai',
+                'Keterangan',
+            ];
+
+            foreach ($headers as $header) {
+                $sheet->setCellValue($col . '1', $header);
+                $sheet->getStyle($col . '1')->applyFromArray($fillStyle);
+                $col++;
+            }
+
+            $row = 2;
+
+            $columns = range('A', 'F');
+            foreach ($columns as $column) {
+                $sheet->getColumnDimension($column)->setAutoSize(true);
+            }
+            $sheet->setAutoFilter('A1:F1');
+
+            $skds = $skds->get();
+            foreach ($skds as $skd) {
+                $sheet->setCellValue('A' . $row, $row - 1);
+                $sheet->setCellValue('B' . $row, $skd->karyawan->ni_karyawan);
+                $sheet->setCellValue('C' . $row, $skd->karyawan->nama);
+                $sheet->setCellValue('D' . $row, $skd->departemen->nama);
+                $sheet->setCellValue('E' . $row, $skd->tanggal_mulai);
+                $sheet->setCellValue('F' . $row, $skd->tanggal_selesai);
+                $sheet->setCellValue('G' . $row, $skd->keterangan);
+                $row++;
+            }
+        }
+
+        $writer = new Xlsx($spreadsheet);
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename=data-cuti-export.xlsx');
+        header('Cache-Control: max-age=0');
+
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $writer->save('php://output');
+        $spreadsheet->disconnectWorksheets();
+        unset($spreadsheet);
+        exit();
     }
 }

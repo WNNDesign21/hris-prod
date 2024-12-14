@@ -38,8 +38,8 @@
                                             <div class="col-12">
                                                 <div class="form-group">
                                                     <label for="export_data">Data</label>
-                                                    <select class="form-control" name="export_data" id="export_data">
-                                                        <option value="">IZIN & SKD</option>
+                                                    <select class="form-control" name="export_data" id="export_data"
+                                                        multiple>
                                                         <option value="IZIN">IZIN</option>
                                                         <option value="SKD">SKD</option>
                                                     </select>
