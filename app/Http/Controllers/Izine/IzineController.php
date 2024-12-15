@@ -1389,6 +1389,8 @@ class IzineController extends Controller
             }
         }
 
+        $izins = $izins->get();
+        $skds = $skds->get();
 
         //CREATE EXCEL FILE
         $spreadsheet = new Spreadsheet();
@@ -1417,7 +1419,7 @@ class IzineController extends Controller
             ],
         ];
 
-        if($izins){
+        if($izins->count() > 0){
             $sheet = $spreadsheet->getActiveSheet();
             $sheet->setTitle('Izin - '.Carbon::parse($periode)->format('F Y'));
             $row = 1;
@@ -1447,7 +1449,7 @@ class IzineController extends Controller
             }
             $sheet->setAutoFilter('A1:H1');
 
-            $izins = $izins->get();
+            // $izins = $izins->get();
             foreach ($izins as $izin) {
 
                 if ($izin->jenis_izin == 'TM') {
@@ -1474,7 +1476,7 @@ class IzineController extends Controller
             }
         }
 
-        if($skds){
+        if($skds->count() > 0){
 
             if($izins){
                 $sheet = $spreadsheet->createSheet();
@@ -1509,7 +1511,7 @@ class IzineController extends Controller
             }
             $sheet->setAutoFilter('A1:G1');
 
-            $skds = $skds->get();
+            // $skds = $skds->get();
             foreach ($skds as $skd) {
                 $sheet->setCellValue('A' . $row, $row - 1);
                 $sheet->setCellValue('B' . $row, $skd->karyawan->ni_karyawan);
