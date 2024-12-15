@@ -13,7 +13,13 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use Illuminate\Support\Facades\Validator;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
 class IzineController extends Controller
 {
@@ -1285,6 +1291,23 @@ class IzineController extends Controller
         $organisasi_id = auth()->user()->organisasi_id;
         $izins = null;
         $skds = null;
+
+        if(!$periode){
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+            $sheet->setTitle('Data Not Found');
+            $writer = new Xlsx($spreadsheet);
+
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment;filename=Not-Found.xlsx');
+            header('Cache-Control: max-age=0');
+
+            $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+            $writer->save('php://output');
+            $spreadsheet->disconnectWorksheets();
+            unset($spreadsheet);
+            exit();
+        }
         
         if($export_data == 'IZIN'){
             $izins = Izine::where('organisasi_id',$organisasi_id)->whereNull('rejected_by')->whereNotNull('legalized_by');
@@ -1295,22 +1318,22 @@ class IzineController extends Controller
             if($periode){
                 $month = Carbon::parse($periode)->format('m');
                 $year = Carbon::parse($periode)->format('Y');
-                $izins->where(function($query){
-                    $query->where(function($query){
+                $izins->where(function($query) use ($month, $year) {
+                    $query->where(function($query) use ($month, $year) {
                         $query->where('jenis_izin', 'TM')->whereMonth('aktual_mulai_or_masuk', $month)->whereYear('aktual_mulai_or_masuk', $year);
-                    })->orWhere(function($query){
+                    })->orWhere(function($query) use ($month, $year) {
                         $query->where('jenis_izin', 'SH')
-                        ->where(function($query){
+                        ->where(function($query) use ($month, $year) {
                             $query->whereMonth('rencana_selesai_or_keluar', $month)->whereYear('rencana_selesai_or_keluar', $year)
                             ->whereMonth('aktual_selesai_or_keluar', $month)->whereYear('aktual_selesai_or_keluar', $year);
-                        })->orWhere(function($query){
+                        })->orWhere(function($query) use ($month, $year) {
                             $query->whereMonth('rencana_mulai_or_masuk', $month)->whereYear('rencana_mulai_or_masuk', $year)
                             ->whereMonth('aktual_mulai_or_masuk', $month)->whereYear('aktual_mulai_or_masuk', $year);
                         });
-                    })->orWhere(function($query){
+                    })->orWhere(function($query) use ($month, $year) {
                         $query->where('jenis_izin', 'KP')->whereMonth('rencana_mulai_or_masuk', $month)->whereYear('rencana_mulai_or_masuk', $year)
                         ->whereMonth('aktual_mulai_or_masuk', $month)->whereYear('aktual_mulai_or_masuk', $year);
-                    })->orWhere(function($query){
+                    })->orWhere(function($query) use ($month, $year) {
                         $query->where('jenis_izin', 'PL')->whereMonth('aktual_selesai_or_keluar', $month)->whereYear('aktual_selesai_or_keluar', $year);
                     });
                 });
@@ -1342,22 +1365,22 @@ class IzineController extends Controller
             if($periode){
                 $month = Carbon::parse($periode)->format('m');
                 $year = Carbon::parse($periode)->format('Y');
-                $izins->where(function($query){
-                    $query->where(function($query){
+                $izins->where(function($query) use ($month, $year) {
+                    $query->where(function($query) use ($month, $year) {
                         $query->where('jenis_izin', 'TM')->whereMonth('aktual_mulai_or_masuk', $month)->whereYear('aktual_mulai_or_masuk', $year);
-                    })->orWhere(function($query){
+                    })->orWhere(function($query) use ($month, $year) {
                         $query->where('jenis_izin', 'SH')
-                        ->where(function($query){
+                        ->where(function($query) use ($month, $year) {
                             $query->whereMonth('rencana_selesai_or_keluar', $month)->whereYear('rencana_selesai_or_keluar', $year)
                             ->whereMonth('aktual_selesai_or_keluar', $month)->whereYear('aktual_selesai_or_keluar', $year);
-                        })->orWhere(function($query){
+                        })->orWhere(function($query) use ($month, $year) {
                             $query->whereMonth('rencana_mulai_or_masuk', $month)->whereYear('rencana_mulai_or_masuk', $year)
                             ->whereMonth('aktual_mulai_or_masuk', $month)->whereYear('aktual_mulai_or_masuk', $year);
                         });
-                    })->orWhere(function($query){
+                    })->orWhere(function($query) use ($month, $year) {
                         $query->where('jenis_izin', 'KP')->whereMonth('rencana_mulai_or_masuk', $month)->whereYear('rencana_mulai_or_masuk', $year)
                         ->whereMonth('aktual_mulai_or_masuk', $month)->whereYear('aktual_mulai_or_masuk', $year);
-                    })->orWhere(function($query){
+                    })->orWhere(function($query) use ($month, $year) {
                         $query->where('jenis_izin', 'PL')->whereMonth('aktual_selesai_or_keluar', $month)->whereYear('aktual_selesai_or_keluar', $year);
                     });
                 });
@@ -1396,7 +1419,7 @@ class IzineController extends Controller
 
         if($izins){
             $sheet = $spreadsheet->getActiveSheet();
-            $sheet->setTitle(Carbon::parse($periode)->format('F Y'));
+            $sheet->setTitle('Izin - '.Carbon::parse($periode)->format('F Y'));
             $row = 1;
             $col = 'A';
             $headers = [
@@ -1405,8 +1428,8 @@ class IzineController extends Controller
                 'Nama',
                 'Departemen',
                 'Jenis Izin',
-                'Aktual Mulai',
-                'Aktual Selesai',
+                'Aktual Mulai / Masuk',
+                'Aktual Selesai / Keluar',
                 'Keterangan',
             ];
 
@@ -1418,11 +1441,11 @@ class IzineController extends Controller
 
             $row = 2;
 
-            $columns = range('A', 'G');
+            $columns = range('A', 'H');
             foreach ($columns as $column) {
                 $sheet->getColumnDimension($column)->setAutoSize(true);
             }
-            $sheet->setAutoFilter('A1:G1');
+            $sheet->setAutoFilter('A1:H1');
 
             $izins = $izins->get();
             foreach ($izins as $izin) {
@@ -1459,7 +1482,7 @@ class IzineController extends Controller
                 $sheet = $spreadsheet->getActiveSheet();
             }
 
-            $sheet->setTitle(Carbon::parse($periode)->format('F Y'));
+            $sheet->setTitle('SKD - '.Carbon::parse($periode)->format('F Y'));
             $row = 1;
             $col = 'A';
             $headers = [
@@ -1480,11 +1503,11 @@ class IzineController extends Controller
 
             $row = 2;
 
-            $columns = range('A', 'F');
+            $columns = range('A', 'G');
             foreach ($columns as $column) {
                 $sheet->getColumnDimension($column)->setAutoSize(true);
             }
-            $sheet->setAutoFilter('A1:F1');
+            $sheet->setAutoFilter('A1:G1');
 
             $skds = $skds->get();
             foreach ($skds as $skd) {
@@ -1502,7 +1525,7 @@ class IzineController extends Controller
         $writer = new Xlsx($spreadsheet);
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename=data-cuti-export.xlsx');
+        header('Content-Disposition: attachment;filename='.Carbon::parse($periode)->format('M Y').' - Data Izin dan SKD.xlsx');
         header('Cache-Control: max-age=0');
 
         $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');

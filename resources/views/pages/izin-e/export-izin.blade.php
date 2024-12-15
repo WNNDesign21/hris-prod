@@ -31,22 +31,24 @@
                                     </div>
                                 </div>
                                 <div class="box-body min-h-200">
-                                    <form action="#" method="POST" enctype="multipart/form-data"
-                                        id="form-export-rekap-izin-dan-skd">
+                                    <form action="{{ route('izine.export.export-izin-dan-skd') }}" method="POST"
+                                        enctype="multipart/form-data" id="form-export-rekap-izin-dan-skd">
                                         @csrf
                                         <div class="row">
                                             <div class="col-12">
                                                 <div class="form-group">
                                                     <label for="export_data">Data</label>
                                                     <select class="form-control" name="export_data" id="export_data"
-                                                        multiple>
+                                                        style="width:100%;">
+                                                        <option value="">IZIN & SKD</option>
                                                         <option value="IZIN">IZIN</option>
                                                         <option value="SKD">SKD</option>
                                                     </select>
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="departemen">Departemen</label>
-                                                    <select class="form-control" name="departemen" id="departemen">
+                                                    <select class="form-control" name="departemen" id="departemen"
+                                                        style="width:100%;">
                                                         <option value="">SEMUA DEPARTEMEN</option>
                                                         @foreach ($departments as $item)
                                                             <option value="{{ $item->id_departemen }}">{{ $item->nama }}
@@ -56,8 +58,8 @@
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="periode">Periode</label>
-                                                    <input type="month" class="form-control" name="periode"
-                                                        id="periode">
+                                                    <input type="month" class="form-control" name="periode" id="periode"
+                                                        style="width:100%;">
                                                 </div>
                                             </div>
                                         </div>

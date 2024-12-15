@@ -44,8 +44,14 @@ $(function () {
     $('#export_data').select2();
     $('#departemen').select2();
 
-    $('#btnExport').on('click', function() {
-        $('#form-export-rekap-izin-dan-skd').submit();
+    $('#btnExport').on('click', function(e) {
+        e.preventDefault();
+        if($('#periode').val() == '') {
+            showToast({ icon: "error", title: 'Periode Tidak Boleh Kosong!' });
+            return;
+        } else {
+            $('#form-export-rekap-izin-dan-skd').submit();
+        }
     });
 
 });
