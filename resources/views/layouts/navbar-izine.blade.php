@@ -81,6 +81,14 @@
                             </a>
                         </li>
                     @endif
+                    @if (auth()->user()->hasRole('personalia'))
+                        <li class="{{ $page == 'izine-export' ? 'active' : '' }}">
+                            <a href="{{ route('izine.export') }}">
+                                <i class="icon-Export"><span class="path1"></span><span class="path2"></span></i>
+                                <span>Export Izin & SKD</span>
+                            </a>
+                        </li>
+                    @endif
                 </ul>
             </div>
         </div>

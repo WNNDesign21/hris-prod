@@ -363,6 +363,10 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::patch('/approval-skd/approved/{idIzin}', [SakiteController::class, 'approved'])->name('izine.approval-skd.approved');
             Route::patch('/approval-skd/legalized/{idIzin}', [SakiteController::class, 'legalized'])->name('izine.approval-skd.legalized');
             Route::patch('/approval-skd/rejected/{idIzin}', [SakiteController::class, 'rejected'])->name('izine.approval-skd.rejected');
+
+            //EXPORT
+            Route::get('/export',[IzineController::class, 'export_view'])->name('izine.export');
+            Route::post('/export/export-izin-dan-skd',[IzineController::class, 'export_izin_dan_skd'])->name('izine.export.export-izin-dan-skd');
         });
       });
 });

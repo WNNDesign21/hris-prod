@@ -42,6 +42,7 @@ export default defineConfig({
                 'resources/js/pages/izine-approval-izin.js',
                 'resources/js/pages/izine-approval-skd.js',
                 'resources/js/pages/izine-log-book-izin.js',
+                'resources/js/pages/izine-export.js',
             ],
             // refresh: true,
             refresh: ["resources/views/**", "resources/css/**", "app/Http/**"],
