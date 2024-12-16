@@ -76,7 +76,7 @@ class NotificationMiddleware
                       ->orWhereNull('status_cuti');
             })
             ->where('cutis.karyawan_id', $me->id_karyawan)
-            ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
+            // ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
             ->get();
 
             // Notif Approval
@@ -94,7 +94,7 @@ class NotificationMiddleware
                         ->orWhereNull('checked2_by');
                 })
             ->whereIn('posisis.id_posisi', $members)
-            ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
+            // ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
             ->get();
 
 
@@ -109,7 +109,7 @@ class NotificationMiddleware
                 $query->whereIn('status', ['WAITING', 'PLANNED']);
             })->orderBy('rencana_mulai_lembur', 'ASC')->get();
 
-        } else {
+        } elseif (auth()->user()->hasRole('member')) {
             $me = auth()->user()->karyawan;
             $my_cutie = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari',[$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
             ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
@@ -119,7 +119,7 @@ class NotificationMiddleware
                       ->orWhereNull('status_cuti');
             })
             ->where('cutis.karyawan_id', $me->id_karyawan)
-            ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
+            // ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
             ->get();
 
             $cutie_approval = null;
@@ -141,17 +141,31 @@ class NotificationMiddleware
             })->orderBy('rencana_mulai_lembur', 'ASC')->get();
         }
 
-        $notification = [
-            'count_notif' => $tenggang_karyawans?->count() + $cutie_approval?->count() + count($rejected_cuti) + $my_cutie?->count(),
-            'list' => $tenggang_karyawans->toArray(),
-            'my_cutie' => $my_cutie ? $my_cutie->toArray() : [],
-            'cutie_approval' => $cutie_approval ? $cutie_approval->toArray() : [],
-            'count_my_cutie' => $my_cutie ? $my_cutie->count() : 0,
-            'count_cutie_approval' => $cutie_approval ? $cutie_approval->count() : 0,
-            'count_rejected_cuti' => count($rejected_cuti),
-            'rejected_cuti' => $rejected_cuti,
-            'agenda_lembur' => $agenda_lembur ? $agenda_lembur->count() : 0,
-        ];
+        if (!auth()->user()->hasRole('security')) {
+            $notification = [
+                'count_notif' => $tenggang_karyawans?->count() + $cutie_approval?->count() + count($rejected_cuti) + $my_cutie?->count(),
+                'list' => $tenggang_karyawans->toArray(),
+                'my_cutie' => $my_cutie ? $my_cutie->toArray() : [],
+                'cutie_approval' => $cutie_approval ? $cutie_approval->toArray() : [],
+                'count_my_cutie' => $my_cutie ? $my_cutie->count() : 0,
+                'count_cutie_approval' => $cutie_approval ? $cutie_approval->count() : 0,
+                'count_rejected_cuti' => count($rejected_cuti),
+                'rejected_cuti' => $rejected_cuti,
+                'agenda_lembur' => $agenda_lembur ? $agenda_lembur->count() : 0,
+            ];
+        } else {
+            $notification = [
+                'count_notif' => 0,
+                'list' => [],
+                'my_cutie' => [],
+                'cutie_approval' => [],
+                'count_my_cutie' => 0,
+                'count_cutie_approval' => 0,
+                'count_rejected_cuti' => 0,
+                'rejected_cuti' => [],
+                'agenda_lembur' => 0,
+            ];
+        }
         view()->share('notification', $notification);
         return $next($request);
     }

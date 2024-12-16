@@ -489,7 +489,7 @@ class CutieController extends Controller
                         }
     
                         if($data->approved_by == null){
-                            if($my_jabatan == 3 || $my_jabatan == 2){
+                            if($my_jabatan == 3 || $my_jabatan == 2 || $my_jabatan == 4){
                                 if($data->checked2_by !== null){
                                     $approved = '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'" data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>';
                                     $reject3 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
@@ -1813,7 +1813,9 @@ class CutieController extends Controller
 
     public function get_data_cutie_calendar(){
         $organisasi_id = auth()->user()->organisasi_id;
-        $cutie = Cutie::where('status_dokumen','APPROVED');
+        $cutie = Cutie::where('status_dokumen', '!=' ,'REJECTED')->where(function($query){
+            $query->whereIn('status_cuti', ['SCHEDULED', 'ON LEAVE', 'COMPLETED'])->orWhereNull('status_cuti');
+        });
 
         if(auth()->user()->hasRole('atasan')){
             $posisi = auth()->user()->karyawan->posisi;
@@ -1828,22 +1830,22 @@ class CutieController extends Controller
         }
 
         if (isset($members)) {
-            $cutie = $cutie->whereHas('karyawan.posisi', function($query) use ($members) {
+            $cutie->whereHas('karyawan.posisi', function($query) use ($members) {
                 $query->whereIn('id_posisi', $members);
-            });
-            $cutie = $cutie->orWhere('karyawan_id', auth()->user()->karyawan->id_karyawan)->where('status_dokumen','APPROVED');
+            })->orWhere('karyawan_id', auth()->user()->karyawan->id_karyawan);
+            // $cutie = $cutie->orWhere('karyawan_id', auth()->user()->karyawan->id_karyawan)->where('status_dokumen', '!=' ,'REJECTED');
         } else {
-            $cutie = $cutie->organisasi($organisasi_id);
+            $cutie->organisasi($organisasi_id);
         }
 
         $event = Event::organisasi($organisasi_id)->where('jenis_event', 'CB')->get();
-        $cutie = $cutie->active()->get();
+        $cutie = $cutie->get();
         $data = [];
 
         if($event){
             foreach ($event as $e) {
                 if($e->jenis_event == 'CB'){
-                    $className = 'bg-primary';
+                    $className = 'bg-danger';
                 } else {
                     $className = 'bg-info';
                 }
@@ -1876,7 +1878,7 @@ class CutieController extends Controller
                 } elseif ($c->status_cuti == 'COMPLETED'){
                     $classname = 'bg-success';
                 } else {
-                    $classname = 'bg-danger';
+                    $classname = 'bg-primary';
                 }
 
                 $data[] = [
@@ -1891,7 +1893,7 @@ class CutieController extends Controller
                     'rencana_selesai_cuti' => Carbon::parse($c->rencana_selesai_cuti)->format('d M Y'),
                     'alasan_cuti' => $c->alasan_cuti,
                     'durasi_cuti' => $c->durasi_cuti.' Hari',
-                    'status_cuti' => $c->status_cuti,
+                    'status_cuti' => !$c->status_cuti ? 'NEED APPROVE' : $c->status_cuti,
                     'attachment' => $c->attachment ? '<a href="'.asset('storage/'.$c->attachment).'" target="_blank">Lihat</a>' : 'No Attachment Needed',
                     'aktual_mulai_cuti' => $c->aktual_mulai_cuti ? Carbon::parse($c->aktual_mulai_cuti)->format('d M Y') : '',
                     'aktual_selesai_cuti' => $c->aktual_selesai_cuti ? Carbon::parse($c->aktual_selesai_cuti)->format('d M Y') : '',

@@ -194,6 +194,34 @@
         @vite(['resources/js/pages/lembure-dashboard.js'])
     @endif
 
+    @if ($page == 'lembure-detail-lembur')
+        @vite(['resources/js/pages/lembure-detail-lembur.js'])
+    @endif
+
+    @if ($page == 'izine-pengajuan-izin')
+        @vite(['resources/js/pages/izine-pengajuan-izin.js'])
+    @endif
+
+    @if ($page == 'izine-lapor-skd')
+        @vite(['resources/js/pages/izine-lapor-skd.js'])
+    @endif
+
+    @if ($page == 'izine-approval-izin')
+        @vite(['resources/js/pages/izine-approval-izin.js'])
+    @endif
+
+    @if ($page == 'izine-approval-skd')
+        @vite(['resources/js/pages/izine-approval-skd.js'])
+    @endif
+
+    @if ($page == 'izine-log-book-izin')
+        @vite(['resources/js/pages/izine-log-book-izin.js'])
+    @endif
+
+    @if ($page == 'izine-export')
+        @vite(['resources/js/pages/izine-export.js'])
+    @endif
+
 </body>
 
 </html>

@@ -80,7 +80,7 @@ class DetailLembur extends Model
         ->whereDate('detail_lemburs.aktual_mulai_lembur', $date)
         ->orderBy('detail_lemburs.aktual_mulai_lembur');
 
-        return $data->first();
+        return $data->get();
     }
 
     public static function getReportMonthlyPerDepartemen($month, $year)
@@ -114,5 +114,174 @@ class DetailLembur extends Model
         ->orderBy('detail_lemburs.departemen_id');
         
         return $data->get();
+    }
+
+    public static function getLeaderboardUserMonthly($dataFilter)
+    {
+        $data = self::selectRaw('
+            karyawans.nama,
+            departemens.nama as departemen,
+            divisis.nama as divisi,
+            TRUNC(SUM(TRUNC(detail_lemburs.durasi, 2) / 60),2) as total_jam_lembur,
+            SUM(detail_lemburs.nominal) as total_nominal_lembur,
+            DENSE_RANK() OVER (ORDER BY SUM(detail_lemburs.nominal) DESC, karyawans.nama ASC) as peringkat
+        ')
+        ->leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
+        ->leftJoin('karyawans', 'karyawans.id_karyawan', 'detail_lemburs.karyawan_id')
+        ->leftJoin('departemens', 'departemens.id_departemen', 'detail_lemburs.departemen_id')
+        ->leftJoin('divisis', 'divisis.id_divisi', 'detail_lemburs.divisi_id')
+        ->leftJoin('karyawan_posisi', 'karyawan_posisi.karyawan_id', 'karyawans.id_karyawan')
+        ->leftJoin('posisis', 'posisis.id_posisi', 'karyawan_posisi.posisi_id')
+
+        ->where('lemburs.status', 'COMPLETED')
+        ->whereNotNull('lemburs.actual_legalized_by');
+
+        if(auth()->user()->hasRole('personalia') || (auth()->user()->karyawan->posisi[0]->jabatan_id <= 2 && auth()->user()->karyawan->posisi[0]->organisasi_id !== null)){
+            $data->where('detail_lemburs.organisasi_id', auth()->user()->organisasi_id);
+        } elseif (auth()->user()->karyawan && auth()->user()->karyawan->posisi[0]->jabatan_id <= 2 && auth()->user()->karyawan->posisi[0]->divisi_id !== null && auth()->user()->karyawan->posisi[0]->organisasi_id == null){
+            $posisis = auth()->user()->karyawan->posisi;
+            $divisi_ids = [];
+            foreach ($posisis as $posisi){
+                if($posisi->divisi_id !== null){
+                    $divisi_ids[] = $posisi->divisi_id;
+                }
+            }
+            $data->whereIn('detail_lemburs.divisi_id', $divisi_ids);
+        }
+
+        if(isset($dataFilter['departemen'])){
+            $data->where('detail_lemburs.departemen_id', $dataFilter['departemen']);
+        }
+
+        if (isset($dataFilter['member_posisi_ids'])) {
+            $data->whereIn('posisis.id_posisi', $dataFilter['member_posisi_ids']);
+        }
+
+        $data->whereMonth('detail_lemburs.aktual_mulai_lembur', (int) $dataFilter['month']);
+        $data->whereYear('detail_lemburs.aktual_mulai_lembur', (int) $dataFilter['year']);
+        $data->limit(((int) $dataFilter['limit']) ?? 50);
+        $data->offset(0);
+
+        $data->groupBy('karyawans.nama', 'departemens.nama', 'divisis.nama', 'detail_lemburs.departemen_id');
+
+        return $data->get();
+    }
+
+    private static function _query($dataFilter)
+    {
+        $data = self::selectRaw('
+            detail_lemburs.lembur_id,
+            karyawans.nama,
+            posisis.nama as posisi,
+            departemens.nama as departemen,
+            divisis.nama as divisi,
+            detail_lemburs.aktual_mulai_lembur,
+            detail_lemburs.aktual_selesai_lembur,
+            detail_lemburs.durasi,
+            detail_lemburs.nominal
+        ')
+        ->leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
+        ->leftJoin('karyawans', 'karyawans.id_karyawan', 'detail_lemburs.karyawan_id')
+        ->leftJoin('departemens', 'departemens.id_departemen', 'detail_lemburs.departemen_id')
+        ->leftJoin('divisis', 'divisis.id_divisi', 'detail_lemburs.divisi_id')
+        ->leftJoin('karyawan_posisi', 'karyawan_posisi.karyawan_id', 'karyawans.id_karyawan')
+        ->leftJoin('posisis', 'posisis.id_posisi', 'karyawan_posisi.posisi_id')
+
+        ->where('lemburs.status', 'COMPLETED')
+        ->whereNotNull('lemburs.actual_legalized_by');
+
+        if(auth()->user()->hasRole('personalia') || (auth()->user()->karyawan->posisi[0]->jabatan_id <= 2 && auth()->user()->karyawan->posisi[0]->organisasi_id !== null)){
+            $data->where('detail_lemburs.organisasi_id', auth()->user()->organisasi_id);
+        } elseif (auth()->user()->karyawan && auth()->user()->karyawan->posisi[0]->jabatan_id <= 2 && auth()->user()->karyawan->posisi[0]->divisi_id !== null && auth()->user()->karyawan->posisi[0]->organisasi_id == null){
+            $posisis = auth()->user()->karyawan->posisi;
+            $divisi_ids = [];
+            foreach ($posisis as $posisi){
+                if($posisi->divisi_id !== null){
+                    $divisi_ids[] = $posisi->divisi_id;
+                }
+            }
+            $data->whereIn('detail_lemburs.divisi_id', $divisi_ids);
+        }
+
+        if (isset($dataFilter['member_posisi_ids'])) {
+            $data->whereIn('posisis.id_posisi', $dataFilter['member_posisi_ids']);
+        }
+
+        if(isset($dataFilter['departemen'])){
+            $data->where('detail_lemburs.departemen_id', $dataFilter['departemen']);
+        }
+
+        if (isset($dataFilter['month'])) {
+            $data->whereMonth('detail_lemburs.aktual_mulai_lembur', (int) $dataFilter['month']);
+        }
+
+        if (isset($dataFilter['year'])) {
+            $data->whereYear('detail_lemburs.aktual_mulai_lembur', (int) $dataFilter['year']);
+        }
+
+        if (isset($dataFilter['search'])) {
+            $search = $dataFilter['search'];
+            $data->where(function ($query) use ($search) {
+                $query->where('departemens.nama', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%");
+            });
+        }
+
+        $result = $data;
+        return $result;
+    }
+
+    public static function getData($dataFilter, $settings)
+    {
+        return self::_query($dataFilter)->offset($settings['start'])
+            ->limit($settings['limit'])
+            ->orderBy($settings['order'], $settings['dir'])
+            ->get();
+    }
+
+    public static function countData($dataFilter)
+    {
+        return self::_query($dataFilter)->get()->count();
+    }
+
+    public static function generateLemburHarian()
+    {
+        //RAW QUERY NYA 
+        // SELECT
+        //     detail_lemburs.organisasi_id,
+        //     detail_lemburs.departemen_id,
+        //     detail_lemburs.divisi_id,
+        //     DATE(detail_lemburs.aktual_mulai_lembur) AS tanggal_lembur,
+        //     SUM(detail_lemburs.nominal) as total_nominal_lembur,
+        //     SUM(detail_lemburs.durasi) as total_durasi_lembur
+        // FROM detail_lemburs
+        // LEFT JOIN lemburs ON lemburs.id_lembur = detail_lemburs.lembur_id
+        // WHERE detail_lemburs.is_aktual_approved = 'Y'
+        // AND lemburs.status = 'COMPLETED' AND lemburs.actual_legalized_by IS NOT NULL
+        // GROUP BY
+        //     detail_lemburs.organisasi_id,
+        //     detail_lemburs.departemen_id,
+        //     detail_lemburs.divisi_id,
+        //     DATE(detail_lemburs.aktual_mulai_lembur)	
+        // ORDER BY tanggal_lembur ASC;
+        
+        $data = self::selectRaw('
+            detail_lemburs.organisasi_id,
+            detail_lemburs.departemen_id,
+            detail_lemburs.divisi_id,
+            DATE(detail_lemburs.aktual_mulai_lembur) AS tanggal_lembur,
+            SUM(detail_lemburs.nominal) as total_nominal_lembur,
+            SUM(detail_lemburs.durasi) as total_durasi_lembur
+        ')
+        ->leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
+
+        ->where('detail_lemburs.is_aktual_approved', 'Y')
+        ->where('lemburs.status', 'COMPLETED')
+        ->whereNotNull('lemburs.actual_legalized_by')
+        ->groupByRaw('detail_lemburs.organisasi_id, detail_lemburs.departemen_id, detail_lemburs.divisi_id, DATE(detail_lemburs.aktual_mulai_lembur)')
+        ->orderBy('tanggal_lembur', 'ASC')
+        ->get();
+
+        return $data;
     }
 }

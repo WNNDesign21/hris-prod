@@ -276,10 +276,10 @@ $(function () {
                             <td>
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N'  ? `<input id="rencana_selesai_lembur_${i}" name="selesai_lembur[]" type="datetime-local" class="form-control selesaiLembur ${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N'  ? 'bg-danger' : ''}"  data-urutan="${i}" data-selesai="${val.rencana_selesai_lembur}" required>` : `-`}
                             </td>
-                            <td> 
+                            <td id="durasi-${i}"> 
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N' ? val.durasi_rencana : '-'}
                             </td>
-                            <td>
+                            <td id="nominal-${i}">
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N' ? val.nominal : '-'}
                             </td>
                             <td>
@@ -292,32 +292,6 @@ $(function () {
                         </tr>
                     `)
 
-                    //DATE
-                    // if(val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N'){
-                    //     const rencanaMulaiElement = document.getElementById('rencana_mulai_lembur_'+i);
-                    //     const rencanaSelesaiElement = document.getElementById('rencana_selesai_lembur_'+i);
-                    //     console.log(rencanaMulaiElement, rencanaSelesaiElement)
-                    //     let mulai = moment(val.rencana_mulai_lembur).format('YYYY-MM-DD 00:00');
-                        
-                    //     initializeTempus(rencanaMulaiElement, mulai);
-                    //     initializeTempus(rencanaSelesaiElement, mulai);
-
-                    //     rencanaMulaiElement.addEventListener('change', function() {
-                    //         const selectedValue = this.value;
-                    //         rencanaSelesaiElement.value = selectedValue;
-                    //         if(rencanaSelesaiElement.value < selectedValue){
-                    //             rencanaSelesaiElement.value = selectedValue;
-                    //         }
-                    //         initializeTempus(rencanaSelesaiElement, this.value);
-                    //     });
-
-                    //     rencanaSelesaiElement.addEventListener('change', function() {
-                    //         if(this.value < rencanaMulaiElement.value){
-                    //             this.value = this.dataset.selesai;
-                    //         }
-                    //     });
-                    // }
-
                     let minDate = moment(val.rencana_mulai_lembur).format('YYYY-MM-DDT00:00');
          
                     $('#rencana_mulai_lembur_' + i).attr('min', minDate);
@@ -328,13 +302,47 @@ $(function () {
                         $('#rencana_selesai_lembur_' + i).attr('min', startTime);
                         if($(this).val() > $('#rencana_selesai_lembur_' + i).val()){
                             $('#rencana_selesai_lembur_' + i).val($(this).val());
+                            $('#durasi-' + i).text('-');
+                            $('#nominal-' + i).text('-');
+                        } else {
+                            $.ajax({
+                                url: base_url + '/lembure/approval-lembur/get-calculation-durasi-and-nominal-lembur/' + $('#id_detail_lembur_' + i).val(),
+                                method: 'POST',
+                                data: { mulai_lembur: $(this).val(), selesai_lembur: $('#rencana_selesai_lembur_' + i).val() },
+                                dataType: 'JSON',
+                                success: function(response) {
+                                    let durasi = response.data.durasi;
+                                    let nominal = response.data.nominal;
+                                    $('#durasi-' + i).text(durasi);
+                                    $('#nominal-' + i).text(nominal);
+                                },
+                                error: function(jqXHR, textStatus, errorThrown) {
+                                    showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                                }
+                            });
                         }
                     });
 
                     $('#rencana_selesai_lembur_' + i).on('change', function(){
                         if($(this).val() < $('#rencana_mulai_lembur_' + i).val()){
                             $(this).val($(this).data('selesai'));
-                        }
+                        } 
+
+                        $.ajax({
+                            url: base_url + '/lembure/approval-lembur/get-calculation-durasi-and-nominal-lembur/' + $('#id_detail_lembur_' + i).val(),
+                            method: 'POST',
+                            data: { mulai_lembur: $('#rencana_mulai_lembur_' + i).val(), selesai_lembur: $(this).val() },
+                            dataType: 'JSON',
+                            success: function(response) {
+                                let durasi = response.data.durasi;
+                                let nominal = response.data.nominal;
+                                $('#durasi-' + i).text(durasi);
+                                $('#nominal-' + i).text(nominal);
+                            },
+                            error: function(jqXHR, textStatus, errorThrown) {
+                                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                            }
+                        });
                     })
 
                     $('#is_rencana_approved_' + i).on('change', function(){
@@ -475,10 +483,10 @@ $(function () {
                             <td>
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N'  ? `<input id="rencana_selesai_lembur_${i}" name="selesai_lembur[]" type="datetime-local" class="form-control selesaiLembur ${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N'  ? 'bg-danger' : ''}"  data-urutan="${i}" data-selesai="${val.rencana_selesai_lembur}" required>` : `-`}
                             </td>
-                            <td> 
+                            <td id="durasi-${i}"> 
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N' ? val.durasi_rencana : '-'}
                             </td>
-                            <td>
+                            <td id="nominal-${i}">
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N' ? val.nominal : '-'}
                             </td>
                             <td>
@@ -491,31 +499,11 @@ $(function () {
                         </tr>
                     `)
 
-                    //DATE
-                    // if(val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N'){
-                    //     const rencanaMulaiElement = document.getElementById('rencana_mulai_lembur_'+i);
-                    //     const rencanaSelesaiElement = document.getElementById('rencana_selesai_lembur_'+i);
-                    //     console.log(rencanaMulaiElement, rencanaSelesaiElement)
-                    //     let mulai = moment(val.rencana_mulai_lembur).format('YYYY-MM-DD 00:00');
-                        
-                    //     initializeTempus(rencanaMulaiElement, mulai);
-                    //     initializeTempus(rencanaSelesaiElement, mulai);
-
-                    //     rencanaMulaiElement.addEventListener('change', function() {
-                    //         const selectedValue = this.value;
-                    //         rencanaSelesaiElement.value = selectedValue;
-                    //         if(rencanaSelesaiElement.value < selectedValue){
-                    //             rencanaSelesaiElement.value = selectedValue;
-                    //         }
-                    //         initializeTempus(rencanaSelesaiElement, this.value);
-                    //     });
-
-                    //     rencanaSelesaiElement.addEventListener('change', function() {
-                    //         if(this.value < rencanaMulaiElement.value){
-                    //             this.value = this.dataset.selesai;
-                    //         }
-                    //     });
-                    // }
+                    if(val.is_rencana_approved == 'Y'){
+                        $('#rencana_mulai_lembur_' + i).val(val.rencana_mulai_lembur);
+                        $('#rencana_selesai_lembur_' + i).val(val.rencana_selesai_lembur);
+                        $('#id_detail_lembur_' + i).val(val.id_detail_lembur);
+                    } 
 
                     let minDate = moment(val.rencana_mulai_lembur).format('YYYY-MM-DDT00:00');
          
@@ -527,13 +515,47 @@ $(function () {
                         $('#rencana_selesai_lembur_' + i).attr('min', startTime);
                         if($(this).val() > $('#rencana_selesai_lembur_' + i).val()){
                             $('#rencana_selesai_lembur_' + i).val($(this).val());
+                            $('#durasi-' + i).text('-');
+                            $('#nominal-' + i).text('-');
+                        } else {
+                            $.ajax({
+                                url: base_url + '/lembure/approval-lembur/get-calculation-durasi-and-nominal-lembur/' + $('#id_detail_lembur_' + i).val(),
+                                method: 'POST',
+                                data: { mulai_lembur: $(this).val(), selesai_lembur: $('#rencana_selesai_lembur_' + i).val() },
+                                dataType: 'JSON',
+                                success: function(response) {
+                                    let durasi = response.data.durasi;
+                                    let nominal = response.data.nominal;
+                                    $('#durasi-' + i).text(durasi);
+                                    $('#nominal-' + i).text(nominal);
+                                },
+                                error: function(jqXHR, textStatus, errorThrown) {
+                                    showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                                }
+                            });
                         }
                     });
 
                     $('#rencana_selesai_lembur_' + i).on('change', function(){
                         if($(this).val() < $('#rencana_mulai_lembur_' + i).val()){
                             $(this).val($(this).data('selesai'));
-                        }
+                        } 
+
+                        $.ajax({
+                            url: base_url + '/lembure/approval-lembur/get-calculation-durasi-and-nominal-lembur/' + $('#id_detail_lembur_' + i).val(),
+                            method: 'POST',
+                            data: { mulai_lembur: $('#rencana_mulai_lembur_' + i).val(), selesai_lembur: $(this).val() },
+                            dataType: 'JSON',
+                            success: function(response) {
+                                let durasi = response.data.durasi;
+                                let nominal = response.data.nominal;
+                                $('#durasi-' + i).text(durasi);
+                                $('#nominal-' + i).text(nominal);
+                            },
+                            error: function(jqXHR, textStatus, errorThrown) {
+                                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                            }
+                        });
                     })
 
                     $('#is_rencana_approved_' + i).on('change', function(){
@@ -555,11 +577,6 @@ $(function () {
                     let jobDescriptions = val.deskripsi_pekerjaan.split(',').map(desc => `<li>${desc.trim()}</li>`).join('');
                     $('#job_description_' + i).html(`<ul>${jobDescriptions}</ul>`);
                     
-                    if(val.is_rencana_approved == 'Y'){
-                        $('#rencana_mulai_lembur_' + i).val(val.rencana_mulai_lembur);
-                        $('#rencana_selesai_lembur_' + i).val(val.rencana_selesai_lembur);
-                        $('#id_detail_lembur_' + i).val(val.id_detail_lembur);
-                    } 
                     $('#karyawan_id_' + i).text(val.nama);
 
                     $('.btnUpdateStatusDetailLembur').removeClass('btn-warning').addClass('btn-success').text('Approved');
@@ -756,24 +773,6 @@ $(function () {
         
     })
 
-    // AKTUAL
-    $('#table-approval-lembur').on("change", '.mulaiLembur', function () {
-        let urutan = $(this).data('urutan');
-        let startTime = $(this).val();
-        $('#rencana_selesai_lembur_' + urutan).val('').attr('min', startTime);
-    });
-
-    $('#table-approval-lembur').on("change", '.selesaiLembur' , function () {
-        let urutan = $(this).data('urutan');
-        let startTime = $('#rencana_mulai_lembur_' + urutan).val();
-        let endTime = $(this).val();
-        let oldEndTime = $(this).data('selesai');
-        if (endTime < startTime) {
-            $(this).val(oldEndTime);
-            showToast({ title: "Waktu selesai lembur tidak boleh kurang dari waktu mulai lembur", icon: "error" });
-        }
-    });
-
     $('.btnCloseAktual').on("click", function (){
         closeAktual();
     })
@@ -877,7 +876,7 @@ $(function () {
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N'  ? `<input id="aktual_selesai_lembur_aktual_${i}" name="selesai_lembur[]" type="datetime-local" class="form-control selesaiLembur ${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N'  ? 'bg-danger' : ''}""
                                         data-td-target="#datetimepicker_selesai_aktual_${i}" data-urutan="${i}" data-selesai="${val.aktual_selesai_lembur}" required>` : `-`}
                             </td>
-                            <td> 
+                            <td id="durasi-aktual-${i}"> 
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N' ? val.durasi_aktual : '-'}
                             </td>
                             <td>
@@ -886,37 +885,20 @@ $(function () {
                                     style="width: 100%;">
                                 </input>` : '-'}
                             </td>
-                            <td>
+                            <td id="nominal-aktual-${i}">
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N' ? val.nominal : '-'}
                             </td>
                         </tr>
                     `)
 
-                    //DATE
-                    // if(val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N'){
-                    //     const aktualMulaiElement = document.getElementById('aktual_mulai_lembur_aktual_'+i);
-                    //     const aktualSelesaiElement = document.getElementById('aktual_selesai_lembur_aktual_'+i);
-                    //     console.log(aktualMulaiElement, aktualSelesaiElement)
-                    //     let mulai = moment(val.aktual_mulai_lembur).format('YYYY-MM-DD 00:00');
-                        
-                    //     initializeTempus(aktualMulaiElement, mulai);
-                    //     initializeTempus(aktualSelesaiElement, mulai);
-
-                    //     aktualMulaiElement.addEventListener('change', function() {
-                    //         const selectedValue = this.value;
-                    //         aktualSelesaiElement.value = selectedValue;
-                    //         if(aktualSelesaiElement.value < selectedValue){
-                    //             aktualSelesaiElement.value = selectedValue;
-                    //         }
-                    //         initializeTempus(aktualSelesaiElement, this.value);
-                    //     });
-
-                    //     aktualSelesaiElement.addEventListener('change', function() {
-                    //         if(this.value < aktualMulaiElement.value){
-                    //             this.value = this.dataset.selesai;
-                    //         }
-                    //     });
-                    // }
+                    if(val.is_rencana_approved == 'Y'){
+                        $('#rencana_mulai_lembur_aktual_' + i).text(val.rencana_mulai_lembur);
+                        $('#rencana_selesai_lembur_aktual_' + i).text(val.rencana_selesai_lembur);
+                        $('#keterangan_aktual_' + i).val(val.keterangan);
+                        $('#id_detail_lembur_aktual_' + i).val(val.id_detail_lembur);
+                        $('#aktual_mulai_lembur_aktual_' + i).val(val.aktual_mulai_lembur);
+                        $('#aktual_selesai_lembur_aktual_' + i).val(val.aktual_selesai_lembur);
+                    } 
 
                     let minDate = moment(val.rencana_mulai_lembur).format('YYYY-MM-DDT00:00');
          
@@ -928,6 +910,24 @@ $(function () {
                         $('#aktual_selesai_lembur_aktual_' + i).attr('min', startTime);
                         if($(this).val() > $('#aktual_selesai_lembur_aktual_' + i).val()){
                             $('#aktual_selesai_lembur_aktual_' + i).val($(this).val());
+                            $('#durasi-aktual-' + i).text('-');
+                            $('#nominal-aktual-' + i).text('-');
+                        } else {
+                            $.ajax({
+                                url: base_url + '/lembure/approval-lembur/get-calculation-durasi-and-nominal-lembur/' + $('#id_detail_lembur_aktual_' + i).val(),
+                                method: 'POST',
+                                data: { mulai_lembur: $(this).val(), selesai_lembur: $('#aktual_selesai_lembur_aktual_' + i).val() },
+                                dataType: 'JSON',
+                                success: function(response) {
+                                    let durasi = response.data.durasi;
+                                    let nominal = response.data.nominal;
+                                    $('#durasi-aktual-' + i).text(durasi);
+                                    $('#nominal-aktual-' + i).text(nominal);
+                                },
+                                error: function(jqXHR, textStatus, errorThrown) {
+                                    showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                                }
+                            });
                         }
                     });
 
@@ -935,20 +935,28 @@ $(function () {
                         if($(this).val() < $('#aktual_mulai_lembur_aktual_' + i).val()){
                             $(this).val($(this).data('selesai'));
                         }
+
+                        $.ajax({
+                            url: base_url + '/lembure/approval-lembur/get-calculation-durasi-and-nominal-lembur/' + $('#id_detail_lembur_aktual_' + i).val(),
+                            method: 'POST',
+                            data: { mulai_lembur: $('#aktual_mulai_lembur_aktual_' + i).val(), selesai_lembur: $(this).val() },
+                            dataType: 'JSON',
+                            success: function(response) {
+                                let durasi = response.data.durasi;
+                                let nominal = response.data.nominal;
+                                $('#durasi-aktual-' + i).text(durasi);
+                                $('#nominal-aktual-' + i).text(nominal);
+                            },
+                            error: function(jqXHR, textStatus, errorThrown) {
+                                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                            }
+                        });
                     })
 
 
                     let jobDescriptions = val.deskripsi_pekerjaan.split(',').map(desc => `<li>${desc.trim()}</li>`).join('');
                     $('#job_description_aktual_' + i).html(`<ul>${jobDescriptions}</ul>`);
                     
-                    if(val.is_rencana_approved == 'Y'){
-                        $('#rencana_mulai_lembur_aktual_' + i).text(val.rencana_mulai_lembur);
-                        $('#rencana_selesai_lembur_aktual_' + i).text(val.rencana_selesai_lembur);
-                        $('#keterangan_aktual_' + i).val(val.keterangan);
-                        $('#id_detail_lembur_aktual_' + i).val(val.id_detail_lembur);
-                        $('#aktual_mulai_lembur_aktual_' + i).val(val.aktual_mulai_lembur);
-                        $('#aktual_selesai_lembur_aktual_' + i).val(val.aktual_selesai_lembur);
-                    } 
                     $('#karyawan_id_aktual_' + i).text(val.nama);
 
                     $('.btnUpdateAktualLembur').removeClass('btn-warning').addClass('btn-success').text('Approved');
@@ -1100,7 +1108,7 @@ $(function () {
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N'  ? `<input id="aktual_selesai_lembur_aktual_${i}" name="selesai_lembur[]" type="datetime-local" class="form-control selesaiLembur ${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N'  ? 'bg-danger' : ''}""
                                         data-td-target="#datetimepicker_selesai_aktual_${i}" data-urutan="${i}" data-selesai="${val.aktual_selesai_lembur}" required>` : `-`}
                             </td>
-                            <td> 
+                            <td id="durasi-aktual-${i}"> 
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N' ? val.durasi_aktual : '-'}
                             </td>
                             <td>
@@ -1109,37 +1117,20 @@ $(function () {
                                     style="width: 100%;">
                                 </input>` : '-'}
                             </td>
-                            <td>
+                            <td id="nominal-aktual-${i}">
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N' ? val.nominal : '-'}
                             </td>
                         </tr>
                     `)
 
-                    //DATE
-                    // if(val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N'){
-                    //     const aktualMulaiElement = document.getElementById('aktual_mulai_lembur_aktual_'+i);
-                    //     const aktualSelesaiElement = document.getElementById('aktual_selesai_lembur_aktual_'+i);
-                    //     console.log(aktualMulaiElement, aktualSelesaiElement)
-                    //     let mulai = moment(val.aktual_mulai_lembur).format('YYYY-MM-DD 00:00');
-                        
-                    //     initializeTempus(aktualMulaiElement, mulai);
-                    //     initializeTempus(aktualSelesaiElement, mulai);
-
-                    //     aktualMulaiElement.addEventListener('change', function() {
-                    //         const selectedValue = this.value;
-                    //         aktualSelesaiElement.value = selectedValue;
-                    //         if(aktualSelesaiElement.value < selectedValue){
-                    //             aktualSelesaiElement.value = selectedValue;
-                    //         }
-                    //         initializeTempus(aktualSelesaiElement, this.value);
-                    //     });
-
-                    //     aktualSelesaiElement.addEventListener('change', function() {
-                    //         if(this.value < aktualMulaiElement.value){
-                    //             this.value = this.dataset.selesai;
-                    //         }
-                    //     });
-                    // }
+                    if(val.is_rencana_approved == 'Y'){
+                        $('#rencana_mulai_lembur_aktual_' + i).text(val.rencana_mulai_lembur);
+                        $('#rencana_selesai_lembur_aktual_' + i).text(val.rencana_selesai_lembur);
+                        $('#keterangan_aktual_' + i).val(val.keterangan);
+                        $('#id_detail_lembur_aktual_' + i).val(val.id_detail_lembur);
+                        $('#aktual_mulai_lembur_aktual_' + i).val(val.aktual_mulai_lembur);
+                        $('#aktual_selesai_lembur_aktual_' + i).val(val.aktual_selesai_lembur);
+                    } 
 
                     let minDate = moment(val.rencana_mulai_lembur).format('YYYY-MM-DDT00:00');
          
@@ -1151,6 +1142,24 @@ $(function () {
                         $('#aktual_selesai_lembur_aktual_' + i).attr('min', startTime);
                         if($(this).val() > $('#aktual_selesai_lembur_aktual_' + i).val()){
                             $('#aktual_selesai_lembur_aktual_' + i).val($(this).val());
+                            $('#durasi-aktual-' + i).text('-');
+                            $('#nominal-aktual-' + i).text('-');
+                        } else {
+                            $.ajax({
+                                url: base_url + '/lembure/approval-lembur/get-calculation-durasi-and-nominal-lembur/' + $('#id_detail_lembur_aktual_' + i).val(),
+                                method: 'POST',
+                                data: { mulai_lembur: $(this).val(), selesai_lembur: $('#aktual_selesai_lembur_aktual_' + i).val() },
+                                dataType: 'JSON',
+                                success: function(response) {
+                                    let durasi = response.data.durasi;
+                                    let nominal = response.data.nominal;
+                                    $('#durasi-aktual-' + i).text(durasi);
+                                    $('#nominal-aktual-' + i).text(nominal);
+                                },
+                                error: function(jqXHR, textStatus, errorThrown) {
+                                    showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                                }
+                            });
                         }
                     });
 
@@ -1158,20 +1167,28 @@ $(function () {
                         if($(this).val() < $('#aktual_mulai_lembur_aktual_' + i).val()){
                             $(this).val($(this).data('selesai'));
                         }
+
+                        $.ajax({
+                            url: base_url + '/lembure/approval-lembur/get-calculation-durasi-and-nominal-lembur/' + $('#id_detail_lembur_aktual_' + i).val(),
+                            method: 'POST',
+                            data: { mulai_lembur: $('#aktual_mulai_lembur_aktual_' + i).val(), selesai_lembur: $(this).val() },
+                            dataType: 'JSON',
+                            success: function(response) {
+                                let durasi = response.data.durasi;
+                                let nominal = response.data.nominal;
+                                $('#durasi-aktual-' + i).text(durasi);
+                                $('#nominal-aktual-' + i).text(nominal);
+                            },
+                            error: function(jqXHR, textStatus, errorThrown) {
+                                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                            }
+                        });
                     })
 
 
                     let jobDescriptions = val.deskripsi_pekerjaan.split(',').map(desc => `<li>${desc.trim()}</li>`).join('');
                     $('#job_description_aktual_' + i).html(`<ul>${jobDescriptions}</ul>`);
                     
-                    if(val.is_rencana_approved == 'Y'){
-                        $('#rencana_mulai_lembur_aktual_' + i).text(val.rencana_mulai_lembur);
-                        $('#rencana_selesai_lembur_aktual_' + i).text(val.rencana_selesai_lembur);
-                        $('#keterangan_aktual_' + i).val(val.keterangan);
-                        $('#id_detail_lembur_aktual_' + i).val(val.id_detail_lembur);
-                        $('#aktual_mulai_lembur_aktual_' + i).val(val.aktual_mulai_lembur);
-                        $('#aktual_selesai_lembur_aktual_' + i).val(val.aktual_selesai_lembur);
-                    } 
                     $('#karyawan_id_aktual_' + i).text(val.nama);
 
                     $('.btnUpdateAktualLembur').removeClass('btn-warning').addClass('btn-success').text('Approved');

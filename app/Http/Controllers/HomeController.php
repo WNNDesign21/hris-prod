@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Models\Cutie;
+use App\Models\Izine;
+use App\Models\Sakite;
 use App\Models\Kontrak;
 use App\Models\Lembure;
 use App\Models\Karyawan;
@@ -203,6 +205,275 @@ class HomeController extends Controller
         ];
         
         $html = view('layouts.partials.notification-planned-pengajuan-lembur')->with(compact('lembure'))->render();
+        return response()->json(['data' => $html], 200);
+    }
+
+    public function get_pengajuan_izin_notification(){
+        $user = auth()->user();
+        $pengajuan_izin = 0;
+
+        if($user->karyawan && $user->karyawan->posisi){
+            $pengajuan_izin = Izine::where('karyawan_id', $user->karyawan->id_karyawan)
+            ->where(function($query) {
+                $query->whereNull('rejected_by')->whereNotNull('legalized_by')
+                ->where(function($query) {
+                    $query->where(function($query) {
+                        $query->whereIn('jenis_izin', ['TM', 'SH']);
+                        $query->whereNull('aktual_mulai_or_masuk');
+                        $query->whereNull('aktual_selesai_or_keluar');
+                    })->orWhere(function($query){
+                        $query->where('jenis_izin', 'KP');
+                        $query->whereNull('aktual_mulai_or_masuk');
+                    })->orWhere(function($query){
+                        $query->where('jenis_izin', 'PL');
+                        $query->whereNull('aktual_selesai_or_keluar');
+                    });
+                });
+            })->count();
+        }
+
+        $izine = [
+            'pengajuan_izin' => $pengajuan_izin,
+        ];
+
+        $html = view('layouts.partials.notification-pengajuan-izin')->with(compact('izine'))->render();
+        return response()->json(['data' => $html], 200);
+    }
+
+    public function get_lapor_skd_notification(){
+        $user = auth()->user();
+        $lapor_skd = 0;
+
+        if($user->karyawan && $user->karyawan->posisi){
+            $lapor_skd = Sakite::where('karyawan_id', $user->karyawan->id_karyawan)->whereNull('rejected_by')->whereNull('attachment')->count();
+        }
+
+        $izine = [
+            'lapor_skd' => $lapor_skd,
+        ];
+
+        $html = view('layouts.partials.notification-lapor-skd')->with(compact('izine'))->render();
+        return response()->json(['data' => $html], 200);
+    }
+
+    public function get_approval_izin_notification(){
+        $user = auth()->user();
+        $has_leader = false;
+        $has_section_head = false;
+        $has_department_head = false;
+        $organisasi_id = $user->organisasi_id;
+        $approval_izin = 0;
+
+        //HRD
+        if ($user->hasRole('personalia')){
+            $approval_izin = Izine::where('organisasi_id', $organisasi_id)->whereNull('rejected_by')->whereNull('legalized_by')->whereNotNull('approved_by')->count();
+        } 
+
+        //leader
+        if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 5){
+            $posisi = $user->karyawan->posisi;
+            $id_posisi_members = $this->get_member_posisi($posisi);
+
+            $approval_izin = Izine::leftJoin('karyawan_posisi', 'izins.karyawan_id', 'karyawan_posisi.karyawan_id')
+                            ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                            ->whereIn('posisis.id_posisi', $id_posisi_members)
+                            ->whereNull('rejected_by')
+                            ->whereNull('checked_by')
+                            ->count();
+        } 
+
+        //section head
+        if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 4){
+            $posisi = $user->karyawan->posisi;
+            $my_posisi = $posisi[0]->jabatan_id;
+            $id_posisi_members = $this->get_member_posisi($posisi);
+
+            $izins = Izine::leftJoin('karyawan_posisi', 'izins.karyawan_id', 'karyawan_posisi.karyawan_id')
+                    ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                    ->whereIn('posisis.id_posisi', $id_posisi_members)
+                    ->whereNull('rejected_by')
+                    ->where(function($query){
+                        $query->whereNull('legalized_by')
+                        ->where(function($query){
+                            $query->whereNull('checked_by');
+                            $query->orWhereNull('approved_by');
+                        });
+                    })->get();
+
+            foreach ($izins as $izin){
+                $posisi = $izin->karyawan->posisi;
+                $has_leader = $this->has_leader($posisi);
+                $has_section_head = $this->has_section_head($posisi);
+                $has_department_head = $this->has_department_head($posisi);
+
+                if (!$has_leader) {
+                    $approval_izin++;
+                }
+
+                if ($has_leader && !$izin->approved_by){
+                    $approval_izin++;
+                }
+            }
+        } 
+
+        //department head
+        if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 3){
+            $posisi = $user->karyawan->posisi;
+            $my_posisi = $posisi[0]->jabatan_id;
+            $id_posisi_members = $this->get_member_posisi($posisi);
+
+            $izins = Izine::leftJoin('karyawan_posisi', 'izins.karyawan_id', 'karyawan_posisi.karyawan_id')
+                    ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                    ->whereIn('posisis.id_posisi', $id_posisi_members)
+                    ->whereNull('rejected_by')
+                    ->where(function($query){
+                        $query->whereNull('legalized_by')
+                        ->where(function($query){
+                            $query->whereNull('checked_by');
+                            $query->orWhereNull('approved_by');
+                        });
+                    })->get();
+
+            foreach ($izins as $izin){
+                $posisi = $izin->karyawan->posisi;
+                $has_leader = $this->has_leader($posisi);
+                $has_section_head = $this->has_section_head($posisi);
+                $has_department_head = $this->has_department_head($posisi);
+
+                if (!$has_leader && !$has_section_head) {
+                    $approval_izin++;
+                }
+
+                if ($has_leader && !$has_section_head && !$izin->approved_by){
+                    $approval_izin++;
+                }
+            }
+        } 
+
+        //plant head
+        if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 2){
+            $posisi = $user->karyawan->posisi;
+            $my_posisi = $posisi[0]->jabatan_id;
+            $id_posisi_members = $this->get_member_posisi($posisi);
+
+            $izins = Izine::leftJoin('karyawan_posisi', 'izins.karyawan_id', 'karyawan_posisi.karyawan_id')
+                    ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                    ->whereIn('posisis.id_posisi', $id_posisi_members)
+                    ->whereNull('rejected_by')
+                    ->where(function($query){
+                        $query->whereNull('legalized_by')
+                        ->where(function($query){
+                            $query->whereNull('checked_by');
+                            $query->orWhereNull('approved_by');
+                        });
+                    })->get();
+
+            foreach ($izins as $izin){
+                $posisi = $izin->karyawan->posisi;
+                $has_leader = $this->has_leader($posisi);
+                $has_section_head = $this->has_section_head($posisi);
+                $has_department_head = $this->has_department_head($posisi);
+
+                if (!$has_leader && !$has_section_head && !$has_department_head) {
+                    $approval_izin++;
+                }
+
+                if ($has_leader && !$has_section_head && !$has_department_head && !$izin->approved_by){
+                    $approval_izin++;
+                }
+            }
+        }
+
+        $izine = [
+            'approval_izin' => $approval_izin,
+        ];
+
+        $html = view('layouts.partials.notification-approval-izin')->with(compact('izine'))->render();
+        return response()->json(['data' => $html], 200);
+    }
+
+    public function get_approval_skd_notification(){
+        $user = auth()->user();
+        $has_leader = false;
+        $has_section_head = false;
+        $has_department_head = false;
+        $organisasi_id = $user->organisasi_id;
+        $approval_skd = 0;
+
+        //HRD
+        if ($user->hasRole('personalia')){
+            $approval_skd = Sakite::where('organisasi_id', $organisasi_id)->whereNull('rejected_by')->whereNull('legalized_by')->whereNotNull('approved_by')->whereNotNull('attachment')->count();
+        } 
+
+        //section head
+        if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 4){
+            $posisi = $user->karyawan->posisi;
+            $id_posisi_members = $this->get_member_posisi($posisi);
+
+            $approval_skd = Sakite::leftJoin('karyawan_posisi', 'sakits.karyawan_id', 'karyawan_posisi.karyawan_id')
+                    ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                    ->whereIn('posisis.id_posisi', $id_posisi_members)
+                    ->whereNull('rejected_by')
+                    ->whereNull('approved_by')
+                    // ->whereNotNull('attachment')
+                    ->count();
+        } 
+
+        //department head
+        if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 3){
+            $posisi = $user->karyawan->posisi;
+            $id_posisi_members = $this->get_member_posisi($posisi);
+
+            $skds = Sakite::leftJoin('karyawan_posisi', 'sakits.karyawan_id', 'karyawan_posisi.karyawan_id')
+                    ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                    ->whereIn('posisis.id_posisi', $id_posisi_members)
+                    ->whereNull('rejected_by')
+                    ->whereNull('approved_by')
+                    // ->whereNotNull('attachment')
+                    ->get();
+            
+            foreach ($skds as $skd){
+                $posisi = $skd->karyawan->posisi;
+                $has_leader = $this->has_leader($posisi);
+                $has_section_head = $this->has_section_head($posisi);
+                $has_department_head = $this->has_department_head($posisi);
+
+                if (!$has_section_head) {
+                    $approval_skd++;
+                }
+            }
+        } 
+
+        //plant head
+        if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 2){
+            $posisi = $user->karyawan->posisi;
+            $id_posisi_members = $this->get_member_posisi($posisi);
+
+            $skds = Sakite::leftJoin('karyawan_posisi', 'sakits.karyawan_id', 'karyawan_posisi.karyawan_id')
+                    ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                    ->whereIn('posisis.id_posisi', $id_posisi_members)
+                    ->whereNull('rejected_by')
+                    ->whereNull('approved_by')
+                    // ->whereNotNull('attachment')
+                    ->get();
+            
+            foreach ($skds as $skd){
+                $posisi = $skd->karyawan->posisi;
+                $has_leader = $this->has_leader($posisi);
+                $has_section_head = $this->has_section_head($posisi);
+                $has_department_head = $this->has_department_head($posisi);
+
+                if (!$has_section_head && !$has_department_head) {
+                    $approval_skd++;
+                }
+            }
+        }
+
+        $izine = [
+            'approval_skd' => $approval_skd,
+        ];
+
+        $html = view('layouts.partials.notification-approval-skd')->with(compact('izine'))->render();
         return response()->json(['data' => $html], 200);
     }
 
@@ -678,66 +949,93 @@ class HomeController extends Controller
         $total_spl = 0;
         for($i = 0; $i <= Carbon::parse($start)->diffInDays(Carbon::parse($end)); $i++){
             $date = Carbon::parse($start)->addDays($i)->toDateString();
-            $slipLembur = DetailLembur::getSlipLemburPerDepartemen($id_karyawan, $date);
-            $upah_lembur_per_jam = $slipLembur ? $slipLembur->gaji_lembur / $slipLembur->pembagi_upah_lembur : $upah_lembur_per_jam_setting;
-
-            if($slipLembur){
-                $total_jam += $slipLembur->durasi;
-                $total_konversi_jam += $slipLembur->durasi_konversi_lembur;
-                $total_uang_makan += $slipLembur->uang_makan;
-                $total_spl += $slipLembur->nominal;
-                $sheet->setCellValue('A'.$row, $i+1);
-                $sheet->setCellValue('B'.$row, Carbon::parse($date)->locale('id')->translatedFormat('l'));
-
-                //JIKA WEEKEND UBAH STYLE CELL
-                if(Carbon::parse($date)->isWeekend()){
-                    $sheet->getStyle('B'.$row)->applyFromArray([
-                        'fill' => [
-                            'fillType' => Fill::FILL_SOLID,
-                            'startColor' => [
+            $slipLemburs = DetailLembur::getSlipLemburPerDepartemen($id_karyawan, $date);
+            if($slipLemburs->count() > 0){
+                foreach ($slipLemburs as $index => $slipLembur){
+                    $upah_lembur_per_jam = $slipLembur ? $slipLembur->gaji_lembur / $slipLembur->pembagi_upah_lembur : $upah_lembur_per_jam_setting;
+                    $total_jam += $slipLembur->durasi;
+                    $total_konversi_jam += $slipLembur->durasi_konversi_lembur;
+                    $total_uang_makan += $slipLembur->uang_makan;
+                    $total_spl += $slipLembur->nominal;
+                    $sheet->setCellValue('A'.$row, $i+1);
+                    $sheet->setCellValue('B'.$row, Carbon::parse($date)->locale('id')->translatedFormat('l'));
+    
+                    //JIKA WEEKEND UBAH STYLE CELL
+                    if(Carbon::parse($date)->isWeekend()){
+                        $sheet->getStyle('B'.$row)->applyFromArray([
+                            'fill' => [
+                                'fillType' => Fill::FILL_SOLID,
+                                'startColor' => [
+                                    'argb' => 'FFFF0000',
+                                ],
+                            ],
+                            'font' => [
+                                'color' => [
+                                    'argb' => 'FFFFFFFF',
+                                ],
+                            ],
+                        ]);
+                    }
+    
+                    $sheet->setCellValue('C'.$row, Carbon::parse($date)->format('d-m-Y'));
+                    $sheet->setCellValue('D'.$row, Carbon::parse($slipLembur->aktual_mulai_lembur)->format('H:i'));
+                    $sheet->setCellValue('E'.$row, Carbon::parse($slipLembur->aktual_selesai_lembur)->format('H:i'));
+                    $sheet->setCellValue('F'.$row, number_format($slipLembur->durasi_istirahat / 100 , 2));
+                    $sheet->setCellValue('G'.$row, Carbon::parse($slipLembur->aktual_selesai_lembur)->subMinutes($slipLembur->durasi_istirahat)->format('H:i'));
+                    $sheet->setCellValue('H'.$row, number_format($slipLembur->durasi / 60, 2));
+                    $sheet->setCellValue('I'.$row, number_format($slipLembur->durasi_konversi_lembur / 60, 2));
+                    $sheet->setCellValue('J'.$row, $slipLembur->uang_makan);
+                    $sheet->setCellValue('K'.$row, 'Rp '. number_format($slipLembur->nominal, 0, ',', '.'));
+        
+                        //STYLE CELL
+                    $sheet->getStyle('C'.$row)->applyFromArray([
+                        'alignment' => [
+                            'horizontal' => Alignment::HORIZONTAL_CENTER,
+                            'vertical' => Alignment::VERTICAL_CENTER,
+                        ],
+                    ]);
+                    $sheet->getStyle('J'.$row.':J'.$row)->applyFromArray([
+                        'font' => [
+                            'color' => [
                                 'argb' => 'FFFF0000',
                             ],
                         ],
-                        'font' => [
-                            'color' => [
-                                'argb' => 'FFFFFFFF',
+                    ]);
+                    $sheet->getStyle('A'.$row.':K'.$row)->applyFromArray([
+                        'borders' => [
+                            'allBorders' => [
+                                'borderStyle' => Border::BORDER_THIN,
+                                'color' => ['argb' => 'FF000000'],
                             ],
                         ],
                     ]);
+
+                    if ($slipLemburs->count() > 1 && $index == 0) {
+                        //STYLE CELL
+                        $sheet->getStyle('C'.$row)->applyFromArray([
+                            'alignment' => [
+                                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                                'vertical' => Alignment::VERTICAL_CENTER,
+                            ],
+                        ]);
+                        $sheet->getStyle('J'.$row.':K'.$row)->applyFromArray([
+                            'font' => [
+                                'color' => [
+                                    'argb' => 'FFFF0000',
+                                ],
+                            ],
+                        ]);
+                        $sheet->getStyle('A'.$row.':K'.$row)->applyFromArray([
+                            'borders' => [
+                                'allBorders' => [
+                                    'borderStyle' => Border::BORDER_THIN,
+                                    'color' => ['argb' => 'FF000000'],
+                                ],
+                            ],
+                        ]);
+                        $row++;
+                    }
                 }
-
-            $sheet->setCellValue('C'.$row, Carbon::parse($date)->format('d-m-Y'));
-            $sheet->setCellValue('D'.$row, Carbon::parse($slipLembur->aktual_mulai_lembur)->format('H:i'));
-            $sheet->setCellValue('E'.$row, Carbon::parse($slipLembur->aktual_selesai_lembur)->format('H:i'));
-            $sheet->setCellValue('F'.$row, number_format($slipLembur->durasi_istirahat / 100 , 2));
-            $sheet->setCellValue('G'.$row, Carbon::parse($slipLembur->aktual_selesai_lembur)->subMinutes($slipLembur->durasi_istirahat)->format('H:i'));
-            $sheet->setCellValue('H'.$row, number_format($slipLembur->durasi / 60, 2));
-            $sheet->setCellValue('I'.$row, number_format($slipLembur->durasi_konversi_lembur / 60, 2));
-            $sheet->setCellValue('J'.$row, $slipLembur->uang_makan);
-            $sheet->setCellValue('K'.$row, 'Rp '. number_format($slipLembur->nominal, 0, ',', '.'));
-
-                //STYLE CELL
-            $sheet->getStyle('C'.$row)->applyFromArray([
-                'alignment' => [
-                    'horizontal' => Alignment::HORIZONTAL_CENTER,
-                    'vertical' => Alignment::VERTICAL_CENTER,
-                ],
-            ]);
-            $sheet->getStyle('J'.$row.':J'.$row)->applyFromArray([
-                'font' => [
-                    'color' => [
-                        'argb' => 'FFFF0000',
-                    ],
-                ],
-            ]);
-            $sheet->getStyle('A'.$row.':K'.$row)->applyFromArray([
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => Border::BORDER_THIN,
-                        'color' => ['argb' => 'FF000000'],
-                    ],
-                ],
-            ]);
 
             } else {
                 $sheet->setCellValue('A'.$row, $i+1);

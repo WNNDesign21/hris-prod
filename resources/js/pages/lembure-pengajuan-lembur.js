@@ -246,10 +246,10 @@ $(function () {
 
     let count = 0;
     let jumlah_detail_lembur = 0;
-    $('#table-detail-lembur').on("click",'.btnDeleteDetailLembur', function (){
+    $('#list-detail-lembur').on("click", '.btnDeleteDetailLembur', function (){
         jumlah_detail_lembur--;
         let urutan = $(this).data('urutan');
-        $(`#btn_delete_detail_lembur_${urutan}`).closest('tr').remove();
+        $(`#card-detail-lembur-${urutan}`).remove();
 
         if(jumlah_detail_lembur == 0){
             $('.btnSubmitDetailLembur').attr('disabled', true);
@@ -264,75 +264,59 @@ $(function () {
         jumlah_detail_lembur++;
         let tbody = $('#list-detail-lembur');
         tbody.append(`
-             <tr>
-                <td>
-                    <select name="karyawan_id[]" id="karyawan_id_${count}" class="form-control" style="width: 100%;" required>
-                    </select>
-                </td>
-                <td>
-                    <input type="text" name="job_description[]"
-                        id="job_description_${count}" class="form-control" placeholder="Pisahkan dengan koma (,)"
-                        style="width: 100%;" required>
-                    </input>
-                </td>
-                <td>
-                    <input id="rencana_mulai_lembur_${count}" name="rencana_mulai_lembur[]" type="datetime-local" class="form-control rencanaMulaiLembur" data-urutan="${count}">
-                </td>
-                <td>
-                    <input id="rencana_selesai_lembur_${count}" name="rencana_selesai_lembur[]" type="datetime-local" class="form-control rencanaSelesaiLembur" data-urutan="${count}">
-                </td>
-                <td>
-                    <div class="btn-group">
-                        <button type="button"
-                            class="btn btn-danger waves-effect btnDeleteDetailLembur" data-urutan="${count}" id="btn_delete_detail_lembur_${count}"><i
-                                class="fas fa-trash"></i></button>
+             <div class="col-12" id="card-detail-lembur-${count}">
+                <div class="box box-bordered border-info">
+                    <div class="box-header with-border">
+                        <div class="row">
+                            <div class="col-12 d-flex justify-content-end">
+                                <div class="btn-group">
+                                    <button type="button"
+                                        class="btn btn-danger waves-effect btnDeleteDetailLembur" data-urutan="${count}" id="btn_delete_detail_lembur_${count}"><i
+                                            class="fas fa-trash"></i></button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </td>
-            </tr>
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-6 col-lg-3">
+                                <div class="form-group">
+                                    <label for="karyawan">Karyawan</label>
+                                    <select name="karyawan_id[]" id="karyawan_id_${count}" class="form-control" style="width: 100%;" required>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-6 col-lg-3">
+                                <div class="form-group">
+                                    <label for="karyawan">Job Description</label>
+                                    <input type="text" name="job_description[]"
+                                        id="job_description_${count}" class="form-control" placeholder="Pisahkan dengan koma (,)"
+                                        style="width: 100%;" required>
+                                    </input>
+                                </div>
+                            </div>
+                            <div class="col-6 col-lg-3">
+                                <div class="form-group">
+                                    <label for="karyawan">Rencana Mulai</label>
+                                    <input id="rencana_mulai_lembur_${count}" name="rencana_mulai_lembur[]" type="datetime-local" class="form-control rencanaMulaiLembur" data-urutan="${count}">
+                                </div>
+                            </div>
+                            <div class="col-6 col-lg-3">
+                                <div class="form-group">
+                                    <label for="karyawan">Rencana Selesai</label>
+                                    <input id="rencana_selesai_lembur_${count}" name="rencana_selesai_lembur[]" type="datetime-local" class="form-control rencanaSelesaiLembur" data-urutan="${count}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         `)
-
-
-        //DATE
-        // const rencanaMulaiElement = document.getElementById('rencana_mulai_lembur_'+count);
-        // const rencanaSelesaiElement = document.getElementById('rencana_selesai_lembur_'+count);
-        // let now = moment().format('YYYY-MM-DD 00:00');
-        
-        // initializeTempus(rencanaMulaiElement, now);
-        // initializeTempus(rencanaSelesaiElement, now);
-        // rencanaMulaiElement.value = now;
-        // rencanaSelesaiElement.value = now;
-
-        // rencanaMulaiElement.addEventListener('change', function() {
-        //     const selectedValue = this.value;
-        //     rencanaSelesaiElement.value = selectedValue;
-        //     initializeTempus(rencanaSelesaiElement, selectedValue);
-        // });
-        
-        // rencanaSelesaiElement.addEventListener('change', function() {
-        //     if(this.value < rencanaMulaiElement.value){
-        //         rencanaMulaiElement.value = this.value;
-        //     }
-        // });
 
         let minDate = moment().format('YYYY-MM-DDT00:00');
          
         $('#rencana_mulai_lembur_' + count).attr('min', minDate);
         $('#rencana_selesai_lembur_' + count).attr('min', minDate);
-
-        // $('#rencana_mulai_lembur_' + count).on('change', function(){
-        //     let startTime = moment($(this).val()).format('YYYY-MM-DDT00:00');
-        //     $('#rencana_selesai_lembur_' + count).attr('min', startTime);
-        //     if($(this).val() > $('#rencana_selesai_lembur_' + count).val()){
-        //         $('#rencana_selesai_lembur_' + count).val($(this).val());
-        //     }
-        // });
-
-        // $('#rencana_selesai_lembur_' + count).on('change', function(){
-        //     if($(this).val() < $('#rencana_mulai_lembur_' + count).val()){
-        //         $(this).val( $('#rencana_mulai_lembur_' + count).val());
-        //     }
-        // })
-        
 
         if(jumlah_detail_lembur == 0){
             $('.btnSubmitDetailLembur').attr('disabled', true);
@@ -484,56 +468,47 @@ $(function () {
                 
                 $.each(detail, function (i, val){
                     tbody.append(`
-                         <tr>
-                            <td>
-                                <input type="hidden" name="id_detail_lemburEdit[]" id="id_detail_lemburEdit_${i}">
-                                <select name="karyawan_idEdit[]" id="karyawan_idEdit_${i}" class="form-control" style="width: 100%;" required>
-                                </select>
-                            </td>
-                            <td>
-                                <input type="text" name="job_descriptionEdit[]"
-                                    id="job_descriptionEdit_${i}" class="form-control" placeholder="Pisahkan dengan koma (,)"
-                                    style="width: 100%;" required>
-                                </input>
-                            </td>
-                            <td>
-                                <input id="rencana_mulai_lemburEdit_${i}" name="rencana_mulai_lemburEdit[]" type="datetime-local" class="form-control rencanaMulaiLemburEdit"
-                                        data-urutan="${i}" data-mulai="${val.rencana_mulai_lembur}" required>
-                            </td>
-                            <td>
-                                <input id="rencana_selesai_lemburEdit_${i}" name="rencana_selesai_lemburEdit[]" type="datetime-local" class="form-control rencanaSelesaiLemburEdit"
-                                         data-urutan="${i}" data-selesai="${val.rencana_selesai_lembur}" required>
-                            </td>
-                            <td>
-                                -
-                            </td>
-                        </tr>
+                        <div class="col-12">
+                            <div class="box box-bordered border-info">
+                                <div class="box-body">
+                                    <div class="row">
+                                        <div class="col-6 col-lg-3">
+                                            <div class="form-group">
+                                                <label for="karyawan">Karyawan</label>
+                                                <input type="hidden" name="id_detail_lemburEdit[]" id="id_detail_lemburEdit_${i}">
+                                                <select name="karyawan_idEdit[]" id="karyawan_idEdit_${i}" class="form-control" style="width: 100%;" required>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-lg-3">
+                                            <div class="form-group">
+                                                <label for="karyawan">Job Description</label>
+                                                <input type="text" name="job_descriptionEdit[]"
+                                                    id="job_descriptionEdit_${i}" class="form-control" placeholder="Pisahkan dengan koma (,)"
+                                                    style="width: 100%;" required>
+                                                </input>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-lg-3">
+                                            <div class="form-group">
+                                                <label for="karyawan">Rencana Mulai</label>
+                                                <input id="rencana_mulai_lemburEdit_${i}" name="rencana_mulai_lemburEdit[]" type="datetime-local" class="form-control rencanaMulaiLemburEdit"
+                                                data-urutan="${i}" data-mulai="${val.rencana_mulai_lembur}" required>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-lg-3">
+                                            <div class="form-group">
+                                                <label for="karyawan">Rencana Selesai</label>
+                                                <input id="rencana_selesai_lemburEdit_${i}" name="rencana_selesai_lemburEdit[]" type="datetime-local" class="form-control rencanaSelesaiLemburEdit"
+                                                data-urutan="${i}" data-selesai="${val.rencana_selesai_lembur}" required>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     `)
-
-
-                    //DATE
-                    // const rencanaMulaiElement = document.getElementById('rencana_mulai_lemburEdit_'+i);
-                    // const rencanaSelesaiElement = document.getElementById('rencana_selesai_lemburEdit_'+i);
-                    // let minDateMulai = moment(val.rencana_mulai_lembur).format('YYYY-MM-DD 00:00');
                     
-                    // initializeTempus(rencanaMulaiElement, minDateMulai);
-                    // initializeTempus(rencanaSelesaiElement, minDateMulai);
-
-                    // rencanaMulaiElement.addEventListener('change', function() {
-                    //     const selectedValue = this.value;
-                    //     rencanaSelesaiElement.value = selectedValue;
-                    //     if(rencanaSelesaiElement.value < selectedValue){
-                    //         rencanaSelesaiElement.value = selectedValue;
-                    //     }
-                    //     initializeTempus(rencanaSelesaiElement, this.value);
-                    // });
-
-                    // rencanaSelesaiElement.addEventListener('change', function() {
-                    //     if(this.value < rencanaMulaiElement.value){
-                    //         rencanaMulaiElement.value = this.value;
-                    //     }
-                    // });
-
                     let minDate = moment(val.rencana_mulai_lembur).format('YYYY-MM-DDT00:00');
          
                     $('#rencana_mulai_lemburEdit_' + i).attr('min', minDate);
@@ -550,6 +525,8 @@ $(function () {
                 $('#jenis_hariEdit').select2({
                     dropdownParent: $('#modal-pengajuan-lembur-edit')
                 })
+                openFormEdit();
+                loadingSwalClose();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
@@ -604,65 +581,12 @@ $(function () {
                     cache: true,
                     },
                 });
-
-                openFormEdit();
-                loadingSwalClose();
             }
         })
     }
 
-     //Rencana Mulai & Selesai Lembur Logic
-    // $('#table-detail-lembur').on("change", '.rencanaMulaiLembur', function () {
-    //     let urutan = $(this).data('urutan');
-    //     let startTime = $(this).val();
-    //     // $('#rencana_selesai_lembur_' + urutan).val('').attr('min', startTime);
-    // });
-
-    // $('#table-detail-lembur').on("change", '.rencanaSelesaiLembur' , function () {
-    //     let urutan = $(this).data('urutan');
-    //     let startTime = $('#rencana_mulai_lembur_' + urutan).val();
-    //     let endTime = $(this).val();
-    //     if (endTime < startTime) {
-    //         $(this).val('');
-    //         showToast({ title: "Waktu selesai lembur tidak boleh kurang dari waktu mulai lembur", icon: "error" });
-    //     }
-    // });
-
-    // $('#table-detail-lembur-edit').on("change", '.rencanaMulaiLemburEditNew', function () {
-    //     let urutan = $(this).data('urutan');
-    //     let startTime = $(this).val();
-    //     $('#rencana_selesai_lemburEditNew_' + urutan).val('').attr('min', startTime);
-    // });
-
-    // $('#table-detail-lembur-edit').on("change", '.rencanaSelesaiLemburEditNew' , function () {
-    //     let urutan = $(this).data('urutan');
-    //     let startTime = $('#rencana_mulai_lemburEditNew_' + urutan).val();
-    //     let endTime = $(this).val();
-    //     if (endTime < startTime) {
-    //         $(this).val('');
-    //         showToast({ title: "Waktu selesai lembur tidak boleh kurang dari waktu mulai lembur", icon: "error" });
-    //     }
-    // });
-
-    // $('#table-detail-lembur-edit').on("change", '.rencanaMulaiLemburEdit', function () {
-    //     let urutan = $(this).data('urutan');
-    //     let startTime = $(this).val();
-    //     $('#rencana_selesai_lemburEdit_' + urutan).val('').attr('min', startTime);
-    // });
-
-    // $('#table-detail-lembur-edit').on("change", '.rencanaSelesaiLemburEdit' , function () {
-    //     let urutan = $(this).data('urutan');
-    //     let startTime = $('#rencana_mulai_lemburEdit_' + urutan).val();
-    //     let endTime = $(this).val();
-    //     let oldEndTime = $(this).data('selesai');
-    //     if (endTime < startTime) {
-    //         $(this).val(oldEndTime);
-    //         showToast({ title: "Waktu selesai lembur tidak boleh kurang dari waktu mulai lembur", icon: "error" });
-    //     }
-    // });
-
     //NEW 
-    $('#table-detail-lembur').on('change','.rencanaMulaiLembur', function(){
+    $('#list-detail-lembur').on('change','.rencanaMulaiLembur', function(){
         let urutan = $(this).data('urutan');
         let startTime = moment($(this).val()).format('YYYY-MM-DDT00:00');
         $('#rencana_selesai_lembur_' + urutan).attr('min', startTime);
@@ -671,14 +595,14 @@ $(function () {
         }
     });
 
-    $('#table-detail-lembur').on('change', '.rencanaSelesaiLembur', function(){
+    $('#list-detail-lembur').on('change', '.rencanaSelesaiLembur', function(){
         let urutan = $(this).data('urutan');
         if($(this).val() < $('#rencana_mulai_lembur_' + urutan).val()){
             $(this).val( $('#rencana_mulai_lembur_' + urutan).val());
         }
     })
 
-    $('#table-detail-lembur-edit').on('change', '.rencanaMulaiLemburEdit', function(){
+    $('#list-detail-lembur-edit').on('change', '.rencanaMulaiLemburEdit', function(){
         let urutan = $(this).data('urutan');
         let startTime = moment($(this).val()).format('YYYY-MM-DDT00:00');
         $('#rencana_selesai_lemburEdit_' + urutan).attr('min', startTime);
@@ -687,14 +611,14 @@ $(function () {
         }
     });
 
-    $('#table-detail-lembur-edit').on('change', '.rencanaSelesaiLemburEdit', function(){
+    $('#list-detail-lembur-edit').on('change', '.rencanaSelesaiLemburEdit', function(){
         let urutan = $(this).data('urutan');
         if($(this).val() < $('#rencana_mulai_lemburEdit_' + urutan).val()){
             $(this).val($(this).data('selesai'));
         }
     })
 
-    $('#table-detail-lembur-edit').on('change', '.rencanaMulaiLemburEditNew', function(){
+    $('#list-detail-lembur-edit').on('change', '.rencanaMulaiLemburEditNew', function(){
         let urutan = $(this).data('urutan');
         let startTime = moment($(this).val()).format('YYYY-MM-DDT00:00');
         $('#rencana_selesai_lemburEditNew_' + urutan).attr('min', startTime);
@@ -703,68 +627,67 @@ $(function () {
         }
     });
 
-    $('#table-detail-lembur-edit').on('change', '.rencanaSelesaiLemburEditNew',  function(){
+    $('#list-detail-lembur-edit').on('change', '.rencanaSelesaiLemburEditNew',  function(){
         let urutan = $(this).data('urutan');
         if($(this).val() < $('#rencana_mulai_lemburEditNew_' + urutan).val()){
             $(this).val( $('#rencana_mulai_lemburEditNew_' + urutan).val());
         }
     })
-
+   
     // EDIT
     $('.btnAddDetailLemburEdit').on("click", function (){
         detailCount++;
         let tbody = $('#list-detail-lembur-edit');
         tbody.append(`
-             <tr>
-                <td>
-                    <select name="karyawan_idEditNew[]" id="karyawan_idEditNew_${detailCount}" class="form-control" style="width: 100%;" required>
-                    </select>
-                </td>
-                <td>
-                    <input type="text" name="job_descriptionEditNew[]"
-                        id="job_descriptionEditNew_${detailCount}" class="form-control" placeholder="Pisahkan dengan koma (,)"
-                        style="width: 100%;" required>
-                    </input>
-                </td>
-                <td>
-                    <input id="rencana_mulai_lemburEditNew_${detailCount}" name="rencana_mulai_lemburEditNew[]" type="datetime-local" class="form-control rencanaMulaiLemburEditNew"
-                             data-urutan="${detailCount}" required>
-                </td>
-                <td>
-                    <input id="rencana_selesai_lemburEditNew_${detailCount}" name="rencana_selesai_lemburEditNew[]" type="datetime-local" class="form-control rencanaSelesaiLemburEditNew"
-                            data-urutan="${detailCount}" required>
-                </td>
-                <td>
-                    <div class="btn-group">
-                        <button type="button"
-                            class="btn btn-danger waves-effect btnDeleteDetailLemburEditNew" data-urutan="${detailCount}" id="btn_delete_detail_lemburEditNew_${detailCount}"><i
-                                class="fas fa-trash"></i></button>
+            <div class="col-12" id="card-detail-lembur-edit-${detailCount}">
+                <div class="box box-bordered border-info">
+                    <div class="box-header with-border">
+                        <div class="row">
+                            <div class="col-12 d-flex justify-content-end">
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-danger waves-effect btnDeleteDetailLemburEditNew" data-urutan="${detailCount}" id="btn_delete_detail_lemburEditNew_${detailCount}">
+                                    <i class="fas fa-trash"></i></button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </td>
-            </tr>
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-6 col-lg-3">
+                                <div class="form-group">
+                                    <label for="karyawan">Karyawan</label>
+                                    <select name="karyawan_idEditNew[]" id="karyawan_idEditNew_${detailCount}" class="form-control" style="width: 100%;" required>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-6 col-lg-3">
+                                <div class="form-group">
+                                    <label for="karyawan">Job Description</label>
+                                    <input type="text" name="job_descriptionEditNew[]"
+                                        id="job_descriptionEditNew_${detailCount}" class="form-control" placeholder="Pisahkan dengan koma (,)"
+                                        style="width: 100%;" required>
+                                    </input>
+                                </div>
+                            </div>
+                            <div class="col-6 col-lg-3">
+                                <div class="form-group">
+                                    <label for="karyawan">Rencana Mulai</label>
+                                    <input id="rencana_mulai_lemburEditNew_${detailCount}" name="rencana_mulai_lemburEditNew[]" type="datetime-local" class="form-control rencanaMulaiLemburEditNew"
+                                    data-urutan="${detailCount}" required>
+                                </div>
+                            </div>
+                            <div class="col-6 col-lg-3">
+                                <div class="form-group">
+                                    <label for="karyawan">Rencana Selesai</label>
+                                    <input id="rencana_selesai_lemburEditNew_${detailCount}" name="rencana_selesai_lemburEditNew[]" type="datetime-local" class="form-control rencanaSelesaiLemburEditNew"
+                                    data-urutan="${detailCount}" required>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         `)
-
-        // const rencanaMulaiElement = document.getElementById('rencana_mulai_lemburEditNew_'+detailCount);
-        // const rencanaSelesaiElement = document.getElementById('rencana_selesai_lemburEditNew_'+detailCount);
-        // let now = moment().format('YYYY-MM-DD 00:00');
-        
-        // initializeTempus(rencanaMulaiElement, now);
-        // initializeTempus(rencanaSelesaiElement, now);
-
-        // rencanaMulaiElement.addEventListener('change', function() {
-        //     const selectedValue = this.value;
-        //     rencanaSelesaiElement.value = selectedValue;
-        //     if(rencanaSelesaiElement.value < selectedValue){
-        //         rencanaSelesaiElement.value = selectedValue;
-        //     }
-        //     initializeTempus(rencanaSelesaiElement, this.value);
-        // });
-
-        // rencanaSelesaiElement.addEventListener('change', function() {
-        //     if(this.value < rencanaMulaiElement.value){
-        //         rencanaMulaiElement.value = this.value;
-        //     }
-        // });
 
         let minDate = moment().format('YYYY-MM-DDT00:00');
          
@@ -820,31 +743,18 @@ $(function () {
         });
     })
 
-    // $('#table-detail-lembur-edit').on("click",'.btnDeleteDetailLemburEdit', function (){
-    //     detailCount--;
-    //     let urutan = $(this).data('urutan');
-    //     $(`#btn_delete_detail_lemburEdit_${urutan}`).closest('tr').remove();
+    $('#list-detail-lembur-edit').on("click",'.btnDeleteDetailLemburEditNew', function (){
+        detailCount--;
+        let urutan = $(this).data('urutan');
+        $(`#card-detail-lembur-edit-${urutan}`).remove();
 
-    //     if(detailCount == 0){
-    //         $('.btnUpdateDetailLembur').attr('disabled', true);
-    //     } else {
-    //         $('.btnUpdateDetailLembur').attr('disabled', false);
-    //     }
-    // });
-
-    // $('#table-detail-lembur-edit').on("click",'.btnDeleteDetailLemburEditNew', function (){
-    //     detailCount--;
-    //     console.log(detailCount);
-    //     let urutan = $(this).data('urutan');
-    //     $(`#btn_delete_detail_lemburEditNew_${urutan}`).closest('tr').remove();
-
-    //     if(detailCount == 0){
-    //         $('.btnUpdateDetailLembur').attr('disabled', true);
-    //     } else {
-    //         $('.btnUpdateDetailLembur').attr('disabled', false);
-    //     }
-    // });
-
+        if(detailCount == 0){
+            $('.btnUpdateDetailLembur').attr('disabled', true);
+        } else {
+            $('.btnUpdateDetailLembur').attr('disabled', false);
+        }
+    });
+    
     // DELETE
     $('#lembur-table').on('click', '.btnDelete', function (){
         var idLembur = $(this).data('id-lembur');
@@ -913,23 +823,6 @@ $(function () {
         closeDone();
     })
 
-    // $('#table-detail-lembur-done').on("change", '.aktualMulaiLembur', function () {
-    //     let urutan = $(this).data('urutan');
-    //     let startTime = $(this).val();
-    //     $('#aktual_selesai_lembur_' + urutan).val('').attr('min', startTime);
-    // });
-
-    // $('#table-detail-lembur-done').on("change", '.aktualSelesaiLembur' , function () {
-    //     let urutan = $(this).data('urutan');
-    //     let startTime = $('#aktual_mulai_lembur_' + urutan).val();
-    //     let endTime = $(this).val();
-    //     let oldEndTime = $(this).data('selesai');
-    //     if (endTime < startTime) {
-    //         $(this).val(oldEndTime);
-    //         showToast({ title: "Waktu selesai lembur tidak boleh kurang dari waktu mulai lembur", icon: "error" });
-    //     }
-    // });
-
     $('#lembur-table').on('click', '.btnDone', function(){
         loadingSwalShow();
         let idLembur = $(this).data('id-lembur');
@@ -986,56 +879,53 @@ $(function () {
                 
                 $.each(detail, function (i, val){
                     tbody.append(`
-                         <tr class="${val.is_rencana_approved == 'N' ? 'bg-danger' : ''}">
-                            <td>
-                            ${val.is_rencana_approved !== 'N' ? `<input type="hidden" name="id_detail_lembur[]" id="id_detail_lembur_${i}"></input>` : `-`}
-                                <span id="karyawan_id_${i}"></span>
-                            </td>
-                            <td>
-                                <div id="job_description_${i}" class="${val.is_rencana_approved == 'N' ? 'text-white' : ''}"></div>
-                            </td>
-                            <td>
-                                ${val.is_rencana_approved !== 'N' ? `<input id="aktual_mulai_lembur_${i}" name="aktual_mulai_lembur[]" type="datetime-local" class="form-control aktualMulaiLembur" data-urutan="${i}" data-mulai="${val.rencana_mulai_lembur}" required>` : `-`}
-                            </td>
-                            <td>
-                                ${val.is_rencana_approved !== 'N' ? `<input id="aktual_selesai_lembur_${i}" name="aktual_selesai_lembur[]" type="datetime-local" class="form-control aktualSelesaiLembur" data-urutan="${i}" data-selesai="${val.rencana_selesai_lembur}" required>` : `-`}
-                            </td>
-                            <td>
-                            ${val.is_rencana_approved !== 'N' ? `<input type="text" name="keterangan[]"
-                                    id="keterangan_${i}" class="form-control ${val.is_rencana_approved == 'N' ? 'bg-danger text-white' : ''}"
-                                    style="width: 100%;">
-                                </input>` : '-'}
-                            </td>
-                            <td>
-                                ${val.is_rencana_approved !== 'N' ? `<input type="checkbox" name="is_aktual_approved" data-urutan="${i}" id="is_aktual_approved_${i}" class="filled-in chk-col-primary" ${val.is_aktual_approved == 'Y' ? 'checked' : ''} value="${val.id_detail_lembur}"/>
-                                <label for="is_aktual_approved_${i}"></label>` : `-`}
-                            </td>
-                        </tr>
+                        <div class="col-12">
+                            <div class="box box-bordered border-info ${val.is_rencana_approved == 'N' ? 'bg-danger' : ''}" id="card-list-detail-done-${i}">
+                                <div class="box-body">
+                                    <div class="row">
+                                        <div class="col-6 col-lg-2">
+                                            <div class="form-group">
+                                                <label for="karyawan">Karyawan</label>
+                                                 ${val.is_rencana_approved !== 'N' ? `<input type="hidden" name="id_detail_lembur[]" id="id_detail_lembur_${i}"></input>` : `-`}
+                                                <h6 id="karyawan_id_${i}" class="${val.is_rencana_approved == 'N' ? 'text-white' : ''}"></h6>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-lg-2">
+                                            <div class="form-group">
+                                                <label for="karyawan">Job Description</label>
+                                                <div id="job_description_${i}" class="${val.is_rencana_approved == 'N' ? 'text-white' : ''}"></div>
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-lg-2">
+                                            <div class="form-group">
+                                                <label for="karyawan">Aktual Mulai</label>
+                                                ${val.is_rencana_approved !== 'N' ? `<input id="aktual_mulai_lembur_${i}" name="aktual_mulai_lembur[]" type="datetime-local" class="form-control aktualMulaiLembur" data-urutan="${i}" data-mulai="${val.rencana_mulai_lembur}" required>` : `-`}
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-lg-2">
+                                            <div class="form-group">
+                                                <label for="karyawan">Aktual Selesai</label>
+                                                ${val.is_rencana_approved !== 'N' ? `<input id="aktual_selesai_lembur_${i}" name="aktual_selesai_lembur[]" type="datetime-local" class="form-control aktualSelesaiLembur" data-urutan="${i}" data-selesai="${val.rencana_selesai_lembur}" required>` : `-`}
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-lg-3">
+                                            <div class="form-group">
+                                                <label for="karyawan">Keterangan</label>
+                                                ${val.is_rencana_approved !== 'N' ? `<input type="text" name="keterangan[]"
+                                                    id="keterangan_${i}" class="form-control ${val.is_rencana_approved == 'N' ? 'bg-danger text-white' : ''}"
+                                                    style="width: 100%;">
+                                                </input>` : '-'}
+                                            </div>
+                                        </div>
+                                        <div class="col-6 col-lg-1 d-flex justify-content-center align-items-center">
+                                            ${val.is_rencana_approved !== 'N' ? `<input type="checkbox" name="is_aktual_approved" data-urutan="${i}" id="is_aktual_approved_${i}" class="filled-in chk-col-primary" ${val.is_aktual_approved == 'Y' ? 'checked' : ''} placeholder="Isi keterangan tambahan..." value="${val.id_detail_lembur}"/>
+                                            <label for="is_aktual_approved_${i}" class="mt-2"></label>` : `-`}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     `)
-
-                    // if(val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N'){
-                    //     const aktualMulaiElement = document.getElementById('aktual_mulai_lembur_'+i);
-                    //     const aktualSelesaiElement = document.getElementById('aktual_selesai_lembur_'+i);
-                    //     let mulai = moment(val.rencana_mulai_lembur).format('YYYY-MM-DD 00:00');
-                        
-                    //     initializeTempus(aktualMulaiElement, mulai);
-                    //     initializeTempus(aktualSelesaiElement, mulai);
-
-                    //     aktualMulaiElement.addEventListener('change', function() {
-                    //         const selectedValue = this.value;
-                    //         aktualSelesaiElement.value = selectedValue;
-                    //         if(aktualSelesaiElement.value < selectedValue){
-                    //             aktualSelesaiElement.value = selectedValue;
-                    //         }
-                    //         initializeTempus(aktualSelesaiElement, this.value);
-                    //     });
-
-                    //     aktualSelesaiElement.addEventListener('change', function() {
-                    //         if(this.value < aktualMulaiElement.value){
-                    //             this.value = this.dataset.selesai;
-                    //         }
-                    //     });
-                    // }
 
                     let minDate = moment(val.rencana_mulai_lembur).format('YYYY-MM-DDT00:00');
          
@@ -1059,14 +949,14 @@ $(function () {
                     $('#is_aktual_approved_' + i).on('change', function(){
                         if ($(this).is(':checked')) {
                             $(this).attr('checked', true);
-                            if ($(this).closest('tr').hasClass('bg-danger')) {
-                                $(this).closest('tr').removeClass('bg-danger');
+                            if ($('#card-list-detail-done-'+i).hasClass('bg-danger')) {
+                                $('#card-list-detail-done-'+i).removeClass('bg-danger');
                             }
                             $('#aktual_mulai_lembur_' + i).attr('readonly', false);
                             $('#aktual_selesai_lembur_' + i).attr('readonly', false);
                         } else {
                             $(this).removeAttr('checked');
-                            $(this).closest('tr').addClass('bg-danger');
+                            $('#card-list-detail-done-'+i).addClass('bg-danger');
                             $('#aktual_mulai_lembur_' + i).attr('readonly', true);
                             $('#aktual_selesai_lembur_' + i).attr('readonly', true);
                         }

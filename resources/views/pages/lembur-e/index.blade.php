@@ -23,17 +23,17 @@
         </div>
     </div>
     <div class="row mt-4">
-        <div class="col-lg-6 col-12 mb-4">
-            <div class="box mb-0">
-                <div class="box-body">
-                    <div id="chartWeeklyLemburPerDepartemen" class="dask evt-cal min-h-700 p-4"></div>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-6 col-12 mb-4">
+        <div class="col-12 mb-4">
             <div class="box mb-0">
                 <div class="box-body">
                     <div id="chartCurrentMonthLemburPerDepartemen" class="dask evt-cal min-h-700 p-4"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 mb-4">
+            <div class="box mb-0">
+                <div class="box-body">
+                    <div id="chartWeeklyLemburPerDepartemen" class="dask evt-cal min-h-700 p-4"></div>
                 </div>
             </div>
         </div>

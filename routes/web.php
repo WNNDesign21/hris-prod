@@ -3,7 +3,10 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\Utils\QrController;
 use App\Http\Controllers\Cutie\CutieController;
+use App\Http\Controllers\Izine\IzineController;
+use App\Http\Controllers\Izine\SakiteController;
 use App\Http\Controllers\Lembure\LembureController;
 use App\Http\Controllers\MasterData\AkunController;
 use App\Http\Controllers\MasterData\GrupController;
@@ -12,6 +15,7 @@ use App\Http\Controllers\MasterData\SeksiController;
 use App\Http\Controllers\MasterData\DivisiController;
 use App\Http\Controllers\MasterData\ExportController;
 use App\Http\Controllers\MasterData\PosisiController;
+use App\Http\Controllers\Utils\DeleteQrImgController;
 use App\Http\Controllers\MasterData\JabatanController;
 use App\Http\Controllers\MasterData\KontrakController;
 use App\Http\Controllers\MasterData\KaryawanController;
@@ -27,55 +31,75 @@ Route::get('/', function () {
     return redirect('/login');
 });
 
-/** MASTER DATA - AJAX */
-Route::get('/master-data/posisi/get-data-by-jabatan/{idJabatan}',[PosisiController::class, 'get_data_by_jabatan']);
-Route::get('/master-data/posisi/get-data-by-posisi/{idPosisi}',[PosisiController::class, 'get_data_by_posisi']);
-Route::get('/master-data/posisi/get-data-all-posisi',[PosisiController::class, 'get_data_all_posisi']);
-Route::get('/master-data/posisi/get-data-jabatan-by-posisi/{idPosisi}',[PosisiController::class, 'get_data_jabatan_by_posisi']); 
-Route::get('/master-data/posisi/get-data-jabatan-by-posisi-edit/{idPosisi}/{myPosisi}',[PosisiController::class, 'get_data_jabatan_by_posisi_edit']); 
-Route::post('/master-data/posisi/get-data-parent',[PosisiController::class, 'get_data_parent']); 
-Route::post('/master-data/posisi/get-data-posisi',[PosisiController::class, 'get_data_posisi']); 
-Route::get('/master-data/posisi/get-data-parent-edit/{idParent}',[PosisiController::class, 'get_data_parent_edit']); 
 
-Route::get('/master-data/organisasi/get-data-organisasi',[OrganisasiController::class, 'get_data_organisasi']); 
+Route::group(['middleware' => ['auth']], function () {
+    //Generate System
+    // Route::get('/generate-lembur-harian', [LembureController::class, 'generate_lembur_harian']);
+    Route::post('/generate-qrcode', QrController::class);
+    Route::delete('/delete-qrcode-img', DeleteQrImgController::class);
 
-Route::post('/master-data/grup/get-data-grup',[GrupController::class, 'get_data_grup']); 
-Route::get('/master-data/grup/get-data-all-grup',[GrupController::class, 'get_data_all_grup']); 
-Route::post('/master-data/karyawan/get-data-user',[KaryawanController::class, 'get_data_user']); 
-Route::post('/master-data/karyawan/get-data-karyawan',[KaryawanController::class, 'get_data_karyawan']); 
-Route::get('/master-data/karyawan/get-data-detail-karyawan/{idKaryawan}',[KaryawanController::class, 'get_data_detail_karyawan']); 
+    /** MASTER DATA - AJAX */
+    Route::get('/master-data/posisi/get-data-by-jabatan/{idJabatan}',[PosisiController::class, 'get_data_by_jabatan']);
+    Route::get('/master-data/posisi/get-data-by-posisi/{idPosisi}',[PosisiController::class, 'get_data_by_posisi']);
+    Route::get('/master-data/posisi/get-data-all-posisi',[PosisiController::class, 'get_data_all_posisi']);
+    Route::get('/master-data/posisi/get-data-jabatan-by-posisi/{idPosisi}',[PosisiController::class, 'get_data_jabatan_by_posisi']); 
+    Route::get('/master-data/posisi/get-data-jabatan-by-posisi-edit/{idPosisi}/{myPosisi}',[PosisiController::class, 'get_data_jabatan_by_posisi_edit']); 
+    Route::post('/master-data/posisi/get-data-parent',[PosisiController::class, 'get_data_parent']); 
+    Route::post('/master-data/posisi/get-data-posisi',[PosisiController::class, 'get_data_posisi']); 
+    Route::get('/master-data/posisi/get-data-parent-edit/{idParent}',[PosisiController::class, 'get_data_parent_edit']); 
 
-Route::get('/master-data/akun/get-data-detail-akun/{idAkun}',[AkunController::class, 'get_data_detail_akun']); 
+    Route::get('/master-data/organisasi/get-data-organisasi',[OrganisasiController::class, 'get_data_organisasi']); 
 
-Route::get('/master-data/kontrak/get-data-list-kontrak/{idKaryawan}',[KontrakController::class, 'get_data_list_kontrak']); 
-Route::get('/master-data/kontrak/download-kontrak-kerja/{idKontrak}',[KontrakController::class, 'download_kontrak_kerja']); 
-Route::get('/master-data/kontrak/get-data-detail-kontrak/{idKontrak}',[KontrakController::class, 'get_data_detail_kontrak']); 
+    Route::post('/master-data/grup/get-data-grup',[GrupController::class, 'get_data_grup']); 
+    Route::get('/master-data/grup/get-data-all-grup',[GrupController::class, 'get_data_all_grup']); 
+    Route::post('/master-data/karyawan/get-data-user',[KaryawanController::class, 'get_data_user']); 
+    Route::post('/master-data/karyawan/get-data-karyawan',[KaryawanController::class, 'get_data_karyawan']); 
+    Route::get('/master-data/karyawan/get-data-detail-karyawan/{idKaryawan}',[KaryawanController::class, 'get_data_detail_karyawan']); 
 
-Route::get('/cutie/pengajuan-cuti/get-data-jenis-cuti-khusus',[CutieController::class, 'get_data_jenis_cuti_khusus']); 
-Route::get('/cutie/pengajuan-cuti/get-data-detail-cuti/{idCuti}',[CutieController::class, 'get_data_detail_cuti']); 
-Route::get('/cutie/member-cuti/get-karyawan-pengganti/{idKaryawan}',[CutieController::class, 'get_karyawan_pengganti']);
-Route::get('/cutie/dashboard-cuti/get-data-cuti-calendar',[CutieController::class, 'get_data_cutie_calendar']);
-Route::get('/cutie/dashboard-cuti/get-data-cuti-detail-chart',[CutieController::class, 'get_data_cuti_detail_chart']);
-Route::get('/cutie/dashboard-cuti/get-data-jenis-cuti-monthly-chart',[CutieController::class, 'get_data_jenis_cuti_monthly_chart']);
-Route::get('/cutie/setting-cuti/get-data-detail-jenis-cuti/{idJenisCuti}',[CutieController::class, 'get_data_detail_jenis_cuti']);
+    Route::get('/master-data/akun/get-data-detail-akun/{idAkun}',[AkunController::class, 'get_data_detail_akun']); 
 
-Route::post('/lembure/pengajuan-lembur/get-data-karyawan-lembur',[LembureController::class, 'get_data_karyawan_lembur']); 
-Route::get('/lembure/pengajuan-lembur/get-data-karyawan-lembur',[LembureController::class, 'get_karyawan_lembur']); 
-Route::get('/lembure/pengajuan-lembur/get-data-lembur/{idLembur}',[LembureController::class, 'get_data_lembur']); 
-Route::post('/lembure/dashboard-lembur/get-monthly-lembur-per-departemen',[LembureController::class, 'get_monthly_lembur_per_departemen']); 
-Route::post('/lembure/dashboard-lembur/get-weekly-lembur-per-departemen',[LembureController::class, 'get_weekly_lembur_per_departemen']); 
-Route::post('/lembure/dashboard-lembur/get-current-month-lembur-per-departemen',[LembureController::class, 'get_current_month_lembur_per_departemen']); 
-Route::get('/get-approval-lembur-notification', [HomeController::class, 'get_approval_lembur_notification'])->middleware('lembure');
-Route::get('/get-planned-pengajuan-lembur-notification', [HomeController::class, 'get_planned_pengajuan_lembur_notification'])->middleware('lembure');
-Route::get('/lembure/pengajuan-lembur/get-attachment-lembur/{idLembur}',[LembureController::class, 'get_attachment_lembur']);
+    Route::get('/master-data/kontrak/get-data-list-kontrak/{idKaryawan}',[KontrakController::class, 'get_data_list_kontrak']); 
+    Route::get('/master-data/kontrak/download-kontrak-kerja/{idKontrak}',[KontrakController::class, 'download_kontrak_kerja']); 
+    Route::get('/master-data/kontrak/get-data-detail-kontrak/{idKontrak}',[KontrakController::class, 'get_data_detail_kontrak']); 
 
-Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
+    Route::get('/cutie/pengajuan-cuti/get-data-jenis-cuti-khusus',[CutieController::class, 'get_data_jenis_cuti_khusus']); 
+    Route::get('/cutie/pengajuan-cuti/get-data-detail-cuti/{idCuti}',[CutieController::class, 'get_data_detail_cuti']); 
+    Route::get('/cutie/member-cuti/get-karyawan-pengganti/{idKaryawan}',[CutieController::class, 'get_karyawan_pengganti']);
+    Route::get('/cutie/dashboard-cuti/get-data-cuti-calendar',[CutieController::class, 'get_data_cutie_calendar']);
+    Route::get('/cutie/dashboard-cuti/get-data-cuti-detail-chart',[CutieController::class, 'get_data_cuti_detail_chart']);
+    Route::get('/cutie/dashboard-cuti/get-data-jenis-cuti-monthly-chart',[CutieController::class, 'get_data_jenis_cuti_monthly_chart']);
+    Route::get('/cutie/setting-cuti/get-data-detail-jenis-cuti/{idJenisCuti}',[CutieController::class, 'get_data_detail_jenis_cuti']);
+
+    Route::post('/lembure/pengajuan-lembur/get-data-karyawan-lembur',[LembureController::class, 'get_data_karyawan_lembur']); 
+    Route::get('/lembure/pengajuan-lembur/get-data-karyawan-lembur',[LembureController::class, 'get_karyawan_lembur']); 
+    Route::get('/lembure/pengajuan-lembur/get-data-lembur/{idLembur}',[LembureController::class, 'get_data_lembur']); 
+    Route::post('/lembure/dashboard-lembur/get-monthly-lembur-per-departemen',[LembureController::class, 'get_monthly_lembur_per_departemen']); 
+    Route::post('/lembure/dashboard-lembur/get-weekly-lembur-per-departemen',[LembureController::class, 'get_weekly_lembur_per_departemen']); 
+    Route::post('/lembure/dashboard-lembur/get-current-month-lembur-per-departemen',[LembureController::class, 'get_current_month_lembur_per_departemen']); 
+    Route::get('/get-approval-lembur-notification', [HomeController::class, 'get_approval_lembur_notification'])->middleware('lembure');
+    Route::get('/get-planned-pengajuan-lembur-notification', [HomeController::class, 'get_planned_pengajuan_lembur_notification'])->middleware('lembure');
+    Route::get('/lembure/pengajuan-lembur/get-attachment-lembur/{idLembur}',[LembureController::class, 'get_attachment_lembur']);
+
+    Route::get('/izine/pengajuan-izin/get-data-izin/{idIzin}',[IzineController::class, 'get_data_izin']);
+    Route::get('/izine/lapor-skd/get-data-sakit/{idSakit}',[SakiteController::class, 'get_data_sakit']);
+    Route::get('/izine/log-book-izin/get-qrcode-detail-izin/{idIzin}',[IzineController::class, 'get_qrcode_detail_izin']);
+
+});
+
+
+Route::group(['middleware' => ['auth', 'notifikasi']], function () {
     // MENU UTAMA
-    Route::get('/home', [HomeController::class, 'index'])->name('root');
+    
+    //HOME CONTROLLER
+    Route::get('/home', [HomeController::class, 'index'])->name('root')->middleware(['lembure','izine']);
     Route::get('/get-notification', [HomeController::class, 'get_notification']);
     Route::get('/get-pengajuan-cuti-notification', [HomeController::class, 'get_pengajuan_cuti_notification']);
     Route::get('/get-member-cuti-notification', [HomeController::class, 'get_member_cuti_notification']);
     Route::get('/get-list-cuti-notification', [HomeController::class, 'get_list_cuti_notification']);
+    Route::get('/get-pengajuan-izin-notification', [HomeController::class, 'get_pengajuan_izin_notification']);
+    Route::get('/get-approval-izin-notification', [HomeController::class, 'get_approval_izin_notification']);
+    Route::get('/get-lapor-skd-notification', [HomeController::class, 'get_lapor_skd_notification']);
+    Route::get('/get-approval-skd-notification', [HomeController::class, 'get_approval_skd_notification']);
     Route::post('/export-slip-lembur', [HomeController::class, 'export_slip_lembur'])->name('home.export-slip-lembur');
 
     /** MASTER DATA FEATURE */
@@ -242,10 +266,17 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
         });
      });
 
-     Route::group(['prefix' => 'lembure'], function () {
+     Route::group(['prefix' => 'lembure', 'middleware' => ['lembure']], function () {
 
         // DASHBOARD
         Route::get('/dashboard', [LembureController::class, 'index'])->name('lembure.dashboard')->middleware('role:personalia|atasan');
+
+        // LEADERBOARD LEMBUR
+        Route::group(['middleware' => ['role:atasan|personalia']], function () {
+            Route::get('/detail-lembur', [LembureController::class, 'detail_lembur_view'])->name('lembure.detail-lembur');
+            Route::post('/detail-lembur-datatable', [LembureController::class, 'detail_lembur_datatable']);
+            Route::post('/detail-lembur/get-leaderboard-user-monthly',[LembureController::class, 'get_leaderboard_user_monthly']); 
+        });
 
         Route::group(['middleware' => ['role:atasan|member']], function () {
         // PENGAJUAN LEMBUR (LEADER)
@@ -262,6 +293,7 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
             // APPROVAL LEMBUR (CHECK)
             Route::get('/approval-lembur', [LembureController::class, 'approval_lembur_view'])->name('lembure.approval-lembur');
             Route::post('/approval-lembur-datatable', [LembureController::class, 'approval_lembur_datatable']);
+            Route::post('/approval-lembur/get-calculation-durasi-and-nominal-lembur/{idDetailLembur}', [LembureController::class, 'get_calculation_durasi_and_nominal_lembur']);
             Route::patch('/approval-lembur/rejected/{idLembur}', [LembureController::class, 'rejected'])->name('lembure.approval-lembur.rejected');
             Route::patch('/approval-lembur/checked/{idLembur}', [LembureController::class, 'checked'])->name('lembure.approval-lembur.checked');
             Route::patch('/approval-lembur/approved/{idLembur}', [LembureController::class, 'approved'])->name('lembure.approval-lembur.approved');
@@ -294,6 +326,49 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'lembure']], function () {
             Route::post('/export-report-lembur/slip-lembur-perbulan', [LembureController::class, 'export_slip_lembur_perbulan'])->name('lembure.export-report-lembur.export-slip-lembur-perbulan');
         });
      });
+
+     Route::group(['prefix' => 'izine', 'middleware' => ['izine']], function () {
+        Route::get('/pengajuan-izin', [IzineController::class, 'pengajuan_izin_view'])->name('izine.pengajuan-izin');
+        Route::post('/pengajuan-izin-datatable', [IzineController::class, 'pengajuan_izin_datatable']);
+        Route::post('/pengajuan-izin/store',[IzineController::class, 'store'])->name('izine.pengajuan-izin.store');
+        Route::delete('/pengajuan-izin/delete/{idIzin}',[IzineController::class, 'delete'])->name('izine.pengajuan-izin.delete');
+        Route::patch('/pengajuan-izin/update/{idIzin}',[IzineController::class, 'update'])->name('izine.pengajuan-izin.update');
+        Route::patch('/pengajuan-izin/done/{idIzin}',[IzineController::class, 'done'])->name('izine.pengajuan-izin.done');
+
+        Route::get('/lapor-skd', [SakiteController::class, 'lapor_skd_view'])->name('izine.lapor-skd');
+        Route::post('/lapor-skd-datatable', [SakiteController::class, 'lapor_skd_datatable']);
+        Route::post('/lapor-skd/store',[SakiteController::class, 'store'])->name('izine.lapor-skd.store');
+        Route::delete('/lapor-skd/delete/{idSakit}',[SakiteController::class, 'delete'])->name('izine.lapor-skd.delete');
+        Route::patch('/lapor-skd/update/{idSakit}',[SakiteController::class, 'update'])->name('izine.lapor-skd.update');
+
+        //LOG BOOK
+        Route::group(['middleware' => ['role:security']], function () {
+            Route::get('/log-book-izin', [IzineController::class, 'log_book_izin_view'])->name('izine.log-book-izin');
+            Route::post('/log-book-izin-datatable', [IzineController::class, 'log_book_izin_datatable']);
+            Route::patch('/log-book-izin/confirmed/{idIzin}',[IzineController::class, 'confirmed'])->name('izine.lapor-skd.confirmed');
+        });
+
+        Route::group(['middleware' => ['role:atasan|personalia']], function () {
+            //IZIN
+            Route::get('/approval-izin', [IzineController::class, 'approval_izin_view'])->name('izine.approval-izin');
+            Route::post('/approval-izin-datatable', [IzineController::class, 'approval_izin_datatable']);
+            Route::patch('/approval-izin/checked/{idIzin}', [IzineController::class, 'checked'])->name('izine.approval-izin.checked');
+            Route::patch('/approval-izin/approved/{idIzin}', [IzineController::class, 'approved'])->name('izine.approval-izin.approved');
+            Route::patch('/approval-izin/legalized/{idIzin}', [IzineController::class, 'legalized'])->name('izine.approval-izin.legalized');
+            Route::patch('/approval-izin/rejected/{idIzin}', [IzineController::class, 'rejected'])->name('izine.approval-izin.rejected');
+
+            //SKD
+            Route::get('/approval-skd', [SakiteController::class, 'approval_skd_view'])->name('izine.approval-skd');
+            Route::post('/approval-skd-datatable', [SakiteController::class, 'approval_skd_datatable']);
+            Route::patch('/approval-skd/approved/{idIzin}', [SakiteController::class, 'approved'])->name('izine.approval-skd.approved');
+            Route::patch('/approval-skd/legalized/{idIzin}', [SakiteController::class, 'legalized'])->name('izine.approval-skd.legalized');
+            Route::patch('/approval-skd/rejected/{idIzin}', [SakiteController::class, 'rejected'])->name('izine.approval-skd.rejected');
+
+            //EXPORT
+            Route::get('/export',[IzineController::class, 'export_view'])->name('izine.export');
+            Route::post('/export/export-izin-dan-skd',[IzineController::class, 'export_izin_dan_skd'])->name('izine.export.export-izin-dan-skd');
+        });
+      });
 });
 
 

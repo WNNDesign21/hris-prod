@@ -240,9 +240,17 @@ $(function () {
                     style: {
                       colors: ['#fff']
                     },
+                    // formatter: function (val, opt) {
+                    // //   return opt.w.globals.labels[opt.dataPointIndex] + ":  " + 'Rp ' + val.toLocaleString('id-ID')
+                    //      return 'Rp ' + val.toLocaleString('id-ID')
+                    // },
                     formatter: function (val, opt) {
-                    //   return opt.w.globals.labels[opt.dataPointIndex] + ":  " + 'Rp ' + val.toLocaleString('id-ID')
-                         return 'Rp ' + val.toLocaleString('id-ID')
+                        const goalValue = opt.w.config.series[0].data[opt.dataPointIndex].goals[0].value;
+                        if (goalValue === 0) {
+                          return 'Rp ' + val.toLocaleString('id-ID') + ' (Unknown)';
+                        }
+                        const percentage = (val / goalValue) * 100;
+                        return 'Rp ' + val.toLocaleString('id-ID') + ' (' + percentage.toFixed(2) + '%)';
                     },
                     offsetX: 0,
                     dropShadow: {
