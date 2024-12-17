@@ -367,7 +367,7 @@ class IzineController extends Controller
             foreach ($izine as $data) {
                 $karyawan = Karyawan::find($data->karyawan_id);
                 $posisi = $karyawan->posisi;
-                $has_leader = Approval::HasLeader($posisi);
+                $has_leader = $this->has_leader($posisi);
                 $has_section_head = Approval::HasSectionHead($posisi);
                 $has_department_head = Approval::HasDepartmentHead($posisi);
                 $legalized_by = 'Need Legalized';
