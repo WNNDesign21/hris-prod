@@ -11,6 +11,7 @@ use App\Models\Karyawan;
 use App\Models\JenisCuti;
 use App\Models\Departemen;
 use Illuminate\Http\Request;
+use App\Helpers\Approval;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Database\QueryException;
@@ -356,15 +357,25 @@ class CutieController extends Controller
             $dataFilter['rencanaMulai'] = $rencanamulaiFilter;
         }
 
-
         //MENCARI MEMBER
+        $is_can_checked = false;
+        $is_can_approved = false;
+        
         if(auth()->user()->hasRole('atasan')){
             $posisi = auth()->user()->karyawan->posisi;
-            $id_posisi_members = $this->get_member_posisi($posisi);
+            $id_posisi_members = Approval::GetMemberPosisi($posisi);
 
             foreach ($posisi as $ps){
                 $index = array_search($ps->id_posisi, $id_posisi_members);
                 array_splice($id_posisi_members, $index, 1);
+            }
+
+            if (auth()->user()->karyawan->posisi[0]->jabatan_id >= 4){
+                $is_can_checked = true;
+            } 
+
+            if (auth()->user()->karyawan->posisi[0]->jabatan_id <= 4){
+                $is_can_approved = true;
             }
 
             $dataFilter['member_posisi_id'] = $id_posisi_members;
@@ -378,190 +389,121 @@ class CutieController extends Controller
 
         if (!empty($cutie)) {
             foreach ($cutie as $data) {
-                $my_jabatan = auth()->user()->karyawan->posisi[0]->jabatan_id;
-                $posisi_karyawan = Karyawan::find($data->karyawan_id)->posisi;
+                $karyawan = Karyawan::find($data->karyawan_id);
+                $posisi = $karyawan->posisi;
+                $created_at = Carbon::parse($data->created_at)->format('d M Y, H:i:s');
+                $my_posisi = auth()->user()->karyawan->posisi[0]->jabatan_id;
+                $has_leader = Approval::HasLeader($posisi);
+                $has_section_head = Approval::HasSectionHead($posisi);
+                $has_department_head = Approval::HasDepartmentHead($posisi);
+                $checked1_by = '🕛 Need Checked';
+                $checked2_by = '🕛 Need Checked';
+                $approved_by = '🕛 Need Approved';
+                $legalized_by = '🕛 Need Legalized';
 
-                foreach($posisi_karyawan as $ps){
-                    $id_posisi_parents = $this->get_parent_posisi($ps);
+                //KONDISI JIKA SUDAH DI APPROVED
+                if($data->checked1_by){
+                    $checked1_by = '✅<br><small class="text-bold">'.$data->checked1_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked1_at)->diffForHumans().'</small>';
+                } 
+
+                if($data->checked2_by){
+                    $checked2_by = '✅<br><small class="text-bold">'.$data->checked2_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked2_at)->diffForHumans().'</small>';
+                } 
+
+                if($data->approved_by){
+                    $approved_by = '✅<br><small class="text-bold">'.$data->approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->approved_at)->diffForHumans().'</small>';
+                }
+
+                if($data->legalized_by){
+                    $legalized_by = '✅<br><small class="text-bold">'.$data->legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->legalized_at)->diffForHumans().'</small>';
                 }
 
                 //KONDISI CHECKED
-                if($data->rejected_by == null){
-                    $rejected = null;
-                    $jumlah_parent = count($id_posisi_parents) - 1;
+                if ($is_can_checked){
 
-                    //JUMLAH PARENT 5
-                    if ($jumlah_parent >= 5) {
-                        if($data->checked1_by == null){
-                            if($my_jabatan == 5 || $my_jabatan == 4){
-                                $checked1 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="checked_1"><i class="far fa-check-circle"></i> Checked</button>';
-                                $reject1 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
-                                $btn_group_1 = '<div class="btn-group btn-sm">'.$checked1.$reject1.'</div>';
-                            } else {
-                                $btn_group_1 = 'Need Checked';
-                            }
-                        } else {
-                            $btn_group_1 = '✅<br><small class="text-bold">'.$data->checked1_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked1_at)->diffForHumans().'</small>';
+                    //CHECKED 1
+                    if($has_leader && $my_posisi == 5){
+                        if(!$data->checked1_by){
+                            $checked1_by = '<div class="btn-group btn-sm">
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="checked_1"><i class="far fa-check-circle"></i> Checked</button>
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
+                            </div>';
                         } 
+                    }
 
-                        if($data->checked2_by == null){
-                            if($my_jabatan == 5 || $my_jabatan == 4){
-                                if($data->checked1_by !== null){
-                                    if($data->checked1_by !== auth()->user()->karyawan->nama){
-                                        $checked2 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="checked_2"><i class="far fa-check-circle"></i> Checked</button>';
-                                        $reject2 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
-                                        $btn_group_2 = '<div class="btn-group btn-sm">'.$checked2.$reject2.'</div>';
-                                    } else {
-                                        $btn_group_2 = 'Need Checked';
-                                    }
-                                } else {
-                                    $btn_group_2 = 'Need Checked';
-                                }
-                            } else {
-                                $btn_group_2 = 'Need Checked';
-                            }
-                        } else {
-                            $btn_group_2 = '✅<br><small class="text-bold">'.$data->checked2_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked2_at)->diffForHumans().'</small>';
-                        }
-    
-                        if($data->approved_by == null){
-                            if($my_jabatan == 4 || $my_jabatan == 3){
-                                if($data->checked2_by !== null){
-                                    if($data->checked1_by !== auth()->user()->karyawan->nama){
-                                        $approved = '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>';
-                                        $reject3 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
-                                        $btn_group_3 = '<div class="btn-group btn-sm">'.$approved.$reject3.'</div>';
-                                    } else {
-                                        $btn_group_3 = 'Waiting For Approved';
-                                    }
-                                } else {
-                                    $btn_group_3 = 'Waiting Checked 1 & 2';
-                                }
-                            } else {
-                                $btn_group_3 = 'Waiting Approved';
-                            }
-                        } else {
-                            $btn_group_3 = '✅<br><small class="text-bold">'.$data->approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->approved_at)->diffForHumans().'</small>';
-                        }
-                        
-                        if($data->legalized_by == null){
-                            if($data->approved_by !== null){
-                                $legalized = 'Waiting For Legalized';
-                            } else {
-                                $legalized = 'Waiting Approved';
-                            }
-                        } else {
-                            $legalized = '✅<br><small class="text-bold">'.$data->legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->legalized_at)->diffForHumans().'</small>';
-                        }
-
-                    // JUMLAH PARENT 4
-                    } elseif ($jumlah_parent >= 4){
-                        if($data->checked1_by == null){
-                            if($my_jabatan == 4 || $my_jabatan == 3 || $my_jabatan == 5){
-                                $checked1 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="checked_1"><i class="far fa-check-circle"></i> Checked</button>';
-                                $reject1 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
-                                $btn_group_1 = '<div class="btn-group btn-sm">'.$checked1.$reject1.'</div>';
-                            } else {
-                                $btn_group_1 = 'Need Checked';
-                            }
-                        } else {
-                            $btn_group_1 = '✅<br><small class="text-bold">'.$data->checked1_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked1_at)->diffForHumans().'</small>';
+                    //CHECKED 2
+                    if($has_section_head && $has_department_head && $my_posisi == 4){
+                        if(!$data->checked2_by){
+                            $checked2_by = '<div class="btn-group btn-sm">
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="checked_2"><i class="far fa-check-circle"></i> Checked</button>
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
+                            </div>';
                         } 
+                    }
+                }
 
-                        if($data->checked2_by == null){
-                            if($my_jabatan == 4 || $my_jabatan == 3 || $my_jabatan == 5){
-                                if($data->checked1_by !== null){
-                                    if($data->checked1_by !== auth()->user()->karyawan->nama){
-                                        $checked2 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="checked_2"><i class="far fa-check-circle"></i> Checked</button>';
-                                        $reject2 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
-                                        $btn_group_2 = '<div class="btn-group btn-sm">'.$checked2.$reject2.'</div>';
-                                    } else {
-                                        $btn_group_2 = 'Need Checked';
-                                    }
-                                } else {
-                                    $btn_group_2 = 'Need Checked';
-                                }
-                            } else {
-                                $btn_group_2 = 'Need Checked';
-                            }
-                        } else {
-                            $btn_group_2 = '✅<br><small class="text-bold">'.$data->checked2_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked2_at)->diffForHumans().'</small>';
-                        }
-    
-                        if($data->approved_by == null){
-                            if($my_jabatan == 3 || $my_jabatan == 2 || $my_jabatan == 4){
-                                if($data->checked2_by !== null){
-                                    $approved = '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'" data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>';
-                                    $reject3 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
-                                    $btn_group_3 = '<div class="btn-group btn-sm">'.$approved.$reject3.'</div>';
-                                } else {
-                                    $btn_group_3 = 'Need Checked 1 & 2';
-                                }
-                            } else {
-                                $btn_group_3 = 'Waiting Approved';
-                            }
-                        } else {
-                            $btn_group_3 = '✅<br><small class="text-bold">'.$data->approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->approved_at)->diffForHumans().'</small>';
-                        }
-                        
-                        if($data->legalized_by == null){
-                            if($data->approved_by !== null){
-                                $legalized = 'Waiting For Legalized';
-                            } else {
-                                $legalized = 'Waiting Approved';
-                            }
-                        } else {
-                            $legalized = '✅<br><small class="text-bold">'.$data->legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->legalized_at)->diffForHumans().'</small>';
-                        }
-                    // JUMLAH PARENT 3
-                    } elseif ($jumlah_parent >= 1) {
-                        if($data->checked1_by == null){
-                            $btn_group_1 = 'Directly Approve';
-                        } else {
-                            $btn_group_1 = '✅<br><small class="text-bold">'.$data->checked1_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked1_at)->diffForHumans().'</small>';
+                //KONDISI APPROVED
+                if ($is_can_approved){
+
+                    //SECTION HEAD
+                    if(!$has_leader && $has_section_head && !$has_department_head && $my_posisi == 4){
+                        $checked1_by = 'Directly Approved';
+                        $checked2_by = 'Directly Approved';
+                        if(!$data->approved_by){
+                            $approved_by = '<div class="btn-group btn-sm">
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
+                            </div>';
                         } 
+                    }
 
-                        if($data->checked2_by == null){
-                            $btn_group_2 = 'Directly Approve';
-                        } else {
-                            $btn_group_2 = '✅<br><small class="text-bold">'.$data->checked2_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked2_at)->diffForHumans().'</small>';
-                        }
+                    //DEPARTMENT HEAD
+                    if($has_leader && $has_section_head && $has_department_head && $my_posisi == 3){
+                        if(!$data->approved_by){
+                            $approved_by = '<div class="btn-group btn-sm">
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
+                            </div>';
+                        } 
+                    }
 
-                        if($data->approved_by == null){
-                            $btn_group_3 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'" data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>';
-                            $reject3 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
-                            $btn_group_3 = '<div class="btn-group btn-sm">'.$btn_group_3.$reject3.'</div>';
-                        } else {
-                            $btn_group_3 = '✅<br><small class="text-bold">'.$data->approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->approved_at)->diffForHumans().'</small>';
-                        }
-                        
-                        if($data->legalized_by == null){
-                            if($data->approved_by !== null){
-                                $legalized = 'Waiting For Legalized';
-                            } else {
-                                $legalized = 'Waiting Approved';
-                            }
-                        } else {
-                            $legalized = '✅<br><small class="text-bold">'.$data->legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->legalized_at)->diffForHumans().'</small>';
-                        }
-                    } 
-                } else {
-                    $rejected = '❌<br><small class="text-bold">'.$data->rejected_by.'</small><br><small class="text-fade">'.Carbon::parse($data->rejected_at)->diffForHumans().'</small>';
+                    if(!$has_leader && !$has_section_head && $has_department_head && $my_posisi == 3){
+                        $checked1_by = 'Directly Approved';
+                        $checked2_by = 'Directly Approved';
+                        if(!$data->approved_by){
+                            $approved_by = '<div class="btn-group btn-sm">
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
+                            </div>';
+                        } 
+                    }
+                    
+                    // OTHER
+                    if(!$has_section_head && !$has_department_head){
+                        $checked1_by = 'Directly Approved';
+                        $checked2_by = 'Directly Approved';
+                        if(!$data->approved_by){
+                            $approved_by = '<div class="btn-group btn-sm">
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
+                            </div>';
+                        } 
+                    }
                 }
                 
-                //Karyawan Pengganti 
-                if ($data->nama_pengganti && $data->legalized_by == null && $data->rejected_by == null){
-                    $btn_karyawan_pengganti = '<small class="text-bold">'.$data->nama_pengganti.'</small><br>'.'<button type="button" class="waves-effect waves-light btn btn-sm btn-secondary btnKaryawanPengganti" data-id="'.$data->id_cuti.'" data-karyawan-id="'.$data->karyawan_id.'" data-karyawan-pengganti-id="'.$data->karyawan_pengganti_id.'"><i class="fas fa-user-friends"></i> Pilih</button>';
-                } elseif($data->nama_pengganti && $data->legalized_by !== null && $data->rejected_by == null){
-                    $btn_karyawan_pengganti = '<small class="text-bold">'.$data->nama_pengganti.'</small>';
-                } elseif ($data->nama_pengganti == null && $data->legalized_by == null && $data->rejected_by == null){ 
-                    $btn_karyawan_pengganti = '<button type="button" class="waves-effect waves-light btn btn-sm btn-secondary btnKaryawanPengganti" data-id="'.$data->id_cuti.'" data-karyawan-id="'.$data->karyawan_id.'" data-karyawan-pengganti-id="'.$data->karyawan_pengganti_id.'"><i class="fas fa-user-friends"></i> Pilih</button>';
+                //KARYAWAN PENGGANTI
+                if ($data->nama_pengganti && $data->legalized_by && $data->rejected_by){
+                    $karyawan_pengganti = '<small class="text-bold">'.$data->nama_pengganti.'</small><br>'.'<button type="button" class="waves-effect waves-light btn btn-sm btn-secondary btnKaryawanPengganti" data-id="'.$data->id_cuti.'" data-karyawan-id="'.$data->karyawan_id.'" data-karyawan-pengganti-id="'.$data->karyawan_pengganti_id.'"><i class="fas fa-user-friends"></i> Pilih</button>';
+                } elseif($data->nama_pengganti && !$data->legalized_by && $data->rejected_by){
+                    $karyawan_pengganti = '<small class="text-bold">'.$data->nama_pengganti.'</small>';
+                } elseif ($data->nama_pengganti && $data->legalized_by && $data->rejected_by){ 
+                    $karyawan_pengganti = '<button type="button" class="waves-effect waves-light btn btn-sm btn-secondary btnKaryawanPengganti" data-id="'.$data->id_cuti.'" data-karyawan-id="'.$data->karyawan_id.'" data-karyawan-pengganti-id="'.$data->karyawan_pengganti_id.'"><i class="fas fa-user-friends"></i> Pilih</button>';
                 } else {
-                    $btn_karyawan_pengganti = '-';
+                    $karyawan_pengganti = '-';
                 }
 
-                //Status Cuti
-                if($data->rejected_by == null){
+                //STATUS CUTI
+                if(!$data->rejected_by){
                     if($data->status_cuti == 'SCHEDULED'){
                         $status_cuti = '<span class="badge badge-pill badge-warning">'.$data->status_cuti.'</span>';
                     } elseif($data->status_cuti == 'ON LEAVE'){
@@ -579,23 +521,13 @@ class CutieController extends Controller
 
                 //JIKA CANCEL
                 if($data->status_cuti == 'CANCELED'){
-                    if($data->checked1_by == null){
-                        $btn_group_1 = '<span class="badge badge-pill badge-danger">CANCELED</span>';
-                    } 
-                    
-                    if($data->checked2_by == null){
-                        $btn_group_2 = '<span class="badge badge-pill badge-danger">CANCELED</span>';
-                    } 
-                    
-                    if($data->approved_by == null){
-                        $btn_group_3 = '<span class="badge badge-pill badge-danger">CANCELED</span>';
-                    }
-                    
-                    if ($data->legalized_by == null){
-                        $legalized = '<span class="badge badge-pill badge-danger">CANCELED</span>';
-                    }
+                    $checked1_by = $checked2_by = $approved_by = $legalized_by = '<span class="badge badge-pill badge-danger">CANCELED</span>';
+                    $karyawan_pengganti = '-';
+                }
 
-                    $btn_karyawan_pengganti = '-';
+                //JIKA REJECTED
+                if($data->rejected_by){
+                    $checked1_by = $checked2_by = $approved_by = $legalized_by = '❌<br><small class="text-bold">'.$data->rejected_by.'</small><br><small class="text-fade">'.Carbon::parse($data->rejected_at)->diffForHumans().'</small>';
                 }
 
                 $nestedData['nama'] = $data->nama_karyawan;
@@ -606,20 +538,19 @@ class CutieController extends Controller
                 $nestedData['aktual_selesai_cuti'] = $data->aktual_selesai_cuti ? Carbon::parse($data->aktual_selesai_cuti)->format('d M Y') : '-';
                 $nestedData['durasi'] = $data->durasi_cuti.' Hari';
                 $nestedData['jenis'] = $data->jenis_cuti !== 'KHUSUS' ? $data->jenis_cuti : $data->jenis_cuti.' <small class="text-fade">('.$data->jenis_cuti_khusus.')</small>';
-                $nestedData['checked_1'] = $rejected == null ? $btn_group_1 : $rejected;
-                $nestedData['checked_2'] = $rejected == null ? $btn_group_2 : $rejected;
-                $nestedData['approved'] = $rejected == null ? $btn_group_3 : $rejected;
-                $nestedData['legalized'] = $rejected == null ? $legalized : $rejected;
+                $nestedData['checked_1'] = $checked1_by;
+                $nestedData['checked_2'] = $checked2_by;
+                $nestedData['approved'] = $approved_by;
+                $nestedData['legalized'] = $legalized_by;
                 $nestedData['status_dokumen'] = $data->status_dokumen == 'WAITING' ? '<span class="badge badge-pill badge-warning">'.$data->status_dokumen.'</span>' : ($data->status_dokumen == 'APPROVED' ? '<span class="badge badge-pill badge-success">'.$data->status_dokumen.'</span>' : '<span class="badge badge-pill badge-danger btnAlasan" data-alasan="'.$data->rejected_note.'" style="cursor:pointer;">'.$data->status_dokumen.'</span>');
                 $nestedData['status'] = $status_cuti;
                 $nestedData['alasan'] = $data->alasan_cuti;
-                $nestedData['karyawan_pengganti'] = $btn_karyawan_pengganti;
-                // $nestedData['created_at'] = Carbon::parse($data->created_at)->diffForHumans() ;
-                $nestedData['created_at'] = Carbon::parse($data->created_at)->format('d M Y H:i:s');
+                $nestedData['karyawan_pengganti'] = $karyawan_pengganti;
+                $nestedData['created_at'] = $created_at;
                 $nestedData['attachment'] = $data->jenis_cuti !== 'SAKIT' ? 'No Attachment Needed' : '<a href="'.asset('storage/'.$data->attachment).'" target="_blank">Lihat</a>';
                 $nestedData['aksi'] = '
                 <div class="btn-group btn-group-sm">'.
-                    ($data->checked_by == null || $data->approved_by == null || $data->legalized_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id="'.$data->id_cuti.'"><i class="fas fa-edit"></i> Edit</button><button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button>' : '').'
+                    ($data->checked1_by == null || $data->checked2_by == null || $data->approved_by == null || $data->legalized_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id="'.$data->id_cuti.'"><i class="fas fa-edit"></i> Edit</button><button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button>' : '').'
                 </div>
                 ';
 
@@ -640,6 +571,370 @@ class CutieController extends Controller
 
         return response()->json($json_data, 200);
     }
+
+    //OLD
+    // public function member_cuti_datatable(Request $request)
+    // {
+
+    //     $columns = array(
+    //         0 => 'karyawans.nama',
+    //         1 => 'departemens.nama',
+    //         2 => 'rencana_mulai_cuti',
+    //         3 => 'rencana_selesai_cuti',
+    //         4 => 'aktual_mulai_cuti',
+    //         5 => 'aktual_selesai_cuti',
+    //         6 => 'durasi_cuti',
+    //         7 => 'jenis_cuti',
+    //         8 => 'checked1_at',
+    //         9 => 'checked2_at',
+    //         10 => 'approved_at',
+    //         11 => 'legalize_at',
+    //         12 => 'status_dokumen',
+    //         13 => 'status_cuti',
+    //         14 => 'alasan_cuti',
+    //         15 => 'kp.nama_pengganti',
+    //         16 => 'created_at',
+    //     );
+
+    //     $totalData = Cutie::count();
+    //     $totalFiltered = $totalData;
+
+    //     $limit = $request->input('length');
+    //     $start = $request->input('start');
+    //     $order = (!empty($request->input('order.0.column'))) ? $columns[$request->input('order.0.column')] : $columns[0];
+    //     $dir = (!empty($request->input('order.0.dir'))) ? $request->input('order.0.dir') : "DESC";
+
+    //     $settings['start'] = $start;
+    //     $settings['limit'] = $limit;
+    //     $settings['dir'] = $dir;
+    //     $settings['order'] = $order;
+
+    //     $dataFilter = [];
+    //     $search = $request->input('search.value');
+    //     if (!empty($search)) {
+    //         $dataFilter['search'] = $search;
+    //     }
+
+    //     //FILTER DATA
+    //     $departemenFilter = $request->input('departemen');
+    //     if (!empty($departemenFilter)) {
+    //         $dataFilter['departemen'] = $departemenFilter;
+    //     }
+
+    //     $jenisCutiFilter = $request->input('jenisCuti');
+    //     if (!empty($jenisCutiFilter)) {
+    //         $dataFilter['jenisCuti'] = $jenisCutiFilter;
+    //     }
+
+    //     $statusCutiFilter = $request->input('statusCuti');
+    //     if (!empty($statusCutiFilter)) {
+    //         $dataFilter['statusCuti'] = $statusCutiFilter;
+    //     }
+
+    //     $statusDokumenFilter = $request->input('statusDokumen');
+    //     if (!empty($statusDokumenFilter)) {
+    //         $dataFilter['statusDokumen'] = $statusDokumenFilter;
+    //     }
+
+    //     $namaFilter = $request->input('nama');
+    //     if (!empty($namaFilter)) {
+    //         $dataFilter['nama'] = $namaFilter;
+    //     }
+
+    //     $durasiFilter = $request->input('durasi');
+    //     if (!empty($durasiFilter)) {
+    //         $dataFilter['durasi'] = $durasiFilter;
+    //     }
+
+    //     $rencanamulaiFilter = $request->input('rencanaMulai');
+    //     if (!empty($rencanamulaiFilter)) {
+    //         $dataFilter['rencanaMulai'] = $rencanamulaiFilter;
+    //     }
+
+
+    //     //MENCARI MEMBER
+    //     if(auth()->user()->hasRole('atasan')){
+    //         $posisi = auth()->user()->karyawan->posisi;
+    //         $id_posisi_members = Approval::GetMemberPosisi($posisi);
+
+    //         foreach ($posisi as $ps){
+    //             $index = array_search($ps->id_posisi, $id_posisi_members);
+    //             array_splice($id_posisi_members, $index, 1);
+    //         }
+
+    //         $dataFilter['member_posisi_id'] = $id_posisi_members;
+    //     }
+        
+    //     $cutie = Cutie::getData($dataFilter, $settings);
+    //     $totalFiltered = Cutie::countData($dataFilter);
+    //     // $totalFiltered = Cutie::countData($dataFilter);
+
+    //     $dataTable = [];
+
+    //     if (!empty($cutie)) {
+    //         foreach ($cutie as $data) {
+    //             $my_jabatan = auth()->user()->karyawan->posisi[0]->jabatan_id;
+    //             $posisi_karyawan = Karyawan::find($data->karyawan_id)->posisi;
+
+    //             foreach($posisi_karyawan as $ps){
+    //                 $id_posisi_parents = Approval::GetParentPosisi($ps);
+    //             }
+
+    //             //KONDISI CHECKED
+    //             if($data->rejected_by == null){
+    //                 $rejected = null;
+    //                 $jumlah_parent = count($id_posisi_parents) - 1;
+
+    //                 //JUMLAH PARENT 5
+    //                 if ($jumlah_parent >= 5) {
+    //                     if($data->checked1_by == null){
+    //                         if($my_jabatan == 5 || $my_jabatan == 4){
+    //                             $checked1 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="checked_1"><i class="far fa-check-circle"></i> Checked</button>';
+    //                             $reject1 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
+    //                             $btn_group_1 = '<div class="btn-group btn-sm">'.$checked1.$reject1.'</div>';
+    //                         } else {
+    //                             $btn_group_1 = 'Need Checked';
+    //                         }
+    //                     } else {
+    //                         $btn_group_1 = '✅<br><small class="text-bold">'.$data->checked1_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked1_at)->diffForHumans().'</small>';
+    //                     } 
+
+    //                     if($data->checked2_by == null){
+    //                         if($my_jabatan == 5 || $my_jabatan == 4){
+    //                             if($data->checked1_by !== null){
+    //                                 if($data->checked1_by !== auth()->user()->karyawan->nama){
+    //                                     $checked2 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="checked_2"><i class="far fa-check-circle"></i> Checked</button>';
+    //                                     $reject2 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
+    //                                     $btn_group_2 = '<div class="btn-group btn-sm">'.$checked2.$reject2.'</div>';
+    //                                 } else {
+    //                                     $btn_group_2 = 'Need Checked';
+    //                                 }
+    //                             } else {
+    //                                 $btn_group_2 = 'Need Checked';
+    //                             }
+    //                         } else {
+    //                             $btn_group_2 = 'Need Checked';
+    //                         }
+    //                     } else {
+    //                         $btn_group_2 = '✅<br><small class="text-bold">'.$data->checked2_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked2_at)->diffForHumans().'</small>';
+    //                     }
+    
+    //                     if($data->approved_by == null){
+    //                         if($my_jabatan == 4 || $my_jabatan == 3){
+    //                             if($data->checked2_by !== null){
+    //                                 if($data->checked1_by !== auth()->user()->karyawan->nama){
+    //                                     $approved = '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>';
+    //                                     $reject3 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
+    //                                     $btn_group_3 = '<div class="btn-group btn-sm">'.$approved.$reject3.'</div>';
+    //                                 } else {
+    //                                     $btn_group_3 = 'Waiting For Approved';
+    //                                 }
+    //                             } else {
+    //                                 $btn_group_3 = 'Waiting Checked 1 & 2';
+    //                             }
+    //                         } else {
+    //                             $btn_group_3 = 'Waiting Approved';
+    //                         }
+    //                     } else {
+    //                         $btn_group_3 = '✅<br><small class="text-bold">'.$data->approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->approved_at)->diffForHumans().'</small>';
+    //                     }
+                        
+    //                     if($data->legalized_by == null){
+    //                         if($data->approved_by !== null){
+    //                             $legalized = 'Waiting For Legalized';
+    //                         } else {
+    //                             $legalized = 'Waiting Approved';
+    //                         }
+    //                     } else {
+    //                         $legalized = '✅<br><small class="text-bold">'.$data->legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->legalized_at)->diffForHumans().'</small>';
+    //                     }
+
+    //                 // JUMLAH PARENT 4
+    //                 } elseif ($jumlah_parent >= 4){
+    //                     if($data->checked1_by == null){
+    //                         if($my_jabatan == 4 || $my_jabatan == 3 || $my_jabatan == 5){
+    //                             $checked1 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="checked_1"><i class="far fa-check-circle"></i> Checked</button>';
+    //                             $reject1 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
+    //                             $btn_group_1 = '<div class="btn-group btn-sm">'.$checked1.$reject1.'</div>';
+    //                         } else {
+    //                             $btn_group_1 = 'Need Checked';
+    //                         }
+    //                     } else {
+    //                         $btn_group_1 = '✅<br><small class="text-bold">'.$data->checked1_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked1_at)->diffForHumans().'</small>';
+    //                     } 
+
+    //                     if($data->checked2_by == null){
+    //                         if($my_jabatan == 4 || $my_jabatan == 3 || $my_jabatan == 5){
+    //                             if($data->checked1_by !== null){
+    //                                 if($data->checked1_by !== auth()->user()->karyawan->nama){
+    //                                     $checked2 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="checked_2"><i class="far fa-check-circle"></i> Checked</button>';
+    //                                     $reject2 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
+    //                                     $btn_group_2 = '<div class="btn-group btn-sm">'.$checked2.$reject2.'</div>';
+    //                                 } else {
+    //                                     $btn_group_2 = 'Need Checked';
+    //                                 }
+    //                             } else {
+    //                                 $btn_group_2 = 'Need Checked';
+    //                             }
+    //                         } else {
+    //                             $btn_group_2 = 'Need Checked';
+    //                         }
+    //                     } else {
+    //                         $btn_group_2 = '✅<br><small class="text-bold">'.$data->checked2_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked2_at)->diffForHumans().'</small>';
+    //                     }
+    
+    //                     if($data->approved_by == null){
+    //                         if($my_jabatan == 3 || $my_jabatan == 2 || $my_jabatan == 4){
+    //                             if($data->checked2_by !== null){
+    //                                 $approved = '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'" data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>';
+    //                                 $reject3 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
+    //                                 $btn_group_3 = '<div class="btn-group btn-sm">'.$approved.$reject3.'</div>';
+    //                             } else {
+    //                                 $btn_group_3 = 'Need Checked 1 & 2';
+    //                             }
+    //                         } else {
+    //                             $btn_group_3 = 'Waiting Approved';
+    //                         }
+    //                     } else {
+    //                         $btn_group_3 = '✅<br><small class="text-bold">'.$data->approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->approved_at)->diffForHumans().'</small>';
+    //                     }
+                        
+    //                     if($data->legalized_by == null){
+    //                         if($data->approved_by !== null){
+    //                             $legalized = 'Waiting For Legalized';
+    //                         } else {
+    //                             $legalized = 'Waiting Approved';
+    //                         }
+    //                     } else {
+    //                         $legalized = '✅<br><small class="text-bold">'.$data->legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->legalized_at)->diffForHumans().'</small>';
+    //                     }
+    //                 // JUMLAH PARENT 3
+    //                 } elseif ($jumlah_parent >= 1) {
+    //                     if($data->checked1_by == null){
+    //                         $btn_group_1 = 'Directly Approve';
+    //                     } else {
+    //                         $btn_group_1 = '✅<br><small class="text-bold">'.$data->checked1_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked1_at)->diffForHumans().'</small>';
+    //                     } 
+
+    //                     if($data->checked2_by == null){
+    //                         $btn_group_2 = 'Directly Approve';
+    //                     } else {
+    //                         $btn_group_2 = '✅<br><small class="text-bold">'.$data->checked2_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked2_at)->diffForHumans().'</small>';
+    //                     }
+
+    //                     if($data->approved_by == null){
+    //                         $btn_group_3 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'" data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>';
+    //                         $reject3 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
+    //                         $btn_group_3 = '<div class="btn-group btn-sm">'.$btn_group_3.$reject3.'</div>';
+    //                     } else {
+    //                         $btn_group_3 = '✅<br><small class="text-bold">'.$data->approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->approved_at)->diffForHumans().'</small>';
+    //                     }
+                        
+    //                     if($data->legalized_by == null){
+    //                         if($data->approved_by !== null){
+    //                             $legalized = 'Waiting For Legalized';
+    //                         } else {
+    //                             $legalized = 'Waiting Approved';
+    //                         }
+    //                     } else {
+    //                         $legalized = '✅<br><small class="text-bold">'.$data->legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->legalized_at)->diffForHumans().'</small>';
+    //                     }
+    //                 } 
+    //             } else {
+    //                 $rejected = '❌<br><small class="text-bold">'.$data->rejected_by.'</small><br><small class="text-fade">'.Carbon::parse($data->rejected_at)->diffForHumans().'</small>';
+    //             }
+                
+    //             //Karyawan Pengganti 
+    //             if ($data->nama_pengganti && $data->legalized_by == null && $data->rejected_by == null){
+    //                 $btn_karyawan_pengganti = '<small class="text-bold">'.$data->nama_pengganti.'</small><br>'.'<button type="button" class="waves-effect waves-light btn btn-sm btn-secondary btnKaryawanPengganti" data-id="'.$data->id_cuti.'" data-karyawan-id="'.$data->karyawan_id.'" data-karyawan-pengganti-id="'.$data->karyawan_pengganti_id.'"><i class="fas fa-user-friends"></i> Pilih</button>';
+    //             } elseif($data->nama_pengganti && $data->legalized_by !== null && $data->rejected_by == null){
+    //                 $btn_karyawan_pengganti = '<small class="text-bold">'.$data->nama_pengganti.'</small>';
+    //             } elseif ($data->nama_pengganti == null && $data->legalized_by == null && $data->rejected_by == null){ 
+    //                 $btn_karyawan_pengganti = '<button type="button" class="waves-effect waves-light btn btn-sm btn-secondary btnKaryawanPengganti" data-id="'.$data->id_cuti.'" data-karyawan-id="'.$data->karyawan_id.'" data-karyawan-pengganti-id="'.$data->karyawan_pengganti_id.'"><i class="fas fa-user-friends"></i> Pilih</button>';
+    //             } else {
+    //                 $btn_karyawan_pengganti = '-';
+    //             }
+
+    //             //Status Cuti
+    //             if($data->rejected_by == null){
+    //                 if($data->status_cuti == 'SCHEDULED'){
+    //                     $status_cuti = '<span class="badge badge-pill badge-warning">'.$data->status_cuti.'</span>';
+    //                 } elseif($data->status_cuti == 'ON LEAVE'){
+    //                     $status_cuti = '<span class="badge badge-pill badge-secondary">'.$data->status_cuti.'</span>';
+    //                 } elseif($data->status_cuti == 'COMPLETED'){
+    //                     $status_cuti = '<span class="badge badge-pill badge-success">'.$data->status_cuti.'</span>';
+    //                 } elseif ($data->status_cuti == 'CANCELED') {
+    //                     $status_cuti = '<span class="badge badge-pill badge-danger">'.$data->status_cuti.'</span>';
+    //                 } else {
+    //                     $status_cuti = '-';
+    //                 }
+    //             } else {
+    //                 $status_cuti = '<span class="badge badge-pill badge-danger btnAlasan" data-alasan="'.$data->rejected_note.'" style="cursor:pointer;">REJECTED</span>';
+    //             }
+
+    //             //JIKA CANCEL
+    //             if($data->status_cuti == 'CANCELED'){
+    //                 if($data->checked1_by == null){
+    //                     $btn_group_1 = '<span class="badge badge-pill badge-danger">CANCELED</span>';
+    //                 } 
+                    
+    //                 if($data->checked2_by == null){
+    //                     $btn_group_2 = '<span class="badge badge-pill badge-danger">CANCELED</span>';
+    //                 } 
+                    
+    //                 if($data->approved_by == null){
+    //                     $btn_group_3 = '<span class="badge badge-pill badge-danger">CANCELED</span>';
+    //                 }
+                    
+    //                 if ($data->legalized_by == null){
+    //                     $legalized = '<span class="badge badge-pill badge-danger">CANCELED</span>';
+    //                 }
+
+    //                 $btn_karyawan_pengganti = '-';
+    //             }
+
+    //             $nestedData['nama'] = $data->nama_karyawan;
+    //             $nestedData['departemen'] = $data->nama_departemen;
+    //             $nestedData['rencana_mulai_cuti'] = Carbon::parse($data->rencana_mulai_cuti)->format('d M Y');
+    //             $nestedData['rencana_selesai_cuti'] = Carbon::parse($data->rencana_selesai_cuti)->format('d M Y');
+    //             $nestedData['aktual_mulai_cuti'] = $data->aktual_mulai_cuti ? Carbon::parse($data->aktual_selesai_cuti)->format('d M Y') : '-';
+    //             $nestedData['aktual_selesai_cuti'] = $data->aktual_selesai_cuti ? Carbon::parse($data->aktual_selesai_cuti)->format('d M Y') : '-';
+    //             $nestedData['durasi'] = $data->durasi_cuti.' Hari';
+    //             $nestedData['jenis'] = $data->jenis_cuti !== 'KHUSUS' ? $data->jenis_cuti : $data->jenis_cuti.' <small class="text-fade">('.$data->jenis_cuti_khusus.')</small>';
+    //             $nestedData['checked_1'] = $rejected == null ? $btn_group_1 : $rejected;
+    //             $nestedData['checked_2'] = $rejected == null ? $btn_group_2 : $rejected;
+    //             $nestedData['approved'] = $rejected == null ? $btn_group_3 : $rejected;
+    //             $nestedData['legalized'] = $rejected == null ? $legalized : $rejected;
+    //             $nestedData['status_dokumen'] = $data->status_dokumen == 'WAITING' ? '<span class="badge badge-pill badge-warning">'.$data->status_dokumen.'</span>' : ($data->status_dokumen == 'APPROVED' ? '<span class="badge badge-pill badge-success">'.$data->status_dokumen.'</span>' : '<span class="badge badge-pill badge-danger btnAlasan" data-alasan="'.$data->rejected_note.'" style="cursor:pointer;">'.$data->status_dokumen.'</span>');
+    //             $nestedData['status'] = $status_cuti;
+    //             $nestedData['alasan'] = $data->alasan_cuti;
+    //             $nestedData['karyawan_pengganti'] = $btn_karyawan_pengganti;
+    //             // $nestedData['created_at'] = Carbon::parse($data->created_at)->diffForHumans() ;
+    //             $nestedData['created_at'] = Carbon::parse($data->created_at)->format('d M Y H:i:s');
+    //             $nestedData['attachment'] = $data->jenis_cuti !== 'SAKIT' ? 'No Attachment Needed' : '<a href="'.asset('storage/'.$data->attachment).'" target="_blank">Lihat</a>';
+    //             $nestedData['aksi'] = '
+    //             <div class="btn-group btn-group-sm">'.
+    //                 ($data->checked_by == null || $data->approved_by == null || $data->legalized_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id="'.$data->id_cuti.'"><i class="fas fa-edit"></i> Edit</button><button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button>' : '').'
+    //             </div>
+    //             ';
+
+    //             $dataTable[] = $nestedData;
+    //         }
+    //     }
+
+    //     $json_data = array(
+    //         "draw" => intval($request->input('draw')),
+    //         "recordsTotal" => intval($totalData),
+    //         "recordsFiltered" => intval($totalFiltered),
+    //         "data" => $dataTable,
+    //         "order" => $order,
+    //         "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
+    //         "dir" => $dir,
+    //         "column"=>$request->input('order.0.column')
+    //     );
+
+    //     return response()->json($json_data, 200);
+    // }
 
     public function personalia_cuti_datatable(Request $request)
     {
@@ -906,29 +1201,6 @@ class CutieController extends Controller
         );
 
         return response()->json($json_data, 200);
-    }
-
-    function get_member_posisi($posisis)
-    {
-        $data = [];
-        foreach ($posisis as $ps) {
-            if ($ps->children) {
-                $data = array_merge($data, $this->get_member_posisi($ps->children));
-            }
-            $data[] = $ps->id_posisi;
-        }
-        return $data;
-    }
-
-    function get_parent_posisi($posisi)
-    {
-        $data = [];
-        if ($posisi->parent_id !== 0) {
-            $parent = Posisi::find($posisi->parent_id);
-            $data = array_merge($data, $this->get_parent_posisi($parent));
-        }
-        $data[] = $posisi->parent_id;
-        return $data;
     }
 
     public function get_data_jenis_cuti_khusus(){
@@ -1582,9 +1854,19 @@ class CutieController extends Controller
                 $cuti->checked1_by = $issued_name;
                 $cuti->checked1_at = now();
             } elseif ($type == 'checked_2'){
+                if(!$cuti->checked1_by){
+                    $cuti->checked1_by = $issued_name;
+                    $cuti->checked1_at = now();
+                }
                 $cuti->checked2_by = $issued_name;
                 $cuti->checked2_at = now();
             } elseif ($type == 'approved'){
+                if(!$cuti->checked1_by){
+                    $cuti->checked1_by = $issued_name;
+                    $cuti->checked1_at = now();
+                    $cuti->checked2_by = $issued_name;
+                    $cuti->checked2_at = now();
+                }
                 $cuti->approved_by = $issued_name;
                 $cuti->approved_at = now();
             } else {
@@ -1819,7 +2101,7 @@ class CutieController extends Controller
 
         if(auth()->user()->hasRole('atasan')){
             $posisi = auth()->user()->karyawan->posisi;
-            $id_posisi_members = $this->get_member_posisi($posisi);
+            $id_posisi_members = Approval::GetMemberPosisi($posisi);
 
             foreach ($posisi as $ps){
                 $index = array_search($ps->id_posisi, $id_posisi_members);
@@ -1920,7 +2202,7 @@ class CutieController extends Controller
 
         if(auth()->user()->hasRole('atasan')){
             $posisi = auth()->user()->karyawan->posisi;
-            $id_posisi_members = $this->get_member_posisi($posisi);
+            $id_posisi_members = Approval::GetMemberPosisi($posisi);
 
             foreach ($posisi as $ps){
                 $index = array_search($ps->id_posisi, $id_posisi_members);
@@ -2054,7 +2336,7 @@ class CutieController extends Controller
 
         if(auth()->user()->hasRole('atasan')){
             $posisi = auth()->user()->karyawan->posisi;
-            $id_posisi_members = $this->get_member_posisi($posisi);
+            $id_posisi_members = Approval::GetMemberPosisi($posisi);
 
             foreach ($posisi as $ps){
                 $index = array_search($ps->id_posisi, $id_posisi_members);

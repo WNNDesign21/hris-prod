@@ -67,6 +67,7 @@ $(function () {
         { data: "nama" },
         { data: "departemen" },
         { data: "posisi" },
+        { data: "created_at" },
         { data: "tanggal_mulai" },
         { data: "tanggal_selesai" },
         { data: "durasi" },
