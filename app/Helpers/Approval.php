@@ -100,7 +100,7 @@ class Approval
     public static function GetMemberPosisi($posisi)
     {
         self::$array = [];
-        foreach ($posisis as $ps) {
+        foreach ($posisi as $ps) {
             if ($ps->children) {
                 self::$array = array_merge(self::$array, self::GetMemberPosisi($ps->children));
             }
