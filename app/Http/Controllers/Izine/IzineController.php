@@ -11,6 +11,7 @@ use App\Models\Karyawan;
 use App\Models\Departemen;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Helpers\Approval;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -323,7 +324,7 @@ class IzineController extends Controller
         //FILTER MEMBER
         if (auth()->user()->hasRole('atasan')){
             $posisi = auth()->user()->karyawan->posisi;
-            $id_posisi_members = $this->get_member_posisi($posisi);
+            $id_posisi_members = Approval::GetMemberPosisi($posisi);
 
             foreach ($posisi as $ps){
                 $index = array_search($ps->id_posisi, $id_posisi_members);
@@ -367,8 +368,8 @@ class IzineController extends Controller
                 $karyawan = Karyawan::find($data->karyawan_id);
                 $posisi = $karyawan->posisi;
                 $has_leader = $this->has_leader($posisi);
-                $has_section_head = $this->has_section_head($posisi);
-                $has_department_head = $this->has_department_head($posisi);
+                $has_section_head = Approval::HasSectionHead($posisi);
+                $has_department_head = Approval::HasDepartmentHead($posisi);
                 $legalized_by = 'Need Legalized';
                 $approved_by = 'Need Approved';
                 $checked_by = 'Need Checked';
@@ -982,98 +983,6 @@ class IzineController extends Controller
         } catch (Throwable $e) {
             return response()->json(['message' => $e->getMessage()], 500);
         }
-    }
-
-    function has_department_head($posisi)
-    {
-        $has_dept_head = false;
-        if($posisi){
-            foreach($posisi as $pos){
-                $parent_posisi_ids = $this->get_parent_posisi($pos);
-                if(!empty($parent_posisi_ids)){
-                    foreach ($parent_posisi_ids as $parent_id){
-                        if($parent_id !== 0){
-                            if(Posisi::where('id_posisi', $parent_id)->first()->jabatan_id == 3){
-                                $has_dept_head = true;
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            return response()->json(['message' => 'Anda tidak memiliki posisi, silahkan hubungi HRD'], 200);
-        }
-
-        return $has_dept_head;
-    } 
-
-    function has_section_head($posisi)
-    {
-        $has_sec_head = false;
-        if($posisi){
-            foreach($posisi as $pos){
-                $parent_posisi_ids = $this->get_parent_posisi($pos);
-                if(!empty($parent_posisi_ids)){
-                    foreach ($parent_posisi_ids as $parent_id){
-                        if($parent_id !== 0){
-                            if(Posisi::where('id_posisi', $parent_id)->first()->jabatan_id == 4){
-                                $has_sec_head = true;
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            return response()->json(['message' => 'Anda tidak memiliki posisi, silahkan hubungi HRD'], 200);
-        }
-
-        return $has_sec_head;
-    }
-
-    function has_leader($posisi)
-    {
-        $has_leader = false;
-        if($posisi){
-            foreach($posisi as $pos){
-                $parent_posisi_ids = $this->get_parent_posisi($pos);
-                if(!empty($parent_posisi_ids)){
-                    foreach ($parent_posisi_ids as $parent_id){
-                        if($parent_id !== 0){
-                            if(Posisi::where('id_posisi', $parent_id)->first()->jabatan_id == 5){
-                                $has_leader = true;
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            return response()->json(['message' => 'Anda tidak memiliki posisi, silahkan hubungi HRD'], 200);
-        }
-
-        return $has_leader;
-    } 
-
-    function get_parent_posisi($posisi)
-    {
-        $data = [];
-        if ($posisi->parent_id !== 0) {
-            $parent = Posisi::find($posisi->parent_id);
-            $data = array_merge($data, $this->get_parent_posisi($parent));
-        }
-        $data[] = $posisi->parent_id;
-        return $data;
-    }
-
-    function get_member_posisi($posisis)
-    {
-        $data = [];
-        foreach ($posisis as $ps) {
-            if ($ps->children) {
-                $data = array_merge($data, $this->get_member_posisi($ps->children));
-            }
-            $data[] = $ps->id_posisi;
-        }
-        return $data;
     }
 
     public function checked(Request $request, string $id_izin)

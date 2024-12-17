@@ -38,8 +38,7 @@
                             </a>
                         </li>
                     @endif
-                    @if (auth()->user()->hasRole('personalia') ||
-                            (auth()->user()->hasRole('atasan') && auth()->user()->karyawan->posisi[0]->jabatan_id <= 4))
+                    @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('atasan'))
                         <li class="{{ $page == 'izine-approval-izin' ? 'active' : '' }} notification-approval-izin">
                             <a href="{{ route('izine.approval-izin') }}">
                                 <i class="icon-Double-check"><span class="path1"></span><span

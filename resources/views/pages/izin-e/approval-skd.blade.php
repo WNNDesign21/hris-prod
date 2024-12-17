@@ -38,6 +38,7 @@
                                     <th>Nama</th>
                                     <th>Departemen</th>
                                     <th>Posisi</th>
+                                    <th>Created At</th>
                                     <th>Tanggal Mulai</th>
                                     <th>Tanggal Selesai</th>
                                     <th>Durasi</th>
