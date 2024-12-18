@@ -360,6 +360,7 @@ class CutieController extends Controller
         //MENCARI MEMBER
         $is_can_checked = false;
         $is_can_approved = false;
+        $my_posisi = auth()->user()->karyawan->posisi[0]->jabatan_id;
         
         if(auth()->user()->hasRole('atasan')){
             $posisi = auth()->user()->karyawan->posisi;
@@ -392,7 +393,6 @@ class CutieController extends Controller
                 $karyawan = Karyawan::find($data->karyawan_id);
                 $posisi = $karyawan->posisi;
                 $created_at = Carbon::parse($data->created_at)->format('d M Y, H:i:s');
-                $my_posisi = auth()->user()->karyawan->posisi[0]->jabatan_id;
                 $has_leader = Approval::HasLeader($posisi);
                 $has_section_head = Approval::HasSectionHead($posisi);
                 $has_department_head = Approval::HasDepartmentHead($posisi);
@@ -401,46 +401,6 @@ class CutieController extends Controller
                 $approved_by = '🕛 Need Approved';
                 $legalized_by = '🕛 Need Legalized';
 
-                //KONDISI JIKA SUDAH DI APPROVED
-                if($data->checked1_by){
-                    $checked1_by = '✅<br><small class="text-bold">'.$data->checked1_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked1_at)->diffForHumans().'</small>';
-                } 
-
-                if($data->checked2_by){
-                    $checked2_by = '✅<br><small class="text-bold">'.$data->checked2_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked2_at)->diffForHumans().'</small>';
-                } 
-
-                if($data->approved_by){
-                    $approved_by = '✅<br><small class="text-bold">'.$data->approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->approved_at)->diffForHumans().'</small>';
-                }
-
-                if($data->legalized_by){
-                    $legalized_by = '✅<br><small class="text-bold">'.$data->legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->legalized_at)->diffForHumans().'</small>';
-                }
-
-                //KONDISI CHECKED
-                if ($is_can_checked){
-
-                    //CHECKED 1
-                    if($has_leader && $my_posisi == 5){
-                        if(!$data->checked1_by){
-                            $checked1_by = '<div class="btn-group btn-sm">
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="checked_1"><i class="far fa-check-circle"></i> Checked</button>
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
-                            </div>';
-                        } 
-                    }
-
-                    //CHECKED 2
-                    if($has_section_head && $has_department_head && $my_posisi == 4){
-                        if(!$data->checked2_by){
-                            $checked2_by = '<div class="btn-group btn-sm">
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="checked_2"><i class="far fa-check-circle"></i> Checked</button>
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
-                            </div>';
-                        } 
-                    }
-                }
 
                 //KONDISI APPROVED
                 if ($is_can_approved){
@@ -566,6 +526,7 @@ class CutieController extends Controller
                 $dataTable[] = $nestedData;
             }
         }
+
 
         $json_data = array(
             "draw" => intval($request->input('draw')),
