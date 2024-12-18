@@ -29,7 +29,7 @@ class Approval
                 if(!empty($parent_posisi_ids)){
                     foreach ($parent_posisi_ids as $parent_id){
                         if($parent_id !== 0){
-                            if(Posisi::where('id_posisi', $parent_id)->first()->jabatan_id == 4){
+                            if(Posisi::where('id_posisi', $parent_id)->first()->jabatan_id == 3){
                                 self::$response = true;
                             }
                         }

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Helpers\Approval;
 
 class Cutie extends Model
 {
@@ -165,6 +166,7 @@ class Cutie extends Model
                     ->orWhere('kp.nama_pengganti', 'ILIKE', "%{$search}%");
             });
         }
+
         $data->orderByRaw("CASE 
             WHEN status_dokumen = 'WAITING' AND status_cuti != 'CANCELED' THEN 1
             WHEN status_dokumen = 'REJECTED' OR status_cuti = 'CANCELED' THEN 3
@@ -174,13 +176,6 @@ class Cutie extends Model
         if(auth()->user()->hasRole('personalia')){
             $data->orderByRaw("CASE 
                 WHEN approved_by IS NOT NULL AND legalized_by IS NULL THEN 0
-                ELSE 1
-            END");
-        }
-
-        if (isset($dataFilter['member_posisi_id'])) { 
-            $data->orderByRaw("CASE 
-                WHEN (checked1_by IS NULL OR checked2_by IS NULL OR approved_by IS NULL) AND (status_dokumen = 'WAITING' AND status_cuti != 'CANCELED') THEN 0
                 ELSE 1
             END");
         }
