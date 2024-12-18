@@ -401,6 +401,29 @@ class CutieController extends Controller
                 $approved_by = '🕛 Need Approved';
                 $legalized_by = '🕛 Need Legalized';
 
+                //KONDISI CHECKED
+                if ($is_can_checked){
+
+                    //CHECKED 1
+                    if($has_leader && $my_posisi == 5){
+                        if(!$data->checked1_by){
+                            $checked1_by = '<div class="btn-group btn-sm">
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="checked_1"><i class="far fa-check-circle"></i> Checked</button>
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
+                            </div>';
+                        } 
+                    }
+
+                    //CHECKED 2
+                    if($has_section_head && $has_department_head && $my_posisi == 4){
+                        if(!$data->checked2_by){
+                            $checked2_by = '<div class="btn-group btn-sm">
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="checked_2"><i class="far fa-check-circle"></i> Checked</button>
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
+                            </div>';
+                        } 
+                    }
+                }
 
                 //KONDISI APPROVED
                 if ($is_can_approved){
