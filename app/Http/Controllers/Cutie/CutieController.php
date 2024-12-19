@@ -401,6 +401,22 @@ class CutieController extends Controller
                 $approved_by = '🕛 Need Approved';
                 $legalized_by = '🕛 Need Legalized';
 
+                if($data->checked1_by){
+                    $checked1_by = '✅<br><small class="text-bold">'.$data->checked1_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked1_at)->diffForHumans().'</small>';
+                }
+
+                if($data->checked2_by){
+                    $checked2_by = '✅<br><small class="text-bold">'.$data->checked2_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked2_at)->diffForHumans().'</small>';
+                }
+
+                if($data->approved_by){
+                    $approved_by = '✅<br><small class="text-bold">'.$data->approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->approved_at)->diffForHumans().'</small>';
+                }
+
+                if($data->legalized_by){
+                    $legalized_by = '✅<br><small class="text-bold">'.$data->legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->legalized_at)->diffForHumans().'</small>';
+                }
+
                 //KONDISI CHECKED
                 if ($is_can_checked){
 
