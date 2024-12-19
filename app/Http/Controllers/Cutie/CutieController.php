@@ -8,10 +8,11 @@ use App\Models\Cutie;
 use App\Models\Event;
 use App\Models\Posisi;
 use App\Models\Karyawan;
+use App\Helpers\Approval;
 use App\Models\JenisCuti;
 use App\Models\Departemen;
+use App\Models\ApprovalCuti;
 use Illuminate\Http\Request;
-use App\Helpers\Approval;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Database\QueryException;
@@ -401,6 +402,89 @@ class CutieController extends Controller
                 $approved_by = '🕛 Need Approved';
                 $legalized_by = '🕛 Need Legalized';
 
+                //KONDISI CHECKED
+                if ($is_can_checked){
+
+                    //CHECKED 1
+                    if($has_leader && $my_posisi == 5){
+                        if(!$data->checked1_by){
+                            $checked1_by = '<div class="btn-group btn-sm">
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-issued-id="'.auth()->user()->karyawan->id_karyawan.'" data-type="checked_1"><i class="far fa-check-circle"></i> Checked</button>
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
+                            </div>';
+                        } 
+                    }
+
+                    //CHECKED 2
+                    if($has_section_head && $has_department_head && $my_posisi == 4){
+                        if(!$data->checked2_by){
+                            $checked2_by = '<div class="btn-group btn-sm">
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-issued-id="'.auth()->user()->karyawan->id_karyawan.'" data-type="checked_2"><i class="far fa-check-circle"></i> Checked</button>
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
+                            </div>';
+                        } 
+                    }
+                }
+
+                //KONDISI APPROVED
+                if ($is_can_approved){
+
+                    //SECTION HEAD
+                    if($has_leader && $has_section_head && !$has_department_head && $my_posisi == 4){
+                        if(!$data->approved_by){
+                            $approved_by = '<div class="btn-group btn-sm">
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-issued-id="'.auth()->user()->karyawan->id_karyawan.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
+                            </div>';
+                        } 
+                    }
+
+                    if(!$has_leader && $has_section_head && !$has_department_head && $my_posisi == 4){
+                        $checked1_by = 'Directly Approved';
+                        $checked2_by = 'Directly Approved';
+                        if(!$data->approved_by){
+                            $approved_by = '<div class="btn-group btn-sm">
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-issued-id="'.auth()->user()->karyawan->id_karyawan.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
+                            </div>';
+                        } 
+                    }
+
+                    //DEPARTMENT HEAD
+                    if($has_leader && $has_section_head && $has_department_head && $my_posisi == 3){
+                        if(!$data->approved_by){
+                            $approved_by = '<div class="btn-group btn-sm">
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-issued-id="'.auth()->user()->karyawan->id_karyawan.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
+                            </div>';
+                        } 
+                    }
+
+                    if(!$has_leader && !$has_section_head && $has_department_head && $my_posisi == 3){
+                        $checked1_by = 'Directly Approved';
+                        $checked2_by = 'Directly Approved';
+                        if(!$data->approved_by){
+                            $approved_by = '<div class="btn-group btn-sm">
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-issued-id="'.auth()->user()->karyawan->id_karyawan.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
+                            </div>';
+                        } 
+                    }
+                    
+                    // OTHER
+                    if(!$has_section_head && !$has_department_head){
+                        $checked1_by = 'Directly Approved';
+                        $checked2_by = 'Directly Approved';
+                        if(!$data->approved_by){
+                            $approved_by = '<div class="btn-group btn-sm">
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-issued-id="'.auth()->user()->karyawan->id_karyawan.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
+                            </div>';
+                        } 
+                    }
+                }
+
+                //KONDISI JIKA SUDAH ADA DATA
                 if($data->checked1_by){
                     $checked1_by = '✅<br><small class="text-bold">'.$data->checked1_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked1_at)->diffForHumans().'</small>';
                 }
@@ -415,88 +499,6 @@ class CutieController extends Controller
 
                 if($data->legalized_by){
                     $legalized_by = '✅<br><small class="text-bold">'.$data->legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->legalized_at)->diffForHumans().'</small>';
-                }
-
-                //KONDISI CHECKED
-                if ($is_can_checked){
-
-                    //CHECKED 1
-                    if($has_leader && $my_posisi == 5){
-                        if(!$data->checked1_by){
-                            $checked1_by = '<div class="btn-group btn-sm">
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="checked_1"><i class="far fa-check-circle"></i> Checked</button>
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
-                            </div>';
-                        } 
-                    }
-
-                    //CHECKED 2
-                    if($has_section_head && $has_department_head && $my_posisi == 4){
-                        if(!$data->checked2_by){
-                            $checked2_by = '<div class="btn-group btn-sm">
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="checked_2"><i class="far fa-check-circle"></i> Checked</button>
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
-                            </div>';
-                        } 
-                    }
-                }
-
-                //KONDISI APPROVED
-                if ($is_can_approved){
-
-                    //SECTION HEAD
-                    if($has_leader && $has_section_head && !$has_department_head && $my_posisi == 4){
-                        if(!$data->approved_by){
-                            $approved_by = '<div class="btn-group btn-sm">
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
-                            </div>';
-                        } 
-                    }
-
-                    if(!$has_leader && $has_section_head && !$has_department_head && $my_posisi == 4){
-                        $checked1_by = 'Directly Approved';
-                        $checked2_by = 'Directly Approved';
-                        if(!$data->approved_by){
-                            $approved_by = '<div class="btn-group btn-sm">
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
-                            </div>';
-                        } 
-                    }
-
-                    //DEPARTMENT HEAD
-                    if($has_leader && $has_section_head && $has_department_head && $my_posisi == 3){
-                        if(!$data->approved_by){
-                            $approved_by = '<div class="btn-group btn-sm">
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
-                            </div>';
-                        } 
-                    }
-
-                    if(!$has_leader && !$has_section_head && $has_department_head && $my_posisi == 3){
-                        $checked1_by = 'Directly Approved';
-                        $checked2_by = 'Directly Approved';
-                        if(!$data->approved_by){
-                            $approved_by = '<div class="btn-group btn-sm">
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
-                            </div>';
-                        } 
-                    }
-                    
-                    // OTHER
-                    if(!$has_section_head && !$has_department_head){
-                        $checked1_by = 'Directly Approved';
-                        $checked2_by = 'Directly Approved';
-                        if(!$data->approved_by){
-                            $approved_by = '<div class="btn-group btn-sm">
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
-                            </div>';
-                        } 
-                    }
                 }
                 
                 //KARYAWAN PENGGANTI
@@ -698,7 +700,7 @@ class CutieController extends Controller
     //                 if ($jumlah_parent >= 5) {
     //                     if($data->checked1_by == null){
     //                         if($my_jabatan == 5 || $my_jabatan == 4){
-    //                             $checked1 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="checked_1"><i class="far fa-check-circle"></i> Checked</button>';
+    //                             $checked1 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-issued-id="'.auth()->user()->karyawan->id_karyawan.'" data-type="checked_1"><i class="far fa-check-circle"></i> Checked</button>';
     //                             $reject1 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
     //                             $btn_group_1 = '<div class="btn-group btn-sm">'.$checked1.$reject1.'</div>';
     //                         } else {
@@ -712,7 +714,7 @@ class CutieController extends Controller
     //                         if($my_jabatan == 5 || $my_jabatan == 4){
     //                             if($data->checked1_by !== null){
     //                                 if($data->checked1_by !== auth()->user()->karyawan->nama){
-    //                                     $checked2 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="checked_2"><i class="far fa-check-circle"></i> Checked</button>';
+    //                                     $checked2 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-issued-id="'.auth()->user()->karyawan->id_karyawan.'" data-type="checked_2"><i class="far fa-check-circle"></i> Checked</button>';
     //                                     $reject2 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
     //                                     $btn_group_2 = '<div class="btn-group btn-sm">'.$checked2.$reject2.'</div>';
     //                                 } else {
@@ -732,7 +734,7 @@ class CutieController extends Controller
     //                         if($my_jabatan == 4 || $my_jabatan == 3){
     //                             if($data->checked2_by !== null){
     //                                 if($data->checked1_by !== auth()->user()->karyawan->nama){
-    //                                     $approved = '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>';
+    //                                     $approved = '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-issued-id="'.auth()->user()->karyawan->id_karyawan.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>';
     //                                     $reject3 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
     //                                     $btn_group_3 = '<div class="btn-group btn-sm">'.$approved.$reject3.'</div>';
     //                                 } else {
@@ -762,7 +764,7 @@ class CutieController extends Controller
     //                 } elseif ($jumlah_parent >= 4){
     //                     if($data->checked1_by == null){
     //                         if($my_jabatan == 4 || $my_jabatan == 3 || $my_jabatan == 5){
-    //                             $checked1 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="checked_1"><i class="far fa-check-circle"></i> Checked</button>';
+    //                             $checked1 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-issued-id="'.auth()->user()->karyawan->id_karyawan.'" data-type="checked_1"><i class="far fa-check-circle"></i> Checked</button>';
     //                             $reject1 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
     //                             $btn_group_1 = '<div class="btn-group btn-sm">'.$checked1.$reject1.'</div>';
     //                         } else {
@@ -776,7 +778,7 @@ class CutieController extends Controller
     //                         if($my_jabatan == 4 || $my_jabatan == 3 || $my_jabatan == 5){
     //                             if($data->checked1_by !== null){
     //                                 if($data->checked1_by !== auth()->user()->karyawan->nama){
-    //                                     $checked2 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="checked_2"><i class="far fa-check-circle"></i> Checked</button>';
+    //                                     $checked2 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-issued-id="'.auth()->user()->karyawan->id_karyawan.'" data-type="checked_2"><i class="far fa-check-circle"></i> Checked</button>';
     //                                     $reject2 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
     //                                     $btn_group_2 = '<div class="btn-group btn-sm">'.$checked2.$reject2.'</div>';
     //                                 } else {
@@ -795,7 +797,7 @@ class CutieController extends Controller
     //                     if($data->approved_by == null){
     //                         if($my_jabatan == 3 || $my_jabatan == 2 || $my_jabatan == 4){
     //                             if($data->checked2_by !== null){
-    //                                 $approved = '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'" data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>';
+    //                                 $approved = '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'" data-issued-name="'.auth()->user()->karyawan->nama.'" data-issued-id="'.auth()->user()->karyawan->id_karyawan.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>';
     //                                 $reject3 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
     //                                 $btn_group_3 = '<div class="btn-group btn-sm">'.$approved.$reject3.'</div>';
     //                             } else {
@@ -832,7 +834,7 @@ class CutieController extends Controller
     //                     }
 
     //                     if($data->approved_by == null){
-    //                         $btn_group_3 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'" data-issued-name="'.auth()->user()->karyawan->nama.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>';
+    //                         $btn_group_3 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'" data-issued-name="'.auth()->user()->karyawan->nama.'" data-issued-id="'.auth()->user()->karyawan->id_karyawan.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>';
     //                         $reject3 = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>';
     //                         $btn_group_3 = '<div class="btn-group btn-sm">'.$btn_group_3.$reject3.'</div>';
     //                     } else {
@@ -1273,8 +1275,9 @@ class CutieController extends Controller
         $rencana_selesai_cuti = $request->rencana_selesai_cuti;
         $alasan_cuti = $request->alasan_cuti;
         $durasi_cuti = $request->durasi_cuti;
-        $karyawan_id = auth()->user()->karyawan->id_karyawan;
-        $kry = Karyawan::find($karyawan_id);
+        $kry = auth()->user()->karyawan;
+        $posisi = $kry->posisi;
+        $karyawan_id = $kry->id_karyawan;
         $sisa_cuti_pribadi = $kry->sisa_cuti_pribadi;
         $sisa_cuti_tahun_lalu = $kry->sisa_cuti_tahun_lalu;
         $expired_date_cuti_tahun_lalu = $kry->expired_date_cuti_tahun_lalu;
@@ -1333,84 +1336,6 @@ class CutieController extends Controller
                 }
 
             } elseif ($jenis_cuti == 'PRIBADI') {
-
-                // if($expired_date_cuti_tahun_lalu){
-                //     if($sisa_cuti_tahun_lalu <= 0 || ($sisa_cuti_tahun_lalu > 0 && $expired_date_cuti_tahun_lalu < date('Y-m-d'))){
-                //         $jatah_cuti = $sisa_cuti_pribadi - $durasi_cuti;
-                //         if($sisa_cuti_pribadi < 0){
-                //             return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Hubungi HRD untuk informasi lebih lanjut!'], 402);
-                //         } else {
-                //             if($jatah_cuti < 0){
-                //                 return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Silahkan baca ketentuan pembagian cuti pribadi lagi!'], 402);
-                //             } else {
-                //                 $karyawan = Karyawan::find($karyawan_id);
-                //                 $karyawan->sisa_cuti_pribadi = $jatah_cuti;
-                //                 $karyawan->save();
-                //             }
-                //         }
-    
-                //     } else {
-                //         $jatah_cuti = $sisa_cuti_tahun_lalu - $durasi_cuti;
-                //         $jatah_cuti_pengurangan_final =  $jatah_cuti + $sisa_cuti_pribadi;
-    
-                //         if($jatah_cuti_pengurangan_final < 0 ){
-                //             return response()->json(['message' => 'Sisa cuti pribadi + Sisa cuti tahun lalu masih belum memenuhi jumlah durasi cuti yang diajukan!'], 402);
-                //         } else {
-                //             if($jatah_cuti < 0){
-                //                 $karyawan = Karyawan::find($karyawan_id);
-                //                 $karyawan->sisa_cuti_tahun_lalu = 0;
-                //                 $karyawan->sisa_cuti_pribadi = $jatah_cuti_pengurangan_final;
-                //                 $karyawan->save();
-                //             } else {
-                //                 $karyawan = Karyawan::find($karyawan_id);
-                //                 $karyawan->sisa_cuti_tahun_lalu = $jatah_cuti;
-                //                 $karyawan->save();
-                //             }
-                //         }
-                //     }
-                // } else {
-                //     $jatah_cuti = $sisa_cuti_pribadi - $durasi_cuti;
-                //     if($sisa_cuti_pribadi < 0){
-                //         return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Hubungi HRD untuk informasi lebih lanjut!'], 402);
-                //     } else {
-                //         if($jatah_cuti < 0){
-                //             return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Silahkan baca ketentuan pembagian cuti pribadi lagi!'], 402);
-                //         } else {
-                //             $karyawan = Karyawan::find($karyawan_id);
-                //             $karyawan->sisa_cuti_pribadi = $jatah_cuti;
-                //             $karyawan->save();
-                //         }
-                //     }
-                // }
-
-                // if($penggunaan_sisa_cuti == 'TB'){
-                //     $jatah_cuti = $sisa_cuti_pribadi - $durasi_cuti;
-                //     if($sisa_cuti_pribadi < 0){
-                //         return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Hubungi HRD untuk informasi lebih lanjut!'], 402);
-                //     } else {
-                //         if($jatah_cuti < 0){
-                //             return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Silahkan baca ketentuan pembagian cuti pribadi lagi!'], 402);
-                //         } else {
-                //             $karyawan = Karyawan::find($karyawan_id);
-                //             $karyawan->sisa_cuti_pribadi = $jatah_cuti;
-                //             $karyawan->save();
-                //         }
-                //     }
-                // } else {
-                //     $jatah_cuti = $sisa_cuti_tahun_lalu - $durasi_cuti;
-                //     if($sisa_cuti_tahun_lalu < 0){
-                //         return response()->json(['message' => 'Ada tidak memiliki sisa cuti tahun lalu!, Silahkan ajukan menggunakan sisa cuti tahun berjalan anda!'], 402);
-                //     } else {
-                //         if($jatah_cuti < 0 || $rencana_mulai_cuti > $expired_date_cuti_tahun_lalu){
-                //             return response()->json(['message' => 'Sisa cuti tahun lalu anda tidak mencukupi atau sudah melebihi Expired Date, Silahkan ajukan menggunakan sisa cuti tahun berjalan anda!!'], 402);
-                //         } else {
-                //             $karyawan = Karyawan::find($karyawan_id);
-                //             $karyawan->sisa_cuti_tahun_lalu = $jatah_cuti;
-                //             $karyawan->save();
-                //         }
-                //     }
-                // }
-
                 $jatah_cuti = $sisa_cuti_pribadi - $durasi_cuti;
                 if($sisa_cuti_pribadi < 0){
                     return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Hubungi HRD untuk informasi lebih lanjut!'], 402);
@@ -1438,6 +1363,8 @@ class CutieController extends Controller
                 'alasan_cuti' => $alasan_cuti,
                 'durasi_cuti' => $durasi_cuti,
             ]);
+
+            $approval_cuti = ApprovalCuti::storeApprovalCuti($cuti->id_cuti, $posisi);
 
             $data = [
                 'sisa_cuti_tahunan' => $kry->sisa_cuti_pribadi + $kry->sisa_cuti_bersama,
@@ -1478,6 +1405,7 @@ class CutieController extends Controller
 
         $id_karyawan = $request->id_karyawan;
         $karyawan = Karyawan::find($id_karyawan);
+        $posisi = $karyawan->posisi;
         $sisa_cuti_pribadi = $karyawan->sisa_cuti_pribadi;
         $sisa_cuti_tahun_lalu = $karyawan->sisa_cuti_tahun_lalu;
         $expired_date_cuti_tahun_lalu = $karyawan->expired_date_cuti_tahun_lalu;
@@ -1546,29 +1474,7 @@ class CutieController extends Controller
                 'durasi_cuti' => $durasi_cuti,
             ]);
 
-            // $cuti = Cutie::create([
-            //     'karyawan_id' => $id_karyawan,
-            //     'organisasi_id' => $karyawan->user->organisasi_id,
-            //     'jenis_cuti' => 'PRIBADI',
-            //     'attachment' => null,
-            //     'rencana_mulai_cuti' => $rencana_mulai_cuti,
-            //     'rencana_selesai_cuti' => $rencana_selesai_cuti,
-            //     'aktual_mulai_cuti' => $aktual_mulai_cuti,
-            //     'aktual_selesai_cuti' => $aktual_selesai_cuti,
-            //     'alasan_cuti' => $alasan_cuti,
-            //     'durasi_cuti' => $durasi_cuti,
-            //     'penggunaan_sisa_cuti' => $penggunaan_sisa_cuti,
-            //     'status_cuti' => $status_cuti,
-            //     'status_dokumen' => 'APPROVED',
-            //     'checked1_by' => 'HRD & GA (BYPASS SYSTEM)',
-            //     'checked1_at' => Carbon::now(),
-            //     'checked2_by' => 'HRD & GA (BYPASS SYSTEM)',
-            //     'checked2_at' => Carbon::now(),
-            //     'approved_by' => 'HRD & GA (BYPASS SYSTEM)',
-            //     'approved_at' => Carbon::now(),
-            //     'legalized_by' => 'HRD & GA (BYPASS SYSTEM)',
-            //     'legalized_at' => Carbon::now(),
-            // ]);
+            $approval_cuti = ApprovalCuti::storeApprovalCuti($cuti->id_cuti, $posisi);
 
             DB::commit();
             return response()->json(['message' => 'Bypass Cuti Berhasil Dilakukan!'], 200);
@@ -1843,9 +1749,11 @@ class CutieController extends Controller
     {
         $type = $request->type;
         $issued_name = $request->issued_name;
+        $issued_id = $request->issued_id;
 
         $dataValidate = [
             'issued_name' => ['required'],
+            'issued_id' => ['required', 'exists:karyawans,id_karyawan'],
             'type' => ['required'],
         ];
         
@@ -1859,25 +1767,59 @@ class CutieController extends Controller
         DB::beginTransaction();
         try{
             $cuti = Cutie::find($id_cuti);
+            $posisi = Karyawan::find($issued_id)->posisi[0]->id_posisi;
             if($type == 'checked_1'){
                 $cuti->checked1_by = $issued_name;
                 $cuti->checked1_at = now();
+
+                $cuti->approval->update([
+                    'checked1_by' => $posisi,
+                    'checked1_karyawan_id' => $issued_id
+                ]);
             } elseif ($type == 'checked_2'){
                 if(!$cuti->checked1_by){
                     $cuti->checked1_by = $issued_name;
                     $cuti->checked1_at = now();
+
+                    $cuti->approval->update([
+                        'checked1_by' => $posisi,
+                        'checked1_karyawan_id' => $issued_id
+                    ]);
                 }
                 $cuti->checked2_by = $issued_name;
                 $cuti->checked2_at = now();
+
+                $cuti->approval->update([
+                    'checked2_by' => $posisi,
+                    'checked2_karyawan_id' => $issued_id
+                ]);
             } elseif ($type == 'approved'){
                 if(!$cuti->checked1_by){
                     $cuti->checked1_by = $issued_name;
                     $cuti->checked1_at = now();
+
+                    $cuti->approval->update([
+                        'checked1_by' => $posisi,
+                        'checked1_karyawan_id' => $issued_id
+                    ]);
+                }
+
+                if(!$cuti->checked2_by){
                     $cuti->checked2_by = $issued_name;
                     $cuti->checked2_at = now();
+
+                    $cuti->approval->update([
+                        'checked2_by' => $posisi,
+                        'checked2_karyawan_id' => $issued_id
+                    ]);
                 }
                 $cuti->approved_by = $issued_name;
                 $cuti->approved_at = now();
+
+                $cuti->approval->update([
+                    'approved_by' => $posisi,
+                    'approved_karyawan_id' => $issued_id
+                ]);
             } else {
 
                 //LOGIKA UNTUK BYPASS CUTI

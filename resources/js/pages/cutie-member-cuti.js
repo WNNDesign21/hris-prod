@@ -287,11 +287,13 @@ $(function () {
                 loadingSwalShow();
                 let idCuti = $(this).data('id');
                 let issuedName = $(this).data('issued-name');
+                let issuedId = $(this).data('issued-id');
                 let type = $(this).data('type');
                 let url = base_url + '/cutie/member-cuti/update-dokumen-cuti/' + idCuti;
         
                 var formData = new FormData();
                 formData.append('issued_name', issuedName);
+                formData.append('issued_id', issuedId);
                 formData.append('type', type);
                 formData.append('_method', 'PATCH');
                 $.ajax({
