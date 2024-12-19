@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\TestController;
 use App\Http\Controllers\Utils\QrController;
 use App\Http\Controllers\Cutie\CutieController;
 use App\Http\Controllers\Izine\IzineController;
@@ -33,6 +34,9 @@ Route::get('/', function () {
 
 
 Route::group(['middleware' => ['auth']], function () {
+    //Test
+    // Route::get('/test',[TestController::class, 'test']);
+
     //Generate System
     // Route::get('/generate-lembur-harian', [LembureController::class, 'generate_lembur_harian']);
     Route::post('/generate-qrcode', QrController::class);
