@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 class TestController extends Controller
 {
-    public function test()
+    public function generate_approval_cuti()
     {
         $cutis = Cutie::all();
         $datas = [];
@@ -28,20 +28,20 @@ class TestController extends Controller
                 $has_division_head = $list_atasan['division_head'] ?? null;
                 $has_director = $list_atasan['director'] ?? null;
     
-                $checked1_for = null;
-                $checked1 = $data->checked1_by  ? Karyawan::where('nama', $data->checked1_by)->first() : null;
-                $checked1_by = $checked1 ? $checked1->posisi[0]->id_posisi : null;
-                $checked1_karyawan_id = $checked1 ? $checked1->id_karyawan : null;
-    
-                $checked2_for = null;
-                $checked2 = $data->checked2_by ? Karyawan::where('nama', $data->checked2_by)->first() : null;
-                $checked2_by = $checked2 ? $checked2->posisi[0]->id_posisi : null;
-                $checked2_karyawan_id = $checked2 ? $checked2->id_karyawan : null;
-    
                 $approved_for = null;
                 $approved = $data->approved_by ? Karyawan::where('nama', $data->approved_by)->first() : null;
                 $approved_by = $approved ? $approved->posisi[0]->id_posisi : null;
                 $approved_karyawan_id = $approved ? $approved->id_karyawan : null;
+    
+                $checked2_for = null;
+                $checked2 = $data->checked2_by ? Karyawan::where('nama', $data->checked2_by)->first() : null;
+                $checked2_by = $checked2 ? $checked2->posisi[0]->id_posisi : ($approved ? $approved->posisi[0]->id_posisi : null);
+                $checked2_karyawan_id = $checked2 ? $checked2->id_karyawan : ($approved ? $approved->id_karyawan: null);
+
+                $checked1_for = null;
+                $checked1 = $data->checked1_by  ? Karyawan::where('nama', $data->checked1_by)->first() : null;
+                $checked1_by = $checked1 ? $checked1->posisi[0]->id_posisi : ($checked2 ? $checked2->posisi[0]->id_posisi : ($approved ? $approved->posisi[0]->id_posisi : null));
+                $checked1_karyawan_id = $checked1 ? $checked1->id_karyawan : ($checked2 ? $checked2->id_karyawan : ($approved ? $approved->id_karyawan : null));
     
                 //KONDISI 1 (PUNYA SEMUA)
                 if($has_leader && $has_section_head && $has_department_head){
