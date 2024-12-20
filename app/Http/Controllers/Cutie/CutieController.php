@@ -376,7 +376,21 @@ class CutieController extends Controller
         $dataTable = [];
 
         if (!empty($cutie)) {
+            $cuti_id = null;
+            $count_duplicate_cuti = 0;
             foreach ($cutie as $data) {
+
+                if(!$cuti_id){
+                    $cuti_id = $data->id_cuti;
+                } else {
+                    if($cuti_id == $data->id_cuti){
+                        $count_duplicate_cuti++;
+                        continue;
+                    } else {
+                        $cuti_id = $data->id_cuti;
+                    }
+                }
+
                 $karyawan = Karyawan::find($data->karyawan_id);
                 $posisi = $karyawan->posisi;
                 $created_at = Carbon::parse($data->created_at)->format('d M Y, H:i:s');
@@ -559,7 +573,7 @@ class CutieController extends Controller
         $json_data = array(
             "draw" => intval($request->input('draw')),
             "recordsTotal" => intval($totalData),
-            "recordsFiltered" => intval($totalFiltered),
+            "recordsFiltered" => intval($totalFiltered) - $count_duplicate_cuti,
             "data" => $dataTable,
             "order" => $order,
             "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
