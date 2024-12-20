@@ -1387,11 +1387,19 @@ class CutieController extends Controller
         $issued_name = $request->issued_name;
         $issued_id = $request->issued_id;
 
-        $dataValidate = [
-            'issued_name' => ['required'],
-            'issued_id' => ['required', 'exists:karyawans,id_karyawan'],
-            'type' => ['required'],
-        ];
+        if($type !== 'legalized'){
+            $dataValidate = [
+                'issued_name' => ['required'],
+                'issued_id' => ['required', 'exists:karyawans,id_karyawan'],
+                'type' => ['required'],
+            ];
+        } else {
+            $dataValidate = [
+                'issued_name' => ['required'],
+                'type' => ['required'],
+            ];
+        }
+
         
         $validator = Validator::make(request()->all(), $dataValidate);
     
@@ -1403,8 +1411,8 @@ class CutieController extends Controller
         DB::beginTransaction();
         try{
             $cuti = Cutie::find($id_cuti);
-            $posisi = Karyawan::find($issued_id)->posisi[0]->id_posisi;
             if($type == 'checked_1'){
+                $posisi = Karyawan::find($issued_id)->posisi[0]->id_posisi;
                 $cuti->checked1_by = $issued_name;
                 $cuti->checked1_at = now();
 
@@ -1413,6 +1421,7 @@ class CutieController extends Controller
                     'checked1_karyawan_id' => $issued_id
                 ]);
             } elseif ($type == 'checked_2'){
+                $posisi = Karyawan::find($issued_id)->posisi[0]->id_posisi;
                 if(!$cuti->checked1_by){
                     $cuti->checked1_by = $issued_name;
                     $cuti->checked1_at = now();
@@ -1430,6 +1439,7 @@ class CutieController extends Controller
                     'checked2_karyawan_id' => $issued_id
                 ]);
             } elseif ($type == 'approved'){
+                $posisi = Karyawan::find($issued_id)->posisi[0]->id_posisi;
                 if(!$cuti->checked1_by){
                     $cuti->checked1_by = $issued_name;
                     $cuti->checked1_at = now();

@@ -34,7 +34,6 @@ Route::get('/', function () {
 
 
 Route::group(['middleware' => ['auth']], function () {
-    
     //Generate System
     // Route::get('/generate-lembur-harian', [LembureController::class, 'generate_lembur_harian']);
     // Route::get('/generate_approval_cuti',[TestController::class, 'generate_approval_cuti']);
