@@ -15,17 +15,56 @@ class Approval
      * @var array
      */
     protected static $array = [];
-    protected static $approval = [];
+    protected static $atasan = [];
     protected static $response = false;
     protected static $has_leader = null;
     protected static $has_section_head = null;
     protected static $has_department_head = null;
     protected static $has_division_head = null;
     protected static $has_director = null;
+    
+    public static function HasDirector($posisi)
+    {
+        self::$response = false;
+        if($posisi){
+            foreach($posisi as $pos){
+                $parent_posisi_ids = self::GetParentPosisi($pos);
+                if(!empty($parent_posisi_ids)){
+                    foreach ($parent_posisi_ids as $parent_id){
+                        if($parent_id !== 0){
+                            if(Posisi::where('id_posisi', $parent_id)->first()->jabatan_id == 1){
+                                self::$response = true;
+                            }
+                        }
+                    }
+                }
+            }
+        } 
+        
+        return self::$response;
+    }
 
-    /**
-     * Give success response.
-     */
+    public static function HasDivisionHead($posisi)
+    {
+        self::$response = false;
+        if($posisi){
+            foreach($posisi as $pos){
+                $parent_posisi_ids = self::GetParentPosisi($pos);
+                if(!empty($parent_posisi_ids)){
+                    foreach ($parent_posisi_ids as $parent_id){
+                        if($parent_id !== 0){
+                            if(Posisi::where('id_posisi', $parent_id)->first()->jabatan_id == 2){
+                                self::$response = true;
+                            }
+                        }
+                    }
+                }
+            }
+        } 
+        
+        return self::$response;
+    }
+
     public static function HasDepartmentHead($posisi)
     {
         self::$response = false;
@@ -47,9 +86,6 @@ class Approval
         return self::$response;
     }
 
-    /**
-     * Give error response.
-     */
     public static function HasSectionHead($posisi)
     {
         self::$response = false;
@@ -115,11 +151,8 @@ class Approval
         return self::$array;
     }
 
-    //FOR TEST
-     /**
-     * Give success response.
-     */
-     public static function HasDirectorTest($posisi)
+    //UNTUK CUTI
+     public static function HasDirectorCuti($posisi)
      {
          self::$has_director = null;
          if($posisi){
@@ -141,7 +174,7 @@ class Approval
          return self::$has_director;
      }
 
-    public static function HasDivisionHeadTest($posisi)
+    public static function HasDivisionHeadCuti($posisi)
     {
         self::$has_division_head = null;
         if($posisi){
@@ -163,7 +196,7 @@ class Approval
         return self::$has_division_head;
     }
 
-    public static function HasDepartmentHeadTest($posisi)
+    public static function HasDepartmentHeadCuti($posisi)
     {
         self::$has_department_head = null;
         if($posisi){
@@ -185,10 +218,7 @@ class Approval
         return self::$has_department_head;
     }
 
-    /**
-     * Give error response.
-     */
-    public static function HasSectionHeadTest($posisi)
+    public static function HasSectionHeadCuti($posisi)
     {
         self::$has_section_head = null;
         if($posisi){
@@ -210,7 +240,7 @@ class Approval
         return self::$has_section_head;
     }
 
-    public static function HasLeaderTest($posisi)
+    public static function HasLeaderCuti($posisi)
     {
         self::$has_leader = null;
         if($posisi){
@@ -230,4 +260,33 @@ class Approval
 
         return self::$has_leader;
     }
+
+    public static function ListAtasan($posisi)
+    {
+        self::$atasan = ['leader' => null, 'section_head' => null, 'department_head' => null, 'division_head' =>  null, 'director' => null];
+        if($posisi){
+            foreach($posisi as $pos){
+                $parent_posisi_ids = self::GetParentPosisi($pos);
+                if(!empty($parent_posisi_ids)){
+                    foreach ($parent_posisi_ids as $parent_id){
+                        if($parent_id !== 0){
+                            if(Posisi::where('id_posisi', $parent_id)->first()->jabatan_id == 5){
+                                self::$atasan['leader'] = $parent_id;
+                            } elseif (Posisi::where('id_posisi', $parent_id)->first()->jabatan_id == 4){
+                                self::$atasan['section_head'] = $parent_id;
+                            } elseif (Posisi::where('id_posisi', $parent_id)->first()->jabatan_id == 3){
+                                self::$atasan['department_head'] = $parent_id;
+                            } elseif (Posisi::where('id_posisi', $parent_id)->first()->jabatan_id == 2){
+                                self::$atasan['division_head'] = $parent_id;
+                            } elseif (Posisi::where('id_posisi', $parent_id)->first()->jabatan_id == 1){
+                                self::$atasan['director'] = $parent_id;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return self::$atasan;
+    }
+
 }

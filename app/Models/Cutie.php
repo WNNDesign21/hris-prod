@@ -4,12 +4,13 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use App\Models\Karyawan;
+use App\Helpers\Approval;
 use App\Models\JenisCuti;
+use App\Models\ApprovalCuti;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Helpers\Approval;
 
 class Cutie extends Model
 {
@@ -42,6 +43,11 @@ class Cutie extends Model
     public function karyawan()
     {
         return $this->belongsTo(Karyawan::class, 'karyawan_id', 'id_karyawan');
+    }
+
+    public function approval()
+    {
+        return $this->hasOne(ApprovalCuti::class, 'cuti_id', 'id_cuti');
     }
 
     public function karyawanPengganti()

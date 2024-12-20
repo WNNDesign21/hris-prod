@@ -6,6 +6,7 @@ use Closure;
 use App\Models\Cutie;
 use App\Models\Posisi;
 use App\Models\Karyawan;
+use App\Models\ApprovalCuti;
 use App\Models\DetailLembur;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -51,6 +52,7 @@ class NotificationMiddleware
         } elseif ($user->hasRole('atasan')){
             $me = auth()->user()->karyawan;
             $posisi = $user->karyawan->posisi;
+            $my_posisi = $posisi[0]->id_posisi;
             $id_posisi_members = $this->get_member_posisi($posisi);
 
             foreach ($posisi as $ps){
@@ -80,21 +82,26 @@ class NotificationMiddleware
             ->get();
 
             // Notif Approval
-            $cutie_approval = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari',[$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
-            ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
-            ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
-            ->where('status_dokumen', 'WAITING')
-            ->where(function($query) {
-                $query->where('status_cuti', '!=', 'CANCELED')
-                      ->orWhereNull('status_cuti');
+            $cutie_approval = ApprovalCuti::selectRaw('approval_cutis.checked1_for, approval_cutis.checked2_for, approval_cutis.approved_for, approval_cutis.checked1_by as approval_checked1_by, approval_cutis.checked2_by as approval_checked2_by, approval_cutis.approved_by as approval_approved_by, cutis.* , karyawans.nama, (cutis.rencana_mulai_cuti - ?) as jumlah_hari',[$today])
+            ->leftJoin('cutis', 'approval_cutis.cuti_id', 'cutis.id_cuti')
+            ->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+            ->where('cutis.status_dokumen', 'WAITING')
+            ->where(function ($query) {
+                $query->where('cutis.status_cuti', '!=', 'CANCELED')
+                ->orWhereNull('cutis.status_cuti');
             })
-            ->where(function($query) {
-                $query->orWhereNull('approved_by')
-                        ->orWhereNull('checked1_by')
-                        ->orWhereNull('checked2_by');
-                })
-            ->whereIn('posisis.id_posisi', $members)
-            // ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
+            ->where(function($query) use ($my_posisi){
+                $query->where(function($query) use ($my_posisi){
+                    $query->where('approval_cutis.checked1_for', $my_posisi)
+                        ->whereNull('approval_cutis.checked1_by');
+                })->orWhere(function($query) use ($my_posisi){
+                    $query->where('approval_cutis.checked2_for', $my_posisi)
+                        ->whereNull('approval_cutis.checked2_by');
+                })->orWhere(function($query) use ($my_posisi){
+                    $query->where('approval_cutis.approved_for', $my_posisi)
+                        ->whereNull('approval_cutis.approved_by');
+                });
+            })
             ->get();
 
 

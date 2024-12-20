@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 class TestController extends Controller
 {
-    public function test()
+    public function generate_approval_cuti()
     {
         $cutis = Cutie::all();
         $datas = [];
@@ -21,26 +21,27 @@ class TestController extends Controller
             foreach ($cutis as $data){
                 $posisi = $data->karyawan->posisi;
                 $my_jabatan = $data->karyawan->posisi[0]->jabatan_id;
-                $has_leader = Approval::HasLeaderTest($posisi);
-                $has_section_head = Approval::HasSectionHeadTest($posisi);
-                $has_department_head = Approval::HasDepartmentHeadTest($posisi);
-                $has_division_head = Approval::HasDivisionHeadTest($posisi);
-                $has_director = Approval::HasDirectorTest($posisi);
-    
-                $checked1_for = null;
-                $checked1 = $data->checked1_by  ? Karyawan::where('nama', $data->checked1_by)->first() : null;
-                $checked1_by = $checked1 ? $checked1->posisi[0]->id_posisi : null;
-                $checked1_karyawan_id = $checked1 ? $checked1->id_karyawan : null;
-    
-                $checked2_for = null;
-                $checked2 = $data->checked2_by ? Karyawan::where('nama', $data->checked2_by)->first() : null;
-                $checked2_by = $checked2 ? $checked2->posisi[0]->id_posisi : null;
-                $checked2_karyawan_id = $checked2 ? $checked2->id_karyawan : null;
+                $list_atasan = Approval::ListAtasan($posisi);
+                $has_leader = $list_atasan['leader'] ?? null;
+                $has_section_head = $list_atasan['section_head'] ?? null;
+                $has_department_head = $list_atasan['department_head'] ?? null;
+                $has_division_head = $list_atasan['division_head'] ?? null;
+                $has_director = $list_atasan['director'] ?? null;
     
                 $approved_for = null;
                 $approved = $data->approved_by ? Karyawan::where('nama', $data->approved_by)->first() : null;
                 $approved_by = $approved ? $approved->posisi[0]->id_posisi : null;
                 $approved_karyawan_id = $approved ? $approved->id_karyawan : null;
+    
+                $checked2_for = null;
+                $checked2 = $data->checked2_by ? Karyawan::where('nama', $data->checked2_by)->first() : null;
+                $checked2_by = $checked2 ? $checked2->posisi[0]->id_posisi : ($approved ? $approved->posisi[0]->id_posisi : null);
+                $checked2_karyawan_id = $checked2 ? $checked2->id_karyawan : ($approved ? $approved->id_karyawan: null);
+
+                $checked1_for = null;
+                $checked1 = $data->checked1_by  ? Karyawan::where('nama', $data->checked1_by)->first() : null;
+                $checked1_by = $checked1 ? $checked1->posisi[0]->id_posisi : ($checked2 ? $checked2->posisi[0]->id_posisi : ($approved ? $approved->posisi[0]->id_posisi : null));
+                $checked1_karyawan_id = $checked1 ? $checked1->id_karyawan : ($checked2 ? $checked2->id_karyawan : ($approved ? $approved->id_karyawan : null));
     
                 //KONDISI 1 (PUNYA SEMUA)
                 if($has_leader && $has_section_head && $has_department_head){
@@ -77,7 +78,7 @@ class TestController extends Controller
                     $approved_for = $has_section_head;
                 }
     
-                //KONDISI 6 (HANYA PUNYA SECTION HEAD)
+                //KONDISI 6 (HANYA PUNYA SECTION HEAD DAN DEPARTMENT HEAD)
                 if(!$has_leader && $has_section_head && $has_department_head){
                     $checked1_for = $has_section_head;
                     $checked2_for = $has_section_head;
@@ -111,7 +112,7 @@ class TestController extends Controller
                     'approved_karyawan_id' => $approved_karyawan_id,
                 ]);
     
-                $datas[] = [$approval];
+                $datas[] = $approval;
             }
             DB::commit();
         } catch (Throwable $e){

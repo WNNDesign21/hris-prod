@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('approval_cutis', function (Blueprint $table) {
             $table->increments('id_approval_cuti');
-            $table->unsignedInteger('cuti_id');
+            $table->unsignedInteger('cuti_id')->unique();
             $table->unsignedInteger('checked1_for');
             $table->unsignedInteger('checked1_by')->nullable();
             $table->string('checked1_karyawan_id')->nullable();
@@ -24,7 +24,9 @@ return new class extends Migration
             $table->unsignedInteger('approved_by')->nullable();
             $table->string('approved_karyawan_id')->nullable();
 
+            $table->softDeletes();
             $table->timestamps();
+
             $table->foreign('cuti_id')->references('id_cuti')->on('cutis')->onDelete('cascade');
         });
     }
