@@ -77,7 +77,7 @@ class NotificationMiddleware
                 ->get();
             //My Cuti
             $my_cutie = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari',[$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
-            ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
+            // ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
             ->where('status_dokumen', 'WAITING')
             ->where(function($query) {
                 $query->where('status_cuti', '!=', 'CANCELED')
