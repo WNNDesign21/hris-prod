@@ -1,0 +1,11 @@
+1. usahakan CRUD jangan reload (pakai ajax)
+2. usahakan CRUD gunakan Modal bukan blade baru (contoh ngalayah di modul lain)
+3. format nama blade "namahalaman-namamodul" , misal halaman registrasi nomor sto maka menjadi "registrasi-number-sto.blade.php" (nama halamannya Registrasi Number, modulnya STO)
+4. format controller ikutin yg ada di controller sebelumnya (ga perlu sama persis, asal mirip2 biar gampang baca nya , walaupun banyak yg ngaco juga sih wkwkw)
+5. setiap model, pasangin softDeletes (di migration juga, contoh ada di model yg lain )
+6. Gunakan Database LOCAL 
+7. pembuatan route tinggal ikutin pola aja (sudah disediakan)
+8. pembuatan js sudah disediakan folder didalam resources/js/pages/sto
+9. setiap bikin file js, registrasikan js tersebut di vite.config.js
+10. import file js diatas di blade auth-layout.blade.php
+11. Kalo mau munculin menu baru di /home, tinggal copas format card nya di home.blade.php, buat ganti icon, icon nya pakai Icomoon di Eduadmin template

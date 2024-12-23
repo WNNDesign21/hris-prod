@@ -32,7 +32,7 @@ Route::get('/', function () {
     return redirect('/login');
 });
 
-
+// HRIS 
 Route::group(['middleware' => ['auth']], function () {
     //Generate System
     // Route::get('/generate-lembur-harian', [LembureController::class, 'generate_lembur_harian']);
@@ -371,6 +371,11 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::post('/export/export-izin-dan-skd',[IzineController::class, 'export_izin_dan_skd'])->name('izine.export.export-izin-dan-skd');
         });
       });
+});
+
+// STOCK-OPNAME
+Route::group(['prefix' => 'sto', 'middleware' => ['auth']], function () {
+    //DISINI LUR
 });
 
 
