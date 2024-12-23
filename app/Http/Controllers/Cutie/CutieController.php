@@ -159,7 +159,24 @@ class CutieController extends Controller
         
 
         if (!empty($cutie)) {
+
+            $cuti_id = null;
+            $count_duplicate_cuti = 0;
+
             foreach ($cutie as $data) {
+
+                //Hapus cuti duplikat
+                if(!$cuti_id){
+                    $cuti_id = $data->id_cuti;
+                } else {
+                    if($cuti_id == $data->id_cuti){
+                        $count_duplicate_cuti++;
+                        continue;
+                    } else {
+                        $cuti_id = $data->id_cuti;
+                    }
+                }
+
                 if($data->rejected_by == null){
                     $rejected = null;
                     if($data->checked1_by == null){
@@ -264,7 +281,7 @@ class CutieController extends Controller
         $json_data = array(
             "draw" => intval($request->input('draw')),
             "recordsTotal" => intval($totalData),
-            "recordsFiltered" => intval($totalFiltered),
+            "recordsFiltered" => intval($totalFiltered) - $count_duplicate_cuti,
             "data" => $dataTable,
             "order" => $order,
             "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
