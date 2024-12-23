@@ -99,7 +99,13 @@ class ApprovalCuti extends Model
         }
 
         if (isset($dataFilter['member_posisi_id'])) {
-            $my_posisi = auth()->user()->karyawan->posisi[0]->id_posisi;
+            $my_posisi = auth()->user()->karyawan->posisi;
+            if($my_posisi->count() > 1){
+                $my_posisi = $my_posisi->pluck('id_posisi')->toArray();
+            } else {
+                $my_posisi = [$my_posisi->first()->id_posisi];
+            }
+
             $data->where('cutis.status_dokumen', 'WAITING');
             $data->where(function ($query) {
                 $query->where('cutis.status_cuti', '!=', 'CANCELED')
@@ -107,13 +113,13 @@ class ApprovalCuti extends Model
             });
             $data->where(function($query) use ($my_posisi){
                 $query->where(function($query) use ($my_posisi){
-                    $query->where('approval_cutis.checked1_for', $my_posisi)
+                    $query->whereIn('approval_cutis.checked1_for', $my_posisi)
                         ->whereNull('approval_cutis.checked1_by');
                 })->orWhere(function($query) use ($my_posisi){
-                    $query->where('approval_cutis.checked2_for', $my_posisi)
+                    $query->whereIn('approval_cutis.checked2_for', $my_posisi)
                         ->whereNull('approval_cutis.checked2_by');
                 })->orWhere(function($query) use ($my_posisi){
-                    $query->where('approval_cutis.approved_for', $my_posisi)
+                    $query->whereIn('approval_cutis.approved_for', $my_posisi)
                         ->whereNull('approval_cutis.approved_by');
                 });
             });

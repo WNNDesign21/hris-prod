@@ -585,7 +585,13 @@ class HomeController extends Controller
         } elseif ($user->hasRole('atasan')){
             $me = auth()->user()->karyawan;
             $posisi = $user->karyawan->posisi;
-            $my_posisi = $posisi[0]->id_posisi;
+
+            if($posisi->count() > 1){
+                $my_posisi = $posisi->pluck('id_posisi')->toArray();
+            } else {
+                $my_posisi = [$posisi->first()->id_posisi];
+            }
+
             $id_posisi_members = $this->get_member_posisi($posisi);
 
             foreach ($posisi as $ps){
@@ -625,13 +631,13 @@ class HomeController extends Controller
             })
             ->where(function($query) use ($my_posisi){
                 $query->where(function($query) use ($my_posisi){
-                    $query->where('approval_cutis.checked1_for', $my_posisi)
+                    $query->whereIn('approval_cutis.checked1_for', $my_posisi)
                         ->whereNull('approval_cutis.checked1_by');
                 })->orWhere(function($query) use ($my_posisi){
-                    $query->where('approval_cutis.checked2_for', $my_posisi)
+                    $query->whereIn('approval_cutis.checked2_for', $my_posisi)
                         ->whereNull('approval_cutis.checked2_by');
                 })->orWhere(function($query) use ($my_posisi){
-                    $query->where('approval_cutis.approved_for', $my_posisi)
+                    $query->whereIn('approval_cutis.approved_for', $my_posisi)
                         ->whereNull('approval_cutis.approved_by');
                 });
             })
