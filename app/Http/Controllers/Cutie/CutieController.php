@@ -452,6 +452,15 @@ class CutieController extends Controller
                     }
 
                     //DEPARTMENT HEAD
+                    if(!$has_leader && $has_section_head && $has_department_head && $my_posisi == 3){
+                        if(!$data->approved_by){
+                            $approved_by = '<div class="btn-group btn-sm">
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-issued-id="'.auth()->user()->karyawan->id_karyawan.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>
+                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
+                            </div>';
+                        } 
+                    }
+
                     if($has_leader && $has_section_head && $has_department_head && $my_posisi == 3){
                         if(!$data->approved_by){
                             $approved_by = '<div class="btn-group btn-sm">
