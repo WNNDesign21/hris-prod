@@ -1660,7 +1660,7 @@ class CutieController extends Controller
                 }
                 $karyawan->save();
             }
-            
+            $cutie->approval->delete();
             $cutie->delete();
             $data = [
                 'sisa_cuti_tahunan' => $karyawan->sisa_cuti_pribadi + $karyawan->sisa_cuti_bersama,
