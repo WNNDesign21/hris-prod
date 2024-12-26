@@ -12,7 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('sto_headers', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id_sto_header');
+            $table->string('year');
+            $table->string('issued_by');
+            $table->string('issued_name');
+            $table->unsignedInteger('organization_id');
+            $table->unsignedInteger('wh_id');
+            $table->string('wh_name');
+            $table->date('doc_date')->nullable();
             $table->timestamps();
         });
     }
