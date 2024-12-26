@@ -30,21 +30,21 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'am0003@email.com',
         //     'password' =>  Hash::make('password')
         //   ]);
-          
+
 
         $this->call([
-            EventSeeder::class,
-            JeniscutiSeeder::class,
             UserSeeder::class,
-            OrganisasiSeeder::class,
-            JabatanSeeder::class,
-            PosisiSeeder::class,
-            DivisiSeeder::class,
-            DepartemenSeeder::class,
-            SeksiSeeder::class,
-            GrupSeeder::class,
-            KaryawanSeeder::class,
-            SettingLemburKaryawanSeeder::class,
+            // EventSeeder::class,
+            // JeniscutiSeeder::class,
+            // OrganisasiSeeder::class,
+            // JabatanSeeder::class,
+            // PosisiSeeder::class,
+            // DivisiSeeder::class,
+            // DepartemenSeeder::class,
+            // SeksiSeeder::class,
+            // GrupSeeder::class,
+            // KaryawanSeeder::class,
+            // SettingLemburKaryawanSeeder::class,
         ]);
     }
 }
