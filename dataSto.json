@@ -1,0 +1,84 @@
+{
+    "AD_Client_ID": {
+        "id": 1000000,
+        "identifier": "PT. TRI CENTRUM FORTUNA",
+        "tableName": "ad_client"
+    },
+    "AD_Org_ID": {
+        "id": 1000002,
+        "identifier": "KIM",
+        "tableName": "ad_org"
+    },
+    "M_Warehouse_ID": {
+        "id": 1000034,
+        "tableName": "m_warehouse"
+    },
+
+    "Description":"Ini Deskripsinya",
+    "MovementDate": "2024-06-12",
+
+     "C_DocType_ID": {
+        "id": 1000023,
+        "tableName": "c_doctype"
+    },
+     "doc-action":"CO",
+
+     "M_InventoryLine":[
+        {
+            "AD_Client_ID": {
+                "id": 1000000,
+                "identifier": "PT. TRI CENTRUM FORTUNA",
+                "tableName": "ad_client"
+            },
+            "AD_Org_ID": {
+                "id": 1000002,
+                "identifier": "KIM",
+                "tableName": "ad_org"
+            },
+
+            "M_Locator_ID":{
+                "id":"1000031",
+                "tableName":"m_locator"
+            },
+            "InventoryType":"D",
+
+            "M_Product_ID":{
+                "id":"1022306",
+                "tableName":"m_product"
+            },
+            "QtyBook":"215882",
+            "QtyCount":"215881",
+            "Balance":"-1"
+
+        },
+        {
+            "AD_Client_ID": {
+                "id": 1000000,
+                "identifier": "PT. TRI CENTRUM FORTUNA",
+                "tableName": "ad_client"
+            },
+            "AD_Org_ID": {
+                "id": 1000002,
+                "identifier": "KIM",
+                "tableName": "ad_org"
+            },
+
+            "M_Locator_ID":{
+                "id":"1000031",
+                "tableName":"m_locator"
+            },
+            "InventoryType":"D",
+
+
+            "M_Product_ID":{
+                "id":"1016675",
+                "tableName":"m_product"
+            },
+            "QtyBook":"15850",
+            "QtyCount":"15852",
+            "Balance":"2"
+
+        }
+     ]
+
+}

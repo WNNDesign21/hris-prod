@@ -391,4 +391,5 @@ Route::group(['prefix' => 'sto', 'middleware' => ['auth']], function () {
 
 /**testing controller */
 Route::get('/test', [TestController::class, 'index']);
+Route::get('/getsto', [TestController::class, 'getSto']);
 Route::get('/testlogout', [TestController::class, 'logout']);

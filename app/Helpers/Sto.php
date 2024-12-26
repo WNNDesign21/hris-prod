@@ -6,11 +6,17 @@ use Illuminate\Support\Facades\Http;
 
 class Sto
 {
+    /**
+     * ONLY nOTES
+     * Query to get QTY Book on physical inventory
+     * "SELECT SUM(QtyOnHand) FROM M_StorageOnHand WHERE M_Product_ID=? AND M_Locator_ID=? "
+     * AND M_AttributeSetInstance_ID=?"; //3 << Kalau ada attribute set instance nanti
+     */
     private static function login()
     {
         $url = "https://server.tricentrumfortuna.com:12/api/v1/auth/tokens";
         $username = "ict_system";
-        $password = "ict@iDempiere2024kj";
+        $password = "ict@iDempiere2024";
         $clientId = "1000000";
         $roleId = "1000065";
         $organizationId = "1000002";
@@ -26,6 +32,7 @@ class Sto
                 "organizationId" => $organizationId
             ]
         ]);
+
 
         if ($request->successful()) {
             /**
@@ -55,7 +62,7 @@ class Sto
     private static function cekSessions()
     {
 
-        $session = true;
+
         if (!session('token')) {
             if (!session('refresh_token')) {
                 self::login();
@@ -66,8 +73,6 @@ class Sto
                 $session = true;
             }
         }
-
-        return $session;
     }
 
 
@@ -88,8 +93,10 @@ class Sto
             "token" => $token
         ]);
 
-        return $request;
+        return $request->status();
     }
+
+    public static function addSto() {}
 
 
 
@@ -130,17 +137,23 @@ class Sto
 
         $request = Http::withOptions([
             'verify' => false,
-        ])->get($url, [
+        ])->withHeaders([
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
             'Authorization' => 'Bearer ' . $token,
-        ]);
+        ])->get($url);
 
-        if ($request->successful()) {
+        if ($request->status() == 200) {
             return $request->json();
         } else {
             self::login();
         }
 
+        // if ($request->successful()) {
+        //     return $request->json();
+        // } else {
+        //     self::login();
+        // }
 
-        return $request->status();
     }
 }

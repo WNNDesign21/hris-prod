@@ -15,8 +15,9 @@ class TestController extends Controller
 {
     public function index()
     {
-        // $request = Sto::testLogin();
-        // return response()->json($request, 200);
+        $request = Sto::testLogin();
+
+        return response()->json($request, 200);
 
         // $data = Sto::testingFlow();
         // session(['token' => "jos jos kunyuk", 'refresh_token' => "jos jos kunyukkuruyuadsfasdfk"]);
@@ -26,15 +27,21 @@ class TestController extends Controller
          * test get
          */
 
-        $data = Sto::getsSto();
+        // $data = Sto::getsSto();
 
+        // return response()->json($data, 200);
+    }
+
+    public function getSto()
+    {
+        $data = Sto::getsSto();
         return response()->json($data, 200);
     }
 
     public function logout()
     {
         $request = Sto::logout();
-        return response()->json($request->json(), 200);
+        return response()->json($request, 200);
     }
 
 
