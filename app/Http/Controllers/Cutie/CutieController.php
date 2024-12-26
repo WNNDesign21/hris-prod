@@ -43,7 +43,7 @@ class CutieController extends Controller
             $detail_cuti_title = 'Detail Cuti (All Karyawan) - '.date('Y');
         } 
         $dataPage = [
-            'pageTitle' => "Cutie - Dashboard",
+            'pageTitle' => "Cuti-E - Dashboard",
             'page' => 'cutie-dashboard',
             'jenis_cuti_title' => $jenis_cuti_title,
             'detail_cuti_title' => $detail_cuti_title,
@@ -54,7 +54,7 @@ class CutieController extends Controller
     public function pengajuan_cuti_view()
     {
         $dataPage = [
-            'pageTitle' => "Cutie - Pengajuan Cuti",
+            'pageTitle' => "Cuti-E - Pengajuan Cuti",
             'page' => 'cutie-pengajuan-cuti',
         ];
         return view('pages.cuti-e.pengajuan-cuti', $dataPage);
@@ -65,7 +65,7 @@ class CutieController extends Controller
         $departemens = Departemen::all();
 
         $dataPage = [
-            'pageTitle' => "Cutie - Member Cuti",
+            'pageTitle' => "Cuti-E - Member Cuti",
             'page' => 'cutie-member-cuti',
             'departemen' => $departemens
         ];
@@ -76,7 +76,7 @@ class CutieController extends Controller
     {
         $departemens = Departemen::all();
         $dataPage = [
-            'pageTitle' => "Cutie - Personalia",
+            'pageTitle' => "Cuti-E - Personalia",
             'page' => 'cutie-personalia-cuti',
             'departemen' => $departemens,
         ];
@@ -87,7 +87,7 @@ class CutieController extends Controller
     {
         $departemens = Departemen::all();
         $dataPage = [
-            'pageTitle' => "Cutie - Export Data",
+            'pageTitle' => "Cuti-E - Export Data",
             'page' => 'cutie-export',
             'departemen' => $departemens,
         ];
@@ -97,7 +97,7 @@ class CutieController extends Controller
     public function bypass_cuti_view()
     {
         $dataPage = [
-            'pageTitle' => "Cutie - Bypass Cuti",
+            'pageTitle' => "Cuti-E - Bypass Cuti",
             'page' => 'cutie-bypass-cuti',
         ];
         return view('pages.cuti-e.bypass-cuti', $dataPage);
@@ -106,7 +106,7 @@ class CutieController extends Controller
     public function setting_cuti_view()
     {
         $dataPage = [
-            'pageTitle' => "Cutie - Setting Cuti Khusus",
+            'pageTitle' => "Cuti-E - Setting Cuti Khusus",
             'page' => 'cutie-setting',
         ];
         return view('pages.cuti-e.setting-cuti', $dataPage);
