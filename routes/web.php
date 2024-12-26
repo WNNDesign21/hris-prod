@@ -385,6 +385,7 @@ Route::group(['prefix' => 'sto', 'middleware' => ['auth']], function () {
     Route::post('/input_hasil/get_customer', [StoController::class, 'get_customer'])->name('sto.get-customer');
     Route::post('/input_hasil/get_no_label', [StoController::class, 'get_no_label'])->name('sto.get-no-label');
     Route::get('/input_hasil/get_wh/{whId}', [StoController::class, 'get_warehouse'])->name('sto.get-warehouse');
+    Route::post('/input_hasil/get_wh_label/', [StoController::class, 'get_wh_label'])->name('sto.get-wh-label');
     Route::post('/input_hasil/post', [StoController::class, 'store_hasil'])->name('sto.store-hasil');
     Route::get('/compare', [StoController::class, 'compare'])->name('sto.compare');
     Route::post('/compare/datatable', [StoController::class, 'datatable'])->name('sto.datatable');

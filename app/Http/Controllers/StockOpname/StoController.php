@@ -219,6 +219,50 @@ class StoController extends Controller
         
     }
 
+    public function get_wh_label(Request $request)
+    {
+        $search = $request->input('search');
+        $page = $request->input("page");
+        $idCats = $request->input('catsProd');
+        $adOrg = $request->input('adOrg');    
+        
+        $query = iDempiereModel::fromWarehouse()->select(
+            'm_warehouse_id',
+            'name',
+        );
+
+        if (!empty($search)) {
+            $query->where(function ($dat) use ($search) {
+                $dat->where('m_warehouse_id', 'ILIKE', "%{$search}%")
+                    ->orWhere('name', 'ILIKE', "%{$search}%");
+            });
+        }
+
+        $data = $query->simplePaginate(10);
+
+        $morePages = true;
+        $pagination_obj = json_encode($data);
+        if (empty($data->nextPageUrl())) {
+            $morePages = false;
+        }
+
+        foreach ($data->items() as $warehouse) {
+            $dataUser[] = [
+                'id' => $warehouse->m_warehouse_id,
+                'text' => $warehouse->name
+            ];
+        }
+
+        $results = array(
+            "results" => $dataUser,
+            "pagination" => array(
+                "more" => $morePages
+            )
+        );
+
+        return response()->json($results);
+    }
+
 
 public function store_label(Request $request)
 {

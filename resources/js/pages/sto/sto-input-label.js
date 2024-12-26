@@ -27,7 +27,7 @@ $(function(){
   
   $('#wh_id').select2({
     ajax: {
-        url: '/sto/input_hasil/get_warehouse',
+        url: '/sto/input_hasil/get_wh_label',
         type: "post",
         dataType: "json",
         delay: 250,
