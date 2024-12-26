@@ -12,8 +12,25 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('sto_lines', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id_sto_line');
+            $table->integer('sto_header_id');
+            $table->string('customer')->nullable();
+            $table->integer('wh_id')->nullable();
+            $table->string('wh_name')->nullable();
+            $table->string('no_label')->unique();
+            $table->string('spec_size')->nullable();
+            $table->integer('product_id')->nullable();
+            $table->string('part_code')->nullable();
+            $table->string('part_name')->nullable();
+            $table->string('part_desc')->nullable();
+            $table->string('model')->nullable();
+            $table->string('identitas_lot')->nullable();
+            $table->string('quantity')->nullable();
+            $table->string('status')->nullable();
+            $table->string('processed')->nullable();
             $table->timestamps();
+
+            $table->foreign('sto_header_id')->references('id_sto_header')->on('sto_headers')->onDelete('cascade');
         });
     }
 

@@ -117,6 +117,24 @@
                         </div>
                     </a>
                 </div>
+                {{-- CARD STO --}}
+                <div class="col-lg-6 col-12">
+                    <a href="{{route('sto.input-label')}}" class="box pull-up">
+                        <div class="box-body position-relative">
+                            <div class="d-flex align-items-center">
+                                <div class="icon bg-primary-light rounded-circle w-60 h-60 text-center l-h-80">
+                                    <span class="fs-30 mdi mdi-truck-delivery"><span class="path1"></span><span
+                                            class="path2"></span><span class="path3"></span><span
+                                            class="path4"></span></span>
+                                </div>
+                                <div class="ms-15">
+                                    <h5 class="mb-0">Stock Opname</h5>
+                                    <p class="text-fade fs-12 mb-0">Sistem Stock Opname</p>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
             </div>
         </div>
 

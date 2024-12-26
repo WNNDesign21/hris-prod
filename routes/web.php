@@ -25,6 +25,7 @@ use App\Http\Controllers\MasterData\TurnoverController;
 use App\Http\Controllers\MasterData\DashboardController;
 use App\Http\Controllers\MasterData\DepartemenController;
 use App\Http\Controllers\MasterData\OrganisasiController;
+use App\Http\Controllers\StockOpname\StoController;
 
 
 Auth::routes();
@@ -375,6 +376,17 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
 // STOCK-OPNAME
 Route::group(['prefix' => 'sto', 'middleware' => ['auth']], function () {
     //DISINI LUR
+    Route::get('/input_label', [StoController::class, 'input_label'])->name('sto.input-label');
+    Route::post('/input_label/post', [StoController::class, 'store_label'])->name('sto.store-label');
+    Route::get('/input_hasil', [StoController::class, 'input_hasil'])->name('sto.input-hasil');
+    Route::get('/input_hasil/get_part/{part_code}', [StoController::class, 'get_part'])->name('sto.get-part');
+    Route::post('/input_hasil/get_part', [StoController::class, 'get_part_code'])->name('sto.get-part-code');
+    Route::post('/input_hasil/get_customer', [StoController::class, 'get_customer'])->name('sto.get-customer');
+    Route::post('/input_hasil/get_no_label', [StoController::class, 'get_no_label'])->name('sto.get-no-label');
+    Route::get('/input_hasil/get_wh/{whId}', [StoController::class, 'get_warehouse'])->name('sto.get-warehouse');
+    Route::post('/input_hasil/post', [StoController::class, 'store_hasil'])->name('sto.store-hasil');
+    Route::get('/compare', [StoController::class, 'compare'])->name('sto.compare');
+    Route::post('/compare/datatable', [StoController::class, 'datatable'])->name('sto.datatable');
 });
 
 /**testing controller */

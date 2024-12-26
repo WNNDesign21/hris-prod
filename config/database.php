@@ -126,6 +126,21 @@ return [
             'search_path' => 'public',
             'sslmode' => 'prefer',
         ],
+        
+        'idempiere' => [
+            'driver' => 'pgsql',
+            'url' => env('DATABASE_URL_IDEMPIERE'),
+            'host' => env('DB_HOST_IDEMPIERE', '127.0.0.1'),
+            'port' => env('DB_PORT_IDEMPIERE', '5432'),
+            'database' => env('DB_DATABASE_IDEMPIERE', 'forge'),
+            'username' => env('DB_USERNAME_IDEMPIERE', 'forge'),
+            'password' => env('DB_PASSWORD_IDEMPIERE', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'schema' => 'adempiere',
+            'sslmode' => 'prefer',
+        ],
 
     ],
 
