@@ -184,13 +184,14 @@ class SakiteController extends Controller
             0 => 'karyawans.nama',
             1 => 'departemens.nama',
             2 => 'posisis.nama',
-            3 => 'sakits.tanggal_mulai',
-            4 => 'sakits.tanggal_selesai',
-            5 => 'sakits.durasi',
-            6 => 'sakits.keterangan',
-            7 => 'sakits.attachment',
-            8 => 'sakits.approved_by',
-            9 => 'sakits.legalized_by',
+            3 => 'sakits.created_at',
+            4 => 'sakits.tanggal_mulai',
+            5 => 'sakits.tanggal_selesai',
+            6 => 'sakits.durasi',
+            7 => 'sakits.keterangan',
+            8 => 'sakits.attachment',
+            9 => 'sakits.approved_by',
+            10 => 'sakits.legalized_by',
         );
 
         $totalData = Sakite::count();

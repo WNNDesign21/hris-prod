@@ -379,9 +379,6 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
     Route::group(['prefix' => 'attendancee'], function () {
         Route::get('/dashboard', [AttendanceeController::class, 'index'])->name('attendancee.dashboard');
         Route::get('/scanlog', [AttendanceeController::class, 'scanlog_view'])->name('attendancee.scanlog');
-
-        Route::get('/get-data-scanlog', [AttendanceeController::class, 'get_data_scanlog'])->name('attendancee.get-data-scanlog');
-        Route::get('/get-data-all-pin', [AttendanceeController::class, 'get_data_all_pin'])->name('attendancee.get-data-all-pin');
     });
 });
 
