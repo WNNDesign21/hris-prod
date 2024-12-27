@@ -1,12 +1,10 @@
 {
     "AD_Client_ID": {
         "id": 1000000,
-        "identifier": "PT. TRI CENTRUM FORTUNA",
         "tableName": "ad_client"
     },
     "AD_Org_ID": {
         "id": 1000002,
-        "identifier": "KIM",
         "tableName": "ad_org"
     },
     "M_Warehouse_ID": {
@@ -27,12 +25,10 @@
         {
             "AD_Client_ID": {
                 "id": 1000000,
-                "identifier": "PT. TRI CENTRUM FORTUNA",
                 "tableName": "ad_client"
             },
             "AD_Org_ID": {
                 "id": 1000002,
-                "identifier": "KIM",
                 "tableName": "ad_org"
             },
 
@@ -54,12 +50,10 @@
         {
             "AD_Client_ID": {
                 "id": 1000000,
-                "identifier": "PT. TRI CENTRUM FORTUNA",
                 "tableName": "ad_client"
             },
             "AD_Org_ID": {
                 "id": 1000002,
-                "identifier": "KIM",
                 "tableName": "ad_org"
             },
 
