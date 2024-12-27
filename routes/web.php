@@ -393,6 +393,9 @@ Route::group(['prefix' => 'sto', 'middleware' => ['auth']], function () {
     Route::get('/input_hasil/get_wh/{whId}', [StoController::class, 'get_warehouse'])->name('sto.get-warehouse');
     Route::post('/input_hasil/get_wh_label/', [StoController::class, 'get_wh_label'])->name('sto.get-wh-label');
     Route::post('/input_hasil/post', [StoController::class, 'store_hasil'])->name('sto.store-hasil');
+    Route::delete('/delete/data_hasil/{idStoLine}', [StoController::class, 'delete'])->name('sto.delete-data');
+    Route::patch('/data-sto/update/{idStoLine}', [StoController::class, 'update'])->name('sto.update-data');
+
 
     //COMPARE
     Route::get('/compare', [StoController::class, 'compare'])->name('sto.compare');

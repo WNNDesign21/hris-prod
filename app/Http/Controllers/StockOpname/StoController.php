@@ -3,14 +3,17 @@
 namespace App\Http\Controllers\StockOpname;
 
 use Exception;
+use Throwable;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use App\Models\StockOpname\iDempiereModel;
 use App\Models\StockOpname\StockOpnameLine;
 use App\Models\StockOpname\StockOpnameHeader;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class StoController extends Controller
 {
@@ -584,15 +587,55 @@ public function store_label(Request $request)
      */
     public function update(Request $request, string $id)
     {
-        //
+        $dataValidate = [
+            'no_label_edit' => ['required'],
+            'customer_edit' => ['required'],
+            'identitas_lot_edit' => ['required'],
+            'quantity_edit' => ['required'],
+        ];
+    
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            return response()->json(['message' => 'Fill your input correctly!'], 402);
+        }
+
+        $sto = StockOpnameLine::find($id);
+
+        DB::beginTransaction();
+        try{
+            $sto->no_label = $request->input('no_label_edit');
+            $sto->customer = $request->input('customer_edit');
+            $sto->identitas_lot = $request->input('identitas_lot_edit');
+            $sto->quantity = $request->input('quantity_edit');
+            $sto->save();
+            DB::commit();
+            return response()->json(['message' => 'Organisasi Updated!'], 200);
+        } catch(\Throwable $error){
+            DB::rollback();
+            return response()->json(['message' => $error->getMessage()], 500);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function delete(string $id)
     {
-        //
+        DB::beginTransaction();
+        try {
+            $sto = StockOpnameLine::findOrFail($id); 
+            $sto->delete();
+            DB::commit();
+            return response()->json(['message' => 'Data deleted!', 'data' => $sto], 200);
+        } catch (ModelNotFoundException $e) {
+            DB::rollback();
+            return response()->json(['message' => $e->getMessage()], 404);
+        } catch (Throwable $e) {
+            DB::rollback();
+            Log::error('Error deleting data: ' . $e->getMessage());
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 
     public function get_sto_line($id)

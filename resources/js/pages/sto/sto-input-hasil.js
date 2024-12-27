@@ -272,5 +272,105 @@ $(function () {
             },
         });
     })
+
+    var modalEditStoOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalEditSto = new bootstrap.Modal(
+        document.getElementById("modal-edit-sto"),
+        modalEditStoOptions
+    );
+
+    function openEditSto() {
+        modalEditSto.show();
+    }
+
+    function closeEditSto() {
+        $('#no_label').val('');
+        $('#customer').val('');
+        $('#quantity').val('');
+        $('#identitas_lot').val('');
+        modalEditSto.hide();
+    }
+
+    $('.btnCloseEdit').on("click", function (){
+        closeEditSto();
+    })
+
+    $('#table-hasil-sto').on('click', '.btnEdit', function (){
+        var idStoLine = $(this).data('id');
+        var noLabel = $(this).data('sto-no_label');
+        var customer = $(this).data('sto-customer');
+        var quantity = $(this).data('sto-quantity');
+        var identitasLot = $(this).data('sto-identitas_lot');
+        $('#id_sto_edit').val(idStoLine);
+        $('#no_label_edit').val(noLabel);
+        $('#customer_edit').val(customer);
+        $('#quantity_edit').val(quantity);
+        $('#identitas_lot_edit').val(identitasLot);
+        openEditSto();
+    });
+
+    $('#form-edit-sto').on('submit', function (e){
+        e.preventDefault();
+        loadingSwalShow();
+        let idStoLine = $('#id_org_edit').val();
+        let url = base_url + '/sto/data-sto/update/' + idStoLine;
+
+        var formData = new FormData($('#form-edit-sto')[0]);
+        $.ajax({
+            url: url,
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (data) {
+                loadingSwalClose();
+                showToast({ title: data.message });
+                refreshTable();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        })
+    });
+
+    $('#table-hasil-sto').on('click', '.btnDelete', function (){
+        var idStoLine = $(this).data('id');
+        Swal.fire({
+            title: "Delete Data STO",
+            text: "Apakah kamu yakin untuk menghapus data ini?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
+            allowOutsideClick: false,
+        }).then((result) => {
+            if (result.value) {
+                var url = base_url + '/sto/delete/data_hasil/' + idStoLine;
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: {
+                        _method: "delete",
+                    },
+                    dataType: "JSON",
+                    success: function (data) {
+                        refreshTable();
+                        showToast({ title: data.message });
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                    },
+                });
+            }
+        });
+    })
+
 });
 

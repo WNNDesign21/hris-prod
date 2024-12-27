@@ -124,4 +124,6 @@
             </form>
         </section>
     </div>
+
+    @include('pages.sto.modal_edit_data')
 @endsection
