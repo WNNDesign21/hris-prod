@@ -25,6 +25,7 @@ use App\Http\Controllers\MasterData\TurnoverController;
 use App\Http\Controllers\MasterData\DashboardController;
 use App\Http\Controllers\MasterData\DepartemenController;
 use App\Http\Controllers\MasterData\OrganisasiController;
+use App\Http\Controllers\Attendancee\AttendanceeController;
 
 
 Auth::routes();
@@ -266,9 +267,10 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::get('/bypass-cuti',[CutieController::class, 'bypass_cuti_view'])->name('cutie.bypass-cuti');
             Route::post('/bypass-cuti/store',[CutieController::class, 'bypass_store'])->name('cutie.bypass-cuti.store');
         });
-     });
+    });
 
-     Route::group(['prefix' => 'lembure', 'middleware' => ['lembure']], function () {
+    /** LEMBURE */
+    Route::group(['prefix' => 'lembure', 'middleware' => ['lembure']], function () {
 
         // DASHBOARD
         Route::get('/dashboard', [LembureController::class, 'index'])->name('lembure.dashboard')->middleware('role:personalia|atasan');
@@ -327,9 +329,10 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::post('/export-report-lembur/rekap-lembur-perbulan', [LembureController::class, 'export_rekap_lembur_perbulan'])->name('lembure.export-report-lembur.rekap-lembur-perbulan');
             Route::post('/export-report-lembur/slip-lembur-perbulan', [LembureController::class, 'export_slip_lembur_perbulan'])->name('lembure.export-report-lembur.export-slip-lembur-perbulan');
         });
-     });
+    });
 
-     Route::group(['prefix' => 'izine', 'middleware' => ['izine']], function () {
+    /** IZINE */
+    Route::group(['prefix' => 'izine', 'middleware' => ['izine']], function () {
         Route::get('/pengajuan-izin', [IzineController::class, 'pengajuan_izin_view'])->name('izine.pengajuan-izin');
         Route::post('/pengajuan-izin-datatable', [IzineController::class, 'pengajuan_izin_datatable']);
         Route::post('/pengajuan-izin/store',[IzineController::class, 'store'])->name('izine.pengajuan-izin.store');
@@ -370,7 +373,18 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::get('/export',[IzineController::class, 'export_view'])->name('izine.export');
             Route::post('/export/export-izin-dan-skd',[IzineController::class, 'export_izin_dan_skd'])->name('izine.export.export-izin-dan-skd');
         });
-      });
+    });
+
+      /** ATTENDANCEE */
+    Route::group(['prefix' => 'attendancee'], function () {
+        Route::get('/dashboard', [AttendanceeController::class, 'index'])->name('attendancee.dashboard');
+        Route::get('/scanlog', [AttendanceeController::class, 'scanlog_view'])->name('attendancee.scanlog');
+    });
+});
+
+// STOCK-OPNAME
+Route::group(['prefix' => 'sto', 'middleware' => ['auth']], function () {
+    //DISINI LUR
 });
 
 // STOCK-OPNAME
