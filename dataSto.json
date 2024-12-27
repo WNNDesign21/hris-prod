@@ -36,6 +36,7 @@
                 "id":"1000031",
                 "tableName":"m_locator"
             },
+
             "InventoryType":"D",
 
             "M_Product_ID":{

@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id("id_sto_upload");
             $table->integer('wh_id');
             $table->string('wh_name');
+            $table->integer('locator_id');
+            $table->string('locator_name');
             $table->integer('customer_id');
             $table->string('customer_name');
             $table->integer('product_id');
@@ -24,7 +26,9 @@ return new class extends Migration
             $table->string('model');
             $table->string('qty_book');
             $table->string('qty_count');
-            $table->string('processed');
+            $table->string('balance');
+            $table->date('doc_date')->default(now());
+            $table->string('processed')->default('N');
 
 
 

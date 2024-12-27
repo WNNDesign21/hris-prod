@@ -26,7 +26,7 @@ use App\Http\Controllers\MasterData\DashboardController;
 use App\Http\Controllers\MasterData\DepartemenController;
 use App\Http\Controllers\MasterData\OrganisasiController;
 use App\Http\Controllers\StockOpname\StoController;
-
+use App\Http\Controllers\StockOpname\StoReportController;
 
 Auth::routes();
 Route::get('/', function () {
@@ -397,8 +397,8 @@ Route::group(['prefix' => 'sto', 'middleware' => ['auth']], function () {
 
 
     //COMPARE
-    Route::get('/compare', [StoController::class, 'compare'])->name('sto.compare');
-    Route::post('/compare/datatable', [StoController::class, 'datatable'])->name('sto.datatable');
+    Route::get('/compare', [StoReportController::class, 'compare'])->name('sto.compare');
+    Route::post('/compare/datatable', [StoReportController::class, 'datatable'])->name('sto.datatable');
 });
 
 /**testing controller */

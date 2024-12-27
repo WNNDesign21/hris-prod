@@ -15,9 +15,25 @@ class TestController extends Controller
 {
     public function index()
     {
-        $request = Sto::testLogin();
+        $getCustomers = DB::connection('idempiere')->table('c_bpartner')
+            ->select('c_bpartner_id', 'name')
+            ->where('c_bpartner_id', '1000010')->first();
 
-        return response()->json($request, 200);
+        $getProducts = DB::connection('idempiere')->table('m_product')
+            ->leftJoin('c_bpartner_product', 'm_product.m_product_id', '=', 'c_bpartner_product.m_product_id')
+            ->select('m_product.m_product_id', 'm_product.value', 'm_product.name', 'm_product.description', 'classification')
+            ->where([
+                ['m_product.isactive', '=', "Y"],
+                ['c_bpartner_product.c_bpartner_id', $getCustomers->c_bpartner_id]
+            ])->get();
+
+        $product = $getProducts->random(1);
+
+        return response()->json($product[0], 200);
+
+        // $request = Sto::testLogin();
+
+        // return response()->json($request, 200);
 
         // $data = Sto::testingFlow();
         // session(['token' => "jos jos kunyuk", 'refresh_token' => "jos jos kunyukkuruyuadsfasdfk"]);
