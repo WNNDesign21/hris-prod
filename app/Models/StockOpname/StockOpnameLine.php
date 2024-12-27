@@ -49,6 +49,7 @@ class StockOpnameLine extends Model
             'sto_lines.part_code',
             'sto_lines.part_name',
             'sto_lines.part_desc',
+            'sto_lines.product_id',
             'sto_lines.model',
             'sto_lines.quantity',
             'sto_lines.identitas_lot',
