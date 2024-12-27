@@ -9,7 +9,7 @@
 @endsection
 
 @section('navbar')
-    @include('layouts.navbar-izine')
+    @include('layouts.navbar-cutie')
 @endsection
 
 @section('content')
@@ -18,34 +18,25 @@
             <div class="box">
                 <div class="box-header d-flex justify-content-between">
                     <div class="row">
-                        <h4 class="box-title">List Approval SKD</h4>
+                        <h4 class="box-title">Data STO</h4>
                     </div>
                     <div>
                         <div class="btn-group">
+                            {{-- BUTTON RELOAD TABEL STO --}}
                             <button type="button" class="btn btn-info waves-effect btnReload"><i
                                     class="fas fa-sync-alt"></i></button>
-                            <button type="button" class="btn btn-warning waves-effect btnFilter"><i
-                                    class="fas fa-filter"></i></button>
+                            {{-- BUTTON TAMBAH STO --}}
+                            <button type="button" class="btn btn-success waves-effect btnAdd"><i
+                                    class="fas fa-plus"></i></button>
                         </div>
                     </div>
                 </div>
                 <div class="box-body">
                     <div class="table-responsive">
-                        <table id="approval-skd-table" class="table table-striped table-bordered display"
-                            style="width:100%">
+                        <table id="sto-table" class="table table-striped table-bordered display" style="width:100%">
                             <thead>
                                 <tr>
-                                    <th>Nama</th>
-                                    <th>Departemen</th>
-                                    <th>Posisi</th>
-                                    <th>Created At</th>
-                                    <th>Tanggal Mulai</th>
-                                    <th>Tanggal Selesai</th>
-                                    <th>Durasi</th>
-                                    <th>Keterangan</th>
-                                    <th>Lampiran</th>
-                                    <th>Approved</th>
-                                    <th>Legalized</th>
+                                    {{-- MASUKIN TD YANG AKAN DI DISPLAY DISINI --}}
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -55,6 +46,7 @@
             </div>
         </div>
     </div>
-    @include('pages.izin-e.modal-reject-skd')
-    @include('pages.izin-e.modal-filter-skd')
+
+    {{-- MODAL INCLUDE DISINI --}}
+    {{-- @include('pages.cuti-e.modal-pengajuan-cuti') --}}
 @endsection

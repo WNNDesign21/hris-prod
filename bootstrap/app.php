@@ -26,9 +26,9 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withSchedule(function (Schedule $schedule) {
         $schedule->command('cutie:update-status-onleave')->hourly();
-        $schedule->command('cutie:update-status-completed')->everyFiveMinutes()->between('20:30', '23:59');
-        $schedule->command('cutie:automatic-reject-cuti')->everyFiveMinutes()->between('20:30', '23:59');
-        $schedule->command('cutie:automatic-reset-cuti')->everyFiveMinutes()->between('20:30', '23:59');
+        $schedule->command('cutie:update-status-completed')->everyFiveMinutes()->between('20:30', '21:59')->runInBackground();
+        $schedule->command('cutie:automatic-reject-cuti')->everyFiveMinutes()->between('22:00', '23:29')->runInBackground();
+        $schedule->command('cutie:automatic-reset-cuti')->everyFiveMinutes()->between('23:30', '23:59')->runInBackground();
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

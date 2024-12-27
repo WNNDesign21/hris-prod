@@ -67,6 +67,7 @@ class Sakite extends Model
             'sakits.rejected_by',
             'sakits.rejected_note',
             'sakits.attachment',
+            'sakits.created_at',
             'karyawans.nama as nama',
             'kp.nama_pengganti as karyawan_pengganti',
             'departemens.nama as departemen',

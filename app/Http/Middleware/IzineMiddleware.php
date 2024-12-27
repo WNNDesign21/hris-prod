@@ -67,6 +67,14 @@ class IzineMiddleware
                             ->whereNull('rejected_by')
                             ->whereNull('checked_by')
                             ->count();
+
+            $approval_skd = Sakite::leftJoin('karyawan_posisi', 'sakits.karyawan_id', 'karyawan_posisi.karyawan_id')
+                            ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                            ->whereIn('posisis.id_posisi', $id_posisi_members)
+                            ->whereNull('rejected_by')
+                            ->whereNull('approved_by')
+                            // ->whereNotNull('attachment')
+                            ->count();
         } 
 
         //section head

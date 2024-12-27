@@ -8,6 +8,7 @@ use App\Models\Posisi;
 use App\Models\Sakite;
 use App\Models\Karyawan;
 use App\Models\Departemen;
+use App\Helpers\Approval;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -183,13 +184,14 @@ class SakiteController extends Controller
             0 => 'karyawans.nama',
             1 => 'departemens.nama',
             2 => 'posisis.nama',
-            3 => 'sakits.tanggal_mulai',
-            4 => 'sakits.tanggal_selesai',
-            5 => 'sakits.durasi',
-            6 => 'sakits.keterangan',
-            7 => 'sakits.attachment',
-            8 => 'sakits.approved_by',
-            9 => 'sakits.legalized_by',
+            3 => 'sakits.created_at',
+            4 => 'sakits.tanggal_mulai',
+            5 => 'sakits.tanggal_selesai',
+            6 => 'sakits.durasi',
+            7 => 'sakits.keterangan',
+            8 => 'sakits.attachment',
+            9 => 'sakits.approved_by',
+            10 => 'sakits.legalized_by',
         );
 
         $totalData = Sakite::count();
@@ -224,7 +226,7 @@ class SakiteController extends Controller
         //FILTER MEMBER
         if (auth()->user()->hasRole('atasan')){
             $posisi = auth()->user()->karyawan->posisi;
-            $id_posisi_members = $this->get_member_posisi($posisi);
+            $id_posisi_members = Approval::GetMemberPosisi($posisi);
 
             foreach ($posisi as $ps){
                 $index = array_search($ps->id_posisi, $id_posisi_members);
@@ -263,8 +265,9 @@ class SakiteController extends Controller
             foreach ($sakite as $data) {
                 $karyawan = Karyawan::find($data->karyawan_id);
                 $posisi = $karyawan->posisi;
-                $has_section_head = $this->has_section_head($posisi);
-                $has_department_head = $this->has_department_head($posisi);
+                $created_at = Carbon::parse($data->created_at)->format('d M Y, H:i');
+                $has_section_head = Approval::HasSectionHead($posisi);
+                $has_department_head = Approval::HasDepartmentHead($posisi);
                 $legalized_by = '🕛 Need Legalized';
                 $approved_by = '🕛 Need Approved';
                 $tanggal_mulai = $data->tanggal_mulai ? Carbon::parse($data->tanggal_mulai)->format('d M Y') : '-';
@@ -320,6 +323,7 @@ class SakiteController extends Controller
                 $nestedData['nama'] = $data->nama;
                 $nestedData['departemen'] = $data->departemen;
                 $nestedData['posisi'] = $data->posisi;
+                $nestedData['created_at'] = $created_at;
                 $nestedData['tanggal_mulai'] = $tanggal_mulai;
                 $nestedData['tanggal_selesai'] = $tanggal_selesai;
                 $nestedData['durasi'] = $durasi;
@@ -683,74 +687,5 @@ class SakiteController extends Controller
             DB::rollBack();
             return response()->json(['message' => $e->getMessage()], 500);
         }
-    }
-
-    function has_department_head($posisi)
-    {
-        $has_dept_head = false;
-        if($posisi){
-            foreach($posisi as $pos){
-                $parent_posisi_ids = $this->get_parent_posisi($pos);
-                if(!empty($parent_posisi_ids)){
-                    foreach ($parent_posisi_ids as $parent_id){
-                        if($parent_id !== 0){
-                            if(Posisi::where('id_posisi', $parent_id)->first()->jabatan_id == 3){
-                                $has_dept_head = true;
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            return response()->json(['message' => 'Anda tidak memiliki posisi, silahkan hubungi HRD'], 200);
-        }
-
-        return $has_dept_head;
-    } 
-
-    function has_section_head($posisi)
-    {
-        $has_sec_head = false;
-        if($posisi){
-            foreach($posisi as $pos){
-                $parent_posisi_ids = $this->get_parent_posisi($pos);
-                if(!empty($parent_posisi_ids)){
-                    foreach ($parent_posisi_ids as $parent_id){
-                        if($parent_id !== 0){
-                            if(Posisi::where('id_posisi', $parent_id)->first()->jabatan_id == 4){
-                                $has_sec_head = true;
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            return response()->json(['message' => 'Anda tidak memiliki posisi, silahkan hubungi HRD'], 200);
-        }
-
-        return $has_sec_head;
-    }
-
-    function get_parent_posisi($posisi)
-    {
-        $data = [];
-        if ($posisi->parent_id !== 0) {
-            $parent = Posisi::find($posisi->parent_id);
-            $data = array_merge($data, $this->get_parent_posisi($parent));
-        }
-        $data[] = $posisi->parent_id;
-        return $data;
-    }
-
-    function get_member_posisi($posisis)
-    {
-        $data = [];
-        foreach ($posisis as $ps) {
-            if ($ps->children) {
-                $data = array_merge($data, $this->get_member_posisi($ps->children));
-            }
-            $data[] = $ps->id_posisi;
-        }
-        return $data;
     }
 }

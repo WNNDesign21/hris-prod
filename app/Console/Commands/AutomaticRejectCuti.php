@@ -32,14 +32,17 @@ class AutomaticRejectCuti extends Command
         DB::beginTransaction();
         try {
             $today = date('Y-m-d');
-            $cuti = Cutie::where('status_dokumen', 'WAITING')->whereDate('rencana_mulai_cuti', $today)->where('status_cuti', '!=', 'CANCELED');
+            $cuti = Cutie::where('status_dokumen', 'WAITING')->whereDate('rencana_mulai_cuti', $today)->where(function($query){
+                $query->where('status_cuti', '!=', 'CANCELED')
+                ->orWhereNull('status_cuti');
+            });
             $data_cuti = $cuti->get();
 
             if($data_cuti){
                 foreach ($data_cuti as $ct) {
 
                     //KONDISI JIKA ADA SALAH SATU YANG SUDAH DISETUJUI
-                    if($ct->checked1_by !== null || $ct->checked2_by !== null || $ct->checked3_by !== null){
+                    if($ct->checked1_by || $ct->checked2_by || $ct->approved_by){
                         if($ct->checked1_by == null){
                             $ct->checked1_by = 'SYSTEM';
                             $ct->checked1_at = now();
