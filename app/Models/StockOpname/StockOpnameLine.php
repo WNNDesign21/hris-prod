@@ -12,7 +12,8 @@ class StockOpnameLine extends Model
     protected $primaryKey = 'id_sto_line';
     protected $fillable = [
         'sto_header_id',
-        'customer',
+        'customer_id',
+        'customer_name',
         'wh_id',
         'wh_name',
         'no_label',
@@ -37,32 +38,44 @@ class StockOpnameLine extends Model
     private static function _query($dataFilter)
     {
         $data = self::select(
-            'id_sto_line',
-            'customer',
-            'wh_id',
-            'wh_name',
-            'no_label',
-            'part_code',
-            'part_name',
-            'part_desc',
-            'model',
-            'quantity',
-            'identitas_lot',
-            
+            'sto_lines.id_sto_line',
+            'sto_lines.customer_id',
+            'sto_lines.customer_name',
+            'sto_lines.wh_id',
+            'sto_lines.wh_name',
+            'sto_lines.no_label',
+            'sto_lines.part_code',
+            'sto_lines.part_name',
+            'sto_lines.part_desc',
+            'sto_lines.model',
+            'sto_lines.quantity',
+            'sto_lines.identitas_lot',
+            'sto_lines.created_at',
+            'sto_lines.updated_at',
+            'sto_headers.year',
+            'sto_headers.issued_name',
+            'sto_headers.issued_by',
         );
+
+        $data->leftJoin('sto_headers', 'sto_headers.id_sto_header', 'sto_lines.sto_header_id');
+
+        if (isset($dataFilter['hasilSto']) == 'Y'){
+            $data->whereNotNull('sto_lines.product_id');
+        }
 
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
             $data->where(function ($query) use ($search) {
-                $query->where('customer', 'ILIKE', "%{$search}%")
-                    ->orWhere('wh_name', 'ILIKE', "%{$search}%")
-                    ->orWhere('no_label', 'ILIKE', "%{$search}%")
-                    ->orWhere('part_code', 'ILIKE', "%{$search}%")
-                    ->orWhere('part_name', 'ILIKE', "%{$search}%")
-                    ->orWhere('part_desc', 'ILIKE', "%{$search}%")
-                    ->orWhere('model', 'ILIKE', "%{$search}%")
-                    ->orWhere('quantity', 'ILIKE', "%{$search}%")
-                    ->orWhere('identitas_lot', 'ILIKE', "%{$search}%");
+                $query->where('sto_lines.customer_id', 'ILIKE', "%{$search}%")
+                    ->orWhere('sto_lines.customer_name', 'ILIKE', "%{$search}%")
+                    ->orWhere('sto_lines.wh_name', 'ILIKE', "%{$search}%")
+                    ->orWhere('sto_lines.no_label', 'ILIKE', "%{$search}%")
+                    ->orWhere('sto_lines.part_code', 'ILIKE', "%{$search}%")
+                    ->orWhere('sto_lines.part_name', 'ILIKE', "%{$search}%")
+                    ->orWhere('sto_lines.part_desc', 'ILIKE', "%{$search}%")
+                    ->orWhere('sto_lines.model', 'ILIKE', "%{$search}%")
+                    ->orWhere('sto_lines.quantity', 'ILIKE', "%{$search}%")
+                    ->orWhere('sto_lines.identitas_lot', 'ILIKE', "%{$search}%");
                     
             });
         }

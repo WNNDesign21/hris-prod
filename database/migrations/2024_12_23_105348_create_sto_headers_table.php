@@ -19,7 +19,7 @@ return new class extends Migration
             $table->unsignedInteger('organization_id');
             $table->unsignedInteger('wh_id');
             $table->string('wh_name');
-            $table->date('doc_date')->nullable();
+            $table->date('doc_date')->default(now());
             $table->timestamps();
         });
     }

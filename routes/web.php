@@ -376,10 +376,16 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
 
 // STOCK-OPNAME
 Route::group(['prefix' => 'sto', 'middleware' => ['auth']], function () {
-    //DISINI LUR
+
+    //REGISTER LABEL
     Route::get('/input_label', [StoController::class, 'input_label'])->name('sto.input-label');
     Route::post('/input_label/post', [StoController::class, 'store_label'])->name('sto.store-label');
+    Route::post('/input_label/datatable', [StoController::class, 'label_datatable']);
+
+    //HASIL STO
     Route::get('/input_hasil', [StoController::class, 'input_hasil'])->name('sto.input-hasil');
+    Route::get('/input_hasil/get_sto_line/{idStoLine}', [StoController::class, 'get_sto_line'])->name('sto.get-sto-line');
+    Route::post('/input_hasil/datatable', [StoController::class, 'hasil_datatable']);
     Route::get('/input_hasil/get_part/{part_code}', [StoController::class, 'get_part'])->name('sto.get-part');
     Route::post('/input_hasil/get_part', [StoController::class, 'get_part_code'])->name('sto.get-part-code');
     Route::post('/input_hasil/get_customer', [StoController::class, 'get_customer'])->name('sto.get-customer');
@@ -387,6 +393,8 @@ Route::group(['prefix' => 'sto', 'middleware' => ['auth']], function () {
     Route::get('/input_hasil/get_wh/{whId}', [StoController::class, 'get_warehouse'])->name('sto.get-warehouse');
     Route::post('/input_hasil/get_wh_label/', [StoController::class, 'get_wh_label'])->name('sto.get-wh-label');
     Route::post('/input_hasil/post', [StoController::class, 'store_hasil'])->name('sto.store-hasil');
+
+    //COMPARE
     Route::get('/compare', [StoController::class, 'compare'])->name('sto.compare');
     Route::post('/compare/datatable', [StoController::class, 'datatable'])->name('sto.datatable');
 });
