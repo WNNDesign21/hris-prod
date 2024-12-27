@@ -6,24 +6,24 @@
                 <!-- sidebar menu-->
                 <ul class="sidebar-menu" data-widget="tree">
                     <li class="header">STO Menu</li>
-                        <li class="{{ $page == 'sto-input-label' ? 'active' : '' }}">
-                            <a href="{{route('sto.input-label')}}">
-                                <i class="ti-pencil-alt"><span class="path1"></span><span class="path2"></span></i>
-                                <span>Register No. Label STO</span>
-                            </a>
-                        </li>
-                        <li class="{{ $page == 'sto-input-hasil' ? 'active' : '' }} ">
-                            <a href="{{route('sto.input-hasil')}}">
-                                <i class="ti-receipt"><span class="path1"></span><span class="path2"></span></i>
-                                <span>Input Hasil STO</span>
-                            </a>
-                        </li>
-                        <li class="{{ $page == 'sto-compare' ? 'active' : '' }} ">
-                            <a href="{{route('sto.compare')}}">
-                                <i class="ti-package"><span class="path1"></span><span class="path2"></span></i>
-                                <span>Data STO</span>
-                            </a>
-                        </li>
+                    <li class="{{ $page == 'sto-input-label' ? 'active' : '' }}">
+                        <a href="{{ route('sto.input-label') }}">
+                            <i class="ti-pencil-alt"><span class="path1"></span><span class="path2"></span></i>
+                            <span>Form Register Label</span>
+                        </a>
+                    </li>
+                    <li class="{{ $page == 'sto-input-hasil' ? 'active' : '' }} ">
+                        <a href="{{ route('sto.input-hasil') }}">
+                            <i class="ti-receipt"><span class="path1"></span><span class="path2"></span></i>
+                            <span>Input Hasil STO</span>
+                        </a>
+                    </li>
+                    <li class="{{ $page == 'sto-compare' ? 'active' : '' }} ">
+                        <a href="{{ route('sto.compare') }}">
+                            <i class="ti-package"><span class="path1"></span><span class="path2"></span></i>
+                            <span>Data STO</span>
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>

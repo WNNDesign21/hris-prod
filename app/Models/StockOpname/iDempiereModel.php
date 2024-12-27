@@ -36,9 +36,31 @@ class iDempiereModel extends Model
     {
         return $query
         ->from('m_product')
-        ->leftJoin('c_bpartner_product', 'm_product.id', '=', 'c_bpartner_product.product_id')
-        ->leftJoin('c_bpartner', 'c_bpartner_product.bpartner_id', '=', 'c_bpartner.id')
+        ->leftJoin('c_bpartner_product', 'm_product.id', 'c_bpartner_product.product_id')
+        ->leftJoin('c_bpartner', 'c_bpartner_product.bpartner_id', 'c_bpartner.id')
         ->select('m_product.*', 'c_bpartner.name as partner_name');
+
+    }
+
+    public static function getProduct($product_id)
+    {
+        $query = self::fromProduct()->select(
+            'm_product.m_product_id',
+            'm_product.name',
+            'm_product.value',
+            'm_product.description',
+            'm_product.classification',
+            'c_uom.name as uom',
+            'c_bpartner.name as partner_name',
+            'c_bpartner.c_bpartner_id as partner_id',
+        );
+
+        $query->leftJoin('c_bpartner_product', 'm_product.m_product_id', 'c_bpartner_product.m_product_id')
+            ->leftJoin('c_uom', 'm_product.c_uom_id', 'c_uom.c_uom_id')
+            ->leftJoin('c_bpartner', 'c_bpartner_product.c_bpartner_id', 'c_bpartner.c_bpartner_id')
+            ->where('m_product.m_product_id', $product_id);
+
+        return $query->first();
 
     }
 

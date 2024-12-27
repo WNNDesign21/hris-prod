@@ -40,31 +40,117 @@ $(function () {
         });
     }
 
+    // DATATABLE
+    var columnsTable = [
+        { data: 'no_label' },
+        { data: 'customer_name' },
+        { data: 'wh_name' },
+        { data: 'part_code' },
+        { data: 'part_name' },
+        { data: 'part_number' },
+        { data: 'quantity' },
+        { data: 'identitas_lot' },
+        { data: 'updated_at' },
+        { data: 'action' },
+    ];
+
+    var hasilTable =
+    $("#table-hasil-sto").DataTable({
+        search: {
+            return: true,
+        },
+        order: [[0, "ASC"]],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: base_url + "/sto/input_hasil/datatable",
+            dataType: "json",
+            type: "POST",
+            data: function (dataFilter) {
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR.responseJSON.data) {
+                    var error = jqXHR.responseJSON.data.error;
+                } else {
+                    var message = jqXHR.responseJSON.message;
+                    var errorLine = jqXHR.responseJSON.line;
+                    var file = jqXHR.responseJSON.file;
+                }
+            },
+        },
+        responsive: true,
+        columns: columnsTable,
+        dom: 'Bfrtip',
+        buttons: [
+        'copy', 'csv', 'excel', 'pdf', 'print'
+        ]
+    });
+
+    function refreshTable() {
+        var searchValue = hasilTable.search();
+        if (searchValue) {
+            hasilTable.search(searchValue).draw();
+        } else {
+            hasilTable.search("").draw();
+        }
+    }
+
 
     $('#product_id').on('change', function() {
         let partCode = $(this).val();
         
         if (partCode) {
             $.ajax({
-                url: '/sto/input_hasil/get_part/' + partCode,
+                url: base_url + '/sto/input_hasil/get_part/' + partCode,
                 type: 'GET',
                 dataType: 'json',
                 success: function(data) {
                     $('#part_name').val(data.name);
                     $('#part_code').val(data.value);
                     $('#part_desc').val(data.description);
+                    $('#quantity_uom').text(data.uom ?? '');
                     if (data.classification) {
                         $('#model').val(data.classification).trigger('change');
+                    } else {
+                        $('#model').val('').trigger('change');
                     }
-                    // if (data.partner_name) {
-                    //     $('#partner_name').val(data.partner_name).trigger('change');
-                    // }
+
+                    if (data.partner_id){
+                        $('#customer').append('<option value="'+data.partner_id+'" selected>'+data.partner_name+'</option>');
+                        $('#customer').select2({
+                            ajax: {
+                                url: '/sto/input_hasil/get_customer',
+                                type: "post",
+                                dataType: "json",
+                                delay: 250,
+                                data: function (params) {
+                                    return {
+                                        search: params.term || "",
+                                        page: params.page || 1,
+                                    };
+                                },
+                                cache: true,
+                            },
+                        }).val(data.partner_id).trigger('change');
+                    } else {
+                        $('#customer').val(null).trigger('change');
+                    }
                 },
-                error: function() {
-                    alert('Error retrieving data.');
-                }
+                error: function (jqXHR, textStatus, errorThrown) {
+                    showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                },
             });
         }
+    });
+
+    $('#quantity').on('input', function() {
+        let quantity = $(this).val();
+        console.log(quantity);
+        quantity = quantity.replace(/^0+/, '');
+        if (quantity === '' || parseInt(quantity) < 1) {
+            quantity = 0;
+        }
+        $(this).val(quantity);
     });
 
     $('#no_label').on('change', function() {
@@ -78,9 +164,9 @@ $(function () {
                 success: function(data) {
                     $('#wh_name').val(data.wh_name);
                 },
-                error: function() {
-                    alert('Error retrieving data.');
-                }
+                error: function (jqXHR, textStatus, errorThrown) {
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
             });
         }
     });
@@ -121,22 +207,22 @@ $(function () {
 
 
     $('#form-hasil-sto').on('submit', function (e) {
-        e.preventDefault(); // Prevent form submission
-
-        // Ambil data form
+        e.preventDefault(); 
+        loadingSwalShow();
         let formData = $(this).serialize();
 
-        // Kirim data dengan AJAX
         $.ajax({
             url: $(this).attr('action'),
             type: 'POST',
             data: formData,
             success: function (data) {
+                loadingSwalClose();
                 showToast({ title: data.message });
+                refreshTable();
                 $('#form-hasil-sto')[0].reset();
-                $('#customer').select2('destroy'); 
-                $('#no_label').select2('destroy'); 
-                $('#product_id').select2('destroy'); 
+                $('#customer').val('').trigger('change'); 
+                $('#no_label').val('').trigger('change'); 
+                $('#product_id').val('').trigger('change');
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
@@ -175,6 +261,119 @@ $(function () {
         },
     });
 
+    $('#table-hasil-sto').on('click', '.btnEdit', function() {
+        let idStoLine = $(this).data('id');
+        $.ajax({
+            url: base_url + '/sto/input_hasil/get_sto_line/' + idStoLine,
+            type: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                console.log(data);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        });
+    })
+
+    var modalEditStoOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalEditSto = new bootstrap.Modal(
+        document.getElementById("modal-edit-sto"),
+        modalEditStoOptions
+    );
+
+    function openEditSto() {
+        modalEditSto.show();
+    }
+
+    function closeEditSto() {
+        $('#no_label').val('');
+        $('#customer').val('');
+        $('#quantity').val('');
+        $('#identitas_lot').val('');
+        modalEditSto.hide();
+    }
+
+    $('.btnCloseEdit').on("click", function (){
+        closeEditSto();
+    })
+
+    $('#table-hasil-sto').on('click', '.btnEdit', function (){
+        var idStoLine = $(this).data('id');
+        var noLabel = $(this).data('sto-no_label');
+        var customer = $(this).data('sto-customer');
+        var quantity = $(this).data('sto-quantity');
+        var identitasLot = $(this).data('sto-identitas_lot');
+        $('#id_sto_edit').val(idStoLine);
+        $('#no_label_edit').val(noLabel);
+        $('#customer_edit').val(customer);
+        $('#quantity_edit').val(quantity);
+        $('#identitas_lot_edit').val(identitasLot);
+        openEditSto();
+    });
+
+    $('#form-edit-sto').on('submit', function (e){
+        e.preventDefault();
+        loadingSwalShow();
+        let idStoLine = $('#id_org_edit').val();
+        let url = base_url + '/sto/data-sto/update/' + idStoLine;
+
+        var formData = new FormData($('#form-edit-sto')[0]);
+        $.ajax({
+            url: url,
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (data) {
+                loadingSwalClose();
+                showToast({ title: data.message });
+                refreshTable();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        })
+    });
+
+    $('#table-hasil-sto').on('click', '.btnDelete', function (){
+        var idStoLine = $(this).data('id');
+        Swal.fire({
+            title: "Delete Data STO",
+            text: "Apakah kamu yakin untuk menghapus data ini?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
+            allowOutsideClick: false,
+        }).then((result) => {
+            if (result.value) {
+                var url = base_url + '/sto/delete/data_hasil/' + idStoLine;
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: {
+                        _method: "delete",
+                    },
+                    dataType: "JSON",
+                    success: function (data) {
+                        refreshTable();
+                        showToast({ title: data.message });
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                    },
+                });
+            }
+        });
+    })
 
 });
 
