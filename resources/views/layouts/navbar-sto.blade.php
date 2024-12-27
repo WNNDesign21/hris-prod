@@ -21,7 +21,7 @@
                         <li class="{{ $page == 'sto-compare' ? 'active' : '' }} ">
                             <a href="{{route('sto.compare')}}">
                                 <i class="ti-package"><span class="path1"></span><span class="path2"></span></i>
-                                <span>Compare STO</span>
+                                <span>Data STO</span>
                             </a>
                         </li>
                 </ul>

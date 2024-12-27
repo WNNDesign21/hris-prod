@@ -56,6 +56,9 @@ $(function () {
                     if (data.classification) {
                         $('#model').val(data.classification).trigger('change');
                     }
+                    // if (data.partner_name) {
+                    //     $('#partner_name').val(data.partner_name).trigger('change');
+                    // }
                 },
                 error: function() {
                     alert('Error retrieving data.');
@@ -130,6 +133,10 @@ $(function () {
             data: formData,
             success: function (data) {
                 showToast({ title: data.message });
+                $('#form-hasil-sto')[0].reset();
+                $('#customer').select2('destroy'); 
+                $('#no_label').select2('destroy'); 
+                $('#product_id').select2('destroy'); 
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });

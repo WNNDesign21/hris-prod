@@ -30,10 +30,11 @@
                             <th>Customer</th>
                             <th>Part Code</th>
                             <th>Part Name</th>
-                            <th>Part Desc</th>
+                            <th>Part Number</th>
+                            <th>Model</th>
                             <th>Warehouse</th>
                             <th>Quantity</th>
-                            <th>Input By</th>
+                            <th>Identitas/Lot</th>
                         </tr>
                     </thead>
                 </table>

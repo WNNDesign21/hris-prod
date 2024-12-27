@@ -24,9 +24,10 @@ $(function() {
         { data: 'part_code' },
         { data: 'part_name' },
         { data: 'part_desc' },
+        { data: 'model' },
         { data: 'wh_name'},
         { data: 'quantity' },
-        { data: 'input_by' },
+        { data: 'identitas_lot' },
     ];
 
     var eventTable =

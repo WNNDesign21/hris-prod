@@ -41,7 +41,8 @@ class StoController extends Controller
             'name',
             'value',
             'description',
-            'classification'
+            'classification',
+            // 'partner_name',
         )->where('m_product_id', $part_code)->first();
     
         if ($product) {
@@ -49,7 +50,8 @@ class StoController extends Controller
                 'value' => $product->value,
                 'name' => $product->name,
                 'description' => $product->description,
-                'classification' => $product->classification
+                'classification' => $product->classification,
+                // 'partner_name' => $product->partner_name
             ]);
         } else {
             return response()->json(['error' => 'Product not found.'], 404);
@@ -336,6 +338,7 @@ public function store_label(Request $request)
             'part_code' => ['required', 'string', 'max:255'],
             'part_name' => ['nullable', 'string', 'max:255'],
             'part_desc' => ['nullable', 'string'],
+            'model' => ['nullable', 'string'],
             'customer' => ['required', 'string', 'max:255'],
             'identitas_lot' => ['nullable', 'string', 'max:255'],
             'quantity' => ['required', 'numeric'],
@@ -357,6 +360,7 @@ public function store_label(Request $request)
                     'part_code' => $request->part_code,
                     'part_name' => $request->part_name,
                     'part_desc' => $request->part_desc,
+                    'model' => $request->model,
                     'customer' => $request->customer,
                     'identitas_lot' => $request->identitas_lot,
                     'quantity' => $request->quantity,
@@ -391,9 +395,10 @@ public function store_label(Request $request)
             2 => 'part_code',
             3 => 'part_name',
             4 => 'part_desc',
-            5 => 'wh_name',
-            6 => 'quantity',
-            7 => 'input_by',
+            5 => 'model',
+            6 => 'wh_name',
+            7 => 'quantity',
+            8 => 'identitas_lot',
         );
 
         $totalData = StockOpnameLine::count();
@@ -427,9 +432,10 @@ public function store_label(Request $request)
                 $nestedData['part_code'] = $data->part_code;
                 $nestedData['part_name'] = $data->part_name;
                 $nestedData['part_desc'] = $data->part_desc;
+                $nestedData['model'] = $data->model;
                 $nestedData['wh_name'] = $data->wh_name;
                 $nestedData['quantity'] = $data->quantity;
-                $nestedData['input_by'] = $data->input_by;
+                $nestedData['identitas_lot'] = $data->identitas_lot;
 
                 $dataTable[] = $nestedData;
             }
