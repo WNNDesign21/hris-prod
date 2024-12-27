@@ -69,6 +69,7 @@ class iDempiereModel extends Model
             'm_product.value',
             'm_product.description',
             'm_product.classification',
+            'm_product.weight',
             'c_uom.name as uom',
             'c_bpartner.name as partner_name',
             'c_bpartner.c_bpartner_id as partner_id',

@@ -95,8 +95,14 @@ $(function () {
             hasilTable.search("").draw();
         }
     }
+    $('#openCalculator').on('click', function() {
+        $('#calculator').toggleClass('d-none');
+        $('#from').val(0);
+        $('#to').val(0);
+    });
 
 
+    let weight = 0;
     $('#product_id').on('change', function() {
         let partCode = $(this).val();
         
@@ -106,6 +112,14 @@ $(function () {
                 type: 'GET',
                 dataType: 'json',
                 success: function(data) {
+
+                    if(data.weight > 0){
+                        weight = data.weight;
+                    } else {
+                        weight = 0;
+                    }
+
+                    $('#from').val(0).trigger('input');
                     $('#part_name').val(data.name);
                     $('#part_code').val(data.value);
                     $('#part_desc').val(data.description);
@@ -146,12 +160,25 @@ $(function () {
 
     $('#quantity').on('input', function() {
         let quantity = $(this).val();
-        console.log(quantity);
         quantity = quantity.replace(/^0+/, '');
         if (quantity === '' || parseInt(quantity) < 1) {
             quantity = 0;
         }
         $(this).val(quantity);
+    });
+
+
+    $('#calculator').on('input', '#from', function() {
+        let quantity = $(this).val();
+        quantity = quantity.replace(/[^0-9]/g, '');
+        quantity = quantity.replace(/^0+/, '');
+        if (quantity === '' || parseInt(quantity) < 1) {
+            quantity = 0;
+        }
+        $(this).val(quantity);
+
+        let convertion = quantity / weight;
+        $('#to').val(convertion);
     });
 
     $('#no_label').on('change', function() {
@@ -307,7 +334,6 @@ $(function () {
 
         $('#quantity_edit').on('input', function() {
             let quantity = $(this).val();
-            console.log(quantity);
             quantity = quantity.replace(/^0+/, '');
             if (quantity === '' || parseInt(quantity) < 1) {
                 quantity = 0;
@@ -333,7 +359,6 @@ $(function () {
             dropdownParent: $('#modal-edit-sto'),
         }).val(customerId).trigger('change');
 
-        console.log(productId);
         $('#product_id_edit').append('<option value="'+productId+'" selected>'+productName+'</option>');
         $('#product_id_edit').select2({
             ajax: {
@@ -414,6 +439,7 @@ $(function () {
             }
         });
     })
+
 
 });
 

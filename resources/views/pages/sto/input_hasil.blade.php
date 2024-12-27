@@ -55,8 +55,17 @@
                                             <input type="name" class="form-control" id="identitas_lot"
                                                 name="identitas_lot">
                                         </div>
+                                        <div class="row mb-3 d-none" id="calculator" >
+                                            <h5>Kalkulator Konversi</h5>
+                                            <div class="col-6">
+                                                <input type="text" class="form-control" id="from" value="0">
+                                            </div>
+                                            <div class="col-6">
+                                                <input type="text" class="form-control" id="to" value="0" readonly>
+                                            </div>
+                                        </div>
                                         <div class="form-group">
-                                            <label for="quantity" class="form-label">Quantity</label>
+                                            <label for="quantity" class="form-label">Quantity <span id="openCalculator" style="cursor: pointer;"><i class="fa fa-calculator"></i></span></label>
                                             <div class="input-group mb-3">
                                                 <input type="text" class="form-control"
                                                     placeholder="Insert "id="quantity" name="quantity" value="0">

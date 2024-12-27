@@ -182,6 +182,7 @@ class StoController extends Controller
                 'description' => $product->description,
                 'classification' => $product->classification,
                 'uom' => $product->uom,
+                'weight' => $product->weight,
                 'partner_id' => $product->partner_id,
                 'partner_name' => $product->partner_name,
             ]);
@@ -309,7 +310,6 @@ class StoController extends Controller
             'c_bpartner_id',
             'name',
         );
-        // dd($query)->get();
 
         if (!empty($search)) {
             $query->where(function ($dat) use ($search) {
@@ -442,7 +442,6 @@ public function store_label(Request $request)
             ];
 
         }
-        // dd($data);
 
         // Insert data ke tabel Stock Opname Line
         StockOpnameLine::insert($data);
@@ -466,8 +465,6 @@ public function store_label(Request $request)
 
     public function store_hasil(Request $request)
     {
-        // dd($request->all());
-
         $dataValidate = [
             'no_label' => ['required', 'exists:sto_lines,no_label'],
             'product_id' => ['required'],
