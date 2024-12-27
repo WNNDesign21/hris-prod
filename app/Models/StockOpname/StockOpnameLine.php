@@ -26,8 +26,10 @@ class StockOpnameLine extends Model
         'identitas_lot',
         'quantity',
         'status',
-        'input_by',
-        'input_date',
+        'inputed_by',
+        'inputed_name',
+        'updated_by',
+        'updated_name',
     ];
 
     public function stoHeader()
@@ -52,6 +54,10 @@ class StockOpnameLine extends Model
             'sto_lines.identitas_lot',
             'sto_lines.created_at',
             'sto_lines.updated_at',
+            'sto_lines.updated_by',
+            'sto_lines.updated_name',
+            'sto_lines.inputed_by',
+            'sto_lines.inputed_name',
             'sto_headers.year',
             'sto_headers.issued_name',
             'sto_headers.issued_by',

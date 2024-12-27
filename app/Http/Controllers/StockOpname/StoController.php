@@ -143,7 +143,7 @@ class StoController extends Controller
                 $nestedData['part_number'] = $data->part_number;
                 $nestedData['quantity'] = $data->quantity;
                 $nestedData['identitas_lot'] = $data->identitas_lot;
-                $nestedData['updated_at'] = Carbon::parse($data->updated_at)->format('d M Y, H:i:s');
+                $nestedData['updated_at'] = Carbon::parse($data->updated_at)->format('d M Y, H:i:s').'<br><small>'.$data->updated_name.'</small>';
                 $nestedData['action'] = '<div class="btn-group">
                     <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" data-id="'.$data->id_sto_line.'"><i class="fas fa-edit"></i></button>
                     <button type="button" class="waves-effect waves-light btn btn-danger btnDelete" data-id="'.$data->id_sto_line.'"><i class="fas fa-trash-alt"></i></button>
@@ -257,7 +257,8 @@ class StoController extends Controller
         $query = StockOpnameLine::select(
             'id_sto_line',
             'no_label',
-        )->whereNull('product_id');
+        )
+        ->whereNull('product_id');
 
         if (!empty($search)) {
             $query->where(function ($dat) use ($search) {
@@ -493,6 +494,10 @@ public function store_label(Request $request)
                     'customer_name' => $customer_name,
                     'identitas_lot' => $request->identitas_lot,
                     'quantity' => $request->quantity,
+                    'inputed_by' => auth()->user()->karyawan->id_karyawan,
+                    'inputed_name' => auth()->user()->karyawan->nama,
+                    'updated_by' => auth()->user()->karyawan->id_karyawan,
+                    'updated_name' => auth()->user()->karyawan->nama,
                 ]);
             DB::commit();
         } catch (Exception $e) {
