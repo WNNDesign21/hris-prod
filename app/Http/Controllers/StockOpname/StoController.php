@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\StockOpname\iDempiereModel;
 use App\Models\StockOpname\StockOpnameLine;
 use App\Models\StockOpname\StockOpnameHeader;
+use App\Models\StockOpname\StockOpnameUpload;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class StoController extends Controller
@@ -148,10 +149,11 @@ class StoController extends Controller
                 $nestedData['quantity'] = $data->quantity;
                 $nestedData['identitas_lot'] = $data->identitas_lot;
                 $nestedData['updated_at'] = Carbon::parse($data->updated_at)->format('d M Y, H:i:s') . '<br><small>' . $data->updated_name . '</small>';
-                $nestedData['action'] = '<div class="btn-group">
-                    <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" data-id="' . $data->id_sto_line . '" data-product-id="' . $data->product_id . '" data-product-name="' . $data->part_code . '-' . $data->part_name . '-' . $data->part_desc . '" data-customer-name="' . $data->customer_name . '" data-quantity="' . $data->quantity . '" data-identitas-lot="' . $data->identitas_lot . '" data-customer-id="' . $data->customer_id . '" data-no-label="' . $data->no_label . '"><i class="fas fa-edit"></i></button>
-                    <button type="button" class="waves-effect waves-light btn btn-danger btnDelete" data-id="' . $data->id_sto_line . '"><i class="fas fa-trash-alt"></i></button>
-                </div>';
+                $nestedData['action'] = '-';
+                // $nestedData['action'] = '<div class="btn-group">
+                //     <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" data-id="' . $data->id_sto_line . '" data-product-id="' . $data->product_id . '" data-product-name="' . $data->part_code . '-' . $data->part_name . '-' . $data->part_desc . '" data-customer-name="' . $data->customer_name . '" data-quantity="' . $data->quantity . '" data-identitas-lot="' . $data->identitas_lot . '" data-customer-id="' . $data->customer_id . '" data-no-label="' . $data->no_label . '"><i class="fas fa-edit"></i></button>
+                //     <button type="button" class="waves-effect waves-light btn btn-danger btnDelete" data-id="' . $data->id_sto_line . '"><i class="fas fa-trash-alt"></i></button>
+                // </div>';
 
                 $dataTable[] = $nestedData;
             }
@@ -475,22 +477,55 @@ class StoController extends Controller
         try {
             $customer_name = iDempiereModel::fromCustomer()->select('name')->where('c_bpartner_id', $request->customer)->first()->name;
             StockOpnameLine::where('no_label', $request->no_label)
-                ->update([
-                    'product_id' => $request->product_id,
-                    'part_code' => $request->part_code,
-                    'part_name' => $request->part_name,
-                    'part_desc' => $request->part_desc,
-                    'model' => $request->model,
-                    'customer_id' => $request->customer,
-                    'customer_name' => $customer_name,
-                    'identitas_lot' => $request->identitas_lot,
-                    'location_area' => $request->location_area,
-                    'quantity' => $request->quantity,
-                    'inputed_by' => auth()->user()->karyawan->id_karyawan,
-                    'inputed_name' => auth()->user()->karyawan->nama,
-                    'updated_by' => auth()->user()->karyawan->id_karyawan,
-                    'updated_name' => auth()->user()->karyawan->nama,
+            ->update([
+                'product_id' => $request->product_id,
+                'part_code' => $request->part_code,
+                'part_name' => $request->part_name,
+                'part_desc' => $request->part_desc,
+                'model' => $request->model,
+                'customer_id' => $request->customer,
+                'customer_name' => $customer_name,
+                'identitas_lot' => $request->identitas_lot,
+                'location_area' => $request->location_area,
+                'quantity' => $request->quantity,
+                'inputed_by' => auth()->user()->karyawan->id_karyawan,
+                'inputed_name' => auth()->user()->karyawan->nama,
+                'updated_by' => auth()->user()->karyawan->id_karyawan,
+                'updated_name' => auth()->user()->karyawan->nama,
+            ]);
+
+            $data = StockOpnameLine::where('no_label', $request->no_label)->first();
+            $qty_book = (int)iDempiereModel::getQuantityBook($data->wh_id,$data->product_id)->qtyonhand ?? 0;
+            $balance = $data->quantity - $qty_book;
+            $upload_sto = StockOpnameUpload::where('wh_id', $data->wh_id)->where('product_id', $data->product_id);
+
+            // Jika data sudah ada, update data
+            if($upload_sto->exists()){
+                $upload_sto->update([
+                    'qty_book' => $qty_book,
+                    'qty_count' => $upload_sto->first()->qty_count + $data->quantity,
+                    'balance' => $upload_sto->first()->qty_count + $data->quantity - $qty_book,
+                    'processed' => 'N',
                 ]);
+            } else {
+                StockOpnameUpload::create([
+                    'wh_id' => $data->wh_id,
+                    'wh_name' => $data->wh_name,
+                    'locator_id' => $data->locator_id,
+                    'locator_name' => $data->locator_value,
+                    'customer_id' => $data->customer_id,
+                    'customer_name' => $data->customer_name,
+                    'product_id' => $data->product_id,
+                    'product_code' => $data->part_code,
+                    'product_name' => $data->part_name,
+                    'product_desc' => $data->part_desc,
+                    'model' => $data->model,
+                    'qty_book' => $qty_book,
+                    'qty_count' => $data->quantity,
+                    'balance' => $balance,
+                ]);
+            }
+
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();

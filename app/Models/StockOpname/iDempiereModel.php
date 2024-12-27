@@ -18,6 +18,11 @@ class iDempiereModel extends Model
         return $query->from('m_locator');
     }
 
+    public function scopeFromStorageOnHand($query)
+    {
+        return $query->from('m_storageonhand');
+    }
+
     public function scopeFromWarehouse($query)
     {
         $organization_id = auth()->user()->organisasi_id;
@@ -82,6 +87,17 @@ class iDempiereModel extends Model
 
         return $query->first();
 
+    }
+
+    public static function getQuantityBook($warehouse_id, $product_id)
+    {
+        $query = self::fromStorageOnHand()->selectRaw('SUM(m_storageonhand.qtyonhand) as QtyOnHand');
+        $query->leftJoin('m_locator', 'm_storageonhand.m_locator_id', 'm_locator.m_locator_id');
+
+        $query->where('m_locator.m_warehouse_id', $warehouse_id)
+            ->where('m_storageonhand.m_product_id', $product_id);
+        
+        return $query->first();
     }
 
 }
