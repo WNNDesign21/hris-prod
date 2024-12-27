@@ -71,7 +71,8 @@
                                 </div>
                                 <div class="col-md-3 col-12">
                                     <div class="form-group">
-                                        <label for="customer" class="form-label">Customer</label>
+                                        <label for="partner_name" class="form-label">Customer</label>
+                                        {{-- <input type="text" class="form-control" id="partner_name" name="partner_name" readonly> --}}
                                         <select class="form-select" name="customer" id="customer" style="width: 100%;" select2>
                                             <option selected value="" disabled>Pilih Customer</option>
                                         </select>
@@ -92,7 +93,7 @@
                                 <div class="col-md-3 col-12">
                                     <div class="form-group">
                                         <label for="identitas_lot" class="form-label">Identitas (LOT)</label>
-                                        <input type="number" class="form-control" id="identitas_lot" name="identitas_lot" >
+                                        <input type="name" class="form-control" id="identitas_lot" name="identitas_lot" >
                                     </div>
                                 </div>
                             </div>

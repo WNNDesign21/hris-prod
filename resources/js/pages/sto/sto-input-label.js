@@ -39,7 +39,7 @@ $(function(){
         },
         cache: true,
     },
-});
+  });
 
 
 
@@ -57,6 +57,8 @@ $(function(){
         data: formData,
         success: function (data) {
             showToast({ title: data.message });
+            $('#form-label-sto')[0].reset();
+            $('#wh_id').select2('destroy'); 
         },
         error: function (jqXHR, textStatus, errorThrown) {
             showToast({ icon: "error", title: jqXHR.responseJSON.message });

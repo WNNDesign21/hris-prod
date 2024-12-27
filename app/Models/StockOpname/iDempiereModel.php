@@ -28,7 +28,18 @@ class iDempiereModel extends Model
     }
     public function scopeFromCustomer($query)
     {
-        return $query->from('c_bpartner')->where('iscustomer', 'Y');;
+        return $query
+        ->from('c_bpartner')->where('iscustomer', 'Y');
+
+    }
+    public function scopeCustomerProduct($query)
+    {
+        return $query
+        ->from('m_product')
+        ->leftJoin('c_bpartner_product', 'm_product.id', '=', 'c_bpartner_product.product_id')
+        ->leftJoin('c_bpartner', 'c_bpartner_product.bpartner_id', '=', 'c_bpartner.id')
+        ->select('m_product.*', 'c_bpartner.name as partner_name');
+
     }
 
 }

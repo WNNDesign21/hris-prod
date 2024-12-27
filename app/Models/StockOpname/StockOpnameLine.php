@@ -21,7 +21,8 @@ class StockOpnameLine extends Model
         'part_code',
         'part_name',
         'part_desc',
-        'identitas',
+        'model',
+        'identitas_lot',
         'quantity',
         'status',
         'input_by',
@@ -44,8 +45,9 @@ class StockOpnameLine extends Model
             'part_code',
             'part_name',
             'part_desc',
+            'model',
             'quantity',
-            'input_by',
+            'identitas_lot',
             
         );
 
@@ -58,8 +60,9 @@ class StockOpnameLine extends Model
                     ->orWhere('part_code', 'ILIKE', "%{$search}%")
                     ->orWhere('part_name', 'ILIKE', "%{$search}%")
                     ->orWhere('part_desc', 'ILIKE', "%{$search}%")
+                    ->orWhere('model', 'ILIKE', "%{$search}%")
                     ->orWhere('quantity', 'ILIKE', "%{$search}%")
-                    ->orWhere('input_by', 'ILIKE', "%{$search}%");
+                    ->orWhere('identitas_lot', 'ILIKE', "%{$search}%");
                     
             });
         }
