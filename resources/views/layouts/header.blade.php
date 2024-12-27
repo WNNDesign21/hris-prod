@@ -16,8 +16,8 @@
                     <span class="light-logo">SECURITY</span>
                     <span class="dark-logo">SECURITY</span>
                 @else
-                    <span class="light-logo">Hai, {{ auth()->user()->karyawan->nama }}</span>
-                    <span class="dark-logo">Hai, {{ auth()->user()->karyawan->nama }}</span>
+                    <span class="light-logo">Hai, {{ auth()->user()->karyawan?->nama }}</span>
+                    <span class="dark-logo">Hai, {{ auth()->user()->karyawan?->nama }}</span>
                 @endif
             </div>
         </a>
@@ -38,9 +38,9 @@
         <div class="navbar-custom-menu r-side">
             <ul class="nav navbar-nav gap-1">
                 <!-- Notifications -->
-                <li class="dropdown notifications-menu">
+                {{-- <li class="dropdown notifications-menu">
                     @include('layouts.partials.notification', ['notification' => $notification])
-                </li>
+                </li> --}}
                 <li class="btn-group nav-item d-lg-inline-flex">
                     <a href="{{ route('root') }}" class="waves-effect waves-light nav-link" title="Back to Menu">
                         <i class="fa fa-fw fa-arrow-right"></i>
