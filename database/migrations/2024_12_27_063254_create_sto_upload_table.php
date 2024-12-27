@@ -20,12 +20,12 @@ return new class extends Migration
             $table->integer('customer_id');
             $table->string('customer_name');
             $table->integer('product_id');
-            $table->string('product_code');
-            $table->string('product_name');
-            $table->string('product_desc');
-            $table->string('model');
-            $table->string('qty_book');
-            $table->string('qty_count');
+            $table->string('product_code')->nullable();
+            $table->string('product_name')->nullable();
+            $table->string('product_desc')->nullable();
+            $table->string('model')->nullable();
+            $table->string('qty_book')->default(0);
+            $table->string('qty_count')->default(0);
             $table->string('balance');
             $table->date('doc_date')->default(now());
             $table->string('processed')->default('N');
