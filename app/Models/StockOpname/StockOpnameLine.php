@@ -16,6 +16,9 @@ class StockOpnameLine extends Model
         'customer_name',
         'wh_id',
         'wh_name',
+        'locator_id',
+        'locator_value',
+        'location_area',
         'no_label',
         'spec_size',
         'product_id',
@@ -45,6 +48,9 @@ class StockOpnameLine extends Model
             'sto_lines.customer_name',
             'sto_lines.wh_id',
             'sto_lines.wh_name',
+            'sto_lines.locator_id',
+            'sto_lines.locator_value',
+            'sto_lines.location_area',
             'sto_lines.no_label',
             'sto_lines.part_code',
             'sto_lines.part_name',
@@ -76,6 +82,7 @@ class StockOpnameLine extends Model
                 $query->where('sto_lines.customer_id', 'ILIKE', "%{$search}%")
                     ->orWhere('sto_lines.customer_name', 'ILIKE', "%{$search}%")
                     ->orWhere('sto_lines.wh_name', 'ILIKE', "%{$search}%")
+                    ->orWhere('sto_lines.location_area', 'ILIKE', "%{$search}%")
                     ->orWhere('sto_lines.no_label', 'ILIKE', "%{$search}%")
                     ->orWhere('sto_lines.part_code', 'ILIKE', "%{$search}%")
                     ->orWhere('sto_lines.part_name', 'ILIKE', "%{$search}%")

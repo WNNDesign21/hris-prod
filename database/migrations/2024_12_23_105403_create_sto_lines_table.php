@@ -20,8 +20,11 @@ return new class extends Migration
             $table->integer('sto_header_id');
             $table->unsignedInteger('customer_id')->nullable();
             $table->string('customer_name')->nullable();
+            $table->string('location_area')->nullable();
             $table->unsignedInteger('wh_id')->nullable();
             $table->string('wh_name')->nullable();
+            $table->unsignedInteger('locator_id')->nullable();
+            $table->string('locator_value')->nullable();
             $table->string('no_label')->unique();
             $table->string('spec_size')->nullable();
             $table->unsignedInteger('product_id')->nullable();

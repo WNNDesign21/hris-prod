@@ -45,6 +45,7 @@ $(function () {
         { data: 'no_label' },
         { data: 'customer_name' },
         { data: 'wh_name' },
+        { data: 'location_area' },
         { data: 'part_code' },
         { data: 'part_name' },
         { data: 'part_number' },

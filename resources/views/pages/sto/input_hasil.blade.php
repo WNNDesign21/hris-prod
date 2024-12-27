@@ -66,9 +66,14 @@
                                     </div>
                                     <div class="col-4">
                                         <div class="form-group">
-                                            <label for="wh_name" class="form-label">Lokasi Area</label>
+                                            <label for="wh_name" class="form-label">Warehouse</label>
                                             <input type="text" class="form-control" id="wh_name" name="wh_name"
                                                 readonly>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="location_area" class="form-label">Lokasi Area</label>
+                                            <input type="text" class="form-control" id="location_area" name="location_area"
+                                                >
                                         </div>
                                         <div class="form-group">
                                             <label for="part_name" class="form-label">Part Name</label>
@@ -110,6 +115,7 @@
                                             <th>No Label</th>
                                             <th>Customer</th>
                                             <th>Warehouse</th>
+                                            <th>Lokasi Area</th>
                                             <th>Part Code</th>
                                             <th>Part Name</th>
                                             <th>Part Number</th>

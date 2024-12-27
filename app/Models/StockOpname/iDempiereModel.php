@@ -13,6 +13,10 @@ class iDempiereModel extends Model
     {
         return $query->from('m_product');
     }
+    public function scopeFromLocator($query)
+    {
+        return $query->from('m_locator');
+    }
 
     public function scopeFromWarehouse($query)
     {
@@ -24,8 +28,22 @@ class iDempiereModel extends Model
         }
 
 
-        return $query->from('m_warehouse')->where('ad_org_id', $ad_org_id);
+        return $query->from('m_warehouse')
+                    ->where('ad_org_id', $ad_org_id);
     }
+
+    public static function getLocator($warehouse_id)
+    {
+        $query = self::fromLocator()->select(
+            'm_locator.m_locator_id',
+            'm_locator.value');
+
+        $query->where('m_warehouse_id', $warehouse_id);
+
+
+        return $query->first();
+    }
+
     public function scopeFromCustomer($query)
     {
         return $query
@@ -41,6 +59,7 @@ class iDempiereModel extends Model
         ->select('m_product.*', 'c_bpartner.name as partner_name');
 
     }
+
 
     public static function getProduct($product_id)
     {

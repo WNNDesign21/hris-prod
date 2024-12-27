@@ -102,6 +102,7 @@ class StoController extends Controller
             0 => 'sto_lines.no_label',
             1 => 'sto_lines.customer_name',
             2 => 'sto_lines.wh_name',
+            2 => 'sto_lines.location_area',
             3 => 'sto_lines.part_code',
             4 => 'sto_lines.part_name',
             5 => 'sto_lines.part_number',
@@ -141,6 +142,7 @@ class StoController extends Controller
                 $nestedData['no_label'] = $data->no_label;
                 $nestedData['customer_name'] = $data->customer_name;
                 $nestedData['wh_name'] = $data->wh_name;
+                $nestedData['location_area'] = $data->location_area;
                 $nestedData['part_code'] = $data->part_code;
                 $nestedData['part_name'] = $data->part_name;
                 $nestedData['part_number'] = $data->part_number;
@@ -407,6 +409,7 @@ public function store_label(Request $request)
     ]);
 
     $wh_name = iDempiereModel::fromWarehouse()->select('name')->where('m_warehouse_id', $request->wh_id)->first()->name;
+    $locator_value = iDempiereModel::getLocator( $request->wh_id);
     
 
     try {
@@ -421,7 +424,6 @@ public function store_label(Request $request)
             'wh_id' => $request->input('wh_id'),
         ]);
 
-        // dd($stoHeader);
 
         // Ambil range label
         $start_label = $request->input('start_label');
@@ -435,7 +437,10 @@ public function store_label(Request $request)
                 'sto_header_id' => $stoHeader->id_sto_header,
                 'wh_id' => $stoHeader->wh_id,
                 'wh_name' => $stoHeader->wh_name,
+                'locator_id' => $locator_value['m_locator_id'],
+                'locator_value' => $locator_value['value'],
             ];
+
         }
         // dd($data);
 
@@ -471,6 +476,7 @@ public function store_label(Request $request)
             'part_desc' => ['nullable', 'string'],
             'model' => ['nullable', 'string'],
             'customer' => ['required',],
+            'location_area' => ['nullable'],
             'identitas_lot' => ['nullable', 'string', 'max:255'],
             'quantity' => ['required', 'numeric'],
         ];
@@ -496,6 +502,7 @@ public function store_label(Request $request)
                     'customer_id' => $request->customer,
                     'customer_name' => $customer_name,
                     'identitas_lot' => $request->identitas_lot,
+                    'location_area' => $request->location_area,
                     'quantity' => $request->quantity,
                     'inputed_by' => auth()->user()->karyawan->id_karyawan,
                     'inputed_name' => auth()->user()->karyawan->nama,
@@ -522,8 +529,9 @@ public function store_label(Request $request)
             4 => 'part_desc',
             5 => 'model',
             6 => 'wh_name',
-            7 => 'quantity',
-            8 => 'identitas_lot',
+            7 => 'location_area',
+            8 => 'quantity',
+            9 => 'identitas_lot',
         );
 
         $totalData = StockOpnameLine::count();
@@ -559,6 +567,7 @@ public function store_label(Request $request)
                 $nestedData['part_desc'] = $data->part_desc;
                 $nestedData['model'] = $data->model;
                 $nestedData['wh_name'] = $data->wh_name;
+                $nestedData['location_area'] = $data->location_area;
                 $nestedData['quantity'] = $data->quantity;
                 $nestedData['identitas_lot'] = $data->identitas_lot;
 
