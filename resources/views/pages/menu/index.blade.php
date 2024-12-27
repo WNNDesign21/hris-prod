@@ -32,6 +32,26 @@
                             </div>
                         </a>
                     </div>
+
+                    {{-- CARD ATTENDANCE SYSTEM --}}
+                    {{-- <div class="col-lg-6 col-12">
+                        <a href="{{ route('attendancee.dashboard') }}" class="box pull-up">
+                            <div class="box-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon bg-primary-light rounded-circle w-60 h-60 text-center l-h-80">
+                                        <span class="fs-30 icon-Sign-in"><span class="path1"></span><span
+                                                class="path2"></span><span class="path3"></span><span
+                                                class="path4"></span></span>
+                                    </div>
+                                    <div class="ms-15">
+                                        <h5 class="mb-0">Attendance-E</h5>
+                                        <p class="text-fade fs-12 mb-0">Sistem Monitoring & Pengambilan data Presensi dari
+                                            Mesin</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    </div> --}}
                 @endif
 
                 @if (!auth()->user()->hasRole('security'))

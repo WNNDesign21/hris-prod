@@ -27,6 +27,7 @@ use App\Http\Controllers\MasterData\DepartemenController;
 use App\Http\Controllers\MasterData\OrganisasiController;
 use App\Http\Controllers\StockOpname\StoController;
 use App\Http\Controllers\StockOpname\StoReportController;
+use App\Http\Controllers\Attendancee\AttendanceeController;
 
 Auth::routes();
 Route::get('/', function () {
@@ -268,6 +269,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         });
     });
 
+    /** LEMBURE */
     Route::group(['prefix' => 'lembure', 'middleware' => ['lembure']], function () {
 
         // DASHBOARD
@@ -329,6 +331,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         });
     });
 
+    /** IZINE */
     Route::group(['prefix' => 'izine', 'middleware' => ['izine']], function () {
         Route::get('/pengajuan-izin', [IzineController::class, 'pengajuan_izin_view'])->name('izine.pengajuan-izin');
         Route::post('/pengajuan-izin-datatable', [IzineController::class, 'pengajuan_izin_datatable']);
@@ -370,6 +373,12 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::get('/export', [IzineController::class, 'export_view'])->name('izine.export');
             Route::post('/export/export-izin-dan-skd', [IzineController::class, 'export_izin_dan_skd'])->name('izine.export.export-izin-dan-skd');
         });
+    });
+
+      /** ATTENDANCEE */
+    Route::group(['prefix' => 'attendancee'], function () {
+        Route::get('/dashboard', [AttendanceeController::class, 'index'])->name('attendancee.dashboard');
+        Route::get('/scanlog', [AttendanceeController::class, 'scanlog_view'])->name('attendancee.scanlog');
     });
 });
 

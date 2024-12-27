@@ -234,6 +234,14 @@
         @vite(['resources/js/pages/sto/sto-datatable.js'])
     @endif
 
+    @if ($page == 'attendancee-dashboard')
+        @vite(['resources/js/pages/attendancee-dashboard.js'])
+    @endif
+
+    @if ($page == 'attendancee-scanlog')
+        @vite(['resources/js/pages/attendancee-scanlog.js'])
+    @endif
+
 </body>
 
 </html>
