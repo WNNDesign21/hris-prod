@@ -261,21 +261,6 @@ $(function () {
         },
     });
 
-    $('#table-hasil-sto').on('click', '.btnEdit', function() {
-        let idStoLine = $(this).data('id');
-        $.ajax({
-            url: base_url + '/sto/input_hasil/get_sto_line/' + idStoLine,
-            type: 'GET',
-            dataType: 'json',
-            success: function(data) {
-                console.log(data);
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                showToast({ icon: "error", title: jqXHR.responseJSON.message });
-            },
-        });
-    })
-
     var modalEditStoOptions = {
         backdrop: true,
         keyboard: false,
@@ -291,10 +276,12 @@ $(function () {
     }
 
     function closeEditSto() {
-        $('#no_label').val('');
-        $('#customer').val('');
-        $('#quantity').val('');
-        $('#identitas_lot').val('');
+        $('#id_sto_edit').val('');
+        $('#no_label_edit').val('');
+        $('#quantity_edit').val('');
+        $('#product_id_edit').val('').trigger('change');
+        $('#customer_edit').val('').trigger('change');
+        $('#identitas_lot_edit').val('');
         modalEditSto.hide();
     }
 
@@ -304,22 +291,73 @@ $(function () {
 
     $('#table-hasil-sto').on('click', '.btnEdit', function (){
         var idStoLine = $(this).data('id');
-        var noLabel = $(this).data('sto-no_label');
-        var customer = $(this).data('sto-customer');
-        var quantity = $(this).data('sto-quantity');
-        var identitasLot = $(this).data('sto-identitas_lot');
+        var noLabel = $(this).data('no-label');
+        var productId = $(this).data('product-id');
+        var productName = $(this).data('product-name');
+        var quantity = $(this).data('quantity');
+        var customerId = $(this).data('customer-id');
+        var customerName = $(this).data('customer-name');
+        var identitasLot = $(this).data('identitas-lot');
+
         $('#id_sto_edit').val(idStoLine);
         $('#no_label_edit').val(noLabel);
-        $('#customer_edit').val(customer);
         $('#quantity_edit').val(quantity);
         $('#identitas_lot_edit').val(identitasLot);
+
+        $('#quantity_edit').on('input', function() {
+            let quantity = $(this).val();
+            console.log(quantity);
+            quantity = quantity.replace(/^0+/, '');
+            if (quantity === '' || parseInt(quantity) < 1) {
+                quantity = 0;
+            }
+            $(this).val(quantity);
+        });
+
+        $('#customer_edit').append('<option value="'+customerId+'" selected>'+customerName+'</option>');
+        $('#customer_edit').select2({
+            ajax: {
+                url: '/sto/input_hasil/get_customer',
+                type: "post",
+                dataType: "json",
+                delay: 250,
+                data: function (params) {
+                    return {
+                        search: params.term || "",
+                        page: params.page || 1,
+                    };
+                },
+                cache: true,
+            },
+            dropdownParent: $('#modal-edit-sto'),
+        }).val(customerId).trigger('change');
+
+        console.log(productId);
+        $('#product_id_edit').append('<option value="'+productId+'" selected>'+productName+'</option>');
+        $('#product_id_edit').select2({
+            ajax: {
+                url: '/sto/input_hasil/get_part',
+                type: "post",
+                dataType: "json",
+                delay: 250,
+                data: function (params) {
+                    return {
+                        search: params.term || "",
+                        page: params.page || 1,
+                    };
+                },
+                cache: true,
+            },
+            dropdownParent: $('#modal-edit-sto'),
+        }).val(productId).trigger('change');
+
         openEditSto();
     });
 
     $('#form-edit-sto').on('submit', function (e){
         e.preventDefault();
         loadingSwalShow();
-        let idStoLine = $('#id_org_edit').val();
+        let idStoLine = $('#id_sto_edit').val();
         let url = base_url + '/sto/data-sto/update/' + idStoLine;
 
         var formData = new FormData($('#form-edit-sto')[0]);
@@ -332,6 +370,7 @@ $(function () {
             dataType: "JSON",
             success: function (data) {
                 loadingSwalClose();
+                closeEditSto();
                 showToast({ title: data.message });
                 refreshTable();
             },

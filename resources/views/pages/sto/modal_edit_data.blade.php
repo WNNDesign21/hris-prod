@@ -12,25 +12,40 @@
                         @method('PATCH')
                         @csrf
                         <input type="hidden" name="id_sto_edit" id="id_sto_edit">
-                        <label for="">No Label</label>
-                        <div class="input-group mb-2" style="width:100%;">
-                            <input type="text" name="no_label_edit" id="no_label_edit" class="form-control">
+                        <div class="form-group">
+                            <label for="">No Label</label>
+                            <div class="input-group mb-2" style="width:100%;">
+                                <input type="text" name="no_label_edit" id="no_label_edit" class="form-control"
+                                    readonly>
+                            </div>
                         </div>
-                        <label for="">Customer</label>
-                        <div class="input-group mb-2" style="width:100%;">
-                            <textarea type="text" name="customer_edit" id="customer_edit" class="form-control"></textarea>
+                        <div class="form-group">
+                            <label for="part_code" class="form-label">Search Product</label>
+                            <select class="form-select" name="product_id_edit" id="product_id_edit"
+                                style="width: 100%;">
+                                <option selected value="">Cari Product disini...</option>
+                            </select>
                         </div>
-                        <label for="">Quantity</label>
-                        <div class="input-group mb-2" style="width:100%;">
-                            <textarea type="text" name="quantity" id="quantity" class="form-control"></textarea>
+                        <div class="form-group">
+                            <label for="customer" class="form-label">Customer</label>
+                            <select class="form-select" name="customer_edit" id="customer_edit" style="width: 100%;"
+                                select2>
+                                <option selected value="" disabled>Pilih Customer</option>
+                            </select>
                         </div>
-                        <label for="">Identitas (LOT)</label>
-                        <div class="input-group mb-2" style="width:100%;">
-                            <textarea type="text" name="identitas_lot_edit" id="identitas_lot_edit" class="form-control"></textarea>
+                        <div class="form-group">
+                            <label for="identitas_lot_edit" class="form-label">Identitas (LOT)</label>
+                            <input type="name" class="form-control" id="identitas_lot_edit"
+                                name="identitas_lot_edit">
                         </div>
-                        <div class="d-flex justify-content-end">
-                            <button type="submit" class="btn btn-success"><i class="fas fa-save"></i>
-                                Update</button>
+                        <div class="form-group">
+                            <label for="quantity" class="form-label">Quantity</label>
+                            <input type="text" class="form-control" placeholder="Insert "id="quantity_edit"
+                                name="quantity_edit" value="0">
+                        </div>
+                        <div class="col-12 d-flex justify-content-center mt-3">
+                            <button type="submit" class="btn btn-block btn-warning" style="width: 100%;"><i
+                                    class="glyphicon glyphicon-ok-sign"></i> Update</button>
                         </div>
                     </form>
                 </div>

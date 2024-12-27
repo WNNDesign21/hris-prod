@@ -148,7 +148,7 @@ class StoController extends Controller
                 $nestedData['identitas_lot'] = $data->identitas_lot;
                 $nestedData['updated_at'] = Carbon::parse($data->updated_at)->format('d M Y, H:i:s').'<br><small>'.$data->updated_name.'</small>';
                 $nestedData['action'] = '<div class="btn-group">
-                    <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" data-id="'.$data->id_sto_line.'"><i class="fas fa-edit"></i></button>
+                    <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" data-id="'.$data->id_sto_line.'" data-product-id="'.$data->product_id.'" data-product-name="'.$data->part_code.'-'.$data->part_name.'-'.$data->part_desc.'" data-customer-name="'.$data->customer_name.'" data-quantity="'.$data->quantity.'" data-identitas-lot="'.$data->identitas_lot.'" data-customer-id="'.$data->customer_id.'" data-no-label="'.$data->no_label.'"><i class="fas fa-edit"></i></button>
                     <button type="button" class="waves-effect waves-light btn btn-danger btnDelete" data-id="'.$data->id_sto_line.'"><i class="fas fa-trash-alt"></i></button>
                 </div>';
 
@@ -593,10 +593,10 @@ public function store_label(Request $request)
     public function update(Request $request, string $id)
     {
         $dataValidate = [
-            'no_label_edit' => ['required'],
             'customer_edit' => ['required'],
             'identitas_lot_edit' => ['required'],
             'quantity_edit' => ['required'],
+            'product_id_edit' => ['required'],
         ];
     
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -606,17 +606,26 @@ public function store_label(Request $request)
         }
 
         $sto = StockOpnameLine::find($id);
+        $product = iDempiereModel::getProduct($request->input('product_id_edit'));
+        $customer_name = iDempiereModel::fromCustomer()->select('name')->where('c_bpartner_id', $request->input('customer_edit'))->first()->name;
 
         DB::beginTransaction();
         try{
-            $sto->no_label = $request->input('no_label_edit');
-            $sto->customer = $request->input('customer_edit');
+            $sto->part_code = $product->value;
+            $sto->part_name = $product->name;
+            $sto->part_desc = $product->description;
+            $sto->model = $product->classification;
+            $sto->customer_name = $customer_name;
+            $sto->product_id = $request->input('product_id_edit');
+            $sto->customer_id = $request->input('customer_edit');
             $sto->identitas_lot = $request->input('identitas_lot_edit');
             $sto->quantity = $request->input('quantity_edit');
+            $sto->updated_by = auth()->user()->karyawan->id_karyawan;
+            $sto->updated_name = auth()->user()->karyawan->nama;
             $sto->save();
             DB::commit();
-            return response()->json(['message' => 'Organisasi Updated!'], 200);
-        } catch(\Throwable $error){
+            return response()->json(['message' => 'Data Updated!'], 200);
+        } catch(Throwable $error){
             DB::rollback();
             return response()->json(['message' => $error->getMessage()], 500);
         }
