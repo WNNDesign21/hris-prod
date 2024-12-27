@@ -65,8 +65,11 @@
                                         </div>
                                     </div>
                                     <div class="col-4">
-                                        <h3>Detail Product</h3>
-                                        <hr>
+                                        <div class="form-group">
+                                            <label for="wh_name" class="form-label">Lokasi Area</label>
+                                            <input type="text" class="form-control" id="wh_name" name="wh_name"
+                                                readonly>
+                                        </div>
                                         <div class="form-group">
                                             <label for="part_name" class="form-label">Part Name</label>
                                             <input type="text" class="form-control" id="part_name" name="part_name"
@@ -112,7 +115,7 @@
                                             <th>Part Number</th>
                                             <th>Quantity</th>
                                             <th>Identitas (LOT)</th>
-                                            <th>Updated At</th>
+                                            <th>Updated</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>

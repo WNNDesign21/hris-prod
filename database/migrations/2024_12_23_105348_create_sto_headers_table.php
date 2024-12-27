@@ -21,6 +21,8 @@ return new class extends Migration
             $table->string('wh_name');
             $table->date('doc_date')->default(now());
             $table->timestamps();
+
+            $table->softDeletes();
         });
     }
 

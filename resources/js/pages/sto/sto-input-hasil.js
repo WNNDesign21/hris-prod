@@ -111,6 +111,8 @@ $(function () {
                     $('#quantity_uom').text(data.uom ?? '');
                     if (data.classification) {
                         $('#model').val(data.classification).trigger('change');
+                    } else {
+                        $('#model').val('').trigger('change');
                     }
 
                     if (data.partner_id){
@@ -216,6 +218,7 @@ $(function () {
             success: function (data) {
                 loadingSwalClose();
                 showToast({ title: data.message });
+                refreshTable();
                 $('#form-hasil-sto')[0].reset();
                 $('#customer').val('').trigger('change'); 
                 $('#no_label').val('').trigger('change'); 

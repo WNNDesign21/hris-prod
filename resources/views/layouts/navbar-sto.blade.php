@@ -15,7 +15,7 @@
                     <li class="{{ $page == 'sto-input-hasil' ? 'active' : '' }} ">
                         <a href="{{ route('sto.input-hasil') }}">
                             <i class="ti-receipt"><span class="path1"></span><span class="path2"></span></i>
-                            <span>Form Hasil STO</span>
+                            <span>Input Hasil STO</span>
                         </a>
                     </li>
                     <li class="{{ $page == 'sto-compare' ? 'active' : '' }} ">
