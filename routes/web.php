@@ -408,6 +408,7 @@ Route::group(['prefix' => 'sto', 'middleware' => ['auth']], function () {
     //COMPARE
     Route::get('/compare', [StoReportController::class, 'compare'])->name('sto.compare');
     Route::post('/compare/datatable', [StoReportController::class, 'datatable'])->name('sto.datatable');
+    Route::post('/compare/export-excel', [StoReportController::class, 'export'])->name('sto.datatable-export');
 });
 
 /**testing controller */
