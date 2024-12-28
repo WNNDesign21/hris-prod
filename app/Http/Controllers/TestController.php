@@ -14,12 +14,54 @@ use Illuminate\Support\Facades\DB;
 
 class TestController extends Controller
 {
+    private function getOrgByWh($wh_id)
+    {
+
+        $data = DB::connection('idempiere')->table('m_warehouse')
+            ->select('m_warehouse_id', 'ad_org_id')
+            ->where('m_warehouse_id', $wh_id)->first();
+
+        return $data->ad_org_id;
+    }
+
     public function index()
     {
         $getUpload = StockOpnameUpload::all();
 
 
-        return response()->json($getUpload, 200);
+
+        $dataUploads = [];
+        foreach ($getUpload as $key => $value) {
+            $org_id = $this->getOrgByWh($value->wh_id);
+            $dataUploads[] = [
+                "AD_Client_ID" => [
+                    "id" => 1000000,
+                    "tableName" => "ad_client"
+                ],
+                "AD_Org_ID" => [
+                    "id" => $org_id,
+                    "tableName" => "ad_org"
+                ],
+                "M_Warehouse_ID" => [
+                    "id" => $value->wh_id,
+                    "tableName" => "m_warehouse"
+                ],
+                "M_Locator_ID" => [
+                    "id" => $value->locator_id,
+                    "tableName" => "m_locator"
+                ],
+                "Description" => "Sto Upload",
+                "MovementDate" => $value->doc_date,
+                "C_DocType_ID" => [
+                    "id" => 1000023,
+                    "tableName" => "c_doctype"
+                ],
+                "doc-action" => "CO",
+            ];
+        }
+
+
+        return response()->json($dataUploads, 200);
 
         // $request = Sto::testLogin();
 
