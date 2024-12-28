@@ -205,7 +205,7 @@ class StoController extends Controller
             'description',
         );
 
-        $query->where('isactive', 'Y')->where('ad_client', 1000000);
+        $query->where('isactive', 'Y')->where('ad_client_id', 1000000);
 
         if (!empty($search)) {
             $query->where(function ($dat) use ($search) {
