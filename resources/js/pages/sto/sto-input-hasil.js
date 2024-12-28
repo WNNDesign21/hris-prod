@@ -48,7 +48,7 @@ $(function () {
         { data: 'location_area' },
         { data: 'part_code' },
         { data: 'part_name' },
-        { data: 'part_number' },
+        { data: 'part_desc' },
         { data: 'quantity' },
         { data: 'identitas_lot' },
         { data: 'updated_at' },
