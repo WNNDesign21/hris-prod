@@ -34,7 +34,8 @@ class iDempiereModel extends Model
 
 
         return $query->from('m_warehouse')
-                    ->where('ad_org_id', $ad_org_id);
+                    ->where('ad_org_id', $ad_org_id)
+                    ->where('isactive', 'Y');
     }
 
     public static function getLocator($warehouse_id)
@@ -43,7 +44,7 @@ class iDempiereModel extends Model
             'm_locator.m_locator_id',
             'm_locator.value');
 
-        $query->where('m_warehouse_id', $warehouse_id);
+        $query->where('m_warehouse_id', $warehouse_id)->where('isactive', 'Y');
 
 
         return $query->first();
@@ -83,6 +84,7 @@ class iDempiereModel extends Model
         $query->leftJoin('c_bpartner_product', 'm_product.m_product_id', 'c_bpartner_product.m_product_id')
             ->leftJoin('c_uom', 'm_product.c_uom_id', 'c_uom.c_uom_id')
             ->leftJoin('c_bpartner', 'c_bpartner_product.c_bpartner_id', 'c_bpartner.c_bpartner_id')
+            ->where('m_product.isactive', 'Y')
             ->where('m_product.m_product_id', $product_id);
 
         return $query->first();
