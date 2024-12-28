@@ -109,6 +109,13 @@ class StoController extends Controller
             6 => 'sto_lines.quantity',
             7 => 'sto_lines.identitas_lot',
             8 => 'sto_lines.updated_at',
+            3 => 'sto_lines.location_area',
+            4 => 'sto_lines.part_code',
+            5 => 'sto_lines.part_name',
+            6 => 'sto_lines.part_desc',
+            7 => 'sto_lines.quantity',
+            8 => 'sto_lines.identitas_lot',
+            9 => 'sto_lines.updated_at',
         );
 
         $totalData = StockOpnameLine::count();
@@ -145,6 +152,7 @@ class StoController extends Controller
                 $nestedData['location_area'] = $data->location_area;
                 $nestedData['part_code'] = $data->part_code;
                 $nestedData['part_name'] = $data->part_name;
+                $nestedData['part_desc'] = $data->part_desc;
                 $nestedData['part_desc'] = $data->part_desc;
                 $nestedData['quantity'] = $data->quantity;
                 $nestedData['identitas_lot'] = $data->identitas_lot;
