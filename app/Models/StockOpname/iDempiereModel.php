@@ -53,7 +53,7 @@ class iDempiereModel extends Model
     public function scopeFromCustomer($query)
     {
         return $query
-        ->from('c_bpartner')->where('iscustomer', 'Y');
+        ->from('c_bpartner')->where('isactive', 'Y');
 
     }
     public function scopeCustomerProduct($query)
