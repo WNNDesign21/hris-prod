@@ -4,6 +4,8 @@ namespace App\Http\Controllers\StockOpname;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use App\Models\StockOpname\StockOpnameLine;
 use App\Models\StockOpname\StockOpnameUpload;
 
@@ -47,7 +49,8 @@ class StoReportController extends Controller
             7 => 'sto_upload.qty_book',
             8 => 'sto_upload.qty_count',
             9 => 'sto_upload.balance',
-            10 => 'sto_upload.processed',
+            10 => 'sto_upload.organization_id',
+            11 => 'sto_upload.processed',
         );
 
         $totalData = StockOpnameUpload::count();
@@ -90,6 +93,7 @@ class StoReportController extends Controller
                 $nestedData['qty_book'] = $data->qty_book;                
                 $nestedData['qty_count'] = $data->qty_count;                
                 $nestedData['balance'] = $data->balance;                
+                $nestedData['organization_id'] = $data->organization_id;                
                 $nestedData['processed'] = $data->processed;                
                 $dataTable[] = $nestedData;
             }
@@ -106,5 +110,97 @@ class StoReportController extends Controller
         );
 
         return response()->json($json_data, 200);
+    }
+
+    public function export(Request $request)
+    {
+
+
+        $dataFilter = [];
+        if ($request->input('wh_id')) {
+            $dataFilter['wh_id'] = $request->input('wh_id');
+            // $whName = StockOpnameUpload::where('wh_id', $request->input('wh_id'))->first()->wh_name ?? 'Unknown';
+        }
+        
+        
+
+        $data = StockOpnameUpload::getData($dataFilter, [
+            'start' => 0,
+            'limit' => PHP_INT_MAX, // Ambil semua data
+            'order' => 'wh_id',
+            'dir' => 'ASC',
+        ]);
+
+
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        //Styles
+        $styleThead = [
+            'font' => [
+                'bold' => true,
+                'size' => 10,
+            ],
+            'alignment' => [
+                'vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER,
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+            ],
+            'borders' => array(
+                'allBorders' => array(
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => array('argb' => '000000'),
+                ),
+            )
+        ];
+
+        $styleContentCenter = [
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+            ],
+            'borders' => array(
+                'allBorders' => array(
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => array('argb' => '000000'),
+                ),
+            )
+        ];
+
+        // $dataSto = StockOpnameUpload:: getData($dataFilter)
+        $headers = ['Customer Name', 'Warehouse', 'Locator', 
+        'Product Code', 'Product Name', 'Product Number', 
+        'Model', 'Qty Book', 'Qty Count','Balance', 'Organization', 'Processed'];
+
+        $sheet->fromArray($headers, null, 'A1');
+        $headerRange = 'A1:' . chr(64 + count($headers)) . '1'; 
+
+        $sheet->getStyle($headerRange)->applyFromArray($styleThead);
+
+    // Data rows
+    $rowIndex = 2;
+    foreach ($data as $row) {
+        $sheet->fromArray([
+            $row->customer_name, $row->wh_name, $row->locator,
+            $row->product_code, $row->product_name, $row->product_desc,
+            $row->model, $row->qty_book, $row->qty_count,
+            $row->balance, $row->organization_id, $row->processed
+        ], null, 'A' . $rowIndex);
+
+        $sheet->getStyle('A' . $rowIndex . ':L' . $rowIndex)->applyFromArray($styleContentCenter);
+        $rowIndex++;
+    }
+
+    $fileName = 'Data_STO.xlsx';
+    $writer = new Xlsx($spreadsheet);
+
+    // Stream file ke browser
+    $response = response()->streamDownload(function () use ($writer) {
+        $writer->save('php://output');
+    }, $fileName);
+
+    $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    $response->headers->set('Content-Disposition', "attachment; filename=\"{$fileName}\"");
+
+    return $response;
+
     }
 }

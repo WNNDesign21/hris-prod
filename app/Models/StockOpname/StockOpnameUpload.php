@@ -26,6 +26,7 @@ class StockOpnameUpload extends Model
         'qty_book',
         'qty_count',
         'balance',
+        'organization_id',
         'doc_date',
         'processed',
         'organization_id',
@@ -50,6 +51,7 @@ class StockOpnameUpload extends Model
             'sto_upload.qty_book',
             'sto_upload.qty_count',
             'sto_upload.balance',
+            'sto_upload.organization_id',
             'sto_upload.doc_date',
             'sto_upload.processed',
         );
@@ -85,6 +87,15 @@ class StockOpnameUpload extends Model
         $result = $data;
         return $result;
     }
+
+    // public static function getExport($dataFilter)
+    // {
+    //     return self::_query($dataFilter)->offset($settings['start'])
+    //         ->limit($settings['limit'])
+    //         ->orderBy($settings['order'], $settings['dir'])
+    //         ->get();
+        
+    // }
 
     public static function getData($dataFilter, $settings)
     {

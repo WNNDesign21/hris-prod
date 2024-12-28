@@ -16,6 +16,7 @@ $(function() {
         { data: 'qty_book' },
         { data: 'qty_count' },
         { data: 'balance' },
+        { data: 'organization_id' },
         { data: 'processed' },
     ];
 
@@ -45,10 +46,6 @@ $(function() {
         },
         responsive: true,
         columns: columnsTable,
-        dom: 'Bfrtip',
-        buttons: [
-        'copy', 'csv', 'excel', 'pdf', 'print'
-        ],
         columnDefs: [
             {
                 orderable: false,
@@ -77,6 +74,46 @@ $(function() {
             cache: true,
         },
     });
+
+    $('#export-excel-button').on('click', function () {
+        let warehouseId = $('#wh_id').val(); // Ambil nilai filter
+        let url = base_url + "/sto/compare/export-excel"; // URL endpoint Laravel
+        let params = {
+            wh_id: warehouseId, // Kirim filter jika ada
+        };
+    
+        // Kirim request ke server untuk mengunduh file
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: params,
+            xhrFields: {
+                responseType: 'blob', // Mengunduh file sebagai blob
+            },
+            success: function (response) {
+                // Membuat tautan download untuk file Excel
+                let today = new Date();
+                let day = ("0" + today.getDate()).slice(-2); // Menambahkan leading zero jika perlu
+                let month = ("0" + (today.getMonth() + 1)).slice(-2); // Bulan dimulai dari 0
+                let year = today.getFullYear();
+                let dateString = `${year}-${month}-${day}`; // Format YYYY-MM-DD
+
+                // Menentukan nama file berdasarkan tanggal hari ini
+                let fileName = `Data_STO_${dateString}.xlsx`; 
+                let link = document.createElement('a');
+                let blob = new Blob([response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                let url = window.URL.createObjectURL(blob);
+                link.href = url;
+                link.download = fileName // Nama file
+                link.click();
+                window.URL.revokeObjectURL(url);
+            },
+            error: function (error) {
+                alert('Error exporting Excel');
+            },
+        });
+    });
+    
 
 
 
