@@ -728,6 +728,8 @@ class StoController extends Controller
                 ]);
             }
 
+            Log::info('Data deleted: No Label ' . $sto->no_label .' by ' . auth()->user()->karyawan->nama);
+
             $sto->delete();
             DB::commit();
             return response()->json(['message' => 'Data deleted!', 'data' => $sto], 200);
