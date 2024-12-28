@@ -105,7 +105,7 @@ class StoController extends Controller
             2 => 'sto_lines.location_area',
             3 => 'sto_lines.part_code',
             4 => 'sto_lines.part_name',
-            5 => 'sto_lines.part_number',
+            5 => 'sto_lines.part_desc',
             6 => 'sto_lines.quantity',
             7 => 'sto_lines.identitas_lot',
             8 => 'sto_lines.updated_at',
@@ -145,15 +145,15 @@ class StoController extends Controller
                 $nestedData['location_area'] = $data->location_area;
                 $nestedData['part_code'] = $data->part_code;
                 $nestedData['part_name'] = $data->part_name;
-                $nestedData['part_number'] = $data->part_number;
+                $nestedData['part_desc'] = $data->part_desc;
                 $nestedData['quantity'] = $data->quantity;
                 $nestedData['identitas_lot'] = $data->identitas_lot;
                 $nestedData['updated_at'] = Carbon::parse($data->updated_at)->format('d M Y, H:i:s') . '<br><small>' . $data->updated_name . '</small>';
-                $nestedData['action'] = '-';
-                // $nestedData['action'] = '<div class="btn-group">
-                //     <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" data-id="' . $data->id_sto_line . '" data-product-id="' . $data->product_id . '" data-product-name="' . $data->part_code . '-' . $data->part_name . '-' . $data->part_desc . '" data-customer-name="' . $data->customer_name . '" data-quantity="' . $data->quantity . '" data-identitas-lot="' . $data->identitas_lot . '" data-customer-id="' . $data->customer_id . '" data-no-label="' . $data->no_label . '"><i class="fas fa-edit"></i></button>
-                //     <button type="button" class="waves-effect waves-light btn btn-danger btnDelete" data-id="' . $data->id_sto_line . '"><i class="fas fa-trash-alt"></i></button>
-                // </div>';
+                // $nestedData['action'] = '-';
+                $nestedData['action'] = '<div class="btn-group">
+                    <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" data-id="' . $data->id_sto_line . '" data-product-id="' . $data->product_id . '" data-product-name="' . $data->part_code . '-' . $data->part_name . '-' . $data->part_desc . '" data-customer-name="' . $data->customer_name . '" data-quantity="' . $data->quantity . '" data-identitas-lot="' . $data->identitas_lot . '" data-customer-id="' . $data->customer_id . '" data-no-label="' . $data->no_label . '"><i class="fas fa-edit"></i></button>
+                    <button type="button" class="waves-effect waves-light btn btn-danger btnDelete" data-id="' . $data->id_sto_line . '"><i class="fas fa-trash-alt"></i></button>
+                </div>';
 
                 $dataTable[] = $nestedData;
             }
@@ -644,18 +644,62 @@ class StoController extends Controller
 
         DB::beginTransaction();
         try {
+            //ROLLBACK DULU DATA STO UPLOAD
+            $upload_sto_existing_data = StockOpnameUpload::where('wh_id', $sto->wh_id)->where('product_id', $sto->product_id)->first();
+            if($upload_sto_existing_data){
+                $current_qty = $upload_sto_existing_data->qty_count - $sto->quantity;
+                $current_balance = $current_qty - $upload_sto_existing_data->qty_book;
+                $upload_sto_existing_data->update([
+                    'qty_count' => $current_qty,
+                    'balance' => $current_balance,
+                ]);
+            }
+
             $sto->part_code = $product->value;
             $sto->part_name = $product->name;
             $sto->part_desc = $product->description;
             $sto->model = $product->classification;
             $sto->customer_name = $customer_name;
-            $sto->product_id = $request->input('product_id_edit');
             $sto->customer_id = $request->input('customer_edit');
+            $sto->product_id = $request->input('product_id_edit');
             $sto->identitas_lot = $request->input('identitas_lot_edit');
             $sto->quantity = $request->input('quantity_edit');
             $sto->updated_by = auth()->user()->karyawan->id_karyawan;
             $sto->updated_name = auth()->user()->karyawan->nama;
             $sto->save();
+
+
+            //INPUT ULANG DATA STO UPLOAD
+            $new_qty_book = (int)iDempiereModel::getQuantityBook($sto->wh_id,$request->input('product_id_edit'))->qtyonhand ?? 0;
+            $upload_sto_new = StockOpnameUpload::where('wh_id', $sto->wh_id)->where('product_id', $request->input('product_id_edit'))->first();
+
+            if($upload_sto_new){
+                $new_qty = $upload_sto_new->qty_count + $request->input('quantity_edit');
+                $new_balance = $new_qty - $upload_sto_new->qty_book;
+                $upload_sto_new->update([
+                    'qty_count' => $new_qty,
+                    'balance' => $new_balance,
+                ]);
+            } else {
+                $balance = $request->input('quantity_edit') - $new_qty_book;
+                StockOpnameUpload::create([
+                    'wh_id' => $sto->wh_id,
+                    'wh_name' => $sto->wh_name,
+                    'locator_id' => $sto->locator_id,
+                    'locator_name' => $sto->locator_value,
+                    'customer_id' => $request->input('customer_edit'),
+                    'customer_name' => $customer_name,
+                    'product_id' => $request->input('product_id_edit'),
+                    'product_code' => $product->value,
+                    'product_name' => $product->name,
+                    'product_desc' => $product->description,
+                    'model' => $product->classification,
+                    'qty_book' => $new_qty_book,
+                    'qty_count' => $request->input('quantity_edit'),
+                    'balance' => $balance,
+                ]);
+            }
+
             DB::commit();
             return response()->json(['message' => 'Data Updated!'], 200);
         } catch (Throwable $error) {
@@ -672,6 +716,17 @@ class StoController extends Controller
         DB::beginTransaction();
         try {
             $sto = StockOpnameLine::findOrFail($id);
+            $upload_sto = StockOpnameUpload::where('wh_id', $sto->wh_id)->where('product_id', $sto->product_id)->first();
+
+            if($upload_sto){
+                $deleted_qty = $upload_sto->qty_count - $sto->quantity;
+                $deleted_balance = $deleted_qty - $upload_sto->qty_book;
+                $upload_sto->update([
+                    'qty_count' => $deleted_qty,
+                    'balance' => $deleted_balance,
+                ]);
+            }
+
             $sto->delete();
             DB::commit();
             return response()->json(['message' => 'Data deleted!', 'data' => $sto], 200);
