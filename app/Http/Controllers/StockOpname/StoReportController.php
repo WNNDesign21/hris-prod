@@ -58,8 +58,8 @@ class StoReportController extends Controller
 
         $limit = $request->input('length');
         $start = $request->input('start');
-        $order = (!empty($request->input('order.0.column'))) ? $columns[$request->input('order.0.column')] : $columns[0];
-        $dir = (!empty($request->input('order.0.dir'))) ? $request->input('order.0.dir') : "DESC";
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
 
         $settings['start'] = $start;
         $settings['limit'] = $limit;
