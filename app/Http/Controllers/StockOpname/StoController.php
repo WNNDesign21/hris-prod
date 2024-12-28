@@ -401,6 +401,9 @@ class StoController extends Controller
 
         $wh_name = iDempiereModel::fromWarehouse()->select('name')->where('m_warehouse_id', $request->wh_id)->first()->name;
         $locator_value = iDempiereModel::getLocator( $request->wh_id);
+
+        $start_label = $request->input('start_label');
+        $end_label = $request->input('end_label');
         
 
         try {
