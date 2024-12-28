@@ -60,6 +60,10 @@ class StockOpnameUpload extends Model
             $data->whereNotNull('sto_upload.product_id');
         }
 
+        if (!empty($dataFilter['wh_id'])) {
+            $data->whereIn('sto_upload.wh_id', $dataFilter['wh_id']);
+        }
+
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
             $data->where(function ($query) use ($search) {
@@ -88,10 +92,17 @@ class StockOpnameUpload extends Model
             ->limit($settings['limit'])
             ->orderBy($settings['order'], $settings['dir'])
             ->get();
+
+        // if (!empty($dataFilter['wh_name'])) {
+        //     $query->where('wh_name', $dataFilter['wh_name']);
+        // }
     }
     public static function countData($dataFilter)
     {
         return self::_query($dataFilter)->get()->count();
+        // if (!empty($dataFilter['wh_name'])) {
+        //     $query->where('wh_name', $dataFilter['wh_name']);
+        // }
     }
 
 

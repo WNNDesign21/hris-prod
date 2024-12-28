@@ -13,15 +13,13 @@ $(function() {
         { data: 'product_name' },
         { data: 'product_desc' },
         { data: 'model' },
-        // { data: 'identitas_lot' },
         { data: 'qty_book' },
         { data: 'qty_count' },
         { data: 'balance' },
         { data: 'processed' },
     ];
 
-    var eventTable =
-    $("#table-hasil-sto").DataTable({
+    var stoTable = $("#table-hasil-sto").DataTable({
         search: {
             return: true,
         },
@@ -33,6 +31,7 @@ $(function() {
             dataType: "json",
             type: "POST",
             data: function (dataFilter) {
+                dataFilter.wh_id = $('#wh_id').val();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.responseJSON.data) {
@@ -58,7 +57,12 @@ $(function() {
         ],
     });
 
-    $('#warehouse').select2({
+    $('#submit-filter').on('click', function() {
+        stoTable.search('').draw();
+    });
+
+
+    $('#wh_id').select2({
         ajax: {
             url: '/sto/input_hasil/get_wh_label',
             type: "post",
@@ -72,7 +76,7 @@ $(function() {
             },
             cache: true,
         },
-      });
+    });
 
 
 

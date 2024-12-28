@@ -14,12 +14,21 @@ class StoReportController extends Controller
     /**
      * compare functions
      */
-    public function compare()
+    public function compare(Request $request)
     {
         $dataPage = [
             'pageTitle' => 'STO - Compare Hasil',
             'page' => 'sto-compare',
         ];
+
+        $stoUpload = StockOpnameUpload::query();
+        $isFilter = false;
+        if ($request->has('warehouse') && !empty($request->wh_name)) {
+            $stoUpload->where('wh_name', $request->wh_name);
+            $isFilter = true;
+        }
+
+        $records = $isFilter ? $stoUpload->get() :  collect();
 
 
         return view('pages.sto.compare', $dataPage);
@@ -59,7 +68,10 @@ class StoReportController extends Controller
         if (!empty($search)) {
             $dataFilter['search'] = $search;
         }
-        // $dataFilter = ['hasilSto'] = 'Y';
+        $warehouseId = $request->input('wh_id');
+        if (!empty($warehouseId)) {
+            $dataFilter['wh_id'] = $warehouseId;
+        }
 
         $sto = StockOpnameUpload::getData($dataFilter, $settings);
         $totalFiltered = StockOpnameUpload::countData($dataFilter);
