@@ -628,7 +628,6 @@ class StoController extends Controller
     {
         $dataValidate = [
             'customer_edit' => ['required'],
-            'identitas_lot_edit' => ['required'],
             'quantity_edit' => ['required'],
             'product_id_edit' => ['required'],
         ];
