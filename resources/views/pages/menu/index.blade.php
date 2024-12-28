@@ -54,9 +54,9 @@
                     </div> --}}
                 @endif
 
-                @if (!auth()->user()->hasRole('security'))
+                {{-- @if (!auth()->user()->hasRole('security')) --}}
                     {{-- CARD CUTI SYSTEM --}}
-                    <div class="col-lg-6 col-12">
+                    {{-- <div class="col-lg-6 col-12">
                         <a href="{{ !auth()->user()->hasRole('member') ? route('cutie.dashboard') : route('cutie.pengajuan-cuti') }}"
                             class="box pull-up">
                             <div class="box-body position-relative">
@@ -79,12 +79,12 @@
                                 </div>
                             </div>
                         </a>
-                    </div>
+                    </div> --}}
 
                     {{-- CARD LEMBUR SYSTEM --}}
-                    @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('atasan') || !$lembure['has_leader'])
+                    {{-- @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('atasan') || !$lembure['has_leader']) --}}
                         {{-- CARD LEMBUR SYSTEM --}}
-                        <div class="col-lg-6 col-12">
+                        {{-- <div class="col-lg-6 col-12">
                             <a href="{{ auth()->user()->hasRole('personalia') || (auth()->user()->karyawan && auth()->user()->karyawan->posisi[0]->jabatan_id <= 3) ? route('lembure.dashboard') : route('lembure.pengajuan-lembur') }}"
                                 class="box pull-up">
                                 <div class="box-body position-relative">
@@ -110,11 +110,11 @@
                             </a>
                         </div>
                     @endif
-                @endif
+                @endif --}}
 
 
                 {{-- CARD IZIN SYSTEM --}}
-                <div class="col-lg-6 col-12">
+                {{-- <div class="col-lg-6 col-12">
                     <a href="{{ route('izine.pengajuan-izin') }}" class="box pull-up">
                         <div class="box-body position-relative">
                             @if ($izine['total_izine_notification'] > 0)
@@ -136,7 +136,7 @@
                             </div>
                         </div>
                     </a>
-                </div>
+                </div> --}}
                 {{-- CARD STO --}}
                 <div class="col-lg-6 col-12">
                     <a href="{{route('sto.input-label')}}" class="box pull-up">
