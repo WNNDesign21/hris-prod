@@ -102,13 +102,13 @@ class StoController extends Controller
             0 => 'sto_lines.no_label',
             1 => 'sto_lines.customer_name',
             2 => 'sto_lines.wh_name',
-            2 => 'sto_lines.location_area',
-            3 => 'sto_lines.part_code',
-            4 => 'sto_lines.part_name',
-            5 => 'sto_lines.part_desc',
-            6 => 'sto_lines.quantity',
-            7 => 'sto_lines.identitas_lot',
-            8 => 'sto_lines.updated_at',
+            3 => 'sto_lines.location_area',
+            4 => 'sto_lines.part_code',
+            5 => 'sto_lines.part_name',
+            6 => 'sto_lines.part_desc',
+            7 => 'sto_lines.quantity',
+            8 => 'sto_lines.identitas_lot',
+            9 => 'sto_lines.updated_at',
         );
 
         $totalData = StockOpnameLine::count();
@@ -116,8 +116,8 @@ class StoController extends Controller
 
         $limit = $request->input('length');
         $start = $request->input('start');
-        $order = (!empty($request->input('order.0.column'))) ? $columns[$request->input('order.0.column')] : $columns[0];
-        $dir = (!empty($request->input('order.0.dir'))) ? $request->input('order.0.dir') : "DESC";
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
 
         $settings['start'] = $start;
         $settings['limit'] = $limit;

@@ -60,7 +60,7 @@ $(function () {
         search: {
             return: true,
         },
-        order: [[0, "ASC"]],
+        order: [[9, "DESC"]],
         processing: true,
         serverSide: true,
         ajax: {
