@@ -253,6 +253,7 @@ $(function () {
                 $('#product_id').val('').trigger('change');
             },
             error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
             },
         });
@@ -380,6 +381,46 @@ $(function () {
         openEditSto();
     });
 
+    $('#product_id_edit').on('change', function() {
+        let partCode = $(this).val();
+        
+        if (partCode) {
+            loadingSwalShow();
+            $.ajax({
+                url: base_url + '/sto/input_hasil/get_part/' + partCode,
+                type: 'GET',
+                dataType: 'json',
+                success: function(data) {
+                    loadingSwalClose();
+                    if (data.partner_id){
+                        $('#customer_edit').append('<option value="'+data.partner_id+'" selected>'+data.partner_name+'</option>');
+                        $('#customer_edit').select2({
+                            ajax: {
+                                url: '/sto/input_hasil/get_customer',
+                                type: "post",
+                                dataType: "json",
+                                delay: 250,
+                                data: function (params) {
+                                    return {
+                                        search: params.term || "",
+                                        page: params.page || 1,
+                                    };
+                                },
+                                cache: true,
+                            },
+                        }).val(data.partner_id).trigger('change');
+                    } else {
+                        $('#customer_edit').val(null).trigger('change');
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    loadingSwalClose();
+                    showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                },
+            });
+        }
+    });
+
     $('#form-edit-sto').on('submit', function (e){
         e.preventDefault();
         loadingSwalShow();
@@ -420,6 +461,7 @@ $(function () {
             allowOutsideClick: false,
         }).then((result) => {
             if (result.value) {
+                loadingSwalShow();
                 var url = base_url + '/sto/delete/data_hasil/' + idStoLine;
                 $.ajax({
                     url: url,
@@ -429,6 +471,7 @@ $(function () {
                     },
                     dataType: "JSON",
                     success: function (data) {
+                        loadingSwalClose();
                         refreshTable();
                         showToast({ title: data.message });
                     },
