@@ -54,9 +54,9 @@
                     </div> --}}
                 @endif
 
-                @if (!auth()->user()->hasRole('security'))
+                {{-- @if (!auth()->user()->hasRole('security')) --}}
                     {{-- CARD CUTI SYSTEM --}}
-                    <div class="col-lg-6 col-12">
+                    {{-- <div class="col-lg-6 col-12">
                         <a href="{{ !auth()->user()->hasRole('member') ? route('cutie.dashboard') : route('cutie.pengajuan-cuti') }}"
                             class="box pull-up">
                             <div class="box-body position-relative">
@@ -79,12 +79,12 @@
                                 </div>
                             </div>
                         </a>
-                    </div>
+                    </div> --}}
 
                     {{-- CARD LEMBUR SYSTEM --}}
-                    @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('atasan') || !$lembure['has_leader'])
+                    {{-- @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('atasan') || !$lembure['has_leader']) --}}
                         {{-- CARD LEMBUR SYSTEM --}}
-                        <div class="col-lg-6 col-12">
+                        {{-- <div class="col-lg-6 col-12">
                             <a href="{{ auth()->user()->hasRole('personalia') || (auth()->user()->karyawan && auth()->user()->karyawan->posisi[0]->jabatan_id <= 3) ? route('lembure.dashboard') : route('lembure.pengajuan-lembur') }}"
                                 class="box pull-up">
                                 <div class="box-body position-relative">
@@ -110,11 +110,11 @@
                             </a>
                         </div>
                     @endif
-                @endif
+                @endif --}}
 
 
                 {{-- CARD IZIN SYSTEM --}}
-                <div class="col-lg-6 col-12">
+                {{-- <div class="col-lg-6 col-12">
                     <a href="{{ route('izine.pengajuan-izin') }}" class="box pull-up">
                         <div class="box-body position-relative">
                             @if ($izine['total_izine_notification'] > 0)
@@ -132,6 +132,24 @@
                                 <div class="ms-15">
                                     <h5 class="mb-0">Izin-E</h5>
                                     <p class="text-fade fs-12 mb-0">Sistem Pengajuan dan Approval Izin Digital</p>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div> --}}
+                {{-- CARD STO --}}
+                <div class="col-lg-6 col-12">
+                    <a href="{{route('sto.input-label')}}" class="box pull-up">
+                        <div class="box-body position-relative">
+                            <div class="d-flex align-items-center">
+                                <div class="icon bg-primary-light rounded-circle w-60 h-60 text-center l-h-80">
+                                    <span class="fs-30 mdi mdi-truck-delivery"><span class="path1"></span><span
+                                            class="path2"></span><span class="path3"></span><span
+                                            class="path4"></span></span>
+                                </div>
+                                <div class="ms-15">
+                                    <h5 class="mb-0">Stock Opname</h5>
+                                    <p class="text-fade fs-12 mb-0">Sistem Stock Opname</p>
                                 </div>
                             </div>
                         </div>

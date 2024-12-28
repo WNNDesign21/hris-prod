@@ -222,6 +222,18 @@
         @vite(['resources/js/pages/izine-export.js'])
     @endif
 
+    @if ($page == 'sto-input-label')
+        @vite(['resources/js/pages/sto/sto-input-label.js'])
+    @endif
+
+    @if ($page == 'sto-input-hasil')
+        @vite(['resources/js/pages/sto/sto-input-hasil.js'])
+    @endif
+
+    @if ($page == 'sto-compare')
+        @vite(['resources/js/pages/sto/sto-datatable.js'])
+    @endif
+
     @if ($page == 'attendancee-dashboard')
         @vite(['resources/js/pages/attendancee-dashboard.js'])
     @endif

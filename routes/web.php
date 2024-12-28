@@ -25,15 +25,16 @@ use App\Http\Controllers\MasterData\TurnoverController;
 use App\Http\Controllers\MasterData\DashboardController;
 use App\Http\Controllers\MasterData\DepartemenController;
 use App\Http\Controllers\MasterData\OrganisasiController;
+use App\Http\Controllers\StockOpname\StoController;
+use App\Http\Controllers\StockOpname\StoReportController;
 use App\Http\Controllers\Attendancee\AttendanceeController;
-
 
 Auth::routes();
 Route::get('/', function () {
     return redirect('/login');
 });
 
-// HRIS 
+// HRIS
 Route::group(['middleware' => ['auth']], function () {
     //Generate System
     // Route::get('/generate-lembur-harian', [LembureController::class, 'generate_lembur_harian']);
@@ -42,59 +43,58 @@ Route::group(['middleware' => ['auth']], function () {
     Route::delete('/delete-qrcode-img', DeleteQrImgController::class);
 
     /** MASTER DATA - AJAX */
-    Route::get('/master-data/posisi/get-data-by-jabatan/{idJabatan}',[PosisiController::class, 'get_data_by_jabatan']);
-    Route::get('/master-data/posisi/get-data-by-posisi/{idPosisi}',[PosisiController::class, 'get_data_by_posisi']);
-    Route::get('/master-data/posisi/get-data-all-posisi',[PosisiController::class, 'get_data_all_posisi']);
-    Route::get('/master-data/posisi/get-data-jabatan-by-posisi/{idPosisi}',[PosisiController::class, 'get_data_jabatan_by_posisi']); 
-    Route::get('/master-data/posisi/get-data-jabatan-by-posisi-edit/{idPosisi}/{myPosisi}',[PosisiController::class, 'get_data_jabatan_by_posisi_edit']); 
-    Route::post('/master-data/posisi/get-data-parent',[PosisiController::class, 'get_data_parent']); 
-    Route::post('/master-data/posisi/get-data-posisi',[PosisiController::class, 'get_data_posisi']); 
-    Route::get('/master-data/posisi/get-data-parent-edit/{idParent}',[PosisiController::class, 'get_data_parent_edit']); 
+    Route::get('/master-data/posisi/get-data-by-jabatan/{idJabatan}', [PosisiController::class, 'get_data_by_jabatan']);
+    Route::get('/master-data/posisi/get-data-by-posisi/{idPosisi}', [PosisiController::class, 'get_data_by_posisi']);
+    Route::get('/master-data/posisi/get-data-all-posisi', [PosisiController::class, 'get_data_all_posisi']);
+    Route::get('/master-data/posisi/get-data-jabatan-by-posisi/{idPosisi}', [PosisiController::class, 'get_data_jabatan_by_posisi']);
+    Route::get('/master-data/posisi/get-data-jabatan-by-posisi-edit/{idPosisi}/{myPosisi}', [PosisiController::class, 'get_data_jabatan_by_posisi_edit']);
+    Route::post('/master-data/posisi/get-data-parent', [PosisiController::class, 'get_data_parent']);
+    Route::post('/master-data/posisi/get-data-posisi', [PosisiController::class, 'get_data_posisi']);
+    Route::get('/master-data/posisi/get-data-parent-edit/{idParent}', [PosisiController::class, 'get_data_parent_edit']);
 
-    Route::get('/master-data/organisasi/get-data-organisasi',[OrganisasiController::class, 'get_data_organisasi']); 
+    Route::get('/master-data/organisasi/get-data-organisasi', [OrganisasiController::class, 'get_data_organisasi']);
 
-    Route::post('/master-data/grup/get-data-grup',[GrupController::class, 'get_data_grup']); 
-    Route::get('/master-data/grup/get-data-all-grup',[GrupController::class, 'get_data_all_grup']); 
-    Route::post('/master-data/karyawan/get-data-user',[KaryawanController::class, 'get_data_user']); 
-    Route::post('/master-data/karyawan/get-data-karyawan',[KaryawanController::class, 'get_data_karyawan']); 
-    Route::get('/master-data/karyawan/get-data-detail-karyawan/{idKaryawan}',[KaryawanController::class, 'get_data_detail_karyawan']); 
+    Route::post('/master-data/grup/get-data-grup', [GrupController::class, 'get_data_grup']);
+    Route::get('/master-data/grup/get-data-all-grup', [GrupController::class, 'get_data_all_grup']);
+    Route::post('/master-data/karyawan/get-data-user', [KaryawanController::class, 'get_data_user']);
+    Route::post('/master-data/karyawan/get-data-karyawan', [KaryawanController::class, 'get_data_karyawan']);
+    Route::get('/master-data/karyawan/get-data-detail-karyawan/{idKaryawan}', [KaryawanController::class, 'get_data_detail_karyawan']);
 
-    Route::get('/master-data/akun/get-data-detail-akun/{idAkun}',[AkunController::class, 'get_data_detail_akun']); 
+    Route::get('/master-data/akun/get-data-detail-akun/{idAkun}', [AkunController::class, 'get_data_detail_akun']);
 
-    Route::get('/master-data/kontrak/get-data-list-kontrak/{idKaryawan}',[KontrakController::class, 'get_data_list_kontrak']); 
-    Route::get('/master-data/kontrak/download-kontrak-kerja/{idKontrak}',[KontrakController::class, 'download_kontrak_kerja']); 
-    Route::get('/master-data/kontrak/get-data-detail-kontrak/{idKontrak}',[KontrakController::class, 'get_data_detail_kontrak']); 
+    Route::get('/master-data/kontrak/get-data-list-kontrak/{idKaryawan}', [KontrakController::class, 'get_data_list_kontrak']);
+    Route::get('/master-data/kontrak/download-kontrak-kerja/{idKontrak}', [KontrakController::class, 'download_kontrak_kerja']);
+    Route::get('/master-data/kontrak/get-data-detail-kontrak/{idKontrak}', [KontrakController::class, 'get_data_detail_kontrak']);
 
-    Route::get('/cutie/pengajuan-cuti/get-data-jenis-cuti-khusus',[CutieController::class, 'get_data_jenis_cuti_khusus']); 
-    Route::get('/cutie/pengajuan-cuti/get-data-detail-cuti/{idCuti}',[CutieController::class, 'get_data_detail_cuti']); 
-    Route::get('/cutie/member-cuti/get-karyawan-pengganti/{idKaryawan}',[CutieController::class, 'get_karyawan_pengganti']);
-    Route::get('/cutie/dashboard-cuti/get-data-cuti-calendar',[CutieController::class, 'get_data_cutie_calendar']);
-    Route::get('/cutie/dashboard-cuti/get-data-cuti-detail-chart',[CutieController::class, 'get_data_cuti_detail_chart']);
-    Route::get('/cutie/dashboard-cuti/get-data-jenis-cuti-monthly-chart',[CutieController::class, 'get_data_jenis_cuti_monthly_chart']);
-    Route::get('/cutie/setting-cuti/get-data-detail-jenis-cuti/{idJenisCuti}',[CutieController::class, 'get_data_detail_jenis_cuti']);
+    Route::get('/cutie/pengajuan-cuti/get-data-jenis-cuti-khusus', [CutieController::class, 'get_data_jenis_cuti_khusus']);
+    Route::get('/cutie/pengajuan-cuti/get-data-detail-cuti/{idCuti}', [CutieController::class, 'get_data_detail_cuti']);
+    Route::get('/cutie/member-cuti/get-karyawan-pengganti/{idKaryawan}', [CutieController::class, 'get_karyawan_pengganti']);
+    Route::get('/cutie/dashboard-cuti/get-data-cuti-calendar', [CutieController::class, 'get_data_cutie_calendar']);
+    Route::get('/cutie/dashboard-cuti/get-data-cuti-detail-chart', [CutieController::class, 'get_data_cuti_detail_chart']);
+    Route::get('/cutie/dashboard-cuti/get-data-jenis-cuti-monthly-chart', [CutieController::class, 'get_data_jenis_cuti_monthly_chart']);
+    Route::get('/cutie/setting-cuti/get-data-detail-jenis-cuti/{idJenisCuti}', [CutieController::class, 'get_data_detail_jenis_cuti']);
 
-    Route::post('/lembure/pengajuan-lembur/get-data-karyawan-lembur',[LembureController::class, 'get_data_karyawan_lembur']); 
-    Route::get('/lembure/pengajuan-lembur/get-data-karyawan-lembur',[LembureController::class, 'get_karyawan_lembur']); 
-    Route::get('/lembure/pengajuan-lembur/get-data-lembur/{idLembur}',[LembureController::class, 'get_data_lembur']); 
-    Route::post('/lembure/dashboard-lembur/get-monthly-lembur-per-departemen',[LembureController::class, 'get_monthly_lembur_per_departemen']); 
-    Route::post('/lembure/dashboard-lembur/get-weekly-lembur-per-departemen',[LembureController::class, 'get_weekly_lembur_per_departemen']); 
-    Route::post('/lembure/dashboard-lembur/get-current-month-lembur-per-departemen',[LembureController::class, 'get_current_month_lembur_per_departemen']); 
+    Route::post('/lembure/pengajuan-lembur/get-data-karyawan-lembur', [LembureController::class, 'get_data_karyawan_lembur']);
+    Route::get('/lembure/pengajuan-lembur/get-data-karyawan-lembur', [LembureController::class, 'get_karyawan_lembur']);
+    Route::get('/lembure/pengajuan-lembur/get-data-lembur/{idLembur}', [LembureController::class, 'get_data_lembur']);
+    Route::post('/lembure/dashboard-lembur/get-monthly-lembur-per-departemen', [LembureController::class, 'get_monthly_lembur_per_departemen']);
+    Route::post('/lembure/dashboard-lembur/get-weekly-lembur-per-departemen', [LembureController::class, 'get_weekly_lembur_per_departemen']);
+    Route::post('/lembure/dashboard-lembur/get-current-month-lembur-per-departemen', [LembureController::class, 'get_current_month_lembur_per_departemen']);
     Route::get('/get-approval-lembur-notification', [HomeController::class, 'get_approval_lembur_notification'])->middleware('lembure');
     Route::get('/get-planned-pengajuan-lembur-notification', [HomeController::class, 'get_planned_pengajuan_lembur_notification'])->middleware('lembure');
-    Route::get('/lembure/pengajuan-lembur/get-attachment-lembur/{idLembur}',[LembureController::class, 'get_attachment_lembur']);
+    Route::get('/lembure/pengajuan-lembur/get-attachment-lembur/{idLembur}', [LembureController::class, 'get_attachment_lembur']);
 
-    Route::get('/izine/pengajuan-izin/get-data-izin/{idIzin}',[IzineController::class, 'get_data_izin']);
-    Route::get('/izine/lapor-skd/get-data-sakit/{idSakit}',[SakiteController::class, 'get_data_sakit']);
-    Route::get('/izine/log-book-izin/get-qrcode-detail-izin/{idIzin}',[IzineController::class, 'get_qrcode_detail_izin']);
-
+    Route::get('/izine/pengajuan-izin/get-data-izin/{idIzin}', [IzineController::class, 'get_data_izin']);
+    Route::get('/izine/lapor-skd/get-data-sakit/{idSakit}', [SakiteController::class, 'get_data_sakit']);
+    Route::get('/izine/log-book-izin/get-qrcode-detail-izin/{idIzin}', [IzineController::class, 'get_qrcode_detail_izin']);
 });
 
 
 Route::group(['middleware' => ['auth', 'notifikasi']], function () {
     // MENU UTAMA
-    
+
     //HOME CONTROLLER
-    Route::get('/home', [HomeController::class, 'index'])->name('root')->middleware(['lembure','izine']);
+    Route::get('/home', [HomeController::class, 'index'])->name('root')->middleware(['lembure', 'izine']);
     Route::get('/get-notification', [HomeController::class, 'get_notification']);
     Route::get('/get-pengajuan-cuti-notification', [HomeController::class, 'get_pengajuan_cuti_notification']);
     Route::get('/get-member-cuti-notification', [HomeController::class, 'get_member_cuti_notification']);
@@ -108,108 +108,108 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
     /** MASTER DATA FEATURE */
     Route::group(['prefix' => 'master-data'], function () {
         /** MASTER DATA - DASHBOARD */
-        Route::get('/dashboard',[DashboardController::class, 'index'])->name('master-data.dashboard');
-        Route::get('/dashboard/get-data-karyawan-dashboard',[DashboardController::class, 'get_data_karyawan_dashboard']);
-        Route::get('/dashboard/get-data-turnover-monthly-dashboard',[DashboardController::class, 'get_data_turnover_monthly_dashboard']);
-        Route::get('/dashboard/get-data-turnover-detail-monthly-dashboard',[DashboardController::class, 'get_data_turnover_detail_monthly_dashboard']);
-        Route::get('/dashboard/get-data-kontrak-progress-dashboard',[DashboardController::class, 'get_data_kontrak_progress_dashboard']);
-        Route::get('/dashboard/get-data-keluar-masuk-karyawan-dashboard',[DashboardController::class, 'get_data_keluar_masuk_karyawan_dashboard']);
-        Route::get('/dashboard/get-total-data-karyawan-by-status-karyawan-dashboard',[DashboardController::class, 'get_total_data_karyawan_by_status_karyawan_dashboard']);
-        Route::get('/event/get-data-event-calendar',[EventController::class, 'get_data_event_calendar']);
-        
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('master-data.dashboard');
+        Route::get('/dashboard/get-data-karyawan-dashboard', [DashboardController::class, 'get_data_karyawan_dashboard']);
+        Route::get('/dashboard/get-data-turnover-monthly-dashboard', [DashboardController::class, 'get_data_turnover_monthly_dashboard']);
+        Route::get('/dashboard/get-data-turnover-detail-monthly-dashboard', [DashboardController::class, 'get_data_turnover_detail_monthly_dashboard']);
+        Route::get('/dashboard/get-data-kontrak-progress-dashboard', [DashboardController::class, 'get_data_kontrak_progress_dashboard']);
+        Route::get('/dashboard/get-data-keluar-masuk-karyawan-dashboard', [DashboardController::class, 'get_data_keluar_masuk_karyawan_dashboard']);
+        Route::get('/dashboard/get-total-data-karyawan-by-status-karyawan-dashboard', [DashboardController::class, 'get_total_data_karyawan_by_status_karyawan_dashboard']);
+        Route::get('/event/get-data-event-calendar', [EventController::class, 'get_data_event_calendar']);
+
         /** MASTER DATA - ORGANISASI */
         Route::group(['middleware' => ['role:personalia']], function () {
 
             Route::post('/organisasi/datatable', [OrganisasiController::class, 'datatable']);
-            Route::get('/organisasi',[OrganisasiController::class, 'index'])->name('master-data.organisasi');
-            Route::post('/organisasi/store',[OrganisasiController::class, 'store'])->name('master-data.organisasi.store');
+            Route::get('/organisasi', [OrganisasiController::class, 'index'])->name('master-data.organisasi');
+            Route::post('/organisasi/store', [OrganisasiController::class, 'store'])->name('master-data.organisasi.store');
             Route::delete('/organisasi/delete/{idOrganisasi}', [OrganisasiController::class, 'delete'])->name('master-data.organisasi.delete');
             Route::patch('/organisasi/update/{idOrganisasi}', [OrganisasiController::class, 'update'])->name('master-data.organisasi.update');
-        
+
             /** MASTER DATA - DIVISI */
             Route::post('/divisi/datatable', [DivisiController::class, 'datatable']);
-            Route::get('/divisi',[DivisiController::class, 'index'])->name('master-data.divisi');
-            Route::post('/divisi/store',[DivisiController::class, 'store'])->name('master-data.divisi.store');
+            Route::get('/divisi', [DivisiController::class, 'index'])->name('master-data.divisi');
+            Route::post('/divisi/store', [DivisiController::class, 'store'])->name('master-data.divisi.store');
             Route::delete('/divisi/delete/{idDivisi}', [DivisiController::class, 'delete'])->name('master-data.divisi.delete');
             Route::patch('/divisi/update/{idDivisi}', [DivisiController::class, 'update'])->name('master-data.divisi.update');
 
             /** MASTER DATA - DEPARTEMEN */
             Route::post('/departemen/datatable', [DepartemenController::class, 'datatable']);
-            Route::get('/departemen',[DepartemenController::class, 'index'])->name('master-data.departemen');
-            Route::post('/departemen/store',[DepartemenController::class, 'store'])->name('master-data.departemen.store');
+            Route::get('/departemen', [DepartemenController::class, 'index'])->name('master-data.departemen');
+            Route::post('/departemen/store', [DepartemenController::class, 'store'])->name('master-data.departemen.store');
             Route::delete('/departemen/delete/{idDepartemen}', [DepartemenController::class, 'delete'])->name('master-data.departemen.delete');
             Route::patch('/departemen/update/{idDepartemen}', [DepartemenController::class, 'update'])->name('master-data.departemen.update');
 
             /** MASTER DATA - SEKSI */
             Route::post('/seksi/datatable', [SeksiController::class, 'datatable']);
-            Route::get('/seksi',[SeksiController::class, 'index'])->name('master-data.seksi');
-            Route::post('/seksi/store',[SeksiController::class, 'store'])->name('master-data.seksi.store');
+            Route::get('/seksi', [SeksiController::class, 'index'])->name('master-data.seksi');
+            Route::post('/seksi/store', [SeksiController::class, 'store'])->name('master-data.seksi.store');
             Route::delete('/seksi/delete/{idSeksi}', [SeksiController::class, 'delete'])->name('master-data.seksi.delete');
             Route::patch('/seksi/update/{idSeksi}', [SeksiController::class, 'update'])->name('master-data.seksi.update');
 
             /** MASTER DATA - GRUP */
             Route::post('/grup/datatable', [GrupController::class, 'datatable']);
-            Route::get('/grup',[GrupController::class, 'index'])->name('master-data.grup');
-            Route::post('/grup/store',[GrupController::class, 'store'])->name('master-data.grup.store');
+            Route::get('/grup', [GrupController::class, 'index'])->name('master-data.grup');
+            Route::post('/grup/store', [GrupController::class, 'store'])->name('master-data.grup.store');
             Route::delete('/grup/delete/{idGrup}', [GrupController::class, 'delete'])->name('master-data.grup.delete');
             Route::patch('/grup/update/{idGrup}', [GrupController::class, 'update'])->name('master-data.grup.update');
 
             /** MASTER DATA - JABATAN */
             Route::post('/jabatan/datatable', [JabatanController::class, 'datatable']);
-            Route::get('/jabatan',[JabatanController::class, 'index'])->name('master-data.jabatan');
-            Route::post('/jabatan/store',[JabatanController::class, 'store'])->name('master-data.jabatan.store');
+            Route::get('/jabatan', [JabatanController::class, 'index'])->name('master-data.jabatan');
+            Route::post('/jabatan/store', [JabatanController::class, 'store'])->name('master-data.jabatan.store');
             Route::delete('/jabatan/delete/{idJabatan}', [JabatanController::class, 'delete'])->name('master-data.jabatan.delete');
             Route::patch('/jabatan/update/{idJabatan}', [JabatanController::class, 'update'])->name('master-data.jabatan.update');
 
             /** MASTER DATA - POSISI */
             Route::post('/posisi/datatable', [PosisiController::class, 'datatable']);
-            Route::get('/posisi',[PosisiController::class, 'index'])->name('master-data.posisi');
-            Route::post('/posisi/store',[PosisiController::class, 'store'])->name('master-data.posisi.store');
+            Route::get('/posisi', [PosisiController::class, 'index'])->name('master-data.posisi');
+            Route::post('/posisi/store', [PosisiController::class, 'store'])->name('master-data.posisi.store');
             Route::delete('/posisi/delete/{idPosisi}', [PosisiController::class, 'delete'])->name('master-data.posisi.delete');
             Route::patch('/posisi/update/{idPosisi}', [PosisiController::class, 'update'])->name('master-data.posisi.update');
 
             /** MASTER DATA - KARYAWAN */
             Route::post('/karyawan/datatable', [KaryawanController::class, 'datatable']);
-            Route::get('/karyawan',[KaryawanController::class, 'index'])->name('master-data.karyawan');
-            Route::post('/karyawan/store',[KaryawanController::class, 'store'])->name('master-data.karyawan.store');
-            Route::post('/karyawan/upload-karyawan',[KaryawanController::class, 'upload_karyawan'])->name('master-data.karyawan.upload-karyawan');
+            Route::get('/karyawan', [KaryawanController::class, 'index'])->name('master-data.karyawan');
+            Route::post('/karyawan/store', [KaryawanController::class, 'store'])->name('master-data.karyawan.store');
+            Route::post('/karyawan/upload-karyawan', [KaryawanController::class, 'upload_karyawan'])->name('master-data.karyawan.upload-karyawan');
             Route::delete('/karyawan/delete/{idKaryawan}', [KaryawanController::class, 'delete'])->name('master-data.karyawan.delete');
             Route::patch('/karyawan/update/{idKaryawan}', [KaryawanController::class, 'update'])->name('master-data.karyawan.update');
-            Route::post('/akun/store-or-update',[AkunController::class, 'store_or_update'])->name('master-data.akun.storeUpdate');
-            
+            Route::post('/akun/store-or-update', [AkunController::class, 'store_or_update'])->name('master-data.akun.storeUpdate');
+
             /** MASTER DATA - KONTRAK */
             Route::post('/kontrak/datatable', [KontrakController::class, 'datatable']);
-            Route::get('/kontrak',[KontrakController::class, 'index'])->name('master-data.kontrak');
-            Route::post('/kontrak/store',[KontrakController::class, 'store'])->name('master-data.kontrak.store');
+            Route::get('/kontrak', [KontrakController::class, 'index'])->name('master-data.kontrak');
+            Route::post('/kontrak/store', [KontrakController::class, 'store'])->name('master-data.kontrak.store');
             Route::delete('/kontrak/delete/{idKontrak}', [KontrakController::class, 'delete'])->name('master-data.kontrak.delete');
             Route::patch('/kontrak/update/{idKontrak}', [KontrakController::class, 'update'])->name('master-data.kontrak.update');
             // Tidak Dipakai Lagi
             // Route::post('/kontrak/store-or-update',[KontrakController::class, 'store_or_update'])->name('master-data.kontrak.storeUpdate');
-            Route::post('/kontrak/upload-kontrak/{type}/{idKontrak}',[KontrakController::class, 'upload_kontrak'])->name('master-data.kontrak.upload');
-            Route::post('/kontrak/upload-data-kontrak',[KontrakController::class, 'upload_data_kontrak'])->name('master-data.kontrak.upload-data-kontrak');
-            Route::post('/kontrak/done/{idKontrak}',[KontrakController::class, 'done_kontrak'])->name('master-data.kontrak.done');
+            Route::post('/kontrak/upload-kontrak/{type}/{idKontrak}', [KontrakController::class, 'upload_kontrak'])->name('master-data.kontrak.upload');
+            Route::post('/kontrak/upload-data-kontrak', [KontrakController::class, 'upload_data_kontrak'])->name('master-data.kontrak.upload-data-kontrak');
+            Route::post('/kontrak/done/{idKontrak}', [KontrakController::class, 'done_kontrak'])->name('master-data.kontrak.done');
 
             /** MASTER DATA - EXPORT */
-            Route::get('/export',[ExportController::class, 'index'])->name('master-data.export');
-            Route::post('/export/export-master-data',[ExportController::class, 'export_master_data'])->name('master-data.export.master-data');
-            Route::post('/export/export-kontrak',[ExportController::class, 'export_kontrak'])->name('master-data.export.kontrak');
+            Route::get('/export', [ExportController::class, 'index'])->name('master-data.export');
+            Route::post('/export/export-master-data', [ExportController::class, 'export_master_data'])->name('master-data.export.master-data');
+            Route::post('/export/export-kontrak', [ExportController::class, 'export_kontrak'])->name('master-data.export.kontrak');
 
             /** MASTER DATA - TURNOVER */
             Route::post('/turnover/datatable', [TurnoverController::class, 'datatable']);
-            Route::get('/turnover',[TurnoverController::class, 'index'])->name('master-data.turnover');
-            Route::post('/turnover/store',[TurnoverController::class, 'store'])->name('master-data.turnover.store');
+            Route::get('/turnover', [TurnoverController::class, 'index'])->name('master-data.turnover');
+            Route::post('/turnover/store', [TurnoverController::class, 'store'])->name('master-data.turnover.store');
 
             /** MASTER DATA - TEMPLATE */
             Route::post('/template/datatable', [TemplateController::class, 'datatable']);
-            Route::get('/template',[TemplateController::class, 'index'])->name('master-data.template');
-            Route::post('/template/store',[TemplateController::class, 'store'])->name('master-data.template.store');
+            Route::get('/template', [TemplateController::class, 'index'])->name('master-data.template');
+            Route::post('/template/store', [TemplateController::class, 'store'])->name('master-data.template.store');
             Route::delete('/template/delete/{idTemplate}', [TemplateController::class, 'delete'])->name('master-data.template.delete');
             Route::patch('/template/update/{idTemplate}', [TemplateController::class, 'update'])->name('master-data.template.update');
 
             /** MASTER DATA - KALENDER PERUSAHAAN*/
             Route::post('/event/datatable', [EventController::class, 'datatable']);
-            Route::get('/event',[EventController::class, 'index'])->name('master-data.event');
-            Route::post('/event/store',[EventController::class, 'store'])->name('master-data.event.store');
+            Route::get('/event', [EventController::class, 'index'])->name('master-data.event');
+            Route::post('/event/store', [EventController::class, 'store'])->name('master-data.event.store');
             Route::delete('/event/delete/{idEvent}', [EventController::class, 'delete'])->name('master-data.event.delete');
         });
     });
@@ -221,51 +221,51 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         Route::get('/dashboard', [CutieController::class, 'index'])->middleware('role:personalia|atasan')->name('cutie.dashboard');
 
         /** EXPORT */
-        Route::get('/export',[CutieController::class, 'export_cuti_view'])->name('cutie.export');
-        Route::post('/export/export-cuti',[CutieController::class, 'export_cuti'])->name('cutie.export.cuti');
+        Route::get('/export', [CutieController::class, 'export_cuti_view'])->name('cutie.export');
+        Route::post('/export/export-cuti', [CutieController::class, 'export_cuti'])->name('cutie.export.cuti');
 
         /** PERSONAL CUTI */
-        
+
         Route::group(['middleware' => ['role:atasan|member']], function () {
             Route::post('/pengajuan-cuti-datatable', [CutieController::class, 'pengajuan_cuti_datatable']);
-            Route::get('/pengajuan-cuti',[CutieController::class, 'pengajuan_cuti_view'])->name('cutie.pengajuan-cuti');
-            Route::post('/pengajuan-cuti/store',[CutieController::class, 'store'])->name('cutie.pengajuan-cuti.store');
-            Route::delete('/pengajuan-cuti/delete/{idCuti}',[CutieController::class, 'delete'])->name('cutie.pengajuan-cuti.delete');
-            Route::patch('/pengajuan-cuti/update/{idCuti}',[CutieController::class, 'update'])->name('cutie.pengajuan-cuti.update');
-            Route::patch('/pengajuan-cuti/cancel/{idCuti}',[CutieController::class, 'cancel'])->name('cutie.pengajuan-cuti.cancel');
-            Route::patch('/pengajuan-cuti/mulai-cuti/{idCuti}',[CutieController::class, 'mulai_cuti'])->name('cutie.pengajuan-cuti.mulai-cuti');
-            Route::patch('/pengajuan-cuti/selesai-cuti/{idCuti}',[CutieController::class, 'selesai_cuti'])->name('cutie.pengajuan-cuti.selesai-cuti');
+            Route::get('/pengajuan-cuti', [CutieController::class, 'pengajuan_cuti_view'])->name('cutie.pengajuan-cuti');
+            Route::post('/pengajuan-cuti/store', [CutieController::class, 'store'])->name('cutie.pengajuan-cuti.store');
+            Route::delete('/pengajuan-cuti/delete/{idCuti}', [CutieController::class, 'delete'])->name('cutie.pengajuan-cuti.delete');
+            Route::patch('/pengajuan-cuti/update/{idCuti}', [CutieController::class, 'update'])->name('cutie.pengajuan-cuti.update');
+            Route::patch('/pengajuan-cuti/cancel/{idCuti}', [CutieController::class, 'cancel'])->name('cutie.pengajuan-cuti.cancel');
+            Route::patch('/pengajuan-cuti/mulai-cuti/{idCuti}', [CutieController::class, 'mulai_cuti'])->name('cutie.pengajuan-cuti.mulai-cuti');
+            Route::patch('/pengajuan-cuti/selesai-cuti/{idCuti}', [CutieController::class, 'selesai_cuti'])->name('cutie.pengajuan-cuti.selesai-cuti');
         });
 
         /** MEMBER CUTI */
         Route::group(['middleware' => ['role:atasan']], function () {
             Route::post('/member-cuti-datatable', [CutieController::class, 'member_cuti_datatable']);
-            Route::get('/member-cuti',[CutieController::class, 'member_cuti_view'])->name('cutie.member-cuti');
-            Route::post('/member-cuti/store',[CutieController::class, 'store'])->name('cutie.member-cuti.store');
-            Route::delete('/member-cuti/delete/{idCuti}',[CutieController::class, 'delete'])->name('cutie.member-cuti.delete');
-            Route::patch('/member-cuti/update/{idCuti}',[CutieController::class, 'update'])->name('cutie.member-cuti.update');
-            Route::patch('/member-cuti/update-karyawan-pengganti/{idCuti}',[CutieController::class, 'update_karyawan_pengganti'])->name('cutie.member-cuti.update-karyawan-pengganti');
-            Route::patch('/member-cuti/reject/{idCuti}',[CutieController::class, 'reject'])->name('cutie.member-cuti.reject');
+            Route::get('/member-cuti', [CutieController::class, 'member_cuti_view'])->name('cutie.member-cuti');
+            Route::post('/member-cuti/store', [CutieController::class, 'store'])->name('cutie.member-cuti.store');
+            Route::delete('/member-cuti/delete/{idCuti}', [CutieController::class, 'delete'])->name('cutie.member-cuti.delete');
+            Route::patch('/member-cuti/update/{idCuti}', [CutieController::class, 'update'])->name('cutie.member-cuti.update');
+            Route::patch('/member-cuti/update-karyawan-pengganti/{idCuti}', [CutieController::class, 'update_karyawan_pengganti'])->name('cutie.member-cuti.update-karyawan-pengganti');
+            Route::patch('/member-cuti/reject/{idCuti}', [CutieController::class, 'reject'])->name('cutie.member-cuti.reject');
         });
-        Route::patch('/member-cuti/update-dokumen-cuti/{idCuti}',[CutieController::class, 'update_dokumen_cuti'])->name('cutie.member-cuti.update-document-cuti');
+        Route::patch('/member-cuti/update-dokumen-cuti/{idCuti}', [CutieController::class, 'update_dokumen_cuti'])->name('cutie.member-cuti.update-document-cuti');
 
         /** PERSONALIA CUTI */
         Route::group(['middleware' => ['role:personalia']], function () {
             Route::post('/personalia-cuti-datatable', [CutieController::class, 'personalia_cuti_datatable']);
-            Route::get('/personalia-cuti',[CutieController::class, 'personalia_cuti_view'])->name('cutie.personalia-cuti');
-            Route::delete('/personalia-cuti/delete/{idCuti}',[CutieController::class, 'delete'])->name('cutie.personalia-cuti.delete');
-            Route::patch('/personalia-cuti/cancel/{idCuti}',[CutieController::class, 'cancel'])->name('cutie.personalia-cuti.cancel');
-        
+            Route::get('/personalia-cuti', [CutieController::class, 'personalia_cuti_view'])->name('cutie.personalia-cuti');
+            Route::delete('/personalia-cuti/delete/{idCuti}', [CutieController::class, 'delete'])->name('cutie.personalia-cuti.delete');
+            Route::patch('/personalia-cuti/cancel/{idCuti}', [CutieController::class, 'cancel'])->name('cutie.personalia-cuti.cancel');
+
             /** SETTING CUTI */
             Route::post('/setting-cuti-datatable', [CutieController::class, 'setting_cuti_datatable']);
-            Route::get('/setting-cuti',[CutieController::class, 'setting_cuti_view'])->name('cutie.setting-cuti');
-            Route::delete('/setting-cuti/delete/{idCuti}',[CutieController::class, 'delete_jenis_cuti'])->name('cutie.setting-cuti.delete');
-            Route::patch('/setting-cuti/update/{idCuti}',[CutieController::class, 'update_jenis_cuti'])->name('cutie.setting-cuti.update');
-            Route::post('/setting-cuti/store',[CutieController::class, 'store_jenis_cuti'])->name('cutie.setting-cuti.store');
+            Route::get('/setting-cuti', [CutieController::class, 'setting_cuti_view'])->name('cutie.setting-cuti');
+            Route::delete('/setting-cuti/delete/{idCuti}', [CutieController::class, 'delete_jenis_cuti'])->name('cutie.setting-cuti.delete');
+            Route::patch('/setting-cuti/update/{idCuti}', [CutieController::class, 'update_jenis_cuti'])->name('cutie.setting-cuti.update');
+            Route::post('/setting-cuti/store', [CutieController::class, 'store_jenis_cuti'])->name('cutie.setting-cuti.store');
 
             /** BYPASS CUTI */
-            Route::get('/bypass-cuti',[CutieController::class, 'bypass_cuti_view'])->name('cutie.bypass-cuti');
-            Route::post('/bypass-cuti/store',[CutieController::class, 'bypass_store'])->name('cutie.bypass-cuti.store');
+            Route::get('/bypass-cuti', [CutieController::class, 'bypass_cuti_view'])->name('cutie.bypass-cuti');
+            Route::post('/bypass-cuti/store', [CutieController::class, 'bypass_store'])->name('cutie.bypass-cuti.store');
         });
     });
 
@@ -279,15 +279,15 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         Route::group(['middleware' => ['role:atasan|personalia']], function () {
             Route::get('/detail-lembur', [LembureController::class, 'detail_lembur_view'])->name('lembure.detail-lembur');
             Route::post('/detail-lembur-datatable', [LembureController::class, 'detail_lembur_datatable']);
-            Route::post('/detail-lembur/get-leaderboard-user-monthly',[LembureController::class, 'get_leaderboard_user_monthly']); 
+            Route::post('/detail-lembur/get-leaderboard-user-monthly', [LembureController::class, 'get_leaderboard_user_monthly']);
         });
 
         Route::group(['middleware' => ['role:atasan|member']], function () {
-        // PENGAJUAN LEMBUR (LEADER)
+            // PENGAJUAN LEMBUR (LEADER)
             Route::get('/pengajuan-lembur', [LembureController::class, 'pengajuan_lembur_view'])->name('lembure.pengajuan-lembur');
             Route::post('/pengajuan-lembur-datatable', [LembureController::class, 'pengajuan_lembur_datatable']);
             Route::post('/pengajuan-lembur/store', [LembureController::class, 'store'])->name('lembure.pengajuan-lembur.store');
-            Route::delete('pengajuan-lembur/delete/{idLembur}',[LembureController::class, 'delete'])->name('lembure.pengajuan-lembur.delete');
+            Route::delete('pengajuan-lembur/delete/{idLembur}', [LembureController::class, 'delete'])->name('lembure.pengajuan-lembur.delete');
             Route::patch('/pengajuan-lembur/update/{idLembur}', [LembureController::class, 'update'])->name('lembure.pengajuan-lembur.update');
             Route::patch('/pengajuan-lembur/done/{idLembur}', [LembureController::class, 'done'])->name('lembure.pengajuan-lembur.done');
             Route::post('/pengajuan-lembur/store-lkh', [LembureController::class, 'store_lkh'])->name('lembure.pengajuan-lembur.store-lkh');
@@ -335,22 +335,22 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
     Route::group(['prefix' => 'izine', 'middleware' => ['izine']], function () {
         Route::get('/pengajuan-izin', [IzineController::class, 'pengajuan_izin_view'])->name('izine.pengajuan-izin');
         Route::post('/pengajuan-izin-datatable', [IzineController::class, 'pengajuan_izin_datatable']);
-        Route::post('/pengajuan-izin/store',[IzineController::class, 'store'])->name('izine.pengajuan-izin.store');
-        Route::delete('/pengajuan-izin/delete/{idIzin}',[IzineController::class, 'delete'])->name('izine.pengajuan-izin.delete');
-        Route::patch('/pengajuan-izin/update/{idIzin}',[IzineController::class, 'update'])->name('izine.pengajuan-izin.update');
-        Route::patch('/pengajuan-izin/done/{idIzin}',[IzineController::class, 'done'])->name('izine.pengajuan-izin.done');
+        Route::post('/pengajuan-izin/store', [IzineController::class, 'store'])->name('izine.pengajuan-izin.store');
+        Route::delete('/pengajuan-izin/delete/{idIzin}', [IzineController::class, 'delete'])->name('izine.pengajuan-izin.delete');
+        Route::patch('/pengajuan-izin/update/{idIzin}', [IzineController::class, 'update'])->name('izine.pengajuan-izin.update');
+        Route::patch('/pengajuan-izin/done/{idIzin}', [IzineController::class, 'done'])->name('izine.pengajuan-izin.done');
 
         Route::get('/lapor-skd', [SakiteController::class, 'lapor_skd_view'])->name('izine.lapor-skd');
         Route::post('/lapor-skd-datatable', [SakiteController::class, 'lapor_skd_datatable']);
-        Route::post('/lapor-skd/store',[SakiteController::class, 'store'])->name('izine.lapor-skd.store');
-        Route::delete('/lapor-skd/delete/{idSakit}',[SakiteController::class, 'delete'])->name('izine.lapor-skd.delete');
-        Route::patch('/lapor-skd/update/{idSakit}',[SakiteController::class, 'update'])->name('izine.lapor-skd.update');
+        Route::post('/lapor-skd/store', [SakiteController::class, 'store'])->name('izine.lapor-skd.store');
+        Route::delete('/lapor-skd/delete/{idSakit}', [SakiteController::class, 'delete'])->name('izine.lapor-skd.delete');
+        Route::patch('/lapor-skd/update/{idSakit}', [SakiteController::class, 'update'])->name('izine.lapor-skd.update');
 
         //LOG BOOK
         Route::group(['middleware' => ['role:security']], function () {
             Route::get('/log-book-izin', [IzineController::class, 'log_book_izin_view'])->name('izine.log-book-izin');
             Route::post('/log-book-izin-datatable', [IzineController::class, 'log_book_izin_datatable']);
-            Route::patch('/log-book-izin/confirmed/{idIzin}',[IzineController::class, 'confirmed'])->name('izine.lapor-skd.confirmed');
+            Route::patch('/log-book-izin/confirmed/{idIzin}', [IzineController::class, 'confirmed'])->name('izine.lapor-skd.confirmed');
         });
 
         Route::group(['middleware' => ['role:atasan|personalia']], function () {
@@ -370,8 +370,8 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::patch('/approval-skd/rejected/{idIzin}', [SakiteController::class, 'rejected'])->name('izine.approval-skd.rejected');
 
             //EXPORT
-            Route::get('/export',[IzineController::class, 'export_view'])->name('izine.export');
-            Route::post('/export/export-izin-dan-skd',[IzineController::class, 'export_izin_dan_skd'])->name('izine.export.export-izin-dan-skd');
+            Route::get('/export', [IzineController::class, 'export_view'])->name('izine.export');
+            Route::post('/export/export-izin-dan-skd', [IzineController::class, 'export_izin_dan_skd'])->name('izine.export.export-izin-dan-skd');
         });
     });
 
@@ -384,8 +384,33 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
 
 // STOCK-OPNAME
 Route::group(['prefix' => 'sto', 'middleware' => ['auth']], function () {
-    //DISINI LUR
+
+    //REGISTER LABEL
+    Route::get('/input_label', [StoController::class, 'input_label'])->name('sto.input-label');
+    Route::post('/input_label/post', [StoController::class, 'store_label'])->name('sto.store-label');
+    Route::post('/input_label/datatable', [StoController::class, 'label_datatable']);
+
+    //HASIL STO
+    Route::get('/input_hasil', [StoController::class, 'input_hasil'])->name('sto.input-hasil');
+    Route::get('/input_hasil/get_sto_line/{idStoLine}', [StoController::class, 'get_sto_line'])->name('sto.get-sto-line');
+    Route::post('/input_hasil/datatable', [StoController::class, 'hasil_datatable']);
+    Route::get('/input_hasil/get_part/{part_code}', [StoController::class, 'get_part'])->name('sto.get-part');
+    Route::post('/input_hasil/get_part', [StoController::class, 'get_part_code'])->name('sto.get-part-code');
+    Route::post('/input_hasil/get_customer', [StoController::class, 'get_customer'])->name('sto.get-customer');
+    Route::post('/input_hasil/get_no_label', [StoController::class, 'get_no_label'])->name('sto.get-no-label');
+    Route::get('/input_hasil/get_wh/{whId}', [StoController::class, 'get_warehouse'])->name('sto.get-warehouse');
+    Route::post('/input_hasil/get_wh_label/', [StoController::class, 'get_wh_label'])->name('sto.get-wh-label');
+    Route::post('/input_hasil/post', [StoController::class, 'store_hasil'])->name('sto.store-hasil');
+    Route::delete('/delete/data_hasil/{idStoLine}', [StoController::class, 'delete'])->name('sto.delete-data');
+    Route::patch('/data-sto/update/{idStoLine}', [StoController::class, 'update'])->name('sto.update-data');
+
+
+    //COMPARE
+    Route::get('/compare', [StoReportController::class, 'compare'])->name('sto.compare');
+    Route::post('/compare/datatable', [StoReportController::class, 'datatable'])->name('sto.datatable');
 });
 
-
-
+/**testing controller */
+Route::get('/test', [TestController::class, 'index']);
+Route::get('/getsto', [TestController::class, 'getSto']);
+Route::get('/testlogout', [TestController::class, 'logout']);
