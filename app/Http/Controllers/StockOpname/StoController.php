@@ -105,7 +105,7 @@ class StoController extends Controller
             2 => 'sto_lines.location_area',
             3 => 'sto_lines.part_code',
             4 => 'sto_lines.part_name',
-            5 => 'sto_lines.part_number',
+            5 => 'sto_lines.part_desc',
             6 => 'sto_lines.quantity',
             7 => 'sto_lines.identitas_lot',
             8 => 'sto_lines.updated_at',
@@ -145,7 +145,7 @@ class StoController extends Controller
                 $nestedData['location_area'] = $data->location_area;
                 $nestedData['part_code'] = $data->part_code;
                 $nestedData['part_name'] = $data->part_name;
-                $nestedData['part_number'] = $data->part_number;
+                $nestedData['part_desc'] = $data->part_desc;
                 $nestedData['quantity'] = $data->quantity;
                 $nestedData['identitas_lot'] = $data->identitas_lot;
                 $nestedData['updated_at'] = Carbon::parse($data->updated_at)->format('d M Y, H:i:s') . '<br><small>' . $data->updated_name . '</small>';
