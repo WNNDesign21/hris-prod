@@ -5,6 +5,42 @@ $(function() {
             "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
         },
     });
+
+    let loadingSwal;
+  function loadingSwalShow() {
+      loadingSwal = Swal.fire({
+          imageHeight: 300,
+          showConfirmButton: false,
+          title: '<i class="fas fa-sync-alt fa-spin fs-80"></i>',
+          allowOutsideClick: false,
+          background: 'rgba(0, 0, 0, 0)'
+        });
+  }
+
+  function loadingSwalClose() {
+      loadingSwal.close();
+  }
+
+  //SHOW TOAST
+  function showToast(options) {
+      const toast = Swal.mixin({
+          toast: true,
+          position: "top-end",
+          showConfirmButton: false,
+          timer: 2000, 
+          timerProgressBar: true,
+          didOpen: (toast) => {
+          toast.onmouseenter = Swal.stopTimer;
+          toast.onmouseleave = Swal.resumeTimer;
+          }
+      });
+
+      toast.fire({
+          icon: options.icon || "success",
+          title: options.title
+      });
+  }
+
     var columnsTable = [
         { data: 'customer_name' },
         { data: 'wh_name'},
@@ -45,6 +81,7 @@ $(function() {
             },
         },
         responsive: true,
+        lengthChange: false,
         columns: columnsTable,
         columnDefs: [
             {
@@ -76,6 +113,7 @@ $(function() {
     });
 
     $('#export-excel-button').on('click', function () {
+        loadingSwalShow();
         let warehouseId = $('#wh_id').val(); // Ambil nilai filter
         let url = base_url + "/sto/compare/export-excel"; // URL endpoint Laravel
         let params = {
@@ -107,9 +145,11 @@ $(function() {
                 link.download = fileName // Nama file
                 link.click();
                 window.URL.revokeObjectURL(url);
+                loadingSwalClose();
             },
             error: function (error) {
-                alert('Error exporting Excel');
+                loadingSwalClose();
+                showToast({ icon: "error", title: "Gagal mengunduh file Excel" });
             },
         });
     });
