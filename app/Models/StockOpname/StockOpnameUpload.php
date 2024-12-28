@@ -28,6 +28,7 @@ class StockOpnameUpload extends Model
         'balance',
         'doc_date',
         'processed',
+        'organization_id',
     ];
 
     private static function _query($dataFilter)

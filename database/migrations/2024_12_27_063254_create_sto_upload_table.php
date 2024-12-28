@@ -30,8 +30,6 @@ return new class extends Migration
             $table->date('doc_date')->default(now());
             $table->string('processed')->default('N');
 
-
-
             $table->timestamps();
         });
     }
