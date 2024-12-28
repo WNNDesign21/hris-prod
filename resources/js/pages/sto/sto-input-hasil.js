@@ -177,7 +177,7 @@ $(function () {
         }
         $(this).val(quantity);
 
-        let convertion = quantity / weight;
+        let convertion = quantity * weight;
         $('#to').val(convertion);
     });
 
