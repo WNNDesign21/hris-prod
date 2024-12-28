@@ -8,28 +8,60 @@ use App\Models\Karyawan;
 use App\Helpers\Approval;
 use App\Helpers\Sto;
 use App\Models\ApprovalCuti;
+use App\Models\StockOpname\StockOpnameUpload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class TestController extends Controller
 {
+    private function getOrgByWh($wh_id)
+    {
+
+        $data = DB::connection('idempiere')->table('m_warehouse')
+            ->select('m_warehouse_id', 'ad_org_id')
+            ->where('m_warehouse_id', $wh_id)->first();
+
+        return $data->ad_org_id;
+    }
+
     public function index()
     {
-        $getCustomers = DB::connection('idempiere')->table('c_bpartner')
-            ->select('c_bpartner_id', 'name')
-            ->where('c_bpartner_id', '1000010')->first();
+        $getUpload = StockOpnameUpload::all();
 
-        $getProducts = DB::connection('idempiere')->table('m_product')
-            ->leftJoin('c_bpartner_product', 'm_product.m_product_id', '=', 'c_bpartner_product.m_product_id')
-            ->select('m_product.m_product_id', 'm_product.value', 'm_product.name', 'm_product.description', 'classification')
-            ->where([
-                ['m_product.isactive', '=', "Y"],
-                ['c_bpartner_product.c_bpartner_id', $getCustomers->c_bpartner_id]
-            ])->get();
 
-        $product = $getProducts->random(1);
 
-        return response()->json($product[0], 200);
+        $dataUploads = [];
+        foreach ($getUpload as $key => $value) {
+            $org_id = $this->getOrgByWh($value->wh_id);
+            $dataUploads[] = [
+                "AD_Client_ID" => [
+                    "id" => 1000000,
+                    "tableName" => "ad_client"
+                ],
+                "AD_Org_ID" => [
+                    "id" => $org_id,
+                    "tableName" => "ad_org"
+                ],
+                "M_Warehouse_ID" => [
+                    "id" => $value->wh_id,
+                    "tableName" => "m_warehouse"
+                ],
+                "M_Locator_ID" => [
+                    "id" => $value->locator_id,
+                    "tableName" => "m_locator"
+                ],
+                "Description" => "Sto Upload",
+                "MovementDate" => $value->doc_date,
+                "C_DocType_ID" => [
+                    "id" => 1000023,
+                    "tableName" => "c_doctype"
+                ],
+                "doc-action" => "CO",
+            ];
+        }
+
+
+        return response()->json($dataUploads, 200);
 
         // $request = Sto::testLogin();
 

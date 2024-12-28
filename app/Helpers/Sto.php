@@ -96,7 +96,29 @@ class Sto
         return $request->status();
     }
 
-    public static function addSto() {}
+    public static function addSto()
+    {
+        self::cekSessions();
+
+        $token = session('token');
+        $url = "https://server.tricentrumfortuna.com:12/api/v1/models/M_Inventory";
+
+        $request = Http::withOptions([
+            'verify' => false,
+        ])->withHeaders([
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
+            'Authorization' => 'Bearer ' . $token,
+        ])->post($url, [
+            "userName" => $username,
+            "password" => $password,
+            "parameters" => [
+                "clientId" => $clientId,
+                "roleId" => $roleId,
+                "organizationId" => $organizationId
+            ]
+        ]);
+    }
 
 
 
@@ -104,22 +126,7 @@ class Sto
      * testing method
      */
 
-    public static function testLogin()
-    {
-        self::login();
 
-        $data = [
-            'token' => session('token'),
-            'refresh_token' => session('refresh_token')
-        ];
-
-        return ResponseFormat::success($data, 200);
-    }
-
-    public static function testingFlow()
-    {
-        return self::cekSessions();
-    }
 
 
 
@@ -155,5 +162,22 @@ class Sto
         //     self::login();
         // }
 
+    }
+
+    public static function testLogin()
+    {
+        self::login();
+
+        $data = [
+            'token' => session('token'),
+            'refresh_token' => session('refresh_token')
+        ];
+
+        return ResponseFormat::success($data, 200);
+    }
+
+    public static function testingFlow()
+    {
+        return self::cekSessions();
     }
 }

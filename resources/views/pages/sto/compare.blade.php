@@ -23,18 +23,39 @@
     <section class="content">
         <div class="row">
             <div class="col-12">
+                {{-- <div class="box"> --}}
+                    <div class="box-body">
+                        <div class="row">
+                            <div class="col-md-3 col-12">
+                                <div class="form-group">
+                                    <label for="wh_id" class="form-label" >Filter Warehouse</label>
+                                    <div class="input-group">
+                                        <select class="form-control" name="wh_id[]" id="wh_id" style="width: 100%;" select2 multiple>
+                                            <option value="">Pilih Warehouse</option>
+                                        </select>
+                                        <button id="submit-filter" type="button" class="btn btn-info">Submit</button>
+                                    </div>
+                                        
+                                </div>
+                            </div>
+                        </div>
+                        
+                    {{-- </div> --}}
+                </div>
                 <table id="table-hasil-sto" class="table table-bordered table-striped">
                     <thead>
                         <tr>
-                            <th>No Label</th>
                             <th>Customer</th>
-                            <th>Part Code</th>
-                            <th>Part Name</th>
-                            <th>Part Number</th>
-                            <th>Model</th>
                             <th>Warehouse</th>
-                            <th>Quantity</th>
-                            <th>Identitas/Lot</th>
+                            <th>Locator</th>
+                            <th>Product Code</th>
+                            <th>Product Name</th>
+                            <th>Product Number</th>
+                            <th>Classification</th>
+                            <th>QTY Book</th>
+                            <th>QTY Count</th>
+                            <th>Balance</th>
+                            <th>Processed</th>
                         </tr>
                     </thead>
                 </table>
