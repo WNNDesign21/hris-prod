@@ -205,6 +205,8 @@ class StoController extends Controller
             'description',
         );
 
+        $query->where('isactive', 'Y');
+
         if (!empty($search)) {
             $query->where(function ($dat) use ($search) {
                 $dat->where('name', 'ILIKE', "%{$search}%")
