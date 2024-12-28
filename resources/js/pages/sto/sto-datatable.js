@@ -1,16 +1,3 @@
-// $('#table-hasil-sto').DataTable({
-//     ajax: '/sto/compare/datatable',
-//     columns: [
-//         { data: 'no_label', name: 'no_label' },
-//         { data: 'customer', name: 'customer' },
-//         { data: 'part_code', name: 'part_code' },
-//         { data: 'part_name', name: 'part_name' },
-//         { data: 'part_desc', name: 'part_desc' },
-//         { data: 'wh_name', name: 'wh_name' },
-//         { data: 'quantity', name: 'quantity' },
-//         { data: 'input_by', name: 'input_by' },
-//     ]
-// });
 
 $(function() {
     $.ajaxSetup({
@@ -19,15 +6,18 @@ $(function() {
         },
     });
     var columnsTable = [
-        { data: 'no_label' },
-        { data: 'customer' },
-        { data: 'part_code' },
-        { data: 'part_name' },
-        { data: 'part_desc' },
-        { data: 'model' },
+        { data: 'customer_name' },
         { data: 'wh_name'},
-        { data: 'quantity' },
-        { data: 'identitas_lot' },
+        { data: 'locator_name'},
+        { data: 'product_code' },
+        { data: 'product_name' },
+        { data: 'product_desc' },
+        { data: 'model' },
+        // { data: 'identitas_lot' },
+        { data: 'qty_book' },
+        { data: 'qty_count' },
+        { data: 'balance' },
+        { data: 'processed' },
     ];
 
     var eventTable =
@@ -56,6 +46,10 @@ $(function() {
         },
         responsive: true,
         columns: columnsTable,
+        dom: 'Bfrtip',
+        buttons: [
+        'copy', 'csv', 'excel', 'pdf', 'print'
+        ],
         columnDefs: [
             {
                 orderable: false,
@@ -63,6 +57,22 @@ $(function() {
             },
         ],
     });
+
+    $('#warehouse').select2({
+        ajax: {
+            url: '/sto/input_hasil/get_wh_label',
+            type: "post",
+            dataType: "json",
+            delay: 250,
+            data: function (params) {
+                return {
+                    search: params.term || "",
+                    page: params.page || 1,
+                };
+            },
+            cache: true,
+        },
+      });
 
 
 

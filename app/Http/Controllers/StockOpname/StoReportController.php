@@ -5,6 +5,7 @@ namespace App\Http\Controllers\StockOpname;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\StockOpname\StockOpnameLine;
+use App\Models\StockOpname\StockOpnameUpload;
 
 class StoReportController extends Controller
 {
@@ -19,24 +20,28 @@ class StoReportController extends Controller
             'pageTitle' => 'STO - Compare Hasil',
             'page' => 'sto-compare',
         ];
+
+
         return view('pages.sto.compare', $dataPage);
     }
 
     public function datatable(Request $request)
     {
         $columns = array(
-            0 => 'no_label',
-            1 => 'customer_name',
-            2 => 'part_code',
-            3 => 'part_name',
-            4 => 'part_desc',
-            5 => 'model',
-            6 => 'wh_name',
-            7 => 'quantity',
-            8 => 'identitas_lot',
+            0 => 'sto_upload.customer_name',
+            1 => 'sto_upload.wh_name',
+            2 => 'sto_upload.locator_name',
+            3 => 'sto_upload.product_code',
+            4 => 'sto_upload.product_name',
+            5 => 'sto_upload.product_desc',
+            6 => 'sto_upload.model',
+            7 => 'sto_upload.qty_book',
+            8 => 'sto_upload.qty_count',
+            9 => 'sto_upload.balance',
+            10 => 'sto_upload.processed',
         );
 
-        $totalData = StockOpnameLine::count();
+        $totalData = StockOpnameUpload::count();
         $totalFiltered = $totalData;
 
         $limit = $request->input('length');
@@ -54,24 +59,26 @@ class StoReportController extends Controller
         if (!empty($search)) {
             $dataFilter['search'] = $search;
         }
+        // $dataFilter = ['hasilSto'] = 'Y';
 
-        $sto = StockOpnameLine::getData($dataFilter, $settings);
-        $totalFiltered = StockOpnameLine::countData($dataFilter);
+        $sto = StockOpnameUpload::getData($dataFilter, $settings);
+        $totalFiltered = StockOpnameUpload::countData($dataFilter);
 
         $dataTable = [];
 
         if (!empty($sto)) {
             foreach ($sto as $data) {
-                $nestedData['no_label'] = $data->no_label;
-                $nestedData['customer'] = $data->customer_name;
-                $nestedData['part_code'] = $data->part_code;
-                $nestedData['part_name'] = $data->part_name;
-                $nestedData['part_desc'] = $data->part_desc;
-                $nestedData['model'] = $data->model;
+                $nestedData['customer_name'] = $data->customer_name;
                 $nestedData['wh_name'] = $data->wh_name;
-                $nestedData['quantity'] = $data->quantity;
-                $nestedData['identitas_lot'] = $data->identitas_lot;
-
+                $nestedData['locator_name'] = $data->locator_name;
+                $nestedData['product_code'] = $data->product_code;
+                $nestedData['product_name'] = $data->product_name;
+                $nestedData['product_desc'] = $data->product_desc;
+                $nestedData['model'] = $data->model;
+                $nestedData['qty_book'] = $data->qty_book;                
+                $nestedData['qty_count'] = $data->qty_count;                
+                $nestedData['balance'] = $data->balance;                
+                $nestedData['processed'] = $data->processed;                
                 $dataTable[] = $nestedData;
             }
         }
