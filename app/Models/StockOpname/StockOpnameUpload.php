@@ -28,5 +28,6 @@ class StockOpnameUpload extends Model
         'balance',
         'doc_date',
         'processed',
+        'organization_id',
     ];
 }
