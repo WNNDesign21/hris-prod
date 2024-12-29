@@ -47,7 +47,6 @@ class StockOpnameUpload extends Model
             'sto_upload.product_desc',
             'sto_upload.product_id',
             'sto_upload.model',
-            // 'sto_upload.identitas_lot',
             'sto_upload.qty_book',
             'sto_upload.qty_count',
             'sto_upload.balance',
@@ -55,8 +54,6 @@ class StockOpnameUpload extends Model
             'sto_upload.doc_date',
             'sto_upload.processed',
         );
-
-        // $data->leftJoin('sto_headers', 'sto_headers.id_sto_header', 'sto_lines.sto_header_id');
 
         if (isset($dataFilter['hasilSto']) == 'Y'){
             $data->whereNotNull('sto_upload.product_id');
@@ -80,7 +77,6 @@ class StockOpnameUpload extends Model
                     ->orWhere('sto_upload.model', 'ILIKE', "%{$search}%")
                     ->orWhere('sto_upload.qty_book', 'ILIKE', "%{$search}%")
                     ->orWhere('sto_upload.qty_count', 'ILIKE', "%{$search}%");
-                    // ->orWhere('sto_upload.identitas_lot', 'ILIKE', "%{$search}%");
                     
             });
         }
@@ -88,32 +84,33 @@ class StockOpnameUpload extends Model
         return $result;
     }
 
-    // public static function getExport($dataFilter)
-    // {
-    //     return self::_query($dataFilter)->offset($settings['start'])
-    //         ->limit($settings['limit'])
-    //         ->orderBy($settings['order'], $settings['dir'])
-    //         ->get();
-        
-    // }
 
     public static function getData($dataFilter, $settings)
     {
-        return self::_query($dataFilter)->offset($settings['start'])
+        return self::_query($dataFilter)
+            ->offset($settings['start'])
             ->limit($settings['limit'])
             ->orderBy($settings['order'], $settings['dir'])
             ->get();
-
-        // if (!empty($dataFilter['wh_name'])) {
-        //     $query->where('wh_name', $dataFilter['wh_name']);
-        // }
     }
+    public static function getExport($dataFilter, $settings)
+    {
+        $query = self::_query($dataFilter);
+
+        $validColumns = ['customer_name', 'wh_id', 'product_code', 'product_name']; 
+        $primaryOrderColumn = in_array($settings['order'], $validColumns) ? $settings['order'] : 'customer_name'; 
+        $primaryOrderDir = strtoupper($settings['dir']) === 'DESC' ? 'DESC' : 'ASC'; 
+
+        $query->orderBy('wh_id', 'ASC'); 
+        $query->orderBy($primaryOrderColumn, $primaryOrderDir); 
+        return $query->offset($settings['start'])
+                    ->limit($settings['limit'])
+                    ->get();
+    }
+
     public static function countData($dataFilter)
     {
         return self::_query($dataFilter)->get()->count();
-        // if (!empty($dataFilter['wh_name'])) {
-        //     $query->where('wh_name', $dataFilter['wh_name']);
-        // }
     }
 
 

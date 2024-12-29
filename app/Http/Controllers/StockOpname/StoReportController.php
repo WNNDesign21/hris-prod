@@ -76,7 +76,7 @@ class StoReportController extends Controller
             $dataFilter['wh_id'] = $warehouseId;
         }
 
-        $sto = StockOpnameUpload::getData($dataFilter, $settings);
+        $sto = StockOpnameUpload::getExport($dataFilter, $settings);
         $totalFiltered = StockOpnameUpload::countData($dataFilter);
 
         $dataTable = [];
@@ -119,18 +119,14 @@ class StoReportController extends Controller
         $dataFilter = [];
         if ($request->input('wh_id')) {
             $dataFilter['wh_id'] = $request->input('wh_id');
-            // $whName = StockOpnameUpload::where('wh_id', $request->input('wh_id'))->first()->wh_name ?? 'Unknown';
         }
-        
-        
 
-        $data = StockOpnameUpload::getData($dataFilter, [
+        $data = StockOpnameUpload::getExport($dataFilter, [
             'start' => 0,
-            'limit' => PHP_INT_MAX, // Ambil semua data
-            'order' => 'wh_id',
+            'limit' => PHP_INT_MAX, 
+            'order' => 'customer_name',
             'dir' => 'ASC',
         ]);
-
 
         $spreadsheet = new Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
@@ -165,7 +161,6 @@ class StoReportController extends Controller
             )
         ];
 
-        // $dataSto = StockOpnameUpload:: getData($dataFilter)
         $headers = ['Customer Name', 'Warehouse', 'Locator', 
         'Product Code', 'Product Name', 'Product Number', 
         'Model', 'Qty Book', 'Qty Count','Balance', 'Organization', 'Processed'];
