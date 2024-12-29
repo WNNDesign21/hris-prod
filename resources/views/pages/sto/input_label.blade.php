@@ -64,7 +64,8 @@
                     <div class="box">
                         <div class="box-body">
                             <div class="table-responsive">
-                                <table id="table-register-label" class="table table-bordered table-striped">
+                                <table id="table-register-label" class="table table-bordered table-striped"
+                                    style="width: 100%;">
                                     <thead>
                                         <tr>
                                             <th>No Label</th>

@@ -60,7 +60,7 @@ $(function () {
         search: {
             return: true,
         },
-        order: [[0, "ASC"]],
+        order: [[9, "DESC"]],
         processing: true,
         serverSide: true,
         ajax: {
@@ -80,6 +80,7 @@ $(function () {
             },
         },
         responsive: true,
+        lengthChange: false,
         columns: columnsTable,
         dom: 'Bfrtip',
         buttons: [
@@ -177,7 +178,7 @@ $(function () {
         }
         $(this).val(quantity);
 
-        let convertion = quantity / weight;
+        let convertion = quantity * weight;
         $('#to').val(convertion);
     });
 
