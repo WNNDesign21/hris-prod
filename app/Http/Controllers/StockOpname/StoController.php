@@ -150,11 +150,11 @@ class StoController extends Controller
                 $nestedData['quantity'] = $data->quantity;
                 $nestedData['identitas_lot'] = $data->identitas_lot;
                 $nestedData['updated_at'] = Carbon::parse($data->updated_at)->format('d M Y, H:i:s') . '<br><small>' . $data->updated_name . '</small>';
-                // $nestedData['action'] = '-';
-                $nestedData['action'] = '<div class="btn-group">
-                    <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" data-id="' . $data->id_sto_line . '" data-product-id="' . $data->product_id . '" data-product-name="' . $data->part_code . '-' . $data->part_name . '-' . $data->part_desc . '" data-customer-name="' . $data->customer_name . '" data-quantity="' . $data->quantity . '" data-identitas-lot="' . $data->identitas_lot . '" data-customer-id="' . $data->customer_id . '" data-no-label="' . $data->no_label . '"><i class="fas fa-edit"></i></button>
-                    <button type="button" class="waves-effect waves-light btn btn-danger btnDelete" data-id="' . $data->id_sto_line . '"><i class="fas fa-trash-alt"></i></button>
-                </div>';
+                $nestedData['action'] = '-';
+                // $nestedData['action'] = '<div class="btn-group">
+                //     <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" data-id="' . $data->id_sto_line . '" data-product-id="' . $data->product_id . '" data-product-name="' . $data->part_code . '-' . $data->part_name . '-' . $data->part_desc . '" data-customer-name="' . $data->customer_name . '" data-quantity="' . $data->quantity . '" data-identitas-lot="' . $data->identitas_lot . '" data-customer-id="' . $data->customer_id . '" data-no-label="' . $data->no_label . '"><i class="fas fa-edit"></i></button>
+                //     <button type="button" class="waves-effect waves-light btn btn-danger btnDelete" data-id="' . $data->id_sto_line . '"><i class="fas fa-trash-alt"></i></button>
+                // </div>';
 
                 $dataTable[] = $nestedData;
             }
