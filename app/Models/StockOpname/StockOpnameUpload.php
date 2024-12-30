@@ -26,7 +26,92 @@ class StockOpnameUpload extends Model
         'qty_book',
         'qty_count',
         'balance',
+        'organization_id',
         'doc_date',
         'processed',
+        'organization_id',
     ];
+
+    private static function _query($dataFilter)
+    {
+        $data = self::select(
+            'sto_upload.id_sto_upload',
+            'sto_upload.customer_id',
+            'sto_upload.customer_name',
+            'sto_upload.wh_id',
+            'sto_upload.wh_name',
+            'sto_upload.locator_id',
+            'sto_upload.locator_name',
+            'sto_upload.product_code',
+            'sto_upload.product_name',
+            'sto_upload.product_desc',
+            'sto_upload.product_id',
+            'sto_upload.model',
+            'sto_upload.qty_book',
+            'sto_upload.qty_count',
+            'sto_upload.balance',
+            'sto_upload.organization_id',
+            'sto_upload.doc_date',
+            'sto_upload.processed',
+        );
+
+        if (isset($dataFilter['hasilSto']) == 'Y'){
+            $data->whereNotNull('sto_upload.product_id');
+        }
+
+        if (!empty($dataFilter['wh_id'])) {
+            $data->whereIn('sto_upload.wh_id', $dataFilter['wh_id']);
+        }
+
+        if (isset($dataFilter['search'])) {
+            $search = $dataFilter['search'];
+            $data->where(function ($query) use ($search) {
+                $query->where('sto_upload.customer_id', 'ILIKE', "%{$search}%")
+                    ->orWhere('sto_upload.customer_name', 'ILIKE', "%{$search}%")
+                    ->orWhere('sto_upload.wh_name', 'ILIKE', "%{$search}%")
+                    ->orWhere('sto_upload.locator_name', 'ILIKE', "%{$search}%")
+                    ->orWhere('sto_upload.no_label', 'ILIKE', "%{$search}%")
+                    ->orWhere('sto_upload.product_code', 'ILIKE', "%{$search}%")
+                    ->orWhere('sto_upload.product_name', 'ILIKE', "%{$search}%")
+                    ->orWhere('sto_upload.product_desc', 'ILIKE', "%{$search}%")
+                    ->orWhere('sto_upload.model', 'ILIKE', "%{$search}%")
+                    ->orWhere('sto_upload.qty_book', 'ILIKE', "%{$search}%")
+                    ->orWhere('sto_upload.qty_count', 'ILIKE', "%{$search}%");
+                    
+            });
+        }
+        $result = $data;
+        return $result;
+    }
+
+
+    public static function getData($dataFilter, $settings)
+    {
+        return self::_query($dataFilter)
+            ->offset($settings['start'])
+            ->limit($settings['limit'])
+            ->orderBy($settings['order'], $settings['dir'])
+            ->get();
+    }
+    public static function getExport($dataFilter, $settings)
+    {
+        $query = self::_query($dataFilter);
+
+        $validColumns = ['customer_name', 'wh_id', 'product_code', 'product_name']; 
+        $primaryOrderColumn = in_array($settings['order'], $validColumns) ? $settings['order'] : 'customer_name'; 
+        $primaryOrderDir = strtoupper($settings['dir']) === 'DESC' ? 'DESC' : 'ASC'; 
+
+        $query->orderBy('wh_id', 'ASC'); 
+        $query->orderBy($primaryOrderColumn, $primaryOrderDir); 
+        return $query->offset($settings['start'])
+                    ->limit($settings['limit'])
+                    ->get();
+    }
+
+    public static function countData($dataFilter)
+    {
+        return self::_query($dataFilter)->get()->count();
+    }
+
+
 }

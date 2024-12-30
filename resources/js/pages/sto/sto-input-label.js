@@ -74,6 +74,7 @@ $(function(){
           },
       },
       responsive: true,
+      lengthChange: false,
       columns: columnsTable,
       dom: 'Bfrtip',
       buttons: [
