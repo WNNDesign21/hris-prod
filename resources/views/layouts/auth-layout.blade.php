@@ -234,12 +234,16 @@
         @vite(['resources/js/pages/sto/sto-datatable.js'])
     @endif
 
-    @if ($page == 'attendancee-dashboard')
-        @vite(['resources/js/pages/attendancee-dashboard.js'])
+    @if ($page == 'attendance-dashboard')
+        @vite(['resources/js/pages/attendance/attendance-dashboard.js'])
     @endif
 
-    @if ($page == 'attendancee-scanlog')
-        @vite(['resources/js/pages/attendancee-scanlog.js'])
+    @if ($page == 'attendance-scanlog')
+        @vite(['resources/js/pages/attendance/attendance-scanlog.js'])
+    @endif
+
+    @if ($page == 'attendance-device')
+        @vite(['resources/js/pages/attendance/attendance-device.js'])
     @endif
 
 </body>

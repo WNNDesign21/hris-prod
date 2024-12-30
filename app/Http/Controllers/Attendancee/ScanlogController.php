@@ -2,12 +2,10 @@
 
 namespace App\Http\Controllers\Attendancee;
 
-use Exception;
-use GuzzleHttp\Client;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
 
-class AttendanceeController extends Controller
+class ScanlogController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,22 +13,10 @@ class AttendanceeController extends Controller
     public function index()
     {
         $dataPage = [
-            'pageTitle' => "Attendance-E - Dashboard",
-            'page' => 'attendancee-dashboard',
-        ];
-        return view('pages.attendance-e.index', $dataPage);
-    }
-
-    /**
-     * Display a listing of the resource.
-     */
-    public function scanlog_view()
-    {
-        $dataPage = [
             'pageTitle' => "Attendance-E - Scanlog",
-            'page' => 'attendancee-scanlog',
+            'page' => 'attendance-scanlog',
         ];
-        return view('pages.attendance-e.scanlog', $dataPage);
+        return view('pages.attendance-e.scanlog.index', $dataPage);
     }
 
     /**

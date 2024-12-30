@@ -11,23 +11,25 @@ use App\Http\Controllers\Izine\SakiteController;
 use App\Http\Controllers\Lembure\LembureController;
 use App\Http\Controllers\MasterData\AkunController;
 use App\Http\Controllers\MasterData\GrupController;
+use App\Http\Controllers\StockOpname\StoController;
 use App\Http\Controllers\MasterData\EventController;
 use App\Http\Controllers\MasterData\SeksiController;
 use App\Http\Controllers\MasterData\DivisiController;
 use App\Http\Controllers\MasterData\ExportController;
 use App\Http\Controllers\MasterData\PosisiController;
 use App\Http\Controllers\Utils\DeleteQrImgController;
+use App\Http\Controllers\Attendancee\DeviceController;
 use App\Http\Controllers\MasterData\JabatanController;
 use App\Http\Controllers\MasterData\KontrakController;
+use App\Http\Controllers\Attendancee\ScanlogController;
 use App\Http\Controllers\MasterData\KaryawanController;
 use App\Http\Controllers\MasterData\TemplateController;
 use App\Http\Controllers\MasterData\TurnoverController;
 use App\Http\Controllers\MasterData\DashboardController;
 use App\Http\Controllers\MasterData\DepartemenController;
 use App\Http\Controllers\MasterData\OrganisasiController;
-use App\Http\Controllers\StockOpname\StoController;
 use App\Http\Controllers\StockOpname\StoReportController;
-use App\Http\Controllers\Attendancee\AttendanceeController;
+use App\Http\Controllers\Attendancee\DashboardController as AttendanceeDashboardController;
 
 Auth::routes();
 Route::get('/', function () {
@@ -375,10 +377,17 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         });
     });
 
-      /** ATTENDANCEE */
-    Route::group(['prefix' => 'attendancee'], function () {
-        Route::get('/dashboard', [AttendanceeController::class, 'index'])->name('attendancee.dashboard');
-        Route::get('/scanlog', [AttendanceeController::class, 'scanlog_view'])->name('attendancee.scanlog');
+      /** ATTENDANCE */
+    Route::group(['prefix' => 'attendance'], function () {
+        Route::get('/dashboard', [AttendanceeDashboardController::class, 'index'])->name('attendance.dashboard');
+        Route::get('/scanlog', [ScanlogController::class, 'index'])->name('attendance.scanlog');
+
+        // DEVICE
+        Route::get('/device', [DeviceController::class, 'index'])->name('attendance.device');
+        Route::post('/device/datatable', [DeviceController::class, 'datatable']);
+        Route::post('/device/store', [DeviceController::class, 'store'])->name('attendance.device.store');
+        Route::patch('/device/update/{idDevice}', [DeviceController::class, 'update'])->name('attendance.device.update');
+        Route::delete('/device/delete/{idDevice}', [DeviceController::class, 'delete'])->name('attendance.device.delete');
     });
 });
 

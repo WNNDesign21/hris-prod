@@ -9,7 +9,7 @@
 @endsection
 
 @section('navbar')
-    @include('layouts.navbar-attendancee')
+    @include('layouts.navbar-attendance')
 @endsection
 
 @section('content')
