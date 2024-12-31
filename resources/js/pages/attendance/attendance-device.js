@@ -43,7 +43,7 @@ $(function () {
         });
     }
 
-    //DATATABLE ORGANISASI
+    //DATATABLE
     var columnsTable = [
         { data: "id_device" },
         { data: "cloud_id" },

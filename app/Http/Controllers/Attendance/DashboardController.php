@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\Attendancee;
+namespace App\Http\Controllers\Attendance;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-class ScanlogController extends Controller
+class DashboardController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -13,10 +13,10 @@ class ScanlogController extends Controller
     public function index()
     {
         $dataPage = [
-            'pageTitle' => "Attendance-E - Scanlog",
-            'page' => 'attendance-scanlog',
+            'pageTitle' => "Attendance-E - Dashboard",
+            'page' => 'attendance-dashboard',
         ];
-        return view('pages.attendance-e.scanlog.index', $dataPage);
+        return view('pages.attendance-e.dashboard.index', $dataPage);
     }
 
     /**

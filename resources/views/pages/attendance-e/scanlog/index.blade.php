@@ -35,12 +35,10 @@
                             style="width:100%">
                             <thead>
                                 <tr>
-                                    <th>Start Date</th>
-                                    <th>End Date</th>
                                     <th>Karyawan</th>
                                     <th>PIN</th>
-                                    <th>Scan Date</th>
                                     <th>Verify</th>
+                                    <th>Scan Date</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>

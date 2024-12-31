@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Attendancee;
+namespace App\Http\Controllers\Attendance;
 
 use Throwable;
 use Illuminate\Http\Request;
@@ -133,6 +133,17 @@ class DeviceController extends Controller
 
             DB::commit();
             return response()->json(['message' => 'Data Device Attendance Berhasil Ditambahkan!'], 200);
+        } catch(Throwable $error){
+            return response()->json(['message' => $error->getMessage()], 500);
+        }
+    }
+
+    public function get_all_device()
+    {
+        $organisasi_id = auth()->user()->organisasi_id;
+        try{
+            $devices = Device::where('organisasi_id', $organisasi_id)->get();
+            return response()->json(['message' => 'Device berhasil ditemukan', 'data' => $devices], 200);
         } catch(Throwable $error){
             return response()->json(['message' => $error->getMessage()], 500);
         }

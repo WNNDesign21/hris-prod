@@ -18,10 +18,10 @@ use App\Http\Controllers\MasterData\DivisiController;
 use App\Http\Controllers\MasterData\ExportController;
 use App\Http\Controllers\MasterData\PosisiController;
 use App\Http\Controllers\Utils\DeleteQrImgController;
-use App\Http\Controllers\Attendancee\DeviceController;
+use App\Http\Controllers\Attendance\DeviceController;
 use App\Http\Controllers\MasterData\JabatanController;
 use App\Http\Controllers\MasterData\KontrakController;
-use App\Http\Controllers\Attendancee\ScanlogController;
+use App\Http\Controllers\Attendance\ScanlogController;
 use App\Http\Controllers\MasterData\KaryawanController;
 use App\Http\Controllers\MasterData\TemplateController;
 use App\Http\Controllers\MasterData\TurnoverController;
@@ -29,7 +29,7 @@ use App\Http\Controllers\MasterData\DashboardController;
 use App\Http\Controllers\MasterData\DepartemenController;
 use App\Http\Controllers\MasterData\OrganisasiController;
 use App\Http\Controllers\StockOpname\StoReportController;
-use App\Http\Controllers\Attendancee\DashboardController as AttendanceeDashboardController;
+use App\Http\Controllers\Attendance\DashboardController as AttendanceDashboardController;
 
 Auth::routes();
 Route::get('/', function () {
@@ -43,6 +43,8 @@ Route::group(['middleware' => ['auth']], function () {
     // Route::get('/generate_approval_cuti',[TestController::class, 'generate_approval_cuti']);
     Route::post('/generate-qrcode', QrController::class);
     Route::delete('/delete-qrcode-img', DeleteQrImgController::class);
+    Route::get('/upload-pin', [TestController::class, 'upload_pin_view']);
+    Route::post('/upload-pin/store', [TestController::class, 'upload_pin'])->name('upload-pin.store');
 
     /** MASTER DATA - AJAX */
     Route::get('/master-data/posisi/get-data-by-jabatan/{idJabatan}', [PosisiController::class, 'get_data_by_jabatan']);
@@ -89,6 +91,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/izine/pengajuan-izin/get-data-izin/{idIzin}', [IzineController::class, 'get_data_izin']);
     Route::get('/izine/lapor-skd/get-data-sakit/{idSakit}', [SakiteController::class, 'get_data_sakit']);
     Route::get('/izine/log-book-izin/get-qrcode-detail-izin/{idIzin}', [IzineController::class, 'get_qrcode_detail_izin']);
+
+    Route::get('/attendance/device/get-all-device', [DeviceController::class, 'get_all_device']);
 });
 
 
@@ -379,8 +383,12 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
 
       /** ATTENDANCE */
     Route::group(['prefix' => 'attendance'], function () {
-        Route::get('/dashboard', [AttendanceeDashboardController::class, 'index'])->name('attendance.dashboard');
+        Route::get('/dashboard', [AttendanceDashboardController::class, 'index'])->name('attendance.dashboard');
+
+        // SCANLOG
         Route::get('/scanlog', [ScanlogController::class, 'index'])->name('attendance.scanlog');
+        Route::post('/scanlog/datatable', [ScanlogController::class, 'datatable']);
+        Route::post('/scanlog/download-scanlog', [ScanlogController::class, 'download_scanlog'])->name('attendance.scanlog.download-scanlog');
 
         // DEVICE
         Route::get('/device', [DeviceController::class, 'index'])->name('attendance.device');

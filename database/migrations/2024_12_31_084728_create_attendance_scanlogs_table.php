@@ -11,14 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('attendance_scanlog_heads', function (Blueprint $table) {
-            $table->increments('id_scanlog_head');
+        Schema::create('attendance_scanlogs', function (Blueprint $table) {
+            $table->increments('id_scanlog');
             $table->unsignedInteger('organisasi_id');
             $table->unsignedInteger('device_id');
-            $table->string('cloud_id');
-            $table->string('device_sn');
-            $table->date('start_date');
-            $table->date('end_date');
+            $table->integer('pin');
+            $table->date('start_date_scan');
+            $table->date('end_date_scan');
+            $table->dateTime('scan_date');
+            $table->integer('scan_status');
+            $table->integer('verify');
 
             $table->timestamps();
 
@@ -32,6 +34,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('attendance_scanlog_heads');
+        Schema::dropIfExists('attendance_scanlogs');
     }
 };

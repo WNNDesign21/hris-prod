@@ -42,4 +42,154 @@ $(function () {
             title: options.title
         });
     }
+
+    function refreshTable() {
+        var searchValue = scanlogTable.search();
+        if (searchValue) {
+            scanlogTable.search(searchValue).draw();
+        } else {
+            scanlogTable.search("").draw();
+        }
+    }
+
+    $('.btnReload').on("click", function (){
+        refreshTable();
+    })
+
+    $('.btnDownload').on("click", function (){
+        openDownload();
+    })
+
+    $('.btnClose').on("click", function (){
+        closeDownload();
+    })
+
+    // MODAL
+    var modalDownloadScanlogOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalDownloadScanlog = new bootstrap.Modal(
+        document.getElementById("modal-download-scanlog"),
+        modalDownloadScanlogOptions
+    );
+
+    function openDownload() {
+        modalDownloadScanlog.show();
+    }
+
+    function closeDownload() {
+        modalDownloadScanlog.hide();
+    }
+
+    function resetDownload() {
+        $('#start_date').val('');
+        $('#end_date').val('');
+    }
+
+    $('#device_id').select2({
+        dropdownParent: $('#modal-download-scanlog'),
+        width: '100%',
+    });
+
+    $('#form-download-scanlog').on("submit", function (e){
+        loadingSwalShow();
+        e.preventDefault();
+        let formData = new FormData($('#form-download-scanlog')[0]);
+        let url = $(this).attr('action');
+        loadingSwalShow();
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response){
+                closeDownload();
+                loadingSwalClose();
+                refreshTable();
+                showToast({title: response.message, icon: 'success'});
+            },
+            error: function (xhr, status, error){
+                loadingSwalClose();
+                showToast({title: xhr.responseJSON.message, icon: 'error'});
+            }
+        });
+    });
+
+    //DATATABLE
+    var columnsTable = [
+        { data: "karyawan" },
+        { data: "pin" },
+        { data: "verify" },
+        { data: "scan_date" },
+    ];
+
+    var scanlogTable = $("#scanlog-table").DataTable({
+        search: {
+            return: true,
+        },
+        order: [[0, "ASC"]],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: base_url + "/attendance/scanlog/datatable",
+            dataType: "json",
+            type: "POST",
+            data: function (dataFilter) {
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR.responseJSON.data) {
+                    var error = jqXHR.responseJSON.data.error;
+                    Swal.fire({
+                        icon: "error",
+                        title: " <br>Application error!",
+                        html:
+                            '<div class="alert alert-danger text-left" role="alert">' +
+                            "<p>Error Message: <strong>" +
+                            error +
+                            "</strong></p>" +
+                            "</div>",
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                    }).then(function () {
+                        refreshTable();
+                    });
+                } else {
+                    var message = jqXHR.responseJSON.message;
+                    var errorLine = jqXHR.responseJSON.line;
+                    var file = jqXHR.responseJSON.file;
+                    Swal.fire({
+                        icon: "error",
+                        title: " <br>Application error!",
+                        html:
+                            '<div class="alert alert-danger text-left" role="alert">' +
+                            "<p>Error Message: <strong>" +
+                            message +
+                            "</strong></p>" +
+                            "<p>File: " +
+                            file +
+                            "</p>" +
+                            "<p>Line: " +
+                            errorLine +
+                            "</p>" +
+                            "</div>",
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                    }).then(function () {
+                        refreshTable();
+                    });
+                }
+            },
+        },
+
+        columns: columnsTable,
+        columnDefs: [
+            // {
+            //     orderable: false,
+            //     targets: [0, -1],
+            // },
+        ],
+    })
 });
