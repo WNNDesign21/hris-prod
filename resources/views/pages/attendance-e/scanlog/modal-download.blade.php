@@ -7,8 +7,8 @@
                 <button type="button" class="btn-close btnClose" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="{{ route('attendance.scanlog.download-scanlog') }}" method="POST"
-                    enctype="multipart/form-data" id="form-download-scanlog">
+                <form action="{{ route('attendance.scanlog.export-scanlog') }}" method="POST"
+                    enctype="multipart/form-data" id="form-export-scanlog">
                     @csrf
                     <div class="form-group">
                         <label for="">Device</label>
@@ -34,9 +34,9 @@
                     </div>
                     <div class="d-flex justify-content-end">
                         <div class="btn-group">
-                            <button type="submit" class="btn btn-primary">
+                            <button type="button" class="btn btn-primary btnGetScanlog">
                                 <i class="fas fa-fingerprint"></i> Get Scanlog</button>
-                            <button type="button" class="btn btn-success">
+                            <button type="submit" class="btn btn-success">
                                 <i class="far fa-file-excel"></i> Export Scanlog</button>
                         </div>
                     </div>

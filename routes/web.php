@@ -389,6 +389,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         Route::get('/scanlog', [ScanlogController::class, 'index'])->name('attendance.scanlog');
         Route::post('/scanlog/datatable', [ScanlogController::class, 'datatable']);
         Route::post('/scanlog/download-scanlog', [ScanlogController::class, 'download_scanlog'])->name('attendance.scanlog.download-scanlog');
+        Route::post('/scanlog/export-scanlog', [ScanlogController::class, 'export_scanlog'])->name('attendance.scanlog.export-scanlog');
 
         // DEVICE
         Route::get('/device', [DeviceController::class, 'index'])->name('attendance.device');

@@ -93,11 +93,10 @@ $(function () {
         width: '100%',
     });
 
-    $('#form-download-scanlog').on("submit", function (e){
+    $('.btnGetScanlog').on("click", function () {
         loadingSwalShow();
-        e.preventDefault();
-        let formData = new FormData($('#form-download-scanlog')[0]);
-        let url = $(this).attr('action');
+        let formData = new FormData($('#form-export-scanlog')[0]);
+        let url = base_url + '/attendance/scanlog/download-scanlog';
         loadingSwalShow();
         $.ajax({
             url: url,
@@ -116,7 +115,7 @@ $(function () {
                 showToast({title: xhr.responseJSON.message, icon: 'error'});
             }
         });
-    });
+    })
 
     //DATATABLE
     var columnsTable = [

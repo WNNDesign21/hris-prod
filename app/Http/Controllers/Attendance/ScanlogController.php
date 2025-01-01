@@ -11,7 +11,12 @@ use App\Models\Attendance\Scanlog;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
 use Illuminate\Support\Facades\Validator;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
 class ScanlogController extends Controller
 {
@@ -98,7 +103,7 @@ class ScanlogController extends Controller
             $response = json_decode($responseBody, true);
             $datas = [];
 
-            if(!empty($datas)){
+            if(!empty($response)){
                 foreach($response['data'] as $data){
                     $datas[] = [
                         'pin' => $data['pin'],
@@ -235,7 +240,11 @@ class ScanlogController extends Controller
             $scanlogs->where('attendance_scanlogs.organisasi_id', auth()->user()->organisasi_id);
             $scanlogs->where('users.organisasi_id', auth()->user()->organisasi_id);
     
-            $scanlogs = $scanlogs->get();
+            $scanlogs_clone = clone $scanlogs;
+
+            $scanlogs_start = $scanlogs_clone->whereDate('attendance_scanlogs.scan_date', $request->start_date)->get();
+            $scanlogs_end = $scanlogs->whereDate('attendance_scanlogs.scan_date', $request->end_date)->get();
+
             $spreadsheet = new Spreadsheet();
     
             $fillStyle = [
@@ -261,22 +270,23 @@ class ScanlogController extends Controller
                     'size' => 12,
                 ],
             ];
+
+            $headers = [
+                'NAMA',
+                'PIN',
+                'SCAN DATE',
+                'DATE',
+                'HOUR',
+                'VERIFY'
+            ];
+
     
-            if($scanlogs){
+            if($scanlogs_start->count() > 0){
                 $sheet = $spreadsheet->getActiveSheet();
                 $sheet->setTitle($request->start_date);
     
                 $row = 1;
                 $col = 'A';
-    
-                $headers = [
-                    'NAMA',
-                    'PIN',
-                    'SCAN DATE',
-                    'DATE',
-                    'HOUR',
-                    'VERIFY'
-                ];
     
                 foreach ($headers as $header) {
                     $sheet->setCellValue($col . '1', $header);
@@ -286,41 +296,93 @@ class ScanlogController extends Controller
     
                 $row = 2;
     
-                $columns = range('A', 'G');
+                $columns = range('A', 'F');
                 foreach ($columns as $column) {
                     $sheet->getColumnDimension($column)->setAutoSize(true);
                 }
-                $sheet->setAutoFilter('A1:G1');
-    
-                foreach ($scanlogs as $data) {
-    
-                    $carbonDate  = Carbon::parse($data->issued_date);
-                    $year = $carbonDate->year;
-    
-                    $sheet->setCellValue('A' . $row, $data->id_kontrak);
-                    $sheet->setCellValue('B' . $row, $data->nik_karyawan);
-                    $sheet->setCellValue('C' . $row, $data->nama_departemen);
-                    $sheet->setCellValue('D' . $row, $data->nama_posisi);
-                    $sheet->setCellValue('E' . $row, $data->nama_karyawan);
-                    $sheet->setCellValue('F' . $row, $data->no_surat);
-                    $sheet->setCellValue('G' . $row, $data->jumlah_hari);
-                    $sheet->setCellValue('H' . $row, $data->tanggal_mulai_kontrak);
-                    $sheet->setCellValue('I' . $row, $data->tanggal_selesai_kontrak);
-                    $sheet->setCellValue('J' . $row, $data->jenis);
-                    $sheet->setCellValue('K' . $row, $data->tempat_administrasi);
-                    $sheet->setCellValue('L' . $row, $data->status);
-                    $sheet->setCellValue('M' . $row, $data->durasi);
-                    $sheet->setCellValue('N' . $row, $data->salary);
-                    $sheet->setCellValue('O' . $row, $data->deskripsi);
-                    $sheet->setCellValue('P' . $row, $data->issued_date);
+                $sheet->setAutoFilter('A1:F1');
+
+                foreach ($scanlogs_start as $data) {
+                    if ($data->verify == '1') {
+                        $verify = 'Finger';
+                    } elseif ($data->verify == '2') {
+                        $verify = 'Password';
+                    } elseif ($data->verify == '3') {
+                        $verify = 'Card';
+                    } elseif ($data->verify == '4') {
+                        $verify = 'Face';
+                    } elseif ($data->verify == '5') {
+                        $verify = 'GPS';
+                    } elseif ($data->verify == '6') {
+                        $verify = 'Vein';
+                    } else {
+                        $verify = 'Kosong';
+                    }
+
+                    $sheet->setCellValue('A' . $row, $data->karyawan);
+                    $sheet->setCellValue('B' . $row, $data->pin);
+                    $sheet->setCellValue('C' . $row, $data->scan_date);
+                    $sheet->setCellValue('D' . $row, Carbon::parse($data->scan_date)->format('Y-m-d'));
+                    $sheet->setCellValue('E' . $row, Carbon::parse($data->scan_date)->format('H:i'));
+                    $sheet->setCellValue('F' . $row, $verify);
                     $row++;
+                }
+            }
+
+            if($request->start_date !== $request->end_date){
+                if($scanlogs_end->count() > 0){
+                    $sheet2 = $spreadsheet->createSheet();
+                    $sheet2->setTitle($request->end_date);
+        
+                    $row2 = 1;
+                    $col2 = 'A';
+        
+                    foreach ($headers as $header) {
+                        $sheet2->setCellValue($col2 . '1', $header);
+                        $sheet2->getStyle($col2 . '1')->applyFromArray($fillStyle);
+                        $col2++;
+                    }
+        
+                    $row2 = 2;
+        
+                    $columns2 = range('A', 'F');
+                    foreach ($columns2 as $column) {
+                        $sheet2->getColumnDimension($column)->setAutoSize(true);
+                    }
+                    $sheet2->setAutoFilter('A1:F1');
+    
+                    foreach ($scanlogs_end as $data) {
+                        if ($data->verify == '1') {
+                            $verify2 = 'Finger';
+                        } elseif ($data->verify == '2') {
+                            $verify2 = 'Password';
+                        } elseif ($data->verify == '3') {
+                            $verify2 = 'Card';
+                        } elseif ($data->verify == '4') {
+                            $verify2 = 'Face';
+                        } elseif ($data->verify == '5') {
+                            $verify2 = 'GPS';
+                        } elseif ($data->verify == '6') {
+                            $verify2 = 'Vein';
+                        } else {
+                            $verify2 = 'Kosong';
+                        }
+    
+                        $sheet2->setCellValue('A' . $row2, $data->karyawan);
+                        $sheet2->setCellValue('B' . $row2, $data->pin);
+                        $sheet2->setCellValue('C' . $row2, $data->scan_date);
+                        $sheet2->setCellValue('D' . $row2, Carbon::parse($data->scan_date)->format('Y-m-d'));
+                        $sheet2->setCellValue('E' . $row2, Carbon::parse($data->scan_date)->format('H:i'));
+                        $sheet2->setCellValue('F' . $row2, $verify2);
+                        $row2++;
+                    }
                 }
             }
     
             $writer = new Xlsx($spreadsheet);
     
             header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            header('Content-Disposition: attachment;filename=kontrak-export.xlsx');
+            header('Content-Disposition: attachment;filename=Scanlog-'.$device->device_name.'-'.$request->start_date.'-'.$request->end_date.'.xlsx');
             header('Cache-Control: max-age=0');
     
             $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
