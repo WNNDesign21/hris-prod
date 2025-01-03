@@ -22,7 +22,16 @@
                                     <div class="row">
                                         <p>Status : <span id="statusAktual"></span></p>
                                         <p>Tanggal : <span id="text_tanggalAktual"></span></p>
-                                        <p>Jenis Hari : <span id="jenis_hariAktual"></span></p>
+                                        <div class="col-lg-4 col-8">
+                                            <div class="form-group">
+                                                <label for="jenis_hari">Jenis Hari</label>
+                                                <select name="jenis_hariAktual" id="jenis_hariAktual"
+                                                    class="form-control" style="width:100%;" required>
+                                                    <option value="WE">WEEKEND</option>
+                                                    <option value="WD">WEEKDAY</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                         <div class="col-12">
                                             <p class="fw-bold">Lampiran LKH</p>
                                             <div class="row d-inline-block previewAttachmentLembur">

@@ -22,7 +22,16 @@
                                     <div class="row">
                                         <p>Status : <span id="statusApproval"></span></p>
                                         <p>Tanggal : <span id="text_tanggalApproval"></span></p>
-                                        <p>Jenis Hari : <span id="jenis_hariApproval"></span></p>
+                                        <div class="col-lg-4 col-8">
+                                            <div class="form-group">
+                                                <label for="jenis_hari">Jenis Hari</label>
+                                                <select name="jenis_hariApproval" id="jenis_hariApproval"
+                                                    class="form-control" style="width:100%;" required>
+                                                    <option value="WE">WEEKEND</option>
+                                                    <option value="WD">WEEKDAY</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                                 <!-- /.box-header -->
