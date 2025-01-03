@@ -93,6 +93,11 @@ $(function () {
         width: '100%',
     });
 
+    $('#format').select2({
+        dropdownParent: $('#modal-download-scanlog'),
+        width: '100%',
+    });
+
     $('.btnGetScanlog').on("click", function () {
         loadingSwalShow();
         let formData = new FormData($('#form-export-scanlog')[0]);
@@ -116,6 +121,34 @@ $(function () {
             }
         });
     })
+
+    $('.btnExport').on("click", function () {
+        let startDate = $('#start_date').val();
+        let endDate = $('#end_date').val();
+        console.log(startDate);
+
+        if (startDate == '' || endDate == '') {
+            showToast({title: 'Please fill start date and end date', icon: 'error'});
+            return;
+        }
+
+        if (startDate > endDate) {
+            showToast({title: 'Start date must be less than end date', icon: 'error'});
+            return;
+        }
+
+        let start = new Date(startDate);
+        let end = new Date(endDate);
+        let diffTime = Math.abs(end - start);
+        let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (diffDays > 1) {
+            showToast({title: 'The date range cannot be more than 2 days', icon: 'error'});
+            return;
+        }
+
+        $('#form-export-scanlog').submit();
+    });
 
     //DATATABLE
     var columnsTable = [

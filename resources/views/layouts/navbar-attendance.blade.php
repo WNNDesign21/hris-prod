@@ -7,13 +7,13 @@
                 <ul class="sidebar-menu" data-widget="tree">
                     <li class="header">Attendance-E Menu</li>
                     @if (auth()->user()->hasRole('personalia'))
-                        <li class="{{ $page == 'attendance-dashboard' ? 'active' : '' }}">
+                        {{-- <li class="{{ $page == 'attendance-dashboard' ? 'active' : '' }}">
                             <a href="{{ route('attendance.dashboard') }}">
                                 <i class="icon-Layout-4-blocks"><span class="path1"></span><span
                                         class="path2"></span></i>
                                 <span>Dashboard</span>
                             </a>
-                        </li>
+                        </li> --}}
                         <li class="{{ $page == 'attendance-scanlog' ? 'active' : '' }}">
                             <a href="{{ route('attendance.scanlog') }}">
                                 <i class="icon-Sign-in"><span class="path1"></span><span class="path2"></span></i>

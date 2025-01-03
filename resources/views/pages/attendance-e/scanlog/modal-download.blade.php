@@ -21,25 +21,34 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="">Start Date</label>
+                        <label for="">Format Export</label>
                         <div class="input-group mb-2" style="width:100%;">
-                            <input type="date" name="start_date" id="start_date" class="form-control" required>
+                            <select name="format" id="format" class="form-control" required style="width: 100%;">
+                                <option value="H">HORIZONTAL</option>
+                                <option value="V">VERTICAL</option>
+                            </select>
                         </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="">End Date</label>
-                        <div class="input-group mb-2" style="width:100%;">
-                            <input type="date" name="end_date" id="end_date" class="form-control" required>
+                        <span class="form-text text-muted mb-3">Note : Hanya digunakan untuk Export Scanlog</span>
+                        <div class="form-group">
+                            <label for="">Start Date</label>
+                            <div class="input-group mb-2" style="width:100%;">
+                                <input type="date" name="start_date" id="start_date" class="form-control" required>
+                            </div>
                         </div>
-                    </div>
-                    <div class="d-flex justify-content-end">
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-primary btnGetScanlog">
-                                <i class="fas fa-fingerprint"></i> Get Scanlog</button>
-                            <button type="submit" class="btn btn-success">
-                                <i class="far fa-file-excel"></i> Export Scanlog</button>
+                        <div class="form-group">
+                            <label for="">End Date</label>
+                            <div class="input-group mb-2" style="width:100%;">
+                                <input type="date" name="end_date" id="end_date" class="form-control" required>
+                            </div>
                         </div>
-                    </div>
+                        <div class="d-flex justify-content-end">
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-primary btnGetScanlog">
+                                    <i class="fas fa-fingerprint"></i> Get Scanlog</button>
+                                <button type="button" class="btn btn-success btnExport">
+                                    <i class="far fa-file-excel"></i> Export Scanlog</button>
+                            </div>
+                        </div>
                 </form>
             </div>
         </div>

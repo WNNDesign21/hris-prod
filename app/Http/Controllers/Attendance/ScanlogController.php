@@ -217,6 +217,7 @@ class ScanlogController extends Controller
                 }
             }],
             'device_id' => ['required', 'integer', 'exists:attendance_devices,id_device'],
+            'format' => ['required', 'in:H,V'],
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -227,158 +228,230 @@ class ScanlogController extends Controller
         }
         try {
             $device = Device::find($request->device_id);
-            $scanlogs = Scanlog::select(
-                'karyawans.nama as karyawan',
-                'attendance_scanlogs.pin',
-                'attendance_scanlogs.scan_date',
-                'attendance_scanlogs.verify',
-            );
-    
-            $scanlogs->leftJoin('karyawans', 'karyawans.pin','attendance_scanlogs.pin');
-            $scanlogs->leftJoin('users', 'users.id','karyawans.user_id');
-    
-            $scanlogs->where('attendance_scanlogs.organisasi_id', auth()->user()->organisasi_id);
-            $scanlogs->where('users.organisasi_id', auth()->user()->organisasi_id);
-    
-            $scanlogs_clone = clone $scanlogs;
+            $organisasi_id = auth()->user()->organisasi_id;
 
-            $scanlogs_start = $scanlogs_clone->whereDate('attendance_scanlogs.scan_date', $request->start_date)->get();
-            $scanlogs_end = $scanlogs->whereDate('attendance_scanlogs.scan_date', $request->end_date)->get();
-
-            $spreadsheet = new Spreadsheet();
-    
-            $fillStyle = [
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => Border::BORDER_THIN,
-                        'color' => ['argb' => 'FF000000'],
-                    ],
-                ],
-                'alignment' => [
-                    'horizontal' => Alignment::HORIZONTAL_LEFT,
-                    'vertical' => Alignment::VERTICAL_CENTER,
-                ],
-                'fill' => [
-                    'fillType' => Fill::FILL_SOLID,
-                    'startColor' => [
-                        'argb' => 'FF000000'
-                    ]
-                ],
-                'font' => [
-                    'bold' => true,
-                    'color' => ['argb' => 'FFFFFFFF'],
-                    'size' => 12,
-                ],
-            ];
-
-            $headers = [
-                'NAMA',
-                'PIN',
-                'SCAN DATE',
-                'DATE',
-                'HOUR',
-                'VERIFY'
-            ];
-
-    
-            if($scanlogs_start->count() > 0){
-                $sheet = $spreadsheet->getActiveSheet();
-                $sheet->setTitle($request->start_date);
-    
-                $row = 1;
-                $col = 'A';
-    
-                foreach ($headers as $header) {
-                    $sheet->setCellValue($col . '1', $header);
-                    $sheet->getStyle($col . '1')->applyFromArray($fillStyle);
-                    $col++;
-                }
-    
-                $row = 2;
-    
-                $columns = range('A', 'F');
-                foreach ($columns as $column) {
-                    $sheet->getColumnDimension($column)->setAutoSize(true);
-                }
-                $sheet->setAutoFilter('A1:F1');
-
-                foreach ($scanlogs_start as $data) {
-                    if ($data->verify == '1') {
-                        $verify = 'Finger';
-                    } elseif ($data->verify == '2') {
-                        $verify = 'Password';
-                    } elseif ($data->verify == '3') {
-                        $verify = 'Card';
-                    } elseif ($data->verify == '4') {
-                        $verify = 'Face';
-                    } elseif ($data->verify == '5') {
-                        $verify = 'GPS';
-                    } elseif ($data->verify == '6') {
-                        $verify = 'Vein';
-                    } else {
-                        $verify = 'Kosong';
-                    }
-
-                    $sheet->setCellValue('A' . $row, $data->karyawan);
-                    $sheet->setCellValue('B' . $row, $data->pin);
-                    $sheet->setCellValue('C' . $row, $data->scan_date);
-                    $sheet->setCellValue('D' . $row, Carbon::parse($data->scan_date)->format('Y-m-d'));
-                    $sheet->setCellValue('E' . $row, Carbon::parse($data->scan_date)->format('H:i'));
-                    $sheet->setCellValue('F' . $row, $verify);
-                    $row++;
-                }
-            }
-
-            if($request->start_date !== $request->end_date){
-                if($scanlogs_end->count() > 0){
-                    $sheet2 = $spreadsheet->createSheet();
-                    $sheet2->setTitle($request->end_date);
+            if($request->format == 'V'){
+                $scanlogs = Scanlog::select(
+                    'karyawans.nama as karyawan',
+                    'karyawans.ni_karyawan as ni_karyawan',
+                    'attendance_scanlogs.pin',
+                    'attendance_scanlogs.scan_date',
+                    'attendance_scanlogs.verify',
+                );
         
-                    $row2 = 1;
-                    $col2 = 'A';
+                $scanlogs->leftJoin('karyawans', 'karyawans.pin','attendance_scanlogs.pin');
+                $scanlogs->leftJoin('users', 'users.id','karyawans.user_id');
+        
+                $scanlogs->where('attendance_scanlogs.organisasi_id', $organisasi_id);
+                $scanlogs->where('users.organisasi_id', $organisasi_id);
+                $scanlogs->where('attendance_scanlogs.device_id', $request->device_id);
+                $scanlogs->where(function($query) use ($request){
+                    $query->whereDate('attendance_scanlogs.scan_date', $request->start_date)
+                        ->orWhereDate('attendance_scanlogs.scan_date', $request->end_date);
+                });
+                $scanlogs->orderBy('attendance_scanlogs.scan_date', 'karyawans.nama', 'ASC');
+                $scanlogs = $scanlogs->get();
+    
+                $spreadsheet = new Spreadsheet();
+        
+                $fillStyle = [
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => Border::BORDER_THIN,
+                            'color' => ['argb' => 'FF000000'],
+                        ],
+                    ],
+                    'alignment' => [
+                        'horizontal' => Alignment::HORIZONTAL_LEFT,
+                        'vertical' => Alignment::VERTICAL_CENTER,
+                    ],
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => [
+                            'argb' => 'FF000000'
+                        ]
+                    ],
+                    'font' => [
+                        'bold' => true,
+                        'color' => ['argb' => 'FFFFFFFF'],
+                        'size' => 12,
+                    ],
+                ];
+    
+                $headers = [
+                    'NIK',
+                    'NAMA',
+                    'PIN',
+                    'SCAN DATE',
+                    'DATE',
+                    'HOUR',
+                    'VERIFY'
+                ];
+    
+        
+                if($scanlogs->count() > 0){
+                    $sheet = $spreadsheet->getActiveSheet();
+                    $sheet->setTitle($request->start_date.' - '.$request->end_date);
+        
+                    $row = 1;
+                    $col = 'A';
         
                     foreach ($headers as $header) {
-                        $sheet2->setCellValue($col2 . '1', $header);
-                        $sheet2->getStyle($col2 . '1')->applyFromArray($fillStyle);
-                        $col2++;
+                        $sheet->setCellValue($col . '1', $header);
+                        $sheet->getStyle($col . '1')->applyFromArray($fillStyle);
+                        $col++;
                     }
         
-                    $row2 = 2;
+                    $row = 2;
         
-                    $columns2 = range('A', 'F');
-                    foreach ($columns2 as $column) {
-                        $sheet2->getColumnDimension($column)->setAutoSize(true);
+                    $columns = range('A', 'G');
+                    foreach ($columns as $column) {
+                        $sheet->getColumnDimension($column)->setAutoSize(true);
                     }
-                    $sheet2->setAutoFilter('A1:F1');
+                    $sheet->setAutoFilter('A1:G1');
     
-                    foreach ($scanlogs_end as $data) {
+                    foreach ($scanlogs as $data) {
                         if ($data->verify == '1') {
-                            $verify2 = 'Finger';
+                            $verify = 'Finger';
                         } elseif ($data->verify == '2') {
-                            $verify2 = 'Password';
+                            $verify = 'Password';
                         } elseif ($data->verify == '3') {
-                            $verify2 = 'Card';
+                            $verify = 'Card';
                         } elseif ($data->verify == '4') {
-                            $verify2 = 'Face';
+                            $verify = 'Face';
                         } elseif ($data->verify == '5') {
-                            $verify2 = 'GPS';
+                            $verify = 'GPS';
                         } elseif ($data->verify == '6') {
-                            $verify2 = 'Vein';
+                            $verify = 'Vein';
                         } else {
-                            $verify2 = 'Kosong';
+                            $verify = 'Kosong';
                         }
     
-                        $sheet2->setCellValue('A' . $row2, $data->karyawan);
-                        $sheet2->setCellValue('B' . $row2, $data->pin);
-                        $sheet2->setCellValue('C' . $row2, $data->scan_date);
-                        $sheet2->setCellValue('D' . $row2, Carbon::parse($data->scan_date)->format('Y-m-d'));
-                        $sheet2->setCellValue('E' . $row2, Carbon::parse($data->scan_date)->format('H:i'));
-                        $sheet2->setCellValue('F' . $row2, $verify2);
-                        $row2++;
+                        $sheet->setCellValue('A' . $row, $data->ni_karyawan);
+                        $sheet->setCellValue('B' . $row, $data->karyawan);
+                        $sheet->setCellValue('C' . $row, $data->pin);
+                        $sheet->setCellValue('D' . $row, $data->scan_date);
+                        $sheet->setCellValue('E' . $row, Carbon::parse($data->scan_date)->format('Y-m-d'));
+                        $sheet->setCellValue('F' . $row, Carbon::parse($data->scan_date)->format('H:i'));
+                        $sheet->setCellValue('G' . $row, $verify);
+                        $row++;
+                    }
+                }
+            } else {
+                $scanlogs = DB::select("
+                    SELECT
+                        s.pin,
+                        s.nama AS karyawan,
+                        s.ni_karyawan as nik,
+                        DATE(s.scan_date) AS scan_date,
+                        MAX(CASE WHEN rn = 1 THEN TO_CHAR(s.scan_date, 'HH24:MI') ELSE NULL END) AS scan_1,
+                        MAX(CASE WHEN rn = 2 THEN TO_CHAR(s.scan_date, 'HH24:MI') ELSE NULL END) AS scan_2,
+                        MAX(CASE WHEN rn = 3 THEN TO_CHAR(s.scan_date, 'HH24:MI') ELSE NULL END) AS scan_3,
+                        MAX(CASE WHEN rn = 4 THEN TO_CHAR(s.scan_date, 'HH24:MI') ELSE NULL END) AS scan_4,
+                        MAX(CASE WHEN rn = 5 THEN TO_CHAR(s.scan_date, 'HH24:MI') ELSE NULL END) AS scan_5,
+                        MAX(CASE WHEN rn = 6 THEN TO_CHAR(s.scan_date, 'HH24:MI') ELSE NULL END) AS scan_6
+                    FROM (
+                        SELECT
+                            attendance_scanlogs.pin,
+                            k.nama,
+                            k.ni_karyawan,
+                            attendance_scanlogs.scan_date,
+                            ROW_NUMBER() OVER (PARTITION BY attendance_scanlogs.pin, DATE(scan_date) ORDER BY scan_date) AS rn
+                        FROM
+                            attendance_scanlogs
+                        LEFT JOIN
+                            karyawans AS k ON k.pin = attendance_scanlogs.pin
+                        LEFT JOIN
+                            users ON users.id = k.user_id
+                        WHERE
+                            attendance_scanlogs.organisasi_id = $organisasi_id
+                            AND users.organisasi_id = $organisasi_id
+                            AND attendance_scanlogs.device_id = $request->device_id
+                            AND (
+                                DATE(attendance_scanlogs.scan_date) = '$request->start_date'
+                                OR DATE(attendance_scanlogs.scan_date) = '$request->end_date'
+                            )
+                    ) AS s
+                    GROUP BY s.pin, DATE(s.scan_date), s.nama, s.ni_karyawan
+                    ORDER BY s.nama, DATE(s.scan_date);
+                ");
+
+                $spreadsheet = new Spreadsheet();
+        
+                $fillStyle = [
+                    'borders' => [
+                        'allBorders' => [
+                            'borderStyle' => Border::BORDER_THIN,
+                            'color' => ['argb' => 'FF000000'],
+                        ],
+                    ],
+                    'alignment' => [
+                        'horizontal' => Alignment::HORIZONTAL_LEFT,
+                        'vertical' => Alignment::VERTICAL_CENTER,
+                    ],
+                    'fill' => [
+                        'fillType' => Fill::FILL_SOLID,
+                        'startColor' => [
+                            'argb' => 'FF000000'
+                        ]
+                    ],
+                    'font' => [
+                        'bold' => true,
+                        'color' => ['argb' => 'FFFFFFFF'],
+                        'size' => 12,
+                    ],
+                ];
+    
+                $headers = [
+                    'NIK',
+                    'NAMA',
+                    'PIN',
+                    'DATE',
+                    'SCAN 1',
+                    'SCAN 2',
+                    'SCAN 3',
+                    'SCAN 4',
+                    'SCAN 5',
+                    'SCAN 6'
+                ];
+
+                if(count($scanlogs) > 0){
+                    $sheet = $spreadsheet->getActiveSheet();
+                    $sheet->setTitle($request->start_date.' - '.$request->end_date);
+        
+                    $row = 1;
+                    $col = 'A';
+        
+                    foreach ($headers as $header) {
+                        $sheet->setCellValue($col . '1', $header);
+                        $sheet->getStyle($col . '1')->applyFromArray($fillStyle);
+                        $col++;
+                    }
+        
+                    $row = 2;
+        
+                    $columns = range('A', 'J');
+                    foreach ($columns as $column) {
+                        $sheet->getColumnDimension($column)->setAutoSize(true);
+                    }
+                    $sheet->setAutoFilter('A1:D1');
+    
+                    foreach ($scanlogs as $data) {
+                        $sheet->setCellValue('A' . $row, $data->nik);
+                        $sheet->setCellValue('B' . $row, $data->karyawan);
+                        $sheet->setCellValue('C' . $row, $data->pin);
+                        $sheet->setCellValue('D' . $row, Carbon::parse($data->scan_date)->format('Y-m-d'));
+                        $sheet->setCellValue('E' . $row, $data->scan_1);
+                        $sheet->setCellValue('F' . $row, $data->scan_2);
+                        $sheet->setCellValue('G' . $row, $data->scan_3);
+                        $sheet->setCellValue('H' . $row, $data->scan_4);
+                        $sheet->setCellValue('I' . $row, $data->scan_5);
+                        $sheet->setCellValue('J' . $row, $data->scan_6);
+                        $row++;
                     }
                 }
             }
-    
+
             $writer = new Xlsx($spreadsheet);
     
             header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');

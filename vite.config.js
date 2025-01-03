@@ -45,6 +45,7 @@ export default defineConfig({
                 'resources/js/pages/izine-export.js',
                 'resources/js/pages/attendance/attendance-dashboard.js',
                 'resources/js/pages/attendance/attendance-scanlog.js',
+                'resources/js/pages/attendance/attendance-device.js',
                 "resources/js/pages/sto/sto-datatable.js",
                 "resources/js/pages/sto/sto-input-hasil.js",
                 "resources/js/pages/sto/sto-input-label.js",
