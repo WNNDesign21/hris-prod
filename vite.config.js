@@ -37,6 +37,7 @@ export default defineConfig({
                 'resources/js/pages/lembure-setting-lembur.js',
                 'resources/js/pages/lembure-dashboard.js',
                 'resources/js/pages/lembure-setting-gaji-departemen.js',
+                'resources/js/pages/lembure-export-report.js',
                 'resources/js/pages/izine-pengajuan-izin.js',
                 'resources/js/pages/izine-lapor-skd.js',
                 'resources/js/pages/izine-approval-izin.js',

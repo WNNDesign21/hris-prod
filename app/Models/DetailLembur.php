@@ -62,7 +62,7 @@ class DetailLembur extends Model
         return $this->belongsTo(Karyawan::class, 'karyawan_id', 'id_karyawan');
     }
 
-    public static function getSlipLemburPerDepartemen($karyawan_id, $date)
+    public static function getSlipLemburPerDepartemen($karyawan_id, $date, $organisasi_id)
     {
         $data = self::select('detail_lemburs.*')
         ->leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
@@ -73,7 +73,7 @@ class DetailLembur extends Model
         ->leftJoin('posisis', 'posisis.id_posisi', 'karyawan_posisi.posisi_id')
         ->leftJoin('setting_lembur_karyawans', 'setting_lembur_karyawans.karyawan_id', 'detail_lemburs.karyawan_id');
 
-        $data->where('detail_lemburs.organisasi_id', auth()->user()->organisasi_id)
+        $data->where('detail_lemburs.organisasi_id', $organisasi_id)
         ->whereNotNull('lemburs.actual_legalized_by')
         ->where('lemburs.status', 'COMPLETED')
         ->where('detail_lemburs.karyawan_id', $karyawan_id)

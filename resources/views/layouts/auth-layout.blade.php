@@ -198,6 +198,10 @@
         @vite(['resources/js/pages/lembure-detail-lembur.js'])
     @endif
 
+    @if ($page == 'lembure-export-report-lembur')
+        @vite(['resources/js/pages/lembure-export-report.js'])
+    @endif
+
     @if ($page == 'izine-pengajuan-izin')
         @vite(['resources/js/pages/izine-pengajuan-izin.js'])
     @endif
