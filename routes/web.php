@@ -79,6 +79,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/cutie/setting-cuti/get-data-detail-jenis-cuti/{idJenisCuti}', [CutieController::class, 'get_data_detail_jenis_cuti']);
 
     Route::post('/lembure/pengajuan-lembur/get-data-karyawan-lembur', [LembureController::class, 'get_data_karyawan_lembur']);
+    Route::post('/lembure/pengajuan-lembur/get-data-karyawan-bypass-lembur', [LembureController::class, 'get_data_karyawan_bypass_lembur']);
     Route::get('/lembure/pengajuan-lembur/get-data-karyawan-lembur', [LembureController::class, 'get_karyawan_lembur']);
     Route::get('/lembure/pengajuan-lembur/get-data-lembur/{idLembur}', [LembureController::class, 'get_data_lembur']);
     Route::post('/lembure/dashboard-lembur/get-monthly-lembur-per-departemen', [LembureController::class, 'get_monthly_lembur_per_departemen']);
@@ -335,6 +336,10 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::post('/export-report-lembur/datatable', [LembureController::class, 'export_slip_lembur_datatable']);
             Route::post('/export-report-lembur/rekap-lembur-perbulan', [LembureController::class, 'export_rekap_lembur_perbulan'])->name('lembure.export-report-lembur.rekap-lembur-perbulan');
             Route::post('/export-report-lembur/slip-lembur-perbulan', [LembureController::class, 'export_slip_lembur_perbulan'])->name('lembure.export-report-lembur.export-slip-lembur-perbulan');
+
+            // Bypass Lembur
+            Route::get('/bypass-lembur', [LembureController::class, 'bypass_lembur_view'])->name('lembure.bypass-lembur');
+            Route::post('/bypass-lembur/store', [LembureController::class, 'bypass_lembur_store'])->name('lembure.bypass-lembur.store');
         });
     });
 

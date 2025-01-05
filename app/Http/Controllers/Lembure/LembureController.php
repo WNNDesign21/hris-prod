@@ -102,6 +102,17 @@ class LembureController extends Controller
         return view('pages.lembur-e.approval-lembur', $dataPage);
     }
 
+    public function bypass_lembur_view()
+    {
+        $karyawans = Karyawan::organisasi(auth()->user()->organisasi_id)->aktif()->pluck('nama', 'id_karyawan');
+        $dataPage = [
+            'pageTitle' => "Lembur-E - Bypass Lembur",
+            'page' => 'lembure-bypass-lembur',
+            'karyawans' => $karyawans
+        ];
+        return view('pages.lembur-e.bypass-lembur', $dataPage);
+    }
+
     public function setting_upah_lembur_view()
     {
         $dataPage = [
@@ -1061,6 +1072,167 @@ class LembureController extends Controller
         }
     }
 
+    public function bypass_lembur_store(Request $request)
+    {
+        $dataValidate = [
+            'issued_by' => ['required', 'exists:karyawans,id_karyawan'],
+            'jenis_hari' => ['required','in:WD,WE'],
+            'karyawan_id.*' => ['required', 'distinct'],
+            'job_description.*' => ['required'],
+            'rencana_mulai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'before:rencana_selesai_lembur.*'],
+            'rencana_selesai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'after:rencana_mulai_lembur.*'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $jenis_hari = $request->jenis_hari;
+        $karyawan_ids = $request->karyawan_id;
+        $job_descriptions = $request->job_description;
+        $rencana_mulai_lemburs = $request->rencana_mulai_lembur;
+        $rencana_selesai_lemburs = $request->rencana_selesai_lembur;
+        $issued_by = $request->issued_by;
+
+        DB::beginTransaction();
+        try {
+            $karyawan_issued = Karyawan::find($issued_by);
+            $organisasi_id = $karyawan_issued->user->organisasi_id;
+            $departemen_id = $karyawan_issued->posisi[0]->departemen_id;
+            $divisi_id = $karyawan_issued->posisi[0]->divisi_id;
+            $posisi_issued = $karyawan_issued->posisi;
+
+            $date = Carbon::parse($rencana_mulai_lemburs[0])->format('Y-m-d');
+            foreach ($rencana_mulai_lemburs as $key => $start) {
+                if (Carbon::parse($start)->format('Y-m-d') !== $date) {
+                    DB::rollback();
+                    return response()->json(['message' => 'Seluruh rencana mulai lembur harus berada pada tanggal yang sama!'], 402);
+                }
+            }
+
+            $header = Lembure::create([
+                'id_lembur' => 'LEMBUR-' . Str::random(4).'-'. date('YmdHis'),
+                'issued_by' => $issued_by,
+                'issued_date' => now(),
+                'organisasi_id' => $organisasi_id,
+                'departemen_id' => $departemen_id,
+                'divisi_id' => $divisi_id,
+                'jenis_hari' => $jenis_hari
+            ]);
+
+            if($posisi_issued[0]->jabatan_id >= 5){
+                if(!$this->has_department_head($posisi_issued) && !$this->has_section_head($posisi_issued)){
+                    $checked_by = $karyawan_issued->nama;
+                    $header->update([
+                        'plan_checked_by' => $checked_by,
+                        'plan_checked_at' => now(),
+                    ]);
+                }
+            }
+
+            if($posisi_issued[0]->jabatan_id == 4){
+                if(!$this->has_department_head($posisi_issued)){
+                    $checked_by = $karyawan_issued->nama;
+                    $header->update([
+                        'plan_checked_by' => $checked_by,
+                        'plan_checked_at' => now(),
+                    ]);
+                }
+            }
+
+            if($posisi_issued[0]->jabatan_id == 3){
+                $checked_by = $karyawan_issued->nama;
+                $header->update([
+                    'plan_checked_by' => $checked_by,
+                    'plan_checked_at' => now(),
+                    'actual_checked_by' => $checked_by,
+                    'actual_checked_at' => now(),
+                ]);
+            }
+
+            if($posisi_issued[0]->jabatan_id <= 2){
+                $checked_and_approved = $karyawan_issued->nama;
+                $header->update([
+                    'status' => 'COMPLETED',
+                    'plan_checked_by' => $checked_and_approved,
+                    'plan_checked_at' => now(),
+                    'plan_approved_by' => $checked_and_approved,
+                    'plan_approved_at' => now(),
+                    'plan_legalized_by' => 'HRD & GA',
+                    'plan_legalized_at' => now(),
+                    'actual_checked_by' => $checked_and_approved,
+                    'actual_checked_at' => now(),
+                    'actual_approved_by' => $checked_and_approved,
+                    'actual_approved_at' => now(),
+                ]);
+            }
+
+            $total_durasi = 0;
+            $total_nominal = 0;
+            $data_detail_lembur = [];
+            foreach ($karyawan_ids as $key => $karyawan_id) {
+                $karyawan = Karyawan::find($karyawan_id);
+                $gaji_lembur = $karyawan->settingLembur->gaji;
+                $pembagi_upah_lembur = SettingLembur::where('setting_name', 'pembagi_upah_lembur_harian')->where('organisasi_id', $karyawan->user->organisasi_id)->first()->value;
+                $datetime_rencana_mulai_lembur = $this->pembulatan_menit_ke_bawah($rencana_mulai_lemburs[$key]);
+                $datetime_rencana_selesai_lembur = $this->pembulatan_menit_ke_bawah($rencana_selesai_lemburs[$key]);
+                $durasi_istirahat = $this->overtime_resttime_per_minutes($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur, $karyawan->user->organisasi_id);
+                $durasi = $this->calculate_overtime_per_minutes($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur, $karyawan->user->organisasi_id);
+                $durasi_konversi_lembur = $this->calculate_durasi_konversi_lembur($jenis_hari, $durasi, $karyawan_id);
+                $uang_makan = $this->calculate_overtime_uang_makan($jenis_hari, $durasi, $karyawan_id);
+
+                if($durasi < 60){
+                    DB::rollback();
+                    return response()->json(['message' => 'Durasi lembur '.$karyawan->nama.' kurang dari 1 jam, tidak perlu menginput SPL'], 402);
+                }
+
+                if(!$karyawan->posisi()->exists()){
+                    DB::rollback();
+                    return response()->json(['message' => $karyawan->nama.' belum memiliki posisi, Hubungi HRD untuk setting posisi karyawan!'], 402);
+                }
+
+                $nominal = $this->calculate_overtime_nominal($jenis_hari, $durasi, $karyawan_id);
+                $data_detail_lembur[] = [
+                    'karyawan_id' => $karyawan_id,
+                    'organisasi_id' => $karyawan->user->organisasi_id,
+                    'departemen_id' => $karyawan->posisi[0]?->departemen_id,
+                    'divisi_id' => $karyawan->posisi[0]?->divisi_id,
+                    'rencana_mulai_lembur' => $datetime_rencana_mulai_lembur,
+                    'rencana_selesai_lembur' => $datetime_rencana_selesai_lembur,
+                    'deskripsi_pekerjaan' => $job_descriptions[$key],
+                    'durasi_istirahat' => $durasi_istirahat,
+                    'durasi_konversi_lembur' => $durasi_konversi_lembur,
+                    'gaji_lembur' => $gaji_lembur,
+                    'pembagi_upah_lembur' => $pembagi_upah_lembur,
+                    'uang_makan' => $uang_makan,
+                    'durasi' => $durasi,
+                    'nominal' => $nominal
+                ];
+
+                $total_durasi += $durasi;
+                $total_nominal += $nominal;
+            }
+            
+            $header->detailLembur()->createMany($data_detail_lembur);
+            
+            //Update Total Durasi Lagi
+            $header->update(['total_durasi' => $total_durasi]);
+
+            if($posisi_issued[0]->jabatan_id <= 2){
+                $header->update(['total_nominal' => $total_nominal]);
+            }
+
+            DB::commit();
+            return response()->json(['message' => 'Bypass Lembur Berhasil Dibuat'], 200);
+        } catch (Throwable $e) { 
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
     //FUNGSI MENGHITUNG DURASI LEMBUR YANG SUDAH DIKURANGI DENGAN ISTIRAHAT
     public function calculate_overtime_per_minutes($datetime_start, $datetime_end, $organisasi_id)
     {
@@ -1811,6 +1983,92 @@ class LembureController extends Controller
                 $query->orWhere('karyawans.id_karyawan', auth()->user()->karyawan->id_karyawan);
             } else {
                 $query->where('karyawans.id_karyawan', auth()->user()->karyawan->id_karyawan);
+            }
+        }
+
+        //Ambil karyawan yang scope Aktif jika ada parameter status
+        $query->aktif();
+        $query->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
+        ->leftJoin('users', 'karyawans.user_id', 'users.id')
+        ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+        ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
+        ->rightJoin('setting_lembur_karyawans', 'karyawans.id_karyawan', 'setting_lembur_karyawans.karyawan_id');
+
+        $query->groupBy('karyawans.id_karyawan','karyawans.nama', 'posisis.nama');
+
+        $data = $query->simplePaginate(30);
+
+        $morePages = true;
+        $pagination_obj = json_encode($data);
+        if (empty($data->nextPageUrl())) {
+            $morePages = false;
+        }
+
+        $dataUser = [];
+        foreach ($data->items() as $karyawan) {
+            $dataUser[] = [
+                'id' => $karyawan->id_karyawan,
+                'text' => $karyawan->nama
+            ];
+        }
+
+        $results = array(
+            "results" => $dataUser,
+            "pagination" => array(
+                "more" => $morePages
+            )
+        );
+
+        return response()->json($results);
+    }
+
+    public function get_data_karyawan_bypass_lembur(Request $request){
+        $search = $request->input('search');
+        $page = $request->input("page");
+        $idCats = $request->input('catsProd');
+        $adOrg = $request->input('adOrg');
+        $issued_by = $request->input('issued_by');
+        $issued = Karyawan::find($issued_by);
+
+        $query = Karyawan::select(
+            'karyawans.id_karyawan',
+            'karyawans.nama',
+            'posisis.nama as posisi',
+        );
+
+        $organisasi_id = $issued->user->organisasi_id;
+        $posisi = $issued->posisi;
+        $id_posisi_members = $this->get_member_posisi($posisi);
+
+        foreach ($posisi as $ps){
+            $index = array_search($ps->id_posisi, $id_posisi_members);
+            array_splice($id_posisi_members, $index, 1);
+        }
+        array_push($id_posisi_members, $posisi[0]->id_posisi);
+
+
+        if (!empty($search)) {
+            if($posisi[0]->jabatan_id == 5){
+                //Sementara
+                $query->where('users.organisasi_id', $organisasi_id)
+                ->whereIn('posisis.id_posisi', $id_posisi_members)
+                ->where(function ($dat) use ($search) {
+                    $dat->where(function ($subQuery) use ($search) {
+                        $subQuery->where('karyawans.id_karyawan', 'ILIKE', "%{$search}%")
+                                 ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%");
+                    });
+                });
+
+            } else {
+                $query->where('karyawans.id_karyawan', $issued->id_karyawan);
+            }
+        } else {
+            if($posisi[0]->jabatan_id == 5){
+                $query->where('users.organisasi_id', $organisasi_id);
+                $query->whereIn('posisis.id_posisi', $id_posisi_members);
+                $query->orWhere('karyawans.id_karyawan', $issued->id_karyawan);
+            } else {
+                $query->where('karyawans.id_karyawan', $issued->id_karyawan);
             }
         }
 
