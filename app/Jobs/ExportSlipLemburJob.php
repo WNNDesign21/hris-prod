@@ -22,12 +22,12 @@ class ExportSlipLemburJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $periode, $organisasi_id, $departemen, $departemen_id, $pembagi_upah_lembur_harian, $start, $end;
+    public $periode, $organisasi_id, $departemen, $departemen_id, $pembagi_upah_lembur_harian, $start, $end, $export_slip_lembur;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($periode, $organisasi_id, $departemen, $departemen_id, $pembagi_upah_lembur_harian, $start, $end)
+    public function __construct($periode, $organisasi_id, $departemen, $departemen_id, $pembagi_upah_lembur_harian, $start, $end, $export_slip_lembur)
     {
         $this->periode = $periode;
         $this->organisasi_id = $organisasi_id;
@@ -36,6 +36,7 @@ class ExportSlipLemburJob implements ShouldQueue
         $this->pembagi_upah_lembur_harian = $pembagi_upah_lembur_harian;
         $this->start = $start;
         $this->end = $end;
+        $this->export_slip_lembur = $export_slip_lembur;
     }
 
     /**
@@ -43,7 +44,6 @@ class ExportSlipLemburJob implements ShouldQueue
      */
     public function handle(): void
     {
-
         try{
             //CREATE EXCEL FILE
             activity('export_slip_lembur_start')->log('Start Export Slip Lembur'.$this->departemen.' - '.Carbon::createFromFormat('Y-m', $this->periode)->format('F Y'));
@@ -368,21 +368,24 @@ class ExportSlipLemburJob implements ShouldQueue
             $writer = new Xlsx($spreadsheet);
             $now = time();
             $filename = $now.'- Slip Pembayaran Lembur -'.$this->departemen.' - '.Carbon::createFromFormat('Y-m', $this->periode)->format('F Y').'.xlsx';
-
-            activity('export_slip_lembur_end')->log($filename);
-            // header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            // header('Content-Disposition: attachment;filename="'.$filename.'"');
-            // header('Cache-Control: max-age=0');
-
             $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
             $directory = storage_path('app/public/export/slip_lembur/');
             if (!file_exists($directory)) {
                 mkdir($directory, 0777, true);
             }
             $writer->save($directory.$filename);
-
+            activity('export_slip_lembur_end')->log($filename);
+            $this->export_slip_lembur->update([
+                'status' => 'CO',
+                'message' => 'Export Slip Lembur Berhasil',
+                'attachment' => 'export/slip_lembur/'.$filename
+            ]);
         } catch (Exception $e) {
             activity('export_slip_lembur_error')->log($e->getMessage());
+            $this->export_slip_lembur->update([
+                'status' => 'FL',
+                'message' => $e->getMessage()
+            ]);
         }
     }
 }

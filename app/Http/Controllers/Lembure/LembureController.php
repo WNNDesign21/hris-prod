@@ -23,6 +23,7 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\SettingLemburKaryawan;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use App\Models\Lembure\ExportSlipLembur;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -799,6 +800,97 @@ class LembureController extends Controller
 
         return response()->json($json_data, 200);
     }
+
+    public function export_slip_lembur_datatable(Request $request)
+    {
+        $columns = array(
+            0 => 'departemens.nama',
+            1 => 'export_slip_lemburs.created_at',
+            2 => 'export_slip_lemburs.periode',
+            3 => 'export_slip_lemburs.status',
+            4 => 'export_slip_lemburs.message',
+            5 => 'export_slip_lemburs.attachment',
+        );
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+
+        $settings['start'] = $start;
+        $settings['limit'] = $limit;
+        $settings['dir'] = $dir;
+        $settings['order'] = $order;
+
+        $dataFilter = [];
+        $search = $request->input('search.value');
+        if (!empty($search)) {
+            $dataFilter['search'] = $search;
+        }
+
+        $filterDepartemen = $request->departemen;
+        if(isset($filterDepartemen)){
+            $dataFilter['departemen_id'] = $filterDepartemen;
+        }
+        $filterStatus = $request->status;
+        if(isset($filterStatus)){
+            $dataFilter['status'] = $filterStatus;
+        }
+        $filterPeriode = $request->periode;
+        if(isset($filterPeriode)){
+            $dataFilter['periode'] = $filterPeriode;
+        }
+
+        $totalData = ExportSlipLembur::all()->count();
+        $totalFiltered = $totalData;
+
+        $export_slip_lemburs = ExportSlipLembur::getData($dataFilter, $settings);
+        $totalFiltered = ExportSlipLembur::countData($dataFilter);
+
+        $dataTable = [];
+
+        if (!empty($export_slip_lemburs)) {
+            foreach ($export_slip_lemburs as $data) {
+                if ($data->status == 'IP') {
+                    $status = '<span class="badge badge-warning">IN PROGRESS</span>';
+                    $attachment = '<i class="fas fa-sync-alt fa-spin fs-32 text-fade"></i>';
+                } elseif ($data->status == 'FL') {
+                    $status = '<span class="badge badge-danger">FAILED</span>';
+                    $attachment = 'Attachment Not Found';
+                } elseif ($data->status == 'CO') {
+                    $status = '<span class="badge badge-success">COMPLETED</span>';
+                    if($data->attachment){
+                        $attachment = '<a class="btn-sm btn-primary" href="'.asset('storage/'.$data->attachment).'" target="_blank"><i class="fas fa-file-excel"></i> Download</a>';
+                    } else {
+                        $attachment = '-';
+                    }
+                }
+
+                $nestedData['departemen'] = $data->departemen;
+                $nestedData['created_at'] = Carbon::parse($data->created_at)->format('d F Y, H:i');
+                $nestedData['periode'] = Carbon::parse($data->periode)->format('F Y');
+                $nestedData['status'] = $status;
+                $nestedData['message'] = $data->message;
+                $nestedData['attachment'] = $attachment;
+
+                $dataTable[] = $nestedData;
+            }
+        }
+
+        $json_data = array(
+            "draw" => intval($request->input('draw')),
+            "recordsTotal" => intval($totalData),
+            "recordsFiltered" => intval($totalFiltered),
+            "data" => $dataTable,
+            "order" => $order,
+            "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
+            "dir" => $dir,
+            "column"=>$request->input('order.0.column')
+        );
+
+        return response()->json($json_data, 200);
+    }
+
 
     /**
      * Show the form for creating a new resource.
@@ -3338,6 +3430,18 @@ class LembureController extends Controller
 
     public function export_slip_lembur_perbulan(Request $request)
     {
+        $dataValidate = [
+            'periode_slip' => ['required', 'date_format:Y-m'],
+            'departemen_slip' => ['required', 'integer']
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
         DB::beginTransaction();
         try{
             $organisasi_id = auth()->user()->organisasi_id;
@@ -3346,8 +3450,21 @@ class LembureController extends Controller
             $start = Carbon::createFromFormat('Y-m', $periode)->startOfMonth()->toDateString();
             $end = Carbon::createFromFormat('Y-m', $periode)->endOfMonth()->toDateString();
             $pembagi_upah_lembur_harian = SettingLembur::where('organisasi_id', $organisasi_id)->where('setting_name', 'pembagi_upah_lembur_harian')->first()->value;
+
+            $exists = ExportSlipLembur::where('periode', Carbon::parse($periode)->format('Y-m-d'))->where('departemen_id', $request->departemen_slip)->where('organisasi_id', $organisasi_id)->where('status', 'IP')->exists();
+
+            if($exists){
+                return response()->json(['message' => 'Export Slip Lembur sedang di Proses, silahkan tunggu beberapa saat'], 400);
+            }
     
-            ExportSlipLemburJob::dispatch($periode, $organisasi_id, $departemen, $request->departemen_slip, $pembagi_upah_lembur_harian, $start, $end);
+            $export_slip_lembur = ExportSlipLembur::create([
+                'periode' => $periode,
+                'departemen_id' => $request->departemen_slip,
+                'organisasi_id' => $organisasi_id,
+            ]);
+
+            ExportSlipLemburJob::dispatch($periode, $organisasi_id, $departemen, $request->departemen_slip, $pembagi_upah_lembur_harian, $start, $end, $export_slip_lembur);
+
             DB::commit();
             return response()->json(['message' => 'Export Slip Lembur sedang di Proses, silahkan tunggu beberapa saat'], 200);
         } catch (Throwable $e) {

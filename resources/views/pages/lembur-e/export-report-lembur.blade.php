@@ -75,8 +75,8 @@
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="departemen">Departemen</label>
-                                                    <select class="form-control" name="departemen_slip"
-                                                        id="departemen_slip">
+                                                    <select class="form-control" name="departemen_slip" id="departemen_slip"
+                                                        style="width: 100%;">
                                                         @foreach ($departments as $item)
                                                             <option value="{{ $item->id_departemen }}">{{ $item->nama }}
                                                             </option>
@@ -98,8 +98,45 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="row">
+                        <div class="box">
+                            <div class="box-header d-flex justify-content-between">
+                                <div class="row">
+                                    <h4 class="box-title">List Export Slip Lembur</h4>
+                                </div>
+                                <div>
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-info waves-effect btnReload"><i
+                                                class="fas fa-sync-alt"></i></button>
+                                        <button type="button" class="btn btn-warning waves-effect btnFilter"><i
+                                                class="fas fa-filter"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="box-body">
+                                <div class="table-responsive">
+                                    <table id="export-slip-lembur-table" class="table table-striped table-bordered display"
+                                        style="width:100%">
+                                        <thead>
+                                            <tr>
+                                                <th>Departemen</th>
+                                                <th>Created At</th>
+                                                <th>Periode</th>
+                                                <th>Status</th>
+                                                <th>Message</th>
+                                                <th>Attachment</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
+    @include('pages.lembur-e.modal-filter-export-report-lembur')
 @endsection
