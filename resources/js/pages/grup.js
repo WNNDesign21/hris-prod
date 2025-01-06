@@ -47,6 +47,9 @@ $(function () {
     var columnsTable = [
         { data: "no" },
         { data: "nama" },
+        { data: "jam_masuk" },
+        { data: "jam_keluar" },
+        { data: "toleransi_waktu" },
         { data: "aksi" },
     ];
 
@@ -167,6 +170,9 @@ $(function () {
 
     function closeGrup() {
         $('#nama_grup').val('');
+        $('#jam_masuk').val('');
+        $('#jam_keluar').val('');
+        $('#toleransi_waktu').val('');
         modalInputGrup.hide();
     }
 
@@ -188,6 +194,7 @@ $(function () {
                 loadingSwalClose();
                 showToast({ title: data.message });
                 refreshTable();
+                closeGrup();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 loadingSwalClose();
@@ -212,7 +219,11 @@ $(function () {
     }
 
     function closeEditGrup() {
+        $('#id_grup_edit').val('');
         $('#nama_grup_edit').val('');
+        $('#jam_masuk_edit').val('');
+        $('#jam_keluar_edit').val('');
+        $('#toleransi_waktu_edit').val('');
         modalEditGrup.hide();
     }
 
@@ -224,8 +235,15 @@ $(function () {
     $('#grup-table').on('click', '.btnEdit', function (){
         var idGrup = $(this).data('id');
         var nama = $(this).data('grup-nama');
+        var jamMasuk = $(this).data('jam-masuk');
+        var jamKeluar = $(this).data('jam-keluar');
+        var toleransiWaktu = $(this).data('toleransi-waktu');
+
         $('#id_grup_edit').val(idGrup);
         $('#nama_grup_edit').val(nama);
+        $('#jam_masuk_edit').val(jamMasuk);
+        $('#jam_keluar_edit').val(jamKeluar);
+        $('#toleransi_waktu_edit').val(toleransiWaktu);
         openEditGrup();
     });
 
@@ -248,6 +266,7 @@ $(function () {
                 loadingSwalClose();
                 showToast({ title: data.message });
                 refreshTable();
+                closeEditGrup();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 loadingSwalClose();

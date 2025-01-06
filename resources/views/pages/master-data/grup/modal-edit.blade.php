@@ -7,21 +7,35 @@
                 <button type="button" class="btn-close btnCloseEdit" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="form-group">
-                    <form action="#" method="POST" enctype="multipart/form-data" id="form-edit-grup">
-                        @method('PATCH')
-                        @csrf
-                        <input type="hidden" name="id_grup_edit" id="id_grup_edit">
+                <form action="#" method="POST" enctype="multipart/form-data" id="form-edit-grup">
+                    @method('PATCH')
+                    @csrf
+                    <input type="hidden" name="id_grup_edit" id="id_grup_edit">
+                    <div class="form-group">
                         <label for="">Nama</label>
-                        <div class="input-group mb-2" style="width:100%;">
-                            <input type="text" name="nama_grup_edit" id="nama_grup_edit" class="form-control">
-                        </div>
-                        <div class="d-flex justify-content-end">
-                            <button type="submit" class="btn btn-success"><i class="fas fa-save"></i>
-                                Update</button>
-                        </div>
-                    </form>
-                </div>
+                        <input type="text" name="nama_grup_edit" id="nama_grup_edit" class="form-control"
+                            style="width: 100%;" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Jam Masuk</label>
+                        <input type="time" name="jam_masuk_edit" id="jam_masuk_edit" class="form-control"
+                            style="width: 100%;" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Jam Keluar</label>
+                        <input type="time" name="jam_keluar_edit" id="jam_keluar_edit" class="form-control"
+                            style="width: 100%;" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Toleransi Waktu (Menit)</label>
+                        <input type="number" name="toleransi_waktu_edit" id="toleransi_waktu_edit" class="form-control"
+                            style="width: 100%;" min="0" required>
+                    </div>
+                    <div class="form-group d-flex justify-content-end">
+                        <button type="submit" class="btn btn-success"><i class="fas fa-save"></i>
+                            Update</button>
+                    </div>
+                </form>
             </div>
         </div>
         <!-- /.modal-content -->
