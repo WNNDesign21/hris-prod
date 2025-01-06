@@ -1,3 +1,5 @@
+import { load } from "@eonasdan/tempus-dominus/dist/plugins/fa-five";
+
 $(function () {
     $.ajaxSetup({
         headers: {
@@ -42,32 +44,72 @@ $(function () {
         });
     }
 
-    getMonthlyLemburPerDepartemen();
-    function getMonthlyLemburPerDepartemen() {
+     // MONTHLY
+     var modalFilterMonthlyOptions = {
+      backdrop: true,
+      keyboard: false,
+    };
+
+    var modalFilterMonthly = new bootstrap.Modal(
+        document.getElementById("modal-filter-monthly"),
+        modalFilterMonthlyOptions
+    );
+
+    function openFilterMonthly() {
+        modalFilterMonthly.show();
+    }
+
+    function closeFilterMonthly() {
+        modalFilterMonthly.hide();
+    }
+
+    $('.btnFilterMonthly').on('click', function() {
+      openFilterMonthly();
+    });
+
+    $('.closeFilterMonthly').on('click', function() {
+      closeFilterMonthly();
+    });
+
+    $('#filterDepartemenMonthly').select2({
+       dropdownParent: $('#modal-filter-monthly')
+    });
+
+    $('#filterTahunMonthly').select2({
+       dropdownParent: $('#modal-filter-monthly')
+    });
+
+    $('.btnResetFilterMonthly').on('click', function() {
+        $('#filterDepartemenMonthly').val('').trigger('change');
+        $('#filterTahunMonthly').val(new Date().getFullYear()).trigger('change');
+    });
+
+    $(".btnSubmitFilterMonthly").on("click", function () {
+        loadingSwalShow();
         let url = base_url + '/lembure/dashboard-lembur/get-monthly-lembur-per-departemen';
         $.ajax({
             url: url,
             method: 'POST',
             dataType: 'json',
-            data: {},
+            data: {
+                departemen: $('#filterDepartemenMonthly').val(),
+                tahun: $('#filterTahunMonthly').val()
+            },
             success: function(response) {
+              loadingSwalClose();
                 let data = response.data;
                 let batas = response.batas;
                 var series = [];
                 const colors = ['#007bff', '#28a745', '#dc3545', '#ffc107', '#17a2b8', '#6f42c1', '#fd7e14', '#20c997', '#e83e8c', '#6610f2', '#fdc500', '#6c757d'];
                 let colorIndex = 0;
 
-                // for (const val of data) {
-                    // const departmentName = val.departemen;
-                    const monthlyData = [data.januari, data.februari, data.maret, data.april, data.mei, data.juni, data.juli, data.agustus, data.september, data.oktober, data.november, data.desember];   
-                    const departmentSeries = {
-                        name: 'Nominal Lembur',
-                        data: monthlyData,
-                        color: '#007bff', 
-                    };
-                    series.push(departmentSeries);
-                    // colorIndex++;
-                // }
+                const monthlyData = [data.januari, data.februari, data.maret, data.april, data.mei, data.juni, data.juli, data.agustus, data.september, data.oktober, data.november, data.desember];   
+                const departmentSeries = {
+                    name: 'Nominal Lembur',
+                    data: monthlyData,
+                    color: '#007bff', 
+                };
+                series.push(departmentSeries);
 
                 let target = [];
                 if(batas){
@@ -82,7 +124,70 @@ $(function () {
                                   color: '#fff',
                                   background: '#FF0000'
                               },
-                              text: key.toUpperCase() + ' : Rp ' + value.toLocaleString('id-ID')
+                              text: key.toUpperCase() + ' : Rp ' + value.toLocaleString('id-ID') ?? 0
+                          }
+                      })
+                  })
+                } 
+
+                chartMonthlyLemburPerDepartemen.updateOptions({
+                    annotations: {
+                        yaxis: target
+                    },
+                    series: series,
+                    title: {
+                        text: 'Monitoring Lembur '+ $('#filterTahunMonthly').val(),
+                    }
+                }); 
+            },
+            error: function(error) {
+                console.error(error);
+            }
+        });
+          closeFilterMonthly();
+    });
+
+    var chartMonthlyLemburPerDepartemen;
+    getMonthlyLemburPerDepartemen();
+    function getMonthlyLemburPerDepartemen() {
+        let url = base_url + '/lembure/dashboard-lembur/get-monthly-lembur-per-departemen';
+        $.ajax({
+            url: url,
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                departemen: $('#filterDepartemenMonthly').val(),
+                tahun: $('#filterTahunMonthly').val()
+            },
+            success: function(response) {
+                let data = response.data;
+                let batas = response.batas;
+                var series = [];
+                const colors = ['#007bff', '#28a745', '#dc3545', '#ffc107', '#17a2b8', '#6f42c1', '#fd7e14', '#20c997', '#e83e8c', '#6610f2', '#fdc500', '#6c757d'];
+                let colorIndex = 0;
+
+                const monthlyData = [data.januari, data.februari, data.maret, data.april, data.mei, data.juni, data.juli, data.agustus, data.september, data.oktober, data.november, data.desember];   
+                const departmentSeries = {
+                    name: 'Nominal Lembur',
+                    data: monthlyData,
+                    color: '#007bff', 
+                };
+                series.push(departmentSeries);
+
+                let target = [];
+                if(batas){
+                  $.each(batas, function(key, value) {
+                    if (value == null || value == 0) return;
+                    target.push({
+                          y: value,
+                          borderColor: '#FF0000', 
+                          label: {
+                              borderColor: '#FF0000',
+                              style: {
+                                  color: '#fff',
+                                  background: '#FF0000'
+                              },
+                              text: key.toUpperCase() + ' : Rp ' + value.toLocaleString('id-ID') ?? 0
                           }
                       })
                   })
@@ -165,13 +270,13 @@ $(function () {
                     tooltip: {
                         y: {
                             formatter: function (val) {
-                                return 'Rp ' + val.toLocaleString('id-ID');
+                                return 'Rp ' + (val ? val.toLocaleString('id-ID') : 0);
                             }
                         }
                     }
                 };
 
-                var chartMonthlyLemburPerDepartemen = new ApexCharts(document.querySelector("#chartMonthlyLemburPerDepartemen"), options);
+                chartMonthlyLemburPerDepartemen = new ApexCharts(document.querySelector("#chartMonthlyLemburPerDepartemen"), options);
                 chartMonthlyLemburPerDepartemen.render();
             },
             error: function(error) {
@@ -180,6 +285,98 @@ $(function () {
         });
     }
 
+    // CURRENT MONTH
+    var modalFilterCurrentOptions = {
+      backdrop: true,
+      keyboard: false,
+    };
+
+    var modalFilterCurrent = new bootstrap.Modal(
+        document.getElementById("modal-filter-current"),
+        modalFilterCurrentOptions
+    );
+
+    function openFilterCurrent() {
+        modalFilterCurrent.show();
+    }
+
+    function closeFilterCurrent() {
+        modalFilterCurrent.hide();
+    }
+
+    $('.btnFilterCurrent').on('click', function() {
+      openFilterCurrent();
+    });
+
+    $('.closeFilterCurrent').on('click', function() {
+      closeFilterCurrent();
+    });
+
+    $('#filterDepartemenCurrent').select2({
+      dropdownParent: $('#modal-filter-current')
+    });
+
+    $('.btnResetFilterCurrent').on('click', function() {
+      $('#filterDepartemenCurrent').val([]).trigger('change');
+      $('#filterPeriodeCurrent').val('');
+    });
+
+    $(".btnSubmitFilterCurrent").on("click", function () {
+        loadingSwalShow();
+        let url = base_url + '/lembure/dashboard-lembur/get-current-month-lembur-per-departemen';
+        let url_weekly = 
+        $.ajax({
+            url: url,
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                departemen: $('#filterDepartemenCurrent').val(),
+                periode: $('#filterPeriodeCurrent').val()
+            },
+            success: function(response) {
+              loadingSwalClose();
+              let data = response.data;
+              let batas = response.batas;
+              var series = [];
+              var categories = [];
+              var hours = [];
+
+              data.forEach(function(val, index) {
+                  const departmentName = val.departemen;
+                  const departmentSeries = {
+                    x: departmentName,
+                    y: val.total_nominal,
+                    goals: [{
+                      value: batas.length > 0 && (batas[index]['id_departemen'] == val.id_departemen) ? batas[index]['nominal_batas_lembur'] : 0,
+                      name: 'Batas Budget Lembur',
+                      strokeWidth: 5,
+                      strokeColor: '#FF0000',
+                      border: '#FF0000',
+                      dashArray: 5
+                    }],
+                  };
+                  categories.push(departmentName);
+                  series.push(departmentSeries);
+                  hours.push(val.total_durasi / 60);
+              });
+
+              chartCurrentMonthLemburPerDepartemen.updateOptions({
+                  series: [{
+                      data: series
+                    }],
+                  title: {
+                      text: 'Grafik Lembur (' + ($('#filterPeriodeCurrent').val() ? new Date($('#filterPeriodeCurrent').val()).toLocaleString('default', { month: 'long' }) + ' ' + new Date($('#filterPeriodeCurrent').val()).getFullYear() : new Date().toLocaleString('default', { month: 'long' }) + ' ' + new Date().getFullYear()) + ')',
+                  }
+                }); 
+            },
+            error: function(error) {
+                console.error(error);
+            }
+        });
+          closeFilterMonthly();
+    });
+
+    var chartCurrentMonthLemburPerDepartemen;
     getCurrentMonthLemburPerDepartemen();
     function getCurrentMonthLemburPerDepartemen() {
         let url = base_url + '/lembure/dashboard-lembur/get-current-month-lembur-per-departemen';
@@ -187,14 +384,16 @@ $(function () {
             url: url,
             method: 'POST',
             dataType: 'json',
-            data: {},
+            data: {
+                departemen: $('#filterDepartemenCurrent').val(),
+                periode: $('#filterPeriodeCurrent').val()
+            },
             success: function(response) {
                 let data = response.data;
                 let batas = response.batas;
                 var series = [];
                 var categories = [];
                 var hours = [];
-                // const colors = ['#007bff', '#28a745', '#dc3545', '#ffc107', '#17a2b8', '#6f42c1', '#fd7e14', '#20c997', '#e83e8c', '#6610f2', '#fdc500', '#6c757d'];
 
                 data.forEach(function(val, index) {
                     const departmentName = val.departemen;
@@ -233,24 +432,19 @@ $(function () {
                       },
                     }
                   },
-                //   colors: colors,
                   dataLabels: {
                     enabled: true,
                     textAnchor: 'start',
                     style: {
                       colors: ['#fff']
                     },
-                    // formatter: function (val, opt) {
-                    // //   return opt.w.globals.labels[opt.dataPointIndex] + ":  " + 'Rp ' + val.toLocaleString('id-ID')
-                    //      return 'Rp ' + val.toLocaleString('id-ID')
-                    // },
                     formatter: function (val, opt) {
                         const goalValue = opt.w.config.series[0].data[opt.dataPointIndex].goals[0].value;
                         if (goalValue === 0) {
-                          return 'Rp ' + val.toLocaleString('id-ID') + ' (Unknown)';
+                          return 'Rp ' + (val.toLocaleString('id-ID') ?? 0) + ' (Unknown)';
                         }
                         const percentage = (val / goalValue) * 100;
-                        return 'Rp ' + val.toLocaleString('id-ID') + ' (' + percentage.toFixed(2) + '%)';
+                        return 'Rp ' + (val.toLocaleString('id-ID') ?? 0) + ' (' + percentage.toFixed(2) + '%)';
                     },
                     offsetX: 0,
                     dropShadow: {
@@ -262,7 +456,6 @@ $(function () {
                     colors: ['#fff']
                   },
                   xaxis: {
-                    // categories: categories,
                     labels: {
                         formatter: function (val) {
                             return 'Rp ' + (val / 1000).toLocaleString('id-ID') + 'K';
@@ -297,7 +490,7 @@ $(function () {
                   }
                   };
 
-                var chartCurrentMonthLemburPerDepartemen = new ApexCharts(document.querySelector("#chartCurrentMonthLemburPerDepartemen"), options);
+                chartCurrentMonthLemburPerDepartemen = new ApexCharts(document.querySelector("#chartCurrentMonthLemburPerDepartemen"), options);
                 chartCurrentMonthLemburPerDepartemen.render();
             },
             error: function(error) {
@@ -306,6 +499,104 @@ $(function () {
         });
     }
 
+    // WEEKLY
+    var modalFilterWeeklyOptions = {
+      backdrop: true,
+      keyboard: false,
+    };
+
+    var modalFilterWeekly = new bootstrap.Modal(
+        document.getElementById("modal-filter-weekly"),
+        modalFilterWeeklyOptions
+    );
+
+    function openFilterWeekly() {
+        modalFilterWeekly.show();
+    }
+
+    function closeFilterWeekly() {
+        modalFilterWeekly.hide();
+    }
+
+    $('.btnFilterWeekly').on('click', function() {
+      openFilterWeekly();
+    });
+
+    $('.closeFilterWeekly').on('click', function() {
+      closeFilterWeekly();
+    });
+
+    $('#filterDepartemenWeekly').select2({
+      dropdownParent: $('#modal-filter-weekly')
+    });
+
+    $('.btnResetFilterWeekly').on('click', function() {
+        $('#filterDepartemenWeekly').val([]).trigger('change');
+        $('#filterPeriodeWeekly').val('');
+    });
+
+    $(".btnSubmitFilterWeekly").on("click", function () {
+        loadingSwalShow();
+        let url = base_url + '/lembure/dashboard-lembur/get-weekly-lembur-per-departemen';
+        $.ajax({
+            url: url,
+            method: 'POST',
+            dataType: 'json',
+            data: {
+                departemen: $('#filterDepartemenWeekly').val(),
+                periode: $('#filterPeriodeWeekly').val()
+            },
+            success: function(response) {
+              loadingSwalClose();
+              let data = response.data;
+                var series = [];
+                var dataMinggu1 = [];
+                var dataMinggu2 = [];
+                var dataMinggu3 = [];
+                var dataMinggu4 = [];
+                var categories = [];
+
+                for (const val of data) {
+                    const departmentName = val.departemen;
+                    categories.push(departmentName);
+                    dataMinggu1.push(val.minggu_1);
+                    dataMinggu2.push(val.minggu_2);
+                    dataMinggu3.push(val.minggu_3);
+                    dataMinggu4.push(val.minggu_4);
+                }
+
+                series.push({
+                    name: 'Minggu Ke-1',
+                    data: dataMinggu1,
+                },{
+                    name: 'Minggu Ke-2',
+                    data: dataMinggu2,
+                },{
+                    name: 'Minggu Ke-3',
+                    data: dataMinggu3,
+                },{
+                    name: 'Minggu Ke-4',
+                    data: dataMinggu4,
+                })
+
+                chartWeeklyLemburPerDepartemen.updateOptions({
+                  series: series,
+                  xaxis: {
+                    categories: categories,
+                  },
+                  title: {
+                      text: 'Grafik Weekly Lembur' + ' (' + ($('#filterPeriodeWeekly').val() ? new Date($('#filterPeriodeWeekly').val()).toLocaleString('default', { month: 'long' }) + ' ' + new Date($('#filterPeriodeWeekly').val()).getFullYear() : new Date().toLocaleString('default', { month: 'long' }) + ' ' + new Date().getFullYear()) + ')',
+                  }
+                }); 
+            },
+            error: function(error) {
+                console.error(error);
+            }
+        });
+          closeFilterWeekly();
+    });
+
+    var chartWeeklyLemburPerDepartemen;
     getWeeklyLemburPerDepartemen();
     function getWeeklyLemburPerDepartemen() {
         let url = base_url + '/lembure/dashboard-lembur/get-weekly-lembur-per-departemen';
@@ -313,7 +604,10 @@ $(function () {
             url: url,
             method: 'POST',
             dataType: 'json',
-            data: {},
+            data: {
+                departemen: $('#filterDepartemenWeekly').val(),
+                periode: $('#filterPeriodeWeekly').val()
+            },
             success: function(response) {
                 let data = response.data;
                 var series = [];
@@ -420,7 +714,7 @@ $(function () {
                   }
                   };
 
-                var chartWeeklyLemburPerDepartemen = new ApexCharts(document.querySelector("#chartWeeklyLemburPerDepartemen"), options);
+                chartWeeklyLemburPerDepartemen = new ApexCharts(document.querySelector("#chartWeeklyLemburPerDepartemen"), options);
                 chartWeeklyLemburPerDepartemen.render();
             },
             error: function(error) {

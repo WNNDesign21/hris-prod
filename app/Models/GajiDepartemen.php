@@ -71,8 +71,6 @@ class GajiDepartemen extends Model
     public static function getMonthlyNominalBatasAllDepartemen()
     {
         $organisasi_id = auth()->user()->organisasi_id;
-        $year = date('Y');
-        $month = date('m');
         $data = self::selectRaw(
             'SUM(CASE WHEN EXTRACT(MONTH FROM gaji_departemens.periode) = 1 THEN gaji_departemens.nominal_batas_lembur ELSE 0 END) as januari,
             SUM(CASE WHEN EXTRACT(MONTH FROM gaji_departemens.periode) = 2 THEN gaji_departemens.nominal_batas_lembur ELSE 0 END) as februari,
@@ -93,6 +91,18 @@ class GajiDepartemen extends Model
             $data->where('gaji_departemens.organisasi_id', $organisasi_id);
         }
 
+        if(isset($dataFilter['tahun'])){
+            $data->whereYear('gaji_departemens.periode', $dataFilter['tahun']);
+            $data->whereMonth('gaji_departemens.periode', '12');
+        } else {
+            $data->whereYear('gaji_departemens.periode', date('Y'));
+            $data->whereMonth('gaji_departemens.periode', date('m'));
+        }
+
+        if(isset($dataFilter['departemen'])){
+            $data->where('gaji_departemens.departemen_id', $dataFilter['departemen']);
+        }
+
         if(auth()->user()->hasRole('atasan') && (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id == 3 || auth()->user()->karyawan->posisi[0]->jabatan_id == 4))) {
             $posisi = auth()->user()->karyawan->posisi;
             if($posisi[0]->jabatan_id == 3){
@@ -107,9 +117,7 @@ class GajiDepartemen extends Model
             }
         }
         
-        $data->whereNotNull('departemens.nama')
-        ->whereYear('gaji_departemens.periode', $year)
-        ->whereMonth('gaji_departemens.periode', $month);
+        $data->whereNotNull('departemens.nama');
 
         return $data->first();
     }
@@ -117,8 +125,6 @@ class GajiDepartemen extends Model
     public static function getCurrentMonthNominalBatasPerDepartemen()
     {
         $organisasi_id = auth()->user()->organisasi_id;
-        $year = date('Y');
-        $month = date('m');
         $data = self::selectRaw(
             'departemens.nama as departemen,
             departemens.id_departemen,
@@ -130,6 +136,14 @@ class GajiDepartemen extends Model
             $data->where('gaji_departemens.organisasi_id', $organisasi_id);
         }
 
+        if(isset($dataFilter['year'])){
+            $data->whereYear('gaji_departemens.periode.tanggal_lembur', $dataFilter['year']);
+        }
+
+        if(isset($dataFilter['month'])){
+            $data->whereMonth('gaji_departemens.periode.tanggal_lembur', $dataFilter['month']);
+        }
+
         if(auth()->user()->hasRole('atasan') && (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id == 3 || auth()->user()->karyawan->posisi[0]->jabatan_id == 4))) {
             $posisi = auth()->user()->karyawan->posisi;
             if($posisi[0]->jabatan_id == 3){
@@ -144,10 +158,7 @@ class GajiDepartemen extends Model
             }
         }
         
-        $data->whereNotNull('departemens.nama')
-        ->whereMonth('gaji_departemens.periode', $month)
-        ->whereYear('gaji_departemens.periode', $year)
-        ->groupBy('departemens.nama','departemens.id_departemen');
+        $data->whereNotNull('departemens.nama')->groupBy('departemens.nama','departemens.id_departemen');
 
         return $data->get();
     }

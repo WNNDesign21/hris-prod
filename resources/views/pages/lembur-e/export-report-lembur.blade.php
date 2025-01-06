@@ -77,6 +77,7 @@
                                                     <label for="departemen">Departemen</label>
                                                     <select class="form-control" name="departemen_slip" id="departemen_slip"
                                                         style="width: 100%;">
+                                                        <option value="">ALL DEPARTMENT</option>
                                                         @foreach ($departments as $item)
                                                             <option value="{{ $item->id_departemen }}">{{ $item->nama }}
                                                             </option>

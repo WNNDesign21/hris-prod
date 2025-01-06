@@ -142,12 +142,10 @@ $(function () {
     });
 
     var mySetInterval;
-    intervalOn();
-
     function intervalOn() {
         mySetInterval = setInterval(function () {
             exportSlipLemburTable.ajax.reload(null, false);
-        }, 60000);
+        }, 30000);
     }
 
     function intervalOff() {
@@ -183,6 +181,7 @@ $(function () {
                 loadingSwalClose();
                 showToast({ title: data.message });
                 refreshTable();
+                intervalOn();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 loadingSwalClose();

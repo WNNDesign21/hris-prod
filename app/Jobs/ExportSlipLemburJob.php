@@ -89,7 +89,9 @@ class ExportSlipLemburJob implements ShouldQueue
             ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
             ->leftJoin('setting_lembur_karyawans', 'karyawans.id_karyawan', 'setting_lembur_karyawans.karyawan_id')
             ->leftJoin('detail_lemburs', 'karyawans.id_karyawan', 'detail_lemburs.karyawan_id')
-            ->where('posisis.departemen_id', $this->departemen_id)
+            ->when($this->departemen_id, function ($query) {
+                $query->where('posisis.departemen_id', $this->departemen_id);
+            })
             ->where('detail_lemburs.organisasi_id', $this->organisasi_id)
             ->whereBetween('detail_lemburs.aktual_mulai_lembur', [$this->start, $this->end])
             ->groupBy('karyawans.id_karyawan', 'karyawans.nama', 'karyawans.ni_karyawan', 'setting_lembur_karyawans.gaji', 'detail_lemburs.gaji_lembur', 'detail_lemburs.pembagi_upah_lembur', 'detail_lemburs.organisasi_id')
