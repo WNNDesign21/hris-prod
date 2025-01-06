@@ -249,9 +249,9 @@ class ScanlogController extends Controller
                     $query->whereDate('attendance_scanlogs.scan_date', $request->start_date)
                         ->orWhereDate('attendance_scanlogs.scan_date', $request->end_date);
                 });
-                $scanlogs->orderBy('attendance_scanlogs.scan_date', 'karyawans.nama', 'ASC');
+                $scanlogs->orderBy(DB::raw('karyawans.nama, DATE(attendance_scanlogs.scan_date)'), 'ASC');
                 $scanlogs = $scanlogs->get();
-    
+
                 $spreadsheet = new Spreadsheet();
         
                 $fillStyle = [

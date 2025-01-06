@@ -110,7 +110,6 @@ $(function () {
             contentType: false,
             processData: false,
             success: function (response){
-                closeDownload();
                 loadingSwalClose();
                 refreshTable();
                 showToast({title: response.message, icon: 'success'});
@@ -125,7 +124,6 @@ $(function () {
     $('.btnExport').on("click", function () {
         let startDate = $('#start_date').val();
         let endDate = $('#end_date').val();
-        console.log(startDate);
 
         if (startDate == '' || endDate == '') {
             showToast({title: 'Please fill start date and end date', icon: 'error'});
@@ -134,6 +132,11 @@ $(function () {
 
         if (startDate > endDate) {
             showToast({title: 'Start date must be less than end date', icon: 'error'});
+            return;
+        }
+
+        if(startDate > new Date().toISOString().split('T')[0]) {
+            showToast({title: 'Please choose start date less than today', icon: 'error'});
             return;
         }
 

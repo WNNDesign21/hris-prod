@@ -40,10 +40,9 @@ class LemburHarian extends Model
         return $this->belongsTo(Divisi::class, 'divisi_id', 'id_divisi');
     }
 
-    public static function getMonthlyLemburPerDepartemen()
+    public static function getMonthlyLemburPerDepartemen($dataFilter)
     {
         $organisasi_id = auth()->user()->organisasi_id;
-        $year = date('Y');
         $data = self::selectRaw(
             '
             SUM(CASE WHEN EXTRACT(MONTH FROM lembur_harians.tanggal_lembur) = 1 THEN lembur_harians.total_nominal_lembur ELSE 0 END) as januari,
@@ -65,6 +64,16 @@ class LemburHarian extends Model
             $data->where('lembur_harians.organisasi_id', $organisasi_id);
         }
 
+        if(isset($dataFilter['tahun'])){
+            $data->whereYear('lembur_harians.tanggal_lembur', $dataFilter['tahun']);
+        } else {
+            $data->whereYear('lembur_harians.tanggal_lembur', date('Y'));
+        }
+
+        if(isset($dataFilter['departemen'])){
+            $data->whereIn('lembur_harians.departemen_id', $dataFilter['departemen']);
+        }
+
         if(auth()->user()->hasRole('atasan') && (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id == 3 || auth()->user()->karyawan->posisi[0]->jabatan_id == 4))) {
             $posisi = auth()->user()->karyawan->posisi;
             if($posisi[0]->jabatan_id == 3){
@@ -79,18 +88,15 @@ class LemburHarian extends Model
             }
         }
         
-        $data->whereNotNull('departemens.nama')
-        ->whereYear('lembur_harians.tanggal_lembur', $year);
+        $data->whereNotNull('departemens.nama');
         // ->groupBy('departemens.nama','departemens.id_departemen');
 
         return $data->first();
     }
 
-    public static function getWeeklyLemburPerDepartemen()
+    public static function getWeeklyLemburPerDepartemen($dataFilter)
     {
         $organisasi_id = auth()->user()->organisasi_id;
-        $year = date('Y');
-        $month = date('m');
         $data = self::selectRaw(
             'departemens.nama as departemen, 
             SUM(CASE WHEN EXTRACT(DAY FROM lembur_harians.tanggal_lembur) BETWEEN 1 AND 7 THEN lembur_harians.total_nominal_lembur ELSE 0 END) as minggu_1,
@@ -103,6 +109,22 @@ class LemburHarian extends Model
             $data->where('lembur_harians.organisasi_id', $organisasi_id);
         }
 
+        if(isset($dataFilter['year'])){
+            $data->whereYear('lembur_harians.tanggal_lembur', $dataFilter['year']);
+        } else {
+            $data->whereYear('lembur_harians.tanggal_lembur', date('Y'));
+        }
+
+        if(isset($dataFilter['month'])){
+            $data->whereMonth('lembur_harians.tanggal_lembur', $dataFilter['month']);
+        } else {
+            $data->whereMonth('lembur_harians.tanggal_lembur', date('m'));
+        }
+
+        if(isset($dataFilter['departemen'])){
+            $data->whereIn('lembur_harians.departemen_id', $dataFilter['departemen']);
+        }
+
         if(auth()->user()->hasRole('atasan') && (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id == 3 || auth()->user()->karyawan->posisi[0]->jabatan_id == 4))) {
             $posisi = auth()->user()->karyawan->posisi;
             if($posisi[0]->jabatan_id == 3){
@@ -117,19 +139,14 @@ class LemburHarian extends Model
             }
         }
 
-        $data->whereNotNull('departemens.nama')
-        ->whereYear('lembur_harians.tanggal_lembur', $year)
-        ->whereMonth('lembur_harians.tanggal_lembur', $month)
-        ->groupBy('departemens.nama');
+        $data->whereNotNull('departemens.nama')->groupBy('departemens.nama');
 
         return $data->get();
     }
 
-    public static function getCurrentMonthLemburPerDepartemen()
+    public static function getCurrentMonthLemburPerDepartemen($dataFilter)
     {
         $organisasi_id = auth()->user()->organisasi_id;
-        $year = date('Y');
-        $month = date('m');
         $data = self::selectRaw(
             'departemens.nama as departemen, 
             departemens.id_departemen,
@@ -141,6 +158,22 @@ class LemburHarian extends Model
             $data->where('lembur_harians.organisasi_id', $organisasi_id);
         }
 
+        if(isset($dataFilter['year'])){
+            $data->whereYear('lembur_harians.tanggal_lembur', $dataFilter['year']);
+        } else {
+            $data->whereYear('lembur_harians.tanggal_lembur', date('Y'));
+        }
+
+        if(isset($dataFilter['month'])){
+            $data->whereMonth('lembur_harians.tanggal_lembur', $dataFilter['month']);
+        } else {
+            $data->whereMonth('lembur_harians.tanggal_lembur', date('m'));
+        }
+
+        if(isset($dataFilter['departemen'])){
+            $data->whereIn('lembur_harians.departemen_id', $dataFilter['departemen']);
+        }
+
         if(auth()->user()->hasRole('atasan') && (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id == 3 || auth()->user()->karyawan->posisi[0]->jabatan_id == 4))) {
             $posisi = auth()->user()->karyawan->posisi;
             if($posisi[0]->jabatan_id == 3){
@@ -155,10 +188,7 @@ class LemburHarian extends Model
             }
         }
 
-        $data->whereNotNull('departemens.nama')
-        ->whereYear('lembur_harians.tanggal_lembur', $year)
-        ->whereMonth('lembur_harians.tanggal_lembur', $month)
-        ->groupBy('departemens.nama','departemens.id_departemen');
+        $data->whereNotNull('departemens.nama')->groupBy('departemens.nama','departemens.id_departemen');
 
         return $data->get();
     }

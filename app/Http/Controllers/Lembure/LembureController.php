@@ -38,9 +38,33 @@ class LembureController extends Controller
      */
     public function index()
     {
+        if(auth()->user()->hasRole('personalia') || (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->organisasi_id !== null)){
+            $departemens = Departemen::all();
+        } else {
+            $posisis = auth()->user()->karyawan->posisi;
+            $departemen_ids = [];
+            $divisi_ids = [];
+            foreach ($posisis as $posisi){
+                if($posisi->departemen_id !== null){
+                    $departemen_ids[] = $posisi->departemen_id;
+                }
+
+                if($posisi->divisi_id !== null){
+                    $divisi_ids[] = $posisi->divisi_id;
+                }
+            }
+
+            if(!empty($departemen_ids)){
+                $departemens = Departemen::whereIn('id_departemen', $departemen_ids)->get();
+            } else {
+                $departemens = Departemen::whereIn('divisi_id', $divisi_ids)->get();
+            }
+        }
+
         $dataPage = [
             'pageTitle' => "Lembur-E - Dashboard",
-            'page' => 'lembure-dashboard'
+            'page' => 'lembure-dashboard',
+            'departemens' => $departemens
         ];
         return view('pages.lembur-e.index', $dataPage);
     }
@@ -877,7 +901,7 @@ class LembureController extends Controller
                     }
                 }
 
-                $nestedData['departemen'] = $data->departemen;
+                $nestedData['departemen'] = $data->departemen ?? 'ALL DEPARTMENT';
                 $nestedData['created_at'] = Carbon::parse($data->created_at)->format('d F Y, H:i');
                 $nestedData['periode'] = Carbon::parse($data->periode)->format('F Y');
                 $nestedData['status'] = $status;
@@ -3072,8 +3096,20 @@ class LembureController extends Controller
     public function get_monthly_lembur_per_departemen(Request $request)
     {
         try{
-            $data = LemburHarian::getMonthlyLemburPerDepartemen()->toArray();
-            $batas = GajiDepartemen::getMonthlyNominalBatasAllDepartemen()->toArray();
+            $dataFilter = [];
+
+            $filterDepartemen = $request->departemen;
+            if(isset($filterDepartemen)){
+                $dataFilter['departemen'] = $filterDepartemen;
+            }
+
+            $filterTahun = $request->tahun;
+            if(isset($filterTahun)){
+                $dataFilter['tahun'] = $filterTahun;
+            }
+
+            $data = LemburHarian::getMonthlyLemburPerDepartemen($dataFilter)->toArray();
+            $batas = GajiDepartemen::getMonthlyNominalBatasAllDepartemen($dataFilter)->toArray();
 
             return response()->json(['message' => 'Data Lembur Berhasil Ditemukan', 'data' => $data, 'batas' => $batas], 200);
         } catch (Throwable $e){
@@ -3084,7 +3120,23 @@ class LembureController extends Controller
     public function get_weekly_lembur_per_departemen(Request $request)
     {
         try{
-            $data = LemburHarian::getWeeklyLemburPerDepartemen()->toArray();
+            $dataFilter = [];
+
+            $filterDepartemen = $request->departemen;
+            if(isset($filterDepartemen)){
+                $dataFilter['departemen'] = $filterDepartemen;
+            }
+
+            $filterPeriode = $request->periode;
+            if(isset($filterPeriode)){
+                $dataFilter['month'] = Carbon::parse($filterPeriode)->format('m');
+                $dataFilter['year'] = Carbon::parse($filterPeriode)->format('Y');
+            } else {
+                $dataFilter['month'] = date('m');
+                $dataFilter['year'] = date('Y');
+            }
+
+            $data = LemburHarian::getWeeklyLemburPerDepartemen($dataFilter)->toArray();
             return response()->json(['message' => 'Data Lembur Berhasil Ditemukan', 'data' => $data], 200);
         } catch (Throwable $e){
             return response()->json(['message' => $e->getMessage()], 500);
@@ -3094,8 +3146,24 @@ class LembureController extends Controller
     public function get_current_month_lembur_per_departemen(Request $request)
     {
         try{
-            $data = LemburHarian::getCurrentMonthLemburPerDepartemen()->toArray();
-            $batas = GajiDepartemen::getCurrentMonthNominalBatasPerDepartemen()->toArray();
+            $dataFilter = [];
+
+            $filterDepartemen = $request->departemen;
+            if(isset($filterDepartemen)){
+                $dataFilter['departemen'] = $filterDepartemen;
+            }
+
+            $filterPeriode = $request->periode;
+            if(isset($filterPeriode)){
+                $dataFilter['month'] = Carbon::parse($filterPeriode)->format('m');
+                $dataFilter['year'] = Carbon::parse($filterPeriode)->format('Y');
+            } else {
+                $dataFilter['month'] = date('m');
+                $dataFilter['year'] = date('Y');
+            }
+
+            $data = LemburHarian::getCurrentMonthLemburPerDepartemen($dataFilter)->toArray();
+            $batas = GajiDepartemen::getCurrentMonthNominalBatasPerDepartemen($dataFilter)->toArray();
 
             $existing_batas = [];
             foreach ($batas as $key => $value) {
@@ -3690,7 +3758,6 @@ class LembureController extends Controller
     {
         $dataValidate = [
             'periode_slip' => ['required', 'date_format:Y-m'],
-            'departemen_slip' => ['required', 'integer']
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -3704,12 +3771,17 @@ class LembureController extends Controller
         try{
             $organisasi_id = auth()->user()->organisasi_id;
             $periode = $request->periode_slip;
-            $departemen = Departemen::find($request->departemen_slip)->nama;
             $start = Carbon::createFromFormat('Y-m', $periode)->startOfMonth()->toDateString();
             $end = Carbon::createFromFormat('Y-m', $periode)->endOfMonth()->toDateString();
             $pembagi_upah_lembur_harian = SettingLembur::where('organisasi_id', $organisasi_id)->where('setting_name', 'pembagi_upah_lembur_harian')->first()->value;
 
-            $exists = ExportSlipLembur::where('periode', Carbon::parse($periode)->format('Y-m-d'))->where('departemen_id', $request->departemen_slip)->where('organisasi_id', $organisasi_id)->where('status', 'IP')->exists();
+            if($request->departemen_slip){
+                $departemen = Departemen::find($request->departemen_slip)->nama;
+                $exists = ExportSlipLembur::where('periode', Carbon::parse($periode)->format('Y-m-d'))->where('departemen_id', $request->departemen_slip)->where('organisasi_id', $organisasi_id)->where('status', 'IP')->exists();
+            } else {
+                $departemen = 'ALL DEPARTMENT';
+                $exists = ExportSlipLembur::where('periode', Carbon::parse($periode)->format('Y-m-d'))->whereNull('departemen_id')->where('organisasi_id', $organisasi_id)->where('status', 'IP')->exists();
+            }
 
             if($exists){
                 return response()->json(['message' => 'Export Slip Lembur sedang di Proses, silahkan tunggu beberapa saat'], 400);
@@ -3717,7 +3789,7 @@ class LembureController extends Controller
     
             $export_slip_lembur = ExportSlipLembur::create([
                 'periode' => $periode,
-                'departemen_id' => $request->departemen_slip,
+                'departemen_id' => $request->departemen_slip ? $request->departemen_slip : null,
                 'organisasi_id' => $organisasi_id,
             ]);
 
