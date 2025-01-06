@@ -17,11 +17,13 @@ use Illuminate\Http\Request;
 use App\Models\SettingLembur;
 use App\Models\GajiDepartemen;
 use App\Models\AttachmentLembur;
+use App\Jobs\ExportSlipLemburJob;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Models\SettingLemburKaryawan;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use App\Models\Lembure\ExportSlipLembur;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
@@ -98,6 +100,17 @@ class LembureController extends Controller
             'departemens' => $departemens
         ];
         return view('pages.lembur-e.approval-lembur', $dataPage);
+    }
+
+    public function bypass_lembur_view()
+    {
+        $karyawans = Karyawan::organisasi(auth()->user()->organisasi_id)->aktif()->pluck('nama', 'id_karyawan');
+        $dataPage = [
+            'pageTitle' => "Lembur-E - Bypass Lembur",
+            'page' => 'lembure-bypass-lembur',
+            'karyawans' => $karyawans
+        ];
+        return view('pages.lembur-e.bypass-lembur', $dataPage);
     }
 
     public function setting_upah_lembur_view()
@@ -294,18 +307,15 @@ class LembureController extends Controller
 
         if(auth()->user()->hasRole('personalia')){
             $dataFilter['organisasi_id'] = $organisasi_id;
-            // $dataFilter['is_legalized'] = true;
             $is_can_legalized = true;
         } elseif (auth()->user()->karyawan->posisi[0]->jabatan_id == 4 || auth()->user()->karyawan->posisi[0]->jabatan_id == 3){
             $member_posisi_ids = $this->get_member_posisi($posisi);
             $dataFilter['member_posisi_ids'] = $member_posisi_ids;
             $is_can_checked = true;
             $is_has_department_head = $this->has_department_head($posisi);
-            // $dataFilter['is_checked'] = true;
         }  elseif (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->organisasi_id !== null){
             $dataFilter['organisasi_id'] = $organisasi_id;
             $is_can_approved = true;
-            // $dataFilter['is_approved'] = true;
         }
 
         $filterUrutan = $request->urutan;
@@ -802,6 +812,97 @@ class LembureController extends Controller
         return response()->json($json_data, 200);
     }
 
+    public function export_slip_lembur_datatable(Request $request)
+    {
+        $columns = array(
+            0 => 'departemens.nama',
+            1 => 'export_slip_lemburs.created_at',
+            2 => 'export_slip_lemburs.periode',
+            3 => 'export_slip_lemburs.status',
+            4 => 'export_slip_lemburs.message',
+            5 => 'export_slip_lemburs.attachment',
+        );
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+
+        $settings['start'] = $start;
+        $settings['limit'] = $limit;
+        $settings['dir'] = $dir;
+        $settings['order'] = $order;
+
+        $dataFilter = [];
+        $search = $request->input('search.value');
+        if (!empty($search)) {
+            $dataFilter['search'] = $search;
+        }
+
+        $filterDepartemen = $request->departemen;
+        if(isset($filterDepartemen)){
+            $dataFilter['departemen_id'] = $filterDepartemen;
+        }
+        $filterStatus = $request->status;
+        if(isset($filterStatus)){
+            $dataFilter['status'] = $filterStatus;
+        }
+        $filterPeriode = $request->periode;
+        if(isset($filterPeriode)){
+            $dataFilter['periode'] = $filterPeriode;
+        }
+
+        $totalData = ExportSlipLembur::all()->count();
+        $totalFiltered = $totalData;
+
+        $export_slip_lemburs = ExportSlipLembur::getData($dataFilter, $settings);
+        $totalFiltered = ExportSlipLembur::countData($dataFilter);
+
+        $dataTable = [];
+
+        if (!empty($export_slip_lemburs)) {
+            foreach ($export_slip_lemburs as $data) {
+                if ($data->status == 'IP') {
+                    $status = '<span class="badge badge-warning">IN PROGRESS</span>';
+                    $attachment = '<i class="fas fa-sync-alt fa-spin fs-32 text-fade"></i>';
+                } elseif ($data->status == 'FL') {
+                    $status = '<span class="badge badge-danger">FAILED</span>';
+                    $attachment = 'Attachment Not Found';
+                } elseif ($data->status == 'CO') {
+                    $status = '<span class="badge badge-success">COMPLETED</span>';
+                    if($data->attachment){
+                        $attachment = '<a class="btn-sm btn-primary" href="'.asset('storage/'.$data->attachment).'" target="_blank"><i class="fas fa-file-excel"></i> Download</a>';
+                    } else {
+                        $attachment = '-';
+                    }
+                }
+
+                $nestedData['departemen'] = $data->departemen;
+                $nestedData['created_at'] = Carbon::parse($data->created_at)->format('d F Y, H:i');
+                $nestedData['periode'] = Carbon::parse($data->periode)->format('F Y');
+                $nestedData['status'] = $status;
+                $nestedData['message'] = $data->message;
+                $nestedData['attachment'] = $attachment;
+
+                $dataTable[] = $nestedData;
+            }
+        }
+
+        $json_data = array(
+            "draw" => intval($request->input('draw')),
+            "recordsTotal" => intval($totalData),
+            "recordsFiltered" => intval($totalFiltered),
+            "data" => $dataTable,
+            "order" => $order,
+            "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
+            "dir" => $dir,
+            "column"=>$request->input('order.0.column')
+        );
+
+        return response()->json($json_data, 200);
+    }
+
+
     /**
      * Show the form for creating a new resource.
      */
@@ -971,6 +1072,167 @@ class LembureController extends Controller
         }
     }
 
+    public function bypass_lembur_store(Request $request)
+    {
+        $dataValidate = [
+            'issued_by' => ['required', 'exists:karyawans,id_karyawan'],
+            'jenis_hari' => ['required','in:WD,WE'],
+            'karyawan_id.*' => ['required', 'distinct'],
+            'job_description.*' => ['required'],
+            'rencana_mulai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'before:rencana_selesai_lembur.*'],
+            'rencana_selesai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'after:rencana_mulai_lembur.*'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $jenis_hari = $request->jenis_hari;
+        $karyawan_ids = $request->karyawan_id;
+        $job_descriptions = $request->job_description;
+        $rencana_mulai_lemburs = $request->rencana_mulai_lembur;
+        $rencana_selesai_lemburs = $request->rencana_selesai_lembur;
+        $issued_by = $request->issued_by;
+
+        DB::beginTransaction();
+        try {
+            $karyawan_issued = Karyawan::find($issued_by);
+            $organisasi_id = $karyawan_issued->user->organisasi_id;
+            $departemen_id = $karyawan_issued->posisi[0]->departemen_id;
+            $divisi_id = $karyawan_issued->posisi[0]->divisi_id;
+            $posisi_issued = $karyawan_issued->posisi;
+
+            $date = Carbon::parse($rencana_mulai_lemburs[0])->format('Y-m-d');
+            foreach ($rencana_mulai_lemburs as $key => $start) {
+                if (Carbon::parse($start)->format('Y-m-d') !== $date) {
+                    DB::rollback();
+                    return response()->json(['message' => 'Seluruh rencana mulai lembur harus berada pada tanggal yang sama!'], 402);
+                }
+            }
+
+            $header = Lembure::create([
+                'id_lembur' => 'LEMBUR-' . Str::random(4).'-'. date('YmdHis'),
+                'issued_by' => $issued_by,
+                'issued_date' => now(),
+                'organisasi_id' => $organisasi_id,
+                'departemen_id' => $departemen_id,
+                'divisi_id' => $divisi_id,
+                'jenis_hari' => $jenis_hari
+            ]);
+
+            if($posisi_issued[0]->jabatan_id >= 5){
+                if(!$this->has_department_head($posisi_issued) && !$this->has_section_head($posisi_issued)){
+                    $checked_by = $karyawan_issued->nama;
+                    $header->update([
+                        'plan_checked_by' => $checked_by,
+                        'plan_checked_at' => now(),
+                    ]);
+                }
+            }
+
+            if($posisi_issued[0]->jabatan_id == 4){
+                if(!$this->has_department_head($posisi_issued)){
+                    $checked_by = $karyawan_issued->nama;
+                    $header->update([
+                        'plan_checked_by' => $checked_by,
+                        'plan_checked_at' => now(),
+                    ]);
+                }
+            }
+
+            if($posisi_issued[0]->jabatan_id == 3){
+                $checked_by = $karyawan_issued->nama;
+                $header->update([
+                    'plan_checked_by' => $checked_by,
+                    'plan_checked_at' => now(),
+                    'actual_checked_by' => $checked_by,
+                    'actual_checked_at' => now(),
+                ]);
+            }
+
+            if($posisi_issued[0]->jabatan_id <= 2){
+                $checked_and_approved = $karyawan_issued->nama;
+                $header->update([
+                    'status' => 'COMPLETED',
+                    'plan_checked_by' => $checked_and_approved,
+                    'plan_checked_at' => now(),
+                    'plan_approved_by' => $checked_and_approved,
+                    'plan_approved_at' => now(),
+                    'plan_legalized_by' => 'HRD & GA',
+                    'plan_legalized_at' => now(),
+                    'actual_checked_by' => $checked_and_approved,
+                    'actual_checked_at' => now(),
+                    'actual_approved_by' => $checked_and_approved,
+                    'actual_approved_at' => now(),
+                ]);
+            }
+
+            $total_durasi = 0;
+            $total_nominal = 0;
+            $data_detail_lembur = [];
+            foreach ($karyawan_ids as $key => $karyawan_id) {
+                $karyawan = Karyawan::find($karyawan_id);
+                $gaji_lembur = $karyawan->settingLembur->gaji;
+                $pembagi_upah_lembur = SettingLembur::where('setting_name', 'pembagi_upah_lembur_harian')->where('organisasi_id', $karyawan->user->organisasi_id)->first()->value;
+                $datetime_rencana_mulai_lembur = $this->pembulatan_menit_ke_bawah($rencana_mulai_lemburs[$key]);
+                $datetime_rencana_selesai_lembur = $this->pembulatan_menit_ke_bawah($rencana_selesai_lemburs[$key]);
+                $durasi_istirahat = $this->overtime_resttime_per_minutes($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur, $karyawan->user->organisasi_id);
+                $durasi = $this->calculate_overtime_per_minutes($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur, $karyawan->user->organisasi_id);
+                $durasi_konversi_lembur = $this->calculate_durasi_konversi_lembur($jenis_hari, $durasi, $karyawan_id);
+                $uang_makan = $this->calculate_overtime_uang_makan($jenis_hari, $durasi, $karyawan_id);
+
+                if($durasi < 60){
+                    DB::rollback();
+                    return response()->json(['message' => 'Durasi lembur '.$karyawan->nama.' kurang dari 1 jam, tidak perlu menginput SPL'], 402);
+                }
+
+                if(!$karyawan->posisi()->exists()){
+                    DB::rollback();
+                    return response()->json(['message' => $karyawan->nama.' belum memiliki posisi, Hubungi HRD untuk setting posisi karyawan!'], 402);
+                }
+
+                $nominal = $this->calculate_overtime_nominal($jenis_hari, $durasi, $karyawan_id);
+                $data_detail_lembur[] = [
+                    'karyawan_id' => $karyawan_id,
+                    'organisasi_id' => $karyawan->user->organisasi_id,
+                    'departemen_id' => $karyawan->posisi[0]?->departemen_id,
+                    'divisi_id' => $karyawan->posisi[0]?->divisi_id,
+                    'rencana_mulai_lembur' => $datetime_rencana_mulai_lembur,
+                    'rencana_selesai_lembur' => $datetime_rencana_selesai_lembur,
+                    'deskripsi_pekerjaan' => $job_descriptions[$key],
+                    'durasi_istirahat' => $durasi_istirahat,
+                    'durasi_konversi_lembur' => $durasi_konversi_lembur,
+                    'gaji_lembur' => $gaji_lembur,
+                    'pembagi_upah_lembur' => $pembagi_upah_lembur,
+                    'uang_makan' => $uang_makan,
+                    'durasi' => $durasi,
+                    'nominal' => $nominal
+                ];
+
+                $total_durasi += $durasi;
+                $total_nominal += $nominal;
+            }
+            
+            $header->detailLembur()->createMany($data_detail_lembur);
+            
+            //Update Total Durasi Lagi
+            $header->update(['total_durasi' => $total_durasi]);
+
+            if($posisi_issued[0]->jabatan_id <= 2){
+                $header->update(['total_nominal' => $total_nominal]);
+            }
+
+            DB::commit();
+            return response()->json(['message' => 'Bypass Lembur Berhasil Dibuat'], 200);
+        } catch (Throwable $e) { 
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
     //FUNGSI MENGHITUNG DURASI LEMBUR YANG SUDAH DIKURANGI DENGAN ISTIRAHAT
     public function calculate_overtime_per_minutes($datetime_start, $datetime_end, $organisasi_id)
     {
@@ -1024,11 +1286,6 @@ class LembureController extends Controller
                 $breakStart = Carbon::parse($start->format('Y-m-d') . ' ' . $break['start']);
                 $breakEnd = Carbon::parse($start->format('Y-m-d') . ' ' . $break['end']);
             }
-
-            // If the break period spans over midnight, adjust the dates
-            // if ($breakStart->greaterThan($breakEnd)) {
-            //     $breakEnd->addDay();
-            // }
             
             if ($start->lessThanOrEqualTo($breakEnd) && $end->greaterThanOrEqualTo($breakStart)) {
                 if ($start->lessThanOrEqualTo($breakStart) && $end->greaterThanOrEqualTo($breakEnd)) {
@@ -1043,31 +1300,6 @@ class LembureController extends Controller
             }
         }
 
-        //OLD
-        // foreach ($breaks as $break) {
-        //     $breakStart = Carbon::parse($start->format('Y-m-d') . ' ' . $break['start']);
-        //     $breakEnd = Carbon::parse($start->format('Y-m-d') . ' ' . $break['end']);
-
-        //     // If the break period spans over midnight, adjust the dates
-        //     if ($breakStart->greaterThan($breakEnd)) {
-        //         $breakEnd->addDay();
-        //     }
-
-        //     //Hasil Revisi
-        //     if ($start->lessThanOrEqualTo($breakEnd) && $end->greaterThanOrEqualTo($breakStart)) {
-        //         if ($start->lessThanOrEqualTo($breakStart) && $end->greaterThanOrEqualTo($breakEnd)) {
-        //             $duration -= $break['duration'];
-        //         } elseif ($start->lessThan($breakStart) && $end->lessThan($breakEnd)) {
-        //             $duration -= abs($end->diffInMinutes($breakStart));
-        //         } elseif ($start->greaterThan($breakStart) && $end->greaterThan($breakEnd)) {
-        //             $duration -= abs($breakEnd->diffInMinutes($start));
-        //         } else {
-        //             $duration -= abs($end->diffInMinutes($start));
-        //         }
-        //     }
-        // }        
-
-        // memastikan bukan negatif
         $duration = intval($duration);
         return $duration;
     }
@@ -1109,8 +1341,6 @@ class LembureController extends Controller
         }
 
         foreach ($breaks as $break) {
-            // $breakStart = Carbon::parse($start->format('Y-m-d') . ' ' . $break['start']);
-            // $breakEnd = Carbon::parse($start->format('Y-m-d') . ' ' . $break['end']);
             if ($start->format('Y-m-d') !== $end->format('Y-m-d')) {
                 if($start->format('H:i') > $break['start']){
                     $breakStart = Carbon::parse($start->format('Y-m-d') . ' ' . $break['start'])->addDay();
@@ -1293,7 +1523,6 @@ class LembureController extends Controller
     {
         //OLD VERSION DATE
         $datetime = Carbon::createFromFormat('Y-m-d\TH:i', $datetime);
-        // $datetime = Carbon::parse($datetime);
         $minute = $datetime->minute;
         $minute = $minute - ($minute % 15);
         $datetime->minute($minute)->second(0);
@@ -1734,22 +1963,6 @@ class LembureController extends Controller
 
         if (!empty($search)) {
             if(auth()->user()->karyawan->posisi[0]->jabatan_id == 5){
-
-                //Bug
-                // $query->where('users.organisasi_id', $organisasi_id);
-                // $query->whereIn('posisis.id_posisi', $id_posisi_members);
-                // $query->where(function ($dat) use ($search) {
-                //     $dat->where('karyawans.id_karyawan', 'ILIKE', "%{$search}%")
-                //         ->whereIn('posisis.id_posisi', $id_posisi_members)
-                //         ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%");
-                // });
-                // $query->orWhere(function ($dat) use ($search) {
-                //     $dat->where('karyawans.id_karyawan', 'ILIKE', "%{$search}%")
-                //         ->whereIn('posisis.id_posisi', $id_posisi_members)
-                //         ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%")
-                //         ->orWhere('karyawans.id_karyawan', auth()->user()->karyawan->id_karyawan);
-                // });
-
                 //Sementara
                 $query->where('users.organisasi_id', $organisasi_id)
                 ->whereIn('posisis.id_posisi', $id_posisi_members)
@@ -1770,6 +1983,92 @@ class LembureController extends Controller
                 $query->orWhere('karyawans.id_karyawan', auth()->user()->karyawan->id_karyawan);
             } else {
                 $query->where('karyawans.id_karyawan', auth()->user()->karyawan->id_karyawan);
+            }
+        }
+
+        //Ambil karyawan yang scope Aktif jika ada parameter status
+        $query->aktif();
+        $query->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
+        ->leftJoin('users', 'karyawans.user_id', 'users.id')
+        ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+        ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
+        ->rightJoin('setting_lembur_karyawans', 'karyawans.id_karyawan', 'setting_lembur_karyawans.karyawan_id');
+
+        $query->groupBy('karyawans.id_karyawan','karyawans.nama', 'posisis.nama');
+
+        $data = $query->simplePaginate(30);
+
+        $morePages = true;
+        $pagination_obj = json_encode($data);
+        if (empty($data->nextPageUrl())) {
+            $morePages = false;
+        }
+
+        $dataUser = [];
+        foreach ($data->items() as $karyawan) {
+            $dataUser[] = [
+                'id' => $karyawan->id_karyawan,
+                'text' => $karyawan->nama
+            ];
+        }
+
+        $results = array(
+            "results" => $dataUser,
+            "pagination" => array(
+                "more" => $morePages
+            )
+        );
+
+        return response()->json($results);
+    }
+
+    public function get_data_karyawan_bypass_lembur(Request $request){
+        $search = $request->input('search');
+        $page = $request->input("page");
+        $idCats = $request->input('catsProd');
+        $adOrg = $request->input('adOrg');
+        $issued_by = $request->input('issued_by');
+        $issued = Karyawan::find($issued_by);
+
+        $query = Karyawan::select(
+            'karyawans.id_karyawan',
+            'karyawans.nama',
+            'posisis.nama as posisi',
+        );
+
+        $organisasi_id = $issued->user->organisasi_id;
+        $posisi = $issued->posisi;
+        $id_posisi_members = $this->get_member_posisi($posisi);
+
+        foreach ($posisi as $ps){
+            $index = array_search($ps->id_posisi, $id_posisi_members);
+            array_splice($id_posisi_members, $index, 1);
+        }
+        array_push($id_posisi_members, $posisi[0]->id_posisi);
+
+
+        if (!empty($search)) {
+            if($posisi[0]->jabatan_id == 5){
+                //Sementara
+                $query->where('users.organisasi_id', $organisasi_id)
+                ->whereIn('posisis.id_posisi', $id_posisi_members)
+                ->where(function ($dat) use ($search) {
+                    $dat->where(function ($subQuery) use ($search) {
+                        $subQuery->where('karyawans.id_karyawan', 'ILIKE', "%{$search}%")
+                                 ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%");
+                    });
+                });
+
+            } else {
+                $query->where('karyawans.id_karyawan', $issued->id_karyawan);
+            }
+        } else {
+            if($posisi[0]->jabatan_id == 5){
+                $query->where('users.organisasi_id', $organisasi_id);
+                $query->whereIn('posisis.id_posisi', $id_posisi_members);
+                $query->orWhere('karyawans.id_karyawan', $issued->id_karyawan);
+            } else {
+                $query->where('karyawans.id_karyawan', $issued->id_karyawan);
             }
         }
 
@@ -1990,73 +2289,6 @@ class LembureController extends Controller
         }
     }
 
-    //OLD
-    // public function checked(Request $request, string $id_lembur)
-    // {
-    //     $dataValidate = [
-    //         'is_planned' => ['required', 'in:Y,N'],
-    //     ];
-
-    //     $validator = Validator::make(request()->all(), $dataValidate);
-    
-    //     if ($validator->fails()) {
-    //         $errors = $validator->errors()->all();
-    //         return response()->json(['message' => $errors], 402);
-    //     }
-
-    //     $is_planned = $request->is_planned;
-    //     $approved_detail = $request->approved_detail;
-
-    //     DB::beginTransaction();
-    //     try{
-    //         $lembur = Lembure::find($id_lembur);
-    //         $detail_lembur = $lembur->detailLembur;
-    //         $karyawan = auth()->user()->karyawan->nama;
-    //         $total_durasi = $lembur->total_durasi;
-
-    //         if($is_planned == 'N'){
-    //             if(!$approved_detail){
-    //                 DB::commit();
-    //                 return response()->json(['message' => 'Minimal ada 1 orang yang di Checked !'], 403);
-    //             } else {
-    //                 $approved_detail = explode(',', $approved_detail);
-    //             }
-                
-    //             if($lembur->plan_checked_by !== null){
-    //                 return response()->json(['message' => 'Pengajuan Lembur sudah di checked !'], 403);
-    //             }
-    
-    //             // Delete detail lembur yang tidak ada di approved_detail
-    //             foreach ($detail_lembur as $detail) {
-    //                 if (!in_array($detail->id_detail_lembur, $approved_detail)) {
-    //                     $detail->is_rencana_approved = 'N';
-    //                     $detail->is_aktual_approved = 'N';
-    //                     $detail->save();
-
-    //                     $lembur->total_durasi -= $detail->durasi;
-    //                 }
-    //             }
-
-    //             $lembur->plan_checked_by = $karyawan;
-    //             $lembur->plan_checked_at = now();
-
-    //         } else {
-    //             if($lembur->actual_checked_by !== null){
-    //                 return response()->json(['message' => 'Aktual Lembur sudah di checked!'], 403);
-    //             }
-
-    //             $lembur->actual_checked_by = $karyawan;
-    //             $lembur->actual_checked_at = now();
-    //         }
-
-    //         $lembur->save();
-    //         DB::commit();
-    //         return response()->json(['message' => 'Pengajuan Lembur berhasil di Checked!'],200);
-    //     } catch (Throwable $e){
-    //         DB::rollBack();
-    //         return response()->json(['message' => $error->getMessage()], 500);
-    //     }
-    // }
     public function checked(Request $request, string $id_lembur)
     {
         $dataValidate = [
@@ -2146,6 +2378,7 @@ class LembureController extends Controller
 
                             // Hitung durasi dan nominal Aktual
                             $total_durasi += $durasi;
+                            $total_nominal += $nominal;
                         }
                     }
                 }
@@ -2197,6 +2430,7 @@ class LembureController extends Controller
 
                         // Hitung durasi dan nominal Aktual
                         $total_durasi += $durasi;
+                        $total_nominal += $nominal;
                     }
                     $detail->keterangan = isset($keterangan[$key]) ? $keterangan[$key] : null;
                     $detail->save();
@@ -2308,11 +2542,11 @@ class LembureController extends Controller
 
                             // Hitung durasi dan nominal Aktual
                             $total_durasi += $durasi;
+                            $total_nominal += $nominal;
                         }
                     }
                 }
 
-                
                 //Jika yang membuat tidak memiliki dept head maka checked by = approved by
                 $has_dept_head = $this->has_department_head($lembur->issued->posisi);
                 if(!$has_dept_head && $lembur->plan_checked_by == null){
@@ -2374,6 +2608,7 @@ class LembureController extends Controller
 
                         // Hitung durasi dan nominal Aktual
                         $total_durasi += $durasi;
+                        $total_nominal += $nominal;
                     }
                     $detail->keterangan = isset($keterangan[$key]) ? $keterangan[$key] : null;
                     $detail->save();
@@ -2410,53 +2645,229 @@ class LembureController extends Controller
         }
     }
 
+    // public function legalized(Request $request, string $id_lembur)
+    // {
+    //     $dataValidate = [
+    //         'is_planned' => ['required', 'in:Y,N'],
+    //     ];
+
+    //     $validator = Validator::make(request()->all(), $dataValidate);
+
+    //     if ($validator->fails()) {
+    //         $errors = $validator->errors()->all();
+    //         return response()->json(['message' => $errors], 402);
+    //     }
+
+    //     $is_planned = $request->is_planned;
+
+    //     DB::beginTransaction();
+    //     try{
+    //         $lembur = Lembure::find($id_lembur);
+    //         $karyawan = 'HRD & GA';
+
+    //         if($is_planned == 'N'){
+                // if($lembur->plan_legalized_by !== null){
+                //     return response()->json(['message' => 'Pengajuan Lembur sudah di Legalized pada Planning !'], 403);
+                // }
+                // $lembur->status = 'PLANNED';
+                // $lembur->plan_legalized_by = $karyawan;
+                // $lembur->plan_legalized_at = now();
+    //         } else {
+    //             if($lembur->actual_legalized_by !== null){
+    //                 return response()->json(['message' => 'Pengajuan Lembur sudah di Legalized pada Aktual!'], 403);
+    //             }
+    //             $lembur->status = 'COMPLETED';
+    //             $lembur->actual_legalized_by = $karyawan;
+    //             $lembur->actual_legalized_at = now();
+
+    //             //NEW 
+                // $detail_lembur = $lembur->detailLembur->where('is_aktual_approved', 'Y');
+                // $departemen_id = $lembur?->departemen_id;
+                // $divisi_id = $lembur?->divisi_id;
+                // $organisasi_id = auth()->user()->organisasi_id;
+
+                // foreach ($detail_lembur as $item){
+                //     $total_nominal = $item->nominal;
+                //     $total_durasi = $item->durasi;
+                //     $aktual_mulai_lembur = $item->aktual_mulai_lembur;
+    
+                //     $tanggal_lembur = Carbon::parse($aktual_mulai_lembur)->format('Y-m-d');
+                //     $lembur_harian = LemburHarian::whereDate('tanggal_lembur', $tanggal_lembur)->where('organisasi_id', $organisasi_id)->where('departemen_id', $departemen_id)->where('divisi_id', $divisi_id)->first();
+                //     if ($lembur_harian){
+                //         $lembur_harian->total_durasi_lembur = $lembur_harian->total_durasi_lembur + $total_durasi;
+                //         $lembur_harian->total_nominal_lembur = $lembur_harian->total_nominal_lembur + $total_nominal;
+                //         $lembur_harian->save();
+                //     } else {
+                //         $lembur_harian = LemburHarian::create([
+                //             'tanggal_lembur' => $tanggal_lembur,
+                //             'total_durasi_lembur' => $total_durasi,
+                //             'total_nominal_lembur' => $total_nominal,
+                //             'organisasi_id' => $organisasi_id,
+                //             'departemen_id' => $departemen_id,
+                //             'divisi_id' => $divisi_id,
+                //         ]);
+                //     }
+                // }
+    //         }
+
+    //         $lembur->save();
+    //         DB::commit();
+    //         return response()->json(['message' => 'Pengajuan Lembur berhasil di Legalized!'],200);
+    //     } catch (Throwable $e){
+    //         DB::rollBack();
+    //         return response()->json(['message' => $e->getMessage()], 500);
+    //     }
+    // }
+
     public function legalized(Request $request, string $id_lembur)
     {
         $dataValidate = [
             'is_planned' => ['required', 'in:Y,N'],
+            'mulai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'before:selesai_lembur.*'],
+            'selesai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'after:mulai_lembur.*'],
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
-
+    
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
             return response()->json(['message' => $errors], 402);
         }
 
         $is_planned = $request->is_planned;
+        $approved_detail = $request->approved_detail;
+        $mulai_lemburs = $request->mulai_lembur;
+        $selesai_lemburs = $request->selesai_lembur;
+        $id_detail_lemburs = $request->id_detail_lembur;
+        $jenis_hariAktual = $request->jenis_hariAktual;
+        $jenis_hariApproval = $request->jenis_hariApproval;
 
         DB::beginTransaction();
         try{
             $lembur = Lembure::find($id_lembur);
-            $karyawan = 'HRD & GA';
+            $detail_lembur = $lembur->detailLembur;
+            $departemen_id = $lembur?->departemen_id;
+            $divisi_id = $lembur?->divisi_id;
+            $organisasi_id = auth()->user()->organisasi_id;
+
+            $date = Carbon::parse($mulai_lemburs[0])->format('Y-m-d');
+            foreach ($mulai_lemburs as $key => $start) {
+                if (Carbon::parse($start)->format('Y-m-d') !== $date) {
+                    DB::rollback();
+                    return response()->json(['message' => 'Seluruh tanggal mulai lembur harus berada pada tanggal yang sama!'], 402);
+                }
+            }
 
             if($is_planned == 'N'){
-                if($lembur->plan_legalized_by !== null){
-                    return response()->json(['message' => 'Pengajuan Lembur sudah di Legalized pada Planning !'], 403);
+                if(!$approved_detail){
+                    DB::commit();
+                    return response()->json(['message' => 'Minimal ada 1 orang yang di Approved!'], 403);
+                } else {
+                    $approved_detail = explode(',', $approved_detail);
                 }
-                $lembur->status = 'PLANNED';
-                $lembur->plan_legalized_by = $karyawan;
-                $lembur->plan_legalized_at = now();
+    
+                if($lembur->plan_legalized_by !== null){
+                    return response()->json(['message' => 'Pengajuan Lembur sudah di Legalized !'], 403);
+                }
+
+                $total_durasi = 0;
+                $total_nominal = 0;
+                foreach ($id_detail_lemburs as $key => $id_detail_lembur) {
+                    $detail = DetailLembur::find($id_detail_lembur);
+                    if (!in_array($detail->id_detail_lembur, $approved_detail)) {
+                        $detail->is_rencana_approved = 'N';
+                        $detail->is_aktual_approved = 'N';
+                        $detail->save();
+                        
+                        $lembur->total_durasi -= $detail->durasi;
+                    } else {
+                        if($detail && $detail->is_rencana_approved == 'Y'){
+                            $karyawan = $detail->karyawan;
+                            $gaji_lembur = $karyawan->settingLembur->gaji;
+                            $pembagi_upah_lembur = SettingLembur::where('setting_name', 'pembagi_upah_lembur_harian')->where('organisasi_id', $detail->organisasi_id)->first()->value;
+                            $datetime_rencana_mulai_lembur = $this->pembulatan_menit_ke_bawah($mulai_lemburs[$key]);
+                            $datetime_rencana_selesai_lembur = $this->pembulatan_menit_ke_bawah($selesai_lemburs[$key]);
+                            $durasi_istirahat = $this->overtime_resttime_per_minutes($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur, $detail->organisasi_id);
+                            $durasi = $this->calculate_overtime_per_minutes($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur, $detail->organisasi_id);
+                            $durasi_konversi_lembur = $this->calculate_durasi_konversi_lembur($jenis_hariApproval, $durasi, $detail->karyawan_id);
+                            $uang_makan = $this->calculate_overtime_uang_makan($jenis_hariApproval, $durasi, $detail->karyawan_id);
+            
+                            if($durasi < 60){
+                                DB::rollback();
+                                return response()->json(['message' => 'Durasi lembur '.$detail->karyawan->nama.' kurang dari 1 jam, tidak perlu dimasukkan ke SPL'], 402);
+                            }
+        
+                            $nominal = $this->calculate_overtime_nominal($jenis_hariApproval, $durasi, $detail->karyawan_id);
+                            $detail->rencana_mulai_lembur = $datetime_rencana_mulai_lembur;
+                            $detail->rencana_selesai_lembur = $datetime_rencana_selesai_lembur;
+                            $detail->durasi_istirahat = $durasi_istirahat;
+                            $detail->durasi_konversi_lembur = $durasi_konversi_lembur;
+                            $detail->uang_makan = $uang_makan;
+                            $detail->gaji_lembur = $gaji_lembur;
+                            $detail->pembagi_upah_lembur = $pembagi_upah_lembur;
+                            $detail->durasi = $durasi;
+                            $detail->nominal = $nominal;
+                            $detail->save();
+
+                            // Hitung durasi dan nominal Aktual
+                            $total_durasi += $durasi;
+                            $total_nominal += $nominal;
+                        }
+                    }
+                }
+
+                $lembur->update([
+                    'status' => 'PLANNED',
+                    'jenis_hari' => $jenis_hariApproval,
+                    'plan_legalized_by' => 'HRD & GA',
+                    'plan_legalized_at' => now(),
+                    'total_durasi' => $total_durasi,
+                    'total_nominal' => $total_nominal
+                ]);
+                $lembur->save();
             } else {
                 if($lembur->actual_legalized_by !== null){
-                    return response()->json(['message' => 'Pengajuan Lembur sudah di Legalized pada Aktual!'], 403);
+                    DB::rollback();
+                    return response()->json(['message' => 'Aktual Lembur sudah di Legalized !'], 403);
                 }
-                $lembur->status = 'COMPLETED';
-                $lembur->actual_legalized_by = $karyawan;
-                $lembur->actual_legalized_at = now();
 
-                //NEW 
-                $detail_lembur = $lembur->detailLembur->where('is_aktual_approved', 'Y');
-                $departemen_id = $lembur?->departemen_id;
-                $divisi_id = $lembur?->divisi_id;
-                $organisasi_id = auth()->user()->organisasi_id;
-
-                foreach ($detail_lembur as $item){
-                    $total_nominal = $item->nominal;
-                    $total_durasi = $item->durasi;
-                    $aktual_mulai_lembur = $item->aktual_mulai_lembur;
+                $total_durasi = 0;
+                $total_nominal = 0;
+                foreach ($id_detail_lemburs as $key => $id_detail_lembur) {
+                    $detail = DetailLembur::find($id_detail_lembur);
+                    if($detail && $detail->is_aktual_approved == 'Y'){
+                        $karyawan = $detail->karyawan;
+                        $gaji_lembur = $karyawan->settingLembur->gaji;
+                        $pembagi_upah_lembur = SettingLembur::where('setting_name', 'pembagi_upah_lembur_harian')->where('organisasi_id', $detail->organisasi_id)->first()->value;
+                        $datetime_aktual_mulai_lembur = $this->pembulatan_menit_ke_bawah($mulai_lemburs[$key]);
+                        $datetime_aktual_selesai_lembur = $this->pembulatan_menit_ke_bawah($selesai_lemburs[$key]);
+                        $durasi_istirahat = $this->overtime_resttime_per_minutes($datetime_aktual_mulai_lembur, $datetime_aktual_selesai_lembur, $detail->organisasi_id);
+                        $durasi = $this->calculate_overtime_per_minutes($datetime_aktual_mulai_lembur, $datetime_aktual_selesai_lembur, $detail->organisasi_id);
+                        $durasi_konversi_lembur = $this->calculate_durasi_konversi_lembur($jenis_hariAktual, $durasi, $detail->karyawan_id);
+                        $uang_makan = $this->calculate_overtime_uang_makan($jenis_hariAktual, $durasi, $detail->karyawan_id);
+        
+                        if($durasi < 60){
+                            DB::rollback();
+                            return response()->json(['message' => 'Durasi lembur '.$detail->karyawan->nama.' kurang dari 1 jam, tidak perlu dimasukkan ke SPL'], 402);
+                        }
     
-                    $tanggal_lembur = Carbon::parse($aktual_mulai_lembur)->format('Y-m-d');
+                        $nominal = $this->calculate_overtime_nominal($jenis_hariAktual, $durasi, $detail->karyawan_id);
+                        $detail->aktual_mulai_lembur = $datetime_aktual_mulai_lembur;
+                        $detail->aktual_selesai_lembur = $datetime_aktual_selesai_lembur;
+                        $detail->durasi_istirahat = $durasi_istirahat;
+                        $detail->durasi_konversi_lembur = $durasi_konversi_lembur;
+                        $detail->uang_makan = $uang_makan;
+                        $detail->gaji_lembur = $gaji_lembur;
+                        $detail->pembagi_upah_lembur = $pembagi_upah_lembur;
+                        $detail->durasi = $durasi;
+                        $detail->nominal = $nominal;
+                        // Hitung durasi dan nominal Aktual
+                        $total_durasi += $durasi;
+                        $total_nominal += $nominal;
+                    }
+                    $detail->save();
+
+                    $tanggal_lembur = Carbon::parse($datetime_aktual_mulai_lembur)->format('Y-m-d');
                     $lembur_harian = LemburHarian::whereDate('tanggal_lembur', $tanggal_lembur)->where('organisasi_id', $organisasi_id)->where('departemen_id', $departemen_id)->where('divisi_id', $divisi_id)->first();
                     if ($lembur_harian){
                         $lembur_harian->total_durasi_lembur = $lembur_harian->total_durasi_lembur + $total_durasi;
@@ -2473,9 +2884,19 @@ class LembureController extends Controller
                         ]);
                     }
                 }
+
+                $lembur->update([
+                    'jenis_hari' => $jenis_hariAktual,
+                    'status' => 'COMPLETED',
+                    'actual_legalized_by' => 'HRD & GA',
+                    'actual_legalized_at' => now(),
+                    'total_durasi' => $total_durasi,
+                    'total_nominal' => $total_nominal
+                ]);
+
+                $lembur->save();
             }
 
-            $lembur->save();
             DB::commit();
             return response()->json(['message' => 'Pengajuan Lembur berhasil di Legalized!'],200);
         } catch (Throwable $e){
@@ -2923,340 +3344,391 @@ class LembureController extends Controller
         exit();
     }
 
-    public function export_slip_lembur_perbulan(Request $request){
+    // public function export_slip_lembur_perbulan(Request $request){
         
-        $organisasi_id = auth()->user()->organisasi_id;
-        $periode = $request->periode_slip;
-        $departemen_id = $request->departemen_slip;
-        $departemen = Departemen::find($departemen_id)->nama;
+    //     $organisasi_id = auth()->user()->organisasi_id;
+    //     $periode = $request->periode_slip;
+    //     $departemen_id = $request->departemen_slip;
+    //     $departemen = Departemen::find($departemen_id)->nama;
 
-        //CREATE EXCEL FILE
-        $spreadsheet = new Spreadsheet();
+    //     //CREATE EXCEL FILE
+    //     $spreadsheet = new Spreadsheet();
 
-        $fillStyle = [
-            'borders' => [
-                'allBorders' => [
-                    'borderStyle' => Border::BORDER_THIN,
-                    'color' => ['argb' => 'FF000000'],
-                ],
-            ],
-            'alignment' => [
-                'horizontal' => Alignment::HORIZONTAL_CENTER,
-                'vertical' => Alignment::VERTICAL_CENTER,
-            ],
-            'font' => [
-                'bold' => true,
-                'size' => 12,
-            ],
-        ];
+    //     $fillStyle = [
+    //         'borders' => [
+    //             'allBorders' => [
+    //                 'borderStyle' => Border::BORDER_THIN,
+    //                 'color' => ['argb' => 'FF000000'],
+    //             ],
+    //         ],
+    //         'alignment' => [
+    //             'horizontal' => Alignment::HORIZONTAL_CENTER,
+    //             'vertical' => Alignment::VERTICAL_CENTER,
+    //         ],
+    //         'font' => [
+    //             'bold' => true,
+    //             'size' => 12,
+    //         ],
+    //     ];
         
-        $sheet = $spreadsheet->getActiveSheet();
-        $sheet->setTitle('SLIP LEMBUR');
-        $row = 1;
-        $headers = [
-            'NO',
-            'HARI',
-            'TANGGAL',
-            'JAM MASUK',
-            'JAM KELUAR',
-            'JAM ISTIRAHAT',
-            'JAM KELUAR SETELAH ISTIRAHAT',
-            'TOTAL JAM',
-            'KONVERSI JAM',
-            'UANG MAKAN',
-            'UPAH LEMBUR PERJAM',
-            'JUMLAH'
-        ];
-        $start = Carbon::createFromFormat('Y-m', $periode)->startOfMonth()->toDateString();
-        $end = Carbon::createFromFormat('Y-m', $periode)->endOfMonth()->toDateString();
-        $members = Karyawan::getDepartemenMember($departemen_id);
+    //     $sheet = $spreadsheet->getActiveSheet();
+    //     $sheet->setTitle('SLIP LEMBUR');
+    //     $row = 1;
+    //     $headers = [
+    //         'NO',
+    //         'HARI',
+    //         'TANGGAL',
+    //         'JAM MASUK',
+    //         'JAM KELUAR',
+    //         'JAM ISTIRAHAT',
+    //         'JAM KELUAR SETELAH ISTIRAHAT',
+    //         'TOTAL JAM',
+    //         'KONVERSI JAM',
+    //         'UANG MAKAN',
+    //         'UPAH LEMBUR PERJAM',
+    //         'JUMLAH'
+    //     ];
+    //     $start = Carbon::createFromFormat('Y-m', $periode)->startOfMonth()->toDateString();
+    //     $end = Carbon::createFromFormat('Y-m', $periode)->endOfMonth()->toDateString();
+    //     $organisasi_id = auth()->user()->organisasi_id;
+    //     $pembagi_upah_lembur_harian = SettingLembur::where('organisasi_id', $organisasi_id)->where('setting_name', 'pembagi_upah_lembur_harian')->first()->value;
+    //     $members = Karyawan::select('karyawans.id_karyawan', 'karyawans.nama', 'karyawans.ni_karyawan', 'setting_lembur_karyawans.gaji', 'detail_lemburs.gaji_lembur', 'detail_lemburs.pembagi_upah_lembur')
+    //     ->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
+    //     ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+    //     ->leftJoin('setting_lembur_karyawans', 'karyawans.id_karyawan', 'setting_lembur_karyawans.karyawan_id')
+    //     ->leftJoin('detail_lemburs', 'karyawans.id_karyawan', 'detail_lemburs.karyawan_id')
+    //     ->where('posisis.departemen_id', $departemen_id)
+    //     ->where('detail_lemburs.organisasi_id', $organisasi_id)
+    //     ->whereBetween('detail_lemburs.aktual_mulai_lembur', [$start, $end])
+    //     ->groupBy('karyawans.id_karyawan', 'karyawans.nama', 'karyawans.ni_karyawan', 'setting_lembur_karyawans.gaji', 'detail_lemburs.gaji_lembur', 'detail_lemburs.pembagi_upah_lembur', 'detail_lemburs.organisasi_id')
+    //     ->get();
 
-        $columns = range('A', 'L');
-        foreach ($columns as $column) {
-            $sheet->getColumnDimension($column)->setAutoSize(true);
-        }
+    //     $columns = range('A', 'L');
+    //     foreach ($columns as $column) {
+    //         $sheet->getColumnDimension($column)->setAutoSize(true);
+    //     }
    
-        foreach ($members as $kry){
-            $lembur_karyawan = DetailLembur::leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')->where('detail_lemburs.karyawan_id', $kry->id_karyawan)->whereBetween('detail_lemburs.aktual_mulai_lembur', [$start, $end])->whereNotNull('lemburs.actual_legalized_by')
-            ->where('lemburs.status', 'COMPLETED')->first();
-            $setting_lembur_karyawan = SettingLemburKaryawan::where('karyawan_id', $kry->id_karyawan)->first();
-            $pembagi_upah_lembur_harian = SettingLembur::where('organisasi_id', auth()->user()->organisasi_id)->where('setting_name', 'pembagi_upah_lembur_harian')->first()->value;
-            $upah_lembur_per_jam_setting = $lembur_karyawan ? $lembur_karyawan->gaji_lembur / $lembur_karyawan->pembagi_upah_lembur : ($setting_lembur_karyawan ? $setting_lembur_karyawan->gaji / $pembagi_upah_lembur_harian : 0);
-            // TEXT "SLIP LEMBUR BULAN INI"
-            $sheet->mergeCells('A'.$row.':F'.$row+1);
-            $sheet->setCellValue('A'.$row, 'SLIP LEMBUR BULAN '.Carbon::createFromFormat('Y-m', $periode)->format('F Y'));
-            $sheet->getStyle('A'.$row.':F'.$row+1)->applyFromArray([
-                'fill' => [
-                    'fillType' => Fill::FILL_SOLID,
-                    'startColor' => [
-                        'argb' => 'FF808080',
-                    ],
-                ],
-                'alignment' => [
-                    'horizontal' => Alignment::HORIZONTAL_CENTER,
-                    'vertical' => Alignment::VERTICAL_CENTER,
-                ],
-                'font' => [
-                    'bold' => true,
-                    'size' => 12,
-                ],
-            ]);
+    //     foreach ($members as $kry){
+    //         $upah_lembur_per_jam_setting = $kry->gaji_lembur ? $kry->gaji_lembur / $kry->pembagi_upah_lembur : ($kry->gaji ? $kry->gaji / $pembagi_upah_lembur_harian : 0);
+    //         // TEXT "SLIP LEMBUR BULAN INI"
+    //         $sheet->mergeCells('A'.$row.':F'.$row+1);
+    //         $sheet->setCellValue('A'.$row, 'SLIP LEMBUR BULAN '.Carbon::createFromFormat('Y-m', $periode)->format('F Y'));
+    //         $sheet->getStyle('A'.$row.':F'.$row+1)->applyFromArray([
+    //             'fill' => [
+    //                 'fillType' => Fill::FILL_SOLID,
+    //                 'startColor' => [
+    //                     'argb' => 'FF808080',
+    //                 ],
+    //             ],
+    //             'alignment' => [
+    //                 'horizontal' => Alignment::HORIZONTAL_CENTER,
+    //                 'vertical' => Alignment::VERTICAL_CENTER,
+    //             ],
+    //             'font' => [
+    //                 'bold' => true,
+    //                 'size' => 12,
+    //             ],
+    //         ]);
 
-            $row += 2;
-            $sheet->setCellValue('B'.$row, 'NAMA');
-            $sheet->setCellValue('C'.$row, ':');
-            $sheet->setCellValue('D'.$row, $kry->nama);
-            $sheet->setCellValue('B'.$row+1, 'NIK');
-            $sheet->setCellValue('C'.$row+1, ':');
-            $sheet->setCellValue('D'.$row+1, $kry->ni_karyawan);
-            $sheet->getStyle('B'.$row.':B'.$row+1)->applyFromArray([
-                'alignment' => [
-                    'horizontal' => Alignment::HORIZONTAL_LEFT,
-                    'vertical' => Alignment::VERTICAL_CENTER,
-                ],
-                'font' => [
-                    'bold' => true,
-                    'size' => 12,
-                ],
-            ]);
+    //         $row += 2;
+    //         $sheet->setCellValue('B'.$row, 'NAMA');
+    //         $sheet->setCellValue('C'.$row, ':');
+    //         $sheet->setCellValue('D'.$row, $kry->nama);
+    //         $sheet->setCellValue('B'.$row+1, 'NIK');
+    //         $sheet->setCellValue('C'.$row+1, ':');
+    //         $sheet->setCellValue('D'.$row+1, $kry->ni_karyawan);
+    //         $sheet->getStyle('B'.$row.':B'.$row+1)->applyFromArray([
+    //             'alignment' => [
+    //                 'horizontal' => Alignment::HORIZONTAL_LEFT,
+    //                 'vertical' => Alignment::VERTICAL_CENTER,
+    //             ],
+    //             'font' => [
+    //                 'bold' => true,
+    //                 'size' => 12,
+    //             ],
+    //         ]);
 
-            $sheet->getStyle('C'.$row.':C'.$row+1)->applyFromArray([
-                'alignment' => [
-                    'horizontal' => Alignment::HORIZONTAL_CENTER,
-                    'vertical' => Alignment::VERTICAL_CENTER,
-                ],
-                'font' => [
-                    'bold' => true,
-                    'size' => 12,
-                ],
-            ]);
+    //         $sheet->getStyle('C'.$row.':C'.$row+1)->applyFromArray([
+    //             'alignment' => [
+    //                 'horizontal' => Alignment::HORIZONTAL_CENTER,
+    //                 'vertical' => Alignment::VERTICAL_CENTER,
+    //             ],
+    //             'font' => [
+    //                 'bold' => true,
+    //                 'size' => 12,
+    //             ],
+    //         ]);
 
-            $sheet->getStyle('D'.$row.':D'.$row+1)->applyFromArray([
-                'alignment' => [
-                    'horizontal' => Alignment::HORIZONTAL_LEFT,
-                    'vertical' => Alignment::VERTICAL_CENTER,
-                ],
-                'font' => [
-                    'bold' => true,
-                    'size' => 12,
-                ],
-            ]);
+    //         $sheet->getStyle('D'.$row.':D'.$row+1)->applyFromArray([
+    //             'alignment' => [
+    //                 'horizontal' => Alignment::HORIZONTAL_LEFT,
+    //                 'vertical' => Alignment::VERTICAL_CENTER,
+    //             ],
+    //             'font' => [
+    //                 'bold' => true,
+    //                 'size' => 12,
+    //             ],
+    //         ]);
 
-            $row += 2;
-            $col = 'A';
-            foreach ($headers as $header) {
-                $sheet->setCellValue($col . $row, $header);
-                $sheet->mergeCells($col . $row.':' . $col . ($row+1));
-                $sheet->getStyle($col . $row.':' . $col . ($row+1))->applyFromArray($fillStyle);
-                $col++;
-            }
+    //         $row += 2;
+    //         $col = 'A';
+    //         foreach ($headers as $header) {
+    //             $sheet->setCellValue($col . $row, $header);
+    //             $sheet->mergeCells($col . $row.':' . $col . ($row+1));
+    //             $sheet->getStyle($col . $row.':' . $col . ($row+1))->applyFromArray($fillStyle);
+    //             $col++;
+    //         }
             
-            $row += 2;
-            //LOOPING AWAL SAMPAI AKHIR BULAN
-            $total_jam = 0;
-            $total_konversi_jam = 0;
-            $total_uang_makan = 0;
-            $total_spl = 0;
-            for($i = 0; $i <= Carbon::parse($start)->diffInDays(Carbon::parse($end)); $i++){
-                $date = Carbon::parse($start)->addDays($i)->toDateString();
-                $slipLemburs = DetailLembur::getSlipLemburPerDepartemen($kry->id_karyawan, $date);
+    //         $row += 2;
+    //         //LOOPING AWAL SAMPAI AKHIR BULAN
+    //         $total_jam = 0;
+    //         $total_konversi_jam = 0;
+    //         $total_uang_makan = 0;
+    //         $total_spl = 0;
+    //         for($i = 0; $i <= Carbon::parse($start)->diffInDays(Carbon::parse($end)); $i++){
+    //             $date = Carbon::parse($start)->addDays($i)->toDateString();
+    //             $slipLemburs = DetailLembur::getSlipLemburPerDepartemen($kry->id_karyawan, $date);
 
-                if($slipLemburs->count() > 0){
-                    foreach($slipLemburs as $index => $slipLembur){
-                        $upah_lembur_per_jam = $slipLembur ? $slipLembur->gaji_lembur / $slipLembur->pembagi_upah_lembur : $upah_lembur_per_jam_setting;
-                        $total_jam += $slipLembur->durasi;
-                        $total_konversi_jam += $slipLembur->durasi_konversi_lembur;
-                        $total_uang_makan += $slipLembur->uang_makan;
-                        $total_spl += $slipLembur->nominal;
-                        $sheet->setCellValue('A'.$row, $i+1);
-                        $sheet->setCellValue('B'.$row, Carbon::parse($date)->locale('id')->translatedFormat('l'));
+    //             if($slipLemburs->count() > 0){
+    //                 foreach($slipLemburs as $index => $slipLembur){
+    //                     $upah_lembur_per_jam = $slipLembur ? $slipLembur->gaji_lembur / $slipLembur->pembagi_upah_lembur : $upah_lembur_per_jam_setting;
+    //                     $total_jam += $slipLembur->durasi;
+    //                     $total_konversi_jam += $slipLembur->durasi_konversi_lembur;
+    //                     $total_uang_makan += $slipLembur->uang_makan;
+    //                     $total_spl += $slipLembur->nominal;
+    //                     $sheet->setCellValue('A'.$row, $i+1);
+    //                     $sheet->setCellValue('B'.$row, Carbon::parse($date)->locale('id')->translatedFormat('l'));
     
-                        //JIKA WEEKEND UBAH STYLE CELL
-                        if(Carbon::parse($date)->isWeekend()){
-                            $sheet->getStyle('B'.$row)->applyFromArray([
-                                'fill' => [
-                                    'fillType' => Fill::FILL_SOLID,
-                                    'startColor' => [
-                                        'argb' => 'FFFF0000',
-                                    ],
-                                ],
-                                'font' => [
-                                    'color' => [
-                                        'argb' => 'FFFFFFFF',
-                                    ],
-                                ],
-                            ]);
-                        }
+    //                     //JIKA WEEKEND UBAH STYLE CELL
+    //                     if(Carbon::parse($date)->isWeekend()){
+    //                         $sheet->getStyle('B'.$row)->applyFromArray([
+    //                             'fill' => [
+    //                                 'fillType' => Fill::FILL_SOLID,
+    //                                 'startColor' => [
+    //                                     'argb' => 'FFFF0000',
+    //                                 ],
+    //                             ],
+    //                             'font' => [
+    //                                 'color' => [
+    //                                     'argb' => 'FFFFFFFF',
+    //                                 ],
+    //                             ],
+    //                         ]);
+    //                     }
     
-                        $sheet->setCellValue('C'.$row, Carbon::parse($date)->format('d-m-Y'));
-                        $sheet->setCellValue('D'.$row, Carbon::parse($slipLembur->aktual_mulai_lembur)->format('H:i'));
-                        $sheet->setCellValue('E'.$row, Carbon::parse($slipLembur->aktual_selesai_lembur)->format('H:i'));
-                        $sheet->setCellValue('F'.$row, number_format($slipLembur->durasi_istirahat / 100 , 2));
-                        $sheet->setCellValue('G'.$row, Carbon::parse($slipLembur->aktual_selesai_lembur)->subMinutes($slipLembur->durasi_istirahat)->format('H:i'));
-                        $sheet->setCellValue('H'.$row, number_format($slipLembur->durasi / 60, 2));
-                        $sheet->setCellValue('I'.$row, number_format($slipLembur->durasi_konversi_lembur / 60, 2));
-                        $sheet->setCellValue('J'.$row, $slipLembur->uang_makan);
-                        $sheet->setCellValue('K'.$row, 'Rp ' . number_format($upah_lembur_per_jam, 0, ',', '.'));
-                        $sheet->setCellValue('L'.$row, 'Rp '. number_format($slipLembur->nominal, 0, ',', '.'));
+    //                     $sheet->setCellValue('C'.$row, Carbon::parse($date)->format('d-m-Y'));
+    //                     $sheet->setCellValue('D'.$row, Carbon::parse($slipLembur->aktual_mulai_lembur)->format('H:i'));
+    //                     $sheet->setCellValue('E'.$row, Carbon::parse($slipLembur->aktual_selesai_lembur)->format('H:i'));
+    //                     $sheet->setCellValue('F'.$row, number_format($slipLembur->durasi_istirahat / 100 , 2));
+    //                     $sheet->setCellValue('G'.$row, Carbon::parse($slipLembur->aktual_selesai_lembur)->subMinutes($slipLembur->durasi_istirahat)->format('H:i'));
+    //                     $sheet->setCellValue('H'.$row, number_format($slipLembur->durasi / 60, 2));
+    //                     $sheet->setCellValue('I'.$row, number_format($slipLembur->durasi_konversi_lembur / 60, 2));
+    //                     $sheet->setCellValue('J'.$row, $slipLembur->uang_makan);
+    //                     $sheet->setCellValue('K'.$row, 'Rp ' . number_format($upah_lembur_per_jam, 0, ',', '.'));
+    //                     $sheet->setCellValue('L'.$row, 'Rp '. number_format($slipLembur->nominal, 0, ',', '.'));
     
-                        //STYLE CELL
-                        $sheet->getStyle('C'.$row)->applyFromArray([
-                            'alignment' => [
-                                'horizontal' => Alignment::HORIZONTAL_CENTER,
-                                'vertical' => Alignment::VERTICAL_CENTER,
-                            ],
-                        ]);
-                        $sheet->getStyle('J'.$row.':K'.$row)->applyFromArray([
-                            'font' => [
-                                'color' => [
-                                    'argb' => 'FFFF0000',
-                                ],
-                            ],
-                        ]);
-                        $sheet->getStyle('A'.$row.':L'.$row)->applyFromArray([
-                            'borders' => [
-                                'allBorders' => [
-                                    'borderStyle' => Border::BORDER_THIN,
-                                    'color' => ['argb' => 'FF000000'],
-                                ],
-                            ],
-                        ]);
+    //                     //STYLE CELL
+    //                     $sheet->getStyle('C'.$row)->applyFromArray([
+    //                         'alignment' => [
+    //                             'horizontal' => Alignment::HORIZONTAL_CENTER,
+    //                             'vertical' => Alignment::VERTICAL_CENTER,
+    //                         ],
+    //                     ]);
+    //                     $sheet->getStyle('J'.$row.':K'.$row)->applyFromArray([
+    //                         'font' => [
+    //                             'color' => [
+    //                                 'argb' => 'FFFF0000',
+    //                             ],
+    //                         ],
+    //                     ]);
+    //                     $sheet->getStyle('A'.$row.':L'.$row)->applyFromArray([
+    //                         'borders' => [
+    //                             'allBorders' => [
+    //                                 'borderStyle' => Border::BORDER_THIN,
+    //                                 'color' => ['argb' => 'FF000000'],
+    //                             ],
+    //                         ],
+    //                     ]);
 
-                        if ($slipLemburs->count() > 1 && $index == 0) {
-                            //STYLE CELL
-                            $sheet->getStyle('C'.$row)->applyFromArray([
-                                'alignment' => [
-                                    'horizontal' => Alignment::HORIZONTAL_CENTER,
-                                    'vertical' => Alignment::VERTICAL_CENTER,
-                                ],
-                            ]);
-                            $sheet->getStyle('J'.$row.':K'.$row)->applyFromArray([
-                                'font' => [
-                                    'color' => [
-                                        'argb' => 'FFFF0000',
-                                    ],
-                                ],
-                            ]);
-                            $sheet->getStyle('A'.$row.':K'.$row)->applyFromArray([
-                                'borders' => [
-                                    'allBorders' => [
-                                        'borderStyle' => Border::BORDER_THIN,
-                                        'color' => ['argb' => 'FF000000'],
-                                    ],
-                                ],
-                            ]);
-                            $row++;
-                        }
-                    }
-                } else {
-                    $upah_lembur_per_jam = $slipLemburs->count() > 0 ? $slipLemburs[0]->gaji_lembur / $slipLemburs[0]->pembagi_upah_lembur : $upah_lembur_per_jam_setting;
-                    $sheet->setCellValue('A'.$row, $i+1);
-                    $sheet->setCellValue('B'.$row, Carbon::parse($date)->locale('id')->translatedFormat('l'));
+    //                     if ($slipLemburs->count() > 1 && $index == 0) {
+    //                         //STYLE CELL
+    //                         $sheet->getStyle('C'.$row)->applyFromArray([
+    //                             'alignment' => [
+    //                                 'horizontal' => Alignment::HORIZONTAL_CENTER,
+    //                                 'vertical' => Alignment::VERTICAL_CENTER,
+    //                             ],
+    //                         ]);
+    //                         $sheet->getStyle('J'.$row.':K'.$row)->applyFromArray([
+    //                             'font' => [
+    //                                 'color' => [
+    //                                     'argb' => 'FFFF0000',
+    //                                 ],
+    //                             ],
+    //                         ]);
+    //                         $sheet->getStyle('A'.$row.':K'.$row)->applyFromArray([
+    //                             'borders' => [
+    //                                 'allBorders' => [
+    //                                     'borderStyle' => Border::BORDER_THIN,
+    //                                     'color' => ['argb' => 'FF000000'],
+    //                                 ],
+    //                             ],
+    //                         ]);
+    //                         $row++;
+    //                     }
+    //                 }
+    //             } else {
+    //                 $sheet->setCellValue('A'.$row, $i+1);
+    //                 $sheet->setCellValue('B'.$row, Carbon::parse($date)->locale('id')->translatedFormat('l'));
 
-                    //JIKA WEEKEND UBAH STYLE CELL
-                    if(Carbon::parse($date)->isWeekend()){
-                        $sheet->getStyle('B'.$row)->applyFromArray([
-                            'fill' => [
-                                'fillType' => Fill::FILL_SOLID,
-                                'startColor' => [
-                                    'argb' => 'FFFF0000',
-                                ],
-                            ],
-                            'font' => [
-                                'color' => [
-                                    'argb' => 'FFFFFFFF',
-                                ],
-                            ],
-                        ]);
-                    }
+    //                 //JIKA WEEKEND UBAH STYLE CELL
+    //                 if(Carbon::parse($date)->isWeekend()){
+    //                     $sheet->getStyle('B'.$row)->applyFromArray([
+    //                         'fill' => [
+    //                             'fillType' => Fill::FILL_SOLID,
+    //                             'startColor' => [
+    //                                 'argb' => 'FFFF0000',
+    //                             ],
+    //                         ],
+    //                         'font' => [
+    //                             'color' => [
+    //                                 'argb' => 'FFFFFFFF',
+    //                             ],
+    //                         ],
+    //                     ]);
+    //                 }
 
-                    $sheet->setCellValue('C'.$row, Carbon::parse($date)->format('d-m-Y'));
-                    $sheet->setCellValue('D'.$row, '-');
-                    $sheet->setCellValue('E'.$row, '-');
-                    $sheet->setCellValue('F'.$row, '-');
-                    $sheet->setCellValue('G'.$row, '-');
-                    $sheet->setCellValue('H'.$row, '-');
-                    $sheet->setCellValue('I'.$row, '-');
-                    $sheet->setCellValue('J'.$row, 0);
-                    $sheet->setCellValue('K'.$row, 'Rp ' . number_format($upah_lembur_per_jam, 0, ',', '.'));
-                    $sheet->setCellValue('L'.$row, 'Rp');
-                }
+    //                 $sheet->setCellValue('C'.$row, Carbon::parse($date)->format('d-m-Y'));
+    //                 $sheet->setCellValue('D'.$row, '-');
+    //                 $sheet->setCellValue('E'.$row, '-');
+    //                 $sheet->setCellValue('F'.$row, '-');
+    //                 $sheet->setCellValue('G'.$row, '-');
+    //                 $sheet->setCellValue('H'.$row, '-');
+    //                 $sheet->setCellValue('I'.$row, '-');
+    //                 $sheet->setCellValue('J'.$row, 0);
+    //                 $sheet->setCellValue('K'.$row, 'Rp ' . number_format($upah_lembur_per_jam_setting, 0, ',', '.'));
+    //                 $sheet->setCellValue('L'.$row, 'Rp');
+    //             }
 
-                //STYLE CELL
-                $sheet->getStyle('C'.$row)->applyFromArray([
-                    'alignment' => [
-                        'horizontal' => Alignment::HORIZONTAL_CENTER,
-                        'vertical' => Alignment::VERTICAL_CENTER,
-                    ],
-                ]);
-                $sheet->getStyle('J'.$row.':K'.$row)->applyFromArray([
-                    'font' => [
-                        'color' => [
-                            'argb' => 'FFFF0000',
-                        ],
-                    ],
-                ]);
-                $sheet->getStyle('A'.$row.':L'.$row)->applyFromArray([
-                    'borders' => [
-                        'allBorders' => [
-                            'borderStyle' => Border::BORDER_THIN,
-                            'color' => ['argb' => 'FF000000'],
-                        ],
-                    ],
-                ]);
+    //             //STYLE CELL
+    //             $sheet->getStyle('C'.$row)->applyFromArray([
+    //                 'alignment' => [
+    //                     'horizontal' => Alignment::HORIZONTAL_CENTER,
+    //                     'vertical' => Alignment::VERTICAL_CENTER,
+    //                 ],
+    //             ]);
+    //             $sheet->getStyle('J'.$row.':K'.$row)->applyFromArray([
+    //                 'font' => [
+    //                     'color' => [
+    //                         'argb' => 'FFFF0000',
+    //                     ],
+    //                 ],
+    //             ]);
+    //             $sheet->getStyle('A'.$row.':L'.$row)->applyFromArray([
+    //                 'borders' => [
+    //                     'allBorders' => [
+    //                         'borderStyle' => Border::BORDER_THIN,
+    //                         'color' => ['argb' => 'FF000000'],
+    //                     ],
+    //                 ],
+    //             ]);
 
-                $row++;
-            }
-            $sheet->setCellValue('H'.$row, number_format($total_jam / 60 , 2));    
-            $sheet->setCellValue('I'.$row, number_format($total_konversi_jam / 60 , 2));    
-            $sheet->setCellValue('J'.$row, 'Rp ' . number_format($total_uang_makan, 0, ',', '.'));    
-            $sheet->setCellValue('K'.$row, '-');    
-            $sheet->setCellValue('L'.$row, 'Rp ' . number_format($total_spl, 0, ',', '.'));
-            $sheet->setCellValue('K'.$row+1, 'SESUAI SPL');
-            $sheet->setCellValue('L'.$row+1, 'Rp ' . number_format($total_spl, 0, ',', '.'));
-            $sheet->getStyle('H'.$row.':L'.$row)->applyFromArray([
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => Border::BORDER_THIN,
-                        'color' => ['argb' => 'FF000000'],
-                    ],
-                ],
-                'font' => [
-                    'bold' => true,
-                    'size' => 12,
-                ]
-            ]);
-            $sheet->getStyle('K'.($row+1).':L'.($row+1))->applyFromArray([
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => Border::BORDER_THIN,
-                        'color' => ['argb' => 'FF000000'],
-                    ],
-                ],
-                'font' => [
-                    'bold' => true,
-                    'size' => 12,
-                ],
-                'alignment' => [
-                    'horizontal' => Alignment::HORIZONTAL_LEFT,
-                    'vertical' => Alignment::VERTICAL_CENTER,
-                ],
-            ]);
+    //             $row++;
+    //         }
+    //         $sheet->setCellValue('H'.$row, number_format($total_jam / 60 , 2));    
+    //         $sheet->setCellValue('I'.$row, number_format($total_konversi_jam / 60 , 2));    
+    //         $sheet->setCellValue('J'.$row, 'Rp ' . number_format($total_uang_makan, 0, ',', '.'));    
+    //         $sheet->setCellValue('K'.$row, '-');    
+    //         $sheet->setCellValue('L'.$row, 'Rp ' . number_format($total_spl, 0, ',', '.'));
+    //         $sheet->setCellValue('K'.$row+1, 'SESUAI SPL');
+    //         $sheet->setCellValue('L'.$row+1, 'Rp ' . number_format($total_spl, 0, ',', '.'));
+    //         $sheet->getStyle('H'.$row.':L'.$row)->applyFromArray([
+    //             'borders' => [
+    //                 'allBorders' => [
+    //                     'borderStyle' => Border::BORDER_THIN,
+    //                     'color' => ['argb' => 'FF000000'],
+    //                 ],
+    //             ],
+    //             'font' => [
+    //                 'bold' => true,
+    //                 'size' => 12,
+    //             ]
+    //         ]);
+    //         $sheet->getStyle('K'.($row+1).':L'.($row+1))->applyFromArray([
+    //             'borders' => [
+    //                 'allBorders' => [
+    //                     'borderStyle' => Border::BORDER_THIN,
+    //                     'color' => ['argb' => 'FF000000'],
+    //                 ],
+    //             ],
+    //             'font' => [
+    //                 'bold' => true,
+    //                 'size' => 12,
+    //             ],
+    //             'alignment' => [
+    //                 'horizontal' => Alignment::HORIZONTAL_LEFT,
+    //                 'vertical' => Alignment::VERTICAL_CENTER,
+    //             ],
+    //         ]);
             
-            $row += 6;
+    //         $row += 6;
+    //     }
+
+    //     $writer = new Xlsx($spreadsheet);
+
+    //     header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    //     header('Content-Disposition: attachment;filename="Slip Pembayaran Lembur - '.$departemen.' - '.Carbon::createFromFormat('Y-m', $periode)->format('F Y').'.xlsx"');
+    //     header('Cache-Control: max-age=0');
+
+    //     $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+        // $writer->save('php://output');
+        // $spreadsheet->disconnectWorksheets();
+        // unset($spreadsheet);
+        // exit();
+    // }
+
+    public function export_slip_lembur_perbulan(Request $request)
+    {
+        $dataValidate = [
+            'periode_slip' => ['required', 'date_format:Y-m'],
+            'departemen_slip' => ['required', 'integer']
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
         }
 
-        $writer = new Xlsx($spreadsheet);
+        DB::beginTransaction();
+        try{
+            $organisasi_id = auth()->user()->organisasi_id;
+            $periode = $request->periode_slip;
+            $departemen = Departemen::find($request->departemen_slip)->nama;
+            $start = Carbon::createFromFormat('Y-m', $periode)->startOfMonth()->toDateString();
+            $end = Carbon::createFromFormat('Y-m', $periode)->endOfMonth()->toDateString();
+            $pembagi_upah_lembur_harian = SettingLembur::where('organisasi_id', $organisasi_id)->where('setting_name', 'pembagi_upah_lembur_harian')->first()->value;
 
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="Slip Pembayaran Lembur - '.$departemen.' - '.Carbon::createFromFormat('Y-m', $periode)->format('F Y').'.xlsx"');
-        header('Cache-Control: max-age=0');
+            $exists = ExportSlipLembur::where('periode', Carbon::parse($periode)->format('Y-m-d'))->where('departemen_id', $request->departemen_slip)->where('organisasi_id', $organisasi_id)->where('status', 'IP')->exists();
 
-        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
-        $writer->save('php://output');
-        $spreadsheet->disconnectWorksheets();
-        unset($spreadsheet);
-        exit();
+            if($exists){
+                return response()->json(['message' => 'Export Slip Lembur sedang di Proses, silahkan tunggu beberapa saat'], 400);
+            }
+    
+            $export_slip_lembur = ExportSlipLembur::create([
+                'periode' => $periode,
+                'departemen_id' => $request->departemen_slip,
+                'organisasi_id' => $organisasi_id,
+            ]);
+
+            ExportSlipLemburJob::dispatch($periode, $organisasi_id, $departemen, $request->departemen_slip, $pembagi_upah_lembur_harian, $start, $end, $export_slip_lembur);
+
+            DB::commit();
+            return response()->json(['message' => 'Export Slip Lembur sedang di Proses, silahkan tunggu beberapa saat'], 200);
+        } catch (Throwable $e) {
+            DB::rollback();
+            return response()->json(['message' => 'Error while Exporting Data : ' . $e->getMessage()], 500);
+        }
     }
 
     public function upload_upah_lembur_karyawan(Request $request)
@@ -3421,8 +3893,6 @@ class LembureController extends Controller
         } catch (Throwable $e){
             return response()->json(['message' => $e->getMessage()], 500);
         }
-
-        // return response()->json(['message' => 'Data Durasi dan Nominal Lembur Berhasil Ditemukan', 'durasi' => $durasi, 'nominal' => $nominal], 200);
     }
 
     public function generate_lembur_harian()

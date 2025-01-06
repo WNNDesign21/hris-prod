@@ -67,6 +67,7 @@ class Karyawan extends Model
         'jurusan_pendidikan',
         'no_telp_darurat',
         'foto',
+        'pin'
     ];
 
     protected $dates = [

@@ -34,12 +34,12 @@
                     </div>
 
                     {{-- CARD ATTENDANCE SYSTEM --}}
-                    {{-- <div class="col-lg-6 col-12">
-                        <a href="{{ route('attendancee.dashboard') }}" class="box pull-up">
+                    <div class="col-lg-6 col-12">
+                        <a href="{{ route('attendance.scanlog') }}" class="box pull-up">
                             <div class="box-body">
                                 <div class="d-flex align-items-center">
                                     <div class="icon bg-primary-light rounded-circle w-60 h-60 text-center l-h-80">
-                                        <span class="fs-30 icon-Sign-in"><span class="path1"></span><span
+                                        <span class="fs-30 icon-Done-circle"><span class="path1"></span><span
                                                 class="path2"></span><span class="path3"></span><span
                                                 class="path4"></span></span>
                                     </div>
@@ -51,12 +51,12 @@
                                 </div>
                             </div>
                         </a>
-                    </div> --}}
+                    </div>
                 @endif
 
-                {{-- @if (!auth()->user()->hasRole('security')) --}}
+                @if (!auth()->user()->hasRole('security'))
                     {{-- CARD CUTI SYSTEM --}}
-                    {{-- <div class="col-lg-6 col-12">
+                    <div class="col-lg-6 col-12">
                         <a href="{{ !auth()->user()->hasRole('member') ? route('cutie.dashboard') : route('cutie.pengajuan-cuti') }}"
                             class="box pull-up">
                             <div class="box-body position-relative">
@@ -79,12 +79,12 @@
                                 </div>
                             </div>
                         </a>
-                    </div> --}}
+                    </div>
 
                     {{-- CARD LEMBUR SYSTEM --}}
-                    {{-- @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('atasan') || !$lembure['has_leader']) --}}
+                    @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('atasan') || !$lembure['has_leader'])
                         {{-- CARD LEMBUR SYSTEM --}}
-                        {{-- <div class="col-lg-6 col-12">
+                        <div class="col-lg-6 col-12">
                             <a href="{{ auth()->user()->hasRole('personalia') || (auth()->user()->karyawan && auth()->user()->karyawan->posisi[0]->jabatan_id <= 3) ? route('lembure.dashboard') : route('lembure.pengajuan-lembur') }}"
                                 class="box pull-up">
                                 <div class="box-body position-relative">
@@ -110,11 +110,11 @@
                             </a>
                         </div>
                     @endif
-                @endif --}}
+                @endif
 
 
                 {{-- CARD IZIN SYSTEM --}}
-                {{-- <div class="col-lg-6 col-12">
+                <div class="col-lg-6 col-12">
                     <a href="{{ route('izine.pengajuan-izin') }}" class="box pull-up">
                         <div class="box-body position-relative">
                             @if ($izine['total_izine_notification'] > 0)
@@ -136,9 +136,9 @@
                             </div>
                         </div>
                     </a>
-                </div> --}}
+                </div>
                 {{-- CARD STO --}}
-                <div class="col-lg-6 col-12">
+                {{-- <div class="col-lg-6 col-12">
                     <a href="{{route('sto.input-label')}}" class="box pull-up">
                         <div class="box-body position-relative">
                             <div class="d-flex align-items-center">
@@ -154,26 +154,26 @@
                             </div>
                         </div>
                     </a>
-                </div>
+                </div> --}}
             </div>
         </div>
 
         {{-- CARD PRESENSI DAN PAYROLL SYSTEM --}}
         {{-- <div class="col-lg-4 col-12">
-        <a href="#" class="box pull-up">
-            <div class="box-body">
-                <div class="d-flex align-items-center">
-                    <div class="icon bg-primary-light rounded-circle w-60 h-60 text-center l-h-80">
-                        <span class="fs-30 icon-Chat-check"><span class="path1"></span><span class="path2"></span></span>
-                    </div>
-                    <div class="ms-15">
-                        <h5 class="mb-0">Presensi & Payroll</h5>
-                        <p class="text-fade fs-12 mb-0">Sistem Presensi Karyawan & Perhitungan Payroll</p>
+            <a href="#" class="box pull-up">
+                <div class="box-body">
+                    <div class="d-flex align-items-center">
+                        <div class="icon bg-primary-light rounded-circle w-60 h-60 text-center l-h-80">
+                            <span class="fs-30 icon-Chat-check"><span class="path1"></span><span class="path2"></span></span>
+                        </div>
+                        <div class="ms-15">
+                            <h5 class="mb-0">Presensi & Payroll</h5>
+                            <p class="text-fade fs-12 mb-0">Sistem Presensi Karyawan & Perhitungan Payroll</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </a>
-    </div> --}}
+            </a>
+        </div> --}}
 
         {{-- MONITORING TRANSAKSI SYSTEM --}}
         {{-- <div class="col-lg-4 col-12">

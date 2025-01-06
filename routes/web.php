@@ -11,23 +11,25 @@ use App\Http\Controllers\Izine\SakiteController;
 use App\Http\Controllers\Lembure\LembureController;
 use App\Http\Controllers\MasterData\AkunController;
 use App\Http\Controllers\MasterData\GrupController;
+use App\Http\Controllers\StockOpname\StoController;
 use App\Http\Controllers\MasterData\EventController;
 use App\Http\Controllers\MasterData\SeksiController;
 use App\Http\Controllers\MasterData\DivisiController;
 use App\Http\Controllers\MasterData\ExportController;
 use App\Http\Controllers\MasterData\PosisiController;
 use App\Http\Controllers\Utils\DeleteQrImgController;
+use App\Http\Controllers\Attendance\DeviceController;
 use App\Http\Controllers\MasterData\JabatanController;
 use App\Http\Controllers\MasterData\KontrakController;
+use App\Http\Controllers\Attendance\ScanlogController;
 use App\Http\Controllers\MasterData\KaryawanController;
 use App\Http\Controllers\MasterData\TemplateController;
 use App\Http\Controllers\MasterData\TurnoverController;
 use App\Http\Controllers\MasterData\DashboardController;
 use App\Http\Controllers\MasterData\DepartemenController;
 use App\Http\Controllers\MasterData\OrganisasiController;
-use App\Http\Controllers\StockOpname\StoController;
 use App\Http\Controllers\StockOpname\StoReportController;
-use App\Http\Controllers\Attendancee\AttendanceeController;
+use App\Http\Controllers\Attendance\DashboardController as AttendanceDashboardController;
 
 Auth::routes();
 Route::get('/', function () {
@@ -41,6 +43,8 @@ Route::group(['middleware' => ['auth']], function () {
     // Route::get('/generate_approval_cuti',[TestController::class, 'generate_approval_cuti']);
     Route::post('/generate-qrcode', QrController::class);
     Route::delete('/delete-qrcode-img', DeleteQrImgController::class);
+    Route::get('/upload-pin', [TestController::class, 'upload_pin_view']);
+    Route::post('/upload-pin/store', [TestController::class, 'upload_pin'])->name('upload-pin.store');
 
     /** MASTER DATA - AJAX */
     Route::get('/master-data/posisi/get-data-by-jabatan/{idJabatan}', [PosisiController::class, 'get_data_by_jabatan']);
@@ -75,6 +79,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/cutie/setting-cuti/get-data-detail-jenis-cuti/{idJenisCuti}', [CutieController::class, 'get_data_detail_jenis_cuti']);
 
     Route::post('/lembure/pengajuan-lembur/get-data-karyawan-lembur', [LembureController::class, 'get_data_karyawan_lembur']);
+    Route::post('/lembure/pengajuan-lembur/get-data-karyawan-bypass-lembur', [LembureController::class, 'get_data_karyawan_bypass_lembur']);
     Route::get('/lembure/pengajuan-lembur/get-data-karyawan-lembur', [LembureController::class, 'get_karyawan_lembur']);
     Route::get('/lembure/pengajuan-lembur/get-data-lembur/{idLembur}', [LembureController::class, 'get_data_lembur']);
     Route::post('/lembure/dashboard-lembur/get-monthly-lembur-per-departemen', [LembureController::class, 'get_monthly_lembur_per_departemen']);
@@ -87,6 +92,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/izine/pengajuan-izin/get-data-izin/{idIzin}', [IzineController::class, 'get_data_izin']);
     Route::get('/izine/lapor-skd/get-data-sakit/{idSakit}', [SakiteController::class, 'get_data_sakit']);
     Route::get('/izine/log-book-izin/get-qrcode-detail-izin/{idIzin}', [IzineController::class, 'get_qrcode_detail_izin']);
+
+    Route::get('/attendance/device/get-all-device', [DeviceController::class, 'get_all_device']);
 });
 
 
@@ -326,8 +333,13 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
 
             // Export Report Lembur
             Route::get('/export-report-lembur', [LembureController::class, 'export_report_lembur_view'])->name('lembure.export-report-lembur');
+            Route::post('/export-report-lembur/datatable', [LembureController::class, 'export_slip_lembur_datatable']);
             Route::post('/export-report-lembur/rekap-lembur-perbulan', [LembureController::class, 'export_rekap_lembur_perbulan'])->name('lembure.export-report-lembur.rekap-lembur-perbulan');
             Route::post('/export-report-lembur/slip-lembur-perbulan', [LembureController::class, 'export_slip_lembur_perbulan'])->name('lembure.export-report-lembur.export-slip-lembur-perbulan');
+
+            // Bypass Lembur
+            Route::get('/bypass-lembur', [LembureController::class, 'bypass_lembur_view'])->name('lembure.bypass-lembur');
+            Route::post('/bypass-lembur/store', [LembureController::class, 'bypass_lembur_store'])->name('lembure.bypass-lembur.store');
         });
     });
 
@@ -375,43 +387,55 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         });
     });
 
-      /** ATTENDANCEE */
-    Route::group(['prefix' => 'attendancee'], function () {
-        Route::get('/dashboard', [AttendanceeController::class, 'index'])->name('attendancee.dashboard');
-        Route::get('/scanlog', [AttendanceeController::class, 'scanlog_view'])->name('attendancee.scanlog');
+      /** ATTENDANCE */
+    Route::group(['prefix' => 'attendance', 'middleware' => ['role:personalia']], function () {
+        Route::get('/dashboard', [AttendanceDashboardController::class, 'index'])->name('attendance.dashboard');
+
+        // SCANLOG
+        Route::get('/scanlog', [ScanlogController::class, 'index'])->name('attendance.scanlog');
+        Route::post('/scanlog/datatable', [ScanlogController::class, 'datatable']);
+        Route::post('/scanlog/download-scanlog', [ScanlogController::class, 'download_scanlog'])->name('attendance.scanlog.download-scanlog');
+        Route::post('/scanlog/export-scanlog', [ScanlogController::class, 'export_scanlog'])->name('attendance.scanlog.export-scanlog');
+
+        // DEVICE
+        Route::get('/device', [DeviceController::class, 'index'])->name('attendance.device');
+        Route::post('/device/datatable', [DeviceController::class, 'datatable']);
+        Route::post('/device/store', [DeviceController::class, 'store'])->name('attendance.device.store');
+        Route::patch('/device/update/{idDevice}', [DeviceController::class, 'update'])->name('attendance.device.update');
+        Route::delete('/device/delete/{idDevice}', [DeviceController::class, 'delete'])->name('attendance.device.delete');
     });
 });
 
 // STOCK-OPNAME
-Route::group(['prefix' => 'sto', 'middleware' => ['auth']], function () {
+// Route::group(['prefix' => 'sto', 'middleware' => ['auth']], function () {
 
-    //REGISTER LABEL
-    Route::get('/input_label', [StoController::class, 'input_label'])->name('sto.input-label');
-    Route::post('/input_label/post', [StoController::class, 'store_label'])->name('sto.store-label');
-    Route::post('/input_label/datatable', [StoController::class, 'label_datatable']);
+//     //REGISTER LABEL
+//     Route::get('/input_label', [StoController::class, 'input_label'])->name('sto.input-label');
+//     Route::post('/input_label/post', [StoController::class, 'store_label'])->name('sto.store-label');
+//     Route::post('/input_label/datatable', [StoController::class, 'label_datatable']);
 
-    //HASIL STO
-    Route::get('/input_hasil', [StoController::class, 'input_hasil'])->name('sto.input-hasil');
-    Route::get('/input_hasil/get_sto_line/{idStoLine}', [StoController::class, 'get_sto_line'])->name('sto.get-sto-line');
-    Route::post('/input_hasil/datatable', [StoController::class, 'hasil_datatable']);
-    Route::get('/input_hasil/get_part/{part_code}', [StoController::class, 'get_part'])->name('sto.get-part');
-    Route::post('/input_hasil/get_part', [StoController::class, 'get_part_code'])->name('sto.get-part-code');
-    Route::post('/input_hasil/get_customer', [StoController::class, 'get_customer'])->name('sto.get-customer');
-    Route::post('/input_hasil/get_no_label', [StoController::class, 'get_no_label'])->name('sto.get-no-label');
-    Route::get('/input_hasil/get_wh/{whId}', [StoController::class, 'get_warehouse'])->name('sto.get-warehouse');
-    Route::post('/input_hasil/get_wh_label/', [StoController::class, 'get_wh_label'])->name('sto.get-wh-label');
-    Route::post('/input_hasil/post', [StoController::class, 'store_hasil'])->name('sto.store-hasil');
-    Route::delete('/delete/data_hasil/{idStoLine}', [StoController::class, 'delete'])->name('sto.delete-data');
-    Route::patch('/data-sto/update/{idStoLine}', [StoController::class, 'update'])->name('sto.update-data');
+//     //HASIL STO
+//     Route::get('/input_hasil', [StoController::class, 'input_hasil'])->name('sto.input-hasil');
+//     Route::get('/input_hasil/get_sto_line/{idStoLine}', [StoController::class, 'get_sto_line'])->name('sto.get-sto-line');
+//     Route::post('/input_hasil/datatable', [StoController::class, 'hasil_datatable']);
+//     Route::get('/input_hasil/get_part/{part_code}', [StoController::class, 'get_part'])->name('sto.get-part');
+//     Route::post('/input_hasil/get_part', [StoController::class, 'get_part_code'])->name('sto.get-part-code');
+//     Route::post('/input_hasil/get_customer', [StoController::class, 'get_customer'])->name('sto.get-customer');
+//     Route::post('/input_hasil/get_no_label', [StoController::class, 'get_no_label'])->name('sto.get-no-label');
+//     Route::get('/input_hasil/get_wh/{whId}', [StoController::class, 'get_warehouse'])->name('sto.get-warehouse');
+//     Route::post('/input_hasil/get_wh_label/', [StoController::class, 'get_wh_label'])->name('sto.get-wh-label');
+//     Route::post('/input_hasil/post', [StoController::class, 'store_hasil'])->name('sto.store-hasil');
+//     Route::delete('/delete/data_hasil/{idStoLine}', [StoController::class, 'delete'])->name('sto.delete-data');
+//     Route::patch('/data-sto/update/{idStoLine}', [StoController::class, 'update'])->name('sto.update-data');
 
 
-    //COMPARE
-    Route::get('/compare', [StoReportController::class, 'compare'])->name('sto.compare');
-    Route::post('/compare/datatable', [StoReportController::class, 'datatable'])->name('sto.datatable');
-    Route::post('/compare/export-excel', [StoReportController::class, 'export'])->name('sto.datatable-export');
-});
+//     //COMPARE
+//     Route::get('/compare', [StoReportController::class, 'compare'])->name('sto.compare');
+//     Route::post('/compare/datatable', [StoReportController::class, 'datatable'])->name('sto.datatable');
+//     Route::post('/compare/export-excel', [StoReportController::class, 'export'])->name('sto.datatable-export');
+// });
 
-/**testing controller */
-Route::get('/test', [TestController::class, 'index']);
-Route::get('/getsto', [TestController::class, 'getSto']);
-Route::get('/testlogout', [TestController::class, 'logout']);
+// /**testing controller */
+// Route::get('/test', [TestController::class, 'index']);
+// Route::get('/getsto', [TestController::class, 'getSto']);
+// Route::get('/testlogout', [TestController::class, 'logout']);

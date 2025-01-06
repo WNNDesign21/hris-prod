@@ -62,6 +62,8 @@ class AutomaticRejectCuti extends Command
                         $ct->legalized_at = now();
                         $ct->save();
 
+                        activity('automatic_reject_cuti')->log('Approved Cuti ID -'. $ct->id .' Karyawan ID -'. $ct->karyawan_id .' per tanggal -'. $today);
+
                     //KONDISI JIKA TIDAK ADA YANG DISETUJUI
                     } elseif ($ct->checked1_by == null && $ct->checked2_by == null && $ct->approved_by == null){
                         $ct->update([
@@ -70,6 +72,8 @@ class AutomaticRejectCuti extends Command
                             'rejected_by' => 'SYSTEM',
                             'rejected_note' => 'Cuti otomatis dibatalkan system karena tidak ada persetujuan dari atasan sampai hari H rencana cuti'
                         ]);
+
+                        activity('automatic_reject_cuti')->log('Reject Cuti ID -'. $ct->id_cuti .' Karyawan ID -'. $ct->karyawan_id .' per tanggal -'. $today);
                         
                         $karyawan = Karyawan::find($ct->karyawan_id);
                         if($ct->jenis_cuti == 'PRIBADI'){
@@ -98,6 +102,7 @@ class AutomaticRejectCuti extends Command
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
+            activity('automatic_reject_cuti')->log('Gagal reject cuti karyawan per tanggal -'. $today. ' Error: '. $e->getMessage());
             $this->error('Terjadi kesalahan: ' . $e->getMessage());
         }
     }

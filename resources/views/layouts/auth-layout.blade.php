@@ -198,6 +198,14 @@
         @vite(['resources/js/pages/lembure-detail-lembur.js'])
     @endif
 
+    @if ($page == 'lembure-export-report-lembur')
+        @vite(['resources/js/pages/lembure-export-report.js'])
+    @endif
+
+    @if ($page == 'lembure-bypass-lembur')
+        @vite(['resources/js/pages/lembure-bypass-lembur.js'])
+    @endif
+
     @if ($page == 'izine-pengajuan-izin')
         @vite(['resources/js/pages/izine-pengajuan-izin.js'])
     @endif
@@ -234,12 +242,16 @@
         @vite(['resources/js/pages/sto/sto-datatable.js'])
     @endif
 
-    @if ($page == 'attendancee-dashboard')
-        @vite(['resources/js/pages/attendancee-dashboard.js'])
+    @if ($page == 'attendance-dashboard')
+        @vite(['resources/js/pages/attendance/attendance-dashboard.js'])
     @endif
 
-    @if ($page == 'attendancee-scanlog')
-        @vite(['resources/js/pages/attendancee-scanlog.js'])
+    @if ($page == 'attendance-scanlog')
+        @vite(['resources/js/pages/attendance/attendance-scanlog.js'])
+    @endif
+
+    @if ($page == 'attendance-device')
+        @vite(['resources/js/pages/attendance/attendance-device.js'])
     @endif
 
 </body>

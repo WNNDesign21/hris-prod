@@ -62,6 +62,12 @@
                         </li>
                     @endif
                     @if (auth()->user()->hasRole('personalia'))
+                        <li class="{{ $page == 'lembure-bypass-lembur' ? 'active' : '' }}">
+                            <a href="{{ route('lembure.bypass-lembur') }}">
+                                <i class="icon-Book"><span class="path1"></span><span class="path2"></span></i>
+                                <span>Bypass Lembur</span>
+                            </a>
+                        </li>
                         <li class="{{ $page == 'lembure-setting-upah-lembur' ? 'active' : '' }}">
                             <a href="{{ route('lembure.setting-upah-lembur') }}">
                                 <i class="icon-Settings"><span class="path1"></span><span class="path2"></span></i>

@@ -3,14 +3,16 @@
 namespace App\Http\Controllers;
 
 use Throwable;
+use App\Helpers\Sto;
 use App\Models\Cutie;
 use App\Models\Karyawan;
 use App\Helpers\Approval;
-use App\Helpers\Sto;
 use App\Models\ApprovalCuti;
-use App\Models\StockOpname\StockOpnameUpload;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use Illuminate\Support\Facades\Validator;
+use App\Models\StockOpname\StockOpnameUpload;
 
 class TestController extends Controller
 {
@@ -202,5 +204,66 @@ class TestController extends Controller
         }
 
         return response()->json($datas, 200);
+    }
+
+    public function upload_pin_view()
+    {
+        $dataPage = [
+            'pageTitle' => "Test Upload Pin",
+            'page' => 'test-upload-pin',
+        ];
+        return view('test', $dataPage);
+    }
+
+    public function upload_pin(Request $request)
+    {
+        $file = $request->file('file_pin');
+        
+        $validator = Validator::make($request->all(), [
+            'file_pin' => 'required|mimes:xlsx,xls'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => 'File Harus bertipe Excel!'], 400);
+        }
+
+        DB::beginTransaction();
+        try {
+
+            if($request->hasFile('file_pin')){
+                $records = 'PIN_' . time() . '.' . $file->getClientOriginalExtension();
+                $pin_file = $file->storeAs("attachment/upload-upah-lembur-karyawan", $records);
+            } 
+
+            if (file_exists(storage_path("app/public/".$pin_file))) {
+                $spreadsheet = IOFactory::load(storage_path("app/public/".$pin_file));
+                $worksheet = $spreadsheet->getActiveSheet();
+                $data = $worksheet->toArray();
+                unset($data[0]);
+                if(!empty($data)){
+                    foreach ($data as $key => $row) {
+                        $karyawan = Karyawan::where('ni_karyawan', $row[0])->first();
+                        if($karyawan){
+                            $karyawan->update([
+                                'pin' => $row[2]
+                            ]);
+                        } else {
+                            continue;
+                        }
+                    }
+                } else {
+                    DB::rollback();
+                    return response()->json(['message' => 'File Kosong'], 400);
+                }
+                DB::commit();
+                return response()->json(['message' => 'Sukses'], 200);
+            } else {
+                DB::rollback();
+                return response()->json(['message' => 'Gagal!'], 404);
+            }
+        } catch (Throwable $e) {
+            DB::rollBack();
+            return response()->json(['message' => 'Error processing the file: ' . $e->getMessage()], 500);
+        }
     }
 }
