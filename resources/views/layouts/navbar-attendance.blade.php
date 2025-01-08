@@ -26,6 +26,12 @@
                                 <span>Device</span>
                             </a>
                         </li>
+                        <li class="{{ $page == 'attendance-shiftgroup' ? 'active' : '' }}">
+                            <a href="{{ route('attendance.shiftgroup') }}">
+                                <i class="icon-Group"><span class="path1"></span><span class="path2"></span></i>
+                                <span>Shift Group</span>
+                            </a>
+                        </li>
                     @endif
                 </ul>
             </div>

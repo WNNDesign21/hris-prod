@@ -43,17 +43,16 @@ $(function () {
         });
     }
 
-    //DATATABLE GRUP
+    //DATATABLE
     var columnsTable = [
-        { data: "no" },
-        { data: "nama" },
-        { data: "jam_masuk" },
-        { data: "jam_keluar" },
-        { data: "toleransi_waktu" },
+        { data: "departemen" },
+        { data: "karyawan" },
+        { data: "pin" },
+        { data: "shift" },
         { data: "aksi" },
     ];
 
-    var grupTable = $("#grup-table").DataTable({
+    var shiftgroupTable = $("#shiftgroup-table").DataTable({
         search: {
             return: true,
         },
@@ -61,7 +60,7 @@ $(function () {
         processing: true,
         serverSide: true,
         ajax: {
-            url: base_url + "/master-data/grup/datatable",
+            url: base_url + "/attendance/shift-group/datatable",
             dataType: "json",
             type: "POST",
             data: function (dataFilter) {
@@ -117,144 +116,103 @@ $(function () {
                 orderable: false,
                 targets: [0, -1],
             },
-            // {
-            //     targets: [],
-            //     createdCell: function (td, cellData, rowData, row, col) {
-            //         $(td).addClass("text-center");
-            //     },
-            // },
-            // {
-            //     targets: [0],
-            //     createdCell: function (td, cellData, rowData, row, col) {
-            //         $(td).addClass("text-center");
-            //     },
-            // },
         ],
     })
 
     //REFRESH TABLE
     function refreshTable() {
-        grupTable.search("").draw();
+        var searchValue = shiftgroupTable.search();
+        if (searchValue) {
+            shiftgroupTable.search(searchValue).draw();
+        } else {
+            shiftgroupTable.search("").draw();
+        }
     }
 
-    //RELOAD TABLE
     $('.btnReload').on("click", function (){
         refreshTable();
     })
 
-    //OPEN MODAL TAMBAH GRUP
-    $('.btnAdd').on("click", function (){
-        openGrup();
+    $('.btnUpload').on("click", function (){
+        openUpload();
     })
 
-    //CLOSE MODAL TAMBAH GRUP
     $('.btnClose').on("click", function (){
-        closeGrup();
+        closeUpload();
     })
 
-
-    // MODAL TAMBAH GRUP
-    var modalInputGrupOptions = {
-        backdrop: true,
-        keyboard: false,
-    };
-
-    var modalInputGrup = new bootstrap.Modal(
-        document.getElementById("modal-input-grup"),
-        modalInputGrupOptions
-    );
-
-    function openGrup() {
-        modalInputGrup.show();
-    }
-
-    function closeGrup() {
-        $('#nama_grup').val('');
-        $('#jam_masuk').val('');
-        $('#jam_keluar').val('');
-        $('#toleransi_waktu').val('');
-        modalInputGrup.hide();
-    }
-
-    //SUBMIT TAMBAH GRUP
-    $('#form-tambah-grup').on('submit', function (e){
-        e.preventDefault();
-        loadingSwalShow();
-        let url = $('#form-tambah-grup').attr('action');
-
-        var formData = new FormData($('#form-tambah-grup')[0]);
-        $.ajax({
-            url: url,
-            data: formData,
-            method:"POST",
-            contentType: false,
-            processData: false,
-            dataType: "JSON",
-            success: function (data) {
-                loadingSwalClose();
-                showToast({ title: data.message });
-                refreshTable();
-                closeGrup();
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                loadingSwalClose();
-                showToast({ icon: "error", title: jqXHR.responseJSON.message });
-            },
-        })
+    $('.btnTemplate').on('click', function () {
+        window.location.href = base_url + '/template/template_upload_shiftgroup.xlsx';
     });
 
-    // MODAL EDIT GRUP
-    var modalEditGrupOptions = {
+    // MODAL
+    var modalUploadOptions = {
         backdrop: true,
         keyboard: false,
     };
 
-    var modalEditGrup = new bootstrap.Modal(
-        document.getElementById("modal-edit-grup"),
-        modalEditGrupOptions
+    var modalUpload = new bootstrap.Modal(
+        document.getElementById("modal-upload-shiftgroup"),
+        modalUploadOptions
     );
 
-    function openEditGrup() {
-        modalEditGrup.show();
+    function openUpload() {
+        modalUpload.show();
     }
 
-    function closeEditGrup() {
-        $('#id_grup_edit').val('');
-        $('#nama_grup_edit').val('');
-        $('#jam_masuk_edit').val('');
-        $('#jam_keluar_edit').val('');
-        $('#toleransi_waktu_edit').val('');
-        modalEditGrup.hide();
+    function closeUpload() {
+        modalUpload.hide();
     }
+
+    var modalEditShiftgroupOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalEditShiftgroup = new bootstrap.Modal(
+        document.getElementById("modal-edit-shiftgroup"),
+        modalEditShiftgroupOptions
+    );
+
+    function openShiftgroupEdit() {
+        modalEditShiftgroup.show();
+    }
+
+    function closeShiftgroupEdit() {
+        modalEditShiftgroup.hide();
+        resetShiftgroupEdit();
+    }
+
+    $('#grup_edit').select2({
+        dropdownParent: $('#modal-edit-shiftgroup'),
+    });
+
+    $('#shiftgroup-table').on("click", '.btnEdit', function (){
+        let idKaryawan = $(this).data('id-karyawan');
+        let idGrup = $(this).data('id-grup');
+        // let pin = $(this).data('pin');
+
+        let url = base_url + '/attendance/shift-group/update/' + idKaryawan;
+        $('#form-edit-shiftgroup').attr('action', url);
+        $('#grup_edit').val(idGrup).trigger('change');
+        // $('#pin_edit').val(pin);
+        openShiftgroupEdit();
+    })
 
     $('.btnCloseEdit').on("click", function (){
-        closeEditGrup();
+        closeShiftgroupEdit();
     })
 
-    //EDIT GRUP
-    $('#grup-table').on('click', '.btnEdit', function (){
-        var idGrup = $(this).data('id');
-        var nama = $(this).data('grup-nama');
-        var jamMasuk = $(this).data('jam-masuk');
-        var jamKeluar = $(this).data('jam-keluar');
-        var toleransiWaktu = $(this).data('toleransi-waktu');
+    function resetShiftgroupEdit() {
+        $('#grup_edit').val('');
+        $('#form-edit-shiftgroup').attr('action', '#');
+    }
 
-        $('#id_grup_edit').val(idGrup);
-        $('#nama_grup_edit').val(nama);
-        $('#jam_masuk_edit').val(jamMasuk);
-        $('#jam_keluar_edit').val(jamKeluar);
-        $('#toleransi_waktu_edit').val(toleransiWaktu);
-        openEditGrup();
-    });
-
-    //SUBMIT EDIT GRUP
-    $('#form-edit-grup').on('submit', function (e){
+    $('#form-upload-shiftgroup').on('submit', function (e){
         e.preventDefault();
         loadingSwalShow();
-        let idGrup = $('#id_grup_edit').val();
-        let url = base_url + '/master-data/grup/update/' + idGrup;
-
-        var formData = new FormData($('#form-edit-grup')[0]);
+        let url = $(this).attr('action');
+        var formData = new FormData($('#form-upload-shiftgroup')[0]);
         $.ajax({
             url: url,
             data: formData,
@@ -265,48 +223,39 @@ $(function () {
             success: function (data) {
                 loadingSwalClose();
                 showToast({ title: data.message });
+                closeUpload();
+                $('#file').val('');
                 refreshTable();
-                closeEditGrup();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 loadingSwalClose();
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
-            },
-        })
-    });
-
-    //DELETE GRUP
-    $('#grup-table').on('click', '.btnDelete', function (){
-        var idGrup = $(this).data('id');
-        Swal.fire({
-            title: "Delete Grup",
-            text: "Apakah kamu yakin untuk menghapus grup ini?",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, delete it!",
-            allowOutsideClick: false,
-        }).then((result) => {
-            if (result.value) {
-                var url = base_url + '/master-data/grup/delete/' + idGrup;
-                $.ajax({
-                    url: url,
-                    type: "POST",
-                    data: {
-                        _method: "delete",
-                    },
-                    dataType: "JSON",
-                    success: function (data) {
-                        refreshTable();
-                        showToast({ title: data.message });
-                    },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        showToast({ icon: "error", title: jqXHR.responseJSON.message });
-                    },
-                });
             }
         });
     })
-    
+
+    $('#form-edit-shiftgroup').on('submit', function (e){
+        e.preventDefault();
+        loadingSwalShow();
+        let url = $(this).attr('action');
+        var formData = new FormData($('#form-edit-shiftgroup')[0]);
+        $.ajax({
+            url: url,
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (data) {
+                loadingSwalClose();
+                showToast({ title: data.message });
+                closeShiftgroupEdit();
+                refreshTable();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            }
+        });
+    })
 });

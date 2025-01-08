@@ -4,6 +4,7 @@ namespace App\Http\Controllers\MasterData;
 
 use Exception;
 use Throwable;
+use Carbon\Carbon;
 use App\Models\Grup;
 use Illuminate\Http\Request;
 use PhpParser\Node\Stmt\TryCatch;
@@ -31,6 +32,9 @@ class GrupController extends Controller
         $columns = array(
             0 => 'id_grup',
             1 => 'nama',
+            2 => 'jam_masuk',
+            3 => 'jam_keluar',
+            4 => 'toleransi_waktu',
         );
 
         $totalData = Grup::count();
@@ -61,11 +65,18 @@ class GrupController extends Controller
             $no = $start;
             foreach ($grup as $data) {
                 $no++;
+                $jam_masuk = Carbon::parse($data->jam_masuk)->format('H:i');
+                $jam_keluar = Carbon::parse($data->jam_keluar)->format('H:i');
+                $toleransi_waktu = abs(Carbon::parse($data->toleransi_waktu)->diffInMinutes(Carbon::today()));
+
                 $nestedData['no'] = $no;
                 $nestedData['nama'] = $data->nama;
+                $nestedData['jam_masuk'] = $jam_masuk;
+                $nestedData['jam_keluar'] = $jam_keluar;
+                $nestedData['toleransi_waktu'] = $toleransi_waktu.' Menit';
                 $nestedData['aksi'] = '
                 <div class="btn-group">
-                    <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" data-id="'.$data->id_grup.'" data-grup-nama="'.$data->nama.'"><i class="fas fa-edit"></i></button>
+                    <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" data-id="'.$data->id_grup.'" data-grup-nama="'.$data->nama.'" data-jam-masuk="'.$jam_masuk.'" data-jam-keluar="'.$jam_keluar.'" data-toleransi-waktu="'.$toleransi_waktu.'"><i class="fas fa-edit"></i></button>
                     <button type="button" class="waves-effect waves-light btn btn-danger btnDelete" data-id="'.$data->id_grup.'"><i class="fas fa-trash-alt"></i></button>
                 </div>
                 ';
@@ -102,6 +113,9 @@ class GrupController extends Controller
     {
         $dataValidate = [
             'nama_grup' => ['required'],
+            'jam_masuk' => ['required', 'date_format:H:i'],
+            'jam_keluar' => ['required', 'date_format:H:i'],
+            'toleransi_waktu' => ['required', 'integer', 'regex:/^\d+$/'],
         ];
     
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -114,6 +128,9 @@ class GrupController extends Controller
         try{
             $grup = Grup::create([
                 'nama' => $request->input('nama_grup'),
+                'jam_masuk' => Carbon::parse($request->input('jam_masuk'))->format('H:i:s'),
+                'jam_keluar' => Carbon::parse($request->input('jam_keluar'))->format('H:i:s'),
+                'toleransi_waktu' => Carbon::createFromTimestampUTC($request->input('toleransi_waktu') * 60)->format('H:i:s'),
             ]);
 
             DB::commit();
@@ -146,19 +163,25 @@ class GrupController extends Controller
     {
         $dataValidate = [
             'nama_grup_edit' => ['required'],
+            'jam_masuk_edit' => ['required', 'date_format:H:i'],
+            'jam_keluar_edit' => ['required', 'date_format:H:i'],
+            'toleransi_waktu_edit' => ['required', 'integer', 'regex:/^\d+$/'],
         ];
     
         $validator = Validator::make(request()->all(), $dataValidate);
     
         if ($validator->fails()) {
-            return response()->json(['message' => 'Fill your input correctly!'], 402);
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
         }
-
-        $grup = Grup::find($id);
-
+        
         DB::beginTransaction();
         try{
+            $grup = Grup::find($id);
             $grup->nama = $request->input('nama_grup_edit');
+            $grup->jam_masuk = Carbon::parse($request->input('jam_masuk_edit'))->format('H:i:s');
+            $grup->jam_keluar = Carbon::parse($request->input('jam_keluar_edit'))->format('H:i:s');
+            $grup->toleransi_waktu = Carbon::createFromTimestampUTC($request->input('toleransi_waktu_edit') * 60)->format('H:i:s');
             $grup->save();
             DB::commit();
             return response()->json(['message' => 'Grup Updated!'], 200);
@@ -223,11 +246,16 @@ class GrupController extends Controller
             $morePages = false;
         }
 
-        foreach ($data->items() as $grup) {
-            $dataGrup[] = [
-                'id' => $grup->id_grup,
-                'text' => $grup->nama
-            ];
+        $dataGrup = [];
+
+        if(!$data->isEmpty()){
+            foreach ($data->items() as $grup) {
+                $dataGrup[] = [
+                    'id' => $grup->id_grup,
+                    'text' => $grup->nama
+                ];
+            }
+
         }
 
         $results = array(
@@ -243,6 +271,7 @@ class GrupController extends Controller
     public function get_data_all_grup()
     {
         $data = Grup::all();
+        $dataGrup = [];
         foreach ($data as $grup) {
             $dataGrup[] = [
                 'id' => $grup->id_grup,

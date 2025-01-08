@@ -14,18 +14,19 @@ use App\Http\Controllers\MasterData\GrupController;
 use App\Http\Controllers\StockOpname\StoController;
 use App\Http\Controllers\MasterData\EventController;
 use App\Http\Controllers\MasterData\SeksiController;
+use App\Http\Controllers\Attendance\DeviceController;
 use App\Http\Controllers\MasterData\DivisiController;
 use App\Http\Controllers\MasterData\ExportController;
 use App\Http\Controllers\MasterData\PosisiController;
 use App\Http\Controllers\Utils\DeleteQrImgController;
-use App\Http\Controllers\Attendance\DeviceController;
+use App\Http\Controllers\Attendance\ScanlogController;
 use App\Http\Controllers\MasterData\JabatanController;
 use App\Http\Controllers\MasterData\KontrakController;
-use App\Http\Controllers\Attendance\ScanlogController;
 use App\Http\Controllers\MasterData\KaryawanController;
 use App\Http\Controllers\MasterData\TemplateController;
 use App\Http\Controllers\MasterData\TurnoverController;
 use App\Http\Controllers\MasterData\DashboardController;
+use App\Http\Controllers\Attendance\ShiftgroupController;
 use App\Http\Controllers\MasterData\DepartemenController;
 use App\Http\Controllers\MasterData\OrganisasiController;
 use App\Http\Controllers\StockOpname\StoReportController;
@@ -403,6 +404,12 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         Route::post('/device/store', [DeviceController::class, 'store'])->name('attendance.device.store');
         Route::patch('/device/update/{idDevice}', [DeviceController::class, 'update'])->name('attendance.device.update');
         Route::delete('/device/delete/{idDevice}', [DeviceController::class, 'delete'])->name('attendance.device.delete');
+
+        // SHIFT GROUP
+        Route::get('/shift-group', [ShiftgroupController::class, 'index'])->name('attendance.shiftgroup');
+        Route::post('/shift-group/datatable', [ShiftgroupController::class, 'datatable']);
+        Route::post('/shift-group/store', [ShiftgroupController::class, 'store'])->name('attendance.shiftgroup.store');
+        Route::patch('/shift-group/update/{idKaryawan}', [ShiftgroupController::class, 'update'])->name('attendance.shiftgroup.update');
     });
 });
 

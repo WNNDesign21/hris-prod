@@ -232,7 +232,7 @@ class TestController extends Controller
 
             if($request->hasFile('file_pin')){
                 $records = 'PIN_' . time() . '.' . $file->getClientOriginalExtension();
-                $pin_file = $file->storeAs("attachment/upload-upah-lembur-karyawan", $records);
+                $pin_file = $file->storeAs("attachment/upload-pin-karyawan", $records);
             } 
 
             if (file_exists(storage_path("app/public/".$pin_file))) {

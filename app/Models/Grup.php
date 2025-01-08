@@ -14,7 +14,7 @@ class Grup extends Model
     protected $primaryKey = 'id_grup';
 
     protected $fillable = [
-        'nama','jam_masuk','jam_keluar'
+        'nama','jam_masuk','jam_keluar', 'toleransi_waktu'
     ];
 
     private static function _query($dataFilter)
@@ -23,6 +23,9 @@ class Grup extends Model
         $data = self::select(
             'id_grup',
             'nama',
+            'jam_masuk',
+            'jam_keluar',
+            'toleransi_waktu'
         );
 
         if (isset($dataFilter['search'])) {

@@ -17,7 +17,7 @@
         <div class="col-12">
             <div class="box">
                 <div class="box-header d-flex justify-content-between">
-                    <h4 class="box-title">Data Grup</h4>
+                    <h4 class="box-title">Grup Shift</h4>
                     <div class="btn-group">
                         <button type="button" class="btn btn-info waves-effect btnReload"><i
                                 class="fas fa-sync-alt"></i></button>
@@ -32,6 +32,9 @@
                                 <tr>
                                     <th>No</th>
                                     <th>Nama</th>
+                                    <th>Jam Masuk</th>
+                                    <th>Jam Keluar</th>
+                                    <th>Toleransi Waktu</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>

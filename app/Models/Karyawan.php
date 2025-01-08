@@ -334,4 +334,67 @@ class Karyawan extends Model
             ->where('posisis.departemen_id', $departemen_id)
             ->get();
     }
+
+    private static function _shiftGroup($dataFilter)
+    {
+        $data = self::select(
+            'karyawans.id_karyawan',
+            'karyawans.ni_karyawan',
+            'karyawans.nama',
+            'departemens.nama as departemen',
+            'grups.nama as grup',
+            'karyawans.grup_id',
+            'karyawans.pin',
+            'divisis.nama as divisi',
+            'grups.jam_masuk',
+            'grups.jam_keluar',
+        );
+
+        $data->leftJoin('users', 'karyawans.user_id', 'users.id')
+        ->leftJoin('grups', 'karyawans.grup_id', 'grups.id_grup')
+        ->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
+        ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+        ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
+        ->leftJoin('divisis', 'departemens.divisi_id', 'divisis.id_divisi');
+
+        $organisasi_id = auth()->user()->organisasi_id;
+        if ($organisasi_id) {
+            $data->where('users.organisasi_id', $organisasi_id);
+        }
+
+        if(isset($dataFilter['departemen'])) {
+            $data->where('departemens.id_departemen', $dataFilter['departemen']);
+        }
+
+        if(isset($dataFilter['grup'])) {
+            $data->where('grups.id_grup', $dataFilter['grup']);
+        }
+
+        if (isset($dataFilter['search'])) {
+            $search = $dataFilter['search'];
+            $data->where(function ($query) use ($search) {
+                $query->where('karyawans.id_karyawan', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.pin', 'ILIKE', "%{$search}%")
+                    ->orWhere('grups.nama', 'ILIKE', "%{$search}%")
+                    ->orWhere('departemens.nama', 'ILIKE', "%{$search}%");
+            });
+        }
+
+        $result = $data;
+        return $result;
+    }
+
+    public static function getDataShiftgroup($dataFilter, $settings)
+    {
+        return self::_shiftGroup($dataFilter)->offset($settings['start'])
+            ->limit($settings['limit'])
+            ->orderBy($settings['order'], $settings['dir'])
+            ->get();
+    }
+
+    public static function countDataShiftgroup($dataFilter)
+    {
+        return self::_shiftGroup($dataFilter)->get()->count();
+    }
 }
