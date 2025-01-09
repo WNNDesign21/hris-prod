@@ -968,7 +968,7 @@ class HomeController extends Controller
         $total_spl = 0;
         for($i = 0; $i <= Carbon::parse($start)->diffInDays(Carbon::parse($end)); $i++){
             $date = Carbon::parse($start)->addDays($i)->toDateString();
-            $slipLemburs = DetailLembur::getSlipLemburPerDepartemen($id_karyawan, $date);
+            $slipLemburs = DetailLembur::getSlipLemburPerDepartemen($id_karyawan, $date, $organisasi_id);
             if($slipLemburs->count() > 0){
                 foreach ($slipLemburs as $index => $slipLembur){
                     $upah_lembur_per_jam = $slipLembur ? $slipLembur->gaji_lembur / $slipLembur->pembagi_upah_lembur : $upah_lembur_per_jam_setting;

@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use App\Models\Posisi;
 use App\Models\Lembure;
+use App\Helpers\Approval;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -18,6 +19,7 @@ class LembureMiddleware
     public function handle(Request $request, Closure $next): Response
     {
         $has_leader = false;
+        $has_dept_head = false;
         $user = auth()->user();
         $organisasi_id = $user->organisasi_id;
         $approval_lembur = 0;
@@ -25,7 +27,9 @@ class LembureMiddleware
         
         if(auth()->user()->karyawan && auth()->user()->karyawan->posisi){
             $posisi = auth()->user()->karyawan->posisi;
-            $has_leader = $this->has_leader_head($posisi);
+            $list_atasan = Approval::ListAtasan($posisi);
+            $has_leader = $list_atasan['leader'] ? true : false;
+            $has_dept_head = $list_atasan['department_head'] ? true : false;
             if(!$has_leader || auth()->user()->karyawan->posisi[0]->jabatan_id == 5){
                 $pengajuan_lembur = Lembure::where('issued_by', $user->karyawan->id_karyawan)->where('status', 'PLANNED')->count();
             }
@@ -74,6 +78,7 @@ class LembureMiddleware
 
         $lembure = [
             'has_leader' => $has_leader,
+            'has_dept_head' => $has_dept_head,
             'is_leader' => $this->is_leader(),
             'approval_lembur' => $approval_lembur,
             'pengajuan_lembur' => $pengajuan_lembur

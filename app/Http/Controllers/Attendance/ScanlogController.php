@@ -126,19 +126,6 @@ class ScanlogController extends Controller
                 }
                 
                 Scanlog::insert($datas);
-                
-                // $scanlog_datas = Scanlog::select('attendance_scanlogs.id_scanlog as scanlog_id', 'attendance_scanlogs.pin', 'attendance_scanlogs.scan_date', 'attendance_scanlogs.organisasi_id', 'karyawans.grup_id', 'karyawans.id_karyawan', 'karyawans.nama as karyawan', 'DATE(attendance_scanlogs.scan_date) as scan_date')
-                // ->leftJoin('karyawans', 'karyawans.pin','attendance_scanlogs.pin')
-                // ->leftJoin('users', 'users.id','karyawans.user_id')
-                // ->leftJoin('grups', 'grups.id_grup','karyawans.grup_id')
-                // ->whereIn('attendance_scanlogs.pin', $pins)->where('attendance_scanlogs.device_id', $request->device_id)->where(function($query) use ($startDate, $endDate){
-                //     $query->where(function($query) use ($startDate, $endDate){
-                //         $query->whereDate('attendance_scanlogs.scan_date', $startDate)
-                //             ->orWhereDate('attendance_scanlogs.scan_date', $endDate);
-                //     });
-                // })->get()->toArray();
-
-                // dd($scanlog_datas);
 
             } else {
                 DB::rollBack();

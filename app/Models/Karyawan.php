@@ -9,6 +9,7 @@ use App\Models\Posisi;
 use App\Models\Departemen;
 use App\Models\Organisasi;
 use App\Models\SettingLemburKaryawan;
+use App\Models\Attendance\KaryawanGrup;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -115,6 +116,11 @@ class Karyawan extends Model
     public function posisi()
     {
         return $this->belongsToMany(Posisi::class, 'karyawan_posisi', 'karyawan_id', 'posisi_id');
+    }
+
+    public function karyawanGrup()
+    {
+        return $this->hasMany(KaryawanGrup::class, 'karyawan_id', 'id_karyawan');
     }
 
     public function settingLembur()
