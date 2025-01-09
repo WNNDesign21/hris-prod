@@ -129,12 +129,13 @@ class LembureController extends Controller
     public function bypass_lembur_view()
     {
         if(auth()->user()->hasRole('personalia')){
-            $karyawans = Karyawan::select('karyawans.nama', 'karyawans.id_karyawan', 'posisis.jabatan_id')->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
-                ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
-                ->whereIn('posisis.jabatan_id', [3, 2])
-                ->organisasi(auth()->user()->organisasi_id)
-                ->aktif()
-                ->pluck('karyawans.nama', 'karyawans.id_karyawan');
+            // $karyawans = Karyawan::select('karyawans.nama', 'karyawans.id_karyawan', 'posisis.jabatan_id')->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
+            //     ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+            //     ->whereIn('posisis.jabatan_id', [3, 2])
+            //     ->organisasi(auth()->user()->organisasi_id)
+            //     ->aktif()
+            //     ->pluck('karyawans.nama', 'karyawans.id_karyawan');
+            $karyawans = Karyawan::aktif()->organisasi(auth()->user()->organisasi_id)->pluck('nama', 'id_karyawan');
         } else {
             $posisi = auth()->user()->karyawan->posisi;
             $my_posisi_ids = [];
@@ -1214,63 +1215,85 @@ class LembureController extends Controller
                 'jenis_hari' => $jenis_hari
             ]);
 
-            if($posisi_issued[0]->jabatan_id >= 5){
-                if(!$this->has_department_head($posisi_issued) && !$this->has_section_head($posisi_issued)){
+            if(auth()->user()->hasRole('atasan')){
+
+                if($posisi_issued[0]->jabatan_id >= 5){
+                    if(!$this->has_department_head($posisi_issued) && !$this->has_section_head($posisi_issued)){
+                        $checked_by = $karyawan_issued->nama;
+                        $header->update([
+                            'plan_checked_by' => $checked_by,
+                            'plan_checked_at' => now(),
+                        ]);
+                    } else {
+                        $checked_by = auth()->user()->karyawan->nama;
+                        $header->update([
+                            'plan_checked_by' => $checked_by,
+                            'plan_checked_at' => now(),
+                        ]);
+                    }
+                }
+    
+                if($posisi_issued[0]->jabatan_id == 4){
+                    if(!$this->has_department_head($posisi_issued)){
+                        $checked_by = $karyawan_issued->nama;
+                        $header->update([
+                            'plan_checked_by' => $checked_by,
+                            'plan_checked_at' => now(),
+                        ]);
+                    } else {
+                        $checked_by = auth()->user()->karyawan->nama;
+                        $header->update([
+                            'plan_checked_by' => $checked_by,
+                            'plan_checked_at' => now(),
+                        ]);
+                    }
+                }
+    
+                if($posisi_issued[0]->jabatan_id == 3){
                     $checked_by = $karyawan_issued->nama;
                     $header->update([
                         'plan_checked_by' => $checked_by,
                         'plan_checked_at' => now(),
-                    ]);
-                } else {
-                    $checked_by = auth()->user()->karyawan->nama;
-                    $header->update([
-                        'plan_checked_by' => $checked_by,
-                        'plan_checked_at' => now(),
+                        'actual_checked_by' => $checked_by,
+                        'actual_checked_at' => now(),
                     ]);
                 }
-            }
-
-            if($posisi_issued[0]->jabatan_id == 4){
-                if(!$this->has_department_head($posisi_issued)){
-                    $checked_by = $karyawan_issued->nama;
+    
+                if($posisi_issued[0]->jabatan_id <= 2){
+                    $checked_and_approved = $karyawan_issued->nama;
                     $header->update([
-                        'plan_checked_by' => $checked_by,
+                        'status' => 'COMPLETED',
+                        'plan_checked_by' => $checked_and_approved,
                         'plan_checked_at' => now(),
-                    ]);
-                } else {
-                    $checked_by = auth()->user()->karyawan->nama;
-                    $header->update([
-                        'plan_checked_by' => $checked_by,
-                        'plan_checked_at' => now(),
+                        'plan_approved_by' => $checked_and_approved,
+                        'plan_approved_at' => now(),
+                        'plan_legalized_by' => 'HRD & GA',
+                        'plan_legalized_at' => now(),
+                        'actual_checked_by' => $checked_and_approved,
+                        'actual_checked_at' => now(),
+                        'actual_approved_by' => $checked_and_approved,
+                        'actual_approved_at' => now(),
                     ]);
                 }
-            }
-
-            if($posisi_issued[0]->jabatan_id == 3){
-                $checked_by = $karyawan_issued->nama;
-                $header->update([
-                    'plan_checked_by' => $checked_by,
-                    'plan_checked_at' => now(),
-                    'actual_checked_by' => $checked_by,
-                    'actual_checked_at' => now(),
-                ]);
-            }
-
-            if($posisi_issued[0]->jabatan_id <= 2){
-                $checked_and_approved = $karyawan_issued->nama;
+            } elseif (auth()->user()->hasRole('personalia')){
                 $header->update([
                     'status' => 'COMPLETED',
-                    'plan_checked_by' => $checked_and_approved,
+                    'plan_checked_by' => 'BYPASS',
                     'plan_checked_at' => now(),
-                    'plan_approved_by' => $checked_and_approved,
+                    'plan_approved_by' => 'BYPASS',
                     'plan_approved_at' => now(),
-                    'plan_legalized_by' => 'HRD & GA',
+                    'plan_legalized_by' => 'BYPASS',
                     'plan_legalized_at' => now(),
-                    'actual_checked_by' => $checked_and_approved,
+                    'actual_checked_by' => 'BYPASS',
                     'actual_checked_at' => now(),
-                    'actual_approved_by' => $checked_and_approved,
+                    'actual_approved_by' => 'BYPASS',
                     'actual_approved_at' => now(),
+                    'actual_legalized_by' => 'BYPASS',
+                    'actual_legalized_at' => now(),
                 ]);
+            } else {
+                DB::rollback();
+                return response()->json(['message' => 'Anda tidak memiliki akses untuk membuat bypass lembur'], 402);
             }
 
             $total_durasi = 0;
@@ -1305,6 +1328,9 @@ class LembureController extends Controller
                     'divisi_id' => $karyawan->posisi[0]?->divisi_id,
                     'rencana_mulai_lembur' => $datetime_rencana_mulai_lembur,
                     'rencana_selesai_lembur' => $datetime_rencana_selesai_lembur,
+                    'aktual_mulai_lembur' => $datetime_rencana_mulai_lembur,
+                    'aktual_selesai_lembur' => $datetime_rencana_selesai_lembur,
+                    'keterangan' => 'BYPASS LEMBUR BY HRD',
                     'deskripsi_pekerjaan' => $job_descriptions[$key],
                     'durasi_istirahat' => $durasi_istirahat,
                     'durasi_konversi_lembur' => $durasi_konversi_lembur,
@@ -1317,16 +1343,32 @@ class LembureController extends Controller
 
                 $total_durasi += $durasi;
                 $total_nominal += $nominal;
+
+                $tanggal_lembur = Carbon::parse($datetime_rencana_mulai_lembur)->format('Y-m-d');
+                $lembur_harian = LemburHarian::whereDate('tanggal_lembur', $tanggal_lembur)->where('organisasi_id', $organisasi_id)->where('departemen_id', $departemen_id)->where('divisi_id', $divisi_id)->first();
+                if ($lembur_harian){
+                    $lembur_harian->total_durasi_lembur = $lembur_harian->total_durasi_lembur + $durasi;
+                    $lembur_harian->total_nominal_lembur = $lembur_harian->total_nominal_lembur + $nominal;
+                    $lembur_harian->save();
+                } else {
+                    $lembur_harian = LemburHarian::create([
+                        'tanggal_lembur' => $tanggal_lembur,
+                        'total_durasi_lembur' => $total_durasi,
+                        'total_nominal_lembur' => $total_nominal,
+                        'organisasi_id' => $organisasi_id,
+                        'departemen_id' => $departemen_id,
+                        'divisi_id' => $divisi_id,
+                    ]);
+                }
             }
             
             $header->detailLembur()->createMany($data_detail_lembur);
             
             //Update Total Durasi Lagi
-            $header->update(['total_durasi' => $total_durasi]);
-
-            if($posisi_issued[0]->jabatan_id <= 2){
-                $header->update(['total_nominal' => $total_nominal]);
-            }
+            $header->update([
+                'total_durasi' => $total_durasi,
+                'total_nominal' => $total_nominal
+            ]);
 
             DB::commit();
             return response()->json(['message' => 'Bypass Lembur Berhasil Dibuat'], 200);
@@ -2973,8 +3015,8 @@ class LembureController extends Controller
                     $tanggal_lembur = Carbon::parse($datetime_aktual_mulai_lembur)->format('Y-m-d');
                     $lembur_harian = LemburHarian::whereDate('tanggal_lembur', $tanggal_lembur)->where('organisasi_id', $organisasi_id)->where('departemen_id', $departemen_id)->where('divisi_id', $divisi_id)->first();
                     if ($lembur_harian){
-                        $lembur_harian->total_durasi_lembur = $lembur_harian->total_durasi_lembur + $total_durasi;
-                        $lembur_harian->total_nominal_lembur = $lembur_harian->total_nominal_lembur + $total_nominal;
+                        $lembur_harian->total_durasi_lembur = $lembur_harian->total_durasi_lembur + $durasi;
+                        $lembur_harian->total_nominal_lembur = $lembur_harian->total_nominal_lembur + $nominal;
                         $lembur_harian->save();
                     } else {
                         $lembur_harian = LemburHarian::create([
