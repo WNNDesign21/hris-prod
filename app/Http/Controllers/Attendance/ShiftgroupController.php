@@ -136,12 +136,24 @@ class ShiftgroupController extends Controller
                 unset($data[0]);
                 if(!empty($data)){
                     $niKaryawanList = array_column($data, 0);
+                    $organisasi_id = auth()->user()->organisasi_id;
                     $karyawanList = Karyawan::whereIn('ni_karyawan', $niKaryawanList)->get()->keyBy('ni_karyawan');
 
                     foreach ($data as $key => $row) {
                         if (isset($karyawanList[$row[0]])) {
                             $karyawanList[$row[0]]->update([
                                 'grup_id' => $row[2]
+                            ]);
+
+                            $grup = Grup::find($row[2]);
+                            $karyawanList[$row[0]]->karyawanGrup()->create([
+                                'grup_id' => $row[2],
+                                'pin' => $karyawanList[$row[0]]->pin,
+                                'active_date' => now(),
+                                'organisasi_id' => $organisasi_id,
+                                'toleransi_waktu' => $grup->toleransi_waktu,
+                                'jam_masuk' => $grup->jam_masuk,
+                                'jam_keluar' => $grup->jam_keluar,
                             ]);
                         }
                     }
