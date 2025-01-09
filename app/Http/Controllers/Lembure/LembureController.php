@@ -1171,6 +1171,7 @@ class LembureController extends Controller
             'jenis_hari' => ['required','in:WD,WE'],
             'karyawan_id.*' => ['required', 'distinct'],
             'job_description.*' => ['required'],
+            'keterangan.*' => ['nullable'],
             'rencana_mulai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'before:rencana_selesai_lembur.*'],
             'rencana_selesai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'after:rencana_mulai_lembur.*'],
         ];
@@ -1188,6 +1189,7 @@ class LembureController extends Controller
         $rencana_mulai_lemburs = $request->rencana_mulai_lembur;
         $rencana_selesai_lemburs = $request->rencana_selesai_lembur;
         $issued_by = $request->issued_by;
+        $keterangan = $request->keterangan;
 
         DB::beginTransaction();
         try {
@@ -1216,6 +1218,7 @@ class LembureController extends Controller
             ]);
 
             if(auth()->user()->hasRole('atasan')){
+                $prefix = 'BP-';
 
                 if($posisi_issued[0]->jabatan_id >= 5){
                     if(!$this->has_department_head($posisi_issued) && !$this->has_section_head($posisi_issued)){
@@ -1276,6 +1279,7 @@ class LembureController extends Controller
                     ]);
                 }
             } elseif (auth()->user()->hasRole('personalia')){
+                $prefix = 'BYPASS-';
                 $header->update([
                     'status' => 'COMPLETED',
                     'plan_checked_by' => 'BYPASS',
@@ -1330,7 +1334,7 @@ class LembureController extends Controller
                     'rencana_selesai_lembur' => $datetime_rencana_selesai_lembur,
                     'aktual_mulai_lembur' => $datetime_rencana_mulai_lembur,
                     'aktual_selesai_lembur' => $datetime_rencana_selesai_lembur,
-                    'keterangan' => 'BYPASS LEMBUR BY HRD',
+                    'keterangan' => $prefix.($keterangan[$key] ?? ''),
                     'deskripsi_pekerjaan' => $job_descriptions[$key],
                     'durasi_istirahat' => $durasi_istirahat,
                     'durasi_konversi_lembur' => $durasi_konversi_lembur,

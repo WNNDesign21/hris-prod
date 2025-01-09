@@ -881,7 +881,7 @@ class HomeController extends Controller
         $start = Carbon::createFromFormat('Y-m', $periode)->startOfMonth()->toDateString();
         $end = Carbon::createFromFormat('Y-m', $periode)->endOfMonth()->toDateString();
 
-        $columns = range('A', 'K');
+        $columns = range('A', 'L');
         foreach ($columns as $column) {
             $sheet->getColumnDimension($column)->setAutoSize(true);
         }
@@ -995,6 +995,14 @@ class HomeController extends Controller
                             ],
                         ]);
                     }
+
+                    if($slipLembur->keterangan){
+                        if (substr($slipLembur->keterangan, 0, 6) === 'BYPASS') {
+                            $keterangan = substr($slipLembur->keterangan, 7);
+                        }
+                    } else {
+                        $keterangan = '';
+                    }
     
                     $sheet->setCellValue('C'.$row, Carbon::parse($date)->format('d-m-Y'));
                     $sheet->setCellValue('D'.$row, Carbon::parse($slipLembur->aktual_mulai_lembur)->format('H:i'));
@@ -1005,6 +1013,7 @@ class HomeController extends Controller
                     $sheet->setCellValue('I'.$row, number_format($slipLembur->durasi_konversi_lembur / 60, 2));
                     $sheet->setCellValue('J'.$row, $slipLembur->uang_makan);
                     $sheet->setCellValue('K'.$row, 'Rp '. number_format($slipLembur->nominal, 0, ',', '.'));
+                    $sheet->setCellValue('L'.$row, $keterangan);
         
                         //STYLE CELL
                     $sheet->getStyle('C'.$row)->applyFromArray([

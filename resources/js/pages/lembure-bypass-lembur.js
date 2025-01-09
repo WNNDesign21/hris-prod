@@ -113,14 +113,14 @@ $(function () {
                     </div>
                     <div class="box-body">
                         <div class="row">
-                            <div class="col-6 col-lg-3">
+                            <div class="col-6 col-lg-2">
                                 <div class="form-group">
                                     <label for="karyawan">Karyawan</label>
                                     <select name="karyawan_id[]" id="karyawan_id_${count}" class="form-control" style="width: 100%;" required>
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-6 col-lg-3">
+                            <div class="col-6 col-lg-2">
                                 <div class="form-group">
                                     <label for="karyawan">Job Description</label>
                                     <input type="text" name="job_description[]"
@@ -139,6 +139,15 @@ $(function () {
                                 <div class="form-group">
                                     <label for="karyawan">Rencana Selesai</label>
                                     <input id="rencana_selesai_lembur_${count}" name="rencana_selesai_lembur[]" type="datetime-local" class="form-control rencanaSelesaiLembur" data-urutan="${count}">
+                                </div>
+                            </div>
+                             <div class="col-6 col-lg-2">
+                                <div class="form-group">
+                                    <label for="keterangan">Keterangan</label>
+                                    <input type="text" name="keterangan[]"
+                                        id="keterangan_${count}" class="form-control" placeholder="Isi keterangan bypass..."
+                                        style="width: 100%;">
+                                    </input>
                                 </div>
                             </div>
                         </div>
