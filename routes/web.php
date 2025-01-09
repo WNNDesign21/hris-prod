@@ -337,7 +337,9 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::post('/export-report-lembur/datatable', [LembureController::class, 'export_slip_lembur_datatable']);
             Route::post('/export-report-lembur/rekap-lembur-perbulan', [LembureController::class, 'export_rekap_lembur_perbulan'])->name('lembure.export-report-lembur.rekap-lembur-perbulan');
             Route::post('/export-report-lembur/slip-lembur-perbulan', [LembureController::class, 'export_slip_lembur_perbulan'])->name('lembure.export-report-lembur.export-slip-lembur-perbulan');
+        });
 
+        Route::group(['middleware' => ['role:atasan|personalia']], function (){
             // Bypass Lembur
             Route::get('/bypass-lembur', [LembureController::class, 'bypass_lembur_view'])->name('lembure.bypass-lembur');
             Route::post('/bypass-lembur/store', [LembureController::class, 'bypass_lembur_store'])->name('lembure.bypass-lembur.store');

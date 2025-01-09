@@ -58,8 +58,8 @@ $(function () {
                 showToast({ title: data.message });
                 loadingSwalClose();
                 resetForm();
-                $('#issued_by').val('');
-                $('#jenis_hari').val('');
+                $('#issued_by').val('').trigger('change');
+                $('#jenis_hari').val('').trigger('change');
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 loadingSwalClose();

@@ -16,6 +16,7 @@ class Approval
      */
     protected static $array = [];
     protected static $atasan = [];
+    protected static $member = [];
     protected static $response = false;
     protected static $has_leader = null;
     protected static $has_section_head = null;
@@ -287,6 +288,34 @@ class Approval
             }
         }
         return self::$atasan;
+    }
+
+    public static function ListMember($posisi)
+    {
+        self::$member = ['leader' => null, 'section_head' => null, 'department_head' => null, 'division_head' =>  null, 'director' => null];
+        if($posisi){
+            foreach($posisi as $pos){
+                $member_posisi_ids = self::GetMemberPosisi($pos);
+                if(!empty($member_posisi_ids)){
+                    foreach ($member_posisi_ids as $member_id){
+                        if($member_id !== 0){
+                            if(Posisi::where('id_posisi', $member_id)->first()->jabatan_id == 5){
+                                self::$member['leader'] = $member_id;
+                            } elseif (Posisi::where('id_posisi', $member_id)->first()->jabatan_id == 4){
+                                self::$member['section_head'] = $member_id;
+                            } elseif (Posisi::where('id_posisi', $member_id)->first()->jabatan_id == 3){
+                                self::$member['department_head'] = $member_id;
+                            } elseif (Posisi::where('id_posisi', $member_id)->first()->jabatan_id == 2){
+                                self::$member['division_head'] = $member_id;
+                            } elseif (Posisi::where('id_posisi', $member_id)->first()->jabatan_id == 1){
+                                self::$member['director'] = $member_id;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return self::$member;
     }
 
 }

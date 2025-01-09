@@ -128,7 +128,74 @@ class LembureController extends Controller
 
     public function bypass_lembur_view()
     {
-        $karyawans = Karyawan::organisasi(auth()->user()->organisasi_id)->aktif()->pluck('nama', 'id_karyawan');
+        if(auth()->user()->hasRole('personalia')){
+            $karyawans = Karyawan::select('karyawans.nama', 'karyawans.id_karyawan', 'posisis.jabatan_id')->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
+                ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                ->whereIn('posisis.jabatan_id', [3, 2])
+                ->organisasi(auth()->user()->organisasi_id)
+                ->aktif()
+                ->pluck('karyawans.nama', 'karyawans.id_karyawan');
+        } else {
+            $posisi = auth()->user()->karyawan->posisi;
+            $my_posisi_ids = [];
+            $member_posisi_ids = $this->get_member_posisi($posisi);
+            foreach ($posisi as $ps) {
+                $my_posisi_ids[] = $ps->id_posisi;
+                $index = array_search($ps->id_posisi, $member_posisi_ids);
+                if ($index !== false) {
+                    array_splice($member_posisi_ids, $index, 1);
+                }
+            }
+
+            if (auth()->user()->karyawan->posisi[0]->jabatan_id == 1){
+                $karyawans = Karyawan::select('karyawans.nama', 'karyawans.id_karyawan', 'posisis.jabatan_id')->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
+                    ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                    ->whereIn('posisis.id_posisi', $member_posisi_ids)
+                    ->where('posisis.jabatan_id', 2)
+                    ->aktif()
+                    ->pluck('karyawans.nama', 'karyawans.id_karyawan');
+
+                $karyawans_non_member = Karyawan::select('karyawans.nama', 'karyawans.id_karyawan', 'posisis.jabatan_id')->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
+                    ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                    ->whereIn('posisis.parent_id', $my_posisi_ids)
+                    ->where('posisis.jabatan_id', '!=', 2)
+                    ->aktif()
+                    ->pluck('karyawans.nama', 'karyawans.id_karyawan');
+            } elseif (auth()->user()->karyawan->posisi[0]->jabatan_id == 2){
+                $karyawans = Karyawan::select('karyawans.nama', 'karyawans.id_karyawan', 'posisis.jabatan_id')->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
+                    ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                    ->whereIn('posisis.id_posisi', $member_posisi_ids)
+                    ->where('posisis.jabatan_id', 3)
+                    ->organisasi(auth()->user()->organisasi_id)
+                    ->aktif()
+                    ->pluck('karyawans.nama', 'karyawans.id_karyawan');
+
+                $karyawans_non_member = Karyawan::select('karyawans.nama', 'karyawans.id_karyawan', 'posisis.jabatan_id')->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
+                    ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                    ->whereIn('posisis.parent_id', $my_posisi_ids)
+                    ->where('posisis.jabatan_id', '!=', 3)
+                    ->organisasi(auth()->user()->organisasi_id)
+                    ->aktif()
+                    ->pluck('karyawans.nama', 'karyawans.id_karyawan');
+            } else {
+                $karyawans = Karyawan::select('karyawans.nama', 'karyawans.id_karyawan', 'posisis.jabatan_id')->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
+                    ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                    ->whereIn('posisis.id_posisi', $member_posisi_ids)
+                    ->whereIn('posisis.jabatan_id', [4, 5])
+                    ->aktif()
+                    ->pluck('karyawans.nama', 'karyawans.id_karyawan');
+
+                $karyawans_non_member = Karyawan::select('karyawans.nama', 'karyawans.id_karyawan', 'posisis.jabatan_id')->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
+                    ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                    ->whereIn('posisis.parent_id', $my_posisi_ids)
+                    ->whereNotIn('posisis.jabatan_id', [4, 5])
+                    ->aktif()
+                    ->pluck('karyawans.nama', 'karyawans.id_karyawan');
+            }
+            
+            $karyawans = $karyawans->merge($karyawans_non_member);
+        }
+
         $dataPage = [
             'pageTitle' => "Lembur-E - Bypass Lembur",
             'page' => 'lembure-bypass-lembur',
@@ -1154,12 +1221,24 @@ class LembureController extends Controller
                         'plan_checked_by' => $checked_by,
                         'plan_checked_at' => now(),
                     ]);
+                } else {
+                    $checked_by = auth()->user()->karyawan->nama;
+                    $header->update([
+                        'plan_checked_by' => $checked_by,
+                        'plan_checked_at' => now(),
+                    ]);
                 }
             }
 
             if($posisi_issued[0]->jabatan_id == 4){
                 if(!$this->has_department_head($posisi_issued)){
                     $checked_by = $karyawan_issued->nama;
+                    $header->update([
+                        'plan_checked_by' => $checked_by,
+                        'plan_checked_at' => now(),
+                    ]);
+                } else {
+                    $checked_by = auth()->user()->karyawan->nama;
                     $header->update([
                         'plan_checked_by' => $checked_by,
                         'plan_checked_at' => now(),
@@ -1416,7 +1495,7 @@ class LembureController extends Controller
             }
         } else {
             if($jabatan_id >= 5){
-                if($convert_duration >= 7){
+                if($convert_duration >= 4){
                     return $uang_makan;
                 } else {
                     return 0;
@@ -1507,7 +1586,7 @@ class LembureController extends Controller
                 $jam_ke_sepuluh = $convert_duration >= 10 ? ($convert_duration - 9) * $upah_sejam * 4 : 0;
                 $nominal_lembur = $delapan_jam_pertama + $jam_ke_sembilan + $jam_ke_sepuluh;
 
-                if($convert_duration >= 7){
+                if($convert_duration >= 4){
                     $nominal_lembur += $uang_makan;
                 }
 
