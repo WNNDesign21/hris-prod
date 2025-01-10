@@ -97,7 +97,7 @@ class ExportSlipLemburJob implements ShouldQueue
             ->groupBy('karyawans.id_karyawan', 'karyawans.nama', 'karyawans.ni_karyawan', 'setting_lembur_karyawans.gaji', 'detail_lemburs.gaji_lembur', 'detail_lemburs.pembagi_upah_lembur', 'detail_lemburs.organisasi_id')
             ->get();
             
-            $columns = range('A', 'L');
+            $columns = range('A', 'M');
             foreach ($columns as $column) {
                 $sheet->getColumnDimension($column)->setAutoSize(true);
             }
@@ -209,6 +209,14 @@ class ExportSlipLemburJob implements ShouldQueue
                                     ],
                                 ]);
                             }
+
+                            if($slipLembur->keterangan){
+                                if (substr($slipLembur->keterangan, 0, 6) === 'BYPASS') {
+                                    $keterangan = substr($slipLembur->keterangan, 7);
+                                }
+                            } else {
+                                $keterangan = '';
+                            }
         
                             $sheet->setCellValue('C'.$row, Carbon::parse($date)->format('d-m-Y'));
                             $sheet->setCellValue('D'.$row, Carbon::parse($slipLembur->aktual_mulai_lembur)->format('H:i'));
@@ -220,6 +228,7 @@ class ExportSlipLemburJob implements ShouldQueue
                             $sheet->setCellValue('J'.$row, $slipLembur->uang_makan);
                             $sheet->setCellValue('K'.$row, 'Rp ' . number_format($upah_lembur_per_jam, 0, ',', '.'));
                             $sheet->setCellValue('L'.$row, 'Rp '. number_format($slipLembur->nominal, 0, ',', '.'));
+                            $sheet->setCellValue('M'.$row, $keterangan);
         
                             //STYLE CELL
                             $sheet->getStyle('C'.$row)->applyFromArray([
@@ -301,6 +310,7 @@ class ExportSlipLemburJob implements ShouldQueue
                         $sheet->setCellValue('J'.$row, 0);
                         $sheet->setCellValue('K'.$row, 'Rp ' . number_format($upah_lembur_per_jam_setting, 0, ',', '.'));
                         $sheet->setCellValue('L'.$row, 'Rp');
+                        $sheet->setCellValue('M'.$row, '');
                     }
 
                     //STYLE CELL

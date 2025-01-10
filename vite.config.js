@@ -49,6 +49,7 @@ export default defineConfig({
                 'resources/js/pages/attendance/attendance-scanlog.js',
                 'resources/js/pages/attendance/attendance-device.js',
                 'resources/js/pages/attendance/attendance-shiftgroup.js',
+                'resources/js/pages/attendance/attendance-presensi.js',
                 "resources/js/pages/sto/sto-datatable.js",
                 "resources/js/pages/sto/sto-input-hasil.js",
                 "resources/js/pages/sto/sto-input-label.js",

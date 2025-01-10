@@ -258,6 +258,10 @@
         @vite(['resources/js/pages/attendance/attendance-shiftgroup.js'])
     @endif
 
+    @if ($page == 'attendance-presensi')
+        @vite(['resources/js/pages/attendance/attendance-presensi.js'])
+    @endif
+
 </body>
 
 </html>
