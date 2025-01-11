@@ -175,6 +175,8 @@ $(function () {
             },
         },
         scrollX: true,
+        scrollY: 600,
+        fixedHeader: true,
         columns: columnsTable,
         createdRow: function( row, data, dataIndex ) {
             $('td', row).each(function(index) {
@@ -188,6 +190,14 @@ $(function () {
                 for (let i = 1; i <= 31; i++) {
                     if (data[`in_status_${i}`] === 'LATE' && index === (i * 2 + 2)) {
                         $(this).addClass('bg-warning');
+                    }
+
+                    if (data[`out_status_${i}`] === 'EARLY' && index === (i * 2 + 3)) {
+                        $(this).addClass('bg-dark');
+                    }
+
+                    if (data[`out_status_${i}`] === 'OVERTIME' && index === (i * 2 + 3)) {
+                        $(this).addClass('bg-info');
                     }
                 }
             });

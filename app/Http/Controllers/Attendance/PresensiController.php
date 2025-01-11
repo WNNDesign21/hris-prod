@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Attendance;
 use Throwable;
 use Carbon\Carbon;
 use App\Models\Karyawan;
+use App\Models\Departemen;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -17,9 +18,11 @@ class PresensiController extends Controller
      */
     public function index()
     {
+        $departemens = Departemen::all();
         $dataPage = [
             'pageTitle' => "Attendance-E - Presensi",
             'page' => 'attendance-presensi',
+            'departemens' => $departemens 
         ];
         return view('pages.attendance-e.presensi.index', $dataPage);
     }
