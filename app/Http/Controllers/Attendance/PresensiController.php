@@ -41,7 +41,19 @@ class PresensiController extends Controller
             $dataFilter['search'] = $search;
         }
         $dataFilter['organisasi_id'] = auth()->user()->organisasi_id;
-        $dataFilter['periode'] = '2025-01';
+
+        $departemen = $request->departemen;
+        if (!empty($departemen)) {
+            $dataFilter['departemen'] = $departemen;
+        }
+
+        $periode = $request->periode;
+        if (!empty($periode)) {
+            $dataFilter['periode'] = $periode;
+        } else {
+            $dataFilter['periode'] = Carbon::now()->format('Y-m');
+        }
+        
         $presensis = ScanlogDetail::getPresensiPerbulan($dataFilter, $settings);
         $totalFiltered = ScanlogDetail::countData($dataFilter);
         $totalData = ScanlogDetail::getPresensiPerbulan($dataFilter, $settings)->count();

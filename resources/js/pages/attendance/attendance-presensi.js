@@ -128,6 +128,11 @@ $(function () {
             dataType: "json",
             type: "POST",
             data: function (dataFilter) {
+                var departemen = $('#filterDepartemen').val();
+                var periode = $('#filterPeriode').val();
+
+                dataFilter.departemen = departemen;
+                dataFilter.periode = periode;
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 console.log(jqXHR);
@@ -217,4 +222,46 @@ $(function () {
     $('.btnReload').on("click", function (){
         refreshTable();
     })
+
+    // MONTHLY
+    var modalFilterOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalFilter = new bootstrap.Modal(
+        document.getElementById("modal-filter"),
+        modalFilterOptions
+    );
+
+    function openFilter() {
+        modalFilter.show();
+    }
+
+    function closeFilter() {
+        modalFilter.hide();
+    }
+
+    $('.btnFilter').on('click', function() {
+        openFilter();
+    });
+
+    $('.closeFilter').on('click', function() {
+        closeFilter();
+    });
+
+    $('#filterDepartemen').select2({
+        dropdownParent: $('#modal-filter')
+    });
+
+    $('.btnResetFilter').on('click', function() {
+        $('#filterDepartemen').val('').trigger('change');
+        $('#filterPeriode').val('');
+    });
+    
+    $(".btnSubmitFilter").on("click", function () {
+        presensiTable.draw();
+        closeFilter();
+    });
+
 });

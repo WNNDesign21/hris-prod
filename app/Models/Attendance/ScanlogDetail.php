@@ -85,6 +85,10 @@ class ScanlogDetail extends Model
                 $query->orWhere('departemen', 'ILIKE', "%{$search}%");
             });
         }
+
+        if (isset($dataFilter['departemen'])) {
+            $results->whereIn('departemen_id', $dataFilter['departemen']);
+        }
         
         return $results->offset($settings['start']) 
             ->limit($settings['limit']) 

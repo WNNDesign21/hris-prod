@@ -24,6 +24,8 @@
                         <div class="btn-group">
                             <button type="button" class="btn btn-info waves-effect btnReload"><i
                                     class="fas fa-sync-alt"></i></button>
+                            <button type="button" class="btn btn-warning waves-effect btnFilter"><i
+                                    class="fas fa-filter"></i></button>
                         </div>
                     </div>
                 </div>
@@ -55,4 +57,5 @@
             </div>
         </div>
     </div>
+    @include('pages.attendance-e.presensi.modal-filter')
 @endsection
