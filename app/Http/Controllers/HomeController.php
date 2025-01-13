@@ -999,6 +999,8 @@ class HomeController extends Controller
                     if($slipLembur->keterangan){
                         if (substr($slipLembur->keterangan, 0, 6) === 'BYPASS') {
                             $keterangan = substr($slipLembur->keterangan, 7);
+                        } else {
+                            $keterangan = '';
                         }
                     } else {
                         $keterangan = '';
