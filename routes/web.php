@@ -22,6 +22,7 @@ use App\Http\Controllers\Utils\DeleteQrImgController;
 use App\Http\Controllers\Attendance\ScanlogController;
 use App\Http\Controllers\MasterData\JabatanController;
 use App\Http\Controllers\MasterData\KontrakController;
+use App\Http\Controllers\Attendance\PresensiController;
 use App\Http\Controllers\MasterData\KaryawanController;
 use App\Http\Controllers\MasterData\TemplateController;
 use App\Http\Controllers\MasterData\TurnoverController;
@@ -412,6 +413,10 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         Route::post('/shift-group/datatable', [ShiftgroupController::class, 'datatable']);
         Route::post('/shift-group/store', [ShiftgroupController::class, 'store'])->name('attendance.shiftgroup.store');
         Route::patch('/shift-group/update/{idKaryawan}', [ShiftgroupController::class, 'update'])->name('attendance.shiftgroup.update');
+
+        // PRESENSI
+        Route::get('/presensi', [PresensiController::class, 'index'])->name('attendance.presensi');
+        Route::post('/presensi/datatable', [PresensiController::class, 'datatable']);
     });
 });
 
