@@ -210,8 +210,18 @@ class ShiftgroupController extends Controller
         try {
             $karyawan = Karyawan::find($id_karyawan);
             $karyawan->grup_id = $request->grup_edit;
-            // $karyawan->pin = $request->pin_edit;
             $karyawan->save();
+
+            $grup = Grup::find($request->grup_edit);
+            $karyawan->karyawanGrup()->create([
+                'grup_id' => $request->grup_edit,
+                'pin' => $karyawan->pin,
+                'active_date' => now(),
+                'organisasi_id' => auth()->user()->organisasi_id,
+                'toleransi_waktu' => $grup->toleransi_waktu,
+                'jam_masuk' => $grup->jam_masuk,
+                'jam_keluar' => $grup->jam_keluar,
+            ]);
 
             DB::commit();
             return response()->json(['message' => 'Data berhasil diubah'], 200);
