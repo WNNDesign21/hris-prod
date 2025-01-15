@@ -189,6 +189,7 @@ class PresensiController extends Controller
                 $nestedData['in_status_31'] = $data?->in_status_31;
                 $nestedData['out_31'] = $data?->out_31;
                 $nestedData['out_status_31'] = $data?->out_status_31;
+                $nestedData['total_in_selisih'] = $data?->total_in_selisih;
 
                 $dataTable[] = $nestedData;
             }

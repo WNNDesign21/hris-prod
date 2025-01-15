@@ -11,7 +11,7 @@ class ScanlogDetail extends Model
 {
     use HasFactory;
 
-    protected $table = 'attendance_scanlog_details';
+    protected $table = 'attendance_scanlog_details_v3';
 
     private static function _query($dataFilter)
     {
@@ -20,7 +20,7 @@ class ScanlogDetail extends Model
                 SELECT
                     *,
                     ROW_NUMBER() OVER (PARTITION BY karyawan, scan_date ORDER BY scan_date, scan_type) AS rn
-                FROM attendance_scanlog_details
+                FROM attendance_scanlog_details_v3
             ),
             DailyScans AS (
                 SELECT
@@ -34,12 +34,14 @@ class ScanlogDetail extends Model
                     scan_date,
                     status_masuk,
                     status_keluar,
+                    selisih_menit_masuk,
+                    selisih_menit_keluar,
                     CASE WHEN scan_type = 'IN' AND EXTRACT(HOUR FROM scan_date) >= 22 THEN scan_date + INTERVAL '1 day' ELSE scan_date END AS adjusted_date,
                     scan_type,
                     CASE WHEN rn = 1 THEN '1_' ELSE '2_' END || scan_type AS scan_column
                 FROM RankedScans
-            )
-            SELECT
+            ),
+            AggregatedData AS (SELECT
                 karyawan,
                 id_karyawan,
                 ni_karyawan,
@@ -57,6 +59,7 @@ class ScanlogDetail extends Model
                 $sql .= "
                     MAX(CASE WHEN DATE(adjusted_date) = '" . $date->toDateString() . "' AND scan_column = '1_IN' THEN CAST(EXTRACT(HOUR FROM adjusted_date) AS TEXT) || ':' || LPAD(EXTRACT(MINUTE FROM adjusted_date)::TEXT, 2, '0') END) AS \"in_" . $i . "\",
                     MAX(CASE WHEN DATE(adjusted_date) = '" . $date->toDateString() . "' AND scan_column = '1_IN' THEN status_masuk END) AS \"in_status_" . $i . "\",
+                    MAX(CASE WHEN DATE(adjusted_date) = '" . $date->toDateString() . "' AND scan_column = '1_IN' AND selisih_menit_masuk > INTERVAL '0' THEN selisih_menit_masuk ELSE INTERVAL '0' END) AS \"in_selisih_" . $i . "\",
                     MAX(CASE WHEN DATE(adjusted_date) = '" . $date->toDateString() . "' AND scan_column = '1_OUT' THEN CAST(EXTRACT(HOUR FROM adjusted_date) AS TEXT) || ':' || LPAD(EXTRACT(MINUTE FROM adjusted_date)::TEXT, 2, '0') END) AS \"out_" . $i . "\",
                     MAX(CASE WHEN DATE(adjusted_date) = '" . $date->toDateString() . "' AND scan_column = '1_OUT' THEN status_keluar END) AS \"out_status_" . $i . "\"";
                     if ($date->notEqualTo($endDate->toDateString())) {
@@ -66,8 +69,19 @@ class ScanlogDetail extends Model
             $sql .= "
             FROM DailyScans
             WHERE organisasi_id = ".$dataFilter['organisasi_id']."
-            GROUP BY karyawan, pin, id_karyawan, organisasi_id, departemen_id, departemen, ni_karyawan
-            ORDER BY karyawan, pin, id_karyawan, organisasi_id, departemen_id, departemen, ni_karyawan";
+            GROUP BY karyawan, pin, id_karyawan, organisasi_id, departemen_id, departemen, ni_karyawan)";
+
+            $sql .= "
+            SELECT *,
+            ";
+            $sumSelisih = [];
+            for ($j = 1; $j <= 31; $j++) {
+                $sumSelisih[] = "COALESCE(in_selisih_" . $j . ", INTERVAL '0')";
+            }
+            $sql .= implode(" + ", $sumSelisih) . " AS total_in_selisih
+            FROM AggregatedData
+            ORDER BY karyawan, pin, organisasi_id, departemen_id, departemen, ni_karyawan
+            ";
 
             $results = DB::table(DB::raw("($sql) as sub"));
             return $results;

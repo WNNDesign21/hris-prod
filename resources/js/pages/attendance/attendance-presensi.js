@@ -110,7 +110,8 @@ $(function () {
         { data: "in_30" },
         { data: "out_30" },
         { data: "in_31" },
-        { data: "out_31" }
+        { data: "out_31" },
+        { data: "total_in_selisih" }
     ];
 
     var presensiTable = $("#presensi-table").DataTable({
