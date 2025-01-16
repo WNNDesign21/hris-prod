@@ -3468,7 +3468,6 @@ class LembureController extends Controller
                 $sheet->setCellValue('B'.$row, $data->nama);
                 $sheet->setCellValue('C'.$row, $data->departemen);
                 $sheet->setCellValue('D'.$row, $data->posisi);
-                $sheet->setCellValue('E'.$row, $data->periode_perhitungan);
                 $sheet->setCellValue('E'.$row, '1 ' . Carbon::createFromFormat('m', $month)->format('F Y') . ' - ' . Carbon::createFromFormat('Y-m', $year . '-' . $month)->endOfMonth()->format('d F Y'));
                 $sheet->setCellValue('F'.$row, $data->gaji);
                 $sheet->setCellValue('G'.$row, $data->jabatan_id >= 5 ? $data->upah_lembur_per_jam : '-');
@@ -3563,7 +3562,7 @@ class LembureController extends Controller
         $writer = new Xlsx($spreadsheet);
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="Rekapitulasi Pembayaran Lembur - '.Carbon::createFromFormat('m', $month)->format('F Y').'.xlsx"');
+        header('Content-Disposition: attachment;filename="Rekapitulasi Pembayaran Lembur - '.Carbon::createFromFormat('m', $month)->format('F').' '.$year.'.xlsx"');
         header('Cache-Control: max-age=0');
 
         $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');

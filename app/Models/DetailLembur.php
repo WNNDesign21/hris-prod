@@ -110,13 +110,28 @@ class DetailLembur extends Model
         return $result;
     }
 
+    //NEW
     public static function getReportMonthlyPerDepartemen($month, $year)
     {
-        $data = self::selectRaw('
+        $subquery = DB::table('karyawans')
+            ->selectRaw('
+            karyawans.id_karyawan,
             posisis.jabatan_id,
             karyawans.nama,
             departemens.nama as departemen,
             posisis.nama as posisi,
+            ROW_NUMBER() OVER (PARTITION BY karyawans.id_karyawan ORDER BY karyawans.id_karyawan) AS rn
+            ')
+            ->leftJoin('karyawan_posisi', 'karyawan_posisi.karyawan_id', 'karyawans.id_karyawan')
+            ->leftJoin('posisis', 'posisis.id_posisi', 'karyawan_posisi.posisi_id')
+            ->leftJoin('departemens', 'departemens.id_departemen', 'posisis.departemen_id')
+            ->groupBy('karyawans.id_karyawan', 'posisis.jabatan_id', 'karyawans.nama', 'departemens.nama', 'posisis.nama');
+
+        $data = self::selectRaw('
+            subquery.nama,
+            subquery.jabatan_id,
+            subquery.departemen,
+            subquery.posisi,
             detail_lemburs.gaji_lembur as gaji,
             TRUNC(detail_lemburs.gaji_lembur) / detail_lemburs.pembagi_upah_lembur as upah_lembur_per_jam,
             TRUNC(SUM(TRUNC(detail_lemburs.durasi, 2) / 60),2) as total_jam_lembur,
@@ -124,24 +139,56 @@ class DetailLembur extends Model
             SUM(detail_lemburs.nominal) - SUM(detail_lemburs.uang_makan) as gaji_lembur,
             SUM(detail_lemburs.uang_makan) as uang_makan,
             SUM(detail_lemburs.nominal) as total_gaji_lembur
-        ')
-        ->leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
-        ->leftJoin('karyawans', 'karyawans.id_karyawan', 'detail_lemburs.karyawan_id')
-        ->leftJoin('departemens', 'departemens.id_departemen', 'detail_lemburs.departemen_id')
-        ->leftJoin('divisis', 'divisis.id_divisi', 'detail_lemburs.divisi_id')
-        ->leftJoin('karyawan_posisi', 'karyawan_posisi.karyawan_id', 'karyawans.id_karyawan')
-        ->leftJoin('posisis', 'posisis.id_posisi', 'karyawan_posisi.posisi_id')
+            ')
+            ->joinSub($subquery, 'subquery', function ($join) {
+            $join->on('subquery.id_karyawan', '=', 'detail_lemburs.karyawan_id');
+            })
+            ->leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
+            ->where('subquery.rn', 1)
+            ->where('detail_lemburs.organisasi_id', auth()->user()->organisasi_id)
+            ->whereNotNull('lemburs.actual_legalized_by')
+            ->where('lemburs.status', 'COMPLETED')
+            ->whereMonth('detail_lemburs.aktual_mulai_lembur', $month)
+            ->whereYear('detail_lemburs.aktual_mulai_lembur', $year)
+            ->groupBy('subquery.jabatan_id', 'subquery.nama', 'subquery.departemen', 'subquery.posisi', 'detail_lemburs.gaji_lembur', 'detail_lemburs.pembagi_upah_lembur')
+            ->orderBy('subquery.departemen');
 
-        ->where('detail_lemburs.organisasi_id', auth()->user()->organisasi_id)
-        ->whereNotNull('lemburs.actual_legalized_by')
-        ->where('lemburs.status', 'COMPLETED')
-        ->whereMonth('detail_lemburs.aktual_mulai_lembur', $month)
-        ->whereYear('detail_lemburs.aktual_mulai_lembur', $year)
-        ->groupBy('posisis.jabatan_id','karyawans.nama', 'departemens.nama','detail_lemburs.departemen_id', 'posisis.nama', 'detail_lemburs.gaji_lembur', 'detail_lemburs.pembagi_upah_lembur')
-        ->orderBy('detail_lemburs.departemen_id');
-        
         return $data->get();
     }
+
+    // OLD
+    // public static function getReportMonthlyPerDepartemen($month, $year)
+    // {
+    //     $data = self::selectRaw('
+    //         posisis.jabatan_id,
+    //         karyawans.nama,
+    //         departemens.nama as departemen,
+    //         posisis.nama as posisi,
+    //         detail_lemburs.gaji_lembur as gaji,
+    //         TRUNC(detail_lemburs.gaji_lembur) / detail_lemburs.pembagi_upah_lembur as upah_lembur_per_jam,
+    //         TRUNC(SUM(TRUNC(detail_lemburs.durasi, 2) / 60),2) as total_jam_lembur,
+    //         TRUNC(SUM(TRUNC(detail_lemburs.durasi_konversi_lembur, 2) / 60), 2) as konversi_jam_lembur,
+    //         SUM(detail_lemburs.nominal) - SUM(detail_lemburs.uang_makan) as gaji_lembur,
+    //         SUM(detail_lemburs.uang_makan) as uang_makan,
+    //         SUM(detail_lemburs.nominal) as total_gaji_lembur
+    //     ')
+    //     ->leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
+    //     ->leftJoin('karyawans', 'karyawans.id_karyawan', 'detail_lemburs.karyawan_id')
+    //     ->leftJoin('departemens', 'departemens.id_departemen', 'detail_lemburs.departemen_id')
+    //     ->leftJoin('divisis', 'divisis.id_divisi', 'detail_lemburs.divisi_id')
+    //     ->leftJoin('karyawan_posisi', 'karyawan_posisi.karyawan_id', 'karyawans.id_karyawan')
+    //     ->leftJoin('posisis', 'posisis.id_posisi', 'karyawan_posisi.posisi_id')
+
+    //     ->where('detail_lemburs.organisasi_id', auth()->user()->organisasi_id)
+    //     ->whereNotNull('lemburs.actual_legalized_by')
+    //     ->where('lemburs.status', 'COMPLETED')
+    //     ->whereMonth('detail_lemburs.aktual_mulai_lembur', $month)
+    //     ->whereYear('detail_lemburs.aktual_mulai_lembur', $year)
+    //     ->groupBy('posisis.jabatan_id','karyawans.nama', 'departemens.nama','detail_lemburs.departemen_id', 'posisis.nama', 'detail_lemburs.gaji_lembur', 'detail_lemburs.pembagi_upah_lembur')
+    //     ->orderBy('detail_lemburs.departemen_id');
+        
+    //     return $data->get();
+    // }
 
     // NEW
     public static function getLeaderboardUserMonthly($dataFilter)
