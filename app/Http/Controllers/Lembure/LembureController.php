@@ -683,20 +683,20 @@ class LembureController extends Controller
     public function detail_lembur_datatable(Request $request)
     {
         $columns = array(
-            0 => 'detail_lemburs.lembur_id',
-            1 => 'karyawans.nama',
-            2 => 'posisis.nama',
-            3 => 'departemens.nama',
-            4 => 'detail_lemburs.aktual_mulai_lembur',
-            5 => 'detail_lemburs.aktual_selesai_lembur',
-            6 => 'detail_lemburs.durasi',
-            7 => 'detail_lemburs.nominal',
+            0 => 'subquery.lembur_id',
+            1 => 'subquery.nama',
+            2 => 'subquery.posisi',
+            3 => 'subquery.departemen',
+            4 => 'subquery.aktual_mulai_lembur',
+            5 => 'subquery.aktual_selesai_lembur',
+            6 => 'subquery.durasi',
+            7 => 'subquery.nominal',
         );
 
         $limit = $request->input('length');
         $start = $request->input('start');
-        $order = (!empty($request->input('order.0.column'))) ? $columns[$request->input('order.0.column')] : $columns[0];
-        $dir = (!empty($request->input('order.0.dir'))) ? $request->input('order.0.dir') : "ASC";
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
 
         $settings['start'] = $start;
         $settings['limit'] = $limit;
@@ -1110,6 +1110,24 @@ class LembureController extends Controller
                 $pembagi_upah_lembur = SettingLembur::where('setting_name', 'pembagi_upah_lembur_harian')->where('organisasi_id', $karyawan->user->organisasi_id)->first()->value;
                 $datetime_rencana_mulai_lembur = $this->pembulatan_menit_ke_bawah($rencana_mulai_lemburs[$key]);
                 $datetime_rencana_selesai_lembur = $this->pembulatan_menit_ke_bawah($rencana_selesai_lemburs[$key]);
+
+                //PENGECEKAN DUPLIKAT
+                $detail_lembur_exist = DetailLembur::where('karyawan_id', $karyawan_id)
+                    ->where(function ($query) use ($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur) {
+                        $query->whereBetween('rencana_mulai_lembur', [$datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur])
+                              ->orWhereBetween('rencana_selesai_lembur', [$datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur])
+                              ->orWhere(function ($query) use ($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur) {
+                                  $query->where('rencana_mulai_lembur', '<=', $datetime_rencana_mulai_lembur)
+                                        ->where('rencana_selesai_lembur', '>=', $datetime_rencana_selesai_lembur);
+                              });
+                    })
+                    ->exists();
+                
+                if($detail_lembur_exist){
+                    DB::rollback();
+                    return response()->json(['message' => $karyawan->nama.' sudah memiliki data lembur pada range tanggal yang direncanakan'], 402);
+                }
+
                 $durasi_istirahat = $this->overtime_resttime_per_minutes($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur, $karyawan->user->organisasi_id);
                 $durasi = $this->calculate_overtime_per_minutes($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur, $karyawan->user->organisasi_id);
                 $durasi_konversi_lembur = $this->calculate_durasi_konversi_lembur($jenis_hari, $durasi, $karyawan_id);
@@ -1309,6 +1327,24 @@ class LembureController extends Controller
                 $pembagi_upah_lembur = SettingLembur::where('setting_name', 'pembagi_upah_lembur_harian')->where('organisasi_id', $karyawan->user->organisasi_id)->first()->value;
                 $datetime_rencana_mulai_lembur = $this->pembulatan_menit_ke_bawah($rencana_mulai_lemburs[$key]);
                 $datetime_rencana_selesai_lembur = $this->pembulatan_menit_ke_bawah($rencana_selesai_lemburs[$key]);
+
+                //PENGECEKAN DUPLIKAT
+                $detail_lembur_exist = DetailLembur::where('karyawan_id', $karyawan_id)
+                    ->where(function ($query) use ($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur) {
+                        $query->whereBetween('rencana_mulai_lembur', [$datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur])
+                              ->orWhereBetween('rencana_selesai_lembur', [$datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur])
+                              ->orWhere(function ($query) use ($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur) {
+                                  $query->where('rencana_mulai_lembur', '<=', $datetime_rencana_mulai_lembur)
+                                        ->where('rencana_selesai_lembur', '>=', $datetime_rencana_selesai_lembur);
+                              });
+                    })
+                    ->exists();
+                
+                if($detail_lembur_exist){
+                    DB::rollback();
+                    return response()->json(['message' => $karyawan->nama.' sudah memiliki data lembur pada range tanggal yang direncanakan'], 402);
+                }
+
                 $durasi_istirahat = $this->overtime_resttime_per_minutes($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur, $karyawan->user->organisasi_id);
                 $durasi = $this->calculate_overtime_per_minutes($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur, $karyawan->user->organisasi_id);
                 $durasi_konversi_lembur = $this->calculate_durasi_konversi_lembur($jenis_hari, $durasi, $karyawan_id);
