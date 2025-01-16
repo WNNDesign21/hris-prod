@@ -33,6 +33,7 @@ class AutomaticResetCuti extends Command
     {
         $today = date('Y-m-d');
         $yesterday = date('Y-m-d', strtotime('-1 day', strtotime($today)));
+        activity('automatic_reset_cuti')->log('Start Reset Cuti Karyawan per tanggal -'. $today);
 
         DB::beginTransaction();
         try {
@@ -84,8 +85,6 @@ class AutomaticResetCuti extends Command
                     } 
                     $kry->save();
                 }
-
-                activity('automatic_reset_cuti')->log('Reset Cuti Karyawan per tanggal -'. $today);
                 
                 if(!$reset_cuti_today){
                     ResetCuti::create([
@@ -93,11 +92,12 @@ class AutomaticResetCuti extends Command
                         'reset_count' => $reset_count
                     ]);
                 }
-                
+                activity('automatic_reset_cuti')->log('Reset Cuti Karyawan per tanggal -'. $today);
                 DB::commit();
                 $this->info('Sisa cuti karyawan berhasil direset');
         } catch (Exception $e) {
             DB::rollBack();
+            activity('automatic_reset_cuti')->log('Error Reset Cuti Karyawan per tanggal -'. $today.'- '.$e->getMessage());
             $this->error('Terjadi kesalahan: ' . $e->getMessage());
         }
     }

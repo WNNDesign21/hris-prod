@@ -683,20 +683,20 @@ class LembureController extends Controller
     public function detail_lembur_datatable(Request $request)
     {
         $columns = array(
-            0 => 'detail_lemburs.lembur_id',
-            1 => 'karyawans.nama',
-            2 => 'posisis.nama',
-            3 => 'departemens.nama',
-            4 => 'detail_lemburs.aktual_mulai_lembur',
-            5 => 'detail_lemburs.aktual_selesai_lembur',
-            6 => 'detail_lemburs.durasi',
-            7 => 'detail_lemburs.nominal',
+            0 => 'subquery.lembur_id',
+            1 => 'subquery.nama',
+            2 => 'subquery.posisi',
+            3 => 'subquery.departemen',
+            4 => 'subquery.aktual_mulai_lembur',
+            5 => 'subquery.aktual_selesai_lembur',
+            6 => 'subquery.durasi',
+            7 => 'subquery.nominal',
         );
 
         $limit = $request->input('length');
         $start = $request->input('start');
-        $order = (!empty($request->input('order.0.column'))) ? $columns[$request->input('order.0.column')] : $columns[0];
-        $dir = (!empty($request->input('order.0.dir'))) ? $request->input('order.0.dir') : "ASC";
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
 
         $settings['start'] = $start;
         $settings['limit'] = $limit;
@@ -1110,6 +1110,24 @@ class LembureController extends Controller
                 $pembagi_upah_lembur = SettingLembur::where('setting_name', 'pembagi_upah_lembur_harian')->where('organisasi_id', $karyawan->user->organisasi_id)->first()->value;
                 $datetime_rencana_mulai_lembur = $this->pembulatan_menit_ke_bawah($rencana_mulai_lemburs[$key]);
                 $datetime_rencana_selesai_lembur = $this->pembulatan_menit_ke_bawah($rencana_selesai_lemburs[$key]);
+
+                //PENGECEKAN DUPLIKAT
+                $detail_lembur_exist = DetailLembur::where('karyawan_id', $karyawan_id)
+                    ->where(function ($query) use ($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur) {
+                        $query->whereBetween('rencana_mulai_lembur', [$datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur])
+                              ->orWhereBetween('rencana_selesai_lembur', [$datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur])
+                              ->orWhere(function ($query) use ($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur) {
+                                  $query->where('rencana_mulai_lembur', '<=', $datetime_rencana_mulai_lembur)
+                                        ->where('rencana_selesai_lembur', '>=', $datetime_rencana_selesai_lembur);
+                              });
+                    })
+                    ->exists();
+                
+                if($detail_lembur_exist){
+                    DB::rollback();
+                    return response()->json(['message' => $karyawan->nama.' sudah memiliki data lembur pada range tanggal yang direncanakan'], 402);
+                }
+
                 $durasi_istirahat = $this->overtime_resttime_per_minutes($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur, $karyawan->user->organisasi_id);
                 $durasi = $this->calculate_overtime_per_minutes($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur, $karyawan->user->organisasi_id);
                 $durasi_konversi_lembur = $this->calculate_durasi_konversi_lembur($jenis_hari, $durasi, $karyawan_id);
@@ -1309,6 +1327,24 @@ class LembureController extends Controller
                 $pembagi_upah_lembur = SettingLembur::where('setting_name', 'pembagi_upah_lembur_harian')->where('organisasi_id', $karyawan->user->organisasi_id)->first()->value;
                 $datetime_rencana_mulai_lembur = $this->pembulatan_menit_ke_bawah($rencana_mulai_lemburs[$key]);
                 $datetime_rencana_selesai_lembur = $this->pembulatan_menit_ke_bawah($rencana_selesai_lemburs[$key]);
+
+                //PENGECEKAN DUPLIKAT
+                $detail_lembur_exist = DetailLembur::where('karyawan_id', $karyawan_id)
+                    ->where(function ($query) use ($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur) {
+                        $query->whereBetween('rencana_mulai_lembur', [$datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur])
+                              ->orWhereBetween('rencana_selesai_lembur', [$datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur])
+                              ->orWhere(function ($query) use ($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur) {
+                                  $query->where('rencana_mulai_lembur', '<=', $datetime_rencana_mulai_lembur)
+                                        ->where('rencana_selesai_lembur', '>=', $datetime_rencana_selesai_lembur);
+                              });
+                    })
+                    ->exists();
+                
+                if($detail_lembur_exist){
+                    DB::rollback();
+                    return response()->json(['message' => $karyawan->nama.' sudah memiliki data lembur pada range tanggal yang direncanakan'], 402);
+                }
+
                 $durasi_istirahat = $this->overtime_resttime_per_minutes($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur, $karyawan->user->organisasi_id);
                 $durasi = $this->calculate_overtime_per_minutes($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur, $karyawan->user->organisasi_id);
                 $durasi_konversi_lembur = $this->calculate_durasi_konversi_lembur($jenis_hari, $durasi, $karyawan_id);
@@ -3402,6 +3438,8 @@ class LembureController extends Controller
         $is_first = true;
         $is_last = false;
         $departemen_first_data_row = 0;
+        $departemens_data = [];
+        $gaji_departemen = 0;
         if($rekapLembur){
             foreach ($rekapLembur as $index => $data) {
                 if($is_first){
@@ -3432,7 +3470,6 @@ class LembureController extends Controller
                 $sheet->setCellValue('B'.$row, $data->nama);
                 $sheet->setCellValue('C'.$row, $data->departemen);
                 $sheet->setCellValue('D'.$row, $data->posisi);
-                $sheet->setCellValue('E'.$row, $data->periode_perhitungan);
                 $sheet->setCellValue('E'.$row, '1 ' . Carbon::createFromFormat('m', $month)->format('F Y') . ' - ' . Carbon::createFromFormat('Y-m', $year . '-' . $month)->endOfMonth()->format('d F Y'));
                 $sheet->setCellValue('F'.$row, $data->gaji);
                 $sheet->setCellValue('G'.$row, $data->jabatan_id >= 5 ? $data->upah_lembur_per_jam : '-');
@@ -3458,7 +3495,7 @@ class LembureController extends Controller
                         'vertical' => Alignment::VERTICAL_CENTER,
                     ],
                 ]);
-    
+                $gaji_departemen += $data->total_gaji_lembur;
                 $no++;
                 $row++;
     
@@ -3472,6 +3509,10 @@ class LembureController extends Controller
                 }
     
                 if($is_last){
+                    $departemens_data[] = [
+                        'nama_departemen' => $data->departemen,
+                        'total_gaji_departemen' => $gaji_departemen
+                    ];
                     $sheet->setCellValue('A'.$row, '###');
                     $sheet->setCellValue('B'.$row, 'TOTAL GAJI DEPT. '.$data->departemen);
                     $sheet->setCellValue('C'.$row, $data->departemen);
@@ -3505,12 +3546,62 @@ class LembureController extends Controller
                     $sheet->getStyle('K'.$row)->getNumberFormat()->setFormatCode('#,##0');
                     $sheet->getStyle('L'.$row)->getNumberFormat()->setFormatCode('#,##0');
                     $is_last = false;
+                    $gaji_departemen = 0;
     
                     if(isset($rekapLembur[$index+1])){
                         $no = 1;
                         $row++;
                     }
                 }
+            }
+        }
+
+        $spreadsheet->createSheet();
+        $summarySheet = $spreadsheet->getSheet(1);
+        $summarySheet->setTitle('SUMMARY GAJI LEMBUR');
+        $rowSummary = 1;
+        $colSummary = 'A';
+        $headers = [
+            'DEPARTEMEN',
+            'TOTAL GAJI LEMBUR'
+        ];
+
+        foreach ($headers as $header) {
+            $summarySheet->setCellValue($colSummary . '1', $header);
+            $summarySheet->getStyle($colSummary . '1')->applyFromArray([
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => [
+                        'argb' => 'FFFFFF00',
+                    ],
+                ],
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+                'font' => [
+                    'bold' => true,
+                    'size' => 12,
+                ],
+            ]);
+            $colSummary++;
+        }
+
+        $rowSummary = 2;
+
+        $columnsSummary = range('A', 'B');
+        foreach ($columnsSummary as $column) {
+            $summarySheet->getColumnDimension($column)->setAutoSize(true);
+        }
+
+        if(!empty($departemens_data)){
+            foreach ($departemens_data as $data) {
+                $summarySheet->setCellValue('A'.$rowSummary, $data['nama_departemen']);
+                $summarySheet->setCellValue('B'.$rowSummary, $data['total_gaji_departemen']);
+
+                $summarySheet->getStyle('A'.$rowSummary)->getNumberFormat()->setFormatCode('#,##0');
+                $summarySheet->getStyle('B'.$rowSummary)->getNumberFormat()->setFormatCode('#,##0');
+                $rowSummary++;
             }
         }
 
@@ -3524,10 +3615,19 @@ class LembureController extends Controller
             ],
         ]);
 
+        $summarySheet->getStyle('A1:B'.$rowSummary - 1)->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['argb' => 'FF000000'],
+                ],
+            ],
+        ]);
+
         $writer = new Xlsx($spreadsheet);
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="Rekapitulasi Pembayaran Lembur - '.Carbon::createFromFormat('m', $month)->format('F Y').'.xlsx"');
+        header('Content-Disposition: attachment;filename="Rekapitulasi Pembayaran Lembur - '.Carbon::createFromFormat('m', $month)->format('F').' '.$year.'.xlsx"');
         header('Cache-Control: max-age=0');
 
         $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');

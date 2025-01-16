@@ -16,6 +16,7 @@ use Illuminate\Foundation\Queue\Queueable;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use PhpOffice\PhpSpreadsheet\Cell\DataType;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
 class ExportSlipLemburJob implements ShouldQueue
@@ -84,17 +85,16 @@ class ExportSlipLemburJob implements ShouldQueue
                 'JUMLAH'
             ];
             
-            $members = Karyawan::select('karyawans.id_karyawan', 'karyawans.nama', 'karyawans.ni_karyawan', 'setting_lembur_karyawans.gaji', 'detail_lemburs.gaji_lembur', 'detail_lemburs.pembagi_upah_lembur')
+            $members = Karyawan::select('karyawans.id_karyawan', 'karyawans.nama', 'karyawans.ni_karyawan')
             ->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
             ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
-            ->leftJoin('setting_lembur_karyawans', 'karyawans.id_karyawan', 'setting_lembur_karyawans.karyawan_id')
             ->leftJoin('detail_lemburs', 'karyawans.id_karyawan', 'detail_lemburs.karyawan_id')
             ->when($this->departemen_id, function ($query) {
                 $query->where('posisis.departemen_id', $this->departemen_id);
             })
             ->where('detail_lemburs.organisasi_id', $this->organisasi_id)
             ->whereBetween('detail_lemburs.aktual_mulai_lembur', [$this->start, $this->end])
-            ->groupBy('karyawans.id_karyawan', 'karyawans.nama', 'karyawans.ni_karyawan', 'setting_lembur_karyawans.gaji', 'detail_lemburs.gaji_lembur', 'detail_lemburs.pembagi_upah_lembur', 'detail_lemburs.organisasi_id')
+            ->groupBy('karyawans.id_karyawan', 'karyawans.nama', 'karyawans.ni_karyawan')
             ->get();
             
             $columns = range('A', 'M');
@@ -103,7 +103,6 @@ class ExportSlipLemburJob implements ShouldQueue
             }
     
             foreach ($members as $kry){
-                $upah_lembur_per_jam_setting = $kry->gaji_lembur ? $kry->gaji_lembur / $kry->pembagi_upah_lembur : ($kry->gaji ? $kry->gaji / $this->pembagi_upah_lembur_harian : 0);
                 // TEXT "SLIP LEMBUR BULAN INI"
                 $sheet->mergeCells('A'.$row.':F'.$row+1);
                 $sheet->setCellValue('A'.$row, 'SLIP LEMBUR BULAN '.Carbon::createFromFormat('Y-m', $this->periode)->format('F Y'));
@@ -185,7 +184,7 @@ class ExportSlipLemburJob implements ShouldQueue
 
                     if($slipLemburs->count() > 0){
                         foreach($slipLemburs as $index => $slipLembur){
-                            $upah_lembur_per_jam = $slipLembur ? $slipLembur->gaji_lembur / $slipLembur->pembagi_upah_lembur : $upah_lembur_per_jam_setting;
+                            $upah_lembur_per_jam = $slipLembur ? $slipLembur->gaji_lembur / $slipLembur->pembagi_upah_lembur : 0;
                             $total_jam += $slipLembur->durasi;
                             $total_konversi_jam += $slipLembur->durasi_konversi_lembur;
                             $total_uang_makan += $slipLembur->uang_makan;
@@ -213,6 +212,8 @@ class ExportSlipLemburJob implements ShouldQueue
                             if($slipLembur->keterangan){
                                 if (substr($slipLembur->keterangan, 0, 6) === 'BYPASS') {
                                     $keterangan = substr($slipLembur->keterangan, 7);
+                                } else {
+                                    $keterangan = '';
                                 }
                             } else {
                                 $keterangan = '';
@@ -225,12 +226,15 @@ class ExportSlipLemburJob implements ShouldQueue
                             $sheet->setCellValue('G'.$row, Carbon::parse($slipLembur->aktual_selesai_lembur)->subMinutes($slipLembur->durasi_istirahat)->format('H:i'));
                             $sheet->setCellValue('H'.$row, number_format($slipLembur->durasi / 60, 2));
                             $sheet->setCellValue('I'.$row, number_format($slipLembur->durasi_konversi_lembur / 60, 2));
-                            $sheet->setCellValue('J'.$row, $slipLembur->uang_makan);
-                            $sheet->setCellValue('K'.$row, 'Rp ' . number_format($upah_lembur_per_jam, 0, ',', '.'));
-                            $sheet->setCellValue('L'.$row, 'Rp '. number_format($slipLembur->nominal, 0, ',', '.'));
+                            $sheet->setCellValueExplicit('J'.$row, $slipLembur->uang_makan, DataType::TYPE_NUMERIC);
+                            $sheet->setCellValueExplicit('K'.$row, $upah_lembur_per_jam, DataType::TYPE_NUMERIC);
+                            $sheet->setCellValueExplicit('L'.$row, $slipLembur->nominal, DataType::TYPE_NUMERIC);
                             $sheet->setCellValue('M'.$row, $keterangan);
-        
+
                             //STYLE CELL
+                            $sheet->getStyle('J'.$row)->getNumberFormat()->setFormatCode('[$Rp-421] #,##0');
+                            $sheet->getStyle('K'.$row)->getNumberFormat()->setFormatCode('[$Rp-421] #,##0');
+                            $sheet->getStyle('L'.$row)->getNumberFormat()->setFormatCode('[$Rp-421] #,##0');
                             $sheet->getStyle('C'.$row)->applyFromArray([
                                 'alignment' => [
                                     'horizontal' => Alignment::HORIZONTAL_CENTER,
@@ -307,13 +311,16 @@ class ExportSlipLemburJob implements ShouldQueue
                         $sheet->setCellValue('G'.$row, '-');
                         $sheet->setCellValue('H'.$row, '-');
                         $sheet->setCellValue('I'.$row, '-');
-                        $sheet->setCellValue('J'.$row, 0);
-                        $sheet->setCellValue('K'.$row, 'Rp ' . number_format($upah_lembur_per_jam_setting, 0, ',', '.'));
-                        $sheet->setCellValue('L'.$row, 'Rp');
+                        $sheet->setCellValueExplicit('J'.$row, (int)0, DataType::TYPE_NUMERIC);
+                        $sheet->setCellValueExplicit('K'.$row, (int)0, DataType::TYPE_NUMERIC);
+                        $sheet->setCellValueExplicit('L'.$row, (int)0, DataType::TYPE_NUMERIC);
                         $sheet->setCellValue('M'.$row, '');
                     }
 
                     //STYLE CELL
+                    $sheet->getStyle('J'.$row)->getNumberFormat()->setFormatCode('[$Rp-421] #,##0');
+                    $sheet->getStyle('K'.$row)->getNumberFormat()->setFormatCode('[$Rp-421] #,##0');
+                    $sheet->getStyle('L'.$row)->getNumberFormat()->setFormatCode('[$Rp-421] #,##0');
                     $sheet->getStyle('C'.$row)->applyFromArray([
                         'alignment' => [
                             'horizontal' => Alignment::HORIZONTAL_CENTER,
@@ -338,14 +345,20 @@ class ExportSlipLemburJob implements ShouldQueue
 
                     $row++;
                 }
+
+                $sheet->setCellValue('G'.$row, $kry->nama);    
                 $sheet->setCellValue('H'.$row, number_format($total_jam / 60 , 2));    
                 $sheet->setCellValue('I'.$row, number_format($total_konversi_jam / 60 , 2));    
-                $sheet->setCellValue('J'.$row, 'Rp ' . number_format($total_uang_makan, 0, ',', '.'));    
+                $sheet->setCellValueExplicit('J'.$row, $total_uang_makan, DataType::TYPE_NUMERIC);    
                 $sheet->setCellValue('K'.$row, '-');    
-                $sheet->setCellValue('L'.$row, 'Rp ' . number_format($total_spl, 0, ',', '.'));
+                $sheet->setCellValueExplicit('L'.$row, $total_spl, DataType::TYPE_NUMERIC);
                 $sheet->setCellValue('K'.$row+1, 'SESUAI SPL');
-                $sheet->setCellValue('L'.$row+1, 'Rp ' . number_format($total_spl, 0, ',', '.'));
-                $sheet->getStyle('H'.$row.':L'.$row)->applyFromArray([
+                $sheet->setCellValueExplicit('L'.$row+1, $total_spl, DataType::TYPE_NUMERIC);
+
+                $sheet->getStyle('J'.$row)->getNumberFormat()->setFormatCode('[$Rp-421] #,##0');
+                $sheet->getStyle('L'.$row)->getNumberFormat()->setFormatCode('[$Rp-421] #,##0');
+                $sheet->getStyle('L'.($row+1))->getNumberFormat()->setFormatCode('[$Rp-421] #,##0');
+                $sheet->getStyle('G'.$row.':L'.$row)->applyFromArray([
                     'borders' => [
                         'allBorders' => [
                             'borderStyle' => Border::BORDER_THIN,

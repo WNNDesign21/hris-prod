@@ -42,6 +42,7 @@
                                     @for ($i = 1; $i <= 31; $i++)
                                         <th colspan="2">{{ 'Tanggal ' . $i }}</th>
                                     @endfor
+                                    <th rowspan="2">MENIT KETERLAMBATAN</th>
                                 </tr>
                                 <tr>
                                     @for ($i = 1; $i <= 31; $i++)
