@@ -24,6 +24,7 @@ class ExportSlipLemburJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $periode, $organisasi_id, $departemen, $departemen_id, $pembagi_upah_lembur_harian, $start, $end, $export_slip_lembur;
+    public $timeout = 1800;
 
     /**
      * Create a new job instance.
