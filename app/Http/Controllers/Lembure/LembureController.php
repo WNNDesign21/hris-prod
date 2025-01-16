@@ -3438,6 +3438,8 @@ class LembureController extends Controller
         $is_first = true;
         $is_last = false;
         $departemen_first_data_row = 0;
+        $departemens_data = [];
+        $gaji_departemen = 0;
         if($rekapLembur){
             foreach ($rekapLembur as $index => $data) {
                 if($is_first){
@@ -3493,7 +3495,7 @@ class LembureController extends Controller
                         'vertical' => Alignment::VERTICAL_CENTER,
                     ],
                 ]);
-    
+                $gaji_departemen += $data->total_gaji_lembur;
                 $no++;
                 $row++;
     
@@ -3507,6 +3509,10 @@ class LembureController extends Controller
                 }
     
                 if($is_last){
+                    $departemens_data[] = [
+                        'nama_departemen' => $data->departemen,
+                        'total_gaji_departemen' => $gaji_departemen
+                    ];
                     $sheet->setCellValue('A'.$row, '###');
                     $sheet->setCellValue('B'.$row, 'TOTAL GAJI DEPT. '.$data->departemen);
                     $sheet->setCellValue('C'.$row, $data->departemen);
@@ -3540,6 +3546,7 @@ class LembureController extends Controller
                     $sheet->getStyle('K'.$row)->getNumberFormat()->setFormatCode('#,##0');
                     $sheet->getStyle('L'.$row)->getNumberFormat()->setFormatCode('#,##0');
                     $is_last = false;
+                    $gaji_departemen = 0;
     
                     if(isset($rekapLembur[$index+1])){
                         $no = 1;
@@ -3549,8 +3556,66 @@ class LembureController extends Controller
             }
         }
 
+        $spreadsheet->createSheet();
+        $summarySheet = $spreadsheet->getSheet(1);
+        $summarySheet->setTitle('SUMMARY GAJI LEMBUR');
+        $rowSummary = 1;
+        $colSummary = 'A';
+        $headers = [
+            'DEPARTEMEN',
+            'TOTAL GAJI LEMBUR'
+        ];
+
+        foreach ($headers as $header) {
+            $summarySheet->setCellValue($colSummary . '1', $header);
+            $summarySheet->getStyle($colSummary . '1')->applyFromArray([
+                'fill' => [
+                    'fillType' => Fill::FILL_SOLID,
+                    'startColor' => [
+                        'argb' => 'FFFFFF00',
+                    ],
+                ],
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+                'font' => [
+                    'bold' => true,
+                    'size' => 12,
+                ],
+            ]);
+            $colSummary++;
+        }
+
+        $rowSummary = 2;
+
+        $columnsSummary = range('A', 'B');
+        foreach ($columnsSummary as $column) {
+            $summarySheet->getColumnDimension($column)->setAutoSize(true);
+        }
+
+        if(!empty($departemens_data)){
+            foreach ($departemens_data as $data) {
+                $summarySheet->setCellValue('A'.$rowSummary, $data['nama_departemen']);
+                $summarySheet->setCellValue('B'.$rowSummary, $data['total_gaji_departemen']);
+
+                $summarySheet->getStyle('A'.$rowSummary)->getNumberFormat()->setFormatCode('#,##0');
+                $summarySheet->getStyle('B'.$rowSummary)->getNumberFormat()->setFormatCode('#,##0');
+                $rowSummary++;
+            }
+        }
+
         //STYLE ALL CELLS
         $sheet->getStyle('A1:L'.$row)->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['argb' => 'FF000000'],
+                ],
+            ],
+        ]);
+
+        $summarySheet->getStyle('A1:B'.$rowSummary - 1)->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => Border::BORDER_THIN,
