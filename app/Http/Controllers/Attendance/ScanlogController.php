@@ -251,7 +251,6 @@ class ScanlogController extends Controller
                 $scanlogs->leftJoin('users', 'users.id','karyawans.user_id');
         
                 $scanlogs->where('attendance_scanlogs.organisasi_id', $organisasi_id);
-                $scanlogs->where('users.organisasi_id', $organisasi_id);
                 $scanlogs->where('attendance_scanlogs.device_id', $request->device_id);
                 $scanlogs->where(function($query) use ($request){
                     $query->whereDate('attendance_scanlogs.scan_date', $request->start_date)
@@ -373,7 +372,6 @@ class ScanlogController extends Controller
                             users ON users.id = k.user_id
                         WHERE
                             attendance_scanlogs.organisasi_id = $organisasi_id
-                            AND users.organisasi_id = $organisasi_id
                             AND attendance_scanlogs.device_id = $request->device_id
                             AND (
                                 DATE(attendance_scanlogs.scan_date) = '$request->start_date'

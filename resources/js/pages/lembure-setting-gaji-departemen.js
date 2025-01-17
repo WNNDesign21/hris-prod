@@ -63,6 +63,11 @@ $(function () {
             dataType: "json",
             type: "POST",
             data: function (dataFilter) {
+                var departemen = $('#filterDepartemen').val();
+                var periode = $('#filterPeriode').val();
+
+                dataFilter.departemen = departemen;
+                dataFilter.periode = periode;
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.responseJSON.data) {
@@ -232,5 +237,50 @@ $(function () {
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
             },
         });
+    });
+
+    // FILTER
+    $('.btnFilter').on("click", function (){
+        openFilter();
+    })
+
+    $('.btnCloseFilter').on("click", function (){
+        closeFilter();
+    })
+
+    var modalFilterOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalFilter = new bootstrap.Modal(
+        document.getElementById("modal-filter"),
+        modalFilterOptions
+    );
+    
+    function openFilter() {
+        modalFilter.show();
+    }
+
+    function closeFilter() {
+        modalFilter.hide();
+    }
+
+    function resetFilter() {
+        $('#filterDepartemen').val('').trigger('change');
+        $('#filterPeriode').val('');
+    }
+
+    $('.btnResetFilter').on('click', function(){
+        resetFilter();
+    })
+
+    $('#filterDepartemen').select2({
+        dropdownParent: $('#modal-filter')
+    });
+
+    $(".btnSubmitFilter").on("click", function () {
+        settingGajiDepartemenTable.search('').draw();
+        closeFilter();
     });
 });
