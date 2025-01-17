@@ -529,11 +529,11 @@ class CutieController extends Controller
                 }
                 
                 //KARYAWAN PENGGANTI
-                if ($data->nama_pengganti && $data->legalized_by && $data->rejected_by){
+                if ($data->nama_pengganti && !$data->legalized_by && !$data->rejected_by){
                     $karyawan_pengganti = '<small class="text-bold">'.$data->nama_pengganti.'</small><br>'.'<button type="button" class="waves-effect waves-light btn btn-sm btn-secondary btnKaryawanPengganti" data-id="'.$data->id_cuti.'" data-karyawan-id="'.$data->karyawan_id.'" data-karyawan-pengganti-id="'.$data->karyawan_pengganti_id.'"><i class="fas fa-user-friends"></i> Pilih</button>';
-                } elseif($data->nama_pengganti && !$data->legalized_by && $data->rejected_by){
+                } elseif($data->nama_pengganti && $data->legalized_by && !$data->rejected_by){
                     $karyawan_pengganti = '<small class="text-bold">'.$data->nama_pengganti.'</small>';
-                } elseif ($data->nama_pengganti && $data->legalized_by && $data->rejected_by){ 
+                } elseif (!$data->nama_pengganti && !$data->legalized_by && !$data->rejected_by){ 
                     $karyawan_pengganti = '<button type="button" class="waves-effect waves-light btn btn-sm btn-secondary btnKaryawanPengganti" data-id="'.$data->id_cuti.'" data-karyawan-id="'.$data->karyawan_id.'" data-karyawan-pengganti-id="'.$data->karyawan_pengganti_id.'"><i class="fas fa-user-friends"></i> Pilih</button>';
                 } else {
                     $karyawan_pengganti = '-';
