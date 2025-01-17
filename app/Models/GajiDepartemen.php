@@ -41,6 +41,15 @@ class GajiDepartemen extends Model
 
         $data->where('gaji_departemens.organisasi_id', $organisasi_id);
 
+        if (isset($dataFilter['departemen'])) {
+            $data->where('gaji_departemens.departemen_id', $dataFilter['departemen']);
+        }
+
+        if (isset($dataFilter['year']) && isset($dataFilter['month'])) {
+            $data->whereYear('gaji_departemens.periode', $dataFilter['year']);
+            $data->whereMonth('gaji_departemens.periode', $dataFilter['month']);
+        }
+
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
             $data->where(function ($query) use ($search) {

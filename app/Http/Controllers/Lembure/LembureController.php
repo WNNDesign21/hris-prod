@@ -232,9 +232,11 @@ class LembureController extends Controller
 
     public function setting_gaji_departemen_view()
     {
+        $departemens = Departemen::all();
         $dataPage = [
             'pageTitle' => "Lembur-E - Setting Gaji Departemen",
             'page' => 'lembure-setting-gaji-departemen',
+            'departemens' => $departemens
         ];
         return view('pages.lembur-e.setting-gaji-departemen', $dataPage);
     }
@@ -857,6 +859,20 @@ class LembureController extends Controller
         $search = $request->input('search.value');
         if (!empty($search)) {
             $dataFilter['search'] = $search;
+        }
+
+        $departemen = $request->departemen;
+        if (!empty($departemen)){
+            $dataFilter['departemen'] = $departemen;
+        }
+
+        $periode = $request->periode;
+        if (!empty($periode)){
+            $dataFilter['year'] = Carbon::parse($periode)->format('Y');
+            $dataFilter['month'] = Carbon::parse($periode)->format('m');
+        } else {
+            $dataFilter['year'] = Carbon::now()->format('Y');
+            $dataFilter['month'] = Carbon::now()->format('m');
         }
 
         $totalData = GajiDepartemen::all()->count();
