@@ -969,11 +969,18 @@ class KontrakController extends Controller
                 $worksheet = $spreadsheet->getActiveSheet();
                 $data = $worksheet->toArray();
                 $karyawans = [];
+
                 foreach ($data as $index => $row) {
                     if ($index == 0) continue; 
-
+                    
                     activity('upload_kontrak_karyawan')->log('insert row ' . $index);
-                    $karyawans[] = Karyawan::where('ni_karyawan', $row[0])->organisasi(auth()->user()->organisasi_id)->first()->id_karyawan;
+                    $karyawan_exist = Karyawan::where('ni_karyawan', $row[0])->organisasi(auth()->user()->organisasi_id);
+                    if($karyawan_exist->exists()){
+                        $karyawan = $karyawan_exist->first();
+                        $karyawans[] = $karyawan->id_karyawan;
+                    } else {
+                        return response()->json(['message' => 'Karyawan dengan Nomor Induk '.$row[0].' tidak ditemukan!'], 404);
+                    }
 
                     //Convert tanggal mulai dan selesai ke format Ymd jika ada
                     if($row[7] !== null){
