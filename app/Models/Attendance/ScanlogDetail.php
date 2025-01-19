@@ -11,7 +11,7 @@ class ScanlogDetail extends Model
 {
     use HasFactory;
 
-    protected $table = 'attendance_scanlog_details_v3';
+    protected $table = 'attendance_scanlog_details';
 
     private static function _query($dataFilter)
     {
@@ -20,7 +20,7 @@ class ScanlogDetail extends Model
                 SELECT
                     *,
                     ROW_NUMBER() OVER (PARTITION BY karyawan, scan_date ORDER BY scan_date, scan_type) AS rn
-                FROM attendance_scanlog_details_v3
+                FROM attendance_scanlog_details
             ),
             DailyScans AS (
                 SELECT

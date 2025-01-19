@@ -4070,10 +4070,12 @@ class LembureController extends Controller
                 $worksheet = $spreadsheet->getActiveSheet();
                 $data = $worksheet->toArray();
                 unset($data[0]);
-
+                $error_row = 0;
                 foreach ($data as $key => $row) {
+                    $error_row++;
                     Log::info($row[0]);
-                    $karyawan = Karyawan::where('ni_karyawan', $row[0])->first();
+                    activity('upload_upah_lembur_karyawan')->log('Upload Upah Lembur Karyawan '.$row[0]);
+                    $karyawan = Karyawan::where('ni_karyawan', $row[0])->organisasi($organisasi_id)->first();
                     $setting_lembur_karyawan = SettingLemburKaryawan::where('karyawan_id', $karyawan->id_karyawan)->first();
 
                     if($karyawan){
@@ -4119,7 +4121,8 @@ class LembureController extends Controller
             }
         } catch (Throwable $e) {
             DB::rollBack();
-            return response()->json(['message' => 'Error processing the file: ' . $e->getMessage()], 500);
+            activity('upload_upah_lembur_karyawan')->log('Error Upload Upah Lembur Karyawan '.$e->getMessage().' in row '.$error_row);
+            return response()->json(['message' => 'Error processing the file: ' . $e->getMessage(). 'in row'. $error_row], 500);
         }
     }
 
