@@ -218,6 +218,7 @@ class TestController extends Controller
     public function upload_pin(Request $request)
     {
         $file = $request->file('file_pin');
+        $organisasi_id = auth()->user()->organisasi_id;
         
         $validator = Validator::make($request->all(), [
             'file_pin' => 'required|mimes:xlsx,xls'
@@ -242,7 +243,7 @@ class TestController extends Controller
                 unset($data[0]);
                 if(!empty($data)){
                     foreach ($data as $key => $row) {
-                        $karyawan = Karyawan::where('ni_karyawan', $row[0])->first();
+                        $karyawan = Karyawan::where('ni_karyawan', $row[0])->organisasi($organisasi_id)->first();
                         if($karyawan){
                             $karyawan->update([
                                 'pin' => $row[2]
