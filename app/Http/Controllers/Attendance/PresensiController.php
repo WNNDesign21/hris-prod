@@ -18,11 +18,19 @@ class PresensiController extends Controller
      */
     public function index()
     {
+        $dataFilter = [];
+        $dataFilter['organisasi_id'] = auth()->user()->organisasi_id;
+        $dataFilter['date'] = Carbon::now()->format('Y-m-d');
+
         $departemens = Departemen::all();
+        $hadir = ScanlogDetail::getHadirCountByDate($dataFilter);
+        $total_karyawan = Karyawan::organisasi(auth()->user()->organisasi_id)->whereNotNull('pin')->aktif()->count();
         $dataPage = [
             'pageTitle' => "Attendance-E - Presensi",
             'page' => 'attendance-presensi',
-            'departemens' => $departemens 
+            'departemens' => $departemens,
+            'hadir' => $hadir,
+            'total_karyawan' => $total_karyawan,
         ];
         return view('pages.attendance-e.presensi.index', $dataPage);
     }
