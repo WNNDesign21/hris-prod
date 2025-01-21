@@ -3455,7 +3455,12 @@ class LembureController extends Controller
         $is_last = false;
         $departemen_first_data_row = 0;
         $departemens_data = [];
+        $man_powers = [];
         $gaji_departemen = 0;
+        $jam_lembur = 0;
+        $konversi_jam_lembur = 0;
+        $uang_makan = 0;
+        $gaji_lembur = 0;
         if($rekapLembur){
             foreach ($rekapLembur as $index => $data) {
                 if($is_first){
@@ -3512,6 +3517,15 @@ class LembureController extends Controller
                     ],
                 ]);
                 $gaji_departemen += $data->total_gaji_lembur;
+                $jam_lembur += $data->total_jam_lembur;
+                $konversi_jam_lembur += $data->konversi_jam_lembur;
+                $uang_makan += $data->uang_makan;
+                $data->jabatan_id >= 5 ? $gaji_lembur += $data->gaji_lembur : $gaji_lembur += 0;
+
+                if (!in_array($data->nama, $man_powers)) {
+                    $man_powers[] = $data->nama;
+                }
+
                 $no++;
                 $row++;
     
@@ -3527,7 +3541,12 @@ class LembureController extends Controller
                 if($is_last){
                     $departemens_data[] = [
                         'nama_departemen' => $data->departemen,
-                        'total_gaji_departemen' => $gaji_departemen
+                        'total_gaji_departemen' => $gaji_departemen,
+                        'total_gaji_lembur' => $gaji_lembur,
+                        'total_jam_lembur' => $jam_lembur,
+                        'total_konversi_jam_lembur' => $konversi_jam_lembur,
+                        'total_uang_makan' => $uang_makan,
+                        'total_man_power' => count($man_powers)
                     ];
                     $sheet->setCellValue('A'.$row, '###');
                     $sheet->setCellValue('B'.$row, 'TOTAL GAJI DEPT. '.$data->departemen);
@@ -3563,6 +3582,11 @@ class LembureController extends Controller
                     $sheet->getStyle('L'.$row)->getNumberFormat()->setFormatCode('#,##0');
                     $is_last = false;
                     $gaji_departemen = 0;
+                    $jam_lembur = 0;
+                    $konversi_jam_lembur = 0;
+                    $uang_makan = 0;
+                    $gaji_lembur = 0;
+                    $man_powers = [];
     
                     if(isset($rekapLembur[$index+1])){
                         $no = 1;
@@ -3578,7 +3602,14 @@ class LembureController extends Controller
         $rowSummary = 1;
         $colSummary = 'A';
         $headers = [
+            'NO',
             'DEPARTEMEN',
+            'JUMLAH KARYAWAN',
+            'PERIODE PERHITUNGAN',
+            'TOTAL JAM LEMBUR',
+            'KONVERSI JAM LEMBUR',
+            'GAJI LEMBUR',
+            'UANG MAKAN',
             'TOTAL GAJI LEMBUR'
         ];
 
@@ -3605,21 +3636,53 @@ class LembureController extends Controller
 
         $rowSummary = 2;
 
-        $columnsSummary = range('A', 'B');
+        $columnsSummary = range('A', 'I');
         foreach ($columnsSummary as $column) {
             $summarySheet->getColumnDimension($column)->setAutoSize(true);
         }
 
+        $total_gaji_departemen = 0;
+        $total_gaji_lembur = 0;
+        $total_jam_lembur = 0;
+        $total_konversi_jam_lembur = 0;
+        $total_uang_makan = 0;
+        $total_man_power = 0;
         if(!empty($departemens_data)){
-            foreach ($departemens_data as $data) {
-                $summarySheet->setCellValue('A'.$rowSummary, $data['nama_departemen']);
-                $summarySheet->setCellValue('B'.$rowSummary, $data['total_gaji_departemen']);
+            foreach ($departemens_data as $index => $data) {
+                $summarySheet->setCellValue('A'.$rowSummary, $index+1);
+                $summarySheet->setCellValue('B'.$rowSummary, $data['nama_departemen']);
+                $summarySheet->setCellValue('C'.$rowSummary, $data['total_man_power']);
+                $summarySheet->setCellValue('D'.$rowSummary, Carbon::createFromFormat('Y-m', $year . '-' . $month)->format('F Y'));
+                $summarySheet->setCellValue('E'.$rowSummary, $data['total_jam_lembur']);
+                $summarySheet->setCellValue('F'.$rowSummary, $data['total_konversi_jam_lembur']);
+                $summarySheet->setCellValue('G'.$rowSummary, $data['total_gaji_lembur']);
+                $summarySheet->setCellValue('H'.$rowSummary, $data['total_uang_makan']);
+                $summarySheet->setCellValue('I'.$rowSummary, $data['total_gaji_departemen']);
+                $total_gaji_departemen += $data['total_gaji_departemen'];
+                $total_gaji_lembur += $data['total_gaji_lembur'];
+                $total_jam_lembur += $data['total_jam_lembur'];
+                $total_konversi_jam_lembur += $data['total_konversi_jam_lembur'];
+                $total_uang_makan += $data['total_uang_makan'];
+                $total_man_power += $data['total_man_power'];
 
-                $summarySheet->getStyle('A'.$rowSummary)->getNumberFormat()->setFormatCode('#,##0');
-                $summarySheet->getStyle('B'.$rowSummary)->getNumberFormat()->setFormatCode('#,##0');
+                $summarySheet->getStyle('G'.$rowSummary)->getNumberFormat()->setFormatCode('#,##0');
+                $summarySheet->getStyle('H'.$rowSummary)->getNumberFormat()->setFormatCode('#,##0');
+                $summarySheet->getStyle('I'.$rowSummary)->getNumberFormat()->setFormatCode('#,##0');
                 $rowSummary++;
             }
         }
+
+        $summarySheet->mergeCells('A'.$rowSummary.':B'.$rowSummary);
+        $summarySheet->setCellValue('A'.$rowSummary, 'TOTAL');
+        $summarySheet->setCellValue('C'.$rowSummary, $total_man_power);
+        $summarySheet->setCellValue('E'.$rowSummary, $total_jam_lembur);
+        $summarySheet->setCellValue('F'.$rowSummary, $total_konversi_jam_lembur);
+        $summarySheet->setCellValue('G'.$rowSummary, $total_gaji_lembur);
+        $summarySheet->setCellValue('H'.$rowSummary, $total_uang_makan);
+        $summarySheet->setCellValue('I'.$rowSummary, $total_gaji_departemen);
+        $summarySheet->getStyle('G'.$rowSummary)->getNumberFormat()->setFormatCode('#,##0');
+        $summarySheet->getStyle('H'.$rowSummary)->getNumberFormat()->setFormatCode('#,##0');
+        $summarySheet->getStyle('I'.$rowSummary)->getNumberFormat()->setFormatCode('#,##0');
 
         //STYLE ALL CELLS
         $sheet->getStyle('A1:L'.$row)->applyFromArray([
@@ -3631,7 +3694,31 @@ class LembureController extends Controller
             ],
         ]);
 
-        $summarySheet->getStyle('A1:B'.$rowSummary - 1)->applyFromArray([
+        $summarySheet->getStyle('A'.$rowSummary.':B'.$rowSummary)->applyFromArray([
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'font' => [
+                'bold' => true,
+                'size' => 12,
+            ],
+        ]);
+
+        $summarySheet->getStyle('C'.$rowSummary.':I'.$rowSummary)->applyFromArray([
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => [
+                    'argb' => 'FFFFFF00',
+                ],
+            ],
+            'font' => [
+                'bold' => true,
+                'size' => 12,
+            ],
+        ]);
+
+        $summarySheet->getStyle('A1:I'.$rowSummary)->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => Border::BORDER_THIN,
