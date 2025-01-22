@@ -151,6 +151,11 @@ class Izine extends Model
             $data->orderBy('izins.rencana_mulai_or_masuk', 'DESC');
         }
 
+        if (isset($dataFilter['date'])) {
+            $date = $dataFilter['date'];
+            $data->whereDate('izins.rencana_mulai_or_masuk', $date);
+        }
+
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
             $data->where(function ($query) use ($search) {

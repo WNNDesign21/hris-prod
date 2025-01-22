@@ -4,6 +4,9 @@ namespace App\Http\Controllers\Attendance;
 
 use Throwable;
 use Carbon\Carbon;
+use App\Models\Cutie;
+use App\Models\Izine;
+use App\Models\Sakite;
 use App\Models\Karyawan;
 use App\Models\Departemen;
 use Illuminate\Http\Request;
@@ -20,16 +23,24 @@ class PresensiController extends Controller
     {
         $dataFilter = [];
         $dataFilter['organisasi_id'] = auth()->user()->organisasi_id;
-        $dataFilter['date'] = Carbon::now()->format('Y-m-d');
+        $dataFilter['date'] = '2025-01-21';
+        $dataFilter['jenis_izin'] = ['TM'];
+        $dataFilter['statusCuti'] = 'ON LEAVE';
 
         $departemens = Departemen::all();
         $hadir = ScanlogDetail::getHadirCountByDate($dataFilter);
-        $total_karyawan = Karyawan::organisasi(auth()->user()->organisasi_id)->whereNotNull('pin')->aktif()->count();
+        $sakit = Sakite::countData($dataFilter);
+        $izin = Izine::countData($dataFilter);
+        $cuti = Cutie::countData($dataFilter);
+        $total_karyawan = Karyawan::organisasi(auth()->user()->organisasi_id)->aktif()->count();
         $dataPage = [
             'pageTitle' => "Attendance-E - Presensi",
             'page' => 'attendance-presensi',
             'departemens' => $departemens,
             'hadir' => $hadir,
+            'sakit' => $sakit,
+            'izin' => $izin,
+            'cuti' => $cuti,
             'total_karyawan' => $total_karyawan,
         ];
         return view('pages.attendance-e.presensi.index', $dataPage);
