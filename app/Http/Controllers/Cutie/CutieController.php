@@ -2314,4 +2314,88 @@ class CutieController extends Controller
         unset($spreadsheet);
         exit();
     }
+
+    public function get_karyawan_cuti(Request $request)
+    {
+        $search = $request->input('search');
+        $page = $request->input("page");
+        $idCats = $request->input('catsProd');
+        $adOrg = $request->input('adOrg');
+
+        $query = Karyawan::select(
+            'karyawans.id_karyawan',
+            'karyawans.nama',
+            'posisis.nama as posisi',
+        );
+
+        if(auth()->user()->hasRole('atasan')){
+            $posisi = auth()->user()->karyawan->posisi;
+            $id_posisi_members = $this->get_member_posisi($posisi);
+
+            foreach ($posisi as $ps){
+                $index = array_search($ps->id_posisi, $id_posisi_members);
+                array_splice($id_posisi_members, $index, 1);
+            }
+        } else {
+            $id_posisi_members = [];
+        }
+
+        $query->aktif();
+        $query->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
+        ->leftJoin('users', 'karyawans.user_id', 'users.id')
+        ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+        ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
+        ->rightJoin('setting_lembur_karyawans', 'karyawans.id_karyawan', 'setting_lembur_karyawans.karyawan_id');
+
+        $organisasi_id = auth()->user()->organisasi_id;
+        $query->where('users.organisasi_id', $organisasi_id);
+
+        if(!empty($id_posisi_members)){
+            $query->whereIn('posisis.id_posisi', $id_posisi_members);
+        }
+
+        if (!empty($search)) {
+            $query->where(function ($dat) use ($search) {
+                $dat->where('karyawans.id_karyawan', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%");
+            });
+        }
+
+        $query->groupBy('karyawans.id_karyawan','karyawans.nama', 'posisis.nama');
+        $data = $query->simplePaginate(10);
+
+        $morePages = true;
+        $pagination_obj = json_encode($data);
+        if (empty($data->nextPageUrl())) {
+            $morePages = false;
+        }
+
+        foreach ($data->items() as $karyawan) {
+            $dataUser[] = [
+                'id' => $karyawan->id_karyawan,
+                'text' => $karyawan->nama
+            ];
+        }
+
+        $results = array(
+            "results" => $dataUser,
+            "pagination" => array(
+                "more" => $morePages
+            )
+        );
+
+        return response()->json($results);
+    }
+
+    function get_member_posisi($posisis)
+    {
+        $data = [];
+        foreach ($posisis as $ps) {
+            if ($ps->children) {
+                $data = array_merge($data, $this->get_member_posisi($ps->children));
+            }
+            $data[] = $ps->id_posisi;
+        }
+        return $data;
+    }
 }
