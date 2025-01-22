@@ -248,7 +248,7 @@ class ScanlogController extends Controller
                 );
         
                 $scanlogs->leftJoin('karyawans', 'karyawans.pin','attendance_scanlogs.pin');
-                $scanlogs->leftJoin('users', 'users.id','karyawans.user_id');
+                $scanlogs->leftJoin('users', 'users.id','karyawans.user_id')->where('users.organisasi_id', $organisasi_id);
         
                 $scanlogs->where('attendance_scanlogs.organisasi_id', $organisasi_id);
                 $scanlogs->where('attendance_scanlogs.device_id', $request->device_id);
@@ -363,13 +363,13 @@ class ScanlogController extends Controller
                             k.nama,
                             k.ni_karyawan,
                             attendance_scanlogs.scan_date,
-                            ROW_NUMBER() OVER (PARTITION BY attendance_scanlogs.pin, DATE(scan_date) ORDER BY scan_date) AS rn
+                            ROW_NUMBER() OVER (PARTITION BY attendance_scanlogs.pin, DATE(scan_date), attendance_scanlogs.organisasi_id ORDER BY scan_date) AS rn
                         FROM
                             attendance_scanlogs
                         LEFT JOIN
                             karyawans AS k ON k.pin = attendance_scanlogs.pin
                         LEFT JOIN
-                            users ON users.id = k.user_id
+                            users ON users.id = k.user_id AND users.organisasi_id = $organisasi_id
                         WHERE
                             attendance_scanlogs.organisasi_id = $organisasi_id
                             AND attendance_scanlogs.device_id = $request->device_id

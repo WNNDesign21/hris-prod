@@ -95,6 +95,10 @@ class Sakite extends Model
             $data->whereIn('posisis.id_posisi', $dataFilter['member_posisi_id']);
         }
 
+        if (isset($dataFilter['date'])) {
+            $data->whereDate('sakits.tanggal_mulai', $dataFilter['date']);
+        }
+
         //FILTER CUSTOM
         if (isset($dataFilter['status'])) {
             $status = $dataFilter['status'];

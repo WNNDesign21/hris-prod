@@ -79,6 +79,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/cutie/dashboard-cuti/get-data-cuti-detail-chart', [CutieController::class, 'get_data_cuti_detail_chart']);
     Route::get('/cutie/dashboard-cuti/get-data-jenis-cuti-monthly-chart', [CutieController::class, 'get_data_jenis_cuti_monthly_chart']);
     Route::get('/cutie/setting-cuti/get-data-detail-jenis-cuti/{idJenisCuti}', [CutieController::class, 'get_data_detail_jenis_cuti']);
+    Route::post('/cutie/bypass-cuti/get-karyawan-cuti', [CutieController::class, 'get_karyawan_cuti']);
 
     Route::post('/lembure/pengajuan-lembur/get-data-karyawan-lembur', [LembureController::class, 'get_data_karyawan_lembur']);
     Route::post('/lembure/pengajuan-lembur/get-data-karyawan-bypass-lembur', [LembureController::class, 'get_data_karyawan_bypass_lembur']);
@@ -272,7 +273,9 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::delete('/setting-cuti/delete/{idCuti}', [CutieController::class, 'delete_jenis_cuti'])->name('cutie.setting-cuti.delete');
             Route::patch('/setting-cuti/update/{idCuti}', [CutieController::class, 'update_jenis_cuti'])->name('cutie.setting-cuti.update');
             Route::post('/setting-cuti/store', [CutieController::class, 'store_jenis_cuti'])->name('cutie.setting-cuti.store');
+        });
 
+        Route::group(['middleware' => ['role:atasan|personalia']], function () {
             /** BYPASS CUTI */
             Route::get('/bypass-cuti', [CutieController::class, 'bypass_cuti_view'])->name('cutie.bypass-cuti');
             Route::post('/bypass-cuti/store', [CutieController::class, 'bypass_store'])->name('cutie.bypass-cuti.store');

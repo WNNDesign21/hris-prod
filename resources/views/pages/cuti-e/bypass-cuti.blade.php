@@ -40,11 +40,11 @@
                                             style="width: 100%;">
                                         </select>
                                     </div>
-                                    <div class="form-group">
+                                    <div class="form-group {{ auth()->user()->hasRole('atasan') ? 'd-none' : '' }}">
                                         <label for="">Penggunaan Sisa Cuti</label>
                                         <select name="penggunaan_sisa_cuti" id="penggunaan_sisa_cuti" class="form-control"
                                             style="width: 100%;">
-                                            <option value="TB">TAHUN BERJALAN ({{ date('Y') }})</option>
+                                            <option value="TB" selected>TAHUN BERJALAN ({{ date('Y') }})</option>
                                             <option value="TL">TAHUN LALU ({{ date('Y') - 1 }})</option>
                                         </select>
                                         <small class="text-fade">Note : Jika hendak cuti sebanyak 2 hari, dan memiliki sisa

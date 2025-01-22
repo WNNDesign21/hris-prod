@@ -147,6 +147,10 @@ class Cutie extends Model
             $data->whereYear('rencana_mulai_cuti', Carbon::parse($dataFilter['rencanaMulai'])->year)
                 ->whereMonth('rencana_mulai_cuti', Carbon::parse($dataFilter['rencanaMulai'])->month);
         }
+
+        if(isset($dataFilter['date'])) {
+            $data->whereDate('aktual_mulai_cuti', $dataFilter['date']);
+        }
         
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];

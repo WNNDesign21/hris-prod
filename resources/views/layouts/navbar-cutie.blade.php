@@ -48,6 +48,12 @@
                                 @endif
                             </a>
                         </li>
+                        <li class="{{ $page == 'cutie-bypass-cuti' ? 'active' : '' }}">
+                            <a href="{{ route('cutie.bypass-cuti') }}">
+                                <i class="icon-Direction1"><span class="path1"></span><span class="path2"></span></i>
+                                <span>Bypass Cuti</span>
+                            </a>
+                        </li>
                     @endif
                     @if (auth()->user()->hasRole('personalia'))
                         <li class="{{ $page == 'cutie-personalia-cuti' ? 'active' : '' }} notification-list-cuti">
@@ -65,12 +71,12 @@
                                 @endif
                             </a>
                         </li>
-                        <li class="{{ $page == 'cutie-bypass-cuti' ? 'active' : '' }}">
+                        {{-- <li class="{{ $page == 'cutie-bypass-cuti' ? 'active' : '' }}">
                             <a href="{{ route('cutie.bypass-cuti') }}">
                                 <i class="icon-Direction1"><span class="path1"></span><span class="path2"></span></i>
                                 <span>Bypass Cuti</span>
                             </a>
-                        </li>
+                        </li> --}}
                         <li class="{{ $page == 'cutie-setting' ? 'active' : '' }}">
                             <a href="{{ route('cutie.setting-cuti') }}">
                                 <i class="icon-Tools"><span class="path1"></span><span class="path2"></span></i>
