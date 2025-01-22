@@ -23,7 +23,7 @@ class PresensiController extends Controller
     {
         $dataFilter = [];
         $dataFilter['organisasi_id'] = auth()->user()->organisasi_id;
-        $dataFilter['date'] = '2025-01-21';
+        $dataFilter['date'] = Carbon::now()->format('Y-m-d');
         $dataFilter['jenis_izin'] = ['TM'];
         $dataFilter['statusCuti'] = 'ON LEAVE';
 
