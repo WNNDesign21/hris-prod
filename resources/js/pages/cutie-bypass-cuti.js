@@ -43,26 +43,6 @@ $(function () {
         });
     }
 
-    function updateNotification(){
-        $.ajax({
-            url: base_url + '/get-notification',
-            method: 'GET',
-            success: function(response){
-                $('.notifications-menu').html(response.data);
-            }
-        })
-    }
-
-    function updateMemberCutiNotification(){
-        $.ajax({
-            url: base_url + '/get-member-cuti-notification',
-            method: 'GET',
-            success: function(response){
-                $('.notification-member-cuti').html(response.data);
-            }
-        })
-    }
-
     function calculateDuration(start, end) {
         var startDate = new Date(start);
         var endDate = new Date(end);
@@ -84,7 +64,7 @@ $(function () {
 
     $('#id_karyawan').select2({
         ajax: {
-            url: base_url + "/cutie/bypass-cuti/get-karyawan-cuti",
+            url: base_url + "/master-data/karyawan/get-data-karyawan",
             type: "post",
             dataType: "json",
             delay: 250,
@@ -98,15 +78,9 @@ $(function () {
         },
     });
 
-    $('#rencana_mulai_cuti').attr('min', moment().format('YYYY-MM-DD'));
     //RENCANA MULAI CUTI
     $('#rencana_mulai_cuti').on('change', function() {
         var rencanaMulaiCuti = $(this).val();
-
-        if(rencanaMulaiCuti < moment().format('YYYY-MM-DD')) {
-            $(this).val(moment().format('YYYY-MM-DD'));
-        }
-
         $('#rencana_selesai_cuti').val('').attr('min', rencanaMulaiCuti);
     });
 
@@ -132,8 +106,6 @@ $(function () {
                 showToast({ title: data.message });
                 loadingSwalClose();
                 formReset();
-                updateNotification();
-                updateMemberCutiNotification();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 loadingSwalClose();
