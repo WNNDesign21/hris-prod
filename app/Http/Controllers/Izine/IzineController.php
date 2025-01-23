@@ -1298,8 +1298,8 @@ class IzineController extends Controller
             }
         }
 
-        $izins = $izins->get();
-        $skds = $skds->get();
+        $izins = $izins ? $izins->get() : collect();
+        $skds = $skds ? $skds->get() : collect();
 
         //CREATE EXCEL FILE
         $spreadsheet = new Spreadsheet();
