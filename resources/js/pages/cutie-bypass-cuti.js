@@ -64,7 +64,7 @@ $(function () {
 
     $('#id_karyawan').select2({
         ajax: {
-            url: base_url + "/master-data/karyawan/get-data-karyawan",
+            url: base_url + "/cutie/bypass-cuti/get-karyawan-cuti",
             type: "post",
             dataType: "json",
             delay: 250,

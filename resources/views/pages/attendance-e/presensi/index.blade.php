@@ -25,7 +25,7 @@
                 </div>
             </div>
         </div>
-        <div class="row g-0 py-2">
+        <div class="row g-0 py-2" id="summaryContent">
             <div class="col-12 col-lg-3">
                 <div class="box-body be-1 border-light">
                     <div class="flexbox mb-1">
@@ -133,12 +133,13 @@
                                         @endif
                                     @endfor
                                     <th rowspan="2">MENIT KETERLAMBATAN</th>
+                                    <th rowspan="2">TOTAL KEHADIRAN</th>
                                 </tr>
                                 <tr>
                                     @for ($i = 1; $i <= 31; $i++)
                                         @if ($i == date('j'))
-                                            <th class="bg-primary">IN</th>
-                                            <th class="bg-primary">OUT</th>
+                                            <th class="bg-primary">IN - {{ $i }}</th>
+                                            <th class="bg-primary">OUT- {{ $i }}</th>
                                         @else
                                             <th>IN</th>
                                             <th>OUT</th>
@@ -154,4 +155,5 @@
         </div>
     </div>
     @include('pages.attendance-e.presensi.modal-filter')
+    @include('pages.attendance-e.presensi.modal-filter-summary')
 @endsection

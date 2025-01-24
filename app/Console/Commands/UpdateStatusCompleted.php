@@ -34,12 +34,16 @@ class UpdateStatusCompleted extends Command
         
         DB::beginTransaction();
         try {
-            $cuti = Cutie::where('status_cuti', 'ON LEAVE')
+            $cuties = Cutie::where('status_cuti', 'ON LEAVE')
                 ->whereDate('rencana_selesai_cuti', $today)
-                ->update([
-                'status_cuti' => 'COMPLETED',
-                'aktual_selesai_cuti' => $today
-            ]);
+                ->get();
+
+            foreach ($cuties as $cutie) {
+                $cutie->update([
+                    'status_cuti' => 'COMPLETED',
+                    'aktual_selesai_cuti' => $today
+                ]);
+            }
             activity('update_status_completed')->log('Update Status Completed Cuti Otomatis per tanggal -'. $today);
             DB::commit();
             $this->info('Status cuti karyawan berhasil diperbarui');

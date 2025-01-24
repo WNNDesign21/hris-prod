@@ -867,21 +867,7 @@ class KaryawanController extends Controller
                         } else {
                             $expired_date_cuti_tahun_lalu = null;
                         }
-
-                        //Validasi Kolom Numeric
-                        if (!is_numeric($row[11]) || $row[11] < 0 || 
-                            !is_numeric($row[12]) || $row[12] < 0 || 
-                            !is_numeric($row[14]) || $row[14] < 0 || 
-                            !is_numeric($row[15]) || $row[15] < 0 || 
-                            !is_numeric($row[16]) || $row[16] < 0 || 
-                            !is_numeric($row[23]) || $row[23] < 0 || 
-                            !is_numeric($row[29]) || $row[29] < 0 || 
-                            !is_numeric($row[30]) || $row[30] < 0 || 
-                            !is_numeric($row[31]) || $row[31] < 0 || 
-                            !is_numeric($row[32]) || $row[32] < 0 || 
-                            !is_numeric($row[34]) || $row[34] < 0) {
-                            return response()->json(['message' => 'Kolom No KK, NIK KTP, No BPJS, No Hp, No Darurat, No. Rekening dan Seluruh Jatah serta Hutang Cuti harus berupa angka positif!'], 402);
-                        }
+                        
 
                         //Cek apakah karyawan sudah ada atau belum
                         $existingKaryawan = Karyawan::where('ni_karyawan', $row[0])->first();
