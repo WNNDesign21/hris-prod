@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance\ScanlogDetail;
+use Illuminate\Support\Facades\Validator;
 
 class PresensiController extends Controller
 {
@@ -209,6 +210,7 @@ class PresensiController extends Controller
                 $nestedData['out_31'] = $data?->out_31;
                 $nestedData['out_status_31'] = $data?->out_status_31;
                 $nestedData['total_in_selisih'] = $data?->total_in_selisih;
+                $nestedData['total_kehadiran'] = $data?->total_kehadiran;
 
                 $dataTable[] = $nestedData;
             }
@@ -279,6 +281,51 @@ class PresensiController extends Controller
             return response()->json(['message' => $e->getMessage()], 500);
         }
         
+    }
+
+    public function get_summary_presensi_html(Request $request)
+    {
+        $dataValidate = [
+            'tanggal' => ['required', 'date_format:Y-m-d'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $departemen = $request->departemen;
+        $tanggal = $request->tanggal;
+
+        try {
+            $dataFilter = [];
+            $dataFilter['organisasi_id'] = auth()->user()->organisasi_id;
+            $dataFilter['jenis_izin'] = ['TM'];
+            $dataFilter['statusCuti'] = 'ON LEAVE';
+
+            if (!empty($departemen)) {
+                $dataFilter['departemen'] = $departemen;
+            }
+
+            if (!empty($tanggal)) {
+                $dataFilter['date'] = $tanggal;
+            } else {
+                $dataFilter['date'] = Carbon::now()->format('Y-m-d');
+            }
+
+            $hadir = ScanlogDetail::getHadirCountByDate($dataFilter);
+            $sakit = Sakite::countData($dataFilter);
+            $izin = Izine::countData($dataFilter);
+            $cuti = Cutie::countData($dataFilter);
+            $total_karyawan = Karyawan::organisasi(auth()->user()->organisasi_id)->aktif()->count();
+
+            $html = view('layouts.partials.attendance-summary-presensi')->with(compact('hadir', 'sakit', 'izin', 'cuti', 'total_karyawan'))->render();
+            return response()->json(['data' => $html], 200);
+        } catch (Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 
     /**

@@ -247,7 +247,7 @@ class ScanlogController extends Controller
                     'attendance_scanlogs.verify',
                 );
         
-                $scanlogs->leftJoin('karyawans', 'karyawans.pin','attendance_scanlogs.pin');
+                $scanlogs->leftJoin('karyawans', 'karyawans.pin','attendance_scanlogs.pin')->where('karyawans.organisasi_id', $organisasi_id);
                 $scanlogs->leftJoin('users', 'users.id','karyawans.user_id')->where('users.organisasi_id', $organisasi_id);
         
                 $scanlogs->where('attendance_scanlogs.organisasi_id', $organisasi_id);
@@ -367,7 +367,7 @@ class ScanlogController extends Controller
                         FROM
                             attendance_scanlogs
                         LEFT JOIN
-                            karyawans AS k ON k.pin = attendance_scanlogs.pin
+                            karyawans AS k ON k.pin = attendance_scanlogs.pin AND k.organisasi_id = $organisasi_id
                         LEFT JOIN
                             users ON users.id = k.user_id AND users.organisasi_id = $organisasi_id
                         WHERE

@@ -111,7 +111,8 @@ $(function () {
         { data: "out_30" },
         { data: "in_31" },
         { data: "out_31" },
-        { data: "total_in_selisih" }
+        { data: "total_in_selisih" },
+        { data: "total_kehadiran" }
     ];
 
     var presensiTable = $("#presensi-table").DataTable({
@@ -184,6 +185,10 @@ $(function () {
         scrollY: 600,
         fixedHeader: true,
         columns: columnsTable,
+        dom: 'Bfrtip',
+        buttons: [
+            'copy', 'csv', 'excel', 'pdf', 'print'
+        ],
         createdRow: function( row, data, dataIndex ) {
             $('td', row).each(function(index) {
                 if ($(this).text() === '') {
@@ -224,7 +229,7 @@ $(function () {
         refreshTable();
     })
 
-    // MONTHLY
+    // PRESENSI
     var modalFilterOptions = {
         backdrop: true,
         keyboard: false,
@@ -263,6 +268,72 @@ $(function () {
     $(".btnSubmitFilter").on("click", function () {
         presensiTable.draw();
         closeFilter();
+    });
+
+    // SUMMARY
+    var modalFilterSummaryOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalFilterSummary = new bootstrap.Modal(
+        document.getElementById("modal-filter-summary"),
+        modalFilterSummaryOptions
+    );
+
+    function openFilterSummary() {
+        modalFilterSummary.show();
+    }
+
+    function closeFilterSummary() {
+        modalFilterSummary.hide();
+    }
+
+    $('.btnFilterSummary').on('click', function() {
+        openFilterSummary();
+    });
+
+    $('.closeFilterSummary').on('click', function() {
+        closeFilterSummary();
+    });
+
+    $('#filterDepartemenSummary').select2({
+        dropdownParent: $('#modal-filter-summary')
+    });
+
+    $('.btnResetFilterSummary').on('click', function() {
+        $('#filterDepartemenSummary').val('').trigger('change');
+        $('#filterTanggalSummary').val('');
+    });
+    
+    $(".btnSubmitFilterSummary").on("click", function () {
+        loadingSwalShow();
+        var departemen = $('#filterDepartemenSummary').val();
+        var tanggal = $('#filterTanggalSummary').val();
+
+        $.ajax({
+            url: base_url + "/attendance/presensi/get-summary-presensi",
+            type: "POST",
+            data: {
+                departemen: departemen,
+                tanggal: tanggal
+            },
+            success: function (response) {
+                $('#summaryContent').empty().html(response.data);
+                if (tanggal) {
+                    $('.summaryText').text(tanggal);
+                } else {
+                    $('.summaryText').text(new Date().toLocaleDateString());
+                }
+                closeFilterSummary();
+                loadingSwalClose();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                closeFilterSummary();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            }
+        });
     });
 
 });

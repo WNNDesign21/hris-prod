@@ -97,6 +97,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/izine/log-book-izin/get-qrcode-detail-izin/{idIzin}', [IzineController::class, 'get_qrcode_detail_izin']);
 
     Route::get('/attendance/device/get-all-device', [DeviceController::class, 'get_all_device']);
+    Route::post('/attendance/presensi/get-summary-presensi', [PresensiController::class, 'get_summary_presensi_html']);
 });
 
 

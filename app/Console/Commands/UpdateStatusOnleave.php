@@ -33,13 +33,16 @@ class UpdateStatusOnleave extends Command
 
         DB::beginTransaction();
         try {
-            $cuti = Cutie::where('status_cuti', 'SCHEDULED')
+            $cuties = Cutie::where('status_cuti', 'SCHEDULED')
                 ->whereDate('rencana_mulai_cuti', $today)
                 ->where('status_dokumen', 'APPROVED')
-                ->update([
-                'status_cuti' => 'ON LEAVE',
-                'aktual_mulai_cuti' => $today
-            ]);
+                ->get();
+
+            foreach ($cuties as $cutie) {
+                $cutie->status_cuti = 'ON LEAVE';
+                $cutie->aktual_mulai_cuti = $today;
+                $cutie->save();
+            }
 
             activity('update_status_onleave')->log('Update Status Onleave Cuti Otomatis per tanggal -'. $today);
 
