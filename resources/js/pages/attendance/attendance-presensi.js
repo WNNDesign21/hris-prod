@@ -336,4 +336,50 @@ $(function () {
         });
     });
 
+
+    //DETAIL
+    var modalDetailSummaryOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalDetailSummary = new bootstrap.Modal(
+        document.getElementById("modal-detail-summary"),
+        modalDetailSummaryOptions
+    );
+
+    function openDetailSummary() {
+        modalDetailSummary.show();
+    }
+
+    function closeDetailSummary() {
+        modalDetailSummary.hide();
+    }
+
+    $('.btnDetailSummary').on('click', function() {
+        loadingSwalShow();
+        let type = $(this).data('type');
+
+        $.ajax({
+            url: base_url + "/attendance/presensi/get-detail-presensi",
+            type: "POST",
+            data: {
+                departemen: $('#filterDepartemenSummary').val(),
+                tanggal: $('#filterTanggalSummary').val(),
+                type: type
+            },
+            success: function (response) {
+                loadingSwalClose();
+                openDetailSummary();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            }
+        })
+    });
+
+    $('.closeDetailSummary').on('click', function() {
+        closeDetailSummary();
+    });
+
 });

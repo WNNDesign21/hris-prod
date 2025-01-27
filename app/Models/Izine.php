@@ -180,6 +180,11 @@ class Izine extends Model
             ->get();
     }
 
+    public static function getDataIzin($dataFilter)
+    {
+        return self::_query($dataFilter)->get();
+    }
+
     public static function countData($dataFilter)
     {
         return self::_query($dataFilter)->get()->count();

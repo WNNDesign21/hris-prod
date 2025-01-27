@@ -150,6 +150,11 @@ class Sakite extends Model
             ->get();
     }
 
+    public static function getDataSakit($dataFilter)
+    {
+        return self::_query($dataFilter)->get();
+    }
+
     public static function countData($dataFilter)
     {
         return self::_query($dataFilter)->get()->count();

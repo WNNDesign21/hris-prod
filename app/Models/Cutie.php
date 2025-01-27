@@ -204,6 +204,11 @@ class Cutie extends Model
             ->get();
     }
 
+    public static function getDataCuti($dataFilter)
+    {
+        return self::_query($dataFilter)->get();
+    }
+
     public static function countData($dataFilter)
     {
         return self::_query($dataFilter)->get()->count();

@@ -328,6 +328,56 @@ class PresensiController extends Controller
         }
     }
 
+    public function get_detail_presensi(Request $request)
+    {
+        $dataValidate = [
+            'tanggal' => ['nullable', 'date_format:Y-m-d'],
+            'type' => ['required', 'in:1,2,3,4'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $departemen = $request->departemen;
+        $tanggal = $request->tanggal;
+        $type = $request->type;
+
+        try {
+            $dataFilter = [];
+            $dataFilter['organisasi_id'] = auth()->user()->organisasi_id;
+            $dataFilter['jenis_izin'] = ['TM'];
+            $dataFilter['statusCuti'] = 'ON LEAVE';
+
+            if (!empty($departemen)) {
+                $dataFilter['departemen'] = $departemen;
+            }
+
+            if (!empty($tanggal)) {
+                $dataFilter['date'] = $tanggal;
+            } else {
+                $dataFilter['date'] = Carbon::now()->format('Y-m-d');
+            }
+
+            if($type == 1) {
+                $presensis = ScanlogDetail::getHadirByDate($dataFilter);
+            } elseif($type == 2) {
+                $presensis = Sakite::getDataSakit($dataFilter);
+            } elseif($type == 3) {
+                $presensis = Izine::getDataIzin($dataFilter);
+            } elseif($type == 4) {
+                $presensis = Cutie::getDataCuti($dataFilter);
+            }
+
+            return response()->json(['message' => 'Data Presensi Berhasil Ditemukan', 'data' => $presensis], 200);
+        } catch (Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
     /**
      * Show the form for creating a new resource.
      */

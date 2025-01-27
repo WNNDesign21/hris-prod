@@ -282,7 +282,7 @@ class ScanlogDetail extends Model
         return self::_query($dataFilter)->get()->count();
     }
 
-    public static function getHadirCountByDate($dataFilter)
+    public static function getHadirByDate($dataFilter)
     {
         $sql = "
             WITH AttendanceScanlogDetail AS (
@@ -469,6 +469,11 @@ class ScanlogDetail extends Model
             ORDER BY karyawan ASC
         ";
 
-        return count(DB::select($sql));
+        return DB::select($sql);
+    }
+
+    public static function getHadirCountByDate($dataFilter)
+    {
+        return count(self::getHadirByDate($dataFilter));
     }
 }
