@@ -109,8 +109,8 @@
                                             <th class="bg-primary">IN - {{ $i }}</th>
                                             <th class="bg-primary">OUT- {{ $i }}</th>
                                         @else
-                                            <th>IN</th>
-                                            <th>OUT</th>
+                                            <th>IN - {{ $i }}</th>
+                                            <th>OUT- {{ $i }}</th>
                                         @endif
                                     @endfor
                                 </tr>

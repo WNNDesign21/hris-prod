@@ -447,7 +447,7 @@ class ScanlogDetail extends Model
                 FROM RankedScans
             )
             SELECT
-                karyawan,
+                karyawan as nama,
                 pin,
                 id_karyawan,
                 organisasi_id,
@@ -466,7 +466,7 @@ class ScanlogDetail extends Model
 
         $sql .= "
             GROUP BY karyawan, pin, id_karyawan, organisasi_id, departemen_id, departemen, ni_karyawan
-            ORDER BY karyawan ASC
+            ORDER BY departemen, karyawan  ASC
         ";
 
         return DB::select($sql);

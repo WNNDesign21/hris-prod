@@ -31952,3 +31952,17 @@ img.away, img.busy, img.offline, img.online {
   z-index: -1; }
 
 /*# sourceMappingURL=style.css.map */
+
+/*# Custom Datatable Button */
+.dt-button-background {
+  z-index: 1 !important;
+ }
+
+ .dt-button-collection {
+  padding: 10px;
+  background-color: #b7c1d1;
+ }
+
+.dt-button span {
+  color: #ffffff;
+}
