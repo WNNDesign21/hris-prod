@@ -262,6 +262,10 @@
         @vite(['resources/js/pages/attendance/attendance-presensi.js'])
     @endif
 
+    @if ($page == 'attendance-rekap')
+        @vite(['resources/js/pages/attendance/attendance-rekap.js'])
+    @endif
+
 </body>
 
 </html>

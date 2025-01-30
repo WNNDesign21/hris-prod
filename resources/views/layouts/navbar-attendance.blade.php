@@ -32,6 +32,12 @@
                                 <span>Shift Group</span>
                             </a>
                         </li>
+                        <li class="{{ $page == 'attendance-rekap' ? 'active' : '' }}">
+                            <a href="{{ route('attendance.rekap') }}">
+                                <i class="icon-Chat-check"><span class="path1"></span><span class="path2"></span></i>
+                                <span>Rekap Kehadiran</span>
+                            </a>
+                        </li>
                     @endif
                 </ul>
             </div>

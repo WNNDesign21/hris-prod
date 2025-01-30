@@ -12,6 +12,7 @@ use App\Http\Controllers\Lembure\LembureController;
 use App\Http\Controllers\MasterData\AkunController;
 use App\Http\Controllers\MasterData\GrupController;
 use App\Http\Controllers\StockOpname\StoController;
+use App\Http\Controllers\Attendance\RekapController;
 use App\Http\Controllers\MasterData\EventController;
 use App\Http\Controllers\MasterData\SeksiController;
 use App\Http\Controllers\Attendance\DeviceController;
@@ -47,7 +48,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::delete('/delete-qrcode-img', DeleteQrImgController::class);
     Route::get('/upload-pin', [TestController::class, 'upload_pin_view']);
     Route::post('/upload-pin/store', [TestController::class, 'upload_pin'])->name('upload-pin.store');
-
+    Route::get('/rekap-presensi', [TestController::class, 'test_rekap_presensi']);
+    
     /** MASTER DATA - AJAX */
     Route::get('/master-data/posisi/get-data-by-jabatan/{idJabatan}', [PosisiController::class, 'get_data_by_jabatan']);
     Route::get('/master-data/posisi/get-data-by-posisi/{idPosisi}', [PosisiController::class, 'get_data_by_posisi']);
@@ -423,6 +425,10 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         // PRESENSI
         Route::get('/presensi', [PresensiController::class, 'index'])->name('attendance.presensi');
         Route::post('/presensi/datatable', [PresensiController::class, 'datatable']);
+
+        // REKAP
+        Route::get('/rekap', [RekapController::class, 'index'])->name('attendance.rekap');
+        Route::post('/rekap/export-rekap', [RekapController::class, 'export_rekap'])->name('attendance.rekap.export-rekap');
     });
 });
 

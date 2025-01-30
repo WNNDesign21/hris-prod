@@ -11,6 +11,7 @@ use App\Models\ApprovalCuti;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use App\Models\Attendance\ScanlogDetail;
 use Illuminate\Support\Facades\Validator;
 use App\Models\StockOpname\StockOpnameUpload;
 
@@ -266,5 +267,15 @@ class TestController extends Controller
             DB::rollBack();
             return response()->json(['message' => 'Error processing the file: ' . $e->getMessage()], 500);
         }
+    }
+
+    public function test_rekap_presensi()
+    {
+        $dataFilter = [];
+        $dataFilter['organisasi_id'] = 2;
+        $dataFilter['start'] = '2025-01-20';
+        $dataFilter['end'] = '2025-01-30';
+        $data = ScanlogDetail::rekapKehadiran($dataFilter);
+        return response()->json($data, 200);
     }
 }
