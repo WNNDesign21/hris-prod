@@ -31966,3 +31966,8 @@ img.away, img.busy, img.offline, img.online {
 .dt-button span {
   color: #ffffff;
 }
+
+.presensi-table_wrapper .dataTables_processing{
+  background-color: transparent;
+  z-index: 9999;
+}

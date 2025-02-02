@@ -404,17 +404,19 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         Route::get('/dashboard', [AttendanceDashboardController::class, 'index'])->name('attendance.dashboard');
 
         // SCANLOG
-        Route::get('/scanlog', [ScanlogController::class, 'index'])->name('attendance.scanlog');
-        Route::post('/scanlog/datatable', [ScanlogController::class, 'datatable']);
-        Route::post('/scanlog/download-scanlog', [ScanlogController::class, 'download_scanlog'])->name('attendance.scanlog.download-scanlog');
-        Route::post('/scanlog/export-scanlog', [ScanlogController::class, 'export_scanlog'])->name('attendance.scanlog.export-scanlog');
-
-        // DEVICE
-        Route::get('/device', [DeviceController::class, 'index'])->name('attendance.device');
-        Route::post('/device/datatable', [DeviceController::class, 'datatable']);
-        Route::post('/device/store', [DeviceController::class, 'store'])->name('attendance.device.store');
-        Route::patch('/device/update/{idDevice}', [DeviceController::class, 'update'])->name('attendance.device.update');
-        Route::delete('/device/delete/{idDevice}', [DeviceController::class, 'delete'])->name('attendance.device.delete');
+        Route::group(['middleware' => ['role:personalia']], function () {
+            Route::get('/scanlog', [ScanlogController::class, 'index'])->name('attendance.scanlog');
+            Route::post('/scanlog/datatable', [ScanlogController::class, 'datatable']);
+            Route::post('/scanlog/download-scanlog', [ScanlogController::class, 'download_scanlog'])->name('attendance.scanlog.download-scanlog');
+            Route::post('/scanlog/export-scanlog', [ScanlogController::class, 'export_scanlog'])->name('attendance.scanlog.export-scanlog');
+    
+            // DEVICE
+            Route::get('/device', [DeviceController::class, 'index'])->name('attendance.device');
+            Route::post('/device/datatable', [DeviceController::class, 'datatable']);
+            Route::post('/device/store', [DeviceController::class, 'store'])->name('attendance.device.store');
+            Route::patch('/device/update/{idDevice}', [DeviceController::class, 'update'])->name('attendance.device.update');
+            Route::delete('/device/delete/{idDevice}', [DeviceController::class, 'delete'])->name('attendance.device.delete');
+        });
 
         // SHIFT GROUP
         Route::get('/shift-group', [ShiftgroupController::class, 'index'])->name('attendance.shiftgroup');
@@ -425,6 +427,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         // PRESENSI
         Route::get('/presensi', [PresensiController::class, 'index'])->name('attendance.presensi');
         Route::post('/presensi/datatable', [PresensiController::class, 'datatable']);
+        Route::post('/presensi/check-presensi', [PresensiController::class, 'check_presensi'])->name('attendance.presensi.check-presensi');
 
         // REKAP
         Route::get('/rekap', [RekapController::class, 'index'])->name('attendance.rekap');

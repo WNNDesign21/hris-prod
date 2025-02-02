@@ -6,7 +6,7 @@
                 <!-- sidebar menu-->
                 <ul class="sidebar-menu" data-widget="tree">
                     <li class="header">Attendance-E Menu</li>
-                    @if (auth()->user()->hasRole('personalia'))
+                    @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('admin-dept'))
                         <li class="{{ $page == 'attendance-presensi' ? 'active' : '' }}">
                             <a href="{{ route('attendance.presensi') }}">
                                 <i class="icon-Layout-4-blocks"><span class="path1"></span><span
@@ -14,18 +14,20 @@
                                 <span>Presensi</span>
                             </a>
                         </li>
-                        <li class="{{ $page == 'attendance-scanlog' ? 'active' : '' }}">
-                            <a href="{{ route('attendance.scanlog') }}">
-                                <i class="icon-Sign-in"><span class="path1"></span><span class="path2"></span></i>
-                                <span>Scanlog</span>
-                            </a>
-                        </li>
-                        <li class="{{ $page == 'attendance-device' ? 'active' : '' }}">
-                            <a href="{{ route('attendance.device') }}">
-                                <i class="icon-Router1"><span class="path1"></span><span class="path2"></span></i>
-                                <span>Device</span>
-                            </a>
-                        </li>
+                        @if (auth()->user()->hasRole('personalia'))
+                            <li class="{{ $page == 'attendance-scanlog' ? 'active' : '' }}">
+                                <a href="{{ route('attendance.scanlog') }}">
+                                    <i class="icon-Sign-in"><span class="path1"></span><span class="path2"></span></i>
+                                    <span>Scanlog</span>
+                                </a>
+                            </li>
+                            <li class="{{ $page == 'attendance-device' ? 'active' : '' }}">
+                                <a href="{{ route('attendance.device') }}">
+                                    <i class="icon-Router1"><span class="path1"></span><span class="path2"></span></i>
+                                    <span>Device</span>
+                                </a>
+                            </li>
+                        @endif
                         <li class="{{ $page == 'attendance-shiftgroup' ? 'active' : '' }}">
                             <a href="{{ route('attendance.shiftgroup') }}">
                                 <i class="icon-Group"><span class="path1"></span><span class="path2"></span></i>

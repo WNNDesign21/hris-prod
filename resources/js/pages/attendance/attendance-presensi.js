@@ -120,10 +120,13 @@ $(function () {
             return: true,
         },
         fixedColumns: {
-            leftColumns: 4,
+            leftColumns: 2,
         },
         paging: false,
         processing: true,
+        language: {
+            processing: '<i class="fas fa-sync-alt fa-spin fs-80"></i>'
+        },
         serverSide: true,
         ajax: {
             url: base_url + "/attendance/presensi/datatable",
@@ -187,28 +190,14 @@ $(function () {
         columns: columnsTable,
         dom: 'Bfrtip',
         buttons: [
-            'copy', 'excel',
-            // {
-            //     extend: 'colvis',
-            //     columns: ':not(.noVis)',
-            //     popoverTitle: 'Column visibility selector'
-            // }
+            'copy', 'excel'
         ],
-        // columnDefs: [
-        //     {
-        //         targets: 1,
-        //         className: 'noVis'
-        //     }
-        // ],
         createdRow: function( row, data, dataIndex ) {
             $('td', row).each(function(index) {
-                if ($(this).text() === '') {
+                if ($(this).text() === 'Check') {
                     $(this).addClass('bg-danger');
                 }
 
-                // if (data.in_status_6 === 'LATE' && index === 14) {
-                //     $(this).addClass('bg-warning');
-                // }
                 for (let i = 1; i <= 31; i++) {
                     if (data[`in_status_${i}`] === 'LATE' && index === (i * 2 + 2)) {
                         $(this).addClass('bg-warning');
@@ -417,6 +406,119 @@ $(function () {
     $('.btnCloseDetailSummary').on('click', function() {
         closeDetailSummary();
         $('#detail-table').DataTable().destroy();
+    });
+
+    var modalCheckOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalCheck = new bootstrap.Modal(
+        document.getElementById("modal-check"),
+        modalCheckOptions
+    );
+
+    function openCheck() {
+        modalCheck.show();
+    }
+
+    function closeCheck() {
+        modalCheck.hide();
+    }
+
+    $('.btnCloseCheck').on('click', function() {
+        closeCheck();
+        $('#check-table').DataTable().destroy();
+    });
+
+    $('#presensi-table').on('click', '.btnCheck', function() {
+        let karyawanId = $(this).data('karyawan-id');
+        let tanggal = $(this).data('date');
+        let pin = $(this).data('pin');
+
+        loadingSwalShow();
+        $.ajax({
+            url: base_url + "/attendance/presensi/check-presensi",
+            type: "POST",
+            data: {
+                karyawan_id: karyawanId,
+                date: tanggal,
+                pin: pin
+            },
+            success: function (response) {
+                let data = response.data.data;
+                let jenis = response.data.jenis;
+
+                if(jenis = 'scanlog'){
+                    $('#checkContent').empty();
+                    if (data.length > 0) {
+                        data.forEach(item => {
+                            $('#checkContent').append(`
+                                <tr>
+                                    <td>${item.scan_date}</td>
+                                    <td><span class="badge badge-success">Scanlog</span></td>
+                                </tr>
+                            `);
+                        });
+                    }
+                    $('#check-table').DataTable({
+                        order: [[0, 'asc']]
+                    });
+                } else if (jenis = 'cuti') {
+                    $('#checkContent').empty();
+                    if (data.length > 0) {
+                        data.forEach(item => {
+                            $('#checkContent').append(`
+                                <tr>
+                                    <td>${item.rencana_mulai_cuti} - ${item.rencana_selesai_cuti}</td>
+                                    <td><span class="badge badge-success">Cuti</span></td>
+                                </tr>
+                            `);
+                        });
+                    }
+                    $('#check-table').DataTable({
+                        order: [[0, 'asc']]
+                    });
+                } else if (jenis = 'izin') {
+                    $('#checkContent').empty();
+                    if (data.length > 0) {
+                        data.forEach(item => {
+                            $('#checkContent').append(`
+                                <tr>
+                                    <td>${item.rencana_mulai_or_masuk} - ${item.rencana_selesai_or_keluar}</td>
+                                    <td><span class="badge badge-info">Izin</span></td>
+                                </tr>
+                            `);
+                        });
+                    }
+                    $('#check-table').DataTable({
+                        order: [[0, 'asc']]
+                    });
+                } else if (jenis = 'sakit') {
+                    $('#checkContent').empty();
+                    if (data.length > 0) {
+                        data.forEach(item => {
+                            $('#checkContent').append(`
+                                <tr>
+                                    <td>${item.tanggal_mulai} - ${item.tanggal_selesai}</td>
+                                    <td><span class="badge badge-danger">Sakit</span></td>
+                                </tr>
+                            `);
+                        });
+                    }
+                    $('#check-table').DataTable({
+                        order: [[0, 'asc']]
+                    });
+                } else {
+                    $('#check-table').DataTable();
+                }
+                openCheck();
+                loadingSwalClose();
+            },
+            error: function (jqXHR) {
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            }
+        })
     });
 
 });

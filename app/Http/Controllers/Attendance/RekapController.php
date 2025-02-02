@@ -49,6 +49,11 @@ class RekapController extends Controller
         $dataFilter['end'] = $end;
         $dataFilter['organisasi_id'] = auth()->user()->organisasi_id;
 
+        if(auth()->user()->hasRole('admin-dept')){
+            $departemen_id = auth()->user()->karyawan->posisi[0]->departemen_id;
+            $dataFilter['departemen'] = $departemen_id;
+        }
+
         $spreadsheet = new Spreadsheet();
 
         $fillStyle = [

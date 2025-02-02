@@ -125,4 +125,5 @@
     @include('pages.attendance-e.presensi.modal-filter')
     @include('pages.attendance-e.presensi.modal-filter-summary')
     @include('pages.attendance-e.presensi.modal-detail-summary')
+    @include('pages.attendance-e.presensi.modal-check')
 @endsection

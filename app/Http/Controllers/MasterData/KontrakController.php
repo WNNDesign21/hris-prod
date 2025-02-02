@@ -972,7 +972,7 @@ class KontrakController extends Controller
 
                 foreach ($data as $index => $row) {
                     if ($index == 0) continue; 
-                    
+
                     activity('upload_kontrak_karyawan')->log('insert row ' . $index);
                     $karyawan_exist = Karyawan::where('ni_karyawan', $row[0])->organisasi(auth()->user()->organisasi_id);
                     if($karyawan_exist->exists()){
@@ -985,7 +985,7 @@ class KontrakController extends Controller
                     //Convert tanggal mulai dan selesai ke format Ymd jika ada
                     if($row[7] !== null){
                         try {
-                            $tanggal_mulai = Carbon::createFromFormat('d/m/Y', $row[7])->format('Y-m-d');
+                            $tanggal_mulai = Carbon::parse($row[7])->format('Y-m-d');
                         } catch (Exception $e) {
                             return response()->json(['message' => 'Format tanggal mulai salah!'], 402);
                         }
@@ -994,7 +994,7 @@ class KontrakController extends Controller
                     if($row[4] !== 'PKWTT'){ 
                         if($row[8] !== null){
                             try {
-                                $tanggal_selesai = Carbon::createFromFormat('d/m/Y', $row[8])->format('Y-m-d');
+                                $tanggal_selesai = Carbon::parse($row[8])->format('Y-m-d');
                             } catch (Exception $e) {
                                 return response()->json(['message' => 'Format tanggal selesai salah!'], 402);
                             }

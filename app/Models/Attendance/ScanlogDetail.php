@@ -231,8 +231,9 @@ class ScanlogDetail extends Model
             SELECT *,
             ";
 
+            $maxDays = Carbon::createFromFormat('Y-m', $dataFilter['periode'])->daysInMonth;
             $sumKehadiran = [];
-            for ($j = 1; $j <= 31; $j++) {
+            for ($j = 1; $j <= $maxDays; $j++) {
                 $sumKehadiran[] = "kehadiran_" . $j;
             }
 
@@ -241,7 +242,7 @@ class ScanlogDetail extends Model
 
             $sumSelisihMasuk = [];
             $sumSelisihKeluar = [];
-            for ($j = 1; $j <= 31; $j++) {
+            for ($j = 1; $j <= $maxDays; $j++) {
                 $sumSelisihMasuk[] = "COALESCE(in_selisih_" . $j . ", INTERVAL '0')";
                 $sumSelisihKeluar[] = "COALESCE(out_selisih_" . $j . ", INTERVAL '0')";
             }

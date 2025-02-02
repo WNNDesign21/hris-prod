@@ -103,6 +103,7 @@
                                             <option value="">Pilih Agama (Boleh Kosong)</option>
                                             <option value="ISLAM">ISLAM</option>
                                             <option value="KRISTEN">KRISTEN</option>
+                                            <option value="KATHOLIK">KATHOLIK</option>
                                             <option value="PROTESTAN">PROTESTAN</option>
                                             <option value="KONGHUCU">KONGHUCU</option>
                                             <option value="HINDU">HINDU</option>
