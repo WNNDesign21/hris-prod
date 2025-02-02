@@ -140,7 +140,6 @@ $(function () {
                 dataFilter.periode = periode;
             },
             error: function (jqXHR, textStatus, errorThrown) {
-                console.log(jqXHR);
                 if (jqXHR.responseJSON.data) {
                     var error = jqXHR.responseJSON.data.error;
                     Swal.fire({
@@ -329,7 +328,6 @@ $(function () {
                 $('.btnDetailSummary').on('click', function() {
                     loadingSwalShow();
                     let type = $(this).data('type');
-                    console.log('hitam');
             
                     if(type == '2') {
                         $('.detailText').text('Detail Sakit');
@@ -378,7 +376,7 @@ $(function () {
                     closeDetailSummary();
                     $('#detail-table').DataTable().destroy();
                 });
-                
+
                 closeFilterSummary();
                 loadingSwalClose();
             },
@@ -413,7 +411,6 @@ $(function () {
     $('.btnDetailSummary').on('click', function() {
         loadingSwalShow();
         let type = $(this).data('type');
-        console.log('hitam');
 
         if(type == '2') {
             $('.detailText').text('Detail Sakit');

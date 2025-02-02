@@ -249,7 +249,6 @@ $(function () {
                 $('#rencana_mulai_cuti').val('');
                 $('#rencana_selesai_cuti').val('');
                 var isUrgent = $(this).find('option:selected').data('isurgent');
-                console.log(isUrgent)
                 if(isUrgent == 'Y'){
                     $('#rencana_mulai_cuti').removeAttr('min');
                 } else {
@@ -493,7 +492,6 @@ $(function () {
             type: "GET",
             success: function (response) {
                 var data = response.data;
-                console.log(data)
                 $('#id_cuti').val(data.id_cuti);
                 $('#alasan_cuti').val(data.alasan_cuti);
                 $('#durasi_cuti').val(data.durasi_cuti);
