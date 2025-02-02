@@ -279,6 +279,7 @@ class KaryawanController extends Controller
             'posisi.*' => ['required'],
             'grup' => ['required'],
             'foto' => ['image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'isAdmin' => ['in:Y']
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -405,6 +406,11 @@ class KaryawanController extends Controller
                 $karyawan->posisi()->attach($posisi_id);
             }
 
+            if(isset($request->isAdmin)){
+                $user = User::find($user_id);
+                $user->assignRole('admin-dept');
+            }
+
             DB::commit();
             return response()->json(['message' => 'Karyawan Ditambahkan!'],200);
         } catch(Throwable $error){
@@ -465,6 +471,7 @@ class KaryawanController extends Controller
             'sisa_cuti_pribadiEdit' => ['required','numeric'],
             'sisa_cuti_bersamaEdit' => ['required','numeric'],
             'sisa_cuti_tahun_laluEdit' => ['required','numeric'],
+            'isAdminEdit' => ['in:Y']
         ];
 
         
@@ -552,6 +559,16 @@ class KaryawanController extends Controller
                 } else {
                     $user->roles()->detach();
                     $user->assignRole('member');
+                }
+            }
+
+            if(isset($request->isAdminEdit)){
+                if (!$user->hasRole('admin-dept')) {
+                    $user->assignRole('admin-dept');
+                }
+            } else {
+                if ($user->hasRole('admin-dept')) {
+                    $user->removeRole('admin-dept');
                 }
             }
 
@@ -779,6 +796,7 @@ class KaryawanController extends Controller
                 'tanggal_selesai' => $karyawan->tanggal_selesai,
                 'posisi' => $karyawan->posisi()->pluck('posisis.id_posisi'),
                 'grup_id' => $karyawan->grup_id,
+                'is_admin' => $karyawan->user->hasRole('admin-dept')
             ];
             return response()->json(['data' => $detail], 200);
         } else {

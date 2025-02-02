@@ -34,8 +34,8 @@ class PresensiController extends Controller
             $departemens = Departemen::all();
         } else {
             $departemen = auth()->user()->karyawan->posisi[0]->departemen_id;
-            $departemens = Departemen::where('id_departemen', $departemen);
-            $dataFilter['departemen'] = $departemen;
+            $departemens = Departemen::where('id_departemen', $departemen)->pluck('id_departemen')->toArray();
+            $dataFilter['departemens'] = $departemens;
         }
 
         $hadir = ScanlogDetail::getHadirCountByDate($dataFilter);
@@ -69,15 +69,16 @@ class PresensiController extends Controller
         if (!empty($search)) {
             $dataFilter['search'] = $search;
         }
+        
         $dataFilter['organisasi_id'] = auth()->user()->organisasi_id;
 
         $departemen = $request->departemen;
         if (!empty($departemen)) {
-            $dataFilter['departemen'] = $departemen;
+            $dataFilter['departemens'] = $departemen;
         } else {
             if(auth()->user()->hasRole('admin-dept')){
                 $departemen = auth()->user()->karyawan->posisi[0]->departemen_id;
-                $dataFilter['departemen'] = $departemen;
+                $dataFilter['departemens'] = [$departemen];
             }
         }
 
@@ -345,9 +346,15 @@ class PresensiController extends Controller
             $dataFilter['organisasi_id'] = auth()->user()->organisasi_id;
             $dataFilter['jenis_izin'] = ['TM'];
             $dataFilter['statusCuti'] = 'ON LEAVE';
+            $dataFilter['statusKaryawan'] = 'AT';
 
             if (!empty($departemen)) {
-                $dataFilter['departemen'] = $departemen;
+                $dataFilter['departemens'] = $departemen;
+            } else {
+                if(auth()->user()->hasRole('admin-dept')){
+                    $departemen = auth()->user()->karyawan->posisi[0]->departemen_id;
+                    $dataFilter['departemens'] = [$departemen];
+                }
             }
 
             if (!empty($tanggal)) {
@@ -360,7 +367,7 @@ class PresensiController extends Controller
             $sakit = Sakite::countData($dataFilter);
             $izin = Izine::countData($dataFilter);
             $cuti = Cutie::countData($dataFilter);
-            $total_karyawan = Karyawan::organisasi(auth()->user()->organisasi_id)->aktif()->count();
+            $total_karyawan = Karyawan::countData($dataFilter);
 
             $html = view('layouts.partials.attendance-summary-presensi')->with(compact('hadir', 'sakit', 'izin', 'cuti', 'total_karyawan'))->render();
             return response()->json(['data' => $html], 200);
@@ -392,9 +399,15 @@ class PresensiController extends Controller
             $dataFilter['organisasi_id'] = auth()->user()->organisasi_id;
             $dataFilter['jenis_izin'] = ['TM'];
             $dataFilter['statusCuti'] = 'ON LEAVE';
+            $dataFilter['statusKaryawan'] = 'AT';
 
             if (!empty($departemen)) {
-                $dataFilter['departemen'] = $departemen;
+                $dataFilter['departemens'] = $departemen;
+            } else {
+                if(auth()->user()->hasRole('admin-dept')){
+                    $departemen = auth()->user()->karyawan->posisi[0]->departemen_id;
+                    $dataFilter['departemens'] = [$departemen];
+                }
             }
 
             if (!empty($tanggal)) {

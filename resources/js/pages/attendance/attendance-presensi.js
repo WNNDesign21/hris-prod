@@ -325,6 +325,60 @@ $(function () {
                 } else {
                     $('.summaryText').text(new Date().toLocaleDateString());
                 }
+
+                $('.btnDetailSummary').on('click', function() {
+                    loadingSwalShow();
+                    let type = $(this).data('type');
+                    console.log('hitam');
+            
+                    if(type == '2') {
+                        $('.detailText').text('Detail Sakit');
+                    } else if(type == '3') {
+                        $('.detailText').text('Detail Izin');
+                    } else if(type == '4') {
+                        $('.detailText').text('Detail Cuti');
+                    } else {
+                        $('.detailText').text('Detail Hadir');
+                    }
+            
+                    $.ajax({
+                        url: base_url + "/attendance/presensi/get-detail-presensi",
+                        type: "POST",
+                        data: {
+                            departemen: $('#filterDepartemenSummary').val(),
+                            tanggal: $('#filterTanggalSummary').val(),
+                            type: type
+                        },
+                        success: function (response) {
+                            let data = response.data;
+                            $('#detailContent').empty();
+                            if (data.length > 0) {
+                                data.forEach(item => {
+                                    $('#detailContent').append(`
+                                        <tr>
+                                         <td>${item.nama || item.nama_karyawan}</td>
+                                         <td>${item.departemen}</td>
+                                        </tr>
+                                    `);
+                                });
+                            }
+                            $('#detail-table').DataTable({
+                                order: [[1, 'asc']]
+                            });
+                            loadingSwalClose();
+                            openDetailSummary();
+                        },
+                        error: function (jqXHR) {
+                            showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                        }
+                    })
+                });
+            
+                $('.btnCloseDetailSummary').on('click', function() {
+                    closeDetailSummary();
+                    $('#detail-table').DataTable().destroy();
+                });
+                
                 closeFilterSummary();
                 loadingSwalClose();
             },
@@ -359,6 +413,7 @@ $(function () {
     $('.btnDetailSummary').on('click', function() {
         loadingSwalShow();
         let type = $(this).data('type');
+        console.log('hitam');
 
         if(type == '2') {
             $('.detailText').text('Detail Sakit');

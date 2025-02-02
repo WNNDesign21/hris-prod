@@ -269,8 +269,8 @@ class ScanlogDetail extends Model
             });
         }
 
-        if (isset($dataFilter['departemen'])) {
-            $results->whereIn('departemen_id', $dataFilter['departemen']);
+        if (isset($dataFilter['departemens'])) {
+            $results->whereIn('departemen_id', $dataFilter['departemens']);
         }
         
         return $results->offset($settings['start']) 
@@ -461,8 +461,8 @@ class ScanlogDetail extends Model
             AND scan_column = '1_IN'"
         ;
 
-        if (isset($dataFilter['departemen'])) {
-            $sql .= " AND departemen_id IN (".implode(',', $dataFilter['departemen']).")";
+        if (isset($dataFilter['departemens'])) {
+            $sql .= " AND departemen_id IN (".implode(',', $dataFilter['departemens']).")";
         }
 
         $sql .= "
@@ -653,8 +653,8 @@ class ScanlogDetail extends Model
             WHERE karyawans.organisasi_id = ".$dataFilter['organisasi_id'].""
         ;
 
-        if (isset($dataFilter['departemen'])) {
-            $sql .= " AND departemen_id IN (".implode(',', $dataFilter['departemen']).")";
+        if (isset($dataFilter['departemens'])) {
+            $sql .= " AND departemen_id IN (".implode(',', $dataFilter['departemens']).")";
         }
 
         $sql .= "
@@ -667,12 +667,24 @@ class ScanlogDetail extends Model
     public static function rekapCuti($dataFilter)
     {
         $sql = "
+        WITH karyawan_posisi_filtered AS (
+            SELECT karyawan_posisi.id,
+                karyawan_posisi.karyawan_id,
+                karyawan_posisi.posisi_id,
+                karyawan_posisi.created_at,
+                karyawan_posisi.updated_at,
+                karyawan_posisi.deleted_at,
+                row_number() OVER (PARTITION BY karyawan_posisi.karyawan_id ORDER BY karyawan_posisi.posisi_id DESC) AS rn
+            FROM karyawan_posisi
+        )
             SELECT 
                 karyawans.id_karyawan,
                 karyawans.nama,
                 karyawans.ni_karyawan,
                 COALESCE(COUNT(cutis.id_cuti), 0) AS jumlah_cuti
             FROM karyawans
+            LEFT JOIN karyawan_posisi_filtered ON karyawan_posisi_filtered.karyawan_id = karyawans.id_karyawan AND rn = 1
+            LEFT JOIN posisis ON posisis.id_posisi = karyawan_posisi_filtered.posisi_id
             LEFT JOIN cutis ON cutis.karyawan_id = karyawans.id_karyawan
                 AND cutis.rencana_mulai_cuti BETWEEN '".$dataFilter['start']."' AND '".$dataFilter['end']."'
                 AND cutis.status_dokumen = 'APPROVED'
@@ -682,8 +694,8 @@ class ScanlogDetail extends Model
             AND karyawans.status_karyawan = 'AT'
         ";
 
-        if (isset($dataFilter['departemen'])) {
-            $sql .= " AND karyawans.departemen_id IN (".implode(',', $dataFilter['departemen']).")";
+        if (isset($dataFilter['departemens'])) {
+            $sql .= " AND posisis.departemen_id IN (".implode(',', $dataFilter['departemens']).")";
         }
         
         $sql .= "GROUP BY karyawans.id_karyawan, karyawans.nama, karyawans.ni_karyawan ORDER BY nama ASC";
@@ -693,12 +705,24 @@ class ScanlogDetail extends Model
     public static function rekapIzin($dataFilter)
     {
         $sql = "
+        WITH karyawan_posisi_filtered AS (
+            SELECT karyawan_posisi.id,
+                karyawan_posisi.karyawan_id,
+                karyawan_posisi.posisi_id,
+                karyawan_posisi.created_at,
+                karyawan_posisi.updated_at,
+                karyawan_posisi.deleted_at,
+                row_number() OVER (PARTITION BY karyawan_posisi.karyawan_id ORDER BY karyawan_posisi.posisi_id DESC) AS rn
+            FROM karyawan_posisi
+        )
             SELECT 
                 karyawans.id_karyawan,
                 karyawans.nama,
                 karyawans.ni_karyawan,
                 COALESCE(COUNT(izins.id_izin), 0) AS jumlah_izin
             FROM karyawans
+            LEFT JOIN karyawan_posisi_filtered ON karyawan_posisi_filtered.karyawan_id = karyawans.id_karyawan AND rn = 1
+            LEFT JOIN posisis ON posisis.id_posisi = karyawan_posisi_filtered.posisi_id
             LEFT JOIN izins ON izins.karyawan_id = karyawans.id_karyawan
                 AND CASE
                     WHEN DATE(izins.rencana_selesai_or_keluar) IS NOT NULL THEN DATE(izins.rencana_selesai_or_keluar) BETWEEN '".$dataFilter['start']."' AND '".$dataFilter['end']."'
@@ -708,8 +732,8 @@ class ScanlogDetail extends Model
             WHERE karyawans.organisasi_id = ".$dataFilter['organisasi_id']."
         ";
 
-        if (isset($dataFilter['departemen'])) {
-            $sql .= " AND karyawans.departemen_id IN (".implode(',', $dataFilter['departemen']).")";
+        if (isset($dataFilter['departemens'])) {
+            $sql .= " AND karyawans.departemen_id IN (".implode(',', $dataFilter['departemens']).")";
         }
         
         $sql .= "GROUP BY karyawans.id_karyawan, karyawans.nama, karyawans.ni_karyawan ORDER BY nama ASC";
@@ -941,8 +965,8 @@ class ScanlogDetail extends Model
             AND karyawans.status_karyawan = 'AT'
         ";
 
-        if (isset($dataFilter['departemen'])) {
-            $sql .= " AND dp.departemen_id IN (".implode(',', $dataFilter['departemen']).")";
+        if (isset($dataFilter['departemens'])) {
+            $sql .= " AND p.departemen_id IN (".implode(',', $dataFilter['departemens']).")";
         }
         
         $sql .= "GROUP BY karyawans.id_karyawan, karyawans.nama, karyawans.ni_karyawan, jumlah_hadir, dp.nama ORDER BY karyawans.nama ASC";

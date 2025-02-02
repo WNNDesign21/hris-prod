@@ -122,6 +122,10 @@ class Cutie extends Model
         if(isset($dataFilter['departemen'])) {
             $data->where('departemens.id_departemen', $dataFilter['departemen']);
         }
+        
+        if(isset($dataFilter['departemens'])) {
+            $data->whereIn('departemens.id_departemen', $dataFilter['departemens']);
+        }
 
         if(isset($dataFilter['jenisCuti'])) {
             $data->where('jenis_cuti', $dataFilter['jenisCuti']);

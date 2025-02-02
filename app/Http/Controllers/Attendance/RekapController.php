@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Attendance;
 
 use Throwable;
 use Carbon\Carbon;
+use App\Models\Departemen;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -21,10 +22,19 @@ class RekapController extends Controller
      */
     public function index()
     {
+        if(auth()->user()->hasRole('personalia')){
+            $departemens = Departemen::all();
+        } else {
+            $departemen = auth()->user()->karyawan->posisi[0]->departemen_id;
+            $departemens = Departemen::where('id_departemen', $departemen)->pluck('nama','id_departemen');
+        }
+
         $dataPage = [
             'pageTitle' => "Attendance-E - Rekap",
             'page' => 'attendance-rekap',
+            'departemens' => $departemens
         ];
+        
         return view('pages.attendance-e.rekap.index', $dataPage);
     }
 
@@ -44,14 +54,20 @@ class RekapController extends Controller
 
         $start = $request->start;
         $end = $request->end;
+        $departemen = $request->departemen;
+
         $dataFilter = [];
         $dataFilter['start'] = $start;
         $dataFilter['end'] = $end;
         $dataFilter['organisasi_id'] = auth()->user()->organisasi_id;
 
-        if(auth()->user()->hasRole('admin-dept')){
-            $departemen_id = auth()->user()->karyawan->posisi[0]->departemen_id;
-            $dataFilter['departemen'] = $departemen_id;
+        if (!empty($departemen)) {
+            $dataFilter['departemens'] = $departemen;
+        } else {
+            if(auth()->user()->hasRole('admin-dept')){
+                $departemen = auth()->user()->karyawan->posisi[0]->departemen_id;
+                $dataFilter['departemens'] = [$departemen];
+            }
         }
 
         $spreadsheet = new Spreadsheet();

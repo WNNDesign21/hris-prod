@@ -116,6 +116,11 @@ class Sakite extends Model
             $data->where('sakits.departemen_id', $departemen);
         }
 
+        if (isset($dataFilter['departemens'])) {
+            $departemens = $dataFilter['departemens'];
+            $data->whereIn('sakits.departemen_id', $departemens);
+        }
+
         if (isset($dataFilter['urutan'])) {
             $urutan = $dataFilter['urutan'];
             if($urutan == 'ON') {

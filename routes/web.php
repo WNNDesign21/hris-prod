@@ -400,7 +400,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
     });
 
       /** ATTENDANCE */
-    Route::group(['prefix' => 'attendance', 'middleware' => ['role:personalia']], function () {
+    Route::group(['prefix' => 'attendance', 'middleware' => ['role:personalia|admin-dept']], function () {
         Route::get('/dashboard', [AttendanceDashboardController::class, 'index'])->name('attendance.dashboard');
 
         // SCANLOG

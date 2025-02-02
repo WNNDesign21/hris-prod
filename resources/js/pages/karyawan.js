@@ -484,6 +484,7 @@ $(function () {
                 $('#status_karyawanEdit').val(detailKaryawan.status_karyawan);
                 $('#tanggal_mulaiEdit').val(detailKaryawan.tanggal_mulai);
                 $('#tanggal_selesaiEdit').val(detailKaryawan.tanggal_selesai);
+                $('#isAdminEdit').prop('checked', detailKaryawan.is_admin);
                 initializeSelect2Edit(detailKaryawan.grup_id, detailKaryawan.posisi);
                 openEditKaryawan();
             },

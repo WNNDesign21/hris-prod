@@ -296,6 +296,23 @@ $(function () {
             $('#penggunaan_sisa_cuti').select2({
                 dropdownParent: $('#modal-pengajuan-cuti'),
             });
+
+            let minDate = new Date();
+            minDate.setDate(minDate.getDate() + 7);
+            $('#rencana_mulai_cuti').attr('min', minDate.toISOString().split('T')[0]);
+
+            $('#rencana_mulai_cuti').change(function() {
+                var selesaiCutiInput = $('#rencana_selesai_cuti');
+                $('#rencana_selesai_cuti').val('');
+                selesaiCutiInput.attr('min', $(this).val());
+            });
+
+            $('#rencana_selesai_cuti').change(function() {
+                var rencanaMulaiCuti = $('#rencana_mulai_cuti').val();
+                var rencanaSelesaiCuti = $(this).val();
+                var durasi = calculateDuration(rencanaMulaiCuti, rencanaSelesaiCuti) + 1;
+                $('#durasi_cuti').val(durasi);
+            });
         }
     });
 

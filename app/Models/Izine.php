@@ -140,6 +140,11 @@ class Izine extends Model
             $data->where('izins.departemen_id', $departemen);
         }
 
+        if (isset($dataFilter['departemens'])) {
+            $departemens = $dataFilter['departemens'];
+            $data->whereIn('izins.departemen_id', $departemens);
+        }
+
         if (isset($dataFilter['urutan'])) {
             $urutan = $dataFilter['urutan'];
             if($urutan == 'ON') {

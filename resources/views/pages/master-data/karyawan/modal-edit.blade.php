@@ -289,7 +289,17 @@
                                         required>
                                     </select>
                                 </div>
-                                <div class="row">
+                                <div class="form-group mb-0">
+                                    <input type="checkbox" id="isAdminEdit" name="isAdminEdit" value="Y"
+                                        class="filled-in chk-col-primary" />
+                                    <label for="isAdminEdit">
+                                        <h5>Is Admin</h5>
+                                    </label>
+                                </div>
+                                <small>Note : Check tombol ini jika user merupakan seorang admin departemen, memiliki
+                                    beberapa hak akses modul
+                                    tertentu.</small>
+                                <div class="row mt-3">
                                     <div class="col-lg-6 col-12">
                                         <div class="form-group">
                                             <label class="form-label">Jatah Cuti Pribadi</label>

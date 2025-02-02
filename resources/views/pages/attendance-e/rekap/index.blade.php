@@ -26,6 +26,19 @@
                         id="form-export-rekap">
                         @csrf
                         <div class="row">
+                            @if (auth()->user()->hasRole('personalia'))
+                                <div class="col-12">
+                                    <div class="form-group">
+                                        <label for="departemen">DEPARTEMEN</label>
+                                        <select name="departemen[]" id="departemen" class="form-control"
+                                            style="width: 100%;" multiple>
+                                            @foreach ($departemens as $item)
+                                                <option value="{{ $item->id_departemen }}">{{ $item->nama }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                            @endif
                             <div class="col-6">
                                 <div class="form-group">
                                     <label for="start">Start Periode</label>
@@ -41,8 +54,11 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-lg-12 p-4 d-flex justify-content-end">
-                                <button type="submit" class="btn btn-success"><i class="fas fa-file-export"></i>
+                            <div class="col-lg-12 p-4 d-flex justify-content-end gap-2">
+                                <button type="button" class="waves-effect waves-light btn btn-danger btnReset"><i
+                                        class="fas fa-history"></i> Reset</button>
+                                <button type="submit" class="btn waves-effect waves-light btn-success"><i
+                                        class="fas fa-file-export"></i>
                                     Rekap</button>
                             </div>
                         </div>
