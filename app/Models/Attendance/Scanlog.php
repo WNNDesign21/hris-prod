@@ -45,6 +45,14 @@ class Scanlog extends Model
         $data->where('attendance_scanlogs.organisasi_id', auth()->user()->organisasi_id);
         $data->where('users.organisasi_id', auth()->user()->organisasi_id);
 
+        if (isset($dataFilter['date'])) {
+            $data->whereDate('attendance_scanlogs.scan_date', $dataFilter['date']);
+        }
+
+        if (isset($dataFilter['karyawan_id'])) {
+            $data->where('karyawans.id_karyawan', $dataFilter['karyawan_id']);
+        }
+
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
             $data->where(function ($query) use ($search) {

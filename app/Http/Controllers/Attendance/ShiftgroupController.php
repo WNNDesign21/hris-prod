@@ -52,9 +52,14 @@ class ShiftgroupController extends Controller
             $dataFilter['search'] = $search;
         }
 
-        $filterDepartemen = $request->departemen;
-        if (isset($filterDepartemen)){
-            $dataFilter['departemen'] = $filterDepartemen;
+        // $filterDepartemen = $request->departemen;
+        // if (isset($filterDepartemen)){
+        //     $dataFilter['departemen'] = $filterDepartemen;
+        // }
+
+        if(auth()->user()->hasRole('admin-dept')){
+            $departemen = auth()->user()->karyawan->posisi[0]->departemen_id;
+            $dataFilter['departemen'] = $departemen;
         }
 
         $filterGrup = $request->grup;

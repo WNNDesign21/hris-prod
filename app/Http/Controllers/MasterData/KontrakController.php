@@ -972,7 +972,7 @@ class KontrakController extends Controller
 
                 foreach ($data as $index => $row) {
                     if ($index == 0) continue; 
-                    
+
                     activity('upload_kontrak_karyawan')->log('insert row ' . $index);
                     $karyawan_exist = Karyawan::where('ni_karyawan', $row[0])->organisasi(auth()->user()->organisasi_id);
                     if($karyawan_exist->exists()){

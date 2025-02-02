@@ -120,10 +120,13 @@ $(function () {
             return: true,
         },
         fixedColumns: {
-            leftColumns: 4,
+            leftColumns: 2,
         },
         paging: false,
         processing: true,
+        language: {
+            processing: '<i class="fas fa-sync-alt fa-spin fs-80"></i>'
+        },
         serverSide: true,
         ajax: {
             url: base_url + "/attendance/presensi/datatable",
@@ -137,7 +140,6 @@ $(function () {
                 dataFilter.periode = periode;
             },
             error: function (jqXHR, textStatus, errorThrown) {
-                console.log(jqXHR);
                 if (jqXHR.responseJSON.data) {
                     var error = jqXHR.responseJSON.data.error;
                     Swal.fire({
@@ -187,17 +189,14 @@ $(function () {
         columns: columnsTable,
         dom: 'Bfrtip',
         buttons: [
-            'copy', 'csv', 'excel', 'pdf', 'print'
+            'copy', 'excel'
         ],
         createdRow: function( row, data, dataIndex ) {
             $('td', row).each(function(index) {
-                if ($(this).text() === '') {
+                if ($(this).text() === 'Check') {
                     $(this).addClass('bg-danger');
                 }
 
-                // if (data.in_status_6 === 'LATE' && index === 14) {
-                //     $(this).addClass('bg-warning');
-                // }
                 for (let i = 1; i <= 31; i++) {
                     if (data[`in_status_${i}`] === 'LATE' && index === (i * 2 + 2)) {
                         $(this).addClass('bg-warning');
@@ -325,6 +324,59 @@ $(function () {
                 } else {
                     $('.summaryText').text(new Date().toLocaleDateString());
                 }
+
+                $('.btnDetailSummary').on('click', function() {
+                    loadingSwalShow();
+                    let type = $(this).data('type');
+            
+                    if(type == '2') {
+                        $('.detailText').text('Detail Sakit');
+                    } else if(type == '3') {
+                        $('.detailText').text('Detail Izin');
+                    } else if(type == '4') {
+                        $('.detailText').text('Detail Cuti');
+                    } else {
+                        $('.detailText').text('Detail Hadir');
+                    }
+            
+                    $.ajax({
+                        url: base_url + "/attendance/presensi/get-detail-presensi",
+                        type: "POST",
+                        data: {
+                            departemen: $('#filterDepartemenSummary').val(),
+                            tanggal: $('#filterTanggalSummary').val(),
+                            type: type
+                        },
+                        success: function (response) {
+                            let data = response.data;
+                            $('#detailContent').empty();
+                            if (data.length > 0) {
+                                data.forEach(item => {
+                                    $('#detailContent').append(`
+                                        <tr>
+                                         <td>${item.nama || item.nama_karyawan}</td>
+                                         <td>${item.departemen}</td>
+                                        </tr>
+                                    `);
+                                });
+                            }
+                            $('#detail-table').DataTable({
+                                order: [[1, 'asc']]
+                            });
+                            loadingSwalClose();
+                            openDetailSummary();
+                        },
+                        error: function (jqXHR) {
+                            showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                        }
+                    })
+                });
+            
+                $('.btnCloseDetailSummary').on('click', function() {
+                    closeDetailSummary();
+                    $('#detail-table').DataTable().destroy();
+                });
+
                 closeFilterSummary();
                 loadingSwalClose();
             },
@@ -334,6 +386,191 @@ $(function () {
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
             }
         });
+    });
+
+
+    //DETAIL
+    var modalDetailSummaryOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalDetailSummary = new bootstrap.Modal(
+        document.getElementById("modal-detail-summary"),
+        modalDetailSummaryOptions
+    );
+
+    function openDetailSummary() {
+        modalDetailSummary.show();
+    }
+
+    function closeDetailSummary() {
+        modalDetailSummary.hide();
+    }
+
+    $('.btnDetailSummary').on('click', function() {
+        loadingSwalShow();
+        let type = $(this).data('type');
+
+        if(type == '2') {
+            $('.detailText').text('Detail Sakit');
+        } else if(type == '3') {
+            $('.detailText').text('Detail Izin');
+        } else if(type == '4') {
+            $('.detailText').text('Detail Cuti');
+        } else {
+            $('.detailText').text('Detail Hadir');
+        }
+
+        $.ajax({
+            url: base_url + "/attendance/presensi/get-detail-presensi",
+            type: "POST",
+            data: {
+                departemen: $('#filterDepartemenSummary').val(),
+                tanggal: $('#filterTanggalSummary').val(),
+                type: type
+            },
+            success: function (response) {
+                let data = response.data;
+                $('#detailContent').empty();
+                if (data.length > 0) {
+                    data.forEach(item => {
+                        $('#detailContent').append(`
+                            <tr>
+                             <td>${item.nama || item.nama_karyawan}</td>
+                             <td>${item.departemen}</td>
+                            </tr>
+                        `);
+                    });
+                }
+                $('#detail-table').DataTable({
+                    order: [[1, 'asc']]
+                });
+                loadingSwalClose();
+                openDetailSummary();
+            },
+            error: function (jqXHR) {
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            }
+        })
+    });
+
+    $('.btnCloseDetailSummary').on('click', function() {
+        closeDetailSummary();
+        $('#detail-table').DataTable().destroy();
+    });
+
+    var modalCheckOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalCheck = new bootstrap.Modal(
+        document.getElementById("modal-check"),
+        modalCheckOptions
+    );
+
+    function openCheck() {
+        modalCheck.show();
+    }
+
+    function closeCheck() {
+        modalCheck.hide();
+    }
+
+    $('.btnCloseCheck').on('click', function() {
+        closeCheck();
+        $('#check-table').DataTable().destroy();
+    });
+
+    $('#presensi-table').on('click', '.btnCheck', function() {
+        let karyawanId = $(this).data('karyawan-id');
+        let tanggal = $(this).data('date');
+        let pin = $(this).data('pin');
+
+        loadingSwalShow();
+        $.ajax({
+            url: base_url + "/attendance/presensi/check-presensi",
+            type: "POST",
+            data: {
+                karyawan_id: karyawanId,
+                date: tanggal,
+                pin: pin
+            },
+            success: function (response) {
+                let data = response.data.data;
+                let jenis = response.data.jenis;
+
+                if(jenis = 'scanlog'){
+                    $('#checkContent').empty();
+                    if (data.length > 0) {
+                        data.forEach(item => {
+                            $('#checkContent').append(`
+                                <tr>
+                                    <td>${item.scan_date}</td>
+                                    <td><span class="badge badge-success">Scanlog</span></td>
+                                </tr>
+                            `);
+                        });
+                    }
+                    $('#check-table').DataTable({
+                        order: [[0, 'asc']]
+                    });
+                } else if (jenis = 'cuti') {
+                    $('#checkContent').empty();
+                    if (data.length > 0) {
+                        data.forEach(item => {
+                            $('#checkContent').append(`
+                                <tr>
+                                    <td>${item.rencana_mulai_cuti} - ${item.rencana_selesai_cuti}</td>
+                                    <td><span class="badge badge-success">Cuti</span></td>
+                                </tr>
+                            `);
+                        });
+                    }
+                    $('#check-table').DataTable({
+                        order: [[0, 'asc']]
+                    });
+                } else if (jenis = 'izin') {
+                    $('#checkContent').empty();
+                    if (data.length > 0) {
+                        data.forEach(item => {
+                            $('#checkContent').append(`
+                                <tr>
+                                    <td>${item.rencana_mulai_or_masuk} - ${item.rencana_selesai_or_keluar}</td>
+                                    <td><span class="badge badge-info">Izin</span></td>
+                                </tr>
+                            `);
+                        });
+                    }
+                    $('#check-table').DataTable({
+                        order: [[0, 'asc']]
+                    });
+                } else if (jenis = 'sakit') {
+                    $('#checkContent').empty();
+                    if (data.length > 0) {
+                        data.forEach(item => {
+                            $('#checkContent').append(`
+                                <tr>
+                                    <td>${item.tanggal_mulai} - ${item.tanggal_selesai}</td>
+                                    <td><span class="badge badge-danger">Sakit</span></td>
+                                </tr>
+                            `);
+                        });
+                    }
+                    $('#check-table').DataTable({
+                        order: [[0, 'asc']]
+                    });
+                } else {
+                    $('#check-table').DataTable();
+                }
+                openCheck();
+                loadingSwalClose();
+            },
+            error: function (jqXHR) {
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            }
+        })
     });
 
 });

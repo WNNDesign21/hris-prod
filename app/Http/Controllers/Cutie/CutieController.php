@@ -979,7 +979,7 @@ class CutieController extends Controller
     
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
-            return response()->json(['message' => $err_text], 402);
+            return response()->json(['message' => $errors], 402);
         }
 
         $organisasi_id = auth()->user()->organisasi_id;

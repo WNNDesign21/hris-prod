@@ -122,6 +122,10 @@ class Cutie extends Model
         if(isset($dataFilter['departemen'])) {
             $data->where('departemens.id_departemen', $dataFilter['departemen']);
         }
+        
+        if(isset($dataFilter['departemens'])) {
+            $data->whereIn('departemens.id_departemen', $dataFilter['departemens']);
+        }
 
         if(isset($dataFilter['jenisCuti'])) {
             $data->where('jenis_cuti', $dataFilter['jenisCuti']);
@@ -202,6 +206,11 @@ class Cutie extends Model
             ->limit($settings['limit'])
             ->orderBy($settings['order'], $settings['dir'])
             ->get();
+    }
+
+    public static function getDataCuti($dataFilter)
+    {
+        return self::_query($dataFilter)->get();
     }
 
     public static function countData($dataFilter)

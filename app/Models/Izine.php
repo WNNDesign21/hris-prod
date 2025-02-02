@@ -140,6 +140,11 @@ class Izine extends Model
             $data->where('izins.departemen_id', $departemen);
         }
 
+        if (isset($dataFilter['departemens'])) {
+            $departemens = $dataFilter['departemens'];
+            $data->whereIn('izins.departemen_id', $departemens);
+        }
+
         if (isset($dataFilter['urutan'])) {
             $urutan = $dataFilter['urutan'];
             if($urutan == 'ON') {
@@ -178,6 +183,11 @@ class Izine extends Model
             ->limit($settings['limit'])
             ->orderBy($settings['order'], $settings['dir'])
             ->get();
+    }
+
+    public static function getDataIzin($dataFilter)
+    {
+        return self::_query($dataFilter)->get();
     }
 
     public static function countData($dataFilter)

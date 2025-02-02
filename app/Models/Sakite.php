@@ -116,6 +116,11 @@ class Sakite extends Model
             $data->where('sakits.departemen_id', $departemen);
         }
 
+        if (isset($dataFilter['departemens'])) {
+            $departemens = $dataFilter['departemens'];
+            $data->whereIn('sakits.departemen_id', $departemens);
+        }
+
         if (isset($dataFilter['urutan'])) {
             $urutan = $dataFilter['urutan'];
             if($urutan == 'ON') {
@@ -148,6 +153,11 @@ class Sakite extends Model
             ->limit($settings['limit'])
             ->orderBy($settings['order'], $settings['dir'])
             ->get();
+    }
+
+    public static function getDataSakit($dataFilter)
+    {
+        return self::_query($dataFilter)->get();
     }
 
     public static function countData($dataFilter)

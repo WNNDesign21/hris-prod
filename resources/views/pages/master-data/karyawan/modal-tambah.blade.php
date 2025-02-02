@@ -155,6 +155,7 @@
                                             <option value="">Pilih Agama (Boleh Kosong)</option>
                                             <option value="ISLAM">ISLAM</option>
                                             <option value="KRISTEN">KRISTEN</option>
+                                            <option value="KATOLIK">KATOLIK</option>
                                             <option value="PROTESTAN">PROTESTAN</option>
                                             <option value="KONGHUCU">KONGHUCU</option>
                                             <option value="HINDU">HINDU</option>
@@ -332,6 +333,16 @@
                                         required>
                                     </select>
                                 </div>
+                                <div class="form-group mb-0">
+                                    <input type="checkbox" id="isAdmin" name="isAdmin" value="Y"
+                                        class="filled-in chk-col-primary" />
+                                    <label for="isAdmin">
+                                        <h5>Is Admin</h5>
+                                    </label>
+                                </div>
+                                <small>Note : Check tombol ini jika user merupakan seorang admin departemen, memiliki
+                                    beberapa hak akses modul
+                                    tertentu.</small>
                             </div>
                             <div class="d-flex justify-content-end mt-2">
                                 <button type="submit" class="btn btn-success"><i class="fas fa-save"></i>

@@ -249,7 +249,6 @@ $(function () {
                 $('#rencana_mulai_cuti').val('');
                 $('#rencana_selesai_cuti').val('');
                 var isUrgent = $(this).find('option:selected').data('isurgent');
-                console.log(isUrgent)
                 if(isUrgent == 'Y'){
                     $('#rencana_mulai_cuti').removeAttr('min');
                 } else {
@@ -295,6 +294,23 @@ $(function () {
             $('#rencana_selesai_cuti').prop('readonly', false);
             $('#penggunaan_sisa_cuti').select2({
                 dropdownParent: $('#modal-pengajuan-cuti'),
+            });
+
+            let minDate = new Date();
+            minDate.setDate(minDate.getDate() + 7);
+            $('#rencana_mulai_cuti').attr('min', minDate.toISOString().split('T')[0]);
+
+            $('#rencana_mulai_cuti').change(function() {
+                var selesaiCutiInput = $('#rencana_selesai_cuti');
+                $('#rencana_selesai_cuti').val('');
+                selesaiCutiInput.attr('min', $(this).val());
+            });
+
+            $('#rencana_selesai_cuti').change(function() {
+                var rencanaMulaiCuti = $('#rencana_mulai_cuti').val();
+                var rencanaSelesaiCuti = $(this).val();
+                var durasi = calculateDuration(rencanaMulaiCuti, rencanaSelesaiCuti) + 1;
+                $('#durasi_cuti').val(durasi);
             });
         }
     });
@@ -476,7 +492,6 @@ $(function () {
             type: "GET",
             success: function (response) {
                 var data = response.data;
-                console.log(data)
                 $('#id_cuti').val(data.id_cuti);
                 $('#alasan_cuti').val(data.alasan_cuti);
                 $('#durasi_cuti').val(data.durasi_cuti);

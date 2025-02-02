@@ -12,6 +12,7 @@ use App\Http\Controllers\Lembure\LembureController;
 use App\Http\Controllers\MasterData\AkunController;
 use App\Http\Controllers\MasterData\GrupController;
 use App\Http\Controllers\StockOpname\StoController;
+use App\Http\Controllers\Attendance\RekapController;
 use App\Http\Controllers\MasterData\EventController;
 use App\Http\Controllers\MasterData\SeksiController;
 use App\Http\Controllers\Attendance\DeviceController;
@@ -47,7 +48,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::delete('/delete-qrcode-img', DeleteQrImgController::class);
     Route::get('/upload-pin', [TestController::class, 'upload_pin_view']);
     Route::post('/upload-pin/store', [TestController::class, 'upload_pin'])->name('upload-pin.store');
-
+    Route::get('/rekap-presensi', [TestController::class, 'test_rekap_presensi']);
+    
     /** MASTER DATA - AJAX */
     Route::get('/master-data/posisi/get-data-by-jabatan/{idJabatan}', [PosisiController::class, 'get_data_by_jabatan']);
     Route::get('/master-data/posisi/get-data-by-posisi/{idPosisi}', [PosisiController::class, 'get_data_by_posisi']);
@@ -98,6 +100,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::get('/attendance/device/get-all-device', [DeviceController::class, 'get_all_device']);
     Route::post('/attendance/presensi/get-summary-presensi', [PresensiController::class, 'get_summary_presensi_html']);
+    Route::post('/attendance/presensi/get-detail-presensi', [PresensiController::class, 'get_detail_presensi']);
 });
 
 
@@ -397,21 +400,23 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
     });
 
       /** ATTENDANCE */
-    Route::group(['prefix' => 'attendance', 'middleware' => ['role:personalia']], function () {
+    Route::group(['prefix' => 'attendance', 'middleware' => ['role:personalia|admin-dept']], function () {
         Route::get('/dashboard', [AttendanceDashboardController::class, 'index'])->name('attendance.dashboard');
 
         // SCANLOG
-        Route::get('/scanlog', [ScanlogController::class, 'index'])->name('attendance.scanlog');
-        Route::post('/scanlog/datatable', [ScanlogController::class, 'datatable']);
-        Route::post('/scanlog/download-scanlog', [ScanlogController::class, 'download_scanlog'])->name('attendance.scanlog.download-scanlog');
-        Route::post('/scanlog/export-scanlog', [ScanlogController::class, 'export_scanlog'])->name('attendance.scanlog.export-scanlog');
-
-        // DEVICE
-        Route::get('/device', [DeviceController::class, 'index'])->name('attendance.device');
-        Route::post('/device/datatable', [DeviceController::class, 'datatable']);
-        Route::post('/device/store', [DeviceController::class, 'store'])->name('attendance.device.store');
-        Route::patch('/device/update/{idDevice}', [DeviceController::class, 'update'])->name('attendance.device.update');
-        Route::delete('/device/delete/{idDevice}', [DeviceController::class, 'delete'])->name('attendance.device.delete');
+        Route::group(['middleware' => ['role:personalia']], function () {
+            Route::get('/scanlog', [ScanlogController::class, 'index'])->name('attendance.scanlog');
+            Route::post('/scanlog/datatable', [ScanlogController::class, 'datatable']);
+            Route::post('/scanlog/download-scanlog', [ScanlogController::class, 'download_scanlog'])->name('attendance.scanlog.download-scanlog');
+            Route::post('/scanlog/export-scanlog', [ScanlogController::class, 'export_scanlog'])->name('attendance.scanlog.export-scanlog');
+    
+            // DEVICE
+            Route::get('/device', [DeviceController::class, 'index'])->name('attendance.device');
+            Route::post('/device/datatable', [DeviceController::class, 'datatable']);
+            Route::post('/device/store', [DeviceController::class, 'store'])->name('attendance.device.store');
+            Route::patch('/device/update/{idDevice}', [DeviceController::class, 'update'])->name('attendance.device.update');
+            Route::delete('/device/delete/{idDevice}', [DeviceController::class, 'delete'])->name('attendance.device.delete');
+        });
 
         // SHIFT GROUP
         Route::get('/shift-group', [ShiftgroupController::class, 'index'])->name('attendance.shiftgroup');
@@ -422,6 +427,11 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         // PRESENSI
         Route::get('/presensi', [PresensiController::class, 'index'])->name('attendance.presensi');
         Route::post('/presensi/datatable', [PresensiController::class, 'datatable']);
+        Route::post('/presensi/check-presensi', [PresensiController::class, 'check_presensi'])->name('attendance.presensi.check-presensi');
+
+        // REKAP
+        Route::get('/rekap', [RekapController::class, 'index'])->name('attendance.rekap');
+        Route::post('/rekap/export-rekap', [RekapController::class, 'export_rekap'])->name('attendance.rekap.export-rekap');
     });
 });
 
