@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use Throwable;
 use App\Helpers\Sto;
 use App\Models\Cutie;
+use GuzzleHttp\Client;
 use App\Models\Karyawan;
 use App\Helpers\Approval;
 use App\Models\ApprovalCuti;
@@ -277,5 +279,74 @@ class TestController extends Controller
         $dataFilter['end'] = '2025-01-30';
         $data = ScanlogDetail::rekapKehadiran($dataFilter);
         return response()->json($data, 200);
+    }
+
+    public function send_whatsapp_message()
+    {
+        $client = new Client();
+
+        try {
+            $response = $client->post('https://api.fonnte.com/send', [
+                'form_params' => [ 
+                    'target' => '120363375659726514@g.us,085871262080',
+                    'message' => 'TEST NOTIF WA - HRIS KE 2',
+                ],
+                'headers' => [
+                    'Authorization' => env('API_TOKEN_FONNTE'),
+                ],
+            ]);
+
+            $responseData = json_decode($response->getBody(), true);
+
+            return response()->json($responseData, $response->getStatusCode());
+
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Failed to send message'], 500); 
+        }
+    }
+
+    public function fetch_whatsapp_group()
+    {
+        $client = new Client();
+
+        try {
+            $response = $client->post('https://api.fonnte.com/fetch-group', [
+                'headers' => [
+                    'Authorization' => env('API_TOKEN_FONNTE'),
+                ],
+            ]);
+
+            if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+            $responseData = json_decode($response->getBody(), true);
+            return response()->json($responseData, $response->getStatusCode());
+            } else {
+            return response()->json(['error' => 'Failed to fetch group'], $response->getStatusCode()); // Return the error status code
+            }
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to fetch group'], 500); // Internal Server Error
+        }
+    }
+
+    public function get_whatsapp_group()
+    {
+        $client = new Client();
+
+        try {
+            $response = $client->post('https://api.fonnte.com/get-whatsapp-group', [
+                'headers' => [
+                    'Authorization' => env('API_TOKEN_FONNTE')
+                ],
+            ]);
+
+            if ($response->getStatusCode() >= 200 && $response->getStatusCode() < 300) {
+            $responseData = json_decode($response->getBody(), true);
+            return response()->json($responseData, $response->getStatusCode());
+            } else {
+            return response()->json(['error' => 'Failed to get WhatsApp group'], $response->getStatusCode());
+            }
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to get WhatsApp group'], 500);
+        }
     }
 }

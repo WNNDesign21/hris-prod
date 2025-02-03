@@ -49,6 +49,11 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/upload-pin', [TestController::class, 'upload_pin_view']);
     Route::post('/upload-pin/store', [TestController::class, 'upload_pin'])->name('upload-pin.store');
     Route::get('/rekap-presensi', [TestController::class, 'test_rekap_presensi']);
+
+    //WHATSAPP
+    // Route::get('/send-whatsapp-message', [TestController::class, 'send_whatsapp_message']);
+    // Route::get('/fetch-whatsapp-group', [TestController::class, 'fetch_whatsapp_group']);
+    // Route::get('/get-whatsapp-group', [TestController::class, 'get_whatsapp_group']);
     
     /** MASTER DATA - AJAX */
     Route::get('/master-data/posisi/get-data-by-jabatan/{idJabatan}', [PosisiController::class, 'get_data_by_jabatan']);
