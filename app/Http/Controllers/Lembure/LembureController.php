@@ -1129,6 +1129,8 @@ class LembureController extends Controller
 
                 //PENGECEKAN DUPLIKAT
                 $detail_lembur_exist = DetailLembur::where('karyawan_id', $karyawan_id)
+                    ->where('is_rencana_lembur', 'Y')
+                    ->where('is_aktual_lembur', 'Y')
                     ->where(function ($query) use ($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur) {
                         $query->whereBetween('rencana_mulai_lembur', [$datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur])
                               ->orWhereBetween('rencana_selesai_lembur', [$datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur])
@@ -1346,6 +1348,8 @@ class LembureController extends Controller
 
                 //PENGECEKAN DUPLIKAT
                 $detail_lembur_exist = DetailLembur::where('karyawan_id', $karyawan_id)
+                    ->where('is_rencana_lembur', 'Y')
+                    ->where('is_aktual_lembur', 'Y')
                     ->where(function ($query) use ($datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur) {
                         $query->whereBetween('rencana_mulai_lembur', [$datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur])
                               ->orWhereBetween('rencana_selesai_lembur', [$datetime_rencana_mulai_lembur, $datetime_rencana_selesai_lembur])
