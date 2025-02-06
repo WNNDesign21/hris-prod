@@ -64,6 +64,7 @@ class SendWhatsappNotification
             }
         } catch (Throwable $e) {
             self::$result = false;
+            SendWhatsappNotificationJob::dispatch($message, $organisasi_id, $phone_number);
             return self::$result;
         }
     }
