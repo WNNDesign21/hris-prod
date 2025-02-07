@@ -1617,12 +1617,12 @@ class LembureController extends Controller
         $jabatan_id = $karyawan->posisi[0]->jabatan_id;
 
         if($jenis_hari == 'WD'){
-            $jam_pertama = $convert_duration < 2 ? ($convert_duration * 1.5) : (1 * 1.5); 
-            $jam_kedua = $convert_duration >= 2 ? ($convert_duration - 1) * 2 : 0;
+            $jam_pertama = $convert_duration == 1 ? ($convert_duration * 1.5) : (1 * 1.5); 
+            $jam_kedua = $convert_duration > 1 ? ($convert_duration - 1) * 2 : 0;
             $durasi_konversi_lembur = $jam_pertama + $jam_kedua;
         } else {
-            $delapan_jam_pertama = $convert_duration < 9 ? ($convert_duration * 2) : (8 * 2);
-            $jam_ke_sembilan = $convert_duration >= 9 && $convert_duration < 10 ? (($convert_duration - 8) * 3) : ($convert_duration >= 10 ? 1 * 3 : 0);
+            $delapan_jam_pertama = $convert_duration <= 8 ? ($convert_duration * 2) : (8 * 2);
+            $jam_ke_sembilan = $convert_duration > 8 && $convert_duration <= 9 ? (($convert_duration - 8) * 3) : ($convert_duration > 9 ? 1 * 3 : 0);
             $jam_ke_sepuluh = $convert_duration >= 10 ? ($convert_duration - 9) * 4 : 0;
             $durasi_konversi_lembur = $delapan_jam_pertama + $jam_ke_sembilan + $jam_ke_sepuluh;
         }
@@ -1653,8 +1653,8 @@ class LembureController extends Controller
 
             //PERHITUNGAN UNTUK LEADER DAN STAFF
             if($jabatan_id >= 5){
-                $jam_pertama = $convert_duration < 2 ? ($convert_duration * $upah_sejam * 1.5) : (1 * $upah_sejam * 1.5); 
-                $jam_kedua = $convert_duration >= 2 ? ($convert_duration - 1) * $upah_sejam * 2 : 0;
+                $jam_pertama = $convert_duration == 1 ? ($convert_duration * $upah_sejam * 1.5) : (1 * $upah_sejam * 1.5); 
+                $jam_kedua = $convert_duration > 1 ? ($convert_duration - 1) * $upah_sejam * 2 : 0;
                 $nominal_lembur = $jam_pertama + $jam_kedua;
 
                 if($convert_duration >= 4){
@@ -1683,8 +1683,8 @@ class LembureController extends Controller
             if($jabatan_id >= 5){
 
                 //lOGIC AFTER REVISI
-                $delapan_jam_pertama = $convert_duration < 9 ? ($convert_duration * $upah_sejam * 2) : (8 * $upah_sejam * 2);
-                $jam_ke_sembilan = $convert_duration >= 9 && $convert_duration < 10 ? (($convert_duration - 8) * $upah_sejam * 3) : ($convert_duration >= 10 ? $upah_sejam * 3 : 0);
+                $delapan_jam_pertama = $convert_duration <= 8 ? ($convert_duration * $upah_sejam * 2) : (8 * $upah_sejam * 2);
+                $jam_ke_sembilan = $convert_duration > 8 && $convert_duration <= 9 ? (($convert_duration - 8) * $upah_sejam * 3) : ($convert_duration > 9 ? $upah_sejam * 3 : 0);
                 $jam_ke_sepuluh = $convert_duration >= 10 ? ($convert_duration - 9) * $upah_sejam * 4 : 0;
                 $nominal_lembur = $delapan_jam_pertama + $jam_ke_sembilan + $jam_ke_sepuluh;
 

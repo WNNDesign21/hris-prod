@@ -19,6 +19,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
+use App\Helpers\SendWhatsappNotification;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Style\Color;
@@ -1038,7 +1039,13 @@ class CutieController extends Controller
             ]);
 
             $approval_cuti = ApprovalCuti::storeApprovalCuti($cuti->id_cuti, $posisi);
-
+            $karyawan = Karyawan::find($karyawan_id);
+            // $message = "Nama : *" . $karyawan->nama . "*\n" .
+            //         "Jenis : " . $jenis_cuti . "\n" .
+            //         "Segera lakukan approval sebelum tanggal " . Carbon::parse($rencana_mulai_cuti)->format('d M Y') . ",\n" .
+            //         "Klik link dibawah untuk melakukan approval \n" .
+            //         "https://server.tricentrumfortuna.com:699/cutie/member-cuti";
+            // $this->send_whatsapp($karyawan_id, $approval_cuti->checked1_for, $message, $organisasi_id);
             $data = [
                 'sisa_cuti_tahunan' => $kry->sisa_cuti_pribadi + $kry->sisa_cuti_bersama,
                 'sisa_cuti_pribadi' => $kry->sisa_cuti_pribadi,
@@ -1088,6 +1095,7 @@ class CutieController extends Controller
         $rencana_selesai_cuti = $request->rencana_selesai_cuti;
         $alasan_cuti = $request->alasan_cuti;
         $durasi_cuti = $request->durasi_cuti;
+        $organisasi_id = auth()->user()->organisasi_id;
 
         DB::beginTransaction();
         try{
@@ -1148,7 +1156,12 @@ class CutieController extends Controller
             ]);
 
             $approval_cuti = ApprovalCuti::storeApprovalCuti($cuti->id_cuti, $posisi);
-
+            // $message = "Nama : *" . $karyawan->nama . "*\n" .
+            //         "Jenis Cuti : PRIBADI (BYPASS) \n" .
+            //         "Pembuat dokumen tetap harus melakukan approval \nSegera lakukan approval pada sistem.\n" .
+            //         "Klik link dibawah untuk melakukan approval \n" .
+            //         "https://server.tricentrumfortuna.com:699/cutie/member-cuti";
+            // $this->send_whatsapp($id_karyawan, $approval_cuti->checked1_for, $message, $organisasi_id);
             DB::commit();
             return response()->json(['message' => 'Bypass Cuti Berhasil Dilakukan!'], 200);
         } catch(Throwable $error){
@@ -1423,6 +1436,7 @@ class CutieController extends Controller
         $type = $request->type;
         $issued_name = $request->issued_name;
         $issued_id = $request->issued_id;
+        $organisasi_id = auth()->user()->organisasi_id;
 
         if($type !== 'legalized'){
             $dataValidate = [
@@ -1457,6 +1471,13 @@ class CutieController extends Controller
                     'checked1_by' => $posisi,
                     'checked1_karyawan_id' => $issued_id
                 ]);
+
+                // $message = "Nama : *" . $cuti->karyawan->nama . "*\n" .
+                //         "Jenis Cuti : " . $cuti->jenis_cuti . "\n" .
+                //         "Segera lakukan approval sebelum tanggal " . Carbon::parse($cuti->rencana_mulai_cuti)->format('d M Y') . ",\n" .
+                //         "Klik link dibawah untuk melakukan approval \n" .
+                //         "https://server.tricentrumfortuna.com:699/cutie/member-cuti";
+                // $this->send_whatsapp($cuti->karyawan->id_karyawan, $cuti->approval->checked2_for, $message, $organisasi_id);
             } elseif ($type == 'checked_2'){
                 $posisi = Karyawan::find($issued_id)->posisi[0]->id_posisi;
                 if(!$cuti->checked1_by){
@@ -1475,6 +1496,13 @@ class CutieController extends Controller
                     'checked2_by' => $posisi,
                     'checked2_karyawan_id' => $issued_id
                 ]);
+
+                // $message = "Nama : *" . $cuti->karyawan->nama . "*\n" .
+                //         "Jenis Cuti : " . $cuti->jenis_cuti . "\n" .
+                //         "Segera lakukan approval sebelum tanggal " . Carbon::parse($cuti->rencana_mulai_cuti)->format('d M Y') . ",\n" .
+                //         "Klik link dibawah untuk melakukan approval \n" .
+                //         "https://server.tricentrumfortuna.com:699/cutie/member-cuti";
+                // $this->send_whatsapp($cuti->karyawan->id_karyawan, $cuti->approval->approved_for, $message, $organisasi_id);
             } elseif ($type == 'approved'){
                 $posisi = Karyawan::find($issued_id)->posisi[0]->id_posisi;
                 if(!$cuti->checked1_by){
@@ -2408,5 +2436,34 @@ class CutieController extends Controller
             $data[] = $ps->id_posisi;
         }
         return $data;
+    }
+
+    function send_whatsapp($id_karyawan, $for_posisi, $message, $organisasi_id)
+    {
+        $karyawan = Karyawan::find($id_karyawan);
+        $karyawanPosisi = Posisi::where('id_posisi', $for_posisi)->first();
+        $phoneNumbers = [];
+        
+        if ($karyawanPosisi){
+            $karyawanPosisis = $karyawanPosisi->karyawan;
+            foreach($karyawanPosisis as $kp){
+                $phoneNumber = $kp->no_telp;
+                if (substr($phoneNumber, 0, 1) == '0') {
+                    $phoneNumber = '62' . substr($phoneNumber, 1);
+                }
+                $phoneNumbers[] = $phoneNumber . '@c.us';
+            }
+
+            if(count($phoneNumbers) > 0){
+                $phoneNumber = $phoneNumbers;
+            } else {
+                $phoneNumber = $phoneNumbers[0];
+            }
+            
+            SendWhatsappNotification::send($message, $organisasi_id, $phoneNumber);
+        } else {
+            DB::rollback();
+            return response()->json(['message' => 'Karyawan tidak memiliki atasan, hubungi HRD untuk informasi lebih lanjut!'], 402);
+        }
     }
 }

@@ -267,8 +267,8 @@ class KaryawanController extends Controller
             'no_telp_darurat' => ['required','numeric'],
             'email' => ['required', 'email', 'unique:karyawans,email'],
             'npwp' => ['required'],
-            'no_bpjs_ks' => ['required','numeric'],
-            'no_bpjs_kt' => ['required','numeric'],
+            'no_bpjs_ks' => ['required'],
+            'no_bpjs_kt' => ['required'],
             'no_rekening' => ['required', 'numeric'],
             'nama_rekening' => ['required', 'string'],
             'nama_bank' => ['required', 'string'],
@@ -285,7 +285,8 @@ class KaryawanController extends Controller
         $validator = Validator::make(request()->all(), $dataValidate);
     
         if ($validator->fails()) {
-            return response()->json(['message' => 'Fill your input correctly!'], 402);
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
         }
 
         $nama = $request->nama;

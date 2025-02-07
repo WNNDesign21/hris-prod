@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use App\Models\Attendance\ScanlogDetail;
+use App\Helpers\SendWhatsappNotification;
 use Illuminate\Support\Facades\Validator;
 use App\Models\StockOpname\StockOpnameUpload;
 
@@ -348,5 +349,14 @@ class TestController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => 'Failed to get WhatsApp group'], 500);
         }
+    }
+
+    public function send_whatsapp_message_v2()
+    {
+        $organisasi_id = auth()->user()->organisasi_id;
+        $message = 'Test API from LARAVEL 14.50';
+        $phone_number = '628987335266@c.us';
+        $result = SendWhatsappNotification::send($message, $organisasi_id, $phone_number);
+        dd($result);
     }
 }
