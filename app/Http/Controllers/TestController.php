@@ -330,6 +330,7 @@ class TestController extends Controller
 
     public function start_whatsapp_client()
     {
+        $client = new Client();
         $url = env('API_URL_WHATSAPP').env('CLIENT_ID_TCF2 ').'/start-client';
         $body = [];
         
@@ -349,6 +350,7 @@ class TestController extends Controller
 
     public function add_whatsapp_user()
     {
+        $client = new Client();
         $url = env('API_URL_WHATSAPP').'add-user';
         $body = [
             'email' => 'personalia2@tcf.com',
@@ -372,6 +374,7 @@ class TestController extends Controller
 
     public function add_whatsapp_device()
     {
+        $client = new Client();
         $url = env('API_URL_WHATSAPP').'add-device';
         $body = [
             'user_id' => env('CLIENT_ID_TCF2'),
