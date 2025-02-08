@@ -1044,7 +1044,7 @@ class CutieController extends Controller
                     "Jenis : " . $jenis_cuti . "\n" .
                     "Segera lakukan approval sebelum tanggal " . Carbon::parse($rencana_mulai_cuti)->format('d M Y') . ",\n" .
                     "Klik link dibawah untuk melakukan approval \n" .
-                    $organisasi_id == 1 ? env('URL_SERVER_HRIS_TCF2') : env('URL_SERVER_HRIS_TCF3')."/cutie/member-cuti";
+                    ($organisasi_id == 1 ? env('URL_SERVER_HRIS_TCF2') : env('URL_SERVER_HRIS_TCF3'))."/cutie/member-cuti";
             $this->send_whatsapp($karyawan_id, $approval_cuti->checked1_for, $message, $organisasi_id);
             $data = [
                 'sisa_cuti_tahunan' => $kry->sisa_cuti_pribadi + $kry->sisa_cuti_bersama,
@@ -1160,7 +1160,7 @@ class CutieController extends Controller
                     "Jenis Cuti : PRIBADI (BYPASS) \n" .
                     "Pembuat dokumen tetap harus melakukan approval \nSegera lakukan approval pada sistem.\n" .
                     "Klik link dibawah untuk melakukan approval \n" .
-                    $organisasi_id == 1 ? env('URL_SERVER_HRIS_TCF2') : env('URL_SERVER_HRIS_TCF3')."cutie/member-cuti";
+                    ($organisasi_id == 1 ? env('URL_SERVER_HRIS_TCF2') : env('URL_SERVER_HRIS_TCF3'))."cutie/member-cuti";
             $this->send_whatsapp($id_karyawan, $approval_cuti->checked1_for, $message, $organisasi_id);
             DB::commit();
             return response()->json(['message' => 'Bypass Cuti Berhasil Dilakukan!'], 200);
@@ -1476,7 +1476,7 @@ class CutieController extends Controller
                         "Jenis Cuti : " . $cuti->jenis_cuti . "\n" .
                         "Segera lakukan approval sebelum tanggal " . Carbon::parse($cuti->rencana_mulai_cuti)->format('d M Y') . ",\n" .
                         "Klik link dibawah untuk melakukan approval \n" .
-                        $organisasi_id == 1 ? env('URL_SERVER_HRIS_TCF2') : env('URL_SERVER_HRIS_TCF3')."cutie/member-cuti";
+                        ($organisasi_id == 1 ? env('URL_SERVER_HRIS_TCF2') : env('URL_SERVER_HRIS_TCF3'))."cutie/member-cuti";
                 $this->send_whatsapp($cuti->karyawan->id_karyawan, $cuti->approval->checked2_for, $message, $organisasi_id);
             } elseif ($type == 'checked_2'){
                 $posisi = Karyawan::find($issued_id)->posisi[0]->id_posisi;
@@ -1501,7 +1501,7 @@ class CutieController extends Controller
                         "Jenis Cuti : " . $cuti->jenis_cuti . "\n" .
                         "Segera lakukan approval sebelum tanggal " . Carbon::parse($cuti->rencana_mulai_cuti)->format('d M Y') . ",\n" .
                         "Klik link dibawah untuk melakukan approval \n" .
-                        $organisasi_id == 1 ? env('URL_SERVER_HRIS_TCF2') : env('URL_SERVER_HRIS_TCF3')."cutie/member-cuti";
+                        ($organisasi_id == 1 ? env('URL_SERVER_HRIS_TCF2') : env('URL_SERVER_HRIS_TCF3'))."cutie/member-cuti";
                 $this->send_whatsapp($cuti->karyawan->id_karyawan, $cuti->approval->approved_for, $message, $organisasi_id);
             } elseif ($type == 'approved'){
                 $posisi = Karyawan::find($issued_id)->posisi[0]->id_posisi;
