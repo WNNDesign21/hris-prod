@@ -332,7 +332,6 @@ class TestController extends Controller
     {
         $client = new Client();
         $url = env('API_URL_WHATSAPP').env('CLIENT_ID_TCF2').'/start-client';
-        $body = [];
         
         $headers = [
             'Content-Type' => 'application/json',
@@ -340,12 +339,11 @@ class TestController extends Controller
             'x-api-key' => env('API_KEY_WHATSAPP'),
         ];
 
-        $response = $client->post($url, [
+        $response = $client->get($url, [
             'headers' => $headers,
-            'json' => $body,
         ]);
 
-        return response()->json($response->getBody(), $response->getStatusCode());
+        return response()->json(json_decode($response->getBody(), true), $response->getStatusCode());
     }
 
     public function add_whatsapp_user()
