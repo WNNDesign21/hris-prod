@@ -328,6 +328,71 @@ class TestController extends Controller
         }
     }
 
+    public function start_whatsapp_client()
+    {
+        $url = env('API_URL_WHATSAPP').env('CLIENT_ID_TCF2 ').'/start-client';
+        $body = [];
+        
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
+            'x-api-key' => env('API_KEY_WHATSAPP'),
+        ];
+
+        $response = $client->post($url, [
+            'headers' => $headers,
+            'json' => $body,
+        ]);
+
+        return response()->json($response->getBody(), $response->getStatusCode());
+    }
+
+    public function add_whatsapp_user()
+    {
+        $url = env('API_URL_WHATSAPP').'add-user';
+        $body = [
+            'email' => 'personalia2@tcf.com',
+            'password' => 'nevergiveup',
+            'name' => 'NOTIFICATION BOT TCF2',
+        ];
+        
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
+            'x-api-key' => env('API_KEY_WHATSAPP'),
+        ];
+
+        $response = $client->post($url, [
+            'headers' => $headers,
+            'json' => $body,
+        ]);
+
+        return response()->json($response->getBody(), $response->getStatusCode());
+    }
+
+    public function add_whatsapp_device()
+    {
+        $url = env('API_URL_WHATSAPP').'add-device';
+        $body = [
+            'user_id' => env('CLIENT_ID_TCF2'),
+            'name' => 'NOTIFICATION BOT TCF2',
+            'phone_number' => '087887736910',
+        ];
+        
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Accept' => 'application/json',
+            'x-api-key' => env('API_KEY_WHATSAPP'),
+        ];
+
+        $response = $client->post($url, [
+            'headers' => $headers,
+            'json' => $body,
+        ]);
+
+        return response()->json($response->getBody(), $response->getStatusCode());
+    }
+
     public function get_whatsapp_group()
     {
         $client = new Client();

@@ -57,6 +57,9 @@ Route::group(['middleware' => ['auth']], function () {
 
     //WHATSAPP API
     Route::get('/send-whatsapp', [TestController::class, 'send_whatsapp_message_v2']);
+    Route::get('/add-whatsapp-user', [TestController::class, 'add_whatsapp_user']);
+    Route::get('/get-whatsapp-device', [TestController::class, 'get_whatsapp_device']);
+    Route::get('/start-whatsapp-client', [TestController::class, 'start_whatsapp_client']);
     
     /** MASTER DATA - AJAX */
     Route::get('/master-data/posisi/get-data-by-jabatan/{idJabatan}', [PosisiController::class, 'get_data_by_jabatan']);
