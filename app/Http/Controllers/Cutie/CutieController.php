@@ -1044,7 +1044,7 @@ class CutieController extends Controller
                     "Jenis : " . $jenis_cuti . "\n" .
                     "Segera lakukan approval sebelum tanggal " . Carbon::parse($rencana_mulai_cuti)->format('d M Y') . ",\n" .
                     "Klik link dibawah untuk melakukan approval \n" .
-                    ($organisasi_id == 1 ? env('URL_SERVER_HRIS_TCF2') : env('URL_SERVER_HRIS_TCF3'))."/cutie/member-cuti";
+                    ($organisasi_id == 1 ? env('URL_SERVER_HRIS_TCF2') : env('URL_SERVER_HRIS_TCF3'))."cutie/member-cuti";
             $this->send_whatsapp($karyawan_id, $approval_cuti->checked1_for, $message, $organisasi_id);
             $data = [
                 'sisa_cuti_tahunan' => $kry->sisa_cuti_pribadi + $kry->sisa_cuti_bersama,

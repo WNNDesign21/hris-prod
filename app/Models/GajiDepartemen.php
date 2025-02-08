@@ -77,7 +77,7 @@ class GajiDepartemen extends Model
         return self::_query($dataFilter)->get()->count();
     }
 
-    public static function getMonthlyNominalBatasAllDepartemen()
+    public static function getMonthlyNominalBatasAllDepartemen($dataFilter)
     {
         $organisasi_id = auth()->user()->organisasi_id;
         $data = self::selectRaw(
@@ -131,7 +131,7 @@ class GajiDepartemen extends Model
         return $data->first();
     }
 
-    public static function getCurrentMonthNominalBatasPerDepartemen()
+    public static function getCurrentMonthNominalBatasPerDepartemen($dataFilter)
     {
         $organisasi_id = auth()->user()->organisasi_id;
         $data = self::selectRaw(
@@ -146,11 +146,11 @@ class GajiDepartemen extends Model
         }
 
         if(isset($dataFilter['year'])){
-            $data->whereYear('gaji_departemens.periode.tanggal_lembur', $dataFilter['year']);
+            $data->whereYear('gaji_departemens.periode', $dataFilter['year']);
         }
 
         if(isset($dataFilter['month'])){
-            $data->whereMonth('gaji_departemens.periode.tanggal_lembur', $dataFilter['month']);
+            $data->whereMonth('gaji_departemens.periode', $dataFilter['month']);
         }
 
         if(auth()->user()->hasRole('atasan') && (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id == 3 || auth()->user()->karyawan->posisi[0]->jabatan_id == 4))) {
@@ -167,7 +167,8 @@ class GajiDepartemen extends Model
             }
         }
         
-        $data->whereNotNull('departemens.nama')->groupBy('departemens.nama','departemens.id_departemen');
+        $data->whereNotNull('departemens.nama')->groupBy('departemens.nama','departemens.id_departemen')
+        ->orderBy('departemens.nama');
 
         return $data->get();
     }
