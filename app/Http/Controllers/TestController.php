@@ -331,7 +331,7 @@ class TestController extends Controller
     public function start_whatsapp_client()
     {
         $client = new Client();
-        $url = env('API_URL_WHATSAPP').env('CLIENT_ID_TCF2 ').'/start-client';
+        $url = env('API_URL_WHATSAPP').env('CLIENT_ID_TCF2').'/start-client';
         $body = [];
         
         $headers = [
@@ -352,6 +352,7 @@ class TestController extends Controller
     {
         $client = new Client();
         $url = env('API_URL_WHATSAPP').'add-user';
+        $organisasi_id = auth()->user()->organisasi_id;
         $body = [
             'email' => 'personalia2@tcf.com',
             'password' => 'nevergiveup',
@@ -376,8 +377,9 @@ class TestController extends Controller
     {
         $client = new Client();
         $url = env('API_URL_WHATSAPP').'add-device';
+        $organisasi_id = auth()->user()->organisasi_id;
         $body = [
-            'user_id' => env('CLIENT_ID_TCF2'),
+            'user_id' => $organisasi_id == 1 ? env('CLIENT_ID_TCF2') : env('CLIENT_ID_TCF3'),
             'name' => 'NOTIFICATION BOT TCF2',
             'phone_number' => '087887736910',
         ];
