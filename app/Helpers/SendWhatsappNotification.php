@@ -4,6 +4,7 @@ namespace App\Helpers;
 
 use Throwable;
 use GuzzleHttp\Client;
+use App\Jobs\SendWhatsappNotificationJob;
 
 class SendWhatsappNotification
 {
