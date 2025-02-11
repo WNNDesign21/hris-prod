@@ -33,12 +33,10 @@ class KaryawanController extends Controller
     {
         $departemen = Departemen::all();
         $posisi = Posisi::all();
-        $grup = Grup::all();
         $dataPage = [
             'pageTitle' => "Master Data - Karyawan",
             'page' => 'masterdata-karyawan',
             'departemen' => $departemen,
-            'grup' => $grup,
         ];
         return view('pages.master-data.karyawan.index', $dataPage);
     }
@@ -277,7 +275,6 @@ class KaryawanController extends Controller
             'jurusan_pendidikan' => ['required', 'string'],
             'tanggal_mulai' => ['required', 'date_format:Y-m-d'],
             'posisi.*' => ['required'],
-            'grup' => ['required'],
             'foto' => ['image', 'mimes:jpeg,png,jpg', 'max:2048'],
             'isAdmin' => ['in:Y']
         ];
@@ -316,7 +313,6 @@ class KaryawanController extends Controller
         $jurusan_pendidikan = $request->jurusan_pendidikan;
         $posisi = $request->posisi;
         $tanggal_mulai = $request->tanggal_mulai;
-        $grup_id = $request->grup;
         $user_id = $request->user_id;
         $email_akun = $request->email_akun;
         $username = $request->username;
@@ -389,7 +385,6 @@ class KaryawanController extends Controller
                 'nama_ibu_kandung' => $nama_ibu_kandung,
                 'jenjang_pendidikan' => $jenjang_pendidikan,
                 'jurusan_pendidikan' => $jurusan_pendidikan,
-                'grup_id' => $grup_id,
                 'tanggal_mulai' => $tanggal_mulai,
             ]);
 
@@ -467,7 +462,6 @@ class KaryawanController extends Controller
             'jenjang_pendidikanEdit' => ['required','string'],
             'jurusan_pendidikanEdit' => ['required','string'],
             'posisiEdit.*' => ['required'],
-            'grupEdit' => ['required'],
             'fotoEdit' => ['image', 'mimes:jpeg,png,jpg', 'max:2048'],
             'sisa_cuti_pribadiEdit' => ['required','numeric'],
             'sisa_cuti_bersamaEdit' => ['required','numeric'],
@@ -509,7 +503,6 @@ class KaryawanController extends Controller
         $jenjang_pendidikan = $request->jenjang_pendidikanEdit;
         $jurusan_pendidikan = $request->jurusan_pendidikanEdit;
         $posisi = $request->posisiEdit;
-        $grup_id = $request->grupEdit;
         $foto = $request->file('fotoEdit');
         $sisa_cuti_pribadi = $request->sisa_cuti_pribadiEdit;
         $sisa_cuti_bersama = $request->sisa_cuti_bersamaEdit;
@@ -544,7 +537,6 @@ class KaryawanController extends Controller
             $karyawan->nama_ibu_kandung = $nama_ibu_kandung;
             $karyawan->jenjang_pendidikan = $jenjang_pendidikan;
             $karyawan->jurusan_pendidikan = $jurusan_pendidikan;
-            $karyawan->grup_id = $grup_id;
             $karyawan->sisa_cuti_pribadi = $sisa_cuti_pribadi;
             $karyawan->sisa_cuti_bersama = $sisa_cuti_bersama;
             $karyawan->sisa_cuti_tahun_lalu = $sisa_cuti_tahun_lalu;

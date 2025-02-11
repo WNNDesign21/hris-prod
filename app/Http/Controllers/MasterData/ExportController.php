@@ -13,6 +13,7 @@ use App\Models\Kontrak;
 use App\Models\Karyawan;
 use App\Models\Departemen;
 use App\Models\Organisasi;
+use App\Models\GrupPattern;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -136,13 +137,16 @@ class ExportController extends Controller
         //Grup
         $request->grup == 'Y' ? $grup = Grup::all() : $grup = [];
 
+        //Grup
+        $request->grup_pattern == 'Y' ? $grup_pattern = GrupPattern::where('organisasi_id', auth()->user()->organisasi_id)->get() : $grup_pattern = [];
+
         //Jabatan
         $request->jabatan == 'Y' ? $jabatan = Jabatan::all() : $jabatan = [];
         
         //Organisasi
         $request->organisasi == 'Y' ? $organisasi = Organisasi::all() : $organisasi = [];
 
-        if(empty($karyawan) && empty($karyawan_nonaktif) && empty($posisi) && empty($divisi) && empty($departemen) && empty($seksi) && empty($grup) && empty($jabatan) && empty($organisasi)){
+        if(empty($karyawan) && empty($karyawan_nonaktif) && empty($posisi) && empty($divisi) && empty($departemen) && empty($seksi) && empty($grup) && empty($jabatan) && empty($organisasi) && empty($grup_pattern)){
             $spreadsheet = new Spreadsheet();
             $writer = new Xlsx($spreadsheet);
 
@@ -677,6 +681,47 @@ class ExportController extends Controller
             foreach ($grup as $data) {
                 $sheet->setCellValue('A' . $row, $data->id_grup);
                 $sheet->setCellValue('B' . $row, $data->nama);
+                $row++;
+            }
+        }
+
+        if(!empty($grup_pattern)){
+            $sheet = $spreadsheet->createSheet();
+            $sheet->setTitle('Shift Pattern');
+
+            $row = 1;
+            $col = 'A';
+
+            $headers = [
+                'ID SHIFT PATTERN',
+                'NAMA SHIFT PATTERN',
+                'URUTAN SHIFT',
+            ];
+
+            foreach ($headers as $header) {
+                $sheet->setCellValue($col . '1', $header);
+                $sheet->getStyle($col . '1')->applyFromArray($fillStyle);
+                $col++;
+            }
+
+            $row = 2;
+
+            $columns = range('A', 'C');
+            foreach ($columns as $column) {
+                $sheet->getColumnDimension($column)->setAutoSize(true);
+            }
+            $sheet->setAutoFilter('A1:C1');
+
+            foreach ($grup_pattern as $data) {
+                $urutan = json_decode($data->urutan);
+                $urutan = implode(' , ', array_map(function($id) {
+                    $grup = Grup::find($id);
+                    return $grup ? Carbon::parse($grup->jam_masuk)->format('H:i') . ' - ' . Carbon::parse($grup->jam_keluar)->format('H:i') : '';
+                }, $urutan));
+
+                $sheet->setCellValue('A' . $row, $data->id_grup_pattern);
+                $sheet->setCellValue('B' . $row, $data->nama);
+                $sheet->setCellValue('C' . $row, $urutan);
                 $row++;
             }
         }

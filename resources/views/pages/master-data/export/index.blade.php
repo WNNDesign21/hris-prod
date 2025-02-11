@@ -90,6 +90,13 @@
                                 </label>
                                 <hr>
 
+                                <input type="checkbox" id="grup_pattern" name="grup_pattern" value="Y"
+                                    class="filled-in chk-col-primary" />
+                                <label for="grup_pattern">
+                                    <h5 class="text-bold">Shift Pattern</h5>
+                                </label>
+                                <hr>
+
                                 <input type="checkbox" id="jabatan" name="jabatan" value="Y"
                                     class="filled-in chk-col-primary" />
                                 <label for="jabatan">

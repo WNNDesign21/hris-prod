@@ -265,7 +265,7 @@ $(function () {
         $("#jenjang_pendidikan").val("");
         $("#no_telp_darurat").val("");
         $('#status_karyawan').val("");
-        $('#grup').val("");
+        // $('#grup').val("");
         $('#posisi').val("");
     }
 
@@ -315,22 +315,22 @@ $(function () {
             },
         });
 
-        $('#grup').select2({
-            dropdownParent: $('#modal-input-karyawan'),
-            ajax: {
-                url: base_url + "/master-data/grup/get-data-grup",
-                type: "post",
-                dataType: "json",
-                delay: 250,
-                data: function (params) {
-                    return {
-                        search: params.term || "",
-                        page: params.page || 1,
-                    };
-                },
-                cache: true,
-            },
-        });
+        // $('#grup').select2({
+        //     dropdownParent: $('#modal-input-karyawan'),
+        //     ajax: {
+        //         url: base_url + "/master-data/grup/get-data-grup",
+        //         type: "post",
+        //         dataType: "json",
+        //         delay: 250,
+        //         data: function (params) {
+        //             return {
+        //                 search: params.term || "",
+        //                 page: params.page || 1,
+        //             };
+        //         },
+        //         cache: true,
+        //     },
+        // });
     
         $('#posisi').select2({
             dropdownParent: $('#modal-input-karyawan'),
@@ -406,7 +406,7 @@ $(function () {
             dropdownParent: $('#modal-edit-karyawan'),
         });
 
-        selectGrupEdit(grupId);
+        // selectGrupEdit(grupId);
         selectPosisiEdit(posisi);
     };
 
