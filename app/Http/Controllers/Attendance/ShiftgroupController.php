@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Attendance;
 
 use Throwable;
+use Carbon\Carbon;
 use App\Models\Grup;
 use App\Models\Karyawan;
+use App\Models\GrupPattern;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -18,11 +20,12 @@ class ShiftgroupController extends Controller
      */
     public function index()
     {
-        $grups = Grup::all();
+        $organisasi_id = auth()->user()->organisasi_id;
+        $grup_patterns = GrupPattern::where('organisasi_id', $organisasi_id)->get();
         $dataPage = [
             'pageTitle' => "Attendance-E - Shift Group",
             'page' => 'attendance-shiftgroup',
-            'grups' => $grups,
+            'grup_patterns' => $grup_patterns,
         ];
         return view('pages.attendance-e.shiftgroup.index', $dataPage);
     }
@@ -52,11 +55,6 @@ class ShiftgroupController extends Controller
             $dataFilter['search'] = $search;
         }
 
-        // $filterDepartemen = $request->departemen;
-        // if (isset($filterDepartemen)){
-        //     $dataFilter['departemen'] = $filterDepartemen;
-        // }
-
         if(auth()->user()->hasRole('admin-dept')){
             $departemen = auth()->user()->karyawan->posisi[0]->departemen_id;
             $dataFilter['departemen'] = $departemen;
@@ -76,13 +74,20 @@ class ShiftgroupController extends Controller
 
         if (!empty($grup)) {
             foreach ($grup as $data) {
+                if ($data->jam_masuk && $data->jam_keluar) {
+                    $current_shift = $data->grup.' ('.Carbon::parse($data->jam_masuk)->format('H:i').' - '.Carbon::parse($data->jam_keluar)->format('H:i').')';
+                } else {
+                    $current_shift = '';
+                }
+
                 $nestedData['departemen'] = $data->departemen ?? $data->divisi ?? '-';
                 $nestedData['karyawan'] = $data->nama;
                 $nestedData['pin'] = $data->pin;
-                $nestedData['shift'] = $data->grup;
+                $nestedData['current_shift'] = $current_shift;
+                $nestedData['pola_shift'] = $data->grup_pattern;
                 $nestedData['aksi'] = '
                 <div class="btn-group">
-                    <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" data-id-karyawan="'.$data->id_karyawan.'" data-id-grup="'.$data->grup_id.'" data-pin="'.$data->pin.'"><i class="fas fa-edit"></i></button>
+                    <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" data-id-karyawan="'.$data->id_karyawan.'" data-id-grup="'.$data->grup_id.'" data-pin="'.$data->pin.'" data-id-grup-pattern="'.$data->grup_pattern_id.'"><i class="fas fa-edit"></i></button>
                 </div>
                 ';
 
@@ -145,16 +150,25 @@ class ShiftgroupController extends Controller
                     $karyawanList = Karyawan::whereIn('ni_karyawan', $niKaryawanList)->get()->keyBy('ni_karyawan');
 
                     foreach ($data as $key => $row) {
+                        if($row[6] !== null){
+                            try {
+                                $active_date = Carbon::createFromFormat('d/m/Y', $row[6])->subDay()->format('Y-m-d') . ' 23:45';
+                            } catch (Exception $e) {
+                                return response()->json(['message' => 'Format tanggal salah!'], 402);
+                            }
+                        } 
+                        
                         if (isset($karyawanList[$row[0]])) {
                             $karyawanList[$row[0]]->update([
-                                'grup_id' => $row[2]
+                                'grup_id' => $row[3],
+                                'grup_pattern_id' => $row[5]
                             ]);
 
-                            $grup = Grup::find($row[2]);
+                            $grup = Grup::find($row[3]);
                             $karyawanList[$row[0]]->karyawanGrup()->create([
-                                'grup_id' => $row[2],
+                                'grup_id' => $row[3],
                                 'pin' => $karyawanList[$row[0]]->pin,
-                                'active_date' => now(),
+                                'active_date' => $active_date,
                                 'organisasi_id' => $organisasi_id,
                                 'toleransi_waktu' => $grup->toleransi_waktu,
                                 'jam_masuk' => $grup->jam_masuk,
@@ -200,8 +214,8 @@ class ShiftgroupController extends Controller
     public function update(Request $request, string $id_karyawan)
     {
         $dataValidate = [
+            'grup_pattern_edit' => ['required', 'integer', 'regex:/^\d+$/'],
             'grup_edit' => ['required', 'integer', 'regex:/^\d+$/'],
-            // 'pin_edit' => ['required', 'integer', 'regex:/^\d+$/'],
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -215,6 +229,7 @@ class ShiftgroupController extends Controller
         try {
             $karyawan = Karyawan::find($id_karyawan);
             $karyawan->grup_id = $request->grup_edit;
+            $karyawan->grup_pattern_id = $request->grup_pattern_edit;
             $karyawan->save();
 
             $grup = Grup::find($request->grup_edit);
@@ -242,5 +257,17 @@ class ShiftgroupController extends Controller
     public function destroy(string $id)
     {
         //
+    }
+
+    public function get_data_grup_pattern(string $id)
+    {
+        try{
+            $grup_pattern = GrupPattern::find($id);
+            $grup_ids = json_decode($grup_pattern->urutan);
+            $grups = Grup::whereIn('id_grup', $grup_ids)->get();
+            return response()->json(['message' => 'Data Grup Berhasil Ditemukan!','data' => $grups], 200);
+        } catch (Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 }

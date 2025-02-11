@@ -68,7 +68,8 @@ class Karyawan extends Model
         'jurusan_pendidikan',
         'no_telp_darurat',
         'foto',
-        'pin'
+        'pin',
+        'grup_pattern_id'
     ];
 
     protected $dates = [
@@ -358,18 +359,20 @@ class Karyawan extends Model
             'divisis.nama as divisi',
             'grups.jam_masuk',
             'grups.jam_keluar',
+            'grup_patterns.nama as grup_pattern',
+            'karyawans.grup_pattern_id',
         );
 
-        $data->leftJoin('users', 'karyawans.user_id', 'users.id')
-        ->leftJoin('grups', 'karyawans.grup_id', 'grups.id_grup')
+        $data->leftJoin('grups', 'karyawans.grup_id', 'grups.id_grup')
         ->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
         ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
         ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
+        ->leftJoin('grup_patterns', 'karyawans.grup_pattern_id', 'grup_patterns.id_grup_pattern')
         ->leftJoin('divisis', 'departemens.divisi_id', 'divisis.id_divisi');
 
         $organisasi_id = auth()->user()->organisasi_id;
         if ($organisasi_id) {
-            $data->where('users.organisasi_id', $organisasi_id);
+            $data->where('karyawans.organisasi_id', $organisasi_id);
         }
 
         if(isset($dataFilter['departemen'])) {
@@ -387,6 +390,7 @@ class Karyawan extends Model
                     ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%")
                     ->orWhere('karyawans.pin', 'ILIKE', "%{$search}%")
                     ->orWhere('grups.nama', 'ILIKE', "%{$search}%")
+                    ->orWhere('grup_patterns.nama', 'ILIKE', "%{$search}%")
                     ->orWhere('departemens.nama', 'ILIKE', "%{$search}%");
             });
         }

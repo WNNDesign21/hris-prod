@@ -125,6 +125,9 @@ class GrupController extends Controller
             $dataFilter['search'] = $search;
         }
 
+        $organisasi_id = auth()->user()->organisasi_id;
+        $dataFilter['organisasi_id'] = $organisasi_id;
+
         $shift_pattern = GrupPattern::getData($dataFilter, $settings);
         $totalFiltered = GrupPattern::countData($dataFilter);
 
