@@ -47,6 +47,8 @@ class ExportSlipLemburJob implements ShouldQueue
     public function handle(): void
     {
         try{
+            $month = Carbon::createFromFormat('Y-m', $this->periode)->format('m');
+            $year = Carbon::createFromFormat('Y-m', $this->periode)->format('Y');
             //CREATE EXCEL FILE
             activity('export_slip_lembur_start')->log('Start Export Slip Lembur'.$this->departemen.' - '.Carbon::createFromFormat('Y-m', $this->periode)->format('F Y'));
             $spreadsheet = new Spreadsheet();
@@ -94,7 +96,8 @@ class ExportSlipLemburJob implements ShouldQueue
                 $query->where('posisis.departemen_id', $this->departemen_id);
             })
             ->where('detail_lemburs.organisasi_id', $this->organisasi_id)
-            ->whereBetween('detail_lemburs.aktual_mulai_lembur', [$this->start, $this->end])
+            ->whereMonth('detail_lemburs.aktual_mulai_lembur', $month)
+            ->whereYear('detail_lemburs.aktual_mulai_lembur', $year)
             ->groupBy('karyawans.id_karyawan', 'karyawans.nama', 'karyawans.ni_karyawan')
             ->get();
             
