@@ -8,6 +8,7 @@ use App\Models\Divisi;
 use App\Models\Posisi;
 use App\Models\Departemen;
 use App\Models\Organisasi;
+use App\Models\GrupPattern;
 use App\Models\SettingLemburKaryawan;
 use App\Models\Attendance\KaryawanGrup;
 use Illuminate\Database\Eloquent\Model;
@@ -122,6 +123,11 @@ class Karyawan extends Model
     public function karyawanGrup()
     {
         return $this->hasMany(KaryawanGrup::class, 'karyawan_id', 'id_karyawan');
+    }
+
+    public function grupPattern()
+    {
+        return $this->belongsTo(GrupPattern::class, 'grup_pattern_id', 'id_grup_pattern');
     }
 
     public function settingLembur()
