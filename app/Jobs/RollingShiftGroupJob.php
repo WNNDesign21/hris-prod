@@ -51,6 +51,9 @@ class RollingShiftGroupJob implements ShouldQueue
                             'jam_masuk' => $grup->jam_masuk,
                             'jam_keluar' => $grup->jam_keluar,
                         ]);
+                    } else {
+                        activity('error_rolling_shift_grup_karyawan')->log('Grup not found in Grup Pattern - ' . $karyawan->nama);
+                        continue;
                     }
                 } else {
                     activity('error_rolling_shift_grup_karyawan')->log('Grup pattern not found - ' . $karyawan->nama);
