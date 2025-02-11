@@ -75,6 +75,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::post('/master-data/grup/get-data-grup', [GrupController::class, 'get_data_grup']);
     Route::get('/master-data/grup/get-data-all-grup', [GrupController::class, 'get_data_all_grup']);
+    Route::get('/master-data/grup/get-data-grup-pattern/{idGrupPattern}', [GrupController::class, 'get_data_grup_pattern']);
     Route::post('/master-data/karyawan/get-data-user', [KaryawanController::class, 'get_data_user']);
     Route::post('/master-data/karyawan/get-data-karyawan', [KaryawanController::class, 'get_data_karyawan']);
     Route::get('/master-data/karyawan/get-data-detail-karyawan/{idKaryawan}', [KaryawanController::class, 'get_data_detail_karyawan']);
@@ -174,10 +175,14 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
 
             /** MASTER DATA - GRUP */
             Route::post('/grup/datatable', [GrupController::class, 'datatable']);
+            Route::post('/grup/shift-pattern-datatable', [GrupController::class, 'shift_pattern_datatable']);
             Route::get('/grup', [GrupController::class, 'index'])->name('master-data.grup');
             Route::post('/grup/store', [GrupController::class, 'store'])->name('master-data.grup.store');
             Route::delete('/grup/delete/{idGrup}', [GrupController::class, 'delete'])->name('master-data.grup.delete');
             Route::patch('/grup/update/{idGrup}', [GrupController::class, 'update'])->name('master-data.grup.update');
+            Route::post('/grup/store-shift-pattern', [GrupController::class, 'store_shift_pattern'])->name('master-data.grup.store-shift-pattern');
+            Route::delete('/grup/delete-shift-pattern/{idGrupPattern}', [GrupController::class, 'delete_shift_pattern'])->name('master-data.grup.delete-shift-pattern');
+            Route::patch('/grup/update-shift-pattern/{idGrupPattern}', [GrupController::class, 'update_shift_pattern'])->name('master-data.grup.update-shift-pattern');
 
             /** MASTER DATA - JABATAN */
             Route::post('/jabatan/datatable', [JabatanController::class, 'datatable']);
