@@ -45,12 +45,10 @@ class UpdateStatusOnleave extends Command
             }
 
             activity('update_status_onleave')->log('Update Status Onleave Cuti Otomatis per tanggal -'. $today);
-
             DB::commit();
-            $this->info('Status cuti karyawan berhasil diperbarui');
         } catch (Exception $e) {
             DB::rollBack();
-            $this->error('Gagal memperbarui status cuti karyawan');
+            activity('error_update_status_onleave')->log('Error Updating Status Onleave Cuti Otomatis per tanggal -'. $today);
         }
     }
 }

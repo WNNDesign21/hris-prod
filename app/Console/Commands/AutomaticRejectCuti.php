@@ -98,12 +98,10 @@ class AutomaticRejectCuti extends Command
                 }
             }
             activity('automatic_reject_cuti')->log('Reject Cuti Karyawan per tanggal -'. $today);
-            $this->info('Sisa cuti karyawan berhasil dikembalikan dan pengajuan cuti ditolak otomatis');
             DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
-            activity('automatic_reject_cuti')->log('Gagal reject cuti karyawan per tanggal -'. $today. ' Error: '. $e->getMessage());
-            $this->error('Terjadi kesalahan: ' . $e->getMessage());
+            activity('error_automatic_reject_cuti')->log('Gagal reject cuti karyawan per tanggal -'. $today. ' Error: '. $e->getMessage());
         }
     }
 }

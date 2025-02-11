@@ -5,6 +5,7 @@ namespace App\Jobs;
 use App\Models\Grup;
 use App\Models\Karyawan;
 use App\Models\GrupPattern;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -17,14 +18,6 @@ class RollingShiftGroupJob implements ShouldQueue
 
     public $timeout = 1800;
     public $tries = 3;
-
-    /**
-     * Create a new job instance.
-     */
-    public function __construct()
-    {
-        //
-    }
 
     /**
      * Execute the job.
@@ -64,7 +57,7 @@ class RollingShiftGroupJob implements ShouldQueue
                     continue;
                 }
             }
-            activity('success_rolling_shift_grup_karyawan')->log('Success rolling shift group karyawan - ' . now());
+            activity('success_rolling_shift_grup_karyawan')->log('Success rolling shift group karyawan - ' . $karyawan->nama .' - ' . now());
             DB::commit();
         } catch (Throwable $e) {
             DB::rollBack();
