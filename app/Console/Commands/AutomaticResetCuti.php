@@ -94,11 +94,9 @@ class AutomaticResetCuti extends Command
                 }
                 activity('automatic_reset_cuti')->log('Reset Cuti Karyawan per tanggal -'. $today);
                 DB::commit();
-                $this->info('Sisa cuti karyawan berhasil direset');
         } catch (Exception $e) {
             DB::rollBack();
-            activity('automatic_reset_cuti')->log('Error Reset Cuti Karyawan per tanggal -'. $today.'- '.$e->getMessage());
-            $this->error('Terjadi kesalahan: ' . $e->getMessage());
+            activity('error_automatic_reset_cuti')->log('Error Reset Cuti Karyawan per tanggal -'. $today.'- '.$e->getMessage());
         }
     }
 }

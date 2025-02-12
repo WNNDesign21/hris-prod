@@ -327,12 +327,6 @@
                                         id="posisi" name="posisi[]" style="width: 100%;" required>
                                     </select>
                                 </div>
-                                <div class="form-group">
-                                    <label class="form-label">Grup <span class="text-danger">*</span></label>
-                                    <select class="form-control" id="grup" name="grup" style="width: 100%;"
-                                        required>
-                                    </select>
-                                </div>
                                 <div class="form-group mb-0">
                                     <input type="checkbox" id="isAdmin" name="isAdmin" value="Y"
                                         class="filled-in chk-col-primary" />

@@ -28,6 +28,10 @@ class GrupPattern extends Model
             'urutan'
         );
 
+        if(isset($dataFilter['organisasi_id'])){
+            $data->where('organisasi_id', $dataFilter['organisasi_id']);
+        }
+
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
             $data->where(function ($query) use ($search) {

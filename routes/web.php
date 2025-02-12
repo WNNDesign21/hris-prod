@@ -113,6 +113,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/attendance/device/get-all-device', [DeviceController::class, 'get_all_device']);
     Route::post('/attendance/presensi/get-summary-presensi', [PresensiController::class, 'get_summary_presensi_html']);
     Route::post('/attendance/presensi/get-detail-presensi', [PresensiController::class, 'get_detail_presensi']);
+    Route::get('/attendance/shift-group/get-data-grup-pattern/{idGrupPattern}', [ShiftgroupController::class, 'get_data_grup_pattern']);
 });
 
 

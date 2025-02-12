@@ -48,7 +48,8 @@ $(function () {
         { data: "departemen" },
         { data: "karyawan" },
         { data: "pin" },
-        { data: "shift" },
+        { data: "current_shift" },
+        { data: "pola_shift" },
         { data: "aksi" },
     ];
 
@@ -183,19 +184,53 @@ $(function () {
         resetShiftgroupEdit();
     }
 
-    $('#grup_edit').select2({
+    $('#grup_pattern_edit').select2({
         dropdownParent: $('#modal-edit-shiftgroup'),
     });
 
     $('#shiftgroup-table').on("click", '.btnEdit', function (){
         let idKaryawan = $(this).data('id-karyawan');
         let idGrup = $(this).data('id-grup');
+        let idGrupPattern = $(this).data('id-grup-pattern');
         // let pin = $(this).data('pin');
 
         let url = base_url + '/attendance/shift-group/update/' + idKaryawan;
         $('#form-edit-shiftgroup').attr('action', url);
-        $('#grup_edit').val(idGrup).trigger('change');
-        // $('#pin_edit').val(pin);
+
+        $('#grup_pattern_edit').on('change', function (){
+            let idGrupPattern = $(this).val();
+            $('#current_shift').removeClass('d-none');
+            if (idGrupPattern == '') {
+                $('#current_shift').addClass('d-none');
+                $('#grup_edit').empty();
+                return;
+            }
+            let url = base_url + '/attendance/shift-group/get-data-grup-pattern/' + idGrupPattern;
+            $.ajax({
+                url: url,
+                method: "GET",
+                dataType: "JSON",
+                success: function (response) {
+                    let data = response.data;
+                    let select = $('#grup_edit').empty();
+                    select.append('<option value="">Pilih Grup</option>');
+                    $.each(data, function (key, value){
+                        select.append('<option value="' + value.id_grup + '">' + value.nama + ' (' +value.jam_masuk+ ' - ' + value.jam_keluar + ')' + '</option>');
+                    });
+    
+                    select.select2({
+                        dropdownParent: $('#modal-edit-shiftgroup'),
+                    });
+
+                    $('#grup_edit').val(idGrup).trigger('change');
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                }
+            })
+        })
+
+        $('#grup_pattern_edit').val(idGrupPattern).trigger('change');
         openShiftgroupEdit();
     })
 
@@ -204,7 +239,8 @@ $(function () {
     })
 
     function resetShiftgroupEdit() {
-        $('#grup_edit').val('');
+        $('#grup_edit').empty()
+        $('#grup_pattern_edit').val('').trigger('change');
         $('#form-edit-shiftgroup').attr('action', '#');
     }
 

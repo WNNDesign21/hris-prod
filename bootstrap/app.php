@@ -1,5 +1,6 @@
 <?php
 
+use App\Jobs\RollingShiftGroupJob;
 use Illuminate\Foundation\Application;
 use App\Http\Middleware\IzineMiddleware;
 use App\Http\Middleware\LembureMiddleware;
@@ -25,10 +26,33 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withSchedule(function (Schedule $schedule) {
-        $schedule->command('cutie:update-status-onleave')->dailyAt('08:00')->runInBackground();
-        $schedule->command('cutie:update-status-completed')->dailyAt('21:00')->runInBackground();
-        $schedule->command('cutie:automatic-reject-cuti')->dailyAt('23:00')->runInBackground();
-        $schedule->command('cutie:automatic-reset-cuti')->dailyAt('23:30')->runInBackground();
+        $schedule->command('cutie:update-status-completed')
+            ->dailyAt('21:00')
+            ->withoutOverlapping()
+            ->runInBackground()
+            ->onOneServer();
+
+        $schedule->command('cutie:update-status-onleave')
+            ->dailyAt('22:00')
+            ->withoutOverlapping()
+            ->runInBackground()
+            ->onOneServer();
+
+        $schedule->command('cutie:automatic-reject-cuti')
+            ->dailyAt('23:00')
+            ->withoutOverlapping()
+            ->runInBackground()
+            ->onOneServer();
+
+        $schedule->command('cutie:automatic-reset-cuti')
+            ->dailyAt('23:30')
+            ->withoutOverlapping()
+            ->runInBackground()
+            ->onOneServer();
+            
+        $schedule->job(new RollingShiftGroupJob)->dailyAt('23:45')
+            ->withoutOverlapping()
+            ->onOneServer();
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

@@ -880,13 +880,15 @@ class HomeController extends Controller
         ];
         $start = Carbon::createFromFormat('Y-m', $periode)->startOfMonth()->toDateString();
         $end = Carbon::createFromFormat('Y-m', $periode)->endOfMonth()->toDateString();
+        $month = Carbon::createFromFormat('Y-m', $periode)->format('m');
+        $year = Carbon::createFromFormat('Y-m', $periode)->format('Y');
 
         $columns = range('A', 'L');
         foreach ($columns as $column) {
             $sheet->getColumnDimension($column)->setAutoSize(true);
         }
 
-        $lembur_karyawan = DetailLembur::leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')->where('detail_lemburs.karyawan_id', $id_karyawan)->whereBetween('detail_lemburs.aktual_mulai_lembur', [$start, $end])->whereNotNull('lemburs.actual_legalized_by')
+        $lembur_karyawan = DetailLembur::leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')->where('detail_lemburs.karyawan_id', $id_karyawan)->whereMonth('detail_lemburs.aktual_mulai_lembur', $month)->whereYear('detail_lemburs.aktual_mulai_lembur', $year)->whereNotNull('lemburs.actual_legalized_by')
         ->where('lemburs.status', 'COMPLETED')->first();
         $setting_lembur_karyawan = SettingLemburKaryawan::where('karyawan_id', $id_karyawan)->first();
         $pembagi_upah_lembur_harian = SettingLembur::where('organisasi_id', auth()->user()->organisasi_id)->where('setting_name', 'pembagi_upah_lembur_harian')->first()->value;

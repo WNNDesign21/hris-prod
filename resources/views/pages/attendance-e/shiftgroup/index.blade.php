@@ -40,7 +40,8 @@
                                     <th>Departemen</th>
                                     <th>Karyawan</th>
                                     <th>PIN</th>
-                                    <th>Shift</th>
+                                    <th>Current Shift</th>
+                                    <th>Pola Shift</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>

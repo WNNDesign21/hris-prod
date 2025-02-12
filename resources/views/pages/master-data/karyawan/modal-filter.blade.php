@@ -32,15 +32,6 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">Grup</label>
-                                <select class="form-control" id="filterGrup" name="filterGrup" style="width: 100%;">
-                                    <option value="">Pilih Grup</option>
-                                    @foreach ($grup as $gp)
-                                        <option value="{{ $gp->id_grup }}">{{ $gp->nama }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="form-group">
                                 <label for="filterStatuskaryawan">Status Karyawan</label>
                                 <select name="filterStatuskaryawan" id="filterStatuskaryawan" class="form-control"
                                     style="width: 100%;">
