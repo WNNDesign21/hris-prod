@@ -1431,12 +1431,22 @@ $(function () {
                                 `+(val.durasi_rencana)+`
                             </td>
                             <td>
-                                ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N'  ? `<input id="aktual_mulai_lembur_aktual_${i}" name="mulai_lembur[]" type="datetime-local" class="form-control mulaiLembur ${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N'  ? 'bg-danger' : ''}""
-                                        data-td-target="#datetimepicker_mulai_aktual_${i}" data-urutan="${i}" data-mulai="${val.aktual_mulai_lembur}" required>` : `-`}
+                                ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N'  ? `<div class="input-group">
+                                    <input id="aktual_mulai_lembur_aktual_${i}" name="mulai_lembur[]" type="datetime-local" class="form-control mulaiLembur ${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N'  ? 'bg-danger' : ''}""
+                                        data-td-target="#datetimepicker_mulai_aktual_${i}" data-urutan="${i}" data-mulai="${val.aktual_mulai_lembur}" required>
+                                    <div class="input-group-append ml-2">
+                                        <button class="btn btn-info btnCrossCheck" type="button" data-id-karyawan="${val.karyawan_id}" data-date="${val.aktual_mulai_lembur.split('T')[0]}"><i class="fas fa-eye"></i></button>
+                                    </div>
+                                </div>` : `-`}
                             </td>
                             <td>
-                                ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N'  ? `<input id="aktual_selesai_lembur_aktual_${i}" name="selesai_lembur[]" type="datetime-local" class="form-control selesaiLembur ${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N'  ? 'bg-danger' : ''}""
-                                        data-td-target="#datetimepicker_selesai_aktual_${i}" data-urutan="${i}" data-selesai="${val.aktual_selesai_lembur}" required>` : `-`}
+                                ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N'  ? `<div class="input-group">
+                                    <input id="aktual_selesai_lembur_aktual_${i}" name="selesai_lembur[]" type="datetime-local" class="form-control selesaiLembur ${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N'  ? 'bg-danger' : ''}""
+                                        data-td-target="#datetimepicker_selesai_aktual_${i}" data-urutan="${i}" data-selesai="${val.aktual_selesai_lembur}" required>
+                                    <div class="input-group-append ml-2">
+                                        <button class="btn btn-info btnCrossCheck" type="button" data-id-karyawan="${val.karyawan_id}" data-date="${val.aktual_mulai_lembur.split('T')[0]}"><i class="fas fa-eye"></i></button>
+                                    </div>
+                                </div>` : `-`}
                             </td>
                             <td id="durasi-aktual-${i}"> 
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N' ? val.durasi_aktual : '-'}
@@ -1491,6 +1501,13 @@ $(function () {
                                 }
                             });
                         }
+                    });
+
+                    // DEFINE MODAL CROSS CHECK
+                    $('.btnCrossCheck').on('click', function(){
+                        let idKaryawan = $(this).data('id-karyawan');
+                        let date = $(this).data('date');
+                        getDataCrossCheck(idKaryawan, date);
                     });
 
                     $('#aktual_selesai_lembur_aktual_' + i).on('change', function(){
@@ -1682,7 +1699,7 @@ $(function () {
                                 <span id="rencana_selesai_lembur_detail_${i}"></span>
                             </td>
                             <td>
-                                `+val.durasi_rencana+`
+                                ${val.durasi_rencana} ${val.rencana_last_changed_by ? `<br><p class="text-fade">Last Changed : <br><small>${val.rencana_last_changed_by} <br>(${val.rencana_last_changed_at})</small></p>` : ''}
                             </td>
                             <td>
                                 <span id="aktual_mulai_lembur_detail_${i}"></span>
@@ -1691,13 +1708,13 @@ $(function () {
                                 <span id="aktual_selesai_lembur_detail_${i}"></span>
                             </td>
                             <td>
-                                `+val.durasi_aktual+`
+                                ${val.durasi_aktual} ${val.aktual_last_changed_by ? `<br><p class="text-fade">Last Changed : <br><small>${val.aktual_last_changed_by} <br>(${val.aktual_last_changed_at})</small></p>` : ''}
                             </td>
                             <td>
-                                `+(val.keterangan ? val.keterangan : '-')+`
+                                ${val.keterangan ? val.keterangan : '-'}
                             </td>
                             <td>
-                                `+val.nominal+`
+                                ${val.nominal}
                             </td>
                         </tr>
                     `)
@@ -1861,4 +1878,56 @@ $(function () {
         }
         approvalTable.draw();
     });
+
+    $('.btnCloseCC').on("click", function (){
+        closeCrossCheck();
+    })
+
+    var modalCrossCheckOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalCrossCheck = new bootstrap.Modal(
+        document.getElementById("modal-cross-check-approval-lembur"),
+        modalCrossCheckOptions
+    );
+    
+    function openCrossCheck() {
+        modalCrossCheck.show();
+    }
+
+    function closeCrossCheck() {
+        modalCrossCheck.hide();
+    }
+    
+    function getDataCrossCheck(idKaryawan, date)
+    {
+        loadingSwalShow();
+        $.ajax({
+            url: base_url + '/lembure/approval-lembur/get-list-data-cross-check',
+            method: 'POST',
+            data: { id_karyawan: idKaryawan, date: date },
+            dataType: 'JSON',
+            success: function(response) {
+                let data = response.data;
+                let body = $('#list-data-cross-check').empty();
+                $.each(data, function (i, val){
+                    body.append(`
+                        <div class="box">
+                            <div class="box-body p-4">
+                                <h4>${val.scan_date} WIB</h4>
+                            </div>
+                        </div>
+                    `)
+                });
+                loadingSwalClose();
+                openCrossCheck();
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            }
+        })
+    }
 });
