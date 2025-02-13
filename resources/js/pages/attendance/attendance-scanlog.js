@@ -140,16 +140,6 @@ $(function () {
             return;
         }
 
-        let start = new Date(startDate);
-        let end = new Date(endDate);
-        let diffTime = Math.abs(end - start);
-        let diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-        if (diffDays > 1) {
-            showToast({title: 'The date range cannot be more than 2 days', icon: 'error'});
-            return;
-        }
-
         $('#form-export-scanlog').submit();
     });
 

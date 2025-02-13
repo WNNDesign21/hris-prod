@@ -6,6 +6,7 @@ use Throwable;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use App\Jobs\downloadScanlogJob;
 use App\Models\Attendance\Device;
 use App\Models\Attendance\Scanlog;
 use Illuminate\Support\Facades\DB;
@@ -41,15 +42,16 @@ class ScanlogController extends Controller
     {
         $dataValidate = [
             'start_date' => ['required', 'date', 'date_format:Y-m-d', 'before_or_equal:end_date'],
-            'end_date' => ['required', 'date', 'date_format:Y-m-d', 'after_or_equal:start_date', function ($attribute, $value, $fail) {
-                $startDate = request()->input('start_date');
-                $endDate = request()->input('end_date');
-                $diff = Carbon::parse($startDate)->diffInDays(Carbon::parse($endDate));
-                if ($diff > 1) {
-                    $fail('The end date must be within 2 days of the start date.');
-                }
-            }],
-            'device_id' => ['required', 'integer', 'exists:attendance_devices,id_device'],
+            'end_date' => ['required', 'date', 'date_format:Y-m-d', 'after_or_equal:start_date'],
+            'device_id' => ['required', 'integer', 'exists:attendance_devices,id_device']
+            // 'end_date' => ['required', 'date', 'date_format:Y-m-d', 'after_or_equal:start_date', function ($attribute, $value, $fail) {
+            //     $startDate = request()->input('start_date');
+            //     $endDate = request()->input('end_date');
+            //     $diff = Carbon::parse($startDate)->diffInDays(Carbon::parse($endDate));
+            //     if ($diff > 1) {
+            //         $fail('The end date must be within 2 days of the start date.');
+            //     }
+            // }],
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -59,83 +61,100 @@ class ScanlogController extends Controller
             return response()->json(['message' => $errors], 402);
         }
 
-        DB::beginTransaction();
         try {
             $device = Device::find($request->device_id);
             $organisasi_id = auth()->user()->organisasi_id;
             $cloudId = $device->cloud_id;
             $startDate = $request->start_date;
             $endDate = $request->end_date;
+            $diff_date = Carbon::parse($startDate)->diffInDays(Carbon::parse($endDate));
 
-            //CEK APAKAH SCANLOG SUDAH ADA DI TANGGAL TERSEBUT
-            $scanlog = Scanlog::where('device_id', $request->device_id)->where(function($query) use ($startDate, $endDate){
-                $query->where(function($query) use ($startDate, $endDate){
-                    $query->whereDate('scan_date', $startDate)
-                        ->orWhereDate('scan_date', $endDate);
+            if($diff_date <= 1) {
+                DB::beginTransaction();
+                //CEK APAKAH SCANLOG SUDAH ADA DI TANGGAL TERSEBUT
+                $scanlog = Scanlog::where('device_id', $request->device_id)->where(function($query) use ($startDate, $endDate){
+                    $query->where(function($query) use ($startDate, $endDate){
+                        $query->whereDate('scan_date', $startDate)
+                            ->orWhereDate('scan_date', $endDate);
+                    });
                 });
-            });
 
-            if($scanlog->exists()){
-                $scanlog->delete();
-            }
+                if($scanlog->exists()){
+                    $scanlog->delete();
+                }
 
-            //GET DATA FROM FINGERSPOT API
-            $client = new Client();
-            $url = 'https://developer.fingerspot.io/api/get_attlog';
+                //GET DATA FROM FINGERSPOT API
+                $client = new Client();
+                $url = 'https://developer.fingerspot.io/api/get_attlog';
 
-            $body = [
-                'trans_id' => '1',
-                'cloud_id' => $cloudId,
-                'start_date' => $startDate,
-                'end_date' => $endDate,
-            ];
-            
-            $headers = [
-                'Content-Type' => 'application/json',
-                'Authorization' => "Bearer ". env('API_TOKEN_FINGERSPOT'),
-            ];
+                $body = [
+                    'trans_id' => '1',
+                    'cloud_id' => $cloudId,
+                    'start_date' => $startDate,
+                    'end_date' => $endDate,
+                ];
 
-            $response = $client->post($url, [
-                'headers' => $headers,
-                'json' => $body,
-            ]);
-            $responseBody = $response->getBody();
-            $response = json_decode($responseBody, true);
-            $datas = [];
-            $pins = [];
-            $scanlog_datas = [];
+                $headers = [
+                    'Content-Type' => 'application/json',
+                    'Authorization' => "Bearer ". env('API_TOKEN_FINGERSPOT'),
+                ];
 
-            if(!empty($response)){
-                foreach($response['data'] as $data){
-                    if(!in_array($data['pin'], $pins)){
-                        $pins[] = $data['pin'];
+                $response = $client->post($url, [
+                    'headers' => $headers,
+                    'json' => $body,
+                ]);
+                $responseBody = $response->getBody();
+                $response = json_decode($responseBody, true);
+                $datas = [];
+                $pins = [];
+                $scanlog_datas = [];
+
+                if(!empty($response)){
+                    foreach($response['data'] as $data){
+                        if(!in_array($data['pin'], $pins)){
+                            $pins[] = $data['pin'];
+                        }
+
+                        $datas[] = [
+                            'pin' => $data['pin'],
+                            'scan_date' => $data['scan_date'],
+                            'scan_status' => $data['status_scan'],
+                            'verify' => $data['verify'],
+                            'device_id' => $request->device_id,
+                            'organisasi_id' => $organisasi_id,
+                            'start_date_scan' => $startDate,
+                            'end_date_scan' => $endDate,
+                            'created_at' => now(),
+                            'updated_at' => now()
+                        ];
                     }
+                    
+                    Scanlog::insert($datas);
+                    DB::commit();
 
-                    $datas[] = [
-                        'pin' => $data['pin'],
-                        'scan_date' => $data['scan_date'],
-                        'scan_status' => $data['status_scan'],
-                        'verify' => $data['verify'],
-                        'device_id' => $request->device_id,
-                        'organisasi_id' => $organisasi_id,
-                        'start_date_scan' => $startDate,
-                        'end_date_scan' => $endDate,
-                        'created_at' => now(),
-                        'updated_at' => now()
+                } else {
+                    DB::rollBack();
+                    return response()->json(['message' => 'Data Scanlog tidak tersedia'], 400);
+                }
+            } else {
+                for ($currentStartDate = Carbon::parse($startDate); $currentStartDate->lte(Carbon::parse($endDate)); $currentStartDate->addDays(2)) {
+                    $currentEndDate = $currentStartDate->copy()->addDay();
+                    if ($currentEndDate->gt(Carbon::parse($endDate))) {
+                        $currentEndDate = Carbon::parse($endDate);
+                    }
+                    $dateRanges[] = [
+                        'start_date' => $currentStartDate->format('Y-m-d'),
+                        'end_date' => $currentEndDate->format('Y-m-d'),
                     ];
                 }
-                
-                Scanlog::insert($datas);
 
-            } else {
-                DB::rollBack();
-                return response()->json(['message' => 'Data Scanlog tidak tersedia'], 400);
+                foreach ($dateRanges as $dr){
+                    downloadScanlogJob::dispatch($organisasi_id, $cloudId, $dr['start_date'], $dr['end_date'], $device->id_device);
+                }
             }
             
-            DB::commit();
             return response()->json(['message' => 'Data Scanlog Berhasil Diunduh!'], 200);
         } catch (Throwable $e) {
-            DB::rollBack();
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }
@@ -216,14 +235,7 @@ class ScanlogController extends Controller
 
         $dataValidate = [
             'start_date' => ['required', 'date', 'date_format:Y-m-d', 'before_or_equal:end_date'],
-            'end_date' => ['required', 'date', 'date_format:Y-m-d', 'after_or_equal:start_date', function ($attribute, $value, $fail) {
-                $startDate = request()->input('start_date');
-                $endDate = request()->input('end_date');
-                $diff = Carbon::parse($startDate)->diffInDays(Carbon::parse($endDate));
-                if ($diff > 1) {
-                    $fail('The end date must be within 2 days of the start date.');
-                }
-            }],
+            'end_date' => ['required', 'date', 'date_format:Y-m-d', 'after_or_equal:start_date'],
             'device_id' => ['required', 'integer', 'exists:attendance_devices,id_device'],
             'format' => ['required', 'in:H,V'],
         ];
@@ -252,10 +264,11 @@ class ScanlogController extends Controller
         
                 $scanlogs->where('attendance_scanlogs.organisasi_id', $organisasi_id);
                 $scanlogs->where('attendance_scanlogs.device_id', $request->device_id);
-                $scanlogs->where(function($query) use ($request){
-                    $query->whereDate('attendance_scanlogs.scan_date', $request->start_date)
-                        ->orWhereDate('attendance_scanlogs.scan_date', $request->end_date);
-                });
+                $scanlogs->whereBetween(DB::raw('DATE(attendance_scanlogs.scan_date)'), [$request->start_date, $request->end_date]);
+                // $scanlogs->where(function($query) use ($request){
+                //     $query->whereDate('attendance_scanlogs.scan_date', $request->start_date)
+                //         ->orWhereDate('attendance_scanlogs.scan_date', $request->end_date);
+                // });
                 $scanlogs->orderBy(DB::raw('karyawans.nama, DATE(attendance_scanlogs.scan_date)'), 'ASC');
                 $scanlogs = $scanlogs->get();
 
@@ -373,10 +386,7 @@ class ScanlogController extends Controller
                         WHERE
                             attendance_scanlogs.organisasi_id = $organisasi_id
                             AND attendance_scanlogs.device_id = $request->device_id
-                            AND (
-                                DATE(attendance_scanlogs.scan_date) = '$request->start_date'
-                                OR DATE(attendance_scanlogs.scan_date) = '$request->end_date'
-                            )
+                            AND DATE(attendance_scanlogs.scan_date) BETWEEN '$request->start_date' AND '$request->end_date'
                     ) AS s
                     GROUP BY s.pin, DATE(s.scan_date), s.nama, s.ni_karyawan
                     ORDER BY s.nama, DATE(s.scan_date);

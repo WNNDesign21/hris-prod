@@ -920,6 +920,7 @@ $(function () {
                                         <div class="col-6 col-lg-1 d-flex justify-content-center align-items-center">
                                             ${val.is_rencana_approved !== 'N' ? `<input type="checkbox" name="is_aktual_approved" data-urutan="${i}" id="is_aktual_approved_${i}" class="filled-in chk-col-primary" ${val.is_aktual_approved == 'Y' ? 'checked' : ''} placeholder="Isi keterangan tambahan..." value="${val.id_detail_lembur}"/>
                                             <label for="is_aktual_approved_${i}" class="mt-2"></label>` : `-`}
+                                            ${val.rencana_last_changed_by ? `<br><p class="text-fade">Last Changed : <br><small>${val.rencana_last_changed_by} <br>(${val.rencana_last_changed_at})</small></p>` : ''}
                                         </div>
                                     </div>
                                 </div>
@@ -1137,7 +1138,7 @@ $(function () {
                                 <span id="rencana_selesai_lembur_detail_${i}"></span>
                             </td>
                             <td>
-                                `+val.durasi_rencana+`
+                                ${val.durasi_rencana} ${val.rencana_last_changed_by ? `<br><p class="text-fade">Last Changed : <br><small>${val.rencana_last_changed_by} <br>(${val.rencana_last_changed_at})</small></p>` : ''}
                             </td>
                             <td>
                                 <span id="aktual_mulai_lembur_detail_${i}"></span>
@@ -1146,7 +1147,7 @@ $(function () {
                                 <span id="aktual_selesai_lembur_detail_${i}"></span>
                             </td>
                             <td>
-                                `+val.durasi_aktual+`
+                                ${val.durasi_aktual} ${val.aktual_last_changed_by ? `<br><p class="text-fade">Last Changed : <br><small>${val.aktual_last_changed_by} <br>(${val.aktual_last_changed_at})</small></p>` : ''}
                             </td>
                             <td>
                                 `+(val.keterangan ? val.keterangan : '-')+`

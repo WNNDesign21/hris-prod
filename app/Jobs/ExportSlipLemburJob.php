@@ -106,6 +106,8 @@ class ExportSlipLemburJob implements ShouldQueue
                 $sheet->getColumnDimension($column)->setAutoSize(true);
             }
     
+            $last_row = 0;
+            $total_nominal_slip_lembur = 0;
             foreach ($members as $kry){
                 // TEXT "SLIP LEMBUR BULAN INI"
                 $sheet->mergeCells('A'.$row.':F'.$row+1);
@@ -193,6 +195,7 @@ class ExportSlipLemburJob implements ShouldQueue
                             $total_konversi_jam += $slipLembur->durasi_konversi_lembur;
                             $total_uang_makan += $slipLembur->uang_makan;
                             $total_spl += $slipLembur->nominal;
+                            $total_nominal_slip_lembur += $slipLembur->nominal;
                             $sheet->setCellValue('A'.$row, $i+1);
                             $sheet->setCellValue('B'.$row, Carbon::parse($date)->locale('id')->translatedFormat('l'));
         
@@ -392,7 +395,28 @@ class ExportSlipLemburJob implements ShouldQueue
                 ]);
                 
                 $row += 6;
+                $last_row = $row;
             }
+
+            $sheet->setCellValue('K'.$last_row, 'TOTAL SLIP LEMBUR');
+            $sheet->setCellValueExplicit('L'.$last_row, $total_nominal_slip_lembur, DataType::TYPE_NUMERIC);
+            $sheet->getStyle('L'.$row)->getNumberFormat()->setFormatCode('[$Rp-421] #,##0');
+            $sheet->getStyle('K'.($last_row).':L'.($last_row))->applyFromArray([
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_THIN,
+                        'color' => ['argb' => 'FF000000'],
+                    ],
+                ],
+                'font' => [
+                    'bold' => true,
+                    'size' => 12,
+                ],
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_LEFT,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+            ]);
 
             $writer = new Xlsx($spreadsheet);
             $now = time();

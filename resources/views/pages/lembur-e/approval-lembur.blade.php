@@ -73,4 +73,5 @@
     @include('pages.lembur-e.modal-aktual-approval-lembur')
     @include('pages.lembur-e.modal-reject-lembur')
     @include('pages.lembur-e.modal-filter-lembur')
+    @include('pages.lembur-e.modal-cross-check-approval-lembur')
 @endsection

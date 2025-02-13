@@ -35,7 +35,11 @@ class DetailLembur extends Model
         'pembagi_upah_lembur',
         'deskripsi_pekerjaan', 
         'keterangan', 
-        'nominal'
+        'nominal',
+        'rencana_last_changed_by',
+        'rencana_last_changed_at',
+        'aktual_last_changed_by',
+        'aktual_last_changed_at'
     ];
 
     public function lembur()
