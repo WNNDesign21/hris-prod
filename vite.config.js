@@ -32,6 +32,7 @@ export default defineConfig({
                 'resources/js/pages/menu.js',
                 'resources/js/pages/lembure-pengajuan-lembur.js',
                 'resources/js/pages/lembure-approval-lembur.js',
+                'resources/js/pages/lembure-review-lembur.js',
                 'resources/js/pages/lembure-detail-lembur.js',
                 'resources/js/pages/lembure-setting-upah-lembur.js',
                 'resources/js/pages/lembure-setting-lembur.js',

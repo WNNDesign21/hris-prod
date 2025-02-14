@@ -529,4 +529,84 @@ class DetailLembur extends Model
 
         return $results->get();
     }
+
+    public static function _reviewLembur($datafilter)
+    {
+        $data = self::selectRaw('
+            detail_lemburs.organisasi_id,
+            detail_lemburs.departemen_id,
+            departemens.nama as departemen,
+            divisis.nama as divisi,
+            organisasis.nama as organisasi,
+            detail_lemburs.divisi_id,
+            CASE WHEN (lemburs.status = '."'WAITING'".' AND lemburs.plan_approved_by IS NOT NULL) THEN '."'PLANNING'".' ELSE '."'ACTUAL'".' END AS status,
+            DATE(detail_lemburs.rencana_mulai_lembur) AS tanggal_lembur,
+            SUM(detail_lemburs.nominal) as total_nominal_lembur,
+            SUM(detail_lemburs.durasi) as total_durasi_lembur,
+            COUNT(detail_lemburs.karyawan_id) as total_karyawan,
+            COUNT(DISTINCT detail_lemburs.lembur_id) as total_dokumen
+        ')
+        ->leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
+        ->leftJoin('departemens', 'departemens.id_departemen', 'detail_lemburs.departemen_id')
+        ->leftJoin('organisasis', 'organisasis.id_organisasi', 'detail_lemburs.organisasi_id')
+        ->leftJoin('divisis', 'divisis.id_divisi', 'detail_lemburs.divisi_id');
+
+        if(isset($dataFilter['status'])){
+            $status = $dataFilter['status'];
+
+            if($status == 'PLANNING') {
+            $data->where(function ($query) {
+                $query->where('lemburs.status','WAITING');
+                $query->whereNotNull('lemburs.plan_approved_by');
+            });
+            } else {
+            $data->where(function ($query) {
+                $query->where('lemburs.status', 'COMPLETED')
+                ->whereNotNull('lemburs.actual_approved_by');
+            });
+            }
+        } else {
+            $data->where(function ($query) {
+            $query->where(function ($query) {
+                $query->where('lemburs.status','WAITING');
+                $query->whereNotNull('lemburs.plan_approved_by');
+            });
+            $query->orWhere(function ($query) {
+                $query->where('lemburs.status', 'COMPLETED')
+                ->whereNotNull('lemburs.actual_approved_by');
+            });
+            });
+        }
+
+        if(isset($dataFilter['departemen'])){
+            $data->whereIn('detail_lemburs.departemen_id', $dataFilter['departemen']);
+        } 
+
+        if(isset($dataFilter['organisasi'])){
+            $data->whereIn('detail_lemburs.organisasi_id', $dataFilter['organisasi']);
+        } 
+
+        $data->where('detail_lemburs.is_aktual_approved', 'Y')
+        ->groupBy('detail_lemburs.organisasi_id', 'detail_lemburs.departemen_id', 'detail_lemburs.divisi_id', 'departemens.nama', 'divisis.nama', 'organisasis.nama', 'tanggal_lembur', 'lemburs.plan_approved_by', 'lemburs.status');
+
+        return $data;
+    }
+
+    public static function getDataReviewLembur($dataFilter, $settings)
+    {
+        $data = self::_reviewLembur($dataFilter);
+        $result = DB::table(DB::raw("( {$data->toSql()} ) as subquery"))
+                    ->mergeBindings($data->getQuery())
+                    ->offset($settings['start'])
+                    ->limit($settings['limit'])
+                    ->orderBy($settings['order'], $settings['dir'])
+                    ->get();
+
+        return $result;
+    }
+
+    public static function countDataReviewLembur($dataFilter)
+    {
+        return self::_reviewLembur($dataFilter)->get()->count();
+    }
 }

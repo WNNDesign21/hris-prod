@@ -105,6 +105,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/get-approval-lembur-notification', [HomeController::class, 'get_approval_lembur_notification'])->middleware('lembure');
     Route::get('/get-planned-pengajuan-lembur-notification', [HomeController::class, 'get_planned_pengajuan_lembur_notification'])->middleware('lembure');
     Route::get('/lembure/pengajuan-lembur/get-attachment-lembur/{idLembur}', [LembureController::class, 'get_attachment_lembur']);
+    Route::post('/lembure/review-lembur/get-review-lembur-detail', [LembureController::class, 'get_review_lembur_detail']);
 
     Route::get('/izine/pengajuan-izin/get-data-izin/{idIzin}', [IzineController::class, 'get_data_izin']);
     Route::get('/izine/lapor-skd/get-data-sakit/{idSakit}', [SakiteController::class, 'get_data_sakit']);
@@ -340,6 +341,9 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::patch('/approval-lembur/approved-aktual/{idLembur}', [LembureController::class, 'approved_aktual'])->name('lembure.approval-lembur.approved-aktual');
             Route::patch('/approval-lembur/legalized-aktual/{idLembur}', [LembureController::class, 'legalized_aktual'])->name('lembure.approval-lembur.legalized-aktual');
             Route::post('/approval-lembur/get-list-data-cross-check', [LembureController::class, 'get_list_data_cross_check']);
+
+            Route::get('/review-lembur', [LembureController::class, 'review_lembur_view'])->name('lembure.review-lembur');
+            Route::post('/review-lembur-datatable', [LembureController::class, 'review_lembur_datatable']);
         });
 
         Route::group(['middleware' => ['role:personalia']], function () {

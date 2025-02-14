@@ -178,6 +178,10 @@
         @vite(['resources/js/pages/lembure-approval-lembur.js'])
     @endif
 
+    @if ($page == 'lembure-review-lembur')
+        @vite(['resources/js/pages/lembure-review-lembur.js'])
+    @endif
+
     @if ($page == 'lembure-setting-upah-lembur')
         @vite(['resources/js/pages/lembure-setting-upah-lembur.js'])
     @endif

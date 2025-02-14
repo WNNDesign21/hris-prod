@@ -127,6 +127,19 @@ class LembureController extends Controller
         return view('pages.lembur-e.approval-lembur', $dataPage);
     }
 
+    public function review_lembur_view()
+    {
+        $departemens = Departemen::all();
+        $organisasis = Organisasi::all();
+        $dataPage = [
+            'pageTitle' => "Lembur-E - Review Lembur",
+            'page' => 'lembure-review-lembur',
+            'departemens' => $departemens,
+            'organisasis' => $organisasis
+        ];
+        return view('pages.lembur-e.review-lembur', $dataPage);
+    }
+
     public function bypass_lembur_view()
     {
         if(auth()->user()->hasRole('personalia')){
@@ -664,6 +677,103 @@ class LembureController extends Controller
                 $nestedData['actual_approved_by'] = !$rejected ? $button_approved_actual : '';
                 $nestedData['actual_legalized_by'] = !$rejected ? $button_legalized_actual : '';
                 $nestedData['action'] = '<button type="button" class="waves-effect waves-light btn btn-sm btn-info btnDetail" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-eye"></i> Detail</button>';
+
+                $dataTable[] = $nestedData;
+            }
+        }
+
+        $json_data = array(
+            "draw" => intval($request->input('draw')),
+            "recordsTotal" => intval($totalData),
+            "recordsFiltered" => intval($totalFiltered),
+            "data" => $dataTable,
+            "order" => $order,
+            "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
+            "dir" => $dir,
+            "column"=>$request->input('order.0.column')
+        );
+
+        return response()->json($json_data, 200);
+    }
+
+    public function review_lembur_datatable(Request $request)
+    {
+        $columns = array(
+            1 => 'subquery.tanggal_lembur',
+            2 => 'subquery.departemen',
+            3 => 'subquery.status',
+            4 => 'subquery.total_nominal_lembur',
+            5 => 'subquery.total_durasi_lembur',
+            6 => 'subqyery.total_karyawan',
+            7 => 'subquery.total_dokumen'
+        );
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+
+        $settings['start'] = $start;
+        $settings['limit'] = $limit;
+        $settings['dir'] = $dir;
+        $settings['order'] = $order;
+
+        $dataFilter = [];
+        $search = $request->input('search.value');
+        if (!empty($search)) {
+            $dataFilter['search'] = $search;
+        }
+
+        $filterDepartemen = $request->departemen;
+        if ($filterDepartemen) {
+            $dataFilter['departemen'] = $filterDepartemen;
+        }
+
+        $filterOrganisasi = $request->organisasi;
+        if ($filterOrganisasi) {
+            $dataFilter['organisasi'] = $filterOrganisasi;
+        }
+
+        $filterStatus = $request->status;
+        if (!empty($filterStatus)) {
+            $dataFilter['status'] = $filterStatus;
+        }
+
+        $totalData = DetailLembur::getDataReviewLembur($dataFilter, $settings)->count();
+        $totalFiltered = $totalData;
+
+        $reviewLembur = DetailLembur::getDataReviewLembur($dataFilter, $settings);
+        $totalFiltered = DetailLembur::countDataReviewLembur($dataFilter);
+        $dataTable = [];
+
+        if (!empty($reviewLembur)) {
+            $count = $start;
+            foreach ($reviewLembur as $data) {
+                $count++;
+                if ($data->status == 'PLANNING') {
+                    $status = '<span class="badge badge-info">PLANNING</span>';
+                } else {
+                    $status = '<span class="badge badge-success">ACTUAL</span>';
+                }
+
+                if($data->departemen) {
+                    $departemen = '<p>'.$data->departemen.'<br><small class="text-fade">'.$data->organisasi.'</small></p>';
+                } else {
+                    $departemen = '<p>'.$data->divisi.'<br><small class="text-fade">'.$data->organisasi.'</small></p>';
+                }
+
+                $jam = floor($data->total_durasi_lembur / 60);
+                $menit = $data->total_durasi_lembur % 60;
+                
+                $nestedData['checkbox'] = 'row_'.$count;
+                $nestedData['tanggal_lembur'] = Carbon::parse($data->tanggal_lembur)->format('d M Y');
+                $nestedData['departemen'] = $departemen;
+                $nestedData['status'] = $status;
+                $nestedData['total_durasi_lembur'] = $jam . ' Jam ' . $menit . ' Menit';
+                $nestedData['total_nominal_lembur'] = 'Rp. ' . number_format($data->total_nominal_lembur, 0, ',', '.');
+                $nestedData['total_karyawan'] = $data->total_karyawan;
+                $nestedData['total_dokumen'] = $data->total_dokumen;
+                $nestedData['aksi'] = '<button type="button" class="waves-effect waves-light btn btn-sm btn-info btnDetail" data-departemen-id="'.$data->departemen_id.'" data-divisi-id="'.$data->divisi_id.'" data-organisasi-id="'.$data->organisasi_id.'" data-tanggal-lembur="'.$data->tanggal_lembur.'" data-status="'.$data->status.'"><i class="fas fa-eye"></i> Detail</button>';
 
                 $dataTable[] = $nestedData;
             }
@@ -4124,6 +4234,59 @@ class LembureController extends Controller
             } else {
                 return response()->json(['message' => 'Data Presensi Tidak Ditemukan'], 404);
             }
+        } catch (Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function get_review_lembur_detail(Request $request)
+    {
+        $dataValidate = [
+            'departemen_id' => ['required', 'exists:departemens,id_departemen'],
+            'divisi_id' => ['required', 'exists:divisis,id_divisi'],
+            'organisasi_id' => ['required', 'exists:organisasis,id_organisasi'],
+            'tanggal_lembur' => ['required', 'date_format:Y-m-d'],
+            'status' => ['required', 'in:PLANNING,ACTUAL'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $departemen_id = $request->departemen_id;
+        $divisi_id = $request->divisi_id;
+        $organisasi_id = $request->organisasi_id;
+        $tanggal_lembur = $request->tanggal_lembur;
+        $status = $request->status;
+
+        try {
+            if ($status == 'PLANNING') {
+                $data = DetailLembur::selectRaw('detail_lemburs.*, lemburs.status')
+                    ->leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
+                    ->where('detail_lemburs.departemen_id', $departemen_id)
+                    ->where('detail_lemburs.divisi_id', $divisi_id)
+                    ->where('detail_lemburs.organisasi_id', $organisasi_id)
+                    ->whereDate('detail_lemburs.rencana_mulai_lembur', $tanggal_lembur)
+                    ->where(function ($query) {
+                        $query->where('lemburs.status','WAITING');
+                        $query->whereNotNull('lemburs.plan_approved_by');
+                    })->get();
+            } else {
+                $data = DetailLembur::selectRaw('detail_lemburs.*, lemburs.status')
+                    ->leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
+                    ->where('detail_lemburs.departemen_id', $departemen_id)
+                    ->where('detail_lemburs.divisi_id', $divisi_id)
+                    ->where('detail_lemburs.organisasi_id', $organisasi_id)
+                    ->whereDate('detail_lemburs.aktual_mulai_lembur', $tanggal_lembur)
+                    ->where(function ($query) {
+                        $query->where('lemburs.status','COMPLETED');
+                        $query->whereNotNull('lemburs.actual_approved_by');
+                    })->get();
+            };
+            return response()->json(['message' => 'Data Detail Lembur Berhasil didapatkan!', 'data' => $data]);
         } catch (Throwable $e) {
             return response()->json(['message' => $e->getMessage()], 500);
         }
