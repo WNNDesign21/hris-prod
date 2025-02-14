@@ -15,7 +15,7 @@
                                 <th>Karyawan</th>
                                 <th>Job Description</th>
                                 <th>Tanggal Mulai</th>
-                                <th>Tanggal Selesai </th>
+                                <th>Tanggal Selesai</th>
                                 <th>Keterangan</th>
                                 <th>Nominal</th>
                             </tr>

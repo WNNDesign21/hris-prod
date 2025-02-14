@@ -4264,7 +4264,8 @@ class LembureController extends Controller
 
         try {
             if ($status == 'PLANNING') {
-                $data = DetailLembur::selectRaw('detail_lemburs.*, lemburs.status')
+                $data = DetailLembur::selectRaw('detail_lemburs.rencana_mulai_lembur as tanggal_mulai, detail_lemburs.rencana_selesai_lembur as tanggal_selesai, detail_lemburs.deskripsi_pekerjaan, detail_lemburs.keterangan, detail_lemburs.nominal, detail_lemburs.durasi, lemburs.status, karyawans.nama as karyawan')
+                    ->leftJoin('karyawans', 'karyawans.id_karyawan', 'detail_lemburs.karyawan_id')
                     ->leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
                     ->where('detail_lemburs.departemen_id', $departemen_id)
                     ->where('detail_lemburs.divisi_id', $divisi_id)
@@ -4275,7 +4276,8 @@ class LembureController extends Controller
                         $query->whereNotNull('lemburs.plan_approved_by');
                     })->get();
             } else {
-                $data = DetailLembur::selectRaw('detail_lemburs.*, lemburs.status')
+                $data = DetailLembur::selectRaw('detail_lemburs.aktual_mulai_lembur as tanggal_mulai, detail_lemburs.aktual_selesai_lembur as tanggal_selesai, detail_lemburs.deskripsi_pekerjaan, detail_lemburs.keterangan, detail_lemburs.nominal, detail_lemburs.durasi, lemburs.status, karyawans.nama as karyawan')
+                    ->leftJoin('karyawans', 'karyawans.id_karyawan', 'detail_lemburs.karyawan_id')
                     ->leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
                     ->where('detail_lemburs.departemen_id', $departemen_id)
                     ->where('detail_lemburs.divisi_id', $divisi_id)

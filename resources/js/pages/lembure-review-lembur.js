@@ -231,7 +231,27 @@ $(function () {
                 status: status
             },
             success: function(response){
-                console.log(response);
+                let data = response.data;
+                let tbody = $('#detailReviewContent').empty();
+
+                if (data.length > 0) {
+                    $.each(data, function (i, val){
+                        tbody.append(`
+                            <tr>
+                                <td>${val.karyawan}</td>    
+                                <td>${val.deskripsi_pekerjaan}</td>    
+                                <td>${val.tanggal_mulai}</td>    
+                                <td>${val.tanggal_selesai}</td>    
+                                <td>${val.keterangan ?? ''}</td>    
+                                <td>${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(val.nominal)}</td>   
+                            </tr> 
+                        `);
+                    });
+                }
+                $('#detail-review-table').DataTable({
+                    order: [[0, 'asc']]
+                });
+                openDetail();
                 loadingSwalClose();
             },
             error: function(jqXHR, textStatus, errorThrown) {
