@@ -794,7 +794,7 @@ class LembureController extends Controller
                 $jam = floor($data->total_durasi_lembur / 60);
                 $menit = $data->total_durasi_lembur % 60;
                 
-                $nestedData['checkbox'] = $data->tanggal_lembur.','.$data->departemen_id.','.$data->divisi_id.','.$data->organisasi_id.','.$data->status;
+                $nestedData['checkbox'] = $data->tanggal_lembur.'|'.$data->departemen_id.'|'.$data->divisi_id.'|'.$data->organisasi_id.'|'.$data->status;
                 $nestedData['tanggal_lembur'] = Carbon::parse($data->tanggal_lembur)->format('d M Y');
                 $nestedData['departemen'] = $departemen;
                 $nestedData['status'] = $status;
@@ -3370,12 +3370,44 @@ class LembureController extends Controller
         try {
             $planning = [];
             $actual = [];
+            $departemen_id = [];
+            $divisi_id = [];
+            $organisasi_id = [];
+            $tanggal_lembur = [];
+            $datas_array = explode(',', $datas);
 
-            foreach ($datas as $data) {
+            foreach ($datas_array as $data) {
+                $data_array = explode('|', $data);
+                $lembur = Lembure::selectRaw('*')
+                        ->leftJoin('detail_lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
+                        ->whereDate('detail_lemburs.rencana_mulai_lembur', $data_array[0]);
 
+                        if($data_array[1] !== null) {
+                            $lembur->where('detail_lemburs.departemen_id', $data_array[1]);
+                        }
+
+                        if($data_array[2] !== null) {
+                            $lembur->where('detail_lemburs.divisi_id', $data_array[2]);
+                        }
+
+                        if($data_array[3] !== null) {
+                            $lembur->where('detail_lemburs.organisasi_id', $data_array[3]);
+                        }
+                        
+                        if($data_array[4] == 'PLANNING') {
+                            $lembur->where(function ($query) {
+                                $query->where('lemburs.status','WAITING');
+                                $query->whereNotNull('lemburs.plan_approved_by');
+                            });
+                        } else {
+                            $lembur->where(function ($query) {
+                                $query->where('lemburs.status', 'COMPLETED')
+                                ->whereNotNull('lemburs.actual_approved_by');
+                            });
+                        }
             }
             DB::commit();
-            return response()->json(['message' => $e->getMessage()], 200);
+            return response()->json(['message' => 'Data berhasil ditemukan', 'planning' => $lembur->get(), 'actual' => $actual], 200);
         } catch (Throwable $e) {
             DB::rollback();
             return response()->json(['message' => $e->getMessage()], 500);

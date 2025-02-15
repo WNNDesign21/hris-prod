@@ -286,6 +286,10 @@ $(function () {
             return;
         }
 
+        let formData = new FormData();
+        formData.append('data', selectedRow);
+        formData.append('_method', 'PATCH');
+
         Swal.fire({
             title: "Accept Lembur",
             text: "Dengan ini anda menyetujui " + countRow + " data lembur yang dipilih",
@@ -301,13 +305,13 @@ $(function () {
                 var url = base_url + '/lembure/review-lembur/reviewed';
                 $.ajax({
                     url: url,
-                    type: "POST",
-                    data: {
-                        data: selectedRow,
-                        _method: "delete",
-                    },
+                    data: formData,
+                    method:"POST",
+                    contentType: false,
+                    processData: false,
                     dataType: "JSON",
                     success: function (data) {
+                        console.log(data)
                         loadingSwalClose();
                         refreshTable();
                         showToast({ title: data.message });
