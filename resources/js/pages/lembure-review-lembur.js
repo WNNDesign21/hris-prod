@@ -135,7 +135,6 @@ $(function () {
                 }
             },
         },
-        responsive: true,
         columns: columnsTable,
         scrollX: true,
         columnDefs: [
@@ -143,42 +142,57 @@ $(function () {
         ],
     })
 
-    // SELECT CHECKBOX
+    // SELECT CHECKBOX LOGIC
+    $('#unchecked-all').on('click', function() {
+        var rows = reviewTable.rows({ 'search': 'applied' }).nodes();
+        $('input[type="checkbox"]', rows).prop('checked', false).trigger('change');
+        
+        selectedRow = [];
+        $('#select-all').prop('checked', false).prop('indeterminate', false);
+    });
+
     $('#select-all').on('click', function() {
         var rows = reviewTable.rows({ 'search': 'applied' }).nodes();
-        $('input[type="checkbox"]', rows).prop('checked', this.checked);
-
-        selectedRow = [];
-        if (this.checked) {
-            for (let i = 1; i <= totalRow; i++) {
-                selectedRow.push('row_' + i);
-            }
+        var anyChecked = $('input[type="checkbox"]:checked', rows).length > 0;
+        if (anyChecked) {
+            $('input[type="checkbox"]:checked', rows).trigger('change');
         }
+        $('input[type="checkbox"]', rows).prop('checked', this.checked).trigger('change');
     });
 
     $('#review-table tbody').on('change', 'input.row-checkbox', function() {
         if (!this.checked) {
             var el = $('#select-all').get(0);
             if (el && el.checked && ('indeterminate' in el)) {
-                el.indeterminate = true;
+            el.indeterminate = true;
             }
             var value = $(this).val();
             selectedRow = selectedRow.filter(function(item) {
-                return item !== value;
+            return item !== value;
             });
         } else {
             selectedRow.push($(this).val());
+        }
+
+        var rows = reviewTable.rows({ 'search': 'applied' }).nodes();
+        var allUnchecked = $('input[type="checkbox"]:checked', rows).length === 0;
+        if (allUnchecked) {
+            $('#select-all').prop('checked', false).prop('indeterminate', false);
         }
     });
 
     $('#review-table').on('draw.dt', function () {
         var rows = reviewTable.rows({ 'search': 'applied' }).nodes();
+        var allChecked = true;
         $('input[type="checkbox"]', rows).each(function() {
             var value = $(this).val();
             if (selectedRow.includes(value)) {
                 $(this).prop('checked', true);
+            } else {
+                allChecked = false;
             }
         });
+        $('#select-all').prop('checked', allChecked);
     });
 
     function refreshTable() {
@@ -192,6 +206,7 @@ $(function () {
     // DETAIL
     $('.btnClose').on("click", function (){
         closeDetail();
+        $('#detail-review-table').DataTable().destroy();
     })
 
     var modalDetailReviewLemburOptions = {
@@ -223,6 +238,7 @@ $(function () {
         $.ajax({
             url: url,
             method: 'POST',
+            dataType: 'json',
             data: {
                 departemen_id: departemenId,
                 divisi_id: divisiId,
@@ -243,7 +259,7 @@ $(function () {
                                 <td>${val.tanggal_mulai}</td>    
                                 <td>${val.tanggal_selesai}</td>    
                                 <td>${val.keterangan ?? ''}</td>    
-                                <td>${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR' }).format(val.nominal)}</td>   
+                                <td>${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(val.nominal)}</td>   
                             </tr> 
                         `);
                     });
@@ -260,4 +276,48 @@ $(function () {
             }
         })
     });
+
+    $('#accept').on('click', function (){
+        let countRow = selectedRow.length;
+        selectedRow = [...new Set(selectedRow)];
+
+        if (countRow == 0) {
+            showToast({ icon: "error", title: "Silahkan pilih data yang akan di review!" });
+            return;
+        }
+
+        Swal.fire({
+            title: "Accept Lembur",
+            text: "Dengan ini anda menyetujui " + countRow + " data lembur yang dipilih",
+            icon: "success",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Accept it!",
+            allowOutsideClick: false,
+        }).then((result) => {
+            if (result.value) {
+                loadingSwalShow();
+                var url = base_url + '/lembure/review-lembur/reviewed';
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: {
+                        data: selectedRow,
+                        _method: "delete",
+                    },
+                    dataType: "JSON",
+                    success: function (data) {
+                        loadingSwalClose();
+                        refreshTable();
+                        showToast({ title: data.message });
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        loadingSwalClose();
+                        showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                    },
+                });
+            }
+        });
+    })
 });

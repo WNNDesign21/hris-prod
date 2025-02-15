@@ -49,6 +49,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/upload-pin', [TestController::class, 'upload_pin_view']);
     Route::post('/upload-pin/store', [TestController::class, 'upload_pin'])->name('upload-pin.store');
     Route::get('/rekap-presensi', [TestController::class, 'test_rekap_presensi']);
+    Route::get('/test', [TestController::class, 'test']);
 
     //WHATSAPP FONNTE
     // Route::get('/send-whatsapp-message', [TestController::class, 'send_whatsapp_message']);
@@ -344,6 +345,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
 
             Route::get('/review-lembur', [LembureController::class, 'review_lembur_view'])->name('lembure.review-lembur');
             Route::post('/review-lembur-datatable', [LembureController::class, 'review_lembur_datatable']);
+            Route::patch('/review-lembur/reviewed', [LembureController::class, 'reviewed'])->name('lembure.review-lembur.reviewed');
         });
 
         Route::group(['middleware' => ['role:personalia']], function () {

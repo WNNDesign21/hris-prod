@@ -21,7 +21,10 @@
                         <h4 class="box-title">Review Lembur</h4>
                     </div>
                     <div class="gap-1">
-                        <button class="btn btn-success"><i class="fas fa-check-square"></i>&nbsp;&nbsp;Accept</button>
+                        <button class="btn btn-danger" id="unchecked-all"><i
+                                class="fas fa-times-circle"></i>&nbsp;&nbsp;Uncheck All</button>
+                        <button class="btn btn-success" id="accept"><i
+                                class="fas fa-check-square"></i>&nbsp;&nbsp;Accept</button>
                         <div class="btn-group">
                             <button type="button" class="btn btn-info waves-effect btnReload"><i
                                     class="fas fa-sync-alt"></i></button>

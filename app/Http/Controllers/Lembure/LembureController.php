@@ -129,8 +129,24 @@ class LembureController extends Controller
 
     public function review_lembur_view()
     {
-        $departemens = Departemen::all();
+        $posisi = auth()->user()->karyawan->posisi;
+        if($posisi[0]->jabatan_id !== 1) {
+            return redirect()->route('lembure.dashboard');
+        }
+
+        $departemen_ids = $this->get_member_departemen($posisi);
+
+        foreach ($posisi as $ps){
+            $index = array_search($ps->departemen_id, $departemen_ids);
+            array_splice($departemen_ids, $index, 1);
+        }
+        array_push($departemen_ids, auth()->user()->karyawan->posisi[0]->departemen_id);
+        $departemen_ids = array_filter(array_unique($departemen_ids));
+        sort($departemen_ids);
+
+        $departemens = Departemen::whereIn('id_departemen', $departemen_ids)->get();
         $organisasis = Organisasi::all();
+
         $dataPage = [
             'pageTitle' => "Lembur-E - Review Lembur",
             'page' => 'lembure-review-lembur',
@@ -724,11 +740,6 @@ class LembureController extends Controller
             $dataFilter['search'] = $search;
         }
 
-        $filterDepartemen = $request->departemen;
-        if ($filterDepartemen) {
-            $dataFilter['departemen'] = $filterDepartemen;
-        }
-
         $filterOrganisasi = $request->organisasi;
         if ($filterOrganisasi) {
             $dataFilter['organisasi'] = $filterOrganisasi;
@@ -737,6 +748,24 @@ class LembureController extends Controller
         $filterStatus = $request->status;
         if (!empty($filterStatus)) {
             $dataFilter['status'] = $filterStatus;
+        }
+
+        $posisi = auth()->user()->karyawan->posisi;
+        $departemen_ids = $this->get_member_departemen($posisi);
+
+        foreach ($posisi as $ps){
+            $index = array_search($ps->departemen_id, $departemen_ids);
+            array_splice($departemen_ids, $index, 1);
+        }
+        array_push($departemen_ids, auth()->user()->karyawan->posisi[0]->departemen_id);
+        $departemen_ids = array_filter(array_unique($departemen_ids));
+        sort($departemen_ids);
+
+        $filterDepartemen = $request->departemen;
+        if ($filterDepartemen) {
+            $dataFilter['departemen'] = $filterDepartemen;
+        } else {
+            $dataFilter['departemen'] = $departemen_ids;
         }
 
         $totalData = DetailLembur::getDataReviewLembur($dataFilter, $settings)->count();
@@ -765,7 +794,7 @@ class LembureController extends Controller
                 $jam = floor($data->total_durasi_lembur / 60);
                 $menit = $data->total_durasi_lembur % 60;
                 
-                $nestedData['checkbox'] = 'row_'.$count;
+                $nestedData['checkbox'] = $data->tanggal_lembur.','.$data->departemen_id.','.$data->divisi_id.','.$data->organisasi_id.','.$data->status;
                 $nestedData['tanggal_lembur'] = Carbon::parse($data->tanggal_lembur)->format('d M Y');
                 $nestedData['departemen'] = $departemen;
                 $nestedData['status'] = $status;
@@ -2483,6 +2512,18 @@ class LembureController extends Controller
         return $data;
     }
 
+    function get_member_departemen($posisis)
+    {
+        $data = [];
+        foreach ($posisis as $ps) {
+            if ($ps->children) {
+                $data = array_merge($data, $this->get_member_departemen($ps->children));
+            }
+            $data[] = $ps->departemen_id;
+        }
+        return $data;
+    }
+
     function get_parent_posisi($posisi)
     {
         $data = [];
@@ -3308,6 +3349,38 @@ class LembureController extends Controller
             DB::rollBack();
             return response()->json(['message' => $e->getMessage()], 500);
         }
+    }
+
+    public function reviewed(Request $request)
+    {
+        $dataValidate = [
+            'data' => ['required']
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $datas = $request->data;
+
+        DB::beginTransaction();
+        try {
+            $planning = [];
+            $actual = [];
+
+            foreach ($datas as $data) {
+
+            }
+            DB::commit();
+            return response()->json(['message' => $e->getMessage()], 200);
+        } catch (Throwable $e) {
+            DB::rollback();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+
     }
 
     public function rejected(Request $request, string $id_lembur)

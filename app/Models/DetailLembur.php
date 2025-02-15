@@ -530,7 +530,7 @@ class DetailLembur extends Model
         return $results->get();
     }
 
-    public static function _reviewLembur($datafilter)
+    public static function _reviewLembur($dataFilter)
     {
         $data = self::selectRaw('
             detail_lemburs.organisasi_id,
@@ -567,14 +567,14 @@ class DetailLembur extends Model
             }
         } else {
             $data->where(function ($query) {
-            $query->where(function ($query) {
-                $query->where('lemburs.status','WAITING');
-                $query->whereNotNull('lemburs.plan_approved_by');
-            });
-            $query->orWhere(function ($query) {
-                $query->where('lemburs.status', 'COMPLETED')
-                ->whereNotNull('lemburs.actual_approved_by');
-            });
+                $query->where(function ($query) {
+                    $query->where('lemburs.status','WAITING');
+                    $query->whereNotNull('lemburs.plan_approved_by');
+                });
+                $query->orWhere(function ($query) {
+                    $query->where('lemburs.status', 'COMPLETED')
+                    ->whereNotNull('lemburs.actual_approved_by');
+                });
             });
         }
 
