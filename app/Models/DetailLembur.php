@@ -558,11 +558,13 @@ class DetailLembur extends Model
             $data->where(function ($query) {
                 $query->where('lemburs.status','WAITING');
                 $query->whereNotNull('lemburs.plan_approved_by');
+                $query->whereNull('lemburs.plan_reviewed_by');
             });
             } else {
             $data->where(function ($query) {
-                $query->where('lemburs.status', 'COMPLETED')
-                ->whereNotNull('lemburs.actual_approved_by');
+                $query->where('lemburs.status', 'COMPLETED');
+                $query->whereNotNull('lemburs.actual_approved_by');
+                $query->whereNull('lemburs.actual_reviewed_by');
             });
             }
         } else {
@@ -570,10 +572,12 @@ class DetailLembur extends Model
                 $query->where(function ($query) {
                     $query->where('lemburs.status','WAITING');
                     $query->whereNotNull('lemburs.plan_approved_by');
+                    $query->whereNull('lemburs.plan_reviewed_by');
                 });
                 $query->orWhere(function ($query) {
-                    $query->where('lemburs.status', 'COMPLETED')
-                    ->whereNotNull('lemburs.actual_approved_by');
+                    $query->where('lemburs.status', 'COMPLETED');
+                    $query->whereNotNull('lemburs.actual_approved_by');
+                    $query->whereNull('lemburs.actual_reviewed_by');
                 });
             });
         }

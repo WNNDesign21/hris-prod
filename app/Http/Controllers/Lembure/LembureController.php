@@ -802,7 +802,7 @@ class LembureController extends Controller
                 $nestedData['total_nominal_lembur'] = 'Rp. ' . number_format($data->total_nominal_lembur, 0, ',', '.');
                 $nestedData['total_karyawan'] = $data->total_karyawan;
                 $nestedData['total_dokumen'] = $data->total_dokumen;
-                $nestedData['aksi'] = '<button type="button" class="waves-effect waves-light btn btn-sm btn-info btnDetail" data-departemen-id="'.$data->departemen_id.'" data-divisi-id="'.$data->divisi_id.'" data-organisasi-id="'.$data->organisasi_id.'" data-tanggal-lembur="'.$data->tanggal_lembur.'" data-status="'.$data->status.'"><i class="fas fa-eye"></i> Detail</button>';
+                $nestedData['aksi'] = '<button type="button" class="waves-effect waves-light btn btn-sm btn-info btnDetail" data-departemen-id="'.$data->departemen_id.'" data-divisi-id="'.$data->divisi_id.'" data-organisasi-id="'.$data->organisasi_id.'" data-tanggal-lembur="'.$data->tanggal_lembur.'" data-status="'.$data->status.'" data-departemen="'.$data->departemen.'" data-organisasi="'.$data->organisasi.'"><i class="fas fa-eye"></i> Detail</button>';
 
                 $dataTable[] = $nestedData;
             }
@@ -3368,46 +3368,50 @@ class LembureController extends Controller
 
         DB::beginTransaction();
         try {
-            $planning = [];
-            $actual = [];
-            $departemen_id = [];
-            $divisi_id = [];
-            $organisasi_id = [];
-            $tanggal_lembur = [];
             $datas_array = explode(',', $datas);
+            $count_document = 0;
 
             foreach ($datas_array as $data) {
                 $data_array = explode('|', $data);
-                $lembur = Lembure::selectRaw('*')
-                        ->leftJoin('detail_lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
-                        ->whereDate('detail_lemburs.rencana_mulai_lembur', $data_array[0]);
+                $lembur = Lembure::selectRaw('*')->leftJoin('detail_lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
+                         ->whereDate('detail_lemburs.rencana_mulai_lembur', $data_array[0]);
 
-                        if($data_array[1] !== null) {
-                            $lembur->where('detail_lemburs.departemen_id', $data_array[1]);
-                        }
+                if($data_array[1] !== null) {
+                    $lembur->where('detail_lemburs.departemen_id', $data_array[1]);
+                }
 
-                        if($data_array[2] !== null) {
-                            $lembur->where('detail_lemburs.divisi_id', $data_array[2]);
-                        }
+                if($data_array[2] !== null) {
+                    $lembur->where('detail_lemburs.divisi_id', $data_array[2]);
+                }
 
-                        if($data_array[3] !== null) {
-                            $lembur->where('detail_lemburs.organisasi_id', $data_array[3]);
-                        }
-                        
-                        if($data_array[4] == 'PLANNING') {
-                            $lembur->where(function ($query) {
-                                $query->where('lemburs.status','WAITING');
-                                $query->whereNotNull('lemburs.plan_approved_by');
-                            });
-                        } else {
-                            $lembur->where(function ($query) {
-                                $query->where('lemburs.status', 'COMPLETED')
-                                ->whereNotNull('lemburs.actual_approved_by');
-                            });
-                        }
+                if($data_array[3] !== null) {
+                    $lembur->where('detail_lemburs.organisasi_id', $data_array[3]);
+                }
+                
+                if($data_array[4] == 'PLANNING') {
+                    $lembur->where(function ($query) {
+                        $query->where('lemburs.status','WAITING');
+                        $query->whereNotNull('lemburs.plan_approved_by');
+                    });
+                    $lembur->update([
+                        'lemburs.plan_reviewed_by' => auth()->user()->karyawan->nama,
+                        'lemburs.plan_reviewed_at' => now(),
+                    ]);
+                } else {
+                    $lembur->where(function ($query) {
+                        $query->where('lemburs.status', 'COMPLETED')
+                        ->whereNotNull('lemburs.actual_approved_by');
+                    });
+                    $lembur->update([
+                        'lemburs.actual_reviewed_by' => auth()->user()->karyawan->nama,
+                        'lemburs.actual_reviewed_at' => now(),
+                    ]);
+                }
+
+                $count_document += $lembur->count();
             }
             DB::commit();
-            return response()->json(['message' => 'Data berhasil ditemukan', 'planning' => $lembur->get(), 'actual' => $actual], 200);
+            return response()->json(['message' => $count_document.' dokumen lembur selesai direview'], 200);
         } catch (Throwable $e) {
             DB::rollback();
             return response()->json(['message' => $e->getMessage()], 500);
@@ -4369,7 +4373,7 @@ class LembureController extends Controller
 
         try {
             if ($status == 'PLANNING') {
-                $data = DetailLembur::selectRaw('detail_lemburs.rencana_mulai_lembur as tanggal_mulai, detail_lemburs.rencana_selesai_lembur as tanggal_selesai, detail_lemburs.deskripsi_pekerjaan, detail_lemburs.keterangan, detail_lemburs.nominal, detail_lemburs.durasi, lemburs.status, karyawans.nama as karyawan')
+                $data = DetailLembur::selectRaw('detail_lemburs.rencana_mulai_lembur as tanggal_mulai, detail_lemburs.rencana_selesai_lembur as tanggal_selesai, detail_lemburs.deskripsi_pekerjaan, detail_lemburs.keterangan, detail_lemburs.nominal, detail_lemburs.durasi, lemburs.status, karyawans.nama as karyawan, detail_lemburs.lembur_id')
                     ->leftJoin('karyawans', 'karyawans.id_karyawan', 'detail_lemburs.karyawan_id')
                     ->leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
                     ->where('detail_lemburs.departemen_id', $departemen_id)
@@ -4381,7 +4385,7 @@ class LembureController extends Controller
                         $query->whereNotNull('lemburs.plan_approved_by');
                     })->get();
             } else {
-                $data = DetailLembur::selectRaw('detail_lemburs.aktual_mulai_lembur as tanggal_mulai, detail_lemburs.aktual_selesai_lembur as tanggal_selesai, detail_lemburs.deskripsi_pekerjaan, detail_lemburs.keterangan, detail_lemburs.nominal, detail_lemburs.durasi, lemburs.status, karyawans.nama as karyawan')
+                $data = DetailLembur::selectRaw('detail_lemburs.aktual_mulai_lembur as tanggal_mulai, detail_lemburs.aktual_selesai_lembur as tanggal_selesai, detail_lemburs.deskripsi_pekerjaan, detail_lemburs.keterangan, detail_lemburs.nominal, detail_lemburs.durasi, lemburs.status, karyawans.nama as karyawan, detail_lemburs.lembur_id')
                     ->leftJoin('karyawans', 'karyawans.id_karyawan', 'detail_lemburs.karyawan_id')
                     ->leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
                     ->where('detail_lemburs.departemen_id', $departemen_id)

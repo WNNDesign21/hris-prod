@@ -233,6 +233,8 @@ $(function () {
         let divisiId = $(this).data('divisi-id');
         let organisasiId = $(this).data('organisasi-id');
         let tanggalLembur = $(this).data('tanggal-lembur');
+        let departemen = $(this).data('departemen');
+        let organisasi = $(this).data('organisasi');
         let status = $(this).data('status');
         let url = base_url + '/lembure/review-lembur/get-review-lembur-detail'
         $.ajax({
@@ -249,11 +251,15 @@ $(function () {
             success: function(response){
                 let data = response.data;
                 let tbody = $('#detailReviewContent').empty();
+                $('#detailReviewTanggal').text(tanggalLembur);
+                $('#detailReviewDepartemen').text(departemen + ' (' + organisasi + ')');
+                $('#detailReviewStatus').empty().html(status == 'PLANNING' ? '<span class="badge badge-info">PLANNING</span>' : '<span class="badge badge-success">ACTUAL</span>');
 
                 if (data.length > 0) {
                     $.each(data, function (i, val){
                         tbody.append(`
                             <tr>
+                                <td>${val.lembur_id}</td>    
                                 <td>${val.karyawan}</td>    
                                 <td>${val.deskripsi_pekerjaan}</td>    
                                 <td>${val.tanggal_mulai}</td>    
@@ -310,11 +316,11 @@ $(function () {
                     contentType: false,
                     processData: false,
                     dataType: "JSON",
-                    success: function (data) {
-                        console.log(data)
+                    success: function (response) {
                         loadingSwalClose();
                         refreshTable();
-                        showToast({ title: data.message });
+                        showToast({ title: response.message });
+                        selectedRow = [];
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
                         loadingSwalClose();

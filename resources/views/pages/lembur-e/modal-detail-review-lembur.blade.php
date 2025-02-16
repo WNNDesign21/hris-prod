@@ -7,11 +7,20 @@
                 <button type="button" class="btn-close btnClose" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <div class="col-12">
+                    <div class="row">
+                        <p>Departemen : <span id="detailReviewDepartemen"></span></p>
+                        <p>Status : <span id="detailReviewStatus"></span></p>
+                        <p>Tanggal : <span id="detailReviewTanggal"></span></p>
+                    </div>
+                </div>
+                <hr>
                 <div class="table-responsive">
                     <table id="detail-review-table" class="table table-striped table-bordered display nowrap"
                         style="width:100%">
                         <thead>
                             <tr>
+                                <th>ID Lembur</th>
                                 <th>Karyawan</th>
                                 <th>Job Description</th>
                                 <th>Tanggal Mulai</th>
