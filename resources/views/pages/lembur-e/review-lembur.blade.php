@@ -60,4 +60,5 @@
         </div>
     </div>
     @include('pages.lembur-e.modal-detail-review-lembur')
+    @include('pages.lembur-e.modal-filter-review-lembur')
 @endsection

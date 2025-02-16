@@ -89,9 +89,11 @@ $(function () {
             data: function (dataFilter) {
                 var organisasi = $('#filterOrganisasi').val();
                 var departemen = $('#filterDepartemen').val();
+                var status = $('#filterStatus').val();
 
                 dataFilter.departemen = departemen;
                 dataFilter.organisasi = organisasi;
+                dataFilter.status = status;
             },
             dataSrc: function(response) {
                 totalRow = response.recordsFiltered;
@@ -331,4 +333,56 @@ $(function () {
             }
         });
     })
+
+    // FILTER
+    $('.btnFilter').on("click", function (){
+        openFilter();
+    });
+
+    $('.btnCloseFilter').on("click", function (){
+        closeFilter();
+    });
+
+    $('.btnResetFilter').on("click", function (){
+        $('#filterOrganisasi').val([]).trigger('change');
+        $('#filterDepartemen').val([]).trigger('change');
+        $('#filterStatus').val('PLANNING').trigger('change');
+    });
+
+    $(".btnSubmitFilter").on("click", function () {
+        reviewTable.draw();
+        closeFilter();
+    });
+
+    var modalFilterReviewLemburOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalFilterReviewLembur = new bootstrap.Modal(
+        document.getElementById("modal-filter-review-lembur"),
+        modalFilterReviewLemburOptions
+    );
+    
+    function openFilter() {
+        modalFilterReviewLembur.show();
+    }
+
+    function closeFilter() {
+        modalFilterReviewLembur.hide();
+    }
+
+    $('#filterOrganisasi').select2({
+        dropdownParent: $('#modal-filter-review-lembur'),
+        placeholder: 'Pilih Organisasi',
+    });
+
+    $('#filterDepartemen').select2({
+        dropdownParent: $('#modal-filter-review-lembur'),
+        placeholder: 'Pilih Departemen',
+    });
+
+    $('#filterStatus').select2({
+        dropdownParent: $('#modal-filter-review-lembur')
+    });
 });
