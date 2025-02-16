@@ -317,6 +317,7 @@ $(function () {
                     processData: false,
                     dataType: "JSON",
                     success: function (response) {
+                        updateLemburNotification();
                         loadingSwalClose();
                         refreshTable();
                         showToast({ title: response.message });

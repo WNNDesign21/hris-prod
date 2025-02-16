@@ -553,6 +553,66 @@ class HomeController extends Controller
         return response()->json(['data' => $html], 200);
     }
 
+    public function get_review_lembur_notification(){
+        $user = auth()->user();
+        $review_lembur = 0;
+        if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 1) {
+            $posisi = auth()->user()->karyawan->posisi;
+            $departemen_ids = $this->get_member_departemen($posisi);
+
+            foreach ($posisi as $ps){
+                $index = array_search($ps->departemen_id, $departemen_ids);
+                array_splice($departemen_ids, $index, 1);
+            }
+            array_push($departemen_ids, auth()->user()->karyawan->posisi[0]->departemen_id);
+            $departemen_ids = array_filter(array_unique($departemen_ids));
+            sort($departemen_ids);
+
+            $review_lembur = DetailLembur::selectRaw('
+                detail_lemburs.organisasi_id,
+                detail_lemburs.departemen_id,
+                departemens.nama as departemen,
+                divisis.nama as divisi,
+                organisasis.nama as organisasi,
+                detail_lemburs.divisi_id,
+                CASE WHEN (lemburs.status = '."'WAITING'".' AND lemburs.plan_approved_by IS NOT NULL) THEN '."'PLANNING'".' ELSE '."'ACTUAL'".' END AS status,
+                DATE(detail_lemburs.rencana_mulai_lembur) AS tanggal_lembur,
+                SUM(detail_lemburs.nominal) as total_nominal_lembur,
+                SUM(detail_lemburs.durasi) as total_durasi_lembur,
+                COUNT(detail_lemburs.karyawan_id) as total_karyawan,
+                COUNT(DISTINCT detail_lemburs.lembur_id) as total_dokumen
+            ')
+            ->leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
+            ->leftJoin('departemens', 'departemens.id_departemen', 'detail_lemburs.departemen_id')
+            ->leftJoin('organisasis', 'organisasis.id_organisasi', 'detail_lemburs.organisasi_id')
+            ->leftJoin('divisis', 'divisis.id_divisi', 'detail_lemburs.divisi_id')
+            ->where(function ($query) {
+                $query->where(function ($query) {
+                    $query->where('lemburs.status','WAITING');
+                    $query->whereNotNull('lemburs.plan_approved_by');
+                    $query->whereNull('lemburs.plan_reviewed_by');
+                });
+                $query->orWhere(function ($query) {
+                    $query->where('lemburs.status', 'COMPLETED');
+                    $query->whereNotNull('lemburs.actual_approved_by');
+                    $query->whereNull('lemburs.actual_reviewed_by');
+                });
+            })
+            ->whereIn('detail_lemburs.departemen_id', $departemen_ids)
+            ->where('detail_lemburs.is_aktual_approved', 'Y')
+            ->groupBy('detail_lemburs.organisasi_id', 'detail_lemburs.departemen_id', 'detail_lemburs.divisi_id', 'departemens.nama', 'divisis.nama', 'organisasis.nama', 'tanggal_lembur', 'lemburs.plan_approved_by', 'lemburs.status')
+            ->get()
+            ->count();
+        }
+
+        $lembure = [
+            'review_lembur' => $review_lembur,
+        ];
+        
+        $html = view('layouts.partials.notification-review-lembur')->with(compact('lembure'))->render();
+        return response()->json(['data' => $html], 200);
+    }
+
     public function get_notification(){
         $notification = [];
         $today = date('Y-m-d');
@@ -831,6 +891,18 @@ class HomeController extends Controller
                 $data = array_merge($data, $this->get_member_posisi($ps->children));
             }
             $data[] = $ps->id_posisi;
+        }
+        return $data;
+    }
+
+    function get_member_departemen($posisis)
+    {
+        $data = [];
+        foreach ($posisis as $ps) {
+            if ($ps->children) {
+                $data = array_merge($data, $this->get_member_departemen($ps->children));
+            }
+            $data[] = $ps->departemen_id;
         }
         return $data;
     }

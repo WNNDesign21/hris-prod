@@ -104,6 +104,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/lembure/dashboard-lembur/get-weekly-lembur-per-departemen', [LembureController::class, 'get_weekly_lembur_per_departemen']);
     Route::post('/lembure/dashboard-lembur/get-current-month-lembur-per-departemen', [LembureController::class, 'get_current_month_lembur_per_departemen']);
     Route::get('/get-approval-lembur-notification', [HomeController::class, 'get_approval_lembur_notification'])->middleware('lembure');
+    Route::get('/get-review-lembur-notification', [HomeController::class, 'get_review_lembur_notification'])->middleware('lembure');
     Route::get('/get-planned-pengajuan-lembur-notification', [HomeController::class, 'get_planned_pengajuan_lembur_notification'])->middleware('lembure');
     Route::get('/lembure/pengajuan-lembur/get-attachment-lembur/{idLembur}', [LembureController::class, 'get_attachment_lembur']);
     Route::post('/lembure/review-lembur/get-review-lembur-detail', [LembureController::class, 'get_review_lembur_detail']);
