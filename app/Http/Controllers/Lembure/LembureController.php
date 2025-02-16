@@ -292,11 +292,13 @@ class LembureController extends Controller
             5 => 'lemburs.total_durasi',
             6 => 'lemburs.status',
             7 => 'lemburs.plan_checked_by',
-            8=> 'lemburs.plan_approved_by',
-            9 => 'lemburs.plan_legalized_by',
-            10 => 'lemburs.actual_checked_by',
-            11 => 'lemburs.actual_approved_by',
-            12 => 'lemburs.actual_legalized_by'
+            8 => 'lemburs.plan_approved_by',
+            9 => 'lemburs.plan_reviewed_by',
+            10 => 'lemburs.plan_legalized_by',
+            11 => 'lemburs.actual_checked_by',
+            12 => 'lemburs.actual_approved_by',
+            13 => 'lemburs.actual_reviewed_by',
+            14 => 'lemburs.actual_legalized_by'
         );
 
         $limit = $request->input('length');
@@ -359,9 +361,11 @@ class LembureController extends Controller
                 $nestedData['status'] = $status;
                 $nestedData['plan_checked_by'] = $data->plan_checked_by ? '✅<br><small class="text-bold">'.$data?->plan_checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_checked_at)->diffForHumans().'</small>': '';
                 $nestedData['plan_approved_by'] = $data->plan_approved_by ? '✅<br><small class="text-bold">'.$data?->plan_approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_approved_at)->diffForHumans().'</small>': '';
+                $nestedData['plan_reviewed_by'] = $data->plan_reviewed_by ? '✅<br><small class="text-bold">'.$data?->plan_reviewed_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_reviewed_at)->diffForHumans().'</small>': '';
                 $nestedData['plan_legalized_by'] = $data->plan_legalized_by ? '✅<br><small class="text-bold">'.$data?->plan_legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_legalized_at)->diffForHumans().'</small>': '';
                 $nestedData['actual_checked_by'] = $data->actual_checked_by ? '✅<br><small class="text-bold">'.$data?->actual_checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_checked_at)->diffForHumans().'</small>': '';
                 $nestedData['actual_approved_by'] = $data->actual_approved_by ? '✅<br><small class="text-bold">'.$data?->actual_approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_approved_at)->diffForHumans().'</small>': '';
+                $nestedData['actual_reviewed_by'] = $data->actual_reviewed_by ? '✅<br><small class="text-bold">'.$data?->actual_reviewed_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_reviewed_at)->diffForHumans().'</small>': '';
                 $nestedData['actual_legalized_by'] = $data->actual_legalized_by ? '✅<br><small class="text-bold">'.$data?->actual_legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_legalized_at)->diffForHumans().'</small>': '';
                 $nestedData['aksi'] = '<div class="btn-group btn-group-sm">
                     <button type="button" class="waves-effect waves-light btn btn-sm btn-info btnDetail" data-id-lembur="'.$data->id_lembur.'" data-is-member="'.($is_member ? 'true' : 'false').'"><i class="fas fa-eye"></i> Detail</button>
@@ -399,11 +403,13 @@ class LembureController extends Controller
             6 => 'lemburs.total_durasi',
             8 => 'lemburs.status',
             9 => 'lemburs.plan_checked_by',
-            10=> 'lemburs.plan_approved_by',
-            11 => 'lemburs.plan_legalized_by',
-            12 => 'lemburs.actual_checked_by',
-            13 => 'lemburs.actual_approved_by',
-            14 => 'lemburs.actual_legalized_by'
+            10 => 'lemburs.plan_approved_by',
+            11 => 'lemburs.plan_reviewed_by',
+            12 => 'lemburs.plan_legalized_by',
+            13 => 'lemburs.actual_checked_by',
+            14 => 'lemburs.actual_approved_by',
+            15 => 'lemburs.actual_reviewed_by',
+            16 => 'lemburs.actual_legalized_by'
         );
 
         $limit = $request->input('length');
@@ -502,14 +508,25 @@ class LembureController extends Controller
                 //BUTTON ACTION DATATABLE
                 $button_checked_plan = '';
                 $button_approved_plan = '';
+                $button_reviewed_plan = '';
                 $button_legalized_plan = '';
                 $button_checked_actual = '';
                 $button_approved_actual = '';
+                $button_reviewed_actual = '';
                 $button_legalized_actual = '';
 
                 $is_planned = true;
                 if($data->status == 'WAITING'){
                     $is_planned = false;
+                }
+
+                //TOMBOL REVIEWED
+                if($data->plan_reviewed_by !== null){
+                    $button_reviewed_plan = '✅<br><small class="text-bold">'.$data?->plan_reviewed_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_reviewed_at)->diffForHumans().'</small>';
+                }
+
+                if($data->actual_reviewed_by !== null){
+                    $button_reviewed_actual = '✅<br><small class="text-bold">'.$data?->actual_reviewed_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_reviewed_at)->diffForHumans().'</small>';
                 }
 
                 //TOMBOL CHECKED
@@ -657,7 +674,7 @@ class LembureController extends Controller
                     //BEFORE PLANNED
                     //BUTTON LEGALIZED DI SISI PERSONALIA
                     if($data->plan_legalized_by == null){
-                        if($data->plan_approved_by !== null){
+                        if($data->plan_reviewed_by !== null){
                             $button_legalized_plan = '<div class="btn-group"><button class="btn btn-sm btn-success btnLegalized" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-can-checked="'.($is_can_checked ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-balance-scale"></i> Legalized</button><button type="button" class="btn btn-sm btn-danger waves-effect btnRejectLembur" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-times-circle"></i> Reject</button></div>';
                         } 
                     } else {
@@ -668,7 +685,7 @@ class LembureController extends Controller
                     //AFTER PLANNED
                     //BUTTON LEGALIZED DI SISI PERSONALIA
                     if($data->actual_legalized_by == null){
-                        if($data->actual_approved_by !== null){
+                        if($data->actual_reviewed_by !== null){
                             $button_legalized_actual = '<button class="btn btn-sm btn-success btnLegalizedAktual" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-balance-scale"></i> Legalized</button>';
                         } 
                     } else {
@@ -688,9 +705,11 @@ class LembureController extends Controller
                 $nestedData['status'] = $status;
                 $nestedData['plan_checked_by'] = !$rejected ? $button_checked_plan : '';
                 $nestedData['plan_approved_by'] = !$rejected ? $button_approved_plan : '';
+                $nestedData['plan_reviewed_by'] = !$rejected ? $button_reviewed_plan : '';
                 $nestedData['plan_legalized_by'] = !$rejected ? $button_legalized_plan : '';
                 $nestedData['actual_checked_by'] =  !$rejected ? $button_checked_actual : '';
                 $nestedData['actual_approved_by'] = !$rejected ? $button_approved_actual : '';
+                $nestedData['actual_reviewed_by'] = !$rejected ? $button_reviewed_actual : '';
                 $nestedData['actual_legalized_by'] = !$rejected ? $button_legalized_actual : '';
                 $nestedData['action'] = '<button type="button" class="waves-effect waves-light btn btn-sm btn-info btnDetail" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-eye"></i> Detail</button>';
 

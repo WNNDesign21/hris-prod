@@ -122,9 +122,11 @@ $(function () {
         { data: "status"},
         { data: "plan_checked_by"},
         { data: "plan_approved_by"},
+        { data: "plan_reviewed_by"},
         { data: "plan_legalized_by"},
         { data: "actual_checked_by"},
         { data: "actual_approved_by"},
+        { data: "actual_reviewed_by"},
         { data: "actual_legalized_by"},
         { data: "aksi"},
     ];

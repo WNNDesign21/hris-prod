@@ -43,10 +43,12 @@ class LembureMiddleware
                 $query->where(function($query) {
                     $query->where('status', 'WAITING')
                         ->whereNotNull('plan_approved_by')
+                        ->whereNotNull('plan_reviewed_by')
                         ->whereNull('plan_legalized_by');
                 })->orWhere(function($query) {
                     $query->where('status', 'COMPLETED')
                         ->whereNotNull('actual_approved_by')
+                        ->whereNotNull('actual_reviewed_by')
                         ->whereNull('actual_legalized_by');
                 });
             })->where('organisasi_id', $organisasi_id)->count();
@@ -111,11 +113,13 @@ class LembureMiddleware
                     $query->where('lemburs.status','WAITING');
                     $query->whereNotNull('lemburs.plan_approved_by');
                     $query->whereNull('lemburs.plan_reviewed_by');
+                    $query->whereNull('lemburs.plan_legalized_by');
                 });
                 $query->orWhere(function ($query) {
                     $query->where('lemburs.status', 'COMPLETED');
                     $query->whereNotNull('lemburs.actual_approved_by');
                     $query->whereNull('lemburs.actual_reviewed_by');
+                    $query->whereNull('lemburs.actual_legalized_by');
                 });
             })
             ->whereIn('detail_lemburs.departemen_id', $departemen_ids)

@@ -81,12 +81,16 @@ class Lembure extends Model
             'lemburs.plan_checked_at',
             'lemburs.plan_approved_by',
             'lemburs.plan_approved_at',
+            'lemburs.plan_reviewed_by',
+            'lemburs.plan_reviewed_at',
             'lemburs.plan_legalized_by',
             'lemburs.plan_legalized_at',
             'lemburs.actual_checked_by',
             'lemburs.actual_checked_at',
             'lemburs.actual_approved_by',
             'lemburs.actual_approved_at',
+            'lemburs.actual_reviewed_by',
+            'lemburs.actual_reviewed_at',
             'lemburs.actual_legalized_by',
             'lemburs.actual_legalized_at',
             'lemburs.total_durasi',
@@ -139,7 +143,7 @@ class Lembure extends Model
                         $data->orderBy('lemburs.issued_date', 'ASC');
                     }
                 } else {
-                    $data->orderByRaw("((lemburs.status = 'WAITING') AND (lemburs.plan_approved_by IS NOT NULL AND lemburs.plan_legalized_by IS NULL)) OR ((lemburs.status = 'COMPLETED') AND (lemburs.actual_approved_by IS NOT NULL AND lemburs.actual_legalized_by IS NULL)) DESC");
+                    $data->orderByRaw("((lemburs.status = 'WAITING') AND (lemburs.plan_approved_by IS NOT NULL AND lemburs.plan_legalized_by IS NULL AND lemburs.plan_reviewed_by IS NOT NULL)) OR ((lemburs.status = 'COMPLETED') AND (lemburs.actual_approved_by IS NOT NULL AND lemburs.actual_legalized_by IS NULL AND lemburs.actual_reviewed_by IS NOT NULL)) DESC");
                     $data->orderByRaw("lemburs.status = 'REJECTED' ASC");
                 }
             } else {
@@ -198,12 +202,16 @@ class Lembure extends Model
             'lemburs.plan_checked_at',
             'lemburs.plan_approved_by',
             'lemburs.plan_approved_at',
+            'lemburs.plan_reviewed_by',
+            'lemburs.plan_reviewed_at',
             'lemburs.plan_legalized_by',
             'lemburs.plan_legalized_at',
             'lemburs.actual_checked_by',
             'lemburs.actual_checked_at',
             'lemburs.actual_approved_by',
             'lemburs.actual_approved_at',
+            'lemburs.actual_reviewed_by',
+            'lemburs.actual_reviewed_at',
             'lemburs.actual_legalized_by',
             'lemburs.actual_legalized_at',
             'lemburs.total_durasi',
