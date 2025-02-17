@@ -234,6 +234,10 @@
         @vite(['resources/js/pages/izine-export.js'])
     @endif
 
+    @if ($page == 'izine-piket')
+        @vite(['resources/js/pages/izine-piket.js'])
+    @endif
+
     @if ($page == 'sto-input-label')
         @vite(['resources/js/pages/sto/sto-input-label.js'])
     @endif

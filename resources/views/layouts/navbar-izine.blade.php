@@ -81,6 +81,13 @@
                         </li>
                     @endif
                     @if (auth()->user()->hasRole('personalia'))
+                        <li class="{{ $page == 'izine-piket' ? 'active' : '' }}">
+                            <a href="{{ route('izine.piket') }}">
+                                <i class="icon-Time-schedule"><span class="path1"></span><span
+                                        class="path2"></span></i>
+                                <span>Piket (Shift Malam)</span>
+                            </a>
+                        </li>
                         <li class="{{ $page == 'izine-export' ? 'active' : '' }}">
                             <a href="{{ route('izine.export') }}">
                                 <i class="icon-Export"><span class="path1"></span><span class="path2"></span></i>

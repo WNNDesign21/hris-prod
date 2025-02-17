@@ -45,6 +45,7 @@ export default defineConfig({
                 'resources/js/pages/izine-approval-izin.js',
                 'resources/js/pages/izine-approval-skd.js',
                 'resources/js/pages/izine-log-book-izin.js',
+                'resources/js/pages/izine-piket.js',
                 'resources/js/pages/izine-export.js',
                 'resources/js/pages/attendance/attendance-dashboard.js',
                 'resources/js/pages/attendance/attendance-scanlog.js',

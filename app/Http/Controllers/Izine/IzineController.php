@@ -5,13 +5,14 @@ namespace App\Http\Controllers\Izine;
 use Throwable;
 use Carbon\Carbon;
 use App\Models\Izine;
+use App\Models\Piket;
 use App\Models\Posisi;
 use App\Models\Sakite;
 use App\Models\Karyawan;
+use App\Helpers\Approval;
 use App\Models\Departemen;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use App\Helpers\Approval;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -98,6 +99,18 @@ class IzineController extends Controller
             'departments' => $departments
         ];
         return view('pages.izin-e.export-izin', $dataPage);
+    }
+
+    public function piket_view()
+    {
+        $organisasi_id = auth()->user()->organisasi_id;
+        $karyawans = Karyawan::organisasi($organisasi_id)->aktif()->get();
+        $dataPage = [
+            'pageTitle' => "Izin-E - Piket (Shift Malam)",
+            'page' => 'izine-piket',
+            'karyawans' => $karyawans
+        ];
+        return view('pages.izin-e.piket', $dataPage);
     }
 
 
@@ -642,6 +655,78 @@ class IzineController extends Controller
         return response()->json($json_data, 200);
     }
 
+    public function piket_datatable(Request $request)
+    {
+
+        $columns = array(
+            0 => 'karyawans.nama',
+            1 => 'departemens.nama',
+            2 => 'pikets.expired_date'
+        );
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+
+        $settings['start'] = $start;
+        $settings['limit'] = $limit;
+        $settings['dir'] = $dir;
+        $settings['order'] = $order;
+
+        $dataFilter = [];
+        $search = $request->input('search.value');
+        if (!empty($search)) {
+            $dataFilter['search'] = $search;
+        }
+
+        $organisasi_id = auth()->user()->organisasi_id;
+        $dataFilter['organisasi_id'] = $organisasi_id;
+
+        $filterPeriode = $request->periode;
+        if (isset($filterPeriode)) {
+            $year = Carbon::parse($filterPeriode)->format('Y');
+            $month = Carbon::parse($filterPeriode)->format('m');
+            $dataFilter['year'] = $year;
+            $dataFilter['month'] = $month;
+        }
+
+        $totalData = Piket::count();
+        $totalFiltered = $totalData;
+        $pikets = Piket::getData($dataFilter, $settings);
+        $totalFiltered = Piket::countData($dataFilter);
+        $dataTable = [];
+        
+
+        if (!empty($pikets)) {
+            foreach ($pikets as $data) {
+                $nestedData['karyawan'] = $data->karyawan;
+                $nestedData['departemen'] = $data->departemen;
+                $nestedData['expired_date'] = Carbon::parse($data->expired_date)->format('d M Y');
+                $nestedData['aksi'] = '
+                <div class="btn-group">
+                    <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" data-id-piket="'.$data->id_piket.'" data-id-karyawan="'.$data->karyawan_id.'" data-expired-date="'.$data->expired_date.'"><i class="fas fa-edit"></i></button>
+                </div>
+                ';
+
+                $dataTable[] = $nestedData;
+            }
+        }
+
+        $json_data = array(
+            "draw" => intval($request->input('draw')),
+            "recordsTotal" => intval($totalData),
+            "recordsFiltered" => intval($totalFiltered),
+            "data" => $dataTable,
+            "order" => $order,
+            "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
+            "dir" => $dir,
+            "column"=>$request->input('order.0.column')
+        );
+
+        return response()->json($json_data, 200);
+    }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -775,6 +860,93 @@ class IzineController extends Controller
             DB::commit();
             return response()->json(['message' => 'Izin berhasil diajukan'], 200);
         } catch (Throwable $e) {
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function piket_store(Request $request) 
+    {
+        $dataValidate = [
+            'karyawan_id.*' => ['required', 'exists:karyawans,id_karyawan'],
+            'expired_date' => ['required', 'date_format:Y-m-d'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $karyawans = $request->karyawan_id;
+        $expired_date = $request->expired_date;
+        $organisasi_id = auth()->user()->organisasi_id;
+
+        DB::beginTransaction();
+        try {
+            $data_piket = [];
+            foreach ($karyawans as $karyawan_id) {
+                $piket = Piket::where('karyawan_id', $karyawan_id)->where('expired_date', '>=', $expired_date)->exists();
+                $karyawan = Karyawan::find($karyawan_id);
+                if($piket) {
+                    DB::rollback();
+                    return response()->json(['message' => $karyawan->nama.' sudah memiliki jadwal piket dengan expired date yang lebih lama!'], 401);
+                }
+
+                $data_piket[] = [
+                    'karyawan_id' => $karyawan_id,
+                    'departemen_id' => $karyawan->posisi[0]->departemen_id,
+                    'expired_date' => $expired_date,
+                    'organisasi_id' => $organisasi_id
+                ];
+            }
+
+            Piket::insert($data_piket);
+            DB::commit();
+            return response()->json(['message' => 'Piket shift malam karyawan berhasil ditambahkan!'], 200);
+        } catch (Throwable $e){
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function piket_update(Request $request, string $id_piket) 
+    {
+        $dataValidate = [
+            'karyawan_idEdit' => ['required', 'exists:karyawans,id_karyawan'],
+            'expired_dateEdit' => ['required', 'date_format:Y-m-d'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $karyawan = $request->karyawan_idEdit;
+        $expired_date = $request->expired_dateEdit;
+        $organisasi_id = auth()->user()->organisasi_id;
+
+        DB::beginTransaction();
+        try {
+            $piket = Piket::find($id_piket);
+
+            $piket_exists = Piket::where('karyawan_id', $piket->karyawan_id)->where('expired_date', '>=', $expired_date)->exists();
+            $kry = Karyawan::find($karyawan);
+            
+            if($piket_exists) {
+                DB::rollback();
+                return response()->json(['message' => $kry->nama.' sudah memiliki jadwal piket dengan expired date yang lebih lama!'], 401);
+            }
+            
+            $piket->karyawan_id = $karyawan;
+            $piket->expired_date = $expired_date;
+            $piket->save();
+            DB::commit();
+            return response()->json(['message' => 'Piket shift malam karyawan berhasil ditambahkan!'], 200);
+        } catch (Throwable $e){
             DB::rollBack();
             return response()->json(['message' => $e->getMessage()], 500);
         }

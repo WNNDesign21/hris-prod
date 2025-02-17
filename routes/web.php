@@ -422,6 +422,13 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::get('/export', [IzineController::class, 'export_view'])->name('izine.export');
             Route::post('/export/export-izin-dan-skd', [IzineController::class, 'export_izin_dan_skd'])->name('izine.export.export-izin-dan-skd');
         });
+
+        Route::group(['middleware' => ['role:personalia']], function () {
+            Route::get('/piket', [IzineController::class, 'piket_view'])->name('izine.piket');
+            Route::post('/piket-datatable', [IzineController::class, 'piket_datatable']);
+            Route::post('/piket/store', [IzineController::class, 'piket_store'])->name('izine.piket.store');
+            Route::patch('/piket/update/{idPiket}', [IzineController::class, 'piket_update'])->name('izine.piket.update');
+        });
     });
 
       /** ATTENDANCE */
