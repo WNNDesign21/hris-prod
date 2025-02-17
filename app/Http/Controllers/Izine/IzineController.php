@@ -931,21 +931,20 @@ class IzineController extends Controller
 
         DB::beginTransaction();
         try {
-            $piket = Piket::find($id_piket);
-
-            $piket_exists = Piket::where('karyawan_id', $piket->karyawan_id)->where('expired_date', '>=', $expired_date)->exists();
+            $piket_exists = Piket::where('karyawan_id', $karyawan)->where('expired_date', '>=', $expired_date)->exists();
             $kry = Karyawan::find($karyawan);
-            
+
             if($piket_exists) {
                 DB::rollback();
                 return response()->json(['message' => $kry->nama.' sudah memiliki jadwal piket dengan expired date yang lebih lama!'], 401);
             }
-            
+
+            $piket = Piket::find($id_piket);
             $piket->karyawan_id = $karyawan;
             $piket->expired_date = $expired_date;
             $piket->save();
             DB::commit();
-            return response()->json(['message' => 'Piket shift malam karyawan berhasil ditambahkan!'], 200);
+            return response()->json(['message' => 'Piket shift malam karyawan berhasil diupdate!'], 200);
         } catch (Throwable $e){
             DB::rollBack();
             return response()->json(['message' => $e->getMessage()], 500);
