@@ -320,4 +320,40 @@ $(function () {
         $('#id_piketEdit').val('');
         modalEditPiket.hide();
     }
+
+    $('#piket-table').on("click", '.btnDelete', function (){
+        let idPiket = $(this).data('id-piket');
+        let url = base_url + '/izine/piket/delete/' + idPiket;
+        Swal.fire({
+            title: "Delete Karyawan Piket",
+            text: "Apakah kamu yakin untuk menghapus Piket Karyawan ini?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, delete it!",
+            allowOutsideClick: false,
+        }).then((result) => {
+            if (result.value) {
+                loadingSwalShow();
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: {
+                        _method: "delete",
+                    },
+                    dataType: "JSON",
+                    success: function (data) {
+                        loadingSwalClose();
+                        refreshTable();
+                        showToast({ title: data.message });
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        loadingSwalClose();
+                        showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                    },
+                });
+            }
+        });
+    })
 });

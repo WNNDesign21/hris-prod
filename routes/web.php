@@ -428,6 +428,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::post('/piket-datatable', [IzineController::class, 'piket_datatable']);
             Route::post('/piket/store', [IzineController::class, 'piket_store'])->name('izine.piket.store');
             Route::patch('/piket/update/{idPiket}', [IzineController::class, 'piket_update'])->name('izine.piket.update');
+            Route::delete('/piket/delete/{idPiket}', [IzineController::class, 'piket_delete'])->name('izine.piket.delete');
         });
     });
 

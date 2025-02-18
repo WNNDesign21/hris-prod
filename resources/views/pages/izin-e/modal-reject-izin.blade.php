@@ -15,6 +15,7 @@
                         <div class="row">
                             <div class="col-12">
                                 <div class="form-group">
+                                    <input type="hidden" name="is_shift_malam" id="is_shift_malam" value="N">
                                     <textarea class="form-control" name="rejected_note" id="rejected_note"
                                         placeholder="Tuliskan alasan menolak pengajuan izin ini!" style="width: 100%;"></textarea>
                                 </div>

@@ -3,6 +3,7 @@
 use App\Jobs\RollingShiftGroupJob;
 use Illuminate\Foundation\Application;
 use App\Http\Middleware\IzineMiddleware;
+use App\Http\Middleware\PiketMiddleware;
 use App\Http\Middleware\LembureMiddleware;
 use Illuminate\Console\Scheduling\Schedule;
 use App\Http\Middleware\NotificationMiddleware;
@@ -23,6 +24,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'notifikasi' => NotificationMiddleware::class,
             'lembure' => LembureMiddleware::class,
             'izine' => IzineMiddleware::class,
+            'piket' => PiketMiddleware::class,
         ]);
     })
     ->withSchedule(function (Schedule $schedule) {
