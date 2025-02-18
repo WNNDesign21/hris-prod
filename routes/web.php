@@ -28,6 +28,7 @@ use App\Http\Controllers\MasterData\KaryawanController;
 use App\Http\Controllers\MasterData\TemplateController;
 use App\Http\Controllers\MasterData\TurnoverController;
 use App\Http\Controllers\MasterData\DashboardController;
+use App\Http\Controllers\TugasLuare\PengajuanController as TLPengajuanController;
 use App\Http\Controllers\Attendance\ShiftgroupController;
 use App\Http\Controllers\MasterData\DepartemenController;
 use App\Http\Controllers\MasterData\OrganisasiController;
@@ -466,6 +467,16 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         Route::get('/rekap', [RekapController::class, 'index'])->name('attendance.rekap');
         Route::post('/rekap/export-rekap', [RekapController::class, 'export_rekap'])->name('attendance.rekap.export-rekap');
     });
+
+    /** TUGASLUARE */
+    Route::group(['prefix' => 'tugasluare'], function () {
+        // PENGAJUAN
+        Route::get('/pengajuan', [TLPengajuanController::class, 'index'])->name('tugasluare.pengajuan');
+        Route::post('/pengajuan/datatable', [TLPengajuanController::class, 'datatable']);
+        Route::post('/pengajuan/store', [TLPengajuanController::class, 'store'])->name('tugasluare.pengajuan.store');
+        Route::patch('/pengajuan/update/{idTugasLuar}', [TLPengajuanController::class, 'update'])->name('tugasluare.pengajuan.update');
+    });
+
 });
 
 // STOCK-OPNAME
