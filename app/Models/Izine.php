@@ -121,6 +121,19 @@ class Izine extends Model
             $data->whereIn('posisis.id_posisi', $dataFilter['member_posisi_id']);
         }
 
+        if (isset($dataFilter['is_shift_malam'])) {
+            $data->where(function ($query) {
+            $query->whereTime('izins.rencana_mulai_or_masuk', '>=', '21:00:00')
+                ->orWhereTime('izins.rencana_mulai_or_masuk', '<=', '06:00:00')
+                ->orWhereTime('izins.rencana_selesai_or_keluar', '>=', '21:00:00')
+                ->orWhereTime('izins.rencana_selesai_or_keluar', '<=', '06:00:00')
+                ->orWhereTime('izins.aktual_mulai_or_masuk', '>=', '21:00:00')
+                ->orWhereTime('izins.aktual_mulai_or_masuk', '<=', '06:00:00')
+                ->orWhereTime('izins.aktual_selesai_or_keluar', '>=', '21:00:00')
+                ->orWhereTime('izins.aktual_selesai_or_keluar', '<=', '06:00:00');
+            });
+        }
+
         //FILTER CUSTOM
         if (isset($dataFilter['status'])) {
             $status = $dataFilter['status'];

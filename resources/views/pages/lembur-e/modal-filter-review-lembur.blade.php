@@ -1,9 +1,9 @@
 <!-- modal Area -->
-<div class="modal fade" id="modal-filter">
+<div class="modal fade" id="modal-filter-review-lembur">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title">Filter SKD</h4>
+                <h4 class="modal-title">Filter Lembur</h4>
                 <button type="button" class="btn-close btnCloseFilter" data-bs-dismiss="modal"
                     aria-label="Close"></button>
             </div>
@@ -12,30 +12,28 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="form-group">
-                                <label for="filterUrutan">URUTAN</label>
-                                <select name="filterUrutan" id="filterUrutan" class="form-control" style="width: 100%;">
-                                    <option value="">NO FILTER</option>
-                                    <option value="NO">NEW TO OLD</option>
-                                    <option value="ON">OLD TO NEW</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
                                 <label for="filterDepartemen">DEPARTEMEN</label>
                                 <select name="filterDepartemen" id="filterDepartemen" class="form-control"
-                                    style="width: 100%;">
-                                    <option value="">SEMUA DEPARTEMEN</option>
+                                    style="width: 100%;" multiple>
                                     @foreach ($departemens as $item)
                                         <option value="{{ $item->id_departemen }}">{{ $item->nama }}</option>
                                     @endforeach
                                 </select>
                             </div>
                             <div class="form-group">
+                                <label for="filterOrganisasi">PLANT</label>
+                                <select name="filterOrganisasi" id="filterOrganisasi" class="form-control"
+                                    style="width: 100%;" multiple>
+                                    @foreach ($organisasis as $item)
+                                        <option value="{{ $item->id_organisasi }}">{{ $item->nama }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="form-group">
                                 <label for="filterStatus">STATUS</label>
                                 <select name="filterStatus" id="filterStatus" class="form-control" style="width: 100%;">
-                                    <option value="">NO FILTER</option>
-                                    <option value="1">MUST APPROVED</option>
-                                    <option value="2">MUST LEGALIZED</option>
-                                    <option value="3">REJECTED</option>
+                                    <option value="PLANNING">PLANNING</option>
+                                    <option value="ACTUAL">ACTUAL</option>
                                 </select>
                             </div>
                         </div>

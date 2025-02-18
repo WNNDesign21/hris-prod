@@ -427,4 +427,30 @@ class TestController extends Controller
         $result = SendWhatsappNotification::send($message, $organisasi_id, $phone_number);
         dd($result);
     }
+
+    public function test()
+    {
+        $posisi = auth()->user()->karyawan->posisi;
+        $departemen_ids = $this->get_member_departemen($posisi);
+
+        foreach ($posisi as $ps){
+            $index = array_search($ps->departemen_id, $departemen_ids);
+            array_splice($departemen_ids, $index, 1);
+        }
+        array_push($departemen_ids, auth()->user()->karyawan->posisi[0]->departemen_id);
+        $departemen_ids = array_filter(array_unique($departemen_ids));
+        sort($departemen_ids);
+    }
+
+    private function get_member_departemen($posisis)
+    {
+        $data = [];
+        foreach ($posisis as $ps) {
+            if ($ps->children) {
+                $data = array_merge($data, $this->get_member_departemen($ps->children));
+            }
+            $data[] = $ps->departemen_id;
+        }
+        return $data;
+    }
 }

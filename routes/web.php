@@ -49,6 +49,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/upload-pin', [TestController::class, 'upload_pin_view']);
     Route::post('/upload-pin/store', [TestController::class, 'upload_pin'])->name('upload-pin.store');
     Route::get('/rekap-presensi', [TestController::class, 'test_rekap_presensi']);
+    Route::get('/test', [TestController::class, 'test']);
 
     //WHATSAPP FONNTE
     // Route::get('/send-whatsapp-message', [TestController::class, 'send_whatsapp_message']);
@@ -103,8 +104,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/lembure/dashboard-lembur/get-weekly-lembur-per-departemen', [LembureController::class, 'get_weekly_lembur_per_departemen']);
     Route::post('/lembure/dashboard-lembur/get-current-month-lembur-per-departemen', [LembureController::class, 'get_current_month_lembur_per_departemen']);
     Route::get('/get-approval-lembur-notification', [HomeController::class, 'get_approval_lembur_notification'])->middleware('lembure');
+    Route::get('/get-review-lembur-notification', [HomeController::class, 'get_review_lembur_notification'])->middleware('lembure');
     Route::get('/get-planned-pengajuan-lembur-notification', [HomeController::class, 'get_planned_pengajuan_lembur_notification'])->middleware('lembure');
     Route::get('/lembure/pengajuan-lembur/get-attachment-lembur/{idLembur}', [LembureController::class, 'get_attachment_lembur']);
+    Route::post('/lembure/review-lembur/get-review-lembur-detail', [LembureController::class, 'get_review_lembur_detail']);
 
     Route::get('/izine/pengajuan-izin/get-data-izin/{idIzin}', [IzineController::class, 'get_data_izin']);
     Route::get('/izine/lapor-skd/get-data-sakit/{idSakit}', [SakiteController::class, 'get_data_sakit']);
@@ -340,6 +343,10 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::patch('/approval-lembur/approved-aktual/{idLembur}', [LembureController::class, 'approved_aktual'])->name('lembure.approval-lembur.approved-aktual');
             Route::patch('/approval-lembur/legalized-aktual/{idLembur}', [LembureController::class, 'legalized_aktual'])->name('lembure.approval-lembur.legalized-aktual');
             Route::post('/approval-lembur/get-list-data-cross-check', [LembureController::class, 'get_list_data_cross_check']);
+
+            Route::get('/review-lembur', [LembureController::class, 'review_lembur_view'])->name('lembure.review-lembur');
+            Route::post('/review-lembur-datatable', [LembureController::class, 'review_lembur_datatable']);
+            Route::patch('/review-lembur/reviewed', [LembureController::class, 'reviewed'])->name('lembure.review-lembur.reviewed');
         });
 
         Route::group(['middleware' => ['role:personalia']], function () {
@@ -414,6 +421,14 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             //EXPORT
             Route::get('/export', [IzineController::class, 'export_view'])->name('izine.export');
             Route::post('/export/export-izin-dan-skd', [IzineController::class, 'export_izin_dan_skd'])->name('izine.export.export-izin-dan-skd');
+        });
+
+        Route::group(['middleware' => ['role:personalia']], function () {
+            Route::get('/piket', [IzineController::class, 'piket_view'])->name('izine.piket');
+            Route::post('/piket-datatable', [IzineController::class, 'piket_datatable']);
+            Route::post('/piket/store', [IzineController::class, 'piket_store'])->name('izine.piket.store');
+            Route::patch('/piket/update/{idPiket}', [IzineController::class, 'piket_update'])->name('izine.piket.update');
+            Route::delete('/piket/delete/{idPiket}', [IzineController::class, 'piket_delete'])->name('izine.piket.delete');
         });
     });
 

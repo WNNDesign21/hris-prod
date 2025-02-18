@@ -25,17 +25,9 @@ class Lembure extends Model
         'id_lembur','organisasi_id','departemen_id','divisi_id','plan_checked_by','plan_checked_at','plan_approved_by',
         'plan_approved_at','plan_legalized_by','plan_legalized_at','actual_checked_by','actual_checked_at',
         'actual_approved_by','actual_approved_at','actual_legalized_by','actual_legalized_at','total_durasi',
-        'status','attachment','issued_date','issued_by', 'jenis_hari', 'rejected_by', 'rejected_at', 'rejected_note'
+        'status','attachment','issued_date','issued_by', 'jenis_hari', 'rejected_by', 'rejected_at', 'rejected_note',
+        'plan_reviewed_at', 'plan_reviewed_by', 'actual_reviewed_at', 'actual_reviewed_by'
     ];
-
-    // public function scopeIssuedBy($query, $issued_by)
-    // {
-    //     if ($issued_by) {
-    //         return $query->where('issued_by', $issued_by);
-    //     } else {
-    //         return $query;
-    //     }
-    // }
 
     public function attachmentLembur()
     {
@@ -89,12 +81,16 @@ class Lembure extends Model
             'lemburs.plan_checked_at',
             'lemburs.plan_approved_by',
             'lemburs.plan_approved_at',
+            'lemburs.plan_reviewed_by',
+            'lemburs.plan_reviewed_at',
             'lemburs.plan_legalized_by',
             'lemburs.plan_legalized_at',
             'lemburs.actual_checked_by',
             'lemburs.actual_checked_at',
             'lemburs.actual_approved_by',
             'lemburs.actual_approved_at',
+            'lemburs.actual_reviewed_by',
+            'lemburs.actual_reviewed_at',
             'lemburs.actual_legalized_by',
             'lemburs.actual_legalized_at',
             'lemburs.total_durasi',
@@ -147,17 +143,21 @@ class Lembure extends Model
                         $data->orderBy('lemburs.issued_date', 'ASC');
                     }
                 } else {
-                    $data->orderByRaw("((lemburs.status = 'WAITING') AND (lemburs.plan_approved_by IS NOT NULL AND lemburs.plan_legalized_by IS NULL)) OR ((lemburs.status = 'COMPLETED') AND (lemburs.actual_approved_by IS NOT NULL AND lemburs.actual_legalized_by IS NULL)) DESC");
+                    $data->orderByRaw("((lemburs.status = 'WAITING') AND (lemburs.plan_approved_by IS NOT NULL AND lemburs.plan_legalized_by IS NULL AND lemburs.plan_reviewed_by IS NOT NULL)) OR ((lemburs.status = 'COMPLETED') AND (lemburs.actual_approved_by IS NOT NULL AND lemburs.actual_legalized_by IS NULL AND lemburs.actual_reviewed_by IS NOT NULL)) DESC");
                     $data->orderByRaw("lemburs.status = 'REJECTED' ASC");
                 }
             } else {
-                $data->where('lemburs.status','WAITING');
-                $data->whereNotNull('lemburs.plan_checked_by');
-                $data->whereNull('lemburs.plan_approved_by');
-                $data->orWhere(function ($query) {
-                    $query->where('lemburs.status', 'COMPLETED')
-                    ->whereNotNull('lemburs.actual_checked_by')
-                    ->whereNull('lemburs.actual_approved_by');
+                $data->where(function ($query) {
+                    $query->where(function ($query) {
+                        $query->where('lemburs.status','WAITING');
+                        $query->whereNotNull('lemburs.plan_checked_by');
+                        $query->whereNull('lemburs.plan_approved_by');
+                    });
+                    $query->orWhere(function ($query) {
+                        $query->where('lemburs.status', 'COMPLETED')
+                        ->whereNotNull('lemburs.actual_checked_by')
+                        ->whereNull('lemburs.actual_approved_by');
+                    });
                 });
                 $data->orderByRaw("(lemburs.status = 'WAITING' AND lemburs.plan_approved_by IS NULL AND lemburs.plan_checked_by IS NOT NULL) OR (lemburs.status = 'WAITING' AND lemburs.plan_approved_by IS NOT NULL) DESC");
                 $data->orderByRaw("lemburs.status = 'COMPLETED' AND lemburs.actual_approved_by IS NULL DESC");
@@ -202,12 +202,16 @@ class Lembure extends Model
             'lemburs.plan_checked_at',
             'lemburs.plan_approved_by',
             'lemburs.plan_approved_at',
+            'lemburs.plan_reviewed_by',
+            'lemburs.plan_reviewed_at',
             'lemburs.plan_legalized_by',
             'lemburs.plan_legalized_at',
             'lemburs.actual_checked_by',
             'lemburs.actual_checked_at',
             'lemburs.actual_approved_by',
             'lemburs.actual_approved_at',
+            'lemburs.actual_reviewed_by',
+            'lemburs.actual_reviewed_at',
             'lemburs.actual_legalized_by',
             'lemburs.actual_legalized_at',
             'lemburs.total_durasi',

@@ -212,11 +212,14 @@ $(function () {
     function closeReject() {
         modalReject.hide();
         $('#rejected_note').val('');
+        $('#is_shift_malam').val('');
     }
 
     $('#approval-izin-table').on('click', '.btnReject', function(){
         let idIzin = $(this).data('id-izin');
         let url = base_url + '/izine/approval-izin/rejected/' + idIzin;
+        let isShiftMalam = $(this).data('is-shift-malam');
+        $('#is_shift_malam').val(isShiftMalam);
         $('#form-reject-izin').attr('action', url);
         openReject();
     });
@@ -328,9 +331,11 @@ $(function () {
 
     $('#approval-izin-table').on('click', '.btnLegalized', function(){
         let idIzin = $(this).data('id-izin');
+        let isShiftMalam = $(this).data('is-shift-malam');
         let url = base_url + '/izine/approval-izin/legalized/' + idIzin;
         var formData = new FormData();
         formData.append('_method', 'PATCH');
+        formData.append('is_shift_malam', isShiftMalam);
         Swal.fire({
             title: "Legalized Izin",
             text: "Data yang sudah di legalized tidak bisa diubah!",

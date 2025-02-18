@@ -127,6 +127,35 @@ class LembureController extends Controller
         return view('pages.lembur-e.approval-lembur', $dataPage);
     }
 
+    public function review_lembur_view()
+    {
+        $posisi = auth()->user()->karyawan->posisi;
+        if($posisi[0]->jabatan_id !== 1) {
+            return redirect()->route('lembure.dashboard');
+        }
+
+        $departemen_ids = $this->get_member_departemen($posisi);
+
+        foreach ($posisi as $ps){
+            $index = array_search($ps->departemen_id, $departemen_ids);
+            array_splice($departemen_ids, $index, 1);
+        }
+        array_push($departemen_ids, auth()->user()->karyawan->posisi[0]->departemen_id);
+        $departemen_ids = array_filter(array_unique($departemen_ids));
+        sort($departemen_ids);
+
+        $departemens = Departemen::whereIn('id_departemen', $departemen_ids)->get();
+        $organisasis = Organisasi::all();
+
+        $dataPage = [
+            'pageTitle' => "Lembur-E - Review Lembur",
+            'page' => 'lembure-review-lembur',
+            'departemens' => $departemens,
+            'organisasis' => $organisasis
+        ];
+        return view('pages.lembur-e.review-lembur', $dataPage);
+    }
+
     public function bypass_lembur_view()
     {
         if(auth()->user()->hasRole('personalia')){
@@ -263,11 +292,13 @@ class LembureController extends Controller
             5 => 'lemburs.total_durasi',
             6 => 'lemburs.status',
             7 => 'lemburs.plan_checked_by',
-            8=> 'lemburs.plan_approved_by',
-            9 => 'lemburs.plan_legalized_by',
-            10 => 'lemburs.actual_checked_by',
-            11 => 'lemburs.actual_approved_by',
-            12 => 'lemburs.actual_legalized_by'
+            8 => 'lemburs.plan_approved_by',
+            9 => 'lemburs.plan_reviewed_by',
+            10 => 'lemburs.plan_legalized_by',
+            11 => 'lemburs.actual_checked_by',
+            12 => 'lemburs.actual_approved_by',
+            13 => 'lemburs.actual_reviewed_by',
+            14 => 'lemburs.actual_legalized_by'
         );
 
         $limit = $request->input('length');
@@ -330,9 +361,11 @@ class LembureController extends Controller
                 $nestedData['status'] = $status;
                 $nestedData['plan_checked_by'] = $data->plan_checked_by ? '✅<br><small class="text-bold">'.$data?->plan_checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_checked_at)->diffForHumans().'</small>': '';
                 $nestedData['plan_approved_by'] = $data->plan_approved_by ? '✅<br><small class="text-bold">'.$data?->plan_approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_approved_at)->diffForHumans().'</small>': '';
+                $nestedData['plan_reviewed_by'] = $data->plan_reviewed_by ? '✅<br><small class="text-bold">'.$data?->plan_reviewed_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_reviewed_at)->diffForHumans().'</small>': '';
                 $nestedData['plan_legalized_by'] = $data->plan_legalized_by ? '✅<br><small class="text-bold">'.$data?->plan_legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_legalized_at)->diffForHumans().'</small>': '';
                 $nestedData['actual_checked_by'] = $data->actual_checked_by ? '✅<br><small class="text-bold">'.$data?->actual_checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_checked_at)->diffForHumans().'</small>': '';
                 $nestedData['actual_approved_by'] = $data->actual_approved_by ? '✅<br><small class="text-bold">'.$data?->actual_approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_approved_at)->diffForHumans().'</small>': '';
+                $nestedData['actual_reviewed_by'] = $data->actual_reviewed_by ? '✅<br><small class="text-bold">'.$data?->actual_reviewed_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_reviewed_at)->diffForHumans().'</small>': '';
                 $nestedData['actual_legalized_by'] = $data->actual_legalized_by ? '✅<br><small class="text-bold">'.$data?->actual_legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_legalized_at)->diffForHumans().'</small>': '';
                 $nestedData['aksi'] = '<div class="btn-group btn-group-sm">
                     <button type="button" class="waves-effect waves-light btn btn-sm btn-info btnDetail" data-id-lembur="'.$data->id_lembur.'" data-is-member="'.($is_member ? 'true' : 'false').'"><i class="fas fa-eye"></i> Detail</button>
@@ -370,11 +403,13 @@ class LembureController extends Controller
             6 => 'lemburs.total_durasi',
             8 => 'lemburs.status',
             9 => 'lemburs.plan_checked_by',
-            10=> 'lemburs.plan_approved_by',
-            11 => 'lemburs.plan_legalized_by',
-            12 => 'lemburs.actual_checked_by',
-            13 => 'lemburs.actual_approved_by',
-            14 => 'lemburs.actual_legalized_by'
+            10 => 'lemburs.plan_approved_by',
+            11 => 'lemburs.plan_reviewed_by',
+            12 => 'lemburs.plan_legalized_by',
+            13 => 'lemburs.actual_checked_by',
+            14 => 'lemburs.actual_approved_by',
+            15 => 'lemburs.actual_reviewed_by',
+            16 => 'lemburs.actual_legalized_by'
         );
 
         $limit = $request->input('length');
@@ -473,14 +508,25 @@ class LembureController extends Controller
                 //BUTTON ACTION DATATABLE
                 $button_checked_plan = '';
                 $button_approved_plan = '';
+                $button_reviewed_plan = '';
                 $button_legalized_plan = '';
                 $button_checked_actual = '';
                 $button_approved_actual = '';
+                $button_reviewed_actual = '';
                 $button_legalized_actual = '';
 
                 $is_planned = true;
                 if($data->status == 'WAITING'){
                     $is_planned = false;
+                }
+
+                //TOMBOL REVIEWED
+                if($data->plan_reviewed_by !== null){
+                    $button_reviewed_plan = '✅<br><small class="text-bold">'.$data?->plan_reviewed_by.'</small><br><small class="text-fade">'.Carbon::parse($data->plan_reviewed_at)->diffForHumans().'</small>';
+                }
+
+                if($data->actual_reviewed_by !== null){
+                    $button_reviewed_actual = '✅<br><small class="text-bold">'.$data?->actual_reviewed_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_reviewed_at)->diffForHumans().'</small>';
                 }
 
                 //TOMBOL CHECKED
@@ -628,7 +674,7 @@ class LembureController extends Controller
                     //BEFORE PLANNED
                     //BUTTON LEGALIZED DI SISI PERSONALIA
                     if($data->plan_legalized_by == null){
-                        if($data->plan_approved_by !== null){
+                        if($data->plan_reviewed_by !== null){
                             $button_legalized_plan = '<div class="btn-group"><button class="btn btn-sm btn-success btnLegalized" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-can-checked="'.($is_can_checked ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-balance-scale"></i> Legalized</button><button type="button" class="btn btn-sm btn-danger waves-effect btnRejectLembur" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-times-circle"></i> Reject</button></div>';
                         } 
                     } else {
@@ -639,7 +685,7 @@ class LembureController extends Controller
                     //AFTER PLANNED
                     //BUTTON LEGALIZED DI SISI PERSONALIA
                     if($data->actual_legalized_by == null){
-                        if($data->actual_approved_by !== null){
+                        if($data->actual_reviewed_by !== null){
                             $button_legalized_actual = '<button class="btn btn-sm btn-success btnLegalizedAktual" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-balance-scale"></i> Legalized</button>';
                         } 
                     } else {
@@ -659,11 +705,123 @@ class LembureController extends Controller
                 $nestedData['status'] = $status;
                 $nestedData['plan_checked_by'] = !$rejected ? $button_checked_plan : '';
                 $nestedData['plan_approved_by'] = !$rejected ? $button_approved_plan : '';
+                $nestedData['plan_reviewed_by'] = !$rejected ? $button_reviewed_plan : '';
                 $nestedData['plan_legalized_by'] = !$rejected ? $button_legalized_plan : '';
                 $nestedData['actual_checked_by'] =  !$rejected ? $button_checked_actual : '';
                 $nestedData['actual_approved_by'] = !$rejected ? $button_approved_actual : '';
+                $nestedData['actual_reviewed_by'] = !$rejected ? $button_reviewed_actual : '';
                 $nestedData['actual_legalized_by'] = !$rejected ? $button_legalized_actual : '';
                 $nestedData['action'] = '<button type="button" class="waves-effect waves-light btn btn-sm btn-info btnDetail" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-eye"></i> Detail</button>';
+
+                $dataTable[] = $nestedData;
+            }
+        }
+
+        $json_data = array(
+            "draw" => intval($request->input('draw')),
+            "recordsTotal" => intval($totalData),
+            "recordsFiltered" => intval($totalFiltered),
+            "data" => $dataTable,
+            "order" => $order,
+            "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
+            "dir" => $dir,
+            "column"=>$request->input('order.0.column')
+        );
+
+        return response()->json($json_data, 200);
+    }
+
+    public function review_lembur_datatable(Request $request)
+    {
+        $columns = array(
+            1 => 'subquery.tanggal_lembur',
+            2 => 'subquery.departemen',
+            3 => 'subquery.status',
+            4 => 'subquery.total_nominal_lembur',
+            5 => 'subquery.total_durasi_lembur',
+            6 => 'subqyery.total_karyawan',
+            7 => 'subquery.total_dokumen'
+        );
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+
+        $settings['start'] = $start;
+        $settings['limit'] = $limit;
+        $settings['dir'] = $dir;
+        $settings['order'] = $order;
+
+        $dataFilter = [];
+        $search = $request->input('search.value');
+        if (!empty($search)) {
+            $dataFilter['search'] = $search;
+        }
+
+        $filterOrganisasi = $request->organisasi;
+        if ($filterOrganisasi) {
+            $dataFilter['organisasi'] = $filterOrganisasi;
+        }
+
+        $filterStatus = $request->status;
+        if (!empty($filterStatus)) {
+            $dataFilter['status'] = $filterStatus;
+        }
+
+        $posisi = auth()->user()->karyawan->posisi;
+        $departemen_ids = $this->get_member_departemen($posisi);
+
+        foreach ($posisi as $ps){
+            $index = array_search($ps->departemen_id, $departemen_ids);
+            array_splice($departemen_ids, $index, 1);
+        }
+        array_push($departemen_ids, auth()->user()->karyawan->posisi[0]->departemen_id);
+        $departemen_ids = array_filter(array_unique($departemen_ids));
+        sort($departemen_ids);
+
+        $filterDepartemen = $request->departemen;
+        if ($filterDepartemen) {
+            $dataFilter['departemen'] = $filterDepartemen;
+        } else {
+            $dataFilter['departemen'] = $departemen_ids;
+        }
+
+        $totalData = DetailLembur::getDataReviewLembur($dataFilter, $settings)->count();
+        $totalFiltered = $totalData;
+
+        $reviewLembur = DetailLembur::getDataReviewLembur($dataFilter, $settings);
+        $totalFiltered = DetailLembur::countDataReviewLembur($dataFilter);
+        $dataTable = [];
+
+        if (!empty($reviewLembur)) {
+            $count = $start;
+            foreach ($reviewLembur as $data) {
+                $count++;
+                if ($data->status == 'PLANNING') {
+                    $status = '<span class="badge badge-info">PLANNING</span>';
+                } else {
+                    $status = '<span class="badge badge-success">ACTUAL</span>';
+                }
+
+                if($data->departemen) {
+                    $departemen = '<p>'.$data->departemen.'<br><small class="text-fade">'.$data->organisasi.'</small></p>';
+                } else {
+                    $departemen = '<p>'.$data->divisi.'<br><small class="text-fade">'.$data->organisasi.'</small></p>';
+                }
+
+                $jam = floor($data->total_durasi_lembur / 60);
+                $menit = $data->total_durasi_lembur % 60;
+                
+                $nestedData['checkbox'] = $data->tanggal_lembur.'|'.$data->departemen_id.'|'.$data->divisi_id.'|'.$data->organisasi_id.'|'.$data->status;
+                $nestedData['tanggal_lembur'] = Carbon::parse($data->tanggal_lembur)->format('d M Y');
+                $nestedData['departemen'] = $departemen;
+                $nestedData['status'] = $status;
+                $nestedData['total_durasi_lembur'] = $jam . ' Jam ' . $menit . ' Menit';
+                $nestedData['total_nominal_lembur'] = 'Rp. ' . number_format($data->total_nominal_lembur, 0, ',', '.');
+                $nestedData['total_karyawan'] = $data->total_karyawan;
+                $nestedData['total_dokumen'] = $data->total_dokumen;
+                $nestedData['aksi'] = '<button type="button" class="waves-effect waves-light btn btn-sm btn-info btnDetail" data-departemen-id="'.$data->departemen_id.'" data-divisi-id="'.$data->divisi_id.'" data-organisasi-id="'.$data->organisasi_id.'" data-tanggal-lembur="'.$data->tanggal_lembur.'" data-status="'.$data->status.'" data-departemen="'.$data->departemen.'" data-organisasi="'.$data->organisasi.'"><i class="fas fa-eye"></i> Detail</button>';
 
                 $dataTable[] = $nestedData;
             }
@@ -2373,6 +2531,18 @@ class LembureController extends Controller
         return $data;
     }
 
+    function get_member_departemen($posisis)
+    {
+        $data = [];
+        foreach ($posisis as $ps) {
+            if ($ps->children) {
+                $data = array_merge($data, $this->get_member_departemen($ps->children));
+            }
+            $data[] = $ps->departemen_id;
+        }
+        return $data;
+    }
+
     function get_parent_posisi($posisi)
     {
         $data = [];
@@ -3198,6 +3368,74 @@ class LembureController extends Controller
             DB::rollBack();
             return response()->json(['message' => $e->getMessage()], 500);
         }
+    }
+
+    public function reviewed(Request $request)
+    {
+        $dataValidate = [
+            'data' => ['required']
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $datas = $request->data;
+
+        DB::beginTransaction();
+        try {
+            $datas_array = explode(',', $datas);
+            $count_document = 0;
+
+            foreach ($datas_array as $data) {
+                $data_array = explode('|', $data);
+                $lembur = Lembure::selectRaw('*')->leftJoin('detail_lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
+                         ->whereDate('detail_lemburs.rencana_mulai_lembur', $data_array[0]);
+
+                if($data_array[1] !== null) {
+                    $lembur->where('detail_lemburs.departemen_id', $data_array[1]);
+                }
+
+                if($data_array[2] !== null) {
+                    $lembur->where('detail_lemburs.divisi_id', $data_array[2]);
+                }
+
+                if($data_array[3] !== null) {
+                    $lembur->where('detail_lemburs.organisasi_id', $data_array[3]);
+                }
+                
+                if($data_array[4] == 'PLANNING') {
+                    $lembur->where(function ($query) {
+                        $query->where('lemburs.status','WAITING');
+                        $query->whereNotNull('lemburs.plan_approved_by');
+                    });
+                    $lembur->update([
+                        'lemburs.plan_reviewed_by' => auth()->user()->karyawan->nama,
+                        'lemburs.plan_reviewed_at' => now(),
+                    ]);
+                } else {
+                    $lembur->where(function ($query) {
+                        $query->where('lemburs.status', 'COMPLETED')
+                        ->whereNotNull('lemburs.actual_approved_by');
+                    });
+                    $lembur->update([
+                        'lemburs.actual_reviewed_by' => auth()->user()->karyawan->nama,
+                        'lemburs.actual_reviewed_at' => now(),
+                    ]);
+                }
+
+                $count_document += $lembur->count();
+            }
+            DB::commit();
+            return response()->json(['message' => $count_document.' dokumen lembur selesai direview'], 200);
+        } catch (Throwable $e) {
+            DB::rollback();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+
     }
 
     public function rejected(Request $request, string $id_lembur)
@@ -4124,6 +4362,61 @@ class LembureController extends Controller
             } else {
                 return response()->json(['message' => 'Data Presensi Tidak Ditemukan'], 404);
             }
+        } catch (Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function get_review_lembur_detail(Request $request)
+    {
+        $dataValidate = [
+            'departemen_id' => ['required', 'exists:departemens,id_departemen'],
+            'divisi_id' => ['required', 'exists:divisis,id_divisi'],
+            'organisasi_id' => ['required', 'exists:organisasis,id_organisasi'],
+            'tanggal_lembur' => ['required', 'date_format:Y-m-d'],
+            'status' => ['required', 'in:PLANNING,ACTUAL'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $departemen_id = $request->departemen_id;
+        $divisi_id = $request->divisi_id;
+        $organisasi_id = $request->organisasi_id;
+        $tanggal_lembur = $request->tanggal_lembur;
+        $status = $request->status;
+
+        try {
+            if ($status == 'PLANNING') {
+                $data = DetailLembur::selectRaw('detail_lemburs.rencana_mulai_lembur as tanggal_mulai, detail_lemburs.rencana_selesai_lembur as tanggal_selesai, detail_lemburs.deskripsi_pekerjaan, detail_lemburs.keterangan, detail_lemburs.nominal, detail_lemburs.durasi, lemburs.status, karyawans.nama as karyawan, detail_lemburs.lembur_id')
+                    ->leftJoin('karyawans', 'karyawans.id_karyawan', 'detail_lemburs.karyawan_id')
+                    ->leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
+                    ->where('detail_lemburs.departemen_id', $departemen_id)
+                    ->where('detail_lemburs.divisi_id', $divisi_id)
+                    ->where('detail_lemburs.organisasi_id', $organisasi_id)
+                    ->whereDate('detail_lemburs.rencana_mulai_lembur', $tanggal_lembur)
+                    ->where(function ($query) {
+                        $query->where('lemburs.status','WAITING');
+                        $query->whereNotNull('lemburs.plan_approved_by');
+                    })->get();
+            } else {
+                $data = DetailLembur::selectRaw('detail_lemburs.aktual_mulai_lembur as tanggal_mulai, detail_lemburs.aktual_selesai_lembur as tanggal_selesai, detail_lemburs.deskripsi_pekerjaan, detail_lemburs.keterangan, detail_lemburs.nominal, detail_lemburs.durasi, lemburs.status, karyawans.nama as karyawan, detail_lemburs.lembur_id')
+                    ->leftJoin('karyawans', 'karyawans.id_karyawan', 'detail_lemburs.karyawan_id')
+                    ->leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
+                    ->where('detail_lemburs.departemen_id', $departemen_id)
+                    ->where('detail_lemburs.divisi_id', $divisi_id)
+                    ->where('detail_lemburs.organisasi_id', $organisasi_id)
+                    ->whereDate('detail_lemburs.aktual_mulai_lembur', $tanggal_lembur)
+                    ->where(function ($query) {
+                        $query->where('lemburs.status','COMPLETED');
+                        $query->whereNotNull('lemburs.actual_approved_by');
+                    })->get();
+            };
+            return response()->json(['message' => 'Data Detail Lembur Berhasil didapatkan!', 'data' => $data]);
         } catch (Throwable $e) {
             return response()->json(['message' => $e->getMessage()], 500);
         }

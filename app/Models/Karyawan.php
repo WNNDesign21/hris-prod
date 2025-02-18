@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Grup;
 use App\Models\User;
+use App\Models\Piket;
 use App\Models\Divisi;
 use App\Models\Posisi;
 use App\Models\Departemen;
@@ -118,6 +119,14 @@ class Karyawan extends Model
     public function posisi()
     {
         return $this->belongsToMany(Posisi::class, 'karyawan_posisi', 'karyawan_id', 'posisi_id');
+    }
+
+    public function piket()
+    {
+        return $this->hasMany(Piket::class, 'karyawan_id', 'id_karyawan')
+            ->where('organisasi_id', auth()->user()->organisasi_id)
+            ->where('expired_date', '>=', now())
+            ->exists();
     }
 
     public function karyawanGrup()

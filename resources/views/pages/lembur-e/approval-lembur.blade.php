@@ -54,9 +54,11 @@
                                     <th>Status</th>
                                     <th>Plan Checked</th>
                                     <th>Plan Approved</th>
+                                    <th>Plan Reviewed</th>
                                     <th>Plan Legalized</th>
                                     <th>Actual Checked</th>
                                     <th>Actual Approved</th>
+                                    <th>Actual Reviewed</th>
                                     <th>Actual Legalized</th>
                                     <th>Action</th>
                                 </tr>

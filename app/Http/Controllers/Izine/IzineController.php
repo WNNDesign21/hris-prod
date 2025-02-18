@@ -5,13 +5,14 @@ namespace App\Http\Controllers\Izine;
 use Throwable;
 use Carbon\Carbon;
 use App\Models\Izine;
+use App\Models\Piket;
 use App\Models\Posisi;
 use App\Models\Sakite;
 use App\Models\Karyawan;
+use App\Helpers\Approval;
 use App\Models\Departemen;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
-use App\Helpers\Approval;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -98,6 +99,23 @@ class IzineController extends Controller
             'departments' => $departments
         ];
         return view('pages.izin-e.export-izin', $dataPage);
+    }
+
+    public function piket_view()
+    {
+        $organisasi_id = auth()->user()->organisasi_id;
+        $karyawans = Karyawan::selectRaw('karyawans.*')->organisasi($organisasi_id)->aktif()
+        ->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
+        ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+        ->where('jabatan_id', '<=', 5)
+        ->get();
+
+        $dataPage = [
+            'pageTitle' => "Izin-E - Piket (Shift Malam)",
+            'page' => 'izine-piket',
+            'karyawans' => $karyawans
+        ];
+        return view('pages.izin-e.piket', $dataPage);
     }
 
 
@@ -313,6 +331,7 @@ class IzineController extends Controller
         $is_can_checked = false;
         $is_can_approved = false;
         $is_can_legalized = false;
+        $is_shift_malam = 'N';
         $organisasi_id = auth()->user()->organisasi_id;
 
         // FILTER PERSONALIA
@@ -339,7 +358,23 @@ class IzineController extends Controller
                 $is_can_approved = true;
             }
 
-            $dataFilter['member_posisi_id'] = $id_posisi_members;
+            
+
+             //CEK APAKAH DIA ORANG PIKET
+            $today = Carbon::now()->format('Y-m-d');
+            $piket = auth()->user()->karyawan->piket();
+            if (!(Carbon::now()->format('H') >= 21 || Carbon::now()->format('H') <= 6)) {
+                if ($piket) {
+                    $is_can_legalized = true;
+                    $is_shift_malam = 'Y';
+                    $dataFilter['is_shift_malam'] = true;
+                    $dataFilter['organisasi_id'] = $organisasi_id;
+                } else {
+                    $dataFilter['member_posisi_id'] = $id_posisi_members;
+                }
+            } else {
+                $dataFilter['member_posisi_id'] = $id_posisi_members;
+            }
         } 
 
         // FILTER CUSTOM
@@ -483,7 +518,7 @@ class IzineController extends Controller
                 //TOMBOL LEGALIZED
                 if ($is_can_legalized){
                     if(!$data->legalized_by){
-                        $legalized_by = '<div class="btn-group"><button class="btn btn-sm btn-success btnLegalized" data-id-izin="'.$data->id_izin.'"><i class="fas fa-thumbs-up"></i> Legalized</button><button type="button" class="btn btn-sm btn-danger waves-effect btnReject" data-id-izin="'.$data->id_izin.'"><i class="far fa-times-circle"></i> Reject</button></div>';
+                        $legalized_by = '<div class="btn-group"><button class="btn btn-sm btn-success btnLegalized" data-id-izin="'.$data->id_izin.'" data-is-shift-malam="'.$is_shift_malam.'"><i class="fas fa-thumbs-up"></i> Legalized</button><button type="button" class="btn btn-sm btn-danger waves-effect btnReject" data-id-izin="'.$data->id_izin.'" data-is-shift-malam="'.$is_shift_malam.'"><i class="far fa-times-circle"></i> Reject</button></div>';
                     }
                 }
 
@@ -642,6 +677,79 @@ class IzineController extends Controller
         return response()->json($json_data, 200);
     }
 
+    public function piket_datatable(Request $request)
+    {
+
+        $columns = array(
+            0 => 'karyawans.nama',
+            1 => 'departemens.nama',
+            2 => 'pikets.expired_date'
+        );
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+
+        $settings['start'] = $start;
+        $settings['limit'] = $limit;
+        $settings['dir'] = $dir;
+        $settings['order'] = $order;
+
+        $dataFilter = [];
+        $search = $request->input('search.value');
+        if (!empty($search)) {
+            $dataFilter['search'] = $search;
+        }
+
+        $organisasi_id = auth()->user()->organisasi_id;
+        $dataFilter['organisasi_id'] = $organisasi_id;
+
+        $filterPeriode = $request->periode;
+        if (isset($filterPeriode)) {
+            $year = Carbon::parse($filterPeriode)->format('Y');
+            $month = Carbon::parse($filterPeriode)->format('m');
+            $dataFilter['year'] = $year;
+            $dataFilter['month'] = $month;
+        }
+
+        $totalData = Piket::count();
+        $totalFiltered = $totalData;
+        $pikets = Piket::getData($dataFilter, $settings);
+        $totalFiltered = Piket::countData($dataFilter);
+        $dataTable = [];
+        
+
+        if (!empty($pikets)) {
+            foreach ($pikets as $data) {
+                $nestedData['karyawan'] = $data->karyawan;
+                $nestedData['departemen'] = $data->departemen;
+                $nestedData['expired_date'] = Carbon::parse($data->expired_date)->format('d M Y');
+                $nestedData['aksi'] = '
+                <div class="btn-group">
+                    <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" data-id-piket="'.$data->id_piket.'" data-id-karyawan="'.$data->karyawan_id.'" data-expired-date="'.$data->expired_date.'"><i class="fas fa-edit"></i></button>
+                    <button type="button" class="waves-effect waves-light btn btn-danger btnDelete" data-id-piket="'.$data->id_piket.'"><i class="fas fa-trash"></i></button>
+                </div>
+                ';
+
+                $dataTable[] = $nestedData;
+            }
+        }
+
+        $json_data = array(
+            "draw" => intval($request->input('draw')),
+            "recordsTotal" => intval($totalData),
+            "recordsFiltered" => intval($totalFiltered),
+            "data" => $dataTable,
+            "order" => $order,
+            "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
+            "dir" => $dir,
+            "column"=>$request->input('order.0.column')
+        );
+
+        return response()->json($json_data, 200);
+    }
+
     /**
      * Show the form for creating a new resource.
      */
@@ -775,6 +883,92 @@ class IzineController extends Controller
             DB::commit();
             return response()->json(['message' => 'Izin berhasil diajukan'], 200);
         } catch (Throwable $e) {
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function piket_store(Request $request) 
+    {
+        $dataValidate = [
+            'karyawan_id.*' => ['required', 'exists:karyawans,id_karyawan'],
+            'expired_date' => ['required', 'date_format:Y-m-d'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $karyawans = $request->karyawan_id;
+        $expired_date = $request->expired_date;
+        $organisasi_id = auth()->user()->organisasi_id;
+
+        DB::beginTransaction();
+        try {
+            $data_piket = [];
+            foreach ($karyawans as $karyawan_id) {
+                $piket = Piket::where('karyawan_id', $karyawan_id)->where('expired_date', '>=', $expired_date)->exists();
+                $karyawan = Karyawan::find($karyawan_id);
+                if($piket) {
+                    DB::rollback();
+                    return response()->json(['message' => $karyawan->nama.' sudah memiliki jadwal piket dengan expired date yang lebih lama!'], 401);
+                }
+
+                $data_piket[] = [
+                    'karyawan_id' => $karyawan_id,
+                    'departemen_id' => $karyawan->posisi[0]->departemen_id,
+                    'expired_date' => $expired_date,
+                    'organisasi_id' => $organisasi_id
+                ];
+            }
+
+            Piket::insert($data_piket);
+            DB::commit();
+            return response()->json(['message' => 'Piket shift malam karyawan berhasil ditambahkan!'], 200);
+        } catch (Throwable $e){
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function piket_update(Request $request, string $id_piket) 
+    {
+        $dataValidate = [
+            'karyawan_idEdit' => ['required', 'exists:karyawans,id_karyawan'],
+            'expired_dateEdit' => ['required', 'date_format:Y-m-d'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $karyawan = $request->karyawan_idEdit;
+        $expired_date = $request->expired_dateEdit;
+        $organisasi_id = auth()->user()->organisasi_id;
+
+        DB::beginTransaction();
+        try {
+            $piket_exists = Piket::where('karyawan_id', $karyawan)->where('expired_date', '>=', $expired_date)->exists();
+            $kry = Karyawan::find($karyawan);
+
+            if($piket_exists) {
+                DB::rollback();
+                return response()->json(['message' => $kry->nama.' sudah memiliki jadwal piket dengan expired date yang lebih lama!'], 401);
+            }
+
+            $piket = Piket::find($id_piket);
+            $piket->karyawan_id = $karyawan;
+            $piket->expired_date = $expired_date;
+            $piket->save();
+            DB::commit();
+            return response()->json(['message' => 'Piket shift malam karyawan berhasil diupdate!'], 200);
+        } catch (Throwable $e){
             DB::rollBack();
             return response()->json(['message' => $e->getMessage()], 500);
         }
@@ -916,6 +1110,25 @@ class IzineController extends Controller
         }
     }
 
+    public function piket_delete(string $id_piket)
+    {
+        DB::beginTransaction();
+        try{
+            $piket = Piket::find($id_piket);
+
+            if(!$piket){
+                return response()->json(['message' => 'Data tidak ditemukan!'], 404);
+            }
+
+            $piket->delete();
+            DB::commit();
+            return response()->json(['message' => 'Berhasil menghapus karyawan piket!.'],200);
+        } catch(Throwable $error){
+            DB::rollBack();
+            return response()->json(['message' => $error->getMessage()], 500);
+        }
+    }
+
     public function get_data_izin(string $id_izin)
     {
         $izine = Izine::find($id_izin);
@@ -1040,10 +1253,22 @@ class IzineController extends Controller
 
     public function legalized(Request $request, string $id_izin)
     {
-        $izin = Izine::find($id_izin);
+        $dataValidate = [
+            'is_shift_malam' => ['required', 'in:Y,N'],
+        ];
 
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $is_shift_malam = $request->is_shift_malam;
+        
         DB::beginTransaction();
         try{
+            $izin = Izine::find($id_izin);
             if ($izin->legalized_by) {
                 return response()->json(['message' => 'Pengajuan izin sudah di legalized!'], 403);
             } elseif ($izin->rejected_by) {
@@ -1051,16 +1276,16 @@ class IzineController extends Controller
             }
 
             if(!$izin->checked_by){
-                $izin->checked_by = 'HRD & GA';
+                $izin->checked_by = $is_shift_malam == 'Y' ? auth()->user()->karyawan->nama : 'HRD & GA';
                 $izin->checked_at = now();
             }
 
             if(!$izin->approved_by){
-                $izin->approved_by = 'HRD & GA';
+                $izin->approved_by = $is_shift_malam == 'Y' ? auth()->user()->karyawan->nama : 'HRD & GA';
                 $izin->approved_at = now();
             }
 
-            $izin->legalized_by = 'HRD & GA';
+            $izin->legalized_by = $is_shift_malam == 'Y' ? auth()->user()->karyawan->nama : 'HRD & GA';
             $izin->legalized_at = now();
             $izin->save();
 
@@ -1160,6 +1385,7 @@ class IzineController extends Controller
 
         $dataValidate = [
             'rejected_note' => ['required'],
+            'is_shift_malam' => ['required', 'in:Y,N'],
         ];
         
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -1169,6 +1395,8 @@ class IzineController extends Controller
             return response()->json(['message' => $errors], 402);
         }
 
+        $is_shift_malam = $request->is_shift_malam;
+
         DB::beginTransaction();
         try{
             if ($izin->rejected_by) {
@@ -1176,7 +1404,7 @@ class IzineController extends Controller
             }
 
             if(auth()->user()->hasRole('personalia')){
-                $izin->rejected_by = 'HRD & GA';
+                $izin->rejected_by = $is_shift_malam == 'Y' ? auth()->user()->karyawan->nama : 'HRD & GA';
             } else {
                 $izin->rejected_by = auth()->user()->karyawan->nama;
             }
