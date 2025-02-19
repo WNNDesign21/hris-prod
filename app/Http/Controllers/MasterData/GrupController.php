@@ -195,7 +195,8 @@ class GrupController extends Controller
         $validator = Validator::make(request()->all(), $dataValidate);
     
         if ($validator->fails()) {
-            return response()->json(['message' => 'Fill your input correctly!'], 402);
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
         }
     
         DB::beginTransaction();

@@ -8,7 +8,7 @@
             </div>
             <div class="modal-body">
                 <form action="{{ route('tugasluare.pengajuan.store') }}" method="POST" enctype="multipart/form-data"
-                    id="form-tambah">
+                    id="form-input">
                     @csrf
                     <div class="form-group">
                         <label for="">Jam Keluar</label>
@@ -19,7 +19,8 @@
                     <div class="form-group">
                         <label for="">Jenis Kendaraan</label>
                         <div class="input-group mb-2" style="width:100%;">
-                            <select name="jenis_kendaraan" id="jenis_kendaraan" class="form-control">
+                            <select name="jenis_kendaraan" id="jenis_kendaraan" class="form-control"
+                                style="width:100%;">
                                 <option value="MOBIL">MOBIL</option>
                                 <option value="MOTOR">MOTOR</option>
                             </select>
@@ -28,9 +29,21 @@
                     <div class="form-group">
                         <label for="">Kepemilikan Kendaraan</label>
                         <div class="input-group mb-2" style="width:100%;">
-                            <select name="kepemilikan" id="kepemilikan" class="form-control">
+                            <select name="kepemilikan_kendaraan" id="kepemilikan_kendaraan" class="form-control"
+                                style="width:100%;">
                                 <option value="OP">OPERASIONAL</option>
+                                <option value="OJ">OPERASIONAL JABATAN</option>
                                 <option value="PR">PRIBADI</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Pengemudi</label>
+                        <div class="input-group mb-2" style="width:100%;">
+                            <select name="pengemudi" id="pengemudi" class="form-control" style="width:100%;">
+                                @foreach ($karyawans as $item)
+                                    <option value="{{ $item->id_karyawan }}">{{ $item->nama }}</option>
+                                @endforeach
                             </select>
                         </div>
                     </div>
@@ -51,13 +64,34 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <button type="button" class="btn btn-success waves-effect btnAddUrutan"><i
+                        <label for="">Rute</label>
+                        <div class="row">
+                            <div class="col-6">
+                                <input type="text" name="tempat_asal" id="tempat_asal" class="form-control" required>
+                            </div>
+                            <div class="col-6">
+                                <input type="text" name="tempat_tujuan" id="tempat_tujuan" class="form-control"
+                                    required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Keterangan / Uraian Keperluan</label>
+                        <div class="input-group mb-2" style="width:100%;">
+                            <textarea name="keterangan" id="keterangan" class="form-control" style="width:100%;"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-success waves-effect btnAddPengikut"><i
                                 class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Pengikut</button>
                     </div>
                     <div class="form-group">
-                        <p class="text-fade">Note : Pengemudi & Pembuat TL tidak perlu diinput disini.</p>
+                        <p class="text-fade">Note : Pengemudi tetap harus diinput sebagai pengikut.</p>
                     </div>
                     <div class="row" id="list-pengikut">
+                    </div>
+                    <div class="form-group d-flex justify-content-end">
+                        <button type="submit" class="btn btn-primary waves-effect waves-light">Submit</button>
                     </div>
                 </form>
             </div>

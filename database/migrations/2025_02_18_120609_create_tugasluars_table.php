@@ -22,9 +22,10 @@ return new class extends Migration
             $table->dateTime('tanggal_pergi')->nullable();
             $table->dateTime('tanggal_kembali')->nullable();
             $table->string('jenis_kendaraan');
+            $table->string('kepemilikan_kendaraan', 2);
             $table->string('no_polisi');
-            $table->integer('km_awal')->nullable();
-            $table->integer('km_akhir')->nullable();
+            $table->integer('km_awal')->default(0);
+            $table->integer('km_akhir')->default(0);
             $table->integer('jarak_tempuh')->default(0);
             $table->string('pengemudi_id')->nullable();
             $table->string('tempat_asal');
@@ -34,6 +35,7 @@ return new class extends Migration
             $table->integer('rate')->default(0);
             $table->integer('nominal')->default(0);
             $table->string('millage_id')->nullable();
+            $table->string('status')->default('WAITING');
 
             //Planning
             $table->string('checked_by')->nullable();

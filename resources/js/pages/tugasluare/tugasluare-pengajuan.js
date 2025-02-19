@@ -1,4 +1,5 @@
 $(function () {
+    // GLOBAL VARIABLES
     $.ajaxSetup({
         headers: {
             "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
@@ -6,9 +7,12 @@ $(function () {
     });
 
     $.fn.modal.Constructor.prototype._enforceFocus = function () {};
+    let loadingSwal;
+    let count = 0;
+    let pengikutCount = 0;
+    // END GLOBAL VARIABLES
 
     // LOADING & ALERT
-    let loadingSwal;
     function loadingSwalShow() {
         loadingSwal = Swal.fire({
             imageHeight: 300,
@@ -44,94 +48,97 @@ $(function () {
     // END LOADING & ALERT
 
     // DATATABLE
-    // var columnsTable = [
-    //     { data: "id_tugasluar" },
-    //     { data: "karyawan" },
-    //     { data: "kendaraan" },
-    //     { data: "pergi" },
-    //     { data: "kembali" },
-    //     { data: "jarak" },
-    //     { data: "rute" },
-    //     { data: "keterangan" },
-    //     { data: "status" },
-    //     { data: "aksi" },
-    // ];
+    var columnsTable = [
+        { data: "id_tugasluar" },
+        { data: "tanggal" },
+        { data: "kendaraan" },
+        { data: "pergi" },
+        { data: "kembali" },
+        { data: "jarak" },
+        { data: "rute" },
+        { data: "keterangan" },
+        { data: "checked" },
+        { data: "legalized" },
+        { data: "known" },
+        { data: "status" },
+        { data: "aksi" },
+    ];
 
-    // var pengajuanTable = $("#pengajuan-table").DataTable({
-    //     search: {
-    //         return: true,
-    //     },
-    //     order: [[0, "DESC"]],
-    //     processing: true,
-    //     serverSide: true,
-    //     ajax: {
-    //         url: base_url + "/tugasluare/pengajuan/datatable",
-    //         dataType: "json",
-    //         type: "POST",
-    //         data: function (dataFilter) {
-    //             let filterNopol = '';
-    //             let filterStatus = '';
-    //             let filterFrom = '';
-    //             let filterTo = '';
+    var pengajuanTable = $("#pengajuan-table").DataTable({
+        search: {
+            return: true,
+        },
+        order: [[0, "DESC"]],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: base_url + "/tugasluare/pengajuan/datatable",
+            dataType: "json",
+            type: "POST",
+            data: function (dataFilter) {
+                let filterNopol = '';
+                let filterStatus = '';
+                let filterFrom = '';
+                let filterTo = '';
 
-    //             dataFilter.nopol = filterNopol;
-    //             dataFilter.status = filterStatus;
-    //             dataFilter.from = filterFrom;
-    //             dataFilter.to = filterTo;
-    //         },
-    //         error: function (jqXHR, textStatus, errorThrown) {
-    //             if (jqXHR.responseJSON.data) {
-    //                 var error = jqXHR.responseJSON.data.error;
-    //                 Swal.fire({
-    //                     icon: "error",
-    //                     title: " <br>Application error!",
-    //                     html:
-    //                         '<div class="alert alert-danger text-left" role="alert">' +
-    //                         "<p>Error Message: <strong>" +
-    //                         error +
-    //                         "</strong></p>" +
-    //                         "</div>",
-    //                     allowOutsideClick: false,
-    //                     showConfirmButton: true,
-    //                 }).then(function () {
-    //                     refreshTable();
-    //                 });
-    //             } else {
-    //                 var message = jqXHR.responseJSON.message;
-    //                 var errorLine = jqXHR.responseJSON.line;
-    //                 var file = jqXHR.responseJSON.file;
-    //                 Swal.fire({
-    //                     icon: "error",
-    //                     title: " <br>Application error!",
-    //                     html:
-    //                         '<div class="alert alert-danger text-left" role="alert">' +
-    //                         "<p>Error Message: <strong>" +
-    //                         message +
-    //                         "</strong></p>" +
-    //                         "<p>File: " +
-    //                         file +
-    //                         "</p>" +
-    //                         "<p>Line: " +
-    //                         errorLine +
-    //                         "</p>" +
-    //                         "</div>",
-    //                     allowOutsideClick: false,
-    //                     showConfirmButton: true,
-    //                 }).then(function () {
-    //                     refreshTable();
-    //                 });
-    //             }
-    //         },
-    //     },
+                dataFilter.nopol = filterNopol;
+                dataFilter.status = filterStatus;
+                dataFilter.from = filterFrom;
+                dataFilter.to = filterTo;
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR.responseJSON.data) {
+                    var error = jqXHR.responseJSON.data.error;
+                    Swal.fire({
+                        icon: "error",
+                        title: " <br>Application error!",
+                        html:
+                            '<div class="alert alert-danger text-left" role="alert">' +
+                            "<p>Error Message: <strong>" +
+                            error +
+                            "</strong></p>" +
+                            "</div>",
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                    }).then(function () {
+                        refreshTable();
+                    });
+                } else {
+                    var message = jqXHR.responseJSON.message;
+                    var errorLine = jqXHR.responseJSON.line;
+                    var file = jqXHR.responseJSON.file;
+                    Swal.fire({
+                        icon: "error",
+                        title: " <br>Application error!",
+                        html:
+                            '<div class="alert alert-danger text-left" role="alert">' +
+                            "<p>Error Message: <strong>" +
+                            message +
+                            "</strong></p>" +
+                            "<p>File: " +
+                            file +
+                            "</p>" +
+                            "<p>Line: " +
+                            errorLine +
+                            "</p>" +
+                            "</div>",
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                    }).then(function () {
+                        refreshTable();
+                    });
+                }
+            },
+        },
 
-    //     columns: columnsTable,
-    //     columnDefs: [
-    //         {
-    //             orderable: false,
-    //             targets: [0, -1],
-    //         },
-    //     ],
-    // })
+        columns: columnsTable,
+        columnDefs: [
+            {
+                orderable: false,
+                targets: [0, -1],
+            },
+        ],
+    })
     // END DATATABLE
     
     // MODAL
@@ -172,6 +179,7 @@ $(function () {
     }
 
     function close() {
+        reset();
         modalInput.hide();
     }
 
@@ -185,7 +193,83 @@ $(function () {
     }
 
     function resetEdit() {
-        
+        $('#list-pengikutEdit').empty();
+        $('#jam_keluarEdit').val('');
+        $('#jenis_kendaraanEdit').val('');
+        $('#kepemilikan_kendaraanEdit').val('');
+        $('#kode_wilayahEdit').val('');
+        $('#nomor_polisiEdit').val('');
+        $('#seri_akhirEdit').val('');
+        $('#tempat_asalEdit').val('');
+        $('#tempat_tujuanEdit').val('');
+        $('#keteranganEdit').val('');
+        $('#pengemudiEdit').val('');
+        $('#id_tugasluarEdit').val('');
+        pengikutCount = 0;
+    }
+
+    function reset(){
+        $('#list-pengikut').empty();
+        $('#jam_keluar').val('');
+        $('#jenis_kendaraan').val('');
+        $('#kepemilikan_kendaraan').val('');
+        $('#kode_wilayah').val('');
+        $('#nomor_polisi').val('');
+        $('#seri_akhir').val('');
+        $('#tempat_asal').val('');
+        $('#tempat_tujuan').val('');
+        $('#keterangan').val('');
+        $('#pengemudi').val('');
+        count = 0;
+    }
+
+    function selectedPengikut(index, pengikutId){
+        $.ajax({
+            url: base_url + "/ajax/tugasluare/pengajuan/select-get-data-all-karyawan",
+            method: 'GET',
+            dataType: 'JSON',
+            success: function (response) {
+                let pengikutIds = response;
+                let select = $('#id_pengikutEdit_'+index);
+                $.each(pengikutIds, function (i, val){
+                    select.append('<option value="'+val.id+'">'+val.text+'</option>');
+                });
+                console.log(index, pengikutId)
+                $("#id_pengikutEdit_" + index).val(pengikutId).trigger('change');
+                $("#id_pengikutEdit_" + index).select2({
+                    dropdownParent: $('#modal-edit'),
+                    ajax: {
+                    url: base_url + "/ajax/tugasluare/pengajuan/select-get-data-karyawan",
+                    type: "post",
+                    dataType: "json",
+                    delay: 250,
+                    data: function (params) {
+                        let selectedIds = [];
+                        $("select[name='id_pengikutEdit[]']").each(function () {
+                            let val = $(this).val();
+                            if (val) {
+                                selectedIds.push(val);
+                            }
+                        });
+                        return {
+                            search: params.term || "",
+                            page: params.page || 1,
+                            selectedIds: selectedIds
+                        };
+                    },
+                    processResults: function (data, params) {
+                        return {
+                            results: data.results,
+                            pagination: {
+                                more: data.pagination.more
+                            }
+                        };
+                    },
+                    cache: true,
+                    },
+                });
+            }
+        })
     }
     // END FUNCTION
 
@@ -204,21 +288,64 @@ $(function () {
     })
 
     $('#pengajuan-table').on("click", '.btnEdit', function (){
-        let id = $(this).data('id');
-        let pengajuanName = $(this).data('pengajuan-name');
-        let pengajuanSN = $(this).data('pengajuan-sn');
-        let serverIP = $(this).data('server-ip');
-        let serverPort = $(this).data('server-port');
-        let cloudID = $(this).data('cloud-id');
+        loadingSwalShow();
+        let tugasluarId = $(this).data('id-tugasluar');
+        let jamKeluar = $(this).data('jam-keluar');
+        let jenisKendaraan = $(this).data('jenis-kendaraan');
+        let kepemilikanKendaraan = $(this).data('kepemilikan-kendaraan');
+        let kodeWilayah = $(this).data('kode-wilayah');
+        let nomorPolisi = $(this).data('nomor-polisi');
+        let seriAkhir = $(this).data('seri-akhir');
+        let tempatAsal = $(this).data('tempat-asal');
+        let tempatTujuan = $(this).data('tempat-tujuan');
+        let keterangan = $(this).data('keterangan');
+        let pengemudi = $(this).data('pengemudi');
+        let url = base_url + '/ajax/tugasluare/pengajuan/get-data-pengikut/' + tugasluarId;
 
-        let url = base_url + '/tugasluare/pengajuan/update/' + id;
-        $('#form-edit-pengajuan').attr('action', url);
-        $('#pengajuan_nameEdit').val(pengajuanName);
-        $('#pengajuan_snEdit').val(pengajuanSN);
-        $('#server_ipEdit').val(serverIP);
-        $('#server_portEdit').val(serverPort);
-        $('#cloud_idEdit').val(cloudID);
-        openEdit();
+        $.ajax({
+            url: url,
+            method: "GET",
+            dataType: "JSON",
+            success: function (response) {
+                let pengikut = response.data;
+                pengikutCount += pengikut.length;
+                $('#jam_keluarEdit').val(jamKeluar);
+                $('#jenis_kendaraanEdit').val(jenisKendaraan).trigger('change');
+                $('#kepemilikan_kendaraanEdit').val(kepemilikanKendaraan).trigger('change');
+                $('#kode_wilayahEdit').val(kodeWilayah);
+                $('#nomor_polisiEdit').val(nomorPolisi);
+                $('#seri_akhirEdit').val(seriAkhir);
+                $('#tempat_asalEdit').val(tempatAsal);
+                $('#tempat_tujuanEdit').val(tempatTujuan);
+                $('#keteranganEdit').val(keterangan);
+                $('#id_tugasluarEdit').val(tugasluarId);
+                $('#pengemudiEdit').val(pengemudi).trigger('change');
+                let list = $('#list-pengikutEdit').empty();
+                
+                $.each(pengikut, function (i, val){
+                    list.append(`
+                        <div class="form-group d-flex align-items-center">
+                            <select class="form-control mr-2" name="id_pengikutEdit[]" id="id_pengikutEdit_${i + 1}" required>
+                                <option value="">Pilih Karyawan</option>
+                            </select>
+                            <button type="button" class="btn btn-danger m-2 btnRemovePengikutEdit"><i class="fas fa-times"></i></button>
+                        </div>
+                    `)
+
+                    $('.btnRemovePengikutEdit').last().on('click', function () {
+                        $(this).closest('.form-group').remove();
+                    });
+
+                    selectedPengikut(i + 1, val.karyawan_id);
+                });
+                loadingSwalClose();
+                openEdit();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        }); 
     })
 
     $('.btnCloseEdit').on("click", function (){
@@ -253,7 +380,8 @@ $(function () {
     $('#form-edit').on('submit', function (e){
         e.preventDefault();
         loadingSwalShow();
-        let url = $(this).attr('action');
+        let idTugasluar = $('#id_tugasluarEdit').val();
+        let url = base_url + '/tugasluare/pengajuan/update/' + idTugasluar;
         var formData = new FormData($('#form-edit')[0]);
         $.ajax({
             url: url,
@@ -276,7 +404,7 @@ $(function () {
     })
 
     $('#pengajuan-table').on('click', '.btnDelete', function (){
-        var id = $(this).data('id');
+        var idTugsLuar = $(this).data('id-tugasluar');
         Swal.fire({
             title: "Delete ",
             text: "Apakah kamu yakin untuk menghapus pengajuan ini?",
@@ -288,7 +416,7 @@ $(function () {
             allowOutsideClick: false,
         }).then((result) => {
             if (result.value) {
-                let url = base_url + '/tugasluare/pengajuan/delete/' + id;
+                let url = base_url + '/tugasluare/pengajuan/delete/' + idTugsLuar;
                 $.ajax({
                     url: url,
                     type: "POST",
@@ -306,6 +434,132 @@ $(function () {
                 });
             }
         });
+    })
+
+    $('.btnAddPengikut').on("click", function (){
+        count++;
+        let tbody = $('#list-pengikut');
+        tbody.append(`
+            <div class="form-group d-flex align-items-center">
+            <select class="form-control mr-2" name="id_pengikut[]" id="id_pengikut_${count}" required>
+                <option value="">Pilih Karyawan</option>
+            </select>
+            <button type="button" class="btn btn-danger m-2 btnRemovePengikut"><i class="fas fa-times"></i></button>
+            </div>
+        `);
+
+        // Add event listener to remove button
+        $('.btnRemovePengikut').last().on('click', function () {
+            $(this).closest('.form-group').remove();
+            count--;
+        });
+
+        $("#id_pengikut_" + count).select2({
+            dropdownParent: $('#modal-input'),
+            ajax: {
+            url: base_url + "/ajax/tugasluare/pengajuan/select-get-data-karyawan",
+            type: "post",
+            dataType: "json",
+            delay: 250,
+            data: function (params) {
+                let selectedIds = [];
+                $("select[name='id_pengikut[]']").each(function () {
+                    let val = $(this).val();
+                    if (val) {
+                        selectedIds.push(val);
+                    }
+                });
+                return {
+                    search: params.term || "",
+                    page: params.page || 1,
+                    selectedIds: selectedIds
+                };
+            },
+            processResults: function (data, params) {
+                return {
+                    results: data.results,
+                    pagination: {
+                        more: data.pagination.more
+                    }
+                };
+            },
+            cache: true,
+            },
+        });
+    })
+
+    $('.btnAddPengikutEdit').on("click", function (){
+        pengikutCount++;
+        let tbody = $('#list-pengikutEdit');
+        tbody.append(`
+            <div class="form-group d-flex align-items-center">
+            <select class="form-control mr-2" name="id_pengikutEdit[]" id="id_pengikutEdit_${pengikutCount}" required>
+                <option value="">Pilih Karyawan</option>
+            </select>
+            <button type="button" class="btn btn-danger m-2 btnRemovePengikutEdit"><i class="fas fa-times"></i></button>
+            </div>
+        `);
+
+        $('.btnRemovePengikutEdit').last().on('click', function () {
+            $(this).closest('.form-group').remove();
+        });
+
+        $("#id_pengikutEdit_" + pengikutCount).select2({
+            dropdownParent: $('#modal-edit'),
+            ajax: {
+            url: base_url + "/ajax/tugasluare/pengajuan/select-get-data-karyawan",
+            type: "post",
+            dataType: "json",
+            delay: 250,
+            data: function (params) {
+                let selectedIds = [];
+                $("select[name='id_pengikutEdit[]']").each(function () {
+                    let val = $(this).val();
+                    if (val) {
+                        selectedIds.push(val);
+                    }
+                });
+                return {
+                    search: params.term || "",
+                    page: params.page || 1,
+                    selectedIds: selectedIds
+                };
+            },
+            processResults: function (data, params) {
+                return {
+                    results: data.results,
+                    pagination: {
+                        more: data.pagination.more
+                    }
+                };
+            },
+            cache: true,
+            },
+        });
+    })
+
+    $('#pengemudi').select2({
+        dropdownParent: $('#modal-input'),
+    })
+
+    $('#pengemudiEdit').select2({
+        dropdownParent: $('#modal-edit'),
+    })
+
+    $('#jenis_kendaraan').select2({
+        dropdownParent: $('#modal-input'),
+    })
+
+    $('#jenis_kendaraanEdit').select2({
+        dropdownParent: $('#modal-edit'),
+    })
+
+    $('#kepemilikan_kendaraan').select2({
+        dropdownParent: $('#modal-input'),
+    })
+
+    $('#kepemilikan_kendaraanEdit').select2({
+        dropdownParent: $('#modal-edit'),
     })
     // END EVENT
 });

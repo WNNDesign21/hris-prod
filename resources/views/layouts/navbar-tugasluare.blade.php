@@ -12,10 +12,10 @@
                             <span>Pengajuan TL</span>
                         </a>
                     </li>
-                    <li class="{{ $page == 'tugasluare-pengajuan' ? 'active' : '' }}">
+                    <li class="{{ $page == '#' ? 'active' : '' }}">
                         <a href="{{ route('tugasluare.pengajuan') }}">
                             <i class="icon-Money"><span class="path1"></span><span class="path2"></span></i>
-                            <span>Millage Claim</span>
+                            <span>Claim TL</span>
                         </a>
                     </li>
                     {{-- CONTOH --}}

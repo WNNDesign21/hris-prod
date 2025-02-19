@@ -12,6 +12,7 @@ use App\Http\Controllers\Lembure\LembureController;
 use App\Http\Controllers\MasterData\AkunController;
 use App\Http\Controllers\MasterData\GrupController;
 use App\Http\Controllers\StockOpname\StoController;
+use App\Http\Controllers\TugasLuare\AjaxController as TLAjaxController;
 use App\Http\Controllers\Attendance\RekapController;
 use App\Http\Controllers\MasterData\EventController;
 use App\Http\Controllers\MasterData\SeksiController;
@@ -28,11 +29,11 @@ use App\Http\Controllers\MasterData\KaryawanController;
 use App\Http\Controllers\MasterData\TemplateController;
 use App\Http\Controllers\MasterData\TurnoverController;
 use App\Http\Controllers\MasterData\DashboardController;
-use App\Http\Controllers\TugasLuare\PengajuanController as TLPengajuanController;
 use App\Http\Controllers\Attendance\ShiftgroupController;
 use App\Http\Controllers\MasterData\DepartemenController;
 use App\Http\Controllers\MasterData\OrganisasiController;
 use App\Http\Controllers\StockOpname\StoReportController;
+use App\Http\Controllers\TugasLuare\PengajuanController as TLPengajuanController;
 use App\Http\Controllers\Attendance\DashboardController as AttendanceDashboardController;
 
 Auth::routes();
@@ -118,6 +119,13 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/attendance/presensi/get-summary-presensi', [PresensiController::class, 'get_summary_presensi_html']);
     Route::post('/attendance/presensi/get-detail-presensi', [PresensiController::class, 'get_detail_presensi']);
     Route::get('/attendance/shift-group/get-data-grup-pattern/{idGrupPattern}', [ShiftgroupController::class, 'get_data_grup_pattern']);
+
+    //AJAX CONTROLLER
+    Route::group(['prefix' => 'ajax'], function () {
+        Route::post('/tugasluare/pengajuan/select-get-data-karyawan', [TLAjaxController::class, 'select_get_data_karyawan']);
+        Route::get('/tugasluare/pengajuan/select-get-data-all-karyawan', [TLAjaxController::class, 'select_get_data_all_karyawan']);
+        Route::get('/tugasluare/pengajuan/get-data-pengikut/{idTugasLuar}', [TLAjaxController::class, 'get_data_pengikut']);
+    });
 });
 
 
@@ -475,6 +483,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         Route::post('/pengajuan/datatable', [TLPengajuanController::class, 'datatable']);
         Route::post('/pengajuan/store', [TLPengajuanController::class, 'store'])->name('tugasluare.pengajuan.store');
         Route::patch('/pengajuan/update/{idTugasLuar}', [TLPengajuanController::class, 'update'])->name('tugasluare.pengajuan.update');
+        Route::delete('/pengajuan/delete/{idTugasLuar}', [TLPengajuanController::class, 'destroy'])->name('attendance.device.destroy');
     });
 
 });
