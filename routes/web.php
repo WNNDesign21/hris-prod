@@ -12,7 +12,6 @@ use App\Http\Controllers\Lembure\LembureController;
 use App\Http\Controllers\MasterData\AkunController;
 use App\Http\Controllers\MasterData\GrupController;
 use App\Http\Controllers\StockOpname\StoController;
-use App\Http\Controllers\TugasLuare\AjaxController as TLAjaxController;
 use App\Http\Controllers\Attendance\RekapController;
 use App\Http\Controllers\MasterData\EventController;
 use App\Http\Controllers\MasterData\SeksiController;
@@ -28,11 +27,13 @@ use App\Http\Controllers\Attendance\PresensiController;
 use App\Http\Controllers\MasterData\KaryawanController;
 use App\Http\Controllers\MasterData\TemplateController;
 use App\Http\Controllers\MasterData\TurnoverController;
+use App\Http\Controllers\TugasLuare\ApprovalController as TLApprovalController;
 use App\Http\Controllers\MasterData\DashboardController;
 use App\Http\Controllers\Attendance\ShiftgroupController;
 use App\Http\Controllers\MasterData\DepartemenController;
 use App\Http\Controllers\MasterData\OrganisasiController;
 use App\Http\Controllers\StockOpname\StoReportController;
+use App\Http\Controllers\TugasLuare\AjaxController as TLAjaxController;
 use App\Http\Controllers\TugasLuare\PengajuanController as TLPengajuanController;
 use App\Http\Controllers\Attendance\DashboardController as AttendanceDashboardController;
 
@@ -479,11 +480,23 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
     /** TUGASLUARE */
     Route::group(['prefix' => 'tugasluare'], function () {
         // PENGAJUAN
-        Route::get('/pengajuan', [TLPengajuanController::class, 'index'])->name('tugasluare.pengajuan');
-        Route::post('/pengajuan/datatable', [TLPengajuanController::class, 'datatable']);
-        Route::post('/pengajuan/store', [TLPengajuanController::class, 'store'])->name('tugasluare.pengajuan.store');
-        Route::patch('/pengajuan/update/{idTugasLuar}', [TLPengajuanController::class, 'update'])->name('tugasluare.pengajuan.update');
-        Route::delete('/pengajuan/delete/{idTugasLuar}', [TLPengajuanController::class, 'destroy'])->name('attendance.device.destroy');
+        Route::group(['middleware' => ['role:atasan|member']], function () {
+            Route::get('/pengajuan', [TLPengajuanController::class, 'index'])->name('tugasluare.pengajuan');
+            Route::post('/pengajuan/datatable', [TLPengajuanController::class, 'datatable']);
+            Route::post('/pengajuan/store', [TLPengajuanController::class, 'store'])->name('tugasluare.pengajuan.store');
+            Route::patch('/pengajuan/update/{idTugasLuar}', [TLPengajuanController::class, 'update'])->name('tugasluare.pengajuan.update');
+            Route::delete('/pengajuan/delete/{idTugasLuar}', [TLPengajuanController::class, 'destroy'])->name('tugasluare.pengajuan.delete');
+        });
+
+        Route::group(['middleware' => ['role:atasan|personalia|security']], function () {
+            Route::get('/approval', [TLApprovalController::class, 'index'])->name('tugasluare.approval');
+            Route::post('/approval/datatable', [TLApprovalController::class, 'datatable']);
+            Route::patch('/approval/checked/{idTugasLuar}', [TLApprovalController::class, 'checked'])->name('tugasluare.approval.checked');
+            Route::patch('/approval/legalized/{idTugasLuar}', [TLApprovalController::class, 'legalized'])->name('tugasluare.approval.legalized');
+            Route::patch('/approval/known/{idTugasLuar}', [TLApprovalController::class, 'known'])->name('tugasluare.approval.known');
+            Route::patch('/approval/rejected/{idTugasLuar}', [TLApprovalController::class, 'rejected'])->name('tugasluare.approval.rejected');
+            Route::delete('/approval/delete/{idTugasLuar}', [TLApprovalController::class, 'destroy'])->name('tugasluare.approval.delete');
+        });
     });
 
 });

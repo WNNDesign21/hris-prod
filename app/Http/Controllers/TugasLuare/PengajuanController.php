@@ -20,7 +20,7 @@ class PengajuanController extends Controller
      */
     public function index()
     {
-        if(auth()->user()->hasRole('personalia')) {
+        if(auth()->user()->hasRole('personalia') || auth()->user()->hasRole('security')) {
             return redirect()->route('root');
         }
 
