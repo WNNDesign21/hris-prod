@@ -25,7 +25,8 @@ class PengikutTugasLuar extends Model
         'divisi_id',
         'ni_karyawan',
         'pin',
-        'created_date'
+        'created_date',
+        'is_active'
     ];
 
     public function tugasluar()

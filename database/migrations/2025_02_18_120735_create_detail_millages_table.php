@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('type');
             $table->string('attachment');
             $table->integer('nominal')->default(0);
+            $table->string('is_active')->default('Y');
 
             $table->timestamps();
             

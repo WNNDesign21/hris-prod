@@ -35,12 +35,13 @@
                             <thead>
                                 <tr>
                                     <th>ID TL</th>
-                                    <th>Created Date</th>
+                                    <th>Tanggal</th>
                                     <th>Kendaraan</th>
                                     <th>Pergi</th>
                                     <th>Kembali</th>
                                     <th>Jarak</th>
                                     <th>Rute</th>
+                                    <th>Pengikut</th>
                                     <th>Keterangan</th>
                                     <th>Checked</th>
                                     <th>Legalized</th>

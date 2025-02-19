@@ -56,6 +56,7 @@ $(function () {
         { data: "kembali" },
         { data: "jarak" },
         { data: "rute" },
+        { data: "pengikut" },
         { data: "keterangan" },
         { data: "checked" },
         { data: "legalized" },

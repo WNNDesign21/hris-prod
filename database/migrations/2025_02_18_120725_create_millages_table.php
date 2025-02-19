@@ -22,6 +22,14 @@ return new class extends Migration
             $table->string('no_polisi');
             $table->enum('is_claimed', ['Y', 'N'])->default('N');
 
+            //APPROVAL
+            $table->string('checked_by')->nullable();
+            $table->dateTime('checked_at')->nullable();
+            $table->string('legalized_by')->nullable();
+            $table->dateTime('legalized_at')->nullable();
+            $table->string('rejected_by')->nullable();
+            $table->dateTime('rejected_at')->nullable();
+
             $table->timestamps();
             $table->softDeletes();
 

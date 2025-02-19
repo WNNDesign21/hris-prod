@@ -49,6 +49,8 @@ class TugasLuar extends Model
         'legalized_at',
         'known_by',
         'known_at',
+        'rejected_by',
+        'rejected_at',
         'status'
     ];
 
@@ -115,6 +117,9 @@ class TugasLuar extends Model
             'tugasluars.legalized_at',
             'tugasluars.known_by',
             'tugasluars.known_at',
+            'tugasluars.rejected_by',
+            'tugasluars.rejected_at',
+            'tugasluars.status',
             'karyawans.nama as nama_karyawan',
         );
         $data->leftJoin('karyawans', 'tugasluars.karyawan_id', 'karyawans.id_karyawan');

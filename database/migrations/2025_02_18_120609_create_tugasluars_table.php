@@ -35,7 +35,7 @@ return new class extends Migration
             $table->integer('rate')->default(0);
             $table->integer('nominal')->default(0);
             $table->string('millage_id')->nullable();
-            $table->string('status')->default('WAITING');
+            $table->string('status')->default('WAITING'); //WAITING, ONGOING, COMPLETE, REJECTED
 
             //Planning
             $table->string('checked_by')->nullable();
@@ -44,6 +44,8 @@ return new class extends Migration
             $table->dateTime('legalized_at')->nullable();
             $table->string('known_by')->nullable();
             $table->dateTime('known_at')->nullable();
+            $table->string('rejected_by')->nullable();
+            $table->dateTime('rejected_at')->nullable();
 
             $table->softDeletes();
             $table->timestamps();

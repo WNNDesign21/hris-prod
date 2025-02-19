@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('ni_karyawan')->nullable();
             $table->string('pin')->nullable();
             $table->date('created_date')->default(now()->format('Y-m-d'));
+            $table->string('is_active')->default('Y');
 
             $table->timestamps();
 

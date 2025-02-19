@@ -6,18 +6,34 @@
                 <!-- sidebar menu-->
                 <ul class="sidebar-menu" data-widget="tree">
                     <li class="header">TugasLuar-E Menu</li>
-                    <li class="{{ $page == 'tugasluare-pengajuan' ? 'active' : '' }}">
-                        <a href="{{ route('tugasluare.pengajuan') }}">
-                            <i class="icon-Book"><span class="path1"></span><span class="path2"></span></i>
-                            <span>Pengajuan TL</span>
-                        </a>
-                    </li>
-                    <li class="{{ $page == '#' ? 'active' : '' }}">
-                        <a href="{{ route('tugasluare.pengajuan') }}">
-                            <i class="icon-Money"><span class="path1"></span><span class="path2"></span></i>
-                            <span>Claim TL</span>
-                        </a>
-                    </li>
+                    @if (auth()->user()->hasRole('atasan') || auth()->user()->hasRole('member'))
+                        <li class="{{ $page == 'tugasluare-pengajuan' ? 'active' : '' }}">
+                            <a href="{{ route('tugasluare.pengajuan') }}">
+                                <i class="icon-Book"><span class="path1"></span><span class="path2"></span></i>
+                                <span>Pengajuan TL</span>
+                            </a>
+                        </li>
+                        <li class="{{ $page == '#' ? 'active' : '' }}">
+                            <a href="{{ route('tugasluare.pengajuan') }}">
+                                <i class="icon-Money"><span class="path1"></span><span class="path2"></span></i>
+                                <span>Claim TL</span>
+                            </a>
+                        </li>
+                    @endif
+                    @if (auth()->user()->hasRole('atasan') || auth()->user()->hasRole('personalia') || auth()->user()->hasRole('security'))
+                        <li class="{{ $page == 'tugasluare-pengajuan' ? 'active' : '' }}">
+                            <a href="{{ route('tugasluare.pengajuan') }}">
+                                <i class="icon-Book"><span class="path1"></span><span class="path2"></span></i>
+                                <span>Approval TL</span>
+                            </a>
+                        </li>
+                        <li class="{{ $page == '#' ? 'active' : '' }}">
+                            <a href="{{ route('tugasluare.pengajuan') }}">
+                                <i class="icon-Money"><span class="path1"></span><span class="path2"></span></i>
+                                <span>Approval TL</span>
+                            </a>
+                        </li>
+                    @endif
                     {{-- CONTOH --}}
                     {{-- @if (auth()->user()->karyawan && ($lembure['is_leader'] || !$lembure['has_leader']))
                         <li

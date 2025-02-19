@@ -182,44 +182,82 @@ class PengajuanController extends Controller
 
         if (!empty($tugasluars)) {
             foreach ($tugasluars as $data) {
+                $checked = '';
+                $legalized = '';
+                $known = '';
+                $rejected = '';
+                $aksi = '-';
+                $is_rejected = false;
+                $pengikuts = $data->pengikut()->pluck('karyawan_id')->toArray();
+                $pengikutNames = Karyawan::whereIn('id_karyawan', $pengikuts)->pluck('nama')->toArray();
+                $formattedPengikut = array_map(function($pengikut) {
+                    return '<span class="badge badge-primary m-1">' . $pengikut . '</span>';
+                }, $pengikutNames);
                 $no_polisi_array = explode('-', $data->no_polisi);
                 $kode_wilayah = $no_polisi_array[0];
                 $nomor_polisi = $no_polisi_array[1];
                 $seri_akhir = $no_polisi_array[2];
+                $kepemilikan_kendaraan = $data->kepemilikan_kendaraan == 'OP' ? 'OPERASIONAL' : ($data->kepemilikan_kendaraan == 'OJ' ? 'OPERASIONAL JABATAN' : 'PRIBADI');
+                $jenis_kendaraan = $data->jenis_kendaraan == 'MOTOR' ? '🏍️' : '🚗';
+                $kendaraan = '<small class="text-center">'.$jenis_kendaraan.' '.$data->no_polisi.'<br><span class="text-center">'.$kepemilikan_kendaraan.'</span></small>';
+                $rute = '<div class="d-flex gap-1 text-center">'.'<p><small class="text-fade">'.strtoupper($data->tempat_asal).'</small></p>'.' ➡️ '.'<p><small class="text-fade">'.strtoupper($data->tempat_tujuan).'</small></p>'.'</div>';
+                $status = $data->status == 'WAITING' ? '<span class="badge badge-warning">WAITING</span>' : ($data->status == 'ONGOING' ? '<span class="badge badge-info">ON GOING</span>' : ($data->status == 'COMPLETED' ? '<span class="badge badge-success">COMPLETED</span>' : '<span class="badge badge-danger">REJECTED</span>'));
 
+                if($data->checked_by) {
+                    $checked = '✅<br><small class="text-bold">'.$data?->checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked_at)->diffForHumans().'</small>';
+                } else {
+                    $checked = 'NEED CHECKED';
+                    $aksi = '<div class="btn-group">
+                        <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" 
+                            data-id-tugasluar="'.$data->id_tugasluar.'" 
+                            data-jam-keluar="'.Carbon::createFromFormat('Y-m-d H:i:s', $data->tanggal_pergi)->format('H:i').'" 
+                            data-jenis-kendaraan="'.$data->jenis_kendaraan.'" 
+                            data-kepemilikan-kendaraan="'.$data->kepemilikan_kendaraan.'" 
+                            data-kode-wilayah="'.$kode_wilayah.'" 
+                            data-nomor-polisi="'.$nomor_polisi.'" 
+                            data-seri-akhir="'.$seri_akhir.'" 
+                            data-tempat-asal="'.$data->tempat_asal.'" 
+                            data-tempat-tujuan="'.$data->tempat_tujuan.'" 
+                            data-keterangan="'.$data->keterangan.'"
+                            data-pengemudi="'.$data->pengemudi_id.'"
+                            >
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button type="button" class="waves-effect waves-light btn btn-danger btnDelete" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-trash-alt"></i></button>
+                    </div>';
+                }
 
-                $nestedData['id_tugasluar'] = '';
-                $nestedData['tanggal'] = '';
-                $nestedData['kendaraan'] = '';
-                $nestedData['pergi'] = '';
-                $nestedData['kembali'] = '';
-                $nestedData['jarak'] = '';
-                $nestedData['rute'] = '';
-                $nestedData['keterangan'] = '';
-                $nestedData['checked'] = '';
-                $nestedData['legalized'] = '';
-                $nestedData['known'] = '';
-                $nestedData['status'] = '';
-                $nestedData['aksi'] = '
-                <div class="btn-group">
-                    <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" 
-                        data-id-tugasluar="'.$data->id_tugasluar.'" 
-                        data-jam-keluar="'.Carbon::createFromFormat('Y-m-d H:i:s', $data->tanggal_pergi)->format('H:i').'" 
-                        data-jenis-kendaraan="'.$data->jenis_kendaraan.'" 
-                        data-kepemilikan-kendaraan="'.$data->kepemilikan_kendaraan.'" 
-                        data-kode-wilayah="'.$kode_wilayah.'" 
-                        data-nomor-polisi="'.$nomor_polisi.'" 
-                        data-seri-akhir="'.$seri_akhir.'" 
-                        data-tempat-asal="'.$data->tempat_asal.'" 
-                        data-tempat-tujuan="'.$data->tempat_tujuan.'" 
-                        data-keterangan="'.$data->keterangan.'"
-                        data-pengemudi="'.$data->pengemudi_id.'"
-                        >
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button type="button" class="waves-effect waves-light btn btn-danger btnDelete" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-trash-alt"></i></button>
-                </div>
-                ';
+                if($data->legalized_by) {
+                    $legalized = '✅<br><small class="text-bold">'.$data?->legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->legalized_at)->diffForHumans().'</small>';
+                } else {
+                    $legalized = 'NEED LEGALIZED';
+                }
+
+                if($data->known_by) {
+                    $known = '✅<br><small class="text-bold">'.$data?->known_by.'</small><br><small class="text-fade">'.Carbon::parse($data->known_by)->diffForHumans().'</small>';
+                } else {
+                    $known = 'NEED KNOWN BY SECURITY';
+                }
+
+                if($data->rejected_by) {
+                    $is_rejected = true;
+                    $rejected = '❌<br><small class="text-bold">'.$data?->rejected_by.'</small><br><small class="text-fade">'.Carbon::parse($data->rejected_at)->diffForHumans().'</small>';
+                }
+
+                $nestedData['id_tugasluar'] = $data->id_tugasluar;
+                $nestedData['tanggal'] = Carbon::parse($data->created_date)->format('d M Y');
+                $nestedData['kendaraan'] = $kendaraan;
+                $nestedData['pergi'] = Carbon::parse($data->tanggal_pergi)->format('H:i').' WIB';
+                $nestedData['kembali'] = $data->tanggal_kembali ? Carbon::parse($data->tanggal_kembali)->format('H:i').' WIB' : '-';
+                $nestedData['jarak'] = $data?->jarak_tempuh ? $data->jarak_tempuh.' KM' : '-';
+                $nestedData['rute'] = $rute;
+                $nestedData['pengikut'] = $formattedPengikut;
+                $nestedData['keterangan'] = $data->keterangan;
+                $nestedData['checked'] = $is_rejected ? $rejected : $checked;
+                $nestedData['legalized'] = $is_rejected ? $rejected : $legalized;
+                $nestedData['known'] = $is_rejected ? $rejected : $known;
+                $nestedData['status'] = $status;
+                $nestedData['aksi'] = $aksi;
 
                 $dataTable[] = $nestedData;
             }
