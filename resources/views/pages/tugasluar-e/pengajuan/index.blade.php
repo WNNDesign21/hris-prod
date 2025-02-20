@@ -39,8 +39,8 @@
                                     <th>Kendaraan</th>
                                     <th>Pergi</th>
                                     <th>Kembali</th>
-                                    <th>Jarak</th>
                                     <th>Rute</th>
+                                    <th>Jarak Tempuh</th>
                                     <th>Pengikut</th>
                                     <th>Keterangan</th>
                                     <th>Checked</th>

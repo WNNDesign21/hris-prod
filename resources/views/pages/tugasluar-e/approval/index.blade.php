@@ -42,6 +42,7 @@
                                     <th>Pergi</th>
                                     <th>Kembali</th>
                                     <th>Rute</th>
+                                    <th>Jarak Tempuh</th>
                                     <th>Pengikut</th>
                                     <th>Keterangan</th>
                                     <th>Status</th>

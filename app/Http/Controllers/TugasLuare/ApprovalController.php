@@ -30,17 +30,18 @@ class ApprovalController extends Controller
     {
         $columns = array(
             0 => 'tugasluars.id_tugasluar',
-            0 => 'karyawans.nama',
-            1 => 'tugasluars.created_date',
-            2 => 'tugasluars.jenis_kendaraan',
-            3 => 'tugasluars.tanggal_pergi_planning',
-            4 => 'tugasluars.tanggal_kembali_planning',
-            5 => 'tugasluars.tempat_asal',
-            7 => 'tugasluars.keterangan',
-            8 => 'tugasluars.status',
-            9 => 'tugasluars.checked_at',
-            10 => 'tugasluars.legalized_at',
-            11 => 'tugasluars.known_at',
+            1 => 'karyawans.nama',
+            2 => 'tugasluars.created_date',
+            3 => 'tugasluars.jenis_kendaraan',
+            4 => 'tugasluars.tanggal_pergi_planning',
+            5 => 'tugasluars.tanggal_kembali_planning',
+            6 => 'tugasluars.tempat_asal',
+            7 => 'tugasluars.jarak_tempuh',
+            9 => 'tugasluars.keterangan',
+            10 => 'tugasluars.status',
+            11 => 'tugasluars.checked_at',
+            12 => 'tugasluars.legalized_at',
+            13 => 'tugasluars.known_at',
         );
 
         $totalData = TugasLuar::count();
@@ -146,11 +147,10 @@ class ApprovalController extends Controller
                 $kode_wilayah = $no_polisi_array[0];
                 $nomor_polisi = $no_polisi_array[1];
                 $seri_akhir = $no_polisi_array[2];
-                $km_awal = ($data->km_awal ? number_format($data->km_awal) : '-') . ' KM';
                 $kepemilikan_kendaraan = $data->kepemilikan_kendaraan == 'OP' ? 'OPERASIONAL' : ($data->kepemilikan_kendaraan == 'OJ' ? 'OPERASIONAL JABATAN' : 'PRIBADI');
                 $jenis_kendaraan = $data->jenis_kendaraan == 'MOTOR' ? '🏍️' : '🚗';
                 $kendaraan = '<small class="text-center">'.$jenis_kendaraan.' '.$data->no_polisi.'<br><span class="text-center">'.$kepemilikan_kendaraan.'</span></small>';
-                $rute = '<div class="d-flex gap-1 text-center">'.'<p><small class="text-fade">'.strtoupper($data->tempat_asal).'</small></p>'.' ➡️ '.'<p><small class="text-fade">'.strtoupper($data->tempat_tujuan).'</small></p></div><div class="row"><p><small> Driver : '.$data->nama_pengemudi.'</small></p></div>';
+                $rute = '<div class="d-flex gap-1 text-center">'.'<p><small class="text-fade">'.strtoupper($data->tempat_asal).'</small></p>'.' ➡️ '.'<p><small class="text-fade">'.strtoupper($data->tempat_tujuan).'</small></p></div><div><p><small> Driver : '.$data->nama_pengemudi.'</small></p></div>';
                 $status = $data->status == 'WAITING' ? '<span class="badge badge-warning">WAITING</span>' : ($data->status == 'ONGOING' ? '<span class="badge badge-info">ON GOING</span>' : ($data->status == 'COMPLETED' ? '<span class="badge badge-success">COMPLETED</span>' : '<span class="badge badge-danger">REJECTED</span>'));
                 $jam_pergi = '<div class="d-flex gap-1 text-center">
                                 <p>' . Carbon::createFromFormat('Y-m-d H:i:s', $data->tanggal_pergi_planning)->format('H:i') . ' WIB <span class="badge badge-warning">Planning</span></p>
@@ -162,6 +162,10 @@ class ApprovalController extends Controller
                                 <br>
                                 <p>' . ($data->tanggal_kembali_aktual ? Carbon::createFromFormat('Y-m-d H:i:s', $data->tanggal_kembali_aktual)->format('H:i') . ' WIB <span class="badge badge-success">Aktual</span>' : '') . '</p>
                             </div>' : '-';
+                $jarak_tempuh = $data->jarak_tempuh ? number_format($data->jarak_tempuh) . ' Km' : '-';
+                $km_awal = ($data->km_awal ? number_format($data->km_awal) : '-') . ' Km';
+                $km_akhir = ($data->km_akhir ? number_format($data->km_akhir) : '-') . ' Km';
+                $jarak_tempuh_formatted = '<div class="d-flex gap-1 text-center">'.'<p><small>'.$km_awal.'</small></p>'.' - '.'<p><small class="text-fade">'.$km_akhir.'</small></p></div><div class="text-center"><p><small class="text-fade"> Total : '.$jarak_tempuh.'</small></p></div>';
 
                 if($data->checked_by) {
                     $checked = '✅<br><small class="text-bold">'.$data?->checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked_at)->diffForHumans().'</small>';
@@ -172,7 +176,7 @@ class ApprovalController extends Controller
                 }
 
                 if($data->known_by) {
-                    $known = '✅<br><small class="text-bold">'.$data?->known_by.'</small><br><small class="text-fade">'.Carbon::parse($data->known_by)->diffForHumans().'</small>';
+                    $known = '✅<br><small class="text-bold">'.$data?->known_by.'</small><br><small class="text-fade">'.Carbon::parse($data->known_at)->diffForHumans().'</small>';
                 }
 
                 // APPROVAL
@@ -214,6 +218,7 @@ class ApprovalController extends Controller
                 $nestedData['pergi'] = $jam_pergi;
                 $nestedData['kembali'] = $jam_kembali;
                 $nestedData['rute'] = $rute;
+                $nestedData['jarak_tempuh'] = $jarak_tempuh_formatted;
                 $nestedData['pengikut'] = $formattedPengikut;
                 $nestedData['keterangan'] = $data->keterangan;
                 $nestedData['status'] = $status;
@@ -274,7 +279,7 @@ class ApprovalController extends Controller
             }
 
             $tugasluar->legalized_by = 'HRD & GA';
-            $tugasluar->checked_at = now();
+            $tugasluar->legalized_at = now();
             $tugasluar->save();
 
             DB::commit();
@@ -318,7 +323,7 @@ class ApprovalController extends Controller
 
                 $jarak_tempuh = $request->kilometer - $tugasluar->km_awal;
                 $bbm = number_format($jarak_tempuh / $tugasluar->pembagi, 2);
-                $nominal = $bbm * $tugasluar->rate;
+                $nominal = floor($bbm * $tugasluar->rate);
 
                 $tugasluar->jarak_tempuh = $jarak_tempuh;
                 $tugasluar->bbm = $bbm;

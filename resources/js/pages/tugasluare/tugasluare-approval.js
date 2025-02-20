@@ -54,6 +54,7 @@ $(function () {
         { data: "pergi" },
         { data: "kembali" },
         { data: "rute" },
+        { data: "jarak_tempuh" },
         { data: "pengikut" },
         { data: "keterangan" },
         { data: "status" },
@@ -135,7 +136,7 @@ $(function () {
         columnDefs: [
             {
                 orderable: false,
-                targets: [6],
+                targets: [8],
             },
         ],
     })

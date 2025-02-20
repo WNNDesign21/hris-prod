@@ -142,8 +142,8 @@ class PengajuanController extends Controller
             2 => 'tugasluars.jenis_kendaraan',
             3 => 'tugasluars.tanggal_pergi_planning',
             4 => 'tugasluars.tanggal_kembali_planning',
-            5 => 'tugasluars.jarak_tempuh',
-            6 => 'tugasluars.tempat_asal',
+            5 => 'tugasluars.tempat_asal',
+            6 => 'tugasluars.jarak_tempuh',
             8 => 'tugasluars.keterangan',
             9 => 'tugasluars.checked_at',
             10 => 'tugasluars.legalized_at',
@@ -212,6 +212,10 @@ class PengajuanController extends Controller
                                 <br>
                                 <p>' . ($data->tanggal_kembali_aktual ? Carbon::createFromFormat('Y-m-d H:i:s', $data->tanggal_kembali_aktual)->format('H:i') . ' WIB <span class="badge badge-success">Aktual</span>' : '') . '</p>
                             </div>' : '-';
+                $jarak_tempuh = $data->jarak_tempuh ? number_format($data->jarak_tempuh) . ' Km' : '-';
+                $km_awal = ($data->km_awal ? number_format($data->km_awal) : '-') . ' Km';
+                $km_akhir = ($data->km_akhir ? number_format($data->km_akhir) : '-') . ' Km';
+                $jarak_tempuh_formatted = '<div class="d-flex gap-1 text-center">'.'<p><small>'.$km_awal.'</small></p>'.' - '.'<p><small class="text-fade">'.$km_akhir.'</small></p></div><div class="text-center"><p><small class="text-fade"> Total : '.$jarak_tempuh.'</small></p></div>';
 
                 if($data->checked_by) {
                     $checked = '✅<br><small class="text-bold">'.$data?->checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked_at)->diffForHumans().'</small>';
@@ -245,7 +249,7 @@ class PengajuanController extends Controller
                 }
 
                 if($data->known_by) {
-                    $known = '✅<br><small class="text-bold">'.$data?->known_by.'</small><br><small class="text-fade">'.Carbon::parse($data->known_by)->diffForHumans().'</small>';
+                    $known = '✅<br><small class="text-bold">'.$data?->known_by.'</small><br><small class="text-fade">'.Carbon::parse($data->known_at)->diffForHumans().'</small>';
                 } else {
                     $known = 'NEED KNOWN BY SECURITY';
                 }
@@ -260,7 +264,7 @@ class PengajuanController extends Controller
                 $nestedData['kendaraan'] = $kendaraan;
                 $nestedData['pergi'] = $jam_pergi;
                 $nestedData['kembali'] = $jam_kembali;
-                $nestedData['jarak'] = $data?->jarak_tempuh ? $data->jarak_tempuh.' KM' : '-';
+                $nestedData['jarak'] = $jarak_tempuh_formatted;
                 $nestedData['rute'] = $rute;
                 $nestedData['pengikut'] = $formattedPengikut;
                 $nestedData['keterangan'] = $data->keterangan;
