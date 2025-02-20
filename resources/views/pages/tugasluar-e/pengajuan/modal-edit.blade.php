@@ -11,11 +11,16 @@
                     @csrf
                     @method('PATCH')
                     <div class="form-group">
-                        <label for="">Jam Keluar</label>
+                        <label for="">Jam Pergi</label>
                         <div class="input-group mb-2" style="width:100%;">
                             <input type="hidden" name="id_tugasluarEdit" id="id_tugasluarEdit" class="form-control">
-                            <input type="time" name="jam_keluarEdit" id="jam_keluarEdit" class="form-control"
-                                required>
+                            <input type="time" name="jam_pergiEdit" id="jam_pergiEdit" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Jam Kembali</label>
+                        <div class="input-group mb-2" style="width:100%;">
+                            <input type="time" name="jam_kembaliEdit" id="jam_kembaliEdit" class="form-control">
                         </div>
                     </div>
                     <div class="form-group">

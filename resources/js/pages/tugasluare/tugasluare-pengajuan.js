@@ -195,7 +195,8 @@ $(function () {
 
     function resetEdit() {
         $('#list-pengikutEdit').empty();
-        $('#jam_keluarEdit').val('');
+        $('#jam_pergiEdit').val('');
+        $('#jam_kembaliEdit').val('');
         $('#jenis_kendaraanEdit').val('');
         $('#kepemilikan_kendaraanEdit').val('');
         $('#kode_wilayahEdit').val('');
@@ -211,7 +212,8 @@ $(function () {
 
     function reset(){
         $('#list-pengikut').empty();
-        $('#jam_keluar').val('');
+        $('#jam_pergi').val('');
+        $('#jam_kembali').val('');
         $('#jenis_kendaraan').val('');
         $('#kepemilikan_kendaraan').val('');
         $('#kode_wilayah').val('');
@@ -291,7 +293,8 @@ $(function () {
     $('#pengajuan-table').on("click", '.btnEdit', function (){
         loadingSwalShow();
         let tugasluarId = $(this).data('id-tugasluar');
-        let jamKeluar = $(this).data('jam-keluar');
+        let jamPergi = $(this).data('jam-pergi');
+        let jamKembali = $(this).data('jam-kembali');
         let jenisKendaraan = $(this).data('jenis-kendaraan');
         let kepemilikanKendaraan = $(this).data('kepemilikan-kendaraan');
         let kodeWilayah = $(this).data('kode-wilayah');
@@ -310,7 +313,8 @@ $(function () {
             success: function (response) {
                 let pengikut = response.data;
                 pengikutCount += pengikut.length;
-                $('#jam_keluarEdit').val(jamKeluar);
+                $('#jam_pergiEdit').val(jamPergi);
+                $('#jam_kembaliEdit').val(jamKembali);
                 $('#jenis_kendaraanEdit').val(jenisKendaraan).trigger('change');
                 $('#kepemilikan_kendaraanEdit').val(kepemilikanKendaraan).trigger('change');
                 $('#kode_wilayahEdit').val(kodeWilayah);

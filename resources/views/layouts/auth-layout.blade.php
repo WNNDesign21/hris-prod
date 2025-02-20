@@ -281,7 +281,6 @@
     @if ($page == 'tugasluare-approval')
         @vite(['resources/js/pages/tugasluare/tugasluare-approval.js'])
     @endif
-
 </body>
 
 </html>

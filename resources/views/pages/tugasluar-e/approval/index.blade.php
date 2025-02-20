@@ -32,23 +32,22 @@
                 </div>
                 <div class="box-body">
                     <div class="table-responsive">
-                        <table id="pengajuan-table" class="table table-striped table-bordered display" style="width:100%">
+                        <table id="approval-table" class="table table-striped table-bordered display" style="width:100%">
                             <thead>
                                 <tr>
                                     <th>ID TL</th>
+                                    <th>Karyawan</th>
                                     <th>Tanggal</th>
                                     <th>Kendaraan</th>
                                     <th>Pergi</th>
                                     <th>Kembali</th>
-                                    <th>Jarak</th>
                                     <th>Rute</th>
                                     <th>Pengikut</th>
                                     <th>Keterangan</th>
+                                    <th>Status</th>
                                     <th>Checked</th>
                                     <th>Legalized</th>
                                     <th>Known</th>
-                                    <th>Status</th>
-                                    <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>
@@ -59,4 +58,6 @@
         </div>
     </div>
     @include('pages.tugasluar-e.approval.modal-filter')
+    @include('pages.tugasluar-e.approval.modal-reject')
+    @include('pages.tugasluar-e.approval.modal-verification')
 @endsection

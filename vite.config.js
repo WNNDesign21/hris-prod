@@ -57,7 +57,7 @@ export default defineConfig({
                 'resources/js/pages/tugasluare/tugasluare-approval.js',
             ],
             // refresh: true,
-            // refresh: ["resources/views/**", "resources/css/**", "app/Http/**"],
+            refresh: ["resources/views/**", "resources/css/**", "app/Http/**"],
         }),
     ],
 });

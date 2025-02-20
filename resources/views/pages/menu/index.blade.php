@@ -141,7 +141,7 @@
                 </div>
                 {{-- CARD TUGASLUAR SYSTEM --}}
                 <div class="col-lg-6 col-12">
-                    <a href="{{ route('tugasluare.pengajuan') }}" class="box pull-up">
+                    <a href="{{ auth()->user()->hasRole('personalia') || auth()->user()->hasRole('security') ? route('tugasluare.approval') : route('tugasluare.pengajuan') }}" class="box pull-up">
                         <div class="box-body position-relative">
                             {{-- @if ($lembure['approval_lembur'] + $lembure['pengajuan_lembur'] + $lembure['review_lembur'] > 0)
                                 <span class="position-absolute top-0 start-95 translate-middle badge bg-danger">

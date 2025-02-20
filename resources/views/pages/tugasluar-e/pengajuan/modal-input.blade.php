@@ -11,9 +11,15 @@
                     id="form-input">
                     @csrf
                     <div class="form-group">
-                        <label for="">Jam Keluar</label>
+                        <label for="">Jam Pergi</label>
                         <div class="input-group mb-2" style="width:100%;">
-                            <input type="time" name="jam_keluar" id="jam_keluar" class="form-control" required>
+                            <input type="time" name="jam_pergi" id="jam_pergi" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Jam Kembali</label>
+                        <div class="input-group mb-2" style="width:100%;">
+                            <input type="time" name="jam_kembali" id="jam_kembali" class="form-control">
                         </div>
                     </div>
                     <div class="form-group">

@@ -7,6 +7,7 @@ use App\Models\Karyawan;
 use App\Models\Departemen;
 use App\Models\Organisasi;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Query\JoinClause;
 use App\Models\TugasLuare\PengikutTugasLuar;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -27,8 +28,10 @@ class TugasLuar extends Model
         'departemen_id',
         'divisi_id',
         'created_date',
-        'tanggal_pergi',
-        'tanggal_kembali',
+        'tanggal_pergi_planning',
+        'tanggal_kembali_planning',
+        'tanggal_pergi_aktual',
+        'tanggal_kembali_aktual',
         'jenis_kendaraan',
         'kepemilikan_kendaraan',
         'no_polisi',
@@ -42,6 +45,7 @@ class TugasLuar extends Model
         'pembagi',
         'rate',
         'nominal',
+        'bbm',
         'millage_id',
         'checked_by',
         'checked_at',
@@ -51,6 +55,7 @@ class TugasLuar extends Model
         'known_at',
         'rejected_by',
         'rejected_at',
+        'rejected_note',
         'status'
     ];
 
@@ -87,6 +92,7 @@ class TugasLuar extends Model
     private static function _query($dataFilter)
     {
 
+        $getPengemudi = Karyawan::select("id_karyawan as id_pengemudi", "nama as nama_pengemudi");
         $data = self::select(
             'tugasluars.id_tugasluar',
             'tugasluars.organisasi_id',
@@ -95,8 +101,10 @@ class TugasLuar extends Model
             'tugasluars.departemen_id',
             'tugasluars.divisi_id',
             'tugasluars.created_date',
-            'tugasluars.tanggal_pergi',
-            'tugasluars.tanggal_kembali',
+            'tugasluars.tanggal_pergi_planning',
+            'tugasluars.tanggal_kembali_planning',
+            'tugasluars.tanggal_pergi_aktual',
+            'tugasluars.tanggal_kembali_aktual',
             'tugasluars.jenis_kendaraan',
             'tugasluars.kepemilikan_kendaraan',
             'tugasluars.no_polisi',
@@ -119,10 +127,21 @@ class TugasLuar extends Model
             'tugasluars.known_at',
             'tugasluars.rejected_by',
             'tugasluars.rejected_at',
+            'tugasluars.rejected_note',
             'tugasluars.status',
-            'karyawans.nama as nama_karyawan',
+            'karyawans.nama as karyawan',
+            'departemens.nama as departemen',
+            'divisis.nama as divisi',
+            'p.nama_pengemudi',
         );
-        $data->leftJoin('karyawans', 'tugasluars.karyawan_id', 'karyawans.id_karyawan');
+        $data->leftJoin('karyawans', 'tugasluars.karyawan_id', 'karyawans.id_karyawan')
+        ->leftJoinSub($getPengemudi, 'p', function (JoinClause $joinPengemudi) {
+            $joinPengemudi->on('tugasluars.pengemudi_id', 'p.id_pengemudi');
+        })
+        ->leftJoin('karyawan_posisi', 'tugasluars.karyawan_id', 'karyawan_posisi.karyawan_id')
+        ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+        ->leftJoin('departemens', 'tugasluars.departemen_id', 'departemens.id_departemen')
+        ->leftJoin('divisis', 'tugasluars.divisi_id', 'divisis.id_divisi');
 
         if (isset($dataFilter['organisasi_id'])) {
             $data->where('tugasluars.organisasi_id', $dataFilter['organisasi_id']);
@@ -130,6 +149,27 @@ class TugasLuar extends Model
 
         if (isset($dataFilter['id_karyawan'])) {
             $data->where('tugasluars.karyawan_id', $dataFilter['id_karyawan']);
+        }
+
+        if (isset($dataFilter['member_posisi_id'])) {
+            $data->whereIn('posisis.id_posisi', $dataFilter['member_posisi_id']);
+        }
+
+        if (isset($dataFilter['nopol'])) {
+            $data->where('tugasluars.no_polisi', 'ILIKE', "%{$dataFilter['nopol']}%");
+        }
+
+        if (isset($dataFilter['departemen_id'])) {
+            $data->whereIn('tugasluars.departemen_id', $dataFilter['departemen_id']);
+        }
+
+        if (isset($dataFilter['from']) && isset($dataFilter['to'])) {
+            $data->whereBetween('tugasluars.created_date', [$dataFilter['from'], $dataFilter['to']]);
+        }
+
+        if (isset($dataFilter['status'])) {
+            $status = $dataFilter['status'];
+            $data->where('tugasluars.status', $status);
         }
 
         if (isset($dataFilter['search'])) {
@@ -142,6 +182,32 @@ class TugasLuar extends Model
                 $query->orWhere('tugasluars.jenis_kendaraan', 'ILIKE', "%{$search}%");
                 $query->orWhere('tugasluars.keterangan', 'ILIKE', "%{$search}%");
             });
+        }
+
+        if (auth()->user()->hasRole('personalia')) {
+            $data->orderByRaw("CASE 
+                WHEN tugasluars.status = 'WAITING' AND tugasluars.checked_by IS NOT NULL AND tugasluars.legalized_by IS NULL AND tugasluars.rejected_by IS NULL THEN 1
+                WHEN tugasluars.rejected_by IS NOT NULL THEN 3
+                ELSE 2
+            END, tugasluars.created_date DESC");
+        }
+
+        if (auth()->user()->hasRole('security')) {
+            $data->orderByRaw("CASE 
+                WHEN tugasluars.status = 'WAITING' AND tugasluars.legalized_by IS NOT NULL AND tugasluars.known_by IS NULL AND tugasluars.rejected_by IS NULL THEN 1
+                WHEN tugasluars.rejected_by IS NOT NULL THEN 3
+                ELSE 2
+            END, tugasluars.created_date DESC");
+        }
+
+        if (auth()->user()->hasRole('atasan')) {
+            if (!isset($dataFilter['id_karyawan'])) {
+                $data->orderByRaw("CASE 
+                    WHEN tugasluars.status = 'WAITING' AND tugasluars.checked_by IS NULL AND tugasluars.rejected_by IS NULL THEN 1
+                    WHEN tugasluars.rejected_by IS NOT NULL THEN 3
+                    ELSE 2
+                END, tugasluars.created_date DESC");
+            }
         }
 
         $result = $data;

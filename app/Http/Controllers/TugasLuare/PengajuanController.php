@@ -21,7 +21,7 @@ class PengajuanController extends Controller
     public function index()
     {
         if(auth()->user()->hasRole('personalia') || auth()->user()->hasRole('security')) {
-            return redirect()->route('root');
+            return redirect()->route('tugasluare.approval');
         }
 
         $karyawans = Karyawan::where('status_karyawan', 'AT')
@@ -37,20 +37,13 @@ class PengajuanController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
         $dataValidate = [
-            'jam_keluar' => ['required', 'date_format:H:i'],
+            'jam_pergi' => ['required', 'date_format:H:i'],
+            'jam_kembali' => ['nullable', 'date_format:H:i'],
             'jenis_kendaraan' => ['required','in:MOTOR,MOBIL'],
             'kepemilikan_kendaraan' => ['required','in:OP,OJ,PR'],
             'kode_wilayah' => ['required', 'regex:/^[A-Za-z]+$/'],
@@ -59,8 +52,8 @@ class PengajuanController extends Controller
             'tempat_asal' => ['required'],
             'tempat_tujuan' => ['required'],
             'keterangan' => ['required'],
-            'id_pengikut.*' => ['required','exists:karyawans,id_karyawan', 'distinct'],
-            'id_pengikut' => ['required','array'],
+            'id_pengikut.*' => ['exists:karyawans,id_karyawan', 'distinct'],
+            'id_pengikut' => ['array'],
             'pengemudi' => ['required','exists:karyawans,id_karyawan']
         ];
 
@@ -71,7 +64,8 @@ class PengajuanController extends Controller
             return response()->json(['message' => $errors], 402);
         }
 
-        $tanggal_pergi = date('Y-m-d H:i:s', strtotime("$request->jam_keluar"));
+        $tanggal_pergi = date('Y-m-d H:i:s', strtotime("$request->jam_pergi"));
+        $tanggal_kembali = $request->jam_kembali ? date('Y-m-d H:i:s', strtotime("$request->jam_kembali")) : null;
         $jenis_kendaraan = $request->jenis_kendaraan;
         $kepemilikan_kendaraan = $request->kepemilikan_kendaraan;
         $kode_wilayah = strtoupper(trim($request->kode_wilayah));
@@ -102,7 +96,8 @@ class PengajuanController extends Controller
                 'ni_karyawan' => auth()->user()->karyawan->ni_karyawan,
                 'departemen_id' => $posisi->departemen_id,
                 'divisi_id' => $posisi->divisi_id,
-                'tanggal_pergi' => $tanggal_pergi,
+                'tanggal_pergi_planning' => $tanggal_pergi,
+                'tanggal_kembali_planning' => $tanggal_kembali,
                 'jenis_kendaraan' => $jenis_kendaraan,
                 'kepemilikan_kendaraan' => $kepemilikan_kendaraan,
                 'no_polisi' => $no_polisi_formatted,
@@ -114,20 +109,22 @@ class PengajuanController extends Controller
                 'rate' => $rate,
             ]);
 
-            $pengikuts = Karyawan::whereIn('id_karyawan', $id_pengikut)->get();
-            $data_pengikut = [];
-            foreach ($pengikuts as $pengikut) {
-                $data_pengikut[] = [
-                    'karyawan_id' => $pengikut->id_karyawan,
-                    'organisasi_id' => $pengikut->organisasi_id,
-                    'departemen_id' => $pengikut->posisi[0]->departemen_id,
-                    'divisi_id' => $pengikut->posisi[0]->divisi_id,
-                    'ni_karyawan' => $pengikut->ni_karyawan,
-                    'pin' => $pengikut->pin,
-                ];
+            if (!empty($id_pengikut)){
+                $pengikuts = Karyawan::whereIn('id_karyawan', $id_pengikut)->get();
+                $data_pengikut = [];
+                foreach ($pengikuts as $pengikut) {
+                    $data_pengikut[] = [
+                        'karyawan_id' => $pengikut->id_karyawan,
+                        'organisasi_id' => $pengikut->organisasi_id,
+                        'departemen_id' => $pengikut->posisi[0]->departemen_id,
+                        'divisi_id' => $pengikut->posisi[0]->divisi_id,
+                        'ni_karyawan' => $pengikut->ni_karyawan,
+                        'pin' => $pengikut->pin,
+                    ];
+                }
+    
+                $tugasLuar->pengikut()->createMany($data_pengikut);
             }
-
-            $tugasLuar->pengikut()->createMany($data_pengikut);
 
             DB::commit();
             return response()->json(['message' => 'Pengajuan Tugas Luar Berhasil Dibuat'], 200);
@@ -143,14 +140,14 @@ class PengajuanController extends Controller
             0 => 'tugasluars.id_tugasluar',
             1 => 'tugasluars.created_date',
             2 => 'tugasluars.jenis_kendaraan',
-            3 => 'tugasluars.tanggal_pergi',
-            4 => 'tugasluars.tanggal_kembali',
+            3 => 'tugasluars.tanggal_pergi_planning',
+            4 => 'tugasluars.tanggal_kembali_planning',
             5 => 'tugasluars.jarak_tempuh',
             6 => 'tugasluars.tempat_asal',
-            7 => 'tugasluars.keterangan',
-            8 => 'tugasluars.checked_at',
-            9 => 'tugasluars.legalized_at',
-            10 => 'tugasluars.known_at',
+            8 => 'tugasluars.keterangan',
+            9 => 'tugasluars.checked_at',
+            10 => 'tugasluars.legalized_at',
+            11 => 'tugasluars.known_at',
         );
 
         $totalData = TugasLuar::count();
@@ -188,11 +185,14 @@ class PengajuanController extends Controller
                 $rejected = '';
                 $aksi = '-';
                 $is_rejected = false;
-                $pengikuts = $data->pengikut()->pluck('karyawan_id')->toArray();
-                $pengikutNames = Karyawan::whereIn('id_karyawan', $pengikuts)->pluck('nama')->toArray();
-                $formattedPengikut = array_map(function($pengikut) {
-                    return '<span class="badge badge-primary m-1">' . $pengikut . '</span>';
-                }, $pengikutNames);
+                $formattedPengikut = '';
+                if ($data->pengikut()->exists()) {
+                    $pengikuts = $data->pengikut()->pluck('karyawan_id')->toArray();
+                    $pengikutNames = Karyawan::whereIn('id_karyawan', $pengikuts)->pluck('nama')->toArray();
+                    $formattedPengikut = array_map(function($pengikut) {
+                        return '<span class="badge badge-primary m-1">' . $pengikut . '</span>';
+                    }, $pengikutNames);
+                }
                 $no_polisi_array = explode('-', $data->no_polisi);
                 $kode_wilayah = $no_polisi_array[0];
                 $nomor_polisi = $no_polisi_array[1];
@@ -200,8 +200,18 @@ class PengajuanController extends Controller
                 $kepemilikan_kendaraan = $data->kepemilikan_kendaraan == 'OP' ? 'OPERASIONAL' : ($data->kepemilikan_kendaraan == 'OJ' ? 'OPERASIONAL JABATAN' : 'PRIBADI');
                 $jenis_kendaraan = $data->jenis_kendaraan == 'MOTOR' ? '🏍️' : '🚗';
                 $kendaraan = '<small class="text-center">'.$jenis_kendaraan.' '.$data->no_polisi.'<br><span class="text-center">'.$kepemilikan_kendaraan.'</span></small>';
-                $rute = '<div class="d-flex gap-1 text-center">'.'<p><small class="text-fade">'.strtoupper($data->tempat_asal).'</small></p>'.' ➡️ '.'<p><small class="text-fade">'.strtoupper($data->tempat_tujuan).'</small></p>'.'</div>';
+                $rute = '<div class="d-flex gap-1 text-center">'.'<p><small class="text-fade">'.strtoupper($data->tempat_asal).'</small></p>'.' ➡️ '.'<p><small class="text-fade">'.strtoupper($data->tempat_tujuan).'</small></p>'.'</div><div class="row"><p><small> Driver : '.$data->nama_pengemudi.'</small></p></div>';
                 $status = $data->status == 'WAITING' ? '<span class="badge badge-warning">WAITING</span>' : ($data->status == 'ONGOING' ? '<span class="badge badge-info">ON GOING</span>' : ($data->status == 'COMPLETED' ? '<span class="badge badge-success">COMPLETED</span>' : '<span class="badge badge-danger">REJECTED</span>'));
+                $jam_pergi = '<div class="d-flex gap-1 text-center">
+                                <p>' . Carbon::createFromFormat('Y-m-d H:i:s', $data->tanggal_pergi_planning)->format('H:i') . ' WIB <span class="badge badge-warning">Planning</span></p>
+                                <br>
+                                <p>' . ($data->tanggal_pergi_aktual ? Carbon::createFromFormat('Y-m-d H:i:s', $data->tanggal_pergi_aktual)->format('H:i') . ' WIB <span class="badge badge-success">Aktual</span>' : '') . '</p>
+                              </div>';
+                $jam_kembali = $data->tanggal_kembali_planning ? '<div class="d-flex gap-1 text-center">
+                                <p>' . Carbon::createFromFormat('Y-m-d H:i:s', $data->tanggal_kembali_planning)->format('H:i') . ' WIB <span class="badge badge-warning">Planning</span></p>
+                                <br>
+                                <p>' . ($data->tanggal_kembali_aktual ? Carbon::createFromFormat('Y-m-d H:i:s', $data->tanggal_kembali_aktual)->format('H:i') . ' WIB <span class="badge badge-success">Aktual</span>' : '') . '</p>
+                            </div>' : '-';
 
                 if($data->checked_by) {
                     $checked = '✅<br><small class="text-bold">'.$data?->checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked_at)->diffForHumans().'</small>';
@@ -210,7 +220,8 @@ class PengajuanController extends Controller
                     $aksi = '<div class="btn-group">
                         <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" 
                             data-id-tugasluar="'.$data->id_tugasluar.'" 
-                            data-jam-keluar="'.Carbon::createFromFormat('Y-m-d H:i:s', $data->tanggal_pergi)->format('H:i').'" 
+                            data-jam-pergi="'.Carbon::createFromFormat('Y-m-d H:i:s', $data->tanggal_pergi_planning)->format('H:i').'" 
+                            data-jam-kembali="'.($data->tanggal_kembali_planning ? Carbon::createFromFormat('Y-m-d H:i:s', $data->tanggal_kembali_planning)->format('H:i') : '').'" 
                             data-jenis-kendaraan="'.$data->jenis_kendaraan.'" 
                             data-kepemilikan-kendaraan="'.$data->kepemilikan_kendaraan.'" 
                             data-kode-wilayah="'.$kode_wilayah.'" 
@@ -247,8 +258,8 @@ class PengajuanController extends Controller
                 $nestedData['id_tugasluar'] = $data->id_tugasluar;
                 $nestedData['tanggal'] = Carbon::parse($data->created_date)->format('d M Y');
                 $nestedData['kendaraan'] = $kendaraan;
-                $nestedData['pergi'] = Carbon::parse($data->tanggal_pergi)->format('H:i').' WIB';
-                $nestedData['kembali'] = $data->tanggal_kembali ? Carbon::parse($data->tanggal_kembali)->format('H:i').' WIB' : '-';
+                $nestedData['pergi'] = $jam_pergi;
+                $nestedData['kembali'] = $jam_kembali;
                 $nestedData['jarak'] = $data?->jarak_tempuh ? $data->jarak_tempuh.' KM' : '-';
                 $nestedData['rute'] = $rute;
                 $nestedData['pengikut'] = $formattedPengikut;
@@ -297,7 +308,8 @@ class PengajuanController extends Controller
     public function update(Request $request, string $id_tugasluar)
     {
         $dataValidate = [
-            'jam_keluarEdit' => ['required', 'date_format:H:i'],
+            'jam_pergiEdit' => ['required', 'date_format:H:i'],
+            'jam_kembaliEdit' => ['nullable', 'date_format:H:i'],
             'jenis_kendaraanEdit' => ['required','in:MOTOR,MOBIL'],
             'kepemilikan_kendaraanEdit' => ['required','in:OP,OJ,PR'],
             'kode_wilayahEdit' => ['required', 'regex:/^[A-Za-z]+$/'],
@@ -306,8 +318,8 @@ class PengajuanController extends Controller
             'tempat_asalEdit' => ['required'],
             'tempat_tujuanEdit' => ['required'],
             'keteranganEdit' => ['required'],
-            'id_pengikutEdit.*' => ['required','exists:karyawans,id_karyawan', 'distinct'],
-            'id_pengikutEdit' => ['required','array'],
+            'id_pengikutEdit.*' => ['exists:karyawans,id_karyawan', 'distinct'],
+            'id_pengikutEdit' => ['array'],
             'pengemudiEdit' => ['required','exists:karyawans,id_karyawan']
         ];
 
@@ -318,7 +330,8 @@ class PengajuanController extends Controller
             return response()->json(['message' => $errors], 402);
         }
 
-        $tanggal_pergi = date('Y-m-d H:i:s', strtotime("$request->jam_keluarEdit"));
+        $tanggal_pergi = date('Y-m-d H:i:s', strtotime("$request->jam_pergiEdit"));
+        $tanggal_kembali = $request->jam_kembaliEdit ? date('Y-m-d H:i:s', strtotime("$request->jam_kembaliEdit")) : null;
         $jenis_kendaraan = $request->jenis_kendaraanEdit;
         $kepemilikan_kendaraan = $request->kepemilikan_kendaraanEdit;
         $kode_wilayah = strtoupper(trim($request->kode_wilayahEdit));
@@ -342,7 +355,8 @@ class PengajuanController extends Controller
             // $rate = SettingTugasLuar::where('organisasi_id', auth()->user()->organisasi_id)->where('setting_name', 'RATE_BBM')->first()->value;
             // $pembagi = SettingTugasLuar::where('organisasi_id', auth()->user()->organisasi_id)->where('setting_name', 'PEMBAGI_'.$jenis_kendaraan)->first()->value;
             $tugasLuar = TugasLuar::findOrFail($id_tugasluar);
-            $tugasLuar->tanggal_pergi = $tanggal_pergi;
+            $tugasLuar->tanggal_pergi_planning = $tanggal_pergi;
+            $tugasLuar->tanggal_kembali_planning = $tanggal_kembali;
             $tugasLuar->jenis_kendaraan = $jenis_kendaraan;
             $tugasLuar->kepemilikan_kendaraan = $kepemilikan_kendaraan;
             $tugasLuar->no_polisi = $no_polisi_formatted;
@@ -356,20 +370,22 @@ class PengajuanController extends Controller
 
             $tugasLuar->pengikut()->delete();
 
-            $pengikuts = Karyawan::whereIn('id_karyawan', $id_pengikut)->get();
-            $data_pengikut = [];
-            foreach ($pengikuts as $pengikut) {
-                $data_pengikut[] = [
-                    'karyawan_id' => $pengikut->id_karyawan,
-                    'organisasi_id' => $organisasi_id,
-                    'departemen_id' => $pengikut->posisi[0]->departemen_id,
-                    'divisi_id' => $pengikut->posisi[0]->divisi_id,
-                    'ni_karyawan' => $pengikut->ni_karyawan,
-                    'pin' => $pengikut->pin,
-                ];
+            if(!empty($id_pengikut)){
+                $pengikuts = Karyawan::whereIn('id_karyawan', $id_pengikut)->get();
+                $data_pengikut = [];
+                foreach ($pengikuts as $pengikut) {
+                    $data_pengikut[] = [
+                        'karyawan_id' => $pengikut->id_karyawan,
+                        'organisasi_id' => $organisasi_id,
+                        'departemen_id' => $pengikut->posisi[0]->departemen_id,
+                        'divisi_id' => $pengikut->posisi[0]->divisi_id,
+                        'ni_karyawan' => $pengikut->ni_karyawan,
+                        'pin' => $pengikut->pin,
+                    ];
+                }
+    
+                $tugasLuar->pengikut()->createMany($data_pengikut);
             }
-
-            $tugasLuar->pengikut()->createMany($data_pengikut);
 
             DB::commit();
             return response()->json(['message' => 'Pengajuan Tugas Luar Berhasil Diupdate'], 200);

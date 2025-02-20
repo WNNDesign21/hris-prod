@@ -19,8 +19,10 @@ return new class extends Migration
             $table->unsignedInteger('departemen_id')->nullable();
             $table->unsignedInteger('divisi_id')->nullable();
             $table->date('created_date')->default(now()->format('Y-m-d'));
-            $table->dateTime('tanggal_pergi')->nullable();
-            $table->dateTime('tanggal_kembali')->nullable();
+            $table->dateTime('tanggal_pergi_planning')->nullable();
+            $table->dateTime('tanggal_kembali_planning')->nullable();
+            $table->dateTime('tanggal_pergi_aktual')->nullable();
+            $table->dateTime('tanggal_kembali_aktual')->nullable();
             $table->string('jenis_kendaraan');
             $table->string('kepemilikan_kendaraan', 2);
             $table->string('no_polisi');
@@ -32,6 +34,7 @@ return new class extends Migration
             $table->string('tempat_tujuan');
             $table->text('keterangan');
             $table->float('pembagi')->default(1);
+            $table->float('bbm')->default(0);
             $table->integer('rate')->default(0);
             $table->integer('nominal')->default(0);
             $table->string('millage_id')->nullable();
@@ -46,6 +49,7 @@ return new class extends Migration
             $table->dateTime('known_at')->nullable();
             $table->string('rejected_by')->nullable();
             $table->dateTime('rejected_at')->nullable();
+            $table->text('rejected_note')->nullable();
 
             $table->softDeletes();
             $table->timestamps();
