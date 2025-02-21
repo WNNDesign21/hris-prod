@@ -165,7 +165,7 @@ class ApprovalController extends Controller
                 $jarak_tempuh = $data->jarak_tempuh ? number_format($data->jarak_tempuh) . ' Km' : '-';
                 $km_awal = ($data->km_awal ? number_format($data->km_awal) : '-') . ' Km';
                 $km_akhir = ($data->km_akhir ? number_format($data->km_akhir) : '-') . ' Km';
-                $jarak_tempuh_formatted = '<div class="d-flex gap-1 text-center">'.'<p><small>'.$km_awal.'</small></p>'.' - '.'<p><small class="text-fade">'.$km_akhir.'</small></p></div><div class="text-center"><p><small class="text-fade"> Total : '.$jarak_tempuh.'</small></p></div>';
+                $jarak_tempuh_formatted = '<div class="d-flex gap-1 text-center">'.'<p><small>'.$km_awal.'</small></p>'.' - '.'<p><small>'.$km_akhir.'</small></p></div><div class="text-center"><p><small class="text-fade"> Total : '.$jarak_tempuh.'</small></p></div>';
 
                 if($data->checked_by) {
                     $checked = '✅<br><small class="text-bold">'.$data?->checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked_at)->diffForHumans().'</small>';
@@ -200,9 +200,9 @@ class ApprovalController extends Controller
 
                 if($is_can_known) {
                     if($data->status == 'WAITING'){
-                        $known = '<div class="btn-group"><button class="btn btn-sm btn-success btnKnown" data-id-tugasluar="'.$data->id_tugasluar.'" data-status="PERGI"><i class="fas fa-running"></i> Pergi</button><button type="button" class="btn btn-sm btn-danger waves-effect btnReject" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-times"></i> Reject</button></div>';
+                        $known = '<div class="btn-group"><button class="btn btn-sm btn-success btnKnown" data-id-tugasluar="'.$data->id_tugasluar.'" data-status="PERGI" data-kode-wilayah="'.$kode_wilayah.'" data-nomor-polisi="'.$nomor_polisi.'" data-seri-akhir="'.$seri_akhir.'"><i class="fas fa-running"></i> Pergi</button><button type="button" class="btn btn-sm btn-danger waves-effect btnReject" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-times"></i> Reject</button></div>';
                     } elseif ($data->status == 'ONGOING'){
-                        $known = '<div class="btn-group"><button class="btn btn-sm btn-success btnKnown" data-id-tugasluar="'.$data->id_tugasluar.'" data-status="KEMBALI"><i class="fas fa-home"></i> Kembali</button><button type="button" class="btn btn-sm btn-danger waves-effect btnReject" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-times"></i> Reject</button></div>';
+                        $known = '<div class="btn-group"><button class="btn btn-sm btn-success btnKnown" data-id-tugasluar="'.$data->id_tugasluar.'" data-status="KEMBALI" data-kode-wilayah="'.$kode_wilayah.'" data-nomor-polisi="'.$nomor_polisi.'" data-seri-akhir="'.$seri_akhir.'"><i class="fas fa-home"></i> Kembali</button><button type="button" class="btn btn-sm btn-danger waves-effect btnReject" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-times"></i> Reject</button></div>';
                     }
                 }
 
@@ -293,7 +293,10 @@ class ApprovalController extends Controller
     public function known(Request $request, string $id_tugasluar)
     {
         $dataValidate = [
-            'kilometer' => ['required', 'numeric'],
+            'kilometerVerif' => ['required', 'numeric'],
+            'kode_wilayahVerif' => ['regex:/^[A-Za-z]+$/'],
+            'nomor_polisiVerif' => ['numeric'],
+            'seri_akhirVerif' => ['regex:/^[A-Za-z]+$/'],
         ];
         
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -303,25 +306,34 @@ class ApprovalController extends Controller
             return response()->json(['message' => $errors], 402);
         }
         $tugasluar = TugasLuar::find($id_tugasluar);
+        $kode_wilayah = strtoupper(trim($request->kode_wilayahVerif));
+        $no_polisi = $request->nomor_polisiVerif;
+        $seri_akhir = strtoupper(trim($request->seri_akhirVerif));
+        $no_polisi_formatted = $kode_wilayah.'-'.$no_polisi.'-'.$seri_akhir;
 
         DB::beginTransaction();
         try{
             if ($tugasluar->status == 'WAITING'){
-                $tugasluar->km_awal = $request->kilometer;
+                if ($tugasluar->no_polisi != $no_polisi_formatted) {
+                    $tugasluar->last_changed_by = 'SECURITY';
+                    $tugasluar->last_changed_at = now();
+                }
+                $tugasluar->no_polisi = $no_polisi_formatted;
+                $tugasluar->km_awal = $request->kilometerVerif;
                 $tugasluar->tanggal_pergi_aktual = now();
                 $tugasluar->status = 'ONGOING';
             } elseif ($tugasluar->status == 'ONGOING'){
-                $tugasluar->km_akhir = $request->kilometer;
+                $tugasluar->km_akhir = $request->kilometerVerif;
                 if($tugasluar->tanggal_kembali_planning) {
                     $tugasluar->tanggal_kembali_aktual = now();
                 }
 
                 // Rumus Jarak Tempuh
-                if($request->kilometer < $tugasluar->km_awal){
+                if($request->kilometerVerif < $tugasluar->km_awal){
                     return response()->json(['message' => 'Kilometer Akhir tidak boleh lebih kecil dari Kilometer Awal!'], 402);
                 }
 
-                $jarak_tempuh = $request->kilometer - $tugasluar->km_awal;
+                $jarak_tempuh = $request->kilometerVerif - $tugasluar->km_awal;
                 $bbm = number_format($jarak_tempuh / $tugasluar->pembagi, 2);
                 $nominal = floor($bbm * $tugasluar->rate);
 

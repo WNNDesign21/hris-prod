@@ -215,7 +215,7 @@ class PengajuanController extends Controller
                 $jarak_tempuh = $data->jarak_tempuh ? number_format($data->jarak_tempuh) . ' Km' : '-';
                 $km_awal = ($data->km_awal ? number_format($data->km_awal) : '-') . ' Km';
                 $km_akhir = ($data->km_akhir ? number_format($data->km_akhir) : '-') . ' Km';
-                $jarak_tempuh_formatted = '<div class="d-flex gap-1 text-center">'.'<p><small>'.$km_awal.'</small></p>'.' - '.'<p><small class="text-fade">'.$km_akhir.'</small></p></div><div class="text-center"><p><small class="text-fade"> Total : '.$jarak_tempuh.'</small></p></div>';
+                $jarak_tempuh_formatted = '<div class="d-flex gap-1 text-center">'.'<p><small>'.$km_awal.'</small></p>'.' - '.'<p><small>'.$km_akhir.'</small></p></div><div class="text-center"><p><small class="text-fade"> Total : '.$jarak_tempuh.'</small></p></div>';
 
                 if($data->checked_by) {
                     $checked = '✅<br><small class="text-bold">'.$data?->checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked_at)->diffForHumans().'</small>';

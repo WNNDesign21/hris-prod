@@ -15,8 +15,25 @@
                         <div class="row">
                             <div class="col-12">
                                 <div class="form-group">
-                                    <label for="kilometer" id="status"></label>
-                                    <input type="text" class="form-control" name="kilometer" id="kilometer"
+                                    <label for="">Nomor Polisi</label>
+                                    <div class="row">
+                                        <div class="col-3">
+                                            <input type="text" name="kode_wilayahVerif" id="kode_wilayahVerif"
+                                                class="form-control" required>
+                                        </div>
+                                        <div class="col-6">
+                                            <input type="text" name="nomor_polisiVerif" id="nomor_polisiVerif"
+                                                class="form-control" required>
+                                        </div>
+                                        <div class="col-3">
+                                            <input type="text" name="seri_akhirVerif" id="seri_akhirVerif"
+                                                class="form-control" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="kilometerVerif" id="status"></label>
+                                    <input type="text" class="form-control" name="kilometerVerif" id="kilometerVerif"
                                         placeholder="Isi dengan angka saja (Satuan KM)" style="width: 100%;">
                                 </div>
                                 <div class="d-flex justify-content-end mt-2">

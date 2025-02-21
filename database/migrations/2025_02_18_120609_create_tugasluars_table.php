@@ -48,6 +48,8 @@ return new class extends Migration
             $table->string('known_by')->nullable();
             $table->dateTime('known_at')->nullable();
             $table->string('rejected_by')->nullable();
+            $table->dateTime('last_changed_at')->nullable();
+            $table->string('last_changed_by')->nullable();
             $table->dateTime('rejected_at')->nullable();
             $table->text('rejected_note')->nullable();
 

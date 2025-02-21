@@ -330,8 +330,26 @@ $(function () {
 
     $('#approval-table').on('click', '.btnKnown', function(){
         let idTugasLuar = $(this).data('id-tugasluar');
-        let status = $(this).data('status') == 'PERGI' ? 'Kilometer Awal' : 'Kilometer Akhir';
-        $('#status').text(status);
+        let status = $(this).data('status');
+        let kodeWilayah = $(this).data('kode-wilayah');
+        let noPolisi = $(this).data('nomor-polisi');
+        let seriAkhir = $(this).data('seri-akhir');
+
+        if (status == 'PERGI') {
+            $('#kode_wilayahVerif').prop('disabled', false);
+            $('#nomor_polisiVerif').prop('disabled', false);
+            $('#seri_akhirVerif').prop('disabled', false);
+            $('#status').text('Kilomeneter Pergi');
+        } else {
+            $('#kode_wilayahVerif').prop('disabled', true);
+            $('#nomor_polisiVerif').prop('disabled', true);
+            $('#seri_akhirVerif').prop('disabled', true);
+            $('#status').text('Kilomeneter Kembali');
+        }
+
+        $('#kode_wilayahVerif').val(kodeWilayah);
+        $('#nomor_polisiVerif').val(noPolisi);
+        $('#seri_akhirVerif').val(seriAkhir);
         let url = base_url + '/tugasluare/approval/known/' + idTugasLuar;
         $('#form-verification').attr('action', url);
         openVerification();
