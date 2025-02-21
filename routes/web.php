@@ -27,13 +27,15 @@ use App\Http\Controllers\Attendance\PresensiController;
 use App\Http\Controllers\MasterData\KaryawanController;
 use App\Http\Controllers\MasterData\TemplateController;
 use App\Http\Controllers\MasterData\TurnoverController;
-use App\Http\Controllers\TugasLuare\ApprovalController as TLApprovalController;
 use App\Http\Controllers\MasterData\DashboardController;
 use App\Http\Controllers\Attendance\ShiftgroupController;
 use App\Http\Controllers\MasterData\DepartemenController;
 use App\Http\Controllers\MasterData\OrganisasiController;
 use App\Http\Controllers\StockOpname\StoReportController;
+use App\Http\Controllers\TugasLuare\ApprovalClaimController as TLApprovalClaimController;
 use App\Http\Controllers\TugasLuare\AjaxController as TLAjaxController;
+use App\Http\Controllers\TugasLuare\ClaimController as TLClaimController;
+use App\Http\Controllers\TugasLuare\ApprovalController as TLApprovalController;
 use App\Http\Controllers\TugasLuare\PengajuanController as TLPengajuanController;
 use App\Http\Controllers\Attendance\DashboardController as AttendanceDashboardController;
 
@@ -479,7 +481,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
 
     /** TUGASLUARE */
     Route::group(['prefix' => 'tugasluare'], function () {
-        // PENGAJUAN
+        // PENGAJUAN TL
         Route::group(['middleware' => ['role:atasan|member']], function () {
             Route::get('/pengajuan', [TLPengajuanController::class, 'index'])->name('tugasluare.pengajuan');
             Route::post('/pengajuan/datatable', [TLPengajuanController::class, 'datatable']);
@@ -488,6 +490,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::delete('/pengajuan/delete/{idTugasLuar}', [TLPengajuanController::class, 'destroy'])->name('tugasluare.pengajuan.delete');
         });
 
+        // APPROVAL TL
         Route::group(['middleware' => ['role:atasan|personalia|security']], function () {
             Route::get('/approval', [TLApprovalController::class, 'index'])->name('tugasluare.approval');
             Route::post('/approval/datatable', [TLApprovalController::class, 'datatable']);
@@ -496,6 +499,25 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::patch('/approval/known/{idTugasLuar}', [TLApprovalController::class, 'known'])->name('tugasluare.approval.known');
             Route::patch('/approval/rejected/{idTugasLuar}', [TLApprovalController::class, 'rejected'])->name('tugasluare.approval.rejected');
             Route::delete('/approval/delete/{idTugasLuar}', [TLApprovalController::class, 'destroy'])->name('tugasluare.approval.delete');
+        });
+
+        // CLAIM TL
+        Route::group(['middleware' => ['role:personalia']], function () {
+            Route::get('/claim', [TLClaimController::class, 'index'])->name('tugasluare.claim');
+            Route::post('/claim/datatable', [TLClaimController::class, 'datatable']);
+            Route::patch('/claim/store/{idMillage}', [TLClaimController::class, 'store'])->name('tugasluare.claim.store');
+            Route::patch('/claim/update/{idMillage}', [TLClaimController::class, 'update'])->name('tugasluare.claim.update');
+            Route::delete('/claim/delete/{idMillage}', [TLClaimController::class, 'destroy'])->name('tugasluare.claim.delete');
+        });
+
+        // APPROVAL CLAIM TL
+        Route::group(['middleware' => ['role:atasan|personalia']], function () {
+            Route::get('/approval-claim', [TLApprovalClaimController::class, 'index'])->name('tugasluare.approval-claim');
+            Route::post('/approval-claim/datatable', [TLApprovalClaimController::class, 'datatable']);
+            Route::patch('/approval-claim/checked/{idMillage}', [TLApprovalClaimController::class, 'checked'])->name('tugasluare.approval-claim.checked');
+            Route::patch('/approval-claim/legalized/{idMillage}', [TLApprovalClaimController::class, 'legalized'])->name('tugasluare.approval-claim.legalized');
+            Route::patch('/approval-claim/rejected/{idMillage}', [TLApprovalClaimController::class, 'rejected'])->name('tugasluare.approval-claim.rejected');
+            Route::delete('/approval-claim/delete/{idMillage}', [TLApprovalClaimController::class, 'destroy'])->name('tugasluare.approval-claim.delete');
         });
     });
 
