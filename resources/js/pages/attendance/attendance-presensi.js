@@ -122,7 +122,7 @@ $(function () {
         fixedColumns: {
             leftColumns: 2,
         },
-        paging: false,
+        // paging: false,
         processing: true,
         language: {
             processing: '<i class="fas fa-sync-alt fa-spin fs-80"></i>'

@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('pengikut_tugasluars', function (Blueprint $table) {
-            $table->increments('id_pengikut_tugasluar');
+        Schema::create('detail_tugasluars', function (Blueprint $table) {
+            $table->increments('id_detail_tugasluar');
             $table->string('tugasluar_id');
             $table->string('karyawan_id');
             $table->unsignedInteger('organisasi_id');
@@ -20,7 +20,7 @@ return new class extends Migration
             $table->unsignedInteger('divisi_id')->nullable();
             $table->string('ni_karyawan')->nullable();
             $table->string('pin')->nullable();
-            $table->date('created_date')->default(now()->format('Y-m-d'));
+            $table->date('date')->default(now()->format('Y-m-d'));
             $table->string('is_active')->default('Y');
 
             $table->timestamps();
@@ -36,6 +36,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('pengikut_tugasluars');
+        Schema::dropIfExists('detail_tugasluars');
     }
 };

@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('setting_tugasluars', function (Blueprint $table) {
             $table->increments('id_setting_tugasluar');
             $table->unsignedInteger('organisasi_id');
-            $table->string('setting_name');
+            $table->string('name');
             $table->string('value');
+            
             $table->timestamps();
             $table->softDeletes();
 
