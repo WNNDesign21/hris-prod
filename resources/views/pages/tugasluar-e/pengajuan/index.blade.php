@@ -39,13 +39,14 @@
                                     <th>Kendaraan</th>
                                     <th>Pergi</th>
                                     <th>Kembali</th>
+                                    <th>KM Awal</th>
+                                    <th>KM Akhir</th>
+                                    <th>KM Selisih</th>
                                     <th>Rute</th>
-                                    <th>Jarak Tempuh</th>
                                     <th>Pengikut</th>
                                     <th>Keterangan</th>
                                     <th>Checked</th>
                                     <th>Legalized</th>
-                                    <th>Known</th>
                                     <th>Status</th>
                                     <th>Aksi</th>
                                 </tr>
@@ -59,4 +60,5 @@
     </div>
     @include('pages.tugasluar-e.pengajuan.modal-input')
     @include('pages.tugasluar-e.pengajuan.modal-edit')
+    @include('pages.tugasluar-e.pengajuan.modal-show-qrcode')
 @endsection

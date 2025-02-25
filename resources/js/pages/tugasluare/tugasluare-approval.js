@@ -53,14 +53,15 @@ $(function () {
         { data: "kendaraan" },
         { data: "pergi" },
         { data: "kembali" },
+        { data: "km_awal" },
+        { data: "km_akhir" },
+        { data: "km_selisih" },
         { data: "rute" },
-        { data: "jarak_tempuh" },
-        { data: "pengikut" },
         { data: "keterangan" },
         { data: "status" },
         { data: "checked" },
         { data: "legalized" },
-        { data: "known" },
+        { data: "aksi" },
     ];
 
     var approvalTable = $("#approval-table").DataTable({
@@ -136,7 +137,7 @@ $(function () {
         columnDefs: [
             {
                 orderable: false,
-                targets: [8],
+                targets: [-1],
             },
         ],
     })
@@ -290,69 +291,87 @@ $(function () {
         });
     })
 
+    // $('#approval-table').on('click', '.btnLegalized', function(){
+        // let idTugasLuar = $(this).data('id-tugasluar');
+        // let url = base_url + '/tugasluare/approval/legalized/' + idTugasLuar;
+        // var formData = new FormData();
+        // formData.append('_method', 'PATCH');
+        // Swal.fire({
+        //     title: "Legalized Tugas Luar",
+        //     text: "Data yang sudah di legalized tidak bisa diubah!",
+        //     icon: "warning",
+        //     showCancelButton: true,
+        //     confirmButtonColor: "#3085d6",
+        //     cancelButtonColor: "#d33",
+        //     confirmButtonText: "Yes, Tandai sebagai Legalized!",
+        //     allowOutsideClick: false,
+        // }).then((result) => {
+        //     if (result.value) {
+        //         loadingSwalShow();
+        //         $.ajax({
+        //             url: url,
+        //             data : formData,
+        //             method:"POST",
+        //             contentType: false,
+        //             processData: false,
+        //             dataType: "JSON",
+        //             success: function (data) {
+        //                 showToast({ title: data.message });
+        //                 refreshTable();
+        //                 loadingSwalClose();
+        //             },
+        //             error: function (jqXHR, textStatus, errorThrown) {
+        //                 loadingSwalClose();
+        //                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
+        //             },
+        //         });
+        //     }
+        // });
+    // })
+
     $('#approval-table').on('click', '.btnLegalized', function(){
         let idTugasLuar = $(this).data('id-tugasluar');
+        let jenisKeberangkatan = $(this).data('jenis-keberangkatan');
         let url = base_url + '/tugasluare/approval/legalized/' + idTugasLuar;
-        var formData = new FormData();
-        formData.append('_method', 'PATCH');
-        Swal.fire({
-            title: "Legalized Tugas Luar",
-            text: "Data yang sudah di legalized tidak bisa diubah!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Tandai sebagai Legalized!",
-            allowOutsideClick: false,
-        }).then((result) => {
-            if (result.value) {
-                loadingSwalShow();
-                $.ajax({
-                    url: url,
-                    data : formData,
-                    method:"POST",
-                    contentType: false,
-                    processData: false,
-                    dataType: "JSON",
-                    success: function (data) {
-                        showToast({ title: data.message });
-                        refreshTable();
-                        loadingSwalClose();
-                    },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        loadingSwalClose();
-                        showToast({ icon: "error", title: jqXHR.responseJSON.message });
-                    },
-                });
-            }
-        });
-    })
 
-    $('#approval-table').on('click', '.btnKnown', function(){
-        let idTugasLuar = $(this).data('id-tugasluar');
-        let status = $(this).data('status');
-        let kodeWilayah = $(this).data('kode-wilayah');
-        let noPolisi = $(this).data('nomor-polisi');
-        let seriAkhir = $(this).data('seri-akhir');
-
-        if (status == 'PERGI') {
-            $('#kode_wilayahVerif').prop('disabled', false);
-            $('#nomor_polisiVerif').prop('disabled', false);
-            $('#seri_akhirVerif').prop('disabled', false);
-            $('#status').text('Kilomeneter Pergi');
+        if (jenisKeberangkatan == 'KTR') {
+            $('#form-verification').attr('action', url);
+            openVerification();
         } else {
-            $('#kode_wilayahVerif').prop('disabled', true);
-            $('#nomor_polisiVerif').prop('disabled', true);
-            $('#seri_akhirVerif').prop('disabled', true);
-            $('#status').text('Kilomeneter Kembali');
+            var formData = new FormData();
+            formData.append('_method', 'PATCH');
+            Swal.fire({
+                title: "Legalized Tugas Luar",
+                text: "Data yang sudah di legalized tidak bisa diubah!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, Tandai sebagai Legalized!",
+                allowOutsideClick: false,
+            }).then((result) => {
+                if (result.value) {
+                    loadingSwalShow();
+                    $.ajax({
+                        url: url,
+                        data : formData,
+                        method:"POST",
+                        contentType: false,
+                        processData: false,
+                        dataType: "JSON",
+                        success: function (data) {
+                            showToast({ title: data.message });
+                            refreshTable();
+                            loadingSwalClose();
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            loadingSwalClose();
+                            showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                        },
+                    });
+                }
+            });
         }
-
-        $('#kode_wilayahVerif').val(kodeWilayah);
-        $('#nomor_polisiVerif').val(noPolisi);
-        $('#seri_akhirVerif').val(seriAkhir);
-        let url = base_url + '/tugasluare/approval/known/' + idTugasLuar;
-        $('#form-verification').attr('action', url);
-        openVerification();
     })
 
     $('#form-verification').on('submit', function (e) {

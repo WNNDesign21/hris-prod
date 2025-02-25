@@ -32,8 +32,8 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="kilometerVerif" id="status"></label>
-                                    <input type="text" class="form-control" name="kilometerVerif" id="kilometerVerif"
+                                    <label for="km_awalVerif">KM Awal</label>
+                                    <input type="text" class="form-control" name="km_awalVerif" id="km_awalVerif"
                                         placeholder="Isi dengan angka saja (Satuan KM)" style="width: 100%;">
                                 </div>
                                 <div class="d-flex justify-content-end mt-2">

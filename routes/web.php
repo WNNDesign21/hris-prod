@@ -488,6 +488,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::post('/pengajuan/store', [TLPengajuanController::class, 'store'])->name('tugasluare.pengajuan.store');
             Route::patch('/pengajuan/update/{idTugasLuar}', [TLPengajuanController::class, 'update'])->name('tugasluare.pengajuan.update');
             Route::delete('/pengajuan/delete/{idTugasLuar}', [TLPengajuanController::class, 'destroy'])->name('tugasluare.pengajuan.delete');
+            Route::patch('/pengajuan/aktual/{idTugasLuar}', [TLPengajuanController::class, 'aktual'])->name('tugasluare.pengajuan.aktual');
         });
 
         // APPROVAL TL

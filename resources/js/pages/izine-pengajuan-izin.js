@@ -813,7 +813,7 @@ $(function () {
         var idIzin = $(this).data('id-izin');
         var url = base_url + '/generate-qrcode';
         let formData = new FormData();
-        formData.append('id_izin', idIzin);
+        formData.append('id', idIzin);
         $.ajax({
             url: url,
             data: formData,

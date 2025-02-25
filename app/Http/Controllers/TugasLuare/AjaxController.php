@@ -80,7 +80,7 @@ class AjaxController extends Controller
     public function get_data_pengikut(string $id_tugasluar){
         try {
             $data = TugasLuar::findOrFail($id_tugasluar);
-            $dataPengikut = $data->pengikut;
+            $dataPengikut = $data->pengikut()->where('role', 'F')->get();
             return response()->json(['message' => 'Data Berhasil Ditemukan', 'data' => $dataPengikut], 200);
         } catch (Throwable $e) {
             return response()->json(['message' => $e->getMessage()], 500);

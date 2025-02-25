@@ -26,12 +26,12 @@ return new class extends Migration
             $table->string('jenis_kendaraan');
             $table->string('jenis_kepemilikan', 2);
             $table->string('jenis_keberangkatan', 3);
-            $table->string('no_polisi');
+            $table->string('no_polisi')->nullable();
             $table->integer('km_awal')->default(0);
             $table->integer('km_akhir')->default(0);
             $table->integer('km_selisih')->default(0);
             $table->integer('km_standar')->default(0);
-            $table->string('pengemudi_id')->nullable();
+            $table->string('pengemudi_id');
             $table->string('tempat_asal');
             $table->string('tempat_tujuan');
             $table->text('keterangan');

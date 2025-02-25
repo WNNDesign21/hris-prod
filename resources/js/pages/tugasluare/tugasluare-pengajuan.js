@@ -10,6 +10,7 @@ $(function () {
     let loadingSwal;
     let count = 0;
     let pengikutCount = 0;
+    let qrCodeTemp;
     // END GLOBAL VARIABLES
 
     // LOADING & ALERT
@@ -54,13 +55,14 @@ $(function () {
         { data: "kendaraan" },
         { data: "pergi" },
         { data: "kembali" },
+        { data: "km_awal" },
+        { data: "km_akhir" },
+        { data: "km_selisih" },
         { data: "rute" },
-        { data: "jarak" },
         { data: "pengikut" },
         { data: "keterangan" },
         { data: "checked" },
         { data: "legalized" },
-        { data: "known" },
         { data: "status" },
         { data: "aksi" },
     ];
@@ -136,7 +138,7 @@ $(function () {
         columnDefs: [
             {
                 orderable: false,
-                targets: [0, -1],
+                targets: [-1],
             },
         ],
     })
@@ -161,6 +163,16 @@ $(function () {
     var modalEdit = new bootstrap.Modal(
         document.getElementById("modal-edit"),
         modalEditOptions
+    );
+
+    var modalQrCodeOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalQrCode = new bootstrap.Modal(
+        document.getElementById("modal-show-qrcode"),
+        modalQrCodeOptions
     );
     // END MODAL
 
@@ -193,12 +205,21 @@ $(function () {
         resetEdit();
     }
 
+    function openQrCode() {
+        modalQrCode.show();
+    }
+
+    function closeQrCode() {
+        modalQrCode.hide();
+        refreshTable();
+    }
+
     function resetEdit() {
         $('#list-pengikutEdit').empty();
         $('#jam_pergiEdit').val('');
         $('#jam_kembaliEdit').val('');
         $('#jenis_kendaraanEdit').val('');
-        $('#kepemilikan_kendaraanEdit').val('');
+        $('#jenis_kepemilikanEdit').val('');
         $('#kode_wilayahEdit').val('');
         $('#nomor_polisiEdit').val('');
         $('#seri_akhirEdit').val('');
@@ -215,7 +236,7 @@ $(function () {
         $('#jam_pergi').val('');
         $('#jam_kembali').val('');
         $('#jenis_kendaraan').val('');
-        $('#kepemilikan_kendaraan').val('');
+        $('#jenis_kepemilikan').val('');
         $('#kode_wilayah').val('');
         $('#nomor_polisi').val('');
         $('#seri_akhir').val('');
@@ -296,14 +317,16 @@ $(function () {
         let jamPergi = $(this).data('jam-pergi');
         let jamKembali = $(this).data('jam-kembali');
         let jenisKendaraan = $(this).data('jenis-kendaraan');
-        let kepemilikanKendaraan = $(this).data('kepemilikan-kendaraan');
+        let jenisKepemilikan = $(this).data('jenis-kepemilikan');
+        let jenisKeberangkatan = $(this).data('jenis-keberangkatan');
         let kodeWilayah = $(this).data('kode-wilayah');
         let nomorPolisi = $(this).data('nomor-polisi');
         let seriAkhir = $(this).data('seri-akhir');
         let tempatAsal = $(this).data('tempat-asal');
         let tempatTujuan = $(this).data('tempat-tujuan');
-        let keterangan = $(this).data('keterangan');
         let pengemudi = $(this).data('pengemudi');
+        let kmAwal = $(this).data('km-awal');
+        let keterangan = $(this).data('keterangan');
         let url = base_url + '/ajax/tugasluare/pengajuan/get-data-pengikut/' + tugasluarId;
 
         $.ajax({
@@ -316,13 +339,15 @@ $(function () {
                 $('#jam_pergiEdit').val(jamPergi);
                 $('#jam_kembaliEdit').val(jamKembali);
                 $('#jenis_kendaraanEdit').val(jenisKendaraan).trigger('change');
-                $('#kepemilikan_kendaraanEdit').val(kepemilikanKendaraan).trigger('change');
+                $('#jenis_kepemilikanEdit').val(jenisKepemilikan).trigger('change');
+                $('#jenis_keberangkatanEdit').val(jenisKeberangkatan).trigger('change');
                 $('#kode_wilayahEdit').val(kodeWilayah);
                 $('#nomor_polisiEdit').val(nomorPolisi);
                 $('#seri_akhirEdit').val(seriAkhir);
                 $('#tempat_asalEdit').val(tempatAsal);
                 $('#tempat_tujuanEdit').val(tempatTujuan);
                 $('#keteranganEdit').val(keterangan);
+                $('#km_awalEdit').val(kmAwal);
                 $('#id_tugasluarEdit').val(tugasluarId);
                 $('#pengemudiEdit').val(pengemudi).trigger('change');
                 let list = $('#list-pengikutEdit').empty();
@@ -559,12 +584,176 @@ $(function () {
         dropdownParent: $('#modal-edit'),
     })
 
-    $('#kepemilikan_kendaraan').select2({
+    $('#jenis_kepemilikan').select2({
         dropdownParent: $('#modal-input'),
     })
 
-    $('#kepemilikan_kendaraanEdit').select2({
+    $('#jenis_kepemilikanEdit').select2({
         dropdownParent: $('#modal-edit'),
     })
+
+    $('#jenis_keberangkatan').select2({
+        dropdownParent: $('#modal-input'),
+    })
+
+    $('#jenis_keberangkatanEdit').select2({
+        dropdownParent: $('#modal-edit'),
+    })
+
+    $('#jenis_keberangkatan').on('change', function (){
+        let value = $(this).val();
+        if (value == 'RMH' || value == 'LNA'){
+            console.log(value)
+            $('#conditional-field').empty().append(`
+                <div class="form-group">
+                    <label for="">Nomor Polisi</label>
+                    <div class="row">
+                        <div class="col-3">
+                            <input type="text" name="kode_wilayah" id="kode_wilayah" class="form-control"
+                                required>
+                        </div>
+                        <div class="col-6">
+                            <input type="text" name="nomor_polisi" id="nomor_polisi" class="form-control"
+                                required>
+                        </div>
+                        <div class="col-3">
+                            <input type="text" name="seri_akhir" id="seri_akhir" class="form-control"
+                                required>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="">KM Awal</label>
+                    <div class="input-group mb-2" style="width:100%;">
+                        <input type="text" name="km_awal" id="km_awal" class="form-control"
+                            style="width:100%;">
+                    </div>
+                </div>
+            `);
+        } else {
+            $('#conditional-field').empty();
+        }
+    })
+
+    $('#jenis_keberangkatanEdit').on('change', function (){
+        let value = $(this).val();
+        if (value == 'RMH' || value == 'LNA'){
+            console.log(value)
+            $('#conditional-fieldEdit').empty().append(`
+                <div class="form-group">
+                    <label for="">Nomor Polisi</label>
+                    <div class="row">
+                        <div class="col-3">
+                            <input type="text" name="kode_wilayahEdit" id="kode_wilayahEdit" class="form-control"
+                                required>
+                        </div>
+                        <div class="col-6">
+                            <input type="text" name="nomor_polisiEdit" id="nomor_polisiEdit" class="form-control"
+                                required>
+                        </div>
+                        <div class="col-3">
+                            <input type="text" name="seri_akhirEdit" id="seri_akhirEdit" class="form-control"
+                                required>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="">KM Awal</label>
+                    <div class="input-group mb-2" style="width:100%;">
+                        <input type="text" name="km_awalEdit" id="km_awalEdit" class="form-control"
+                            style="width:100%;">
+                    </div>
+                </div>
+            `);
+        } else {
+            $('#conditional-fieldEdit').empty();
+        }
+    })
+
+    $('.btnCloseQrcode').on('click', function(){
+        loadingSwalShow();
+        var url = base_url + '/delete-qrcode-img';
+        $.ajax({
+            url: url,
+            type: "POST",
+            data: {
+                _method: "delete",
+                file_path: qrCodeTemp
+            },
+            dataType: "JSON",
+            success: function (response) {
+                console.log(response);
+                loadingSwalClose();
+                closeQrCode();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        });
+    })
+
+    $('#pengajuan-table').on('click', '.btnShowQR', function (){
+        loadingSwalShow();
+        var idTugasLuar = $(this).data('id-tugasluar');
+        var url = base_url + '/generate-qrcode';
+        let formData = new FormData();
+        formData.append('id', idTugasLuar);
+        $.ajax({
+            url: url,
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (response) {
+                let qrCodeImg = response.data;
+                qrCodeTemp = qrCodeImg;
+                $('#qr-code').attr('src', qrCodeImg);
+                openQrCode();
+                loadingSwalClose();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        })
+    });
+
+    $('#pengajuan-table').on('click', '.btnPergi', function (){
+        let idTugasLuar = $(this).data('id-tugasluar');
+        let url = base_url + '/tugasluare/pengajuan/aktual/' + idTugasLuar;
+        var formData = new FormData();
+        formData.append('_method', 'PATCH');
+        Swal.fire({
+            title: "Konfirmasi Jam Keberangkatan Aktual",
+            text: "Data yang sudah di konfirmasi tidak bisa diubah!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Tandai sebagai Aktual Pergi!",
+            allowOutsideClick: false,
+        }).then((result) => {
+            if (result.value) {
+                loadingSwalShow();
+                $.ajax({
+                    url: url,
+                    data : formData,
+                    method:"POST",
+                    contentType: false,
+                    processData: false,
+                    dataType: "JSON",
+                    success: function (data) {
+                        showToast({ title: data.message });
+                        refreshTable();
+                        loadingSwalClose();
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        loadingSwalClose();
+                        showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                    },
+                });
+            }
+        });
+    });
     // END EVENT
 });

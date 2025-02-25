@@ -33,9 +33,9 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="">Kepemilikan Kendaraan</label>
+                        <label for="">Jenis Kepemilikan</label>
                         <div class="input-group mb-2" style="width:100%;">
-                            <select name="kepemilikan_kendaraan" id="kepemilikan_kendaraan" class="form-control"
+                            <select name="jenis_kepemilikan" id="jenis_kepemilikan" class="form-control"
                                 style="width:100%;">
                                 <option value="OP">OPERASIONAL</option>
                                 <option value="OJ">OPERASIONAL JABATAN</option>
@@ -48,38 +48,44 @@
                         <div class="input-group mb-2" style="width:100%;">
                             <select name="pengemudi" id="pengemudi" class="form-control" style="width:100%;">
                                 @foreach ($karyawans as $item)
-                                    <option value="{{ $item->id_karyawan }}">{{ $item->nama }}</option>
+                                    <option value="{{ $item->id_karyawan }}"
+                                        {{ auth()->user()->karyawan->id_karyawan == $item->id_karyawan ? 'selected' : '' }}>
+                                        {{ $item->nama }}</option>
                                 @endforeach
                             </select>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="">Nomor Polisi</label>
-                        <div class="row">
-                            <div class="col-3">
-                                <input type="text" name="kode_wilayah" id="kode_wilayah" class="form-control"
-                                    required>
-                            </div>
-                            <div class="col-6">
-                                <input type="text" name="nomor_polisi" id="nomor_polisi" class="form-control"
-                                    required>
-                            </div>
-                            <div class="col-3">
-                                <input type="text" name="seri_akhir" id="seri_akhir" class="form-control" required>
-                            </div>
+                        <label for="">Jenis Keberangkatan</label>
+                        <div class="input-group mb-2" style="width:100%;">
+                            <select name="jenis_keberangkatan" id="jenis_keberangkatan" class="form-control"
+                                style="width:100%;">
+                                <option value="KTR" selected>KANTOR</option>
+                                <option value="RMH">RUMAH</option>
+                                <option value="LNA">LAINNYA</option>
+                            </select>
                         </div>
                     </div>
                     <div class="form-group">
                         <label for="">Rute</label>
                         <div class="row">
                             <div class="col-6">
-                                <input type="text" name="tempat_asal" id="tempat_asal" class="form-control" required>
+                                <div class="form-floating">
+                                    <input type="text" name="tempat_asal" id="tempat_asal" class="form-control"
+                                        required>
+                                    <label for="tempat_asal">Tempat Asal</label>
+                                </div>
                             </div>
                             <div class="col-6">
-                                <input type="text" name="tempat_tujuan" id="tempat_tujuan" class="form-control"
-                                    required>
+                                <div class="form-floating">
+                                    <input type="text" name="tempat_tujuan" id="tempat_tujuan" class="form-control"
+                                        required>
+                                    <label for="tempat_tujuan">Tempat Tujuan</label>
+                                </div>
                             </div>
                         </div>
+                    </div>
+                    <div id="conditional-field">
                     </div>
                     <div class="form-group">
                         <label for="">Keterangan / Uraian Keperluan</label>

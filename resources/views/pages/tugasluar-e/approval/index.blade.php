@@ -41,14 +41,15 @@
                                     <th>Kendaraan</th>
                                     <th>Pergi</th>
                                     <th>Kembali</th>
+                                    <th>KM Awal</th>
+                                    <th>KM Akhir</th>
+                                    <th>KM Selisih</th>
                                     <th>Rute</th>
-                                    <th>Jarak Tempuh</th>
-                                    <th>Pengikut</th>
                                     <th>Keterangan</th>
                                     <th>Status</th>
                                     <th>Checked</th>
                                     <th>Legalized</th>
-                                    <th>Known</th>
+                                    <th>Aksi</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>

@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('pin')->nullable();
             $table->date('date')->default(now()->format('Y-m-d'));
             $table->string('is_active')->default('Y');
+            $table->string('role', 1);
 
             $table->timestamps();
 

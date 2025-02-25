@@ -41,21 +41,67 @@ class PengajuanController extends Controller
      */
     public function store(Request $request)
     {
-        $dataValidate = [
-            'jam_pergi' => ['required', 'date_format:H:i'],
-            'jam_kembali' => ['nullable', 'date_format:H:i'],
-            'jenis_kendaraan' => ['required','in:MOTOR,MOBIL'],
-            'kepemilikan_kendaraan' => ['required','in:OP,OJ,PR'],
-            'kode_wilayah' => ['required', 'regex:/^[A-Za-z]+$/'],
-            'nomor_polisi' => ['required','numeric'],
-            'seri_akhir' => ['required','regex:/^[A-Za-z]+$/'],
-            'tempat_asal' => ['required'],
-            'tempat_tujuan' => ['required'],
-            'keterangan' => ['required'],
-            'id_pengikut.*' => ['exists:karyawans,id_karyawan', 'distinct'],
-            'id_pengikut' => ['array'],
-            'pengemudi' => ['required','exists:karyawans,id_karyawan']
-        ];
+        if ($request->jenis_keberangkatan !== 'KTR') {
+            $dataValidate = [
+                'jam_pergi' => ['required', 'date_format:H:i'],
+                'jam_kembali' => ['nullable', 'date_format:H:i'],
+                'jenis_kendaraan' => ['required','in:MOTOR,MOBIL'],
+                'jenis_keberangkatan' => ['required','in:RMH,KTR,LNA'],
+                'jenis_kepemilikan' => ['required','in:OP,OJ,PR'],
+                'kode_wilayah' => ['required', 'regex:/^[A-Za-z]+$/'],
+                'nomor_polisi' => ['required','numeric'],
+                'seri_akhir' => ['required','regex:/^[A-Za-z]+$/'],
+                'km_awal' => ['required', 'numeric'],
+                'tempat_asal' => ['required'],
+                'tempat_tujuan' => ['required'],
+                'keterangan' => ['required'],
+                'id_pengikut.*' => ['exists:karyawans,id_karyawan', 'distinct'],
+                'id_pengikut' => ['array'],
+                'pengemudi' => ['required','exists:karyawans,id_karyawan']
+            ];
+
+            $tanggal_pergi = date('Y-m-d H:i:s', strtotime("$request->jam_pergi"));
+            $tanggal_kembali = $request->jam_kembali ? date('Y-m-d H:i:s', strtotime("$request->jam_kembali")) : null;
+            $jenis_kendaraan = $request->jenis_kendaraan;
+            $jenis_kepemilikan = $request->jenis_kepemilikan;
+            $jenis_keberangkatan = $request->jenis_keberangkatan;
+            $kode_wilayah = strtoupper(trim($request->kode_wilayah));
+            $no_polisi = $request->nomor_polisi;
+            $seri_akhir = strtoupper(trim($request->seri_akhir));
+            $no_polisi_formatted = $kode_wilayah.'-'.$no_polisi.'-'.$seri_akhir;
+            $tempat_asal = $request->tempat_asal;
+            $tempat_tujuan = $request->tempat_tujuan;
+            $km_awal = $request->km_awal;
+            $keterangan = $request->keterangan;
+            $pengemudi = $request->pengemudi;
+            $id_pengikut = $request->id_pengikut;
+
+        } else {
+            $dataValidate = [
+                'jam_pergi' => ['required', 'date_format:H:i'],
+                'jam_kembali' => ['nullable', 'date_format:H:i'],
+                'jenis_kendaraan' => ['required','in:MOTOR,MOBIL'],
+                'jenis_kepemilikan' => ['required','in:OP,OJ,PR'],
+                'jenis_keberangkatan' => ['required','in:RMH,KTR,LNA'],
+                'tempat_asal' => ['required'],
+                'tempat_tujuan' => ['required'],
+                'keterangan' => ['required'],
+                'id_pengikut.*' => ['exists:karyawans,id_karyawan', 'distinct'],
+                'id_pengikut' => ['array'],
+                'pengemudi' => ['required','exists:karyawans,id_karyawan']
+            ];
+
+            $tanggal_pergi = date('Y-m-d H:i:s', strtotime("$request->jam_pergi"));
+            $tanggal_kembali = $request->jam_kembali ? date('Y-m-d H:i:s', strtotime("$request->jam_kembali")) : null;
+            $jenis_kendaraan = $request->jenis_kendaraan;
+            $jenis_kepemilikan = $request->jenis_kepemilikan;
+            $jenis_keberangkatan = $request->jenis_keberangkatan;
+            $tempat_asal = $request->tempat_asal;
+            $tempat_tujuan = $request->tempat_tujuan;
+            $keterangan = $request->keterangan;
+            $pengemudi = $request->pengemudi;
+            $id_pengikut = $request->id_pengikut;
+        }
 
         $validator = Validator::make(request()->all(), $dataValidate);
     
@@ -63,20 +109,6 @@ class PengajuanController extends Controller
             $errors = $validator->errors()->all();
             return response()->json(['message' => $errors], 402);
         }
-
-        $tanggal_pergi = date('Y-m-d H:i:s', strtotime("$request->jam_pergi"));
-        $tanggal_kembali = $request->jam_kembali ? date('Y-m-d H:i:s', strtotime("$request->jam_kembali")) : null;
-        $jenis_kendaraan = $request->jenis_kendaraan;
-        $kepemilikan_kendaraan = $request->kepemilikan_kendaraan;
-        $kode_wilayah = strtoupper(trim($request->kode_wilayah));
-        $no_polisi = $request->nomor_polisi;
-        $seri_akhir = strtoupper(trim($request->seri_akhir));
-        $no_polisi_formatted = $kode_wilayah.'-'.$no_polisi.'-'.$seri_akhir;
-        $tempat_asal = $request->tempat_asal;
-        $tempat_tujuan = $request->tempat_tujuan;
-        $keterangan = $request->keterangan;
-        $pengemudi = $request->pengemudi;
-        $id_pengikut = $request->id_pengikut;
 
         DB::beginTransaction();
         try {
@@ -99,8 +131,10 @@ class PengajuanController extends Controller
                 'tanggal_pergi_planning' => $tanggal_pergi,
                 'tanggal_kembali_planning' => $tanggal_kembali,
                 'jenis_kendaraan' => $jenis_kendaraan,
-                'kepemilikan_kendaraan' => $kepemilikan_kendaraan,
-                'no_polisi' => $no_polisi_formatted,
+                'jenis_kepemilikan' => $jenis_kepemilikan,
+                'jenis_keberangkatan' => $jenis_keberangkatan,
+                'no_polisi' => $no_polisi_formatted ?? null,
+                'km_awal' => $km_awal ?? 0,
                 'tempat_asal' => $tempat_asal,
                 'tempat_tujuan' => $tempat_tujuan,
                 'keterangan' => $keterangan,
@@ -111,19 +145,40 @@ class PengajuanController extends Controller
 
             if (!empty($id_pengikut)){
                 $pengikuts = Karyawan::whereIn('id_karyawan', $id_pengikut)->get();
-                $data_pengikut = [];
+                $details = [];
+                $details[] = [
+                    'karyawan_id' => auth()->user()->karyawan->id_karyawan,
+                    'organisasi_id' => auth()->user()->organisasi_id,
+                    'departemen_id' => auth()->user()->karyawan->posisi[0]->departemen_id,
+                    'divisi_id' => auth()->user()->karyawan->posisi[0]->divisi_id,
+                    'ni_karyawan' => auth()->user()->karyawan->ni_karyawan,
+                    'pin' => auth()->user()->karyawan->pin,
+                    'role' => 'M'
+                ];
+
                 foreach ($pengikuts as $pengikut) {
-                    $data_pengikut[] = [
+                    $details[] = [
                         'karyawan_id' => $pengikut->id_karyawan,
                         'organisasi_id' => $pengikut->organisasi_id,
                         'departemen_id' => $pengikut->posisi[0]->departemen_id,
                         'divisi_id' => $pengikut->posisi[0]->divisi_id,
                         'ni_karyawan' => $pengikut->ni_karyawan,
                         'pin' => $pengikut->pin,
+                        'role' => 'F'
                     ];
                 }
     
-                $tugasLuar->pengikut()->createMany($data_pengikut);
+                $tugasLuar->pengikut()->createMany($details);
+            } else {
+                $tugasLuar->pengikut()->create([
+                    'karyawan_id' => auth()->user()->karyawan->id_karyawan,
+                    'organisasi_id' => auth()->user()->organisasi_id,
+                    'departemen_id' => $posisi->departemen_id,
+                    'divisi_id' => $posisi->divisi_id,
+                    'ni_karyawan' => auth()->user()->karyawan->ni_karyawan,
+                    'pin' => auth()->user()->karyawan->pin,
+                    'role' => 'M'
+                ]);
             }
 
             DB::commit();
@@ -138,16 +193,16 @@ class PengajuanController extends Controller
     {
         $columns = array(
             0 => 'tugasluars.id_tugasluar',
-            1 => 'tugasluars.created_date',
+            1 => 'tugasluars.tanggal',
             2 => 'tugasluars.jenis_kendaraan',
             3 => 'tugasluars.tanggal_pergi_planning',
             4 => 'tugasluars.tanggal_kembali_planning',
             5 => 'tugasluars.tempat_asal',
-            6 => 'tugasluars.jarak_tempuh',
-            8 => 'tugasluars.keterangan',
-            9 => 'tugasluars.checked_at',
-            10 => 'tugasluars.legalized_at',
-            11 => 'tugasluars.known_at',
+            6 => 'tugasluars.km_awal',
+            8 => 'tugasluars.km_selisih',
+            9 => 'tugasluars.keterangan',
+            10 => 'tugasluars.checked_at',
+            11 => 'tugasluars.legalized_at',
         );
 
         $totalData = TugasLuar::count();
@@ -186,21 +241,26 @@ class PengajuanController extends Controller
                 $aksi = '-';
                 $is_rejected = false;
                 $formattedPengikut = '';
-                if ($data->pengikut()->exists()) {
-                    $pengikuts = $data->pengikut()->pluck('karyawan_id')->toArray();
+                if ($data->pengikut()->where('role', 'F')->exists()) {
+                    $pengikuts = $data->pengikut()->where('role', 'F')->pluck('karyawan_id')->toArray();
                     $pengikutNames = Karyawan::whereIn('id_karyawan', $pengikuts)->pluck('nama')->toArray();
                     $formattedPengikut = array_map(function($pengikut) {
                         return '<span class="badge badge-primary m-1">' . $pengikut . '</span>';
                     }, $pengikutNames);
                 }
-                $no_polisi_array = explode('-', $data->no_polisi);
-                $kode_wilayah = $no_polisi_array[0];
-                $nomor_polisi = $no_polisi_array[1];
-                $seri_akhir = $no_polisi_array[2];
-                $kepemilikan_kendaraan = $data->kepemilikan_kendaraan == 'OP' ? 'OPERASIONAL' : ($data->kepemilikan_kendaraan == 'OJ' ? 'OPERASIONAL JABATAN' : 'PRIBADI');
+            
+                if($data->no_polisi) {
+                    $no_polisi_array = explode('-', $data->no_polisi);
+                    $kode_wilayah = $no_polisi_array[0];
+                    $nomor_polisi = $no_polisi_array[1];
+                    $seri_akhir = $no_polisi_array[2];
+                }
+
+                $jenis_kepemilikan = $data->jenis_kepemilikan == 'OP' ? 'OPERASIONAL' : ($data->jenis_kepemilikan == 'OJ' ? 'OPERASIONAL JABATAN' : 'PRIBADI');
                 $jenis_kendaraan = $data->jenis_kendaraan == 'MOTOR' ? '🏍️' : '🚗';
-                $kendaraan = '<small class="text-center">'.$jenis_kendaraan.' '.$data->no_polisi.'<br><span class="text-center">'.$kepemilikan_kendaraan.'</span></small>';
-                $rute = '<div class="d-flex gap-1 text-center">'.'<p><small class="text-fade">'.strtoupper($data->tempat_asal).'</small></p>'.' ➡️ '.'<p><small class="text-fade">'.strtoupper($data->tempat_tujuan).'</small></p>'.'</div><div class="row"><p><small> Driver : '.$data->nama_pengemudi.'</small></p></div>';
+                $kendaraan = '<small class="text-center">'.$jenis_kendaraan.' '.$data?->no_polisi.'<br><span class="text-center">'.$jenis_kepemilikan.'</span></small>';
+                $jenis_keberangkatan_text = $data->jenis_keberangkatan == 'RMH' ? 'RUMAH' : ($data->jenis_keberangkatan == 'KTR' ? 'KANTOR' : 'LAINNYA');
+                $rute = '<div class="d-flex gap-1 text-center">'.'<p><small class="text-fade">'.strtoupper($data->tempat_asal).'</small></p>'.' ➡️ '.'<p><small class="text-fade">'.strtoupper($data->tempat_tujuan).'</small></p>'.'</div><div class="row"><p><small> Driver : '.$data->nama_pengemudi.'</small><br><small> Asal : '.$jenis_keberangkatan_text.'</small></p></div>';
                 $status = $data->status == 'WAITING' ? '<span class="badge badge-warning">WAITING</span>' : ($data->status == 'ONGOING' ? '<span class="badge badge-info">ON GOING</span>' : ($data->status == 'COMPLETED' ? '<span class="badge badge-success">COMPLETED</span>' : '<span class="badge badge-danger">REJECTED</span>'));
                 $jam_pergi = '<div class="d-flex gap-1 text-center">
                                 <p>' . Carbon::createFromFormat('Y-m-d H:i:s', $data->tanggal_pergi_planning)->format('H:i') . ' WIB <span class="badge badge-warning">Planning</span></p>
@@ -212,29 +272,33 @@ class PengajuanController extends Controller
                                 <br>
                                 <p>' . ($data->tanggal_kembali_aktual ? Carbon::createFromFormat('Y-m-d H:i:s', $data->tanggal_kembali_aktual)->format('H:i') . ' WIB <span class="badge badge-success">Aktual</span>' : '') . '</p>
                             </div>' : '-';
-                $jarak_tempuh = $data->jarak_tempuh ? number_format($data->jarak_tempuh) . ' Km' : '-';
-                $km_awal = ($data->km_awal ? number_format($data->km_awal) : '-') . ' Km';
-                $km_akhir = ($data->km_akhir ? number_format($data->km_akhir) : '-') . ' Km';
-                $jarak_tempuh_formatted = '<div class="d-flex gap-1 text-center">'.'<p><small>'.$km_awal.'</small></p>'.' - '.'<p><small>'.$km_akhir.'</small></p></div><div class="text-center"><p><small class="text-fade"> Total : '.$jarak_tempuh.'</small></p></div>';
 
                 if($data->checked_by) {
                     $checked = '✅<br><small class="text-bold">'.$data?->checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked_at)->diffForHumans().'</small>';
                 } else {
                     $checked = 'NEED CHECKED';
+                }
+
+                if($data->legalized_by) {
+                    $legalized = '✅<br><small class="text-bold">'.$data?->legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->legalized_at)->diffForHumans().'</small>';
+                } else {
+                    $legalized = 'NEED LEGALIZED';
                     $aksi = '<div class="btn-group">
                         <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" 
                             data-id-tugasluar="'.$data->id_tugasluar.'" 
                             data-jam-pergi="'.Carbon::createFromFormat('Y-m-d H:i:s', $data->tanggal_pergi_planning)->format('H:i').'" 
-                            data-jam-kembali="'.($data->tanggal_kembali_planning ? Carbon::createFromFormat('Y-m-d H:i:s', $data->tanggal_kembali_planning)->format('H:i') : '').'" 
+                            data-jam-kembali="'.Carbon::createFromFormat('Y-m-d H:i:s', $data->tanggal_kembali_planning)->format('H:i').'" 
                             data-jenis-kendaraan="'.$data->jenis_kendaraan.'" 
-                            data-kepemilikan-kendaraan="'.$data->kepemilikan_kendaraan.'" 
-                            data-kode-wilayah="'.$kode_wilayah.'" 
-                            data-nomor-polisi="'.$nomor_polisi.'" 
-                            data-seri-akhir="'.$seri_akhir.'" 
+                            data-jenis-kepemilikan="'.$data->jenis_kepemilikan.'" 
+                            data-jenis-keberangkatan="'.$data->jenis_keberangkatan.'" 
+                            data-kode-wilayah="'.($kode_wilayah ?? '').'" 
+                            data-nomor-polisi="'.($nomor_polisi ?? '').'" 
+                            data-seri-akhir="'.($seri_akhir ?? '').'" 
                             data-tempat-asal="'.$data->tempat_asal.'" 
                             data-tempat-tujuan="'.$data->tempat_tujuan.'" 
-                            data-keterangan="'.$data->keterangan.'"
                             data-pengemudi="'.$data->pengemudi_id.'"
+                            data-km-awal="'.$data->km_awal.'" 
+                            data-keterangan="'.$data->keterangan.'"
                             >
                             <i class="fas fa-edit"></i>
                         </button>
@@ -242,16 +306,28 @@ class PengajuanController extends Controller
                     </div>';
                 }
 
-                if($data->legalized_by) {
-                    $legalized = '✅<br><small class="text-bold">'.$data?->legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->legalized_at)->diffForHumans().'</small>';
-                } else {
-                    $legalized = 'NEED LEGALIZED';
+                if(!$data->tanggal_pergi_aktual && !$data->tanggal_kembali_aktual) {
+                    if($data->jenis_keberangkatan == 'KTR') {
+                        $aksi = '
+                            <div class="btn-group"><button class="btn btn-sm btn-primary btnShowQR" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-qrcode"></i>&nbsp;Show</button><button class="btn btn-sm btn-danger btnDelete" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-times"></i> Delete</button></div>
+                            ';
+                    } else {
+                        $aksi = '
+                            <div class="btn-group"><button class="btn btn-sm btn-primary btnPergi" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-running"></i>&nbsp;Pergi</button><button class="btn btn-sm btn-danger btnDelete" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-times"></i> Delete</button></div>
+                            ';
+                    }
                 }
 
-                if($data->known_by) {
-                    $known = '✅<br><small class="text-bold">'.$data?->known_by.'</small><br><small class="text-fade">'.Carbon::parse($data->known_at)->diffForHumans().'</small>';
-                } else {
-                    $known = 'NEED KNOWN BY SECURITY';
+                if($data->tanggal_pergi_aktual && !$data->tanggal_kembali_aktual) {
+                    if($data->jenis_keberangkatan == 'KTR') {
+                        $aksi = '
+                            <div class="btn-group"><button class="btn btn-sm btn-primary btnShowQR" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-qrcode"></i>&nbsp;Show</button><button class="btn btn-sm btn-danger btnDelete" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-times"></i> Delete</button></div>
+                            ';
+                    } else {
+                        $aksi = '
+                            <div class="btn-group"><button class="btn btn-sm btn-primary btnKembali" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-home"></i>&nbsp;Pergi</button><button class="btn btn-sm btn-danger btnDelete" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-times"></i> Delete</button></div>
+                            ';
+                    }
                 }
 
                 if($data->rejected_by) {
@@ -260,17 +336,18 @@ class PengajuanController extends Controller
                 }
 
                 $nestedData['id_tugasluar'] = $data->id_tugasluar;
-                $nestedData['tanggal'] = Carbon::parse($data->created_date)->format('d M Y');
+                $nestedData['tanggal'] = Carbon::parse($data->tanggal)->format('d M Y');
                 $nestedData['kendaraan'] = $kendaraan;
                 $nestedData['pergi'] = $jam_pergi;
                 $nestedData['kembali'] = $jam_kembali;
-                $nestedData['jarak'] = $jarak_tempuh_formatted;
+                $nestedData['km_awal'] = $data->km_awal;
+                $nestedData['km_akhir'] = $data->km_akhir;
+                $nestedData['km_selisih'] = $data->km_selisih;
                 $nestedData['rute'] = $rute;
                 $nestedData['pengikut'] = $formattedPengikut;
                 $nestedData['keterangan'] = $data->keterangan;
                 $nestedData['checked'] = $is_rejected ? $rejected : $checked;
                 $nestedData['legalized'] = $is_rejected ? $rejected : $legalized;
-                $nestedData['known'] = $is_rejected ? $rejected : $known;
                 $nestedData['status'] = $status;
                 $nestedData['aksi'] = $aksi;
 
@@ -311,21 +388,67 @@ class PengajuanController extends Controller
      */
     public function update(Request $request, string $id_tugasluar)
     {
-        $dataValidate = [
-            'jam_pergiEdit' => ['required', 'date_format:H:i'],
-            'jam_kembaliEdit' => ['nullable', 'date_format:H:i'],
-            'jenis_kendaraanEdit' => ['required','in:MOTOR,MOBIL'],
-            'kepemilikan_kendaraanEdit' => ['required','in:OP,OJ,PR'],
-            'kode_wilayahEdit' => ['required', 'regex:/^[A-Za-z]+$/'],
-            'nomor_polisiEdit' => ['required','numeric'],
-            'seri_akhirEdit' => ['required','regex:/^[A-Za-z]+$/'],
-            'tempat_asalEdit' => ['required'],
-            'tempat_tujuanEdit' => ['required'],
-            'keteranganEdit' => ['required'],
-            'id_pengikutEdit.*' => ['exists:karyawans,id_karyawan', 'distinct'],
-            'id_pengikutEdit' => ['array'],
-            'pengemudiEdit' => ['required','exists:karyawans,id_karyawan']
-        ];
+        if ($request->jenis_keberangkatan !== 'KTR') {
+            $dataValidate = [
+                'jam_pergiEdit' => ['required', 'date_format:H:i'],
+                'jam_kembaliEdit' => ['nullable', 'date_format:H:i'],
+                'jenis_kendaraanEdit' => ['required','in:MOTOR,MOBIL'],
+                'jenis_keberangkatanEdit' => ['required','in:RMH,KTR,LNA'],
+                'jenis_kepemilikanEdit' => ['required','in:OP,OJ,PR'],
+                'kode_wilayahEdit' => ['required', 'regex:/^[A-Za-z]+$/'],
+                'nomor_polisiEdit' => ['required','numeric'],
+                'seri_akhirEdit' => ['required','regex:/^[A-Za-z]+$/'],
+                'km_awalEdit' => ['required', 'numeric'],
+                'tempat_asalEdit' => ['required'],
+                'tempat_tujuanEdit' => ['required'],
+                'keteranganEdit' => ['required'],
+                'id_pengikutEdit.*' => ['exists:karyawans,id_karyawan', 'distinct'],
+                'id_pengikutEdit' => ['array'],
+                'pengemudiEdit' => ['required','exists:karyawans,id_karyawan']
+            ];
+
+            $tanggal_pergi = date('Y-m-d H:i:s', strtotime("$request->jam_pergiEdit"));
+            $tanggal_kembali = $request->jam_kembaliEdit ? date('Y-m-d H:i:s', strtotime("$request->jam_kembaliEdit")) : null;
+            $jenis_kendaraan = $request->jenis_kendaraanEdit;
+            $jenis_kepemilikan = $request->jenis_kepemilikanEdit;
+            $jenis_keberangkatan = $request->jenis_keberangkatanEdit;
+            $kode_wilayah = strtoupper(trim($request->kode_wilayahEdit));
+            $no_polisi = $request->nomor_polisiEdit;
+            $seri_akhir = strtoupper(trim($request->seri_akhirEdit));
+            $no_polisi_formatted = $kode_wilayah.'-'.$no_polisi.'-'.$seri_akhir;
+            $tempat_asal = $request->tempat_asalEdit;
+            $tempat_tujuan = $request->tempat_tujuanEdit;
+            $km_awal = $request->km_awalEdit;
+            $keterangan = $request->keteranganEdit;
+            $pengemudi = $request->pengemudiEdit;
+            $id_pengikut = $request->id_pengikutEdit;
+
+        } else {
+            $dataValidate = [
+                'jam_pergiEdit' => ['required', 'date_format:H:i'],
+                'jam_kembaliEdit' => ['nullable', 'date_format:H:i'],
+                'jenis_kendaraanEdit' => ['required','in:MOTOR,MOBIL'],
+                'jenis_kepemilikanEdit' => ['required','in:OP,OJ,PR'],
+                'jenis_keberangkatanEdit' => ['required','in:RMH,KTR,LNA'],
+                'tempat_asalEdit' => ['required'],
+                'tempat_tujuanEdit' => ['required'],
+                'keteranganEdit' => ['required'],
+                'id_pengikutEdit.*' => ['exists:karyawans,id_karyawan', 'distinct'],
+                'id_pengikutEdit' => ['array'],
+                'pengemudiEdit' => ['required','exists:karyawans,id_karyawan']
+            ];
+
+            $tanggal_pergi = date('Y-m-d H:i:s', strtotime("$request->jam_pergiEdit"));
+            $tanggal_kembali = $request->jam_kembaliEdit ? date('Y-m-d H:i:s', strtotime("$request->jam_kembaliEdit")) : null;
+            $jenis_kendaraan = $request->jenis_kendaraanEdit;
+            $jenis_kepemilikan = $request->jenis_kepemilikanEdit;
+            $jenis_keberangkatan = $request->jenis_keberangkatanEdit;
+            $tempat_asal = $request->tempat_asalEdit;
+            $tempat_tujuan = $request->tempat_tujuanEdit;
+            $keterangan = $request->keteranganEdit;
+            $pengemudi = $request->pengemudiEdit;
+            $id_pengikut = $request->id_pengikutEdit;
+        }
 
         $validator = Validator::make(request()->all(), $dataValidate);
     
@@ -333,21 +456,6 @@ class PengajuanController extends Controller
             $errors = $validator->errors()->all();
             return response()->json(['message' => $errors], 402);
         }
-
-        $tanggal_pergi = date('Y-m-d H:i:s', strtotime("$request->jam_pergiEdit"));
-        $tanggal_kembali = $request->jam_kembaliEdit ? date('Y-m-d H:i:s', strtotime("$request->jam_kembaliEdit")) : null;
-        $jenis_kendaraan = $request->jenis_kendaraanEdit;
-        $kepemilikan_kendaraan = $request->kepemilikan_kendaraanEdit;
-        $kode_wilayah = strtoupper(trim($request->kode_wilayahEdit));
-        $no_polisi = $request->nomor_polisiEdit;
-        $seri_akhir = strtoupper(trim($request->seri_akhirEdit));
-        $no_polisi_formatted = $kode_wilayah.'-'.$no_polisi.'-'.$seri_akhir;
-        $tempat_asal = $request->tempat_asalEdit;
-        $tempat_tujuan = $request->tempat_tujuanEdit;
-        $keterangan = $request->keteranganEdit;
-        $pengemudi = $request->pengemudiEdit;
-        $id_pengikut = $request->id_pengikutEdit;
-        $organisasi_id = auth()->user()->organisasi_id;
 
         DB::beginTransaction();
         try {
@@ -362,8 +470,10 @@ class PengajuanController extends Controller
             $tugasLuar->tanggal_pergi_planning = $tanggal_pergi;
             $tugasLuar->tanggal_kembali_planning = $tanggal_kembali;
             $tugasLuar->jenis_kendaraan = $jenis_kendaraan;
-            $tugasLuar->kepemilikan_kendaraan = $kepemilikan_kendaraan;
-            $tugasLuar->no_polisi = $no_polisi_formatted;
+            $tugasLuar->jenis_kepemilikan = $jenis_kepemilikan;
+            $tugasLuar->jenis_keberangkatan = $jenis_keberangkatan;
+            $tugasLuar->no_polisi = $no_polisi_formatted ?? null;
+            $tugasLuar->km_awal = $km_awal ?? 0;
             $tugasLuar->tempat_asal = $tempat_asal;
             $tugasLuar->tempat_tujuan = $tempat_tujuan;
             $tugasLuar->keterangan = $keterangan;
@@ -376,9 +486,20 @@ class PengajuanController extends Controller
 
             if(!empty($id_pengikut)){
                 $pengikuts = Karyawan::whereIn('id_karyawan', $id_pengikut)->get();
-                $data_pengikut = [];
+                $details = [];
+
+                $details[] = [
+                    'karyawan_id' => auth()->user()->karyawan->id_karyawan,
+                    'organisasi_id' => auth()->user()->organisasi_id,
+                    'departemen_id' => auth()->user()->karyawan->posisi[0]->departemen_id,
+                    'divisi_id' => auth()->user()->karyawan->posisi[0]->divisi_id,
+                    'ni_karyawan' => auth()->user()->karyawan->ni_karyawan,
+                    'pin' => auth()->user()->karyawan->pin,
+                    'role' => 'M'
+                ];
+
                 foreach ($pengikuts as $pengikut) {
-                    $data_pengikut[] = [
+                    $details[] = [
                         'karyawan_id' => $pengikut->id_karyawan,
                         'organisasi_id' => $organisasi_id,
                         'departemen_id' => $pengikut->posisi[0]->departemen_id,
@@ -388,7 +509,17 @@ class PengajuanController extends Controller
                     ];
                 }
     
-                $tugasLuar->pengikut()->createMany($data_pengikut);
+                $tugasLuar->pengikut()->createMany($details);
+            } else {
+                $tugasLuar->pengikut()->create([
+                    'karyawan_id' => auth()->user()->karyawan->id_karyawan,
+                    'organisasi_id' => auth()->user()->organisasi_id,
+                    'departemen_id' => $posisi->departemen_id,
+                    'divisi_id' => $posisi->divisi_id,
+                    'ni_karyawan' => auth()->user()->karyawan->ni_karyawan,
+                    'pin' => auth()->user()->karyawan->pin,
+                    'role' => 'M'
+                ]);
             }
 
             DB::commit();
@@ -414,6 +545,33 @@ class PengajuanController extends Controller
         } catch(Throwable $error){
             DB::rollBack();
             return response()->json(['message' => $error->getMessage()], 500);
+        }
+    }
+
+    public function aktual(Request $request, string $id_tugasluar)
+    {
+        $tugasluar = TugasLuar::find($id_tugasluar);
+
+        DB::beginTransaction();
+        try{
+            if ($tugasluar->rejected_by) {
+                return response()->json(['message' => 'Pengajuan TL yang sudah di reject!'], 403);
+            }
+
+            if (!$tugasluar->tanggal_pergi_aktual) {
+                $tugasluar->tanggal_pergi_aktual = now();
+                $tugasluar->status = 'ONGOING';
+            } else {
+                $tugasluar->tanggal_kembali_aktual = now();
+                $tugasluar->status = 'COMPLETED';
+            }
+            $tugasluar->save();
+
+            DB::commit();
+            return response()->json(['message' => 'TL berhasil di Checked!'], 200);
+        } catch (Throwable $e) {
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 }
