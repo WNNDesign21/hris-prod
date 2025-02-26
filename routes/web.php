@@ -19,6 +19,7 @@ use App\Http\Controllers\Attendance\DeviceController;
 use App\Http\Controllers\MasterData\DivisiController;
 use App\Http\Controllers\MasterData\ExportController;
 use App\Http\Controllers\MasterData\PosisiController;
+use App\Http\Controllers\Security\SecurityController;
 use App\Http\Controllers\Utils\DeleteQrImgController;
 use App\Http\Controllers\Attendance\ScanlogController;
 use App\Http\Controllers\MasterData\JabatanController;
@@ -32,12 +33,12 @@ use App\Http\Controllers\Attendance\ShiftgroupController;
 use App\Http\Controllers\MasterData\DepartemenController;
 use App\Http\Controllers\MasterData\OrganisasiController;
 use App\Http\Controllers\StockOpname\StoReportController;
-use App\Http\Controllers\TugasLuare\ApprovalClaimController as TLApprovalClaimController;
 use App\Http\Controllers\TugasLuare\AjaxController as TLAjaxController;
 use App\Http\Controllers\TugasLuare\ClaimController as TLClaimController;
 use App\Http\Controllers\TugasLuare\ApprovalController as TLApprovalController;
 use App\Http\Controllers\TugasLuare\PengajuanController as TLPengajuanController;
 use App\Http\Controllers\Attendance\DashboardController as AttendanceDashboardController;
+use App\Http\Controllers\TugasLuare\ApprovalClaimController as TLApprovalClaimController;
 
 Auth::routes();
 Route::get('/', function () {
@@ -488,6 +489,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::post('/pengajuan/store', [TLPengajuanController::class, 'store'])->name('tugasluare.pengajuan.store');
             Route::patch('/pengajuan/update/{idTugasLuar}', [TLPengajuanController::class, 'update'])->name('tugasluare.pengajuan.update');
             Route::delete('/pengajuan/delete/{idTugasLuar}', [TLPengajuanController::class, 'destroy'])->name('tugasluare.pengajuan.delete');
+            Route::patch('/pengajuan/verifikasi/{idTugasLuar}', [TLPengajuanController::class, 'verifikasi'])->name('tugasluare.pengajuan.verifikasi');
             Route::patch('/pengajuan/aktual/{idTugasLuar}', [TLPengajuanController::class, 'aktual'])->name('tugasluare.pengajuan.aktual');
         });
 
@@ -520,6 +522,14 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::patch('/approval-claim/rejected/{idMillage}', [TLApprovalClaimController::class, 'rejected'])->name('tugasluare.approval-claim.rejected');
             Route::delete('/approval-claim/delete/{idMillage}', [TLApprovalClaimController::class, 'destroy'])->name('tugasluare.approval-claim.delete');
         });
+    });
+    
+    /** TUGASLUARE */
+    Route::group(['prefix' => 'security', 'middleware' => ['role:security']], function () {
+        Route::get('/', [SecurityController::class, 'index'])->name('security.index');
+        Route::get('/get-qr-detail/{id}', [SecurityController::class, 'get_qr_detail']);
+        Route::post('/datatable/izin', [SecurityController::class, 'izin_datatable']);
+        Route::post('/datatable/tugasluar', [SecurityController::class, 'tugasluar_datatable']);
     });
 
 });

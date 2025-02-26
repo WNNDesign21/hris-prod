@@ -13,6 +13,8 @@
                     <div class="form-group">
                         <label for="">Jam Pergi</label>
                         <div class="input-group mb-2" style="width:100%;">
+                            <input type="hidden" name="id_tugasluarEdit" id="id_tugasluarEdit" class="form-control"
+                                required>
                             <input type="time" name="jam_pergiEdit" id="jam_pergiEdit" class="form-control" required>
                         </div>
                     </div>

@@ -174,6 +174,16 @@ $(function () {
         document.getElementById("modal-show-qrcode"),
         modalQrCodeOptions
     );
+
+    var modalVerificationOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalVerification = new bootstrap.Modal(
+        document.getElementById("modal-verification"),
+        modalVerificationOptions
+    );
     // END MODAL
 
 
@@ -211,6 +221,15 @@ $(function () {
 
     function closeQrCode() {
         modalQrCode.hide();
+        refreshTable();
+    }
+
+    function openVerification() {
+        modalVerification.show();
+    }
+
+    function closeVerification() {
+        modalVerification.hide();
         refreshTable();
     }
 
@@ -294,6 +313,47 @@ $(function () {
                 });
             }
         })
+    }
+
+    function submitForm(url, formData, type){
+        let jenisKeberangkatan;
+        if (type == 'pergi') {
+            jenisKeberangkatan = 'Pergi'
+        } else {
+            jenisKeberangkatan = 'Kembali'
+        }
+
+        Swal.fire({
+            title: "Konfirmasi Jam "+jenisKeberangkatan+" Aktual",
+            text: "Data yang sudah di konfirmasi tidak bisa diubah!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Tandai sebagai "+jenisKeberangkatan+" Kembali!",
+            allowOutsideClick: false,
+        }).then((result) => {
+            if (result.value) {
+                loadingSwalShow();
+                $.ajax({
+                    url: url,
+                    data : formData,
+                    method:"POST",
+                    contentType: false,
+                    processData: false,
+                    dataType: "JSON",
+                    success: function (data) {
+                        showToast({ title: data.message });
+                        refreshTable();
+                        loadingSwalClose();
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        loadingSwalClose();
+                        showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                    },
+                });
+            }
+        });
     }
     // END FUNCTION
 
@@ -718,42 +778,57 @@ $(function () {
         })
     });
 
-    $('#pengajuan-table').on('click', '.btnPergi', function (){
-        let idTugasLuar = $(this).data('id-tugasluar');
-        let url = base_url + '/tugasluare/pengajuan/aktual/' + idTugasLuar;
-        var formData = new FormData();
-        formData.append('_method', 'PATCH');
-        Swal.fire({
-            title: "Konfirmasi Jam Keberangkatan Aktual",
-            text: "Data yang sudah di konfirmasi tidak bisa diubah!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#d33",
-            confirmButtonText: "Yes, Tandai sebagai Aktual Pergi!",
-            allowOutsideClick: false,
-        }).then((result) => {
-            if (result.value) {
-                loadingSwalShow();
-                $.ajax({
-                    url: url,
-                    data : formData,
-                    method:"POST",
-                    contentType: false,
-                    processData: false,
-                    dataType: "JSON",
-                    success: function (data) {
-                        showToast({ title: data.message });
-                        refreshTable();
-                        loadingSwalClose();
-                    },
-                    error: function (jqXHR, textStatus, errorThrown) {
-                        loadingSwalClose();
-                        showToast({ icon: "error", title: jqXHR.responseJSON.message });
-                    },
-                });
+    $('#form-verification').on('submit', function (e){
+        e.preventDefault();
+        loadingSwalShow();
+        let idTugasluar = $('#id_tugasluarVerif').val();
+        console.log(idTugasluar);
+        let url = base_url + '/tugasluare/pengajuan/verifikasi/' + idTugasluar;
+        var formData = new FormData($('#form-verification')[0]);
+        $.ajax({
+            url: url,
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (data) {
+                loadingSwalClose();
+                showToast({ title: data.message });
+                closeVerification();
+                refreshTable();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
             }
         });
+    })
+
+    $('#pengajuan-table').on('click', '.btnPergi', function (){
+        let idTugasLuar = $(this).data('id-tugasluar');
+        let kodeWilayah = $(this).data('kode-wilayah');
+        let nomorPolisi = $(this).data('nomor-polisi');
+        let seriAkhir = $(this).data('seri-akhir');
+
+        $('#id_tugasluarVerif').val(idTugasLuar);
+        $('#kode_wilayahVerif').val(kodeWilayah);
+        $('#nomor_polisiVerif').val(nomorPolisi);
+        $('#seri_akhirVerif').val(seriAkhir);
+        openVerification();
+    });
+
+    $('#pengajuan-table').on('click', '.btnKembali', function (){
+        let idTugasLuar = $(this).data('id-tugasluar');
+        let kodeWilayah = $(this).data('kode-wilayah');
+        let nomorPolisi = $(this).data('nomor-polisi');
+        let seriAkhir = $(this).data('seri-akhir');
+
+        $('#id_tugasluarVerif').val(idTugasLuar);
+        $('#kode_wilayahVerif').val(kodeWilayah);
+        $('#nomor_polisiVerif').val(nomorPolisi);
+        $('#seri_akhirVerif').val(seriAkhir);
+        openVerification();
     });
     // END EVENT
 });

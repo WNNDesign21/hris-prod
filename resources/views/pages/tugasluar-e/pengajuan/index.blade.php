@@ -60,5 +60,6 @@
     </div>
     @include('pages.tugasluar-e.pengajuan.modal-input')
     @include('pages.tugasluar-e.pengajuan.modal-edit')
+    @include('pages.tugasluar-e.pengajuan.modal-verification')
     @include('pages.tugasluar-e.pengajuan.modal-show-qrcode')
 @endsection

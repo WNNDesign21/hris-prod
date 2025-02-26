@@ -273,6 +273,7 @@ class PengajuanController extends Controller
                                 <p>' . ($data->tanggal_kembali_aktual ? Carbon::createFromFormat('Y-m-d H:i:s', $data->tanggal_kembali_aktual)->format('H:i') . ' WIB <span class="badge badge-success">Aktual</span>' : '') . '</p>
                             </div>' : '-';
 
+
                 if($data->checked_by) {
                     $checked = '✅<br><small class="text-bold">'.$data?->checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked_at)->diffForHumans().'</small>';
                 } else {
@@ -281,6 +282,39 @@ class PengajuanController extends Controller
 
                 if($data->legalized_by) {
                     $legalized = '✅<br><small class="text-bold">'.$data?->legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->legalized_at)->diffForHumans().'</small>';
+                    
+                    if($data->jenis_keberangkatan == 'KTR'){
+                        if($data->status == 'WAITING') {
+                            $aksi = '
+                            <div class="btn-group"><button class="btn btn-sm btn-primary btnPergi" data-id-tugasluar="'.$data->id_tugasluar.'" data-kode-wilayah"'.($kode_wilayah ?? '').'" data-nomor-polisi"'.($nomor_polisi ?? '').'" data-seri-akhir"'.($seri_akhir ?? '').'"><i class="fas fa-running"></i>&nbsp;Pergi</button><button class="btn btn-sm btn-danger btnDelete" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-times"></i> Delete</button></div>
+                            ';
+                            if($data->km_awal) {
+                                $aksi = '
+                                <div class="btn-group"><button class="btn btn-sm btn-primary btnShowQR" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-qrcode"></i>&nbsp;Show</button><button class="btn btn-sm btn-danger btnDelete" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-times"></i> Delete</button></div>
+                                ';
+                            };
+                        } elseif ($data->status == 'ONGOING') {
+                            $aksi = '
+                            <div class="btn-group"><button class="btn btn-sm btn-primary btnKembali" data-id-tugasluar="'.$data->id_tugasluar.'" data-kode-wilayah"'.($kode_wilayah ?? '').'" data-nomor-polisi"'.($nomor_polisi ?? '').'" data-seri-akhir"'.($seri_akhir ?? '').'"><i class="fas fa-running"></i>&nbsp;Pergi</button><button class="btn btn-sm btn-danger btnDelete" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-times"></i> Delete</button></div>
+                            ';
+
+                            if($data->km_akhir) {
+                                $aksi = '
+                                <div class="btn-group"><button class="btn btn-sm btn-primary btnShowQR" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-qrcode"></i>&nbsp;Show</button><button class="btn btn-sm btn-danger btnDelete" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-times"></i> Delete</button></div>
+                                ';
+                            };
+                        }
+                    } else {
+                        if($data->status == 'WAITING') {
+                            $aksi = '
+                                <div class="btn-group"><button class="btn btn-sm btn-primary btnPergi" data-id-tugasluar="'.$data->id_tugasluar.'" data-kode-wilayah"'.($kode_wilayah ?? '').'" data-nomor-polisi"'.($nomor_polisi ?? '').'" data-seri-akhir"'.($seri_akhir ?? '').'"><i class="fas fa-running"></i>&nbsp;Pergi</button><button class="btn btn-sm btn-danger btnDelete" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-times"></i> Delete</button></div>
+                            ';
+                        } elseif ($data->status == 'ONGOING'){
+                            $aksi = '
+                                <div class="btn-group"><button class="btn btn-sm btn-primary btnKembali" data-id-tugasluar="'.$data->id_tugasluar.'" data-kode-wilayah"'.($kode_wilayah ?? '').'" data-nomor-polisi"'.($nomor_polisi ?? '').'" data-seri-akhir"'.($seri_akhir ?? '').'"><i class="fas fa-running"></i>&nbsp;Pergi</button><button class="btn btn-sm btn-danger btnDelete" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-times"></i> Delete</button></div>
+                            ';
+                        }
+                    }
                 } else {
                     $legalized = 'NEED LEGALIZED';
                     $aksi = '<div class="btn-group">
@@ -304,30 +338,6 @@ class PengajuanController extends Controller
                         </button>
                         <button type="button" class="waves-effect waves-light btn btn-danger btnDelete" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-trash-alt"></i></button>
                     </div>';
-                }
-
-                if(!$data->tanggal_pergi_aktual && !$data->tanggal_kembali_aktual) {
-                    if($data->jenis_keberangkatan == 'KTR') {
-                        $aksi = '
-                            <div class="btn-group"><button class="btn btn-sm btn-primary btnShowQR" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-qrcode"></i>&nbsp;Show</button><button class="btn btn-sm btn-danger btnDelete" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-times"></i> Delete</button></div>
-                            ';
-                    } else {
-                        $aksi = '
-                            <div class="btn-group"><button class="btn btn-sm btn-primary btnPergi" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-running"></i>&nbsp;Pergi</button><button class="btn btn-sm btn-danger btnDelete" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-times"></i> Delete</button></div>
-                            ';
-                    }
-                }
-
-                if($data->tanggal_pergi_aktual && !$data->tanggal_kembali_aktual) {
-                    if($data->jenis_keberangkatan == 'KTR') {
-                        $aksi = '
-                            <div class="btn-group"><button class="btn btn-sm btn-primary btnShowQR" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-qrcode"></i>&nbsp;Show</button><button class="btn btn-sm btn-danger btnDelete" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-times"></i> Delete</button></div>
-                            ';
-                    } else {
-                        $aksi = '
-                            <div class="btn-group"><button class="btn btn-sm btn-primary btnKembali" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-home"></i>&nbsp;Pergi</button><button class="btn btn-sm btn-danger btnDelete" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-times"></i> Delete</button></div>
-                            ';
-                    }
                 }
 
                 if($data->rejected_by) {
@@ -388,7 +398,7 @@ class PengajuanController extends Controller
      */
     public function update(Request $request, string $id_tugasluar)
     {
-        if ($request->jenis_keberangkatan !== 'KTR') {
+        if ($request->jenis_keberangkatanEdit !== 'KTR') {
             $dataValidate = [
                 'jam_pergiEdit' => ['required', 'date_format:H:i'],
                 'jam_kembaliEdit' => ['nullable', 'date_format:H:i'],
@@ -514,8 +524,8 @@ class PengajuanController extends Controller
                 $tugasLuar->pengikut()->create([
                     'karyawan_id' => auth()->user()->karyawan->id_karyawan,
                     'organisasi_id' => auth()->user()->organisasi_id,
-                    'departemen_id' => $posisi->departemen_id,
-                    'divisi_id' => $posisi->divisi_id,
+                    'departemen_id' => auth()->user()->karyawan->posisi[0]->departemen_id,
+                    'divisi_id' => auth()->user()->karyawan->posisi[0]->divisi_id,
                     'ni_karyawan' => auth()->user()->karyawan->ni_karyawan,
                     'pin' => auth()->user()->karyawan->pin,
                     'role' => 'M'
@@ -545,6 +555,58 @@ class PengajuanController extends Controller
         } catch(Throwable $error){
             DB::rollBack();
             return response()->json(['message' => $error->getMessage()], 500);
+        }
+    }
+
+     public function verifikasi(Request $request, string $id_tugasluar)
+    {
+
+        $dataValidate = [
+            'kode_wilayahVerif' => ['required','regex:/^[A-Za-z]+$/'],
+            'nomor_polisiVerif' => ['required', 'numeric'],
+            'seri_akhirVerif' => ['required', 'regex:/^[A-Za-z]+$/'],
+            'kilometerVerif' => ['required', 'numeric'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+        
+        DB::beginTransaction();
+        try{
+            $tugasluar = TugasLuar::find($id_tugasluar);
+            $km = $request->kilometerVerif;
+            if ($tugasluar->km_awal) {
+                return response()->json(['message' => 'Pengajuan TL sudah di Verifikasi, silahkan refresh halaman!'], 403);
+            } elseif ($tugasluar->rejected_by) {
+                return response()->json(['message' => 'Pengajuan TL yang sudah di reject tidak dapat di Verifikasi!'], 403);
+            }
+
+            if($tugasluar->status == 'WAITING') {
+                $tugasluar->km_awal = $km;
+                if($tugasluar->jenis_keberangkatan !== 'KTR') {
+                    $tugasluar->tanggal_pergi_aktual = now();
+                    $tugasluar->status = 'ONGOING';
+                }
+                $tugasluar->no_polisi = $request->kode_wilayahVerif.'-'.$request->nomor_polisiVerif.'-'.$request->seri_akhirVerif;
+            } else {
+                $tugasluar->km_akhir = $km;
+                $tugasluar->km_selisih = $km - $tugasluar->km_awal;
+                if($tugasluar->jenis_keberangkatan !== 'KTR') {
+                    $tugasluar->tanggal_kembali_aktual = now();
+                    $tugasluar->status = 'COMPLETED';
+                }
+            }
+            $tugasluar->save();
+
+            DB::commit();
+            return response()->json(['message' => 'TL berhasil di Verifikasi!'], 200);
+        } catch (Throwable $e) {
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 

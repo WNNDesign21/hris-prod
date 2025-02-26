@@ -331,47 +331,41 @@ $(function () {
 
     $('#approval-table').on('click', '.btnLegalized', function(){
         let idTugasLuar = $(this).data('id-tugasluar');
-        let jenisKeberangkatan = $(this).data('jenis-keberangkatan');
         let url = base_url + '/tugasluare/approval/legalized/' + idTugasLuar;
 
-        if (jenisKeberangkatan == 'KTR') {
-            $('#form-verification').attr('action', url);
-            openVerification();
-        } else {
-            var formData = new FormData();
-            formData.append('_method', 'PATCH');
-            Swal.fire({
-                title: "Legalized Tugas Luar",
-                text: "Data yang sudah di legalized tidak bisa diubah!",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Yes, Tandai sebagai Legalized!",
-                allowOutsideClick: false,
-            }).then((result) => {
-                if (result.value) {
-                    loadingSwalShow();
-                    $.ajax({
-                        url: url,
-                        data : formData,
-                        method:"POST",
-                        contentType: false,
-                        processData: false,
-                        dataType: "JSON",
-                        success: function (data) {
-                            showToast({ title: data.message });
-                            refreshTable();
-                            loadingSwalClose();
-                        },
-                        error: function (jqXHR, textStatus, errorThrown) {
-                            loadingSwalClose();
-                            showToast({ icon: "error", title: jqXHR.responseJSON.message });
-                        },
-                    });
-                }
-            });
-        }
+        var formData = new FormData();
+        formData.append('_method', 'PATCH');
+        Swal.fire({
+            title: "Legalized Tugas Luar",
+            text: "Data yang sudah di legalized tidak bisa diubah!",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, Tandai sebagai Legalized!",
+            allowOutsideClick: false,
+        }).then((result) => {
+            if (result.value) {
+                loadingSwalShow();
+                $.ajax({
+                    url: url,
+                    data : formData,
+                    method:"POST",
+                    contentType: false,
+                    processData: false,
+                    dataType: "JSON",
+                    success: function (data) {
+                        showToast({ title: data.message });
+                        refreshTable();
+                        loadingSwalClose();
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        loadingSwalClose();
+                        showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                    },
+                });
+            }
+        });
     })
 
     $('#form-verification').on('submit', function (e) {

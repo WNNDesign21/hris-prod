@@ -1,18 +1,17 @@
 <?php
 
-namespace App\Http\Controllers\TugasLuare;
+namespace App\Http\Controllers\Security;
 
-use Throwable;
 use Carbon\Carbon;
+use App\Models\Izine;
 use App\Models\Karyawan;
 use App\Helpers\Approval;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\TugasLuare\TugasLuar;
-use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Crypt;
 
-class ApprovalController extends Controller
+class SecurityController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -20,13 +19,126 @@ class ApprovalController extends Controller
     public function index()
     {
         $dataPage = [
-            'pageTitle' => "TugasLuar-E - Approval TL",
-            'page' => 'tugasluare-approval',
+            'pageTitle' => "Security-E - Log Book",
+            'page' => 'security-index',
         ];
-        return view('pages.tugasluar-e.approval.index', $dataPage);
+        return view('pages.security-e.index', $dataPage);
     }
 
-    public function datatable(Request $request)
+    public function izin_datatable(Request $request)
+    {
+        $columns = array(
+            0 => 'izins.id_izin',
+            1 => 'izins.rencana_mulai_or_masuk',
+            2 => 'izins.rencana_selesai_or_keluar',
+            3 => 'izins.aktual_mulai_or_masuk',
+            4 => 'izins.aktual_selesai_or_keluar',
+            5 => 'izins.jenis_izin',
+            6 => 'izins.durasi',
+            7 => 'izins.keterangan',
+            8 => 'izins.checked_by',
+            9 => 'izins.approved_by',
+            10 => 'izins.legalized_by',
+        );
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = (!empty($request->input('order.0.column'))) ? $columns[$request->input('order.0.column')] : $columns[0];
+        $dir = (!empty($request->input('order.0.dir'))) ? $request->input('order.0.dir') : "DESC";
+
+        $settings['start'] = $start;
+        $settings['limit'] = $limit;
+        $settings['dir'] = $dir;
+        $settings['order'] = $order;
+
+        $dataFilter = [];
+        $search = $request->input('search.value');
+        if (!empty($search)) {
+            $dataFilter['search'] = $search;
+        }
+
+        if (auth()->user()->hasRole('security')){
+            $dataFilter['is_security'] = 'Y';
+            $dataFilter['jenis_izin'] = ['SH', 'KP', 'PL'];
+            $dataFilter['organisasi_id'] = auth()->user()->organisasi_id;
+        }
+
+        $totalData = Izine::count();
+        $totalFiltered = $totalData;
+        $izine = Izine::getData($dataFilter, $settings);
+        $totalFiltered = Izine::countData($dataFilter);
+        $dataTable = [];
+        
+
+        if (!empty($izine)) {
+            $rencana = '-';
+            $aktual = '-';
+
+            foreach ($izine as $data) {
+                if($data->jenis_izin == 'SH'){
+                    $jenis_izin = '<span class="badge badge-info">1/2 Hari</span>';
+                    if ($data->rencana_mulai_or_masuk){
+                        $rencana = Carbon::parse($data->rencana_mulai_or_masuk)->format('d M Y, H:i').' WIB';
+                    } elseif ($data->rencana_selesai_or_keluar){
+                        $rencana = Carbon::parse($data->rencana_selesai_or_keluar)->format('d M Y, H:i').' WIB';
+                    }
+    
+                    if ($data->aktual_mulai_or_masuk){
+                        $aktual = Carbon::parse($data->aktual_mulai_or_masuk)->format('d M Y, H:i').' WIB';
+                    } elseif ($data->aktual_selesai_or_keluar){
+                        $aktual = Carbon::parse($data->aktual_selesai_or_keluar)->format('d M Y, H:i').' WIB';
+                    }
+                } elseif ($data->jenis_izin == 'KP') {
+                    $jenis_izin = '<span class="badge badge-light">Keluar Pabrik</span>';
+                    if ($data->rencana_selesai_or_keluar && $data->rencana_mulai_or_masuk){
+                        $rencana = Carbon::parse($data->rencana_selesai_or_keluar)->format('d M Y, H:i').' WIB - '.Carbon::parse($data->rencana_mulai_or_masuk)->format('d M Y, H:i').' WIB';
+                    }
+    
+                    if ($data->aktual_selesai_or_keluar){
+                        $aktual = Carbon::parse($data->aktual_selesai_or_keluar)->format('d M Y, H:i').' WIB - UNKNOWN';
+                    } 
+                    
+                    if ($data->aktual_mulai_or_masuk){
+                        $aktual = Carbon::parse($data->aktual_selesai_or_keluar)->format('d M Y, H:i').' WIB - '.Carbon::parse($data->aktual_mulai_or_masuk)->format('d M Y, H:i').' WIB';
+                    }
+                } elseif ($data->jenis_izin == 'PL') {
+                    $jenis_izin = '<span class="badge badge-dark">Pulang</span>';
+                    if ($data->rencana_selesai_or_keluar){
+                        $rencana = Carbon::parse($data->rencana_selesai_or_keluar)->format('d M Y, H:i').' WIB';
+                    } 
+
+                    if ($data->aktual_selesai_or_keluar){
+                        $aktual = Carbon::parse($data->aktual_selesai_or_keluar)->format('d M Y, H:i').' WIB';
+                    } 
+                }
+
+                $nestedData['id_izin'] = $data->id_izin;
+                $nestedData['nama'] = $data->nama;
+                $nestedData['departemen'] = $data->departemen;
+                $nestedData['posisi'] = $data->posisi;
+                $nestedData['rencana'] = $rencana;
+                $nestedData['aktual'] = $aktual;
+                $nestedData['jenis_izin'] = $jenis_izin;
+                $nestedData['keterangan'] = $data->keterangan;
+
+                $dataTable[] = $nestedData;
+            }
+        }
+
+        $json_data = array(
+            "draw" => intval($request->input('draw')),
+            "recordsTotal" => intval($totalData),
+            "recordsFiltered" => intval($totalFiltered),
+            "data" => $dataTable,
+            "order" => $order,
+            "dir" => $dir,
+            "column"=>$request->input('order.0.column')
+        );
+
+        return response()->json($json_data, 200);
+    }
+
+    public function tugasluar_datatable(Request $request)
     {
         $columns = array(
             0 => 'tugasluars.id_tugasluar',
@@ -64,12 +176,6 @@ class ApprovalController extends Controller
         $is_can_legalized = false;
         $is_can_known = false;
         $organisasi_id = auth()->user()->organisasi_id;
-
-        // FILTER
-        if(auth()->user()->hasRole('personalia')){
-            $dataFilter['organisasi_id'] = $organisasi_id;
-            $is_can_legalized = true;
-        }
 
         if(auth()->user()->hasRole('security')){
             $dataFilter['organisasi_id'] = $organisasi_id;
@@ -237,91 +343,59 @@ class ApprovalController extends Controller
         return response()->json($json_data, 200);
     }
 
-    public function checked(Request $request, string $id_tugasluar)
+    public function get_qr_detail(string $id)
     {
-        $tugasluar = TugasLuar::find($id_tugasluar);
-
-        DB::beginTransaction();
-        try{
-            if ($tugasluar->checked_by) {
-                return response()->json(['message' => 'Pengajuan TL sudah di checked, silahkan refresh halaman!'], 403);
-            } elseif ($tugasluar->rejected_by) {
-                return response()->json(['message' => 'Pengajuan TL yang sudah di reject tidak dapat di Checked!'], 403);
-            }
-
-            $tugasluar->checked_by = auth()->user()->karyawan->nama;
-            $tugasluar->checked_at = now();
-            $tugasluar->save();
-
-            DB::commit();
-            return response()->json(['message' => 'TL berhasil di Checked!'], 200);
-        } catch (Throwable $e) {
-            DB::rollBack();
-            return response()->json(['message' => $e->getMessage()], 500);
-        }
-    }
-
-    public function legalized(Request $request, string $id_tugasluar)
-    {
-        $tugasluar = TugasLuar::find($id_tugasluar);
-
-        DB::beginTransaction();
-        try{
-            if ($tugasluar->legalized_by) {
-                return response()->json(['message' => 'Pengajuan TL sudah di Legalized, silahkan refresh halaman!'], 403);
-            } elseif ($tugasluar->rejected_by) {
-                return response()->json(['message' => 'Pengajuan TL yang sudah di reject tidak dapat di Checked!'], 403);
-            }
-
-            $tugasluar->legalized_by = 'HRD & GA';
-            $tugasluar->legalized_at = now();
-            $tugasluar->save();
-
-            DB::commit();
-            return response()->json(['message' => 'TL berhasil di Legalized!'], 200);
-        } catch (Throwable $e) {
-            DB::rollBack();
-            return response()->json(['message' => $e->getMessage()], 500);
-        }
-    }
-
-    public function rejected(Request $request, string $id_tugasluar)
-    {
-        $dataValidate = [
-            'rejected_note' => ['required'],
-        ];
-        
-        $validator = Validator::make(request()->all(), $dataValidate);
-    
-        if ($validator->fails()) {
-            $errors = $validator->errors()->all();
-            return response()->json(['message' => $errors], 402);
-        }
-        $tugasluar = TugasLuar::find($id_tugasluar);
-
-        DB::beginTransaction();
-        try{
-            if ($tugasluar->rejected_by) {
-                return response()->json(['message' => 'Pengajuan Tugas Luar sudah di Reject, Refresh halaman ini!'], 403);
-            }
-
-            if(auth()->user()->hasRole('personalia')){
-                $tugasluar->rejected_by = 'HRD & GA';
-            } elseif (auth()->user()->hasRole('security')){ 
-                $tugasluar->rejected_by = 'SECURITY';
+        try {
+            $decrypt_id = Crypt::decryptString($id);
+            $realId = gzuncompress($decrypt_id);
+            $type = substr($realId, 0, 2);
+            if ($type == 'IZ') {
+                $izin = Izine::find($realId);
+                $html = '<div class="alert alert-primary text-white" style="text-align:start;" role="alert">'
+                    .'<p style="text-align:start;"><strong>Tipe</strong> : IZIN</p>'
+                    .'<p style="text-align:start;"><strong>ID Izin</strong> : '.$izin->id_izin.'</p>'
+                    .'<p style="text-align:start;"><strong>Nama</strong> : '.$izin->nama.'</p>'
+                    .'<p style="text-align:start;"><strong>Departemen</strong> : '.$izin->departemen.'</p>'
+                    .'<p style="text-align:start;"><strong>Jenis Izin</strong> : '.$izin->jenis_izin.'</p>'
+                    .'<p style="text-align:start;"><strong>Rencana</strong> : '.($izin->rencana_mulai_or_masuk ? Carbon::parse($izin->rencana_mulai_or_masuk)->format('d M Y, H:i').' WIB' : '-').'</p>'
+                    .'<p style="text-align:start;"><strong>Keterangan</strong> : '.$izin->keterangan.'</p>'
+                    .'</div>';
+                return response()->json(['message' => 'Data retrieved successfully', 'html' => $html], 200);
+            } elseif ($type == 'TL') {
+                $tugasluar = TugasLuar::find($realId);
+                $html = '<div class="alert alert-primary text-white" style="text-align:start;" role="alert">'
+                    .'<p style="text-align:start;"><strong>Tipe</strong> : TUGAS LUAR</p>'
+                    .'<p style="text-align:start;"><strong>ID TL</strong> : '.$tugasluar->id_tugasluar.'</p>'
+                    .'<p style="text-align:start;"><strong>Pengemudi</strong> : '.Karyawan::find($tugasluar->pengemudi_id)->nama.'</p>'
+                    .'<p style="text-align:start;"><strong>Nomor Polisi</strong> : '.$tugasluar->no_polisi.'</p>'
+                    .'<p style="text-align:start;"><strong>Tempat Asal</strong> : '.$tugasluar->tempat_asal.'</p>'
+                    .'<p style="text-align:start;"><strong>Tempat Tujuan</strong> : '.$tugasluar->tempat_tujuan.'</p>'
+                    .'<p style="text-align:start;"><strong>Rencana Pergi</strong> : '.($tugasluar->tanggal_pergi_planning ? Carbon::parse($tugasluar->tanggal_pergi_planning)->format('H:i').' WIB' : '-').'</p>'
+                    .'<p style="text-align:start;"><strong>Rencana Kembali</strong> : '.($tugasluar->tanggal_kembali_planning ? Carbon::parse($tugasluar->tanggal_kembali_planning)->format('H:i').' WIB' : '-').'</p>'
+                    .'</div>';
+                return response()->json(['message' => 'Data retrieved successfully', 'html' => $html], 200);
             } else {
-                $tugasluar->rejected_by = auth()->user()->karyawan->nama;
+                return response()->json(['message' => 'Invalid QR Code'], 404);
             }
-
-            $tugasluar->rejected_at = now();
-            $tugasluar->rejected_note = $request->rejected_note;
-            $tugasluar->save();
-
-            DB::commit();
-            return response()->json(['message' => 'Tugas Luar berhasil di Reject!'], 200);
         } catch (Throwable $e) {
-            DB::rollBack();
             return response()->json(['message' => $e->getMessage()], 500);
         }
+        
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     */
+    public function create()
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     */
+    public function update(Request $request, string $id)
+    {
+        //
     }
 }
