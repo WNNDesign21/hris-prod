@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Security;
 
+use Throwable;
 use Carbon\Carbon;
 use App\Models\Izine;
 use App\Models\Karyawan;
 use App\Helpers\Approval;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\TugasLuare\TugasLuar;
 use Illuminate\Support\Facades\Crypt;
@@ -179,25 +181,9 @@ class SecurityController extends Controller
 
         if(auth()->user()->hasRole('security')){
             $dataFilter['organisasi_id'] = $organisasi_id;
-            $is_can_known = true;
+            $dataFilter['jenis_keberangkatan'] = 'KTR';
         } 
 
-        if (auth()->user()->hasRole('atasan')){
-            $posisi = auth()->user()->karyawan->posisi;
-            $id_posisi_members = Approval::GetMemberPosisi($posisi);
-
-            foreach ($posisi as $ps){
-                $index = array_search($ps->id_posisi, $id_posisi_members);
-                array_splice($id_posisi_members, $index, 1);
-            }
-
-            if (auth()->user()->karyawan->posisi[0]->jabatan_id <= 5){
-                $is_can_checked = true;
-            } 
-
-            $dataFilter['member_posisi_id'] = $id_posisi_members;
-        } 
-        
         $search = $request->input('search.value');
         if (!empty($search)) {
             $dataFilter['search'] = $search;
@@ -283,29 +269,8 @@ class SecurityController extends Controller
                     $legalized = '✅<br><small class="text-bold">'.$data?->legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->legalized_at)->diffForHumans().'</small>';
                 }
 
-                if($data->known_by) {
-                    $known = '✅<br><small class="text-bold">'.$data?->known_by.'</small><br><small class="text-fade">'.Carbon::parse($data->known_at)->diffForHumans().'</small>';
-                }
 
                 // APPROVAL
-                if($is_can_checked) {
-                    if(!$data->checked_by){
-                        if(auth()->user()->karyawan->posisi[0]->jabatan_id == 5) {
-                            if (!$has_section_head && !$has_department_head) {
-                                $checked = '<div class="btn-group"><button class="btn btn-sm btn-success btnChecked" data-id-tugasluar="'.$data->id_tugasluar.'">Checked</button><button type="button" class="btn btn-sm btn-danger waves-effect btnReject" data-id-tugasluar="'.$data->id_tugasluar.'">Reject</button></div>';
-                            }
-                        } else {
-                            $checked = '<div class="btn-group"><button class="btn btn-sm btn-success btnChecked" data-id-tugasluar="'.$data->id_tugasluar.'">Checked</button><button type="button" class="btn btn-sm btn-danger waves-effect btnReject" data-id-tugasluar="'.$data->id_tugasluar.'">Reject</button></div>';
-                        }
-                    }
-                }
-
-                if($is_can_legalized) {
-                    if(!$data->legalized_by){
-                        $legalized = '<div class="btn-group"><button class="btn btn-sm btn-success btnLegalized" data-id-tugasluar="'.$data->id_tugasluar.'"  data-jenis-keberangkatan="'.$data->jenis_keberangkatan.'">Legalized</button><button type="button" class="btn btn-sm btn-danger waves-effect btnReject" data-id-tugasluar="'.$data->id_tugasluar.'">Reject</button></div>';
-                    }
-                }
-
                 if($data->rejected_by) {
                     $is_rejected = true;
                     $rejected = '❌<br><small class="text-bold">'.$data?->rejected_by.'</small><br><small class="text-fade">'.Carbon::parse($data->rejected_at)->diffForHumans().'</small>';
@@ -325,7 +290,6 @@ class SecurityController extends Controller
                 $nestedData['status'] = $status;
                 $nestedData['checked'] = $is_rejected ? $rejected : $checked;
                 $nestedData['legalized'] = $is_rejected ? $rejected : $legalized;
-                $nestedData['aksi'] = $aksi;
 
                 $dataTable[] = $nestedData;
             }
@@ -372,8 +336,10 @@ class SecurityController extends Controller
                     .'<p style="text-align:start;"><strong>Tempat Tujuan</strong> : '.$tugasluar->tempat_tujuan.'</p>'
                     .'<p style="text-align:start;"><strong>Rencana Pergi</strong> : '.($tugasluar->tanggal_pergi_planning ? Carbon::parse($tugasluar->tanggal_pergi_planning)->format('H:i').' WIB' : '-').'</p>'
                     .'<p style="text-align:start;"><strong>Rencana Kembali</strong> : '.($tugasluar->tanggal_kembali_planning ? Carbon::parse($tugasluar->tanggal_kembali_planning)->format('H:i').' WIB' : '-').'</p>'
+                    .'<p style="text-align:start;"><strong>Aktual Pergi</strong> : '.($tugasluar->tanggal_pergi_aktual ? Carbon::parse($tugasluar->tanggal_pergi_aktual)->format('H:i').' WIB' : '-').'</p>'
+                    .'<p style="text-align:start;"><strong>Aktual Kembali</strong> : '.($tugasluar->tanggal_kembali_aktual ? Carbon::parse($tugasluar->tanggal_kembali_aktual)->format('H:i').' WIB' : '-').'</p>'
                     .'</div>';
-                return response()->json(['message' => 'Data retrieved successfully', 'html' => $html], 200);
+                return response()->json(['message' => 'Data retrieved successfully', 'html' => $html, 'data' => $realId], 200);
             } else {
                 return response()->json(['message' => 'Invalid QR Code'], 404);
             }
@@ -383,19 +349,76 @@ class SecurityController extends Controller
         
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function confirmed(Request $request, string $id)
     {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
+        $type = substr($id, 0, 2);
+        try {
+            if ($type == 'IZ') {
+                $izin = Izine::find($id);
+                if(!auth()->user()->hasRole('security')){
+                    return response()->json(['message' => 'Anda tidak memiliki akses untuk melakukan konfirmasi!'], 403);
+                }
+    
+                if ($izin->jenis_izin == 'SH') {
+                    if ($izin->aktual_mulai_or_masuk || $izin->aktual_selesai_or_keluar) {
+                        return response()->json(['message' => 'Data izin sudah di konfirmasi, silahkan reload halaman!'], 403);
+                    } 
+        
+                    if($izin->rencana_mulai_or_masuk){
+                        $izin->aktual_mulai_or_masuk = now();
+                    } elseif ($izin->rencana_selesai_or_keluar){
+                        $izin->aktual_selesai_or_keluar = now();
+                    }
+                } elseif ($izin->jenis_izin == 'KP') {
+                    if ($izin->aktual_mulai_or_masuk) {
+                        return response()->json(['message' => 'Data izin sudah di konfirmasi, silahkan reload halaman!'], 403);
+                    } 
+                    
+                    if ($izin->aktual_selesai_or_keluar) {
+                        $izin->aktual_mulai_or_masuk = now();
+                    } else {
+                        $izin->aktual_selesai_or_keluar = now();
+                    }
+                } elseif ($izin->jenis_izin == 'PL') {
+                    if ($izin->aktual_selesai_or_keluar) {
+                        return response()->json(['message' => 'Data izin sudah di konfirmasi, silahkan reload halaman!'], 403);
+                    } 
+        
+                    $izin->aktual_selesai_or_keluar = now();
+                } else {
+                    return response()->json(['message' => 'Jenis izin tidak ditemukan'], 404);
+                }
+    
+                $izin->save();
+                $message = 'Izin berhasil di Konfirmasi!';
+                $type = 'IZ';
+            } else {
+                $tugasluar = TugasLuar::find($id);
+                if(!auth()->user()->hasRole('security')){
+                    return response()->json(['message' => 'Anda tidak memiliki akses untuk melakukan konfirmasi!'], 403);
+                }
+    
+                if($tugasluar->status == 'REJECTED'){
+                    return response()->json(['message' => 'Tugas Luar sudah di Reject!'], 403);
+                }
+    
+                if ($tugasluar->status == 'WAITING'){
+                    $tugasluar->status = 'ONGOING';
+                    $tugasluar->tanggal_pergi_aktual = now();
+                } elseif ($tugasluar->status == 'ONGOING'){
+                    $tugasluar->status = 'COMPLETED';
+                    $tugasluar->tanggal_kembali_aktual = now();
+                } else {
+                    return response()->json(['message' => 'Status Tugas Luar tidak ditemukan'], 404);
+                }
+                $tugasluar->save();
+                $message = 'Tugas Luar berhasil di Konfirmasi!';
+                $type = 'TL';
+            }
+            DB::commit();
+            return response()->json(['message' => $message, 'data' => $type], 200);
+        } catch (Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 }

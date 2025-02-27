@@ -153,6 +153,10 @@ class TugasLuar extends Model
             $data->where('tugasluars.organisasi_id', $dataFilter['organisasi_id']);
         }
 
+        if (isset($dataFilter['jenis_keberangkatan'])) {
+            $data->where('tugasluars.jenis_keberangkatan', $dataFilter['jenis_keberangkatan']);
+        }
+
         if (isset($dataFilter['id_karyawan'])) {
             $data->where('tugasluars.karyawan_id', $dataFilter['id_karyawan']);
         }

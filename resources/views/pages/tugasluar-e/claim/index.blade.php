@@ -34,18 +34,10 @@
                         <table id="claim-table" class="table table-striped table-bordered display" style="width:100%">
                             <thead>
                                 <tr>
-                                    <th>ID TL</th>
-                                    <th>Tanggal</th>
-                                    <th>Kendaraan</th>
-                                    <th>Pergi</th>
-                                    <th>Kembali</th>
-                                    <th>Rute</th>
-                                    <th>Jarak Tempuh</th>
-                                    <th>Pengikut</th>
-                                    <th>Keterangan</th>
-                                    <th>Checked</th>
-                                    <th>Legalized</th>
-                                    <th>Known</th>
+                                    <th>ID Claim</th>
+                                    <th>Karyawan</th>
+                                    <th>No Polisi</th>
+                                    <th>Total Claim</th>
                                     <th>Status</th>
                                     <th>Aksi</th>
                                 </tr>

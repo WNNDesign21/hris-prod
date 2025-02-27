@@ -350,9 +350,9 @@ class PengajuanController extends Controller
                 $nestedData['kendaraan'] = $kendaraan;
                 $nestedData['pergi'] = $jam_pergi;
                 $nestedData['kembali'] = $jam_kembali;
-                $nestedData['km_awal'] = $data->km_awal;
-                $nestedData['km_akhir'] = $data->km_akhir;
-                $nestedData['km_selisih'] = $data->km_selisih;
+                $nestedData['km_awal'] = $data->km_awal. ' Km';
+                $nestedData['km_akhir'] = $data->km_akhir. ' Km';
+                $nestedData['km_selisih'] = $data->km_selisih. ' Km';
                 $nestedData['rute'] = $rute;
                 $nestedData['pengikut'] = $formattedPengikut;
                 $nestedData['keterangan'] = $data->keterangan;
@@ -579,9 +579,8 @@ class PengajuanController extends Controller
         try{
             $tugasluar = TugasLuar::find($id_tugasluar);
             $km = $request->kilometerVerif;
-            if ($tugasluar->km_awal) {
-                return response()->json(['message' => 'Pengajuan TL sudah di Verifikasi, silahkan refresh halaman!'], 403);
-            } elseif ($tugasluar->rejected_by) {
+            if ($tugasluar->rejected_by) {
+                DB::rollBack();
                 return response()->json(['message' => 'Pengajuan TL yang sudah di reject tidak dapat di Verifikasi!'], 403);
             }
 
@@ -593,6 +592,10 @@ class PengajuanController extends Controller
                 }
                 $tugasluar->no_polisi = $request->kode_wilayahVerif.'-'.$request->nomor_polisiVerif.'-'.$request->seri_akhirVerif;
             } else {
+                if ($km < $tugasluar->km_awal) {
+                    DB::rollBack();
+                    return response()->json(['message' => 'Kilometer akhir harus lebih besar dari kilometer awal!'], 403);
+                }
                 $tugasluar->km_akhir = $km;
                 $tugasluar->km_selisih = $km - $tugasluar->km_awal;
                 if($tugasluar->jenis_keberangkatan !== 'KTR') {

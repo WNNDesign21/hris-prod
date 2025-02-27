@@ -13,12 +13,12 @@
                                 <span>Pengajuan TL</span>
                             </a>
                         </li>
-                        <li class="{{ $page == '#' ? 'active' : '' }}">
-                            <a href="{{ route('tugasluare.pengajuan') }}">
+                        {{-- <li class="{{ $page == 'tugasluare-claim' ? 'active' : '' }}">
+                            <a href="{{ route('tugasluare.claim') }}">
                                 <i class="icon-Money"><span class="path1"></span><span class="path2"></span></i>
                                 <span>Claim TL</span>
                             </a>
-                        </li>
+                        </li> --}}
                     @endif
                     @if (auth()->user()->hasRole('atasan') || auth()->user()->hasRole('personalia') || auth()->user()->hasRole('security'))
                         <li class="{{ $page == 'tugasluare-approval' ? 'active' : '' }}">
@@ -28,13 +28,13 @@
                                 <span>Approval TL</span>
                             </a>
                         </li>
-                        <li class="{{ $page == '#' ? 'active' : '' }}">
+                        {{-- <li class="{{ $page == '#' ? 'active' : '' }}">
                             <a href="{{ route('tugasluare.pengajuan') }}">
                                 <i class="icon-Double-check"><span class="path1"></span><span
                                         class="path2"></span></i>
                                 <span>Approval Claim</span>
                             </a>
-                        </li>
+                        </li> --}}
                     @endif
                     {{-- CONTOH --}}
                     {{-- @if (auth()->user()->karyawan && ($lembure['is_leader'] || !$lembure['has_leader']))

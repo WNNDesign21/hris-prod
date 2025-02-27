@@ -48,9 +48,6 @@
                         <label for="">Pengemudi</label>
                         <div class="input-group mb-2" style="width:100%;">
                             <select name="pengemudiEdit" id="pengemudiEdit" class="form-control" style="width:100%;">
-                                @foreach ($karyawans as $item)
-                                    <option value="{{ $item->id_karyawan }}">{{ $item->nama }}</option>
-                                @endforeach
                             </select>
                         </div>
                     </div>

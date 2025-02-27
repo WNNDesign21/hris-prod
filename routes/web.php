@@ -492,7 +492,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::patch('/pengajuan/verifikasi/{idTugasLuar}', [TLPengajuanController::class, 'verifikasi'])->name('tugasluare.pengajuan.verifikasi');
             Route::patch('/pengajuan/aktual/{idTugasLuar}', [TLPengajuanController::class, 'aktual'])->name('tugasluare.pengajuan.aktual');
         });
-
+        
         // APPROVAL TL
         Route::group(['middleware' => ['role:atasan|personalia|security']], function () {
             Route::get('/approval', [TLApprovalController::class, 'index'])->name('tugasluare.approval');
@@ -505,12 +505,14 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         });
 
         // CLAIM TL
+        Route::get('/claim', [TLClaimController::class, 'index'])->name('tugasluare.claim');
+        Route::post('/claim/datatable', [TLClaimController::class, 'datatable']);
+        Route::post('/claim/store', [TLClaimController::class, 'store'])->name('tugasluare.claim.store');
+        Route::patch('/claim/update/{idMillage}', [TLClaimController::class, 'update'])->name('tugasluare.claim.update');
+        Route::delete('/claim/delete/{idMillage}', [TLClaimController::class, 'destroy'])->name('tugasluare.claim.delete');
+        
         Route::group(['middleware' => ['role:personalia']], function () {
-            Route::get('/claim', [TLClaimController::class, 'index'])->name('tugasluare.claim');
-            Route::post('/claim/datatable', [TLClaimController::class, 'datatable']);
-            Route::patch('/claim/store/{idMillage}', [TLClaimController::class, 'store'])->name('tugasluare.claim.store');
-            Route::patch('/claim/update/{idMillage}', [TLClaimController::class, 'update'])->name('tugasluare.claim.update');
-            Route::delete('/claim/delete/{idMillage}', [TLClaimController::class, 'destroy'])->name('tugasluare.claim.delete');
+            Route::patch('/claim/claimed/{idMillage}', [TLClaimController::class, 'claimed'])->name('tugasluare.claim.claimed');
         });
 
         // APPROVAL CLAIM TL
@@ -524,9 +526,10 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         });
     });
     
-    /** TUGASLUARE */
+    /** SECURITY */
     Route::group(['prefix' => 'security', 'middleware' => ['role:security']], function () {
         Route::get('/', [SecurityController::class, 'index'])->name('security.index');
+        Route::patch('/confirmed/{id}', [SecurityController::class, 'confirmed']);
         Route::get('/get-qr-detail/{id}', [SecurityController::class, 'get_qr_detail']);
         Route::post('/datatable/izin', [SecurityController::class, 'izin_datatable']);
         Route::post('/datatable/tugasluar', [SecurityController::class, 'tugasluar_datatable']);

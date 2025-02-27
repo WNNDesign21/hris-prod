@@ -152,7 +152,6 @@ $(function () {
         { data: "status" },
         { data: "checked" },
         { data: "legalized" },
-        { data: "aksi" },
     ];
 
     var tlTable = $("#tl-table").DataTable({
@@ -163,7 +162,7 @@ $(function () {
         processing: true,
         serverSide: true,
         ajax: {
-            url: base_url + "/tugasluare/approval/datatable",
+            url: base_url + "/security/datatable/tugasluar",
             dataType: "json",
             type: "POST",
             data: function (dataFilter) {
@@ -223,7 +222,7 @@ $(function () {
                 }
             },
         },
-
+        scrollX: true,
         columns: tlColumnsTable,
         columnDefs: [
             {
@@ -310,6 +309,7 @@ $(function () {
                     type: "GET",
                     success: function (response) {
                         let html = response.html;
+                        let id = response.data;
                         setTimeout(() => {
                             loadingSwalClose();
                             Swal.fire({
@@ -325,7 +325,7 @@ $(function () {
                             }).then((result) => {
                                 if (result.value) {
                                     loadingSwalShow();
-                                    let url = base_url + '/izine/log-book-izin/confirmed/' + decodedText;
+                                    let url = base_url + '/security/confirmed/' + id;
                                     var formData = new FormData();
                                     formData.append('_method', 'PATCH');
                                     $.ajax({
@@ -335,9 +335,17 @@ $(function () {
                                         contentType: false,
                                         processData: false,
                                         dataType: "JSON",
-                                        success: function (data) {
+                                        success: function (response) {
+                                            let type = response.data;
+
+                                            if (type == 'IZ') {
+                                                refreshTableIzin();
+                                            } else {
+                                                refreshTableTl();
+                                            }
+                                            startScanning();
                                             loadingSwalClose();
-                                            showToast({ title: data.message });
+                                            showToast({ title: response.message });
                                         },
                                         error: function (jqXHR, textStatus, errorThrown) {
                                             loadingSwalClose();
