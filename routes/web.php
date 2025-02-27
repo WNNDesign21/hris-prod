@@ -33,6 +33,7 @@ use App\Http\Controllers\Attendance\ShiftgroupController;
 use App\Http\Controllers\MasterData\DepartemenController;
 use App\Http\Controllers\MasterData\OrganisasiController;
 use App\Http\Controllers\StockOpname\StoReportController;
+use App\Http\Controllers\Attendance\AttendanceGpsController;
 use App\Http\Controllers\TugasLuare\AjaxController as TLAjaxController;
 use App\Http\Controllers\TugasLuare\ClaimController as TLClaimController;
 use App\Http\Controllers\TugasLuare\ApprovalController as TLApprovalController;
@@ -446,38 +447,45 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
     });
 
       /** ATTENDANCE */
-    Route::group(['prefix' => 'attendance', 'middleware' => ['role:personalia|admin-dept']], function () {
-        Route::get('/dashboard', [AttendanceDashboardController::class, 'index'])->name('attendance.dashboard');
-
-        // SCANLOG
-        Route::group(['middleware' => ['role:personalia']], function () {
-            Route::get('/scanlog', [ScanlogController::class, 'index'])->name('attendance.scanlog');
-            Route::post('/scanlog/datatable', [ScanlogController::class, 'datatable']);
-            Route::post('/scanlog/download-scanlog', [ScanlogController::class, 'download_scanlog'])->name('attendance.scanlog.download-scanlog');
-            Route::post('/scanlog/export-scanlog', [ScanlogController::class, 'export_scanlog'])->name('attendance.scanlog.export-scanlog');
+    Route::group(['prefix' => 'attendance'], function () {
+        Route::group(['middleware' => ['role:personalia|admin-dept']], function () {
+            Route::get('/dashboard', [AttendanceDashboardController::class, 'index'])->name('attendance.dashboard');
     
-            // DEVICE
-            Route::get('/device', [DeviceController::class, 'index'])->name('attendance.device');
-            Route::post('/device/datatable', [DeviceController::class, 'datatable']);
-            Route::post('/device/store', [DeviceController::class, 'store'])->name('attendance.device.store');
-            Route::patch('/device/update/{idDevice}', [DeviceController::class, 'update'])->name('attendance.device.update');
-            Route::delete('/device/delete/{idDevice}', [DeviceController::class, 'delete'])->name('attendance.device.delete');
+            Route::group(['middleware' => ['role:personalia']], function () {
+                // SCANLOG
+                Route::get('/scanlog', [ScanlogController::class, 'index'])->name('attendance.scanlog');
+                Route::post('/scanlog/datatable', [ScanlogController::class, 'datatable']);
+                Route::post('/scanlog/download-scanlog', [ScanlogController::class, 'download_scanlog'])->name('attendance.scanlog.download-scanlog');
+                Route::post('/scanlog/export-scanlog', [ScanlogController::class, 'export_scanlog'])->name('attendance.scanlog.export-scanlog');
+        
+                // DEVICE
+                Route::get('/device', [DeviceController::class, 'index'])->name('attendance.device');
+                Route::post('/device/datatable', [DeviceController::class, 'datatable']);
+                Route::post('/device/store', [DeviceController::class, 'store'])->name('attendance.device.store');
+                Route::patch('/device/update/{idDevice}', [DeviceController::class, 'update'])->name('attendance.device.update');
+                Route::delete('/device/delete/{idDevice}', [DeviceController::class, 'delete'])->name('attendance.device.delete');
+            });
+    
+            // SHIFT GROUP
+            Route::get('/shift-group', [ShiftgroupController::class, 'index'])->name('attendance.shiftgroup');
+            Route::post('/shift-group/datatable', [ShiftgroupController::class, 'datatable']);
+            Route::post('/shift-group/store', [ShiftgroupController::class, 'store'])->name('attendance.shiftgroup.store');
+            Route::patch('/shift-group/update/{idKaryawan}', [ShiftgroupController::class, 'update'])->name('attendance.shiftgroup.update');
+    
+            // PRESENSI
+            Route::get('/presensi', [PresensiController::class, 'index'])->name('attendance.presensi');
+            Route::post('/presensi/datatable', [PresensiController::class, 'datatable']);
+            Route::post('/presensi/check-presensi', [PresensiController::class, 'check_presensi'])->name('attendance.presensi.check-presensi');
+    
+            // REKAP
+            Route::get('/rekap', [RekapController::class, 'index'])->name('attendance.rekap');
+            Route::post('/rekap/export-rekap', [RekapController::class, 'export_rekap'])->name('attendance.rekap.export-rekap');
         });
 
-        // SHIFT GROUP
-        Route::get('/shift-group', [ShiftgroupController::class, 'index'])->name('attendance.shiftgroup');
-        Route::post('/shift-group/datatable', [ShiftgroupController::class, 'datatable']);
-        Route::post('/shift-group/store', [ShiftgroupController::class, 'store'])->name('attendance.shiftgroup.store');
-        Route::patch('/shift-group/update/{idKaryawan}', [ShiftgroupController::class, 'update'])->name('attendance.shiftgroup.update');
-
-        // PRESENSI
-        Route::get('/presensi', [PresensiController::class, 'index'])->name('attendance.presensi');
-        Route::post('/presensi/datatable', [PresensiController::class, 'datatable']);
-        Route::post('/presensi/check-presensi', [PresensiController::class, 'check_presensi'])->name('attendance.presensi.check-presensi');
-
-        // REKAP
-        Route::get('/rekap', [RekapController::class, 'index'])->name('attendance.rekap');
-        Route::post('/rekap/export-rekap', [RekapController::class, 'export_rekap'])->name('attendance.rekap.export-rekap');
+        Route::get('/gps', [AttendanceGpsController::class, 'index'])->name('attendance.gps');
+        Route::post('/gps/datatable', [AttendanceGpsController::class, 'datatable']);
+        Route::post('/gps/store', [AttendanceGpsController::class, 'store'])->name('attendance.gps.store');
+        // GPS
     });
 
     /** TUGASLUARE */
