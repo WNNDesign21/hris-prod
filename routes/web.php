@@ -483,6 +483,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         });
 
         Route::get('/gps', [AttendanceGpsController::class, 'index'])->name('attendance.gps');
+        Route::get('/gps/get-att-gps-list', [AttendanceGpsController::class, 'get_att_gps_list']);
         Route::post('/gps/datatable', [AttendanceGpsController::class, 'datatable']);
         Route::post('/gps/store', [AttendanceGpsController::class, 'store'])->name('attendance.gps.store');
         // GPS

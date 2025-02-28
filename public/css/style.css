@@ -31971,3 +31971,7 @@ img.away, img.busy, img.offline, img.online {
   background-color: transparent;
   z-index: 9999;
 }
+
+.leaflet-top {
+  display: none;
+}

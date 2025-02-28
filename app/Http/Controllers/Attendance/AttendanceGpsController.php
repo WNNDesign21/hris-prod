@@ -36,17 +36,6 @@ class AttendanceGpsController extends Controller
         return view('pages.attendance-e.gps.index', $dataPage);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
         $dataValidate = [
@@ -54,7 +43,7 @@ class AttendanceGpsController extends Controller
             'latitude' => ['required', 'string'],
             'longitude' => ['required', 'string'],
             'type' => ['required', 'string', 'in:VS,TL'],
-            'image' => ['required', 'string'],
+            'image' => ['required', 'mimes:png', 'max:2048'],
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -81,6 +70,9 @@ class AttendanceGpsController extends Controller
             $attendance_time = Carbon::now();
             $type = $request->type;
 
+            $fileName = Str::random(6) . '.' . $image->getClientOriginalExtension();
+            $filePath = $image->storeAs('attachment/attendance_gps', $fileName);
+
             $data = AttendanceGps::create([
                 'organisasi_id' => $organisasi_id,
                 'departemen_id' => $departemen_id,
@@ -91,7 +83,7 @@ class AttendanceGpsController extends Controller
                 'longitude' => $longitude,
                 'attendance_date' => $attendance_date,
                 'attendance_time' => $attendance_time,
-                'attachment' => $image,
+                'attachment' => $filePath,
                 'type' => $type,
                 'status' => $status,
             ]);
@@ -104,35 +96,35 @@ class AttendanceGpsController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function get_att_gps_list()
     {
-        //
-    }
+        $organisasi_id = auth()->user()->organisasi_id;
+        $karyawan_id = auth()->user()->karyawan->id_karyawan;
+        $attendance_date = Carbon::now()->format('Y-m-d');
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+        try {
+            $data = AttendanceGps::where('organisasi_id', $organisasi_id)
+                ->where('karyawan_id', $karyawan_id)
+                ->whereDate('attendance_date', $attendance_date)
+                ->orderBy('attendance_date', 'DESC')
+                ->get();
+            
+            $datas = [];
+            foreach ($data as $item) {
+                $datas[] = [
+                    'id' => $item->id_att_gps,
+                    'status' => $item->status,
+                    'latitude' => $item->latitude,
+                    'longitude' => $item->longitude,
+                    'att_date' => Carbon::parse($item->attendance_date)->format('d M Y'),
+                    'att_time' => Carbon::parse($item->attendance_time)->format('H:i:s').' WIB',
+                    'attachment' => asset('storage/'.$item->attachment),
+                    'type' => $item->type == 'VS' ? 'VENDOR STAY' : 'TUGAS LUAR',
+                ];
+            }
+            return response()->json(['message' => 'Data Retrive Sucessfully', 'data' => $datas], 200);
+        } catch (Exception $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 }

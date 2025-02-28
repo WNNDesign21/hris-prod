@@ -43,83 +43,6 @@ $(function () {
         });
     }
 
-    //DATATABLE
-    var columnsTable = [
-        { data: "karyawan" },
-        { data: "attachment" },
-        { data: "location" },
-        { data: "status" },
-        { data: "type" },
-        { data: "is_legalized" },
-    ];
-
-    var attGpsTable = $("#att-gps-table").DataTable({
-        search: {
-            return: true,
-        },
-        order: [[0, "DESC"]],
-        processing: true,
-        serverSide: true,
-        ajax: {
-            url: base_url + "/attendance/device/datatable",
-            dataType: "json",
-            type: "POST",
-            data: function (dataFilter) {
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                if (jqXHR.responseJSON.data) {
-                    var error = jqXHR.responseJSON.data.error;
-                    Swal.fire({
-                        icon: "error",
-                        title: " <br>Application error!",
-                        html:
-                            '<div class="alert alert-danger text-left" role="alert">' +
-                            "<p>Error Message: <strong>" +
-                            error +
-                            "</strong></p>" +
-                            "</div>",
-                        allowOutsideClick: false,
-                        showConfirmButton: true,
-                    }).then(function () {
-                        refreshTable();
-                    });
-                } else {
-                    var message = jqXHR.responseJSON.message;
-                    var errorLine = jqXHR.responseJSON.line;
-                    var file = jqXHR.responseJSON.file;
-                    Swal.fire({
-                        icon: "error",
-                        title: " <br>Application error!",
-                        html:
-                            '<div class="alert alert-danger text-left" role="alert">' +
-                            "<p>Error Message: <strong>" +
-                            message +
-                            "</strong></p>" +
-                            "<p>File: " +
-                            file +
-                            "</p>" +
-                            "<p>Line: " +
-                            errorLine +
-                            "</p>" +
-                            "</div>",
-                        allowOutsideClick: false,
-                        showConfirmButton: true,
-                    }).then(function () {
-                        refreshTable();
-                    });
-                }
-            },
-        },
-
-        columns: columnsTable,
-        columnDefs: [
-            {
-                orderable: false,
-                targets: [0, -1],
-            },
-        ],
-    })
-
     //REFRESH TABLE
     function refreshTable() {
         var searchValue = attGpsTable.search();
@@ -169,6 +92,7 @@ $(function () {
 
     function close() {
         closeCamera();
+        $('#image')[0].files = null;
         $('#status').val('');
         modalInput.hide();
     }
@@ -237,16 +161,28 @@ $(function () {
         canvas.height = video.videoHeight;
         const context = canvas.getContext('2d');
         context.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const imageDataUrl = canvas.toDataURL('image/png', 0.6);
-        $('#image').val(imageDataUrl);
+        canvas.toBlob(function(blob) {
+            const file = new File([blob], 'capture.png', { type: 'image/png' });
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            $('#image')[0].files = dataTransfer.files;
 
-        // Pause the video stream to simulate capturing a photo
-        video.pause();
+            video.pause();
+        }, 'image/png', 0.6);
     }
 
     function showPosition(position) {
-        $('#latitude').val(position.coords.latitude);
-        $('#longitude').val(position.coords.longitude);
+        let longitude = position.coords.longitude;
+        let latitude = position.coords.latitude;
+        $('#longitude').val(longitude);
+        $('#latitude').val(latitude);
+
+        var map = L.map('map').setView([latitude, longitude], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        }).addTo(map);
+
+        L.marker([latitude, longitude]).addTo(map);
     }
 
     function showError(error) {
@@ -330,20 +266,21 @@ $(function () {
                         loadingSwalClose();
                         showToast({ icon: "success", title: response.message });
                         close();
+                        getAttGpsList();
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
                         loadingSwalClose();
                         showToast({ icon: "error", title: jqXHR.responseJSON.message });
                         const video = $('#camera-preview')[0];
                         video.play();
-                        $('#image').val('');
+                        $('#image')[0].files = null;
                     },
                 });
                 close();
             } else {
                 const video = $('#camera-preview')[0];
                 video.play();
-                $('#image').val('');
+                $('#image')[0].files = null;
             }
         });
     });
@@ -362,8 +299,89 @@ $(function () {
         }
     }
 
+    function loadingAttGpsList() {
+        $('#list-att-gps').empty();
+        $('#list-att-gps').append(`
+            <div class="d-flex justify-content-center align-items-center" style="height: 100px;">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="sr-only">Loading...</span>
+                </div>
+            </div>
+        `);
+    }
+
+    function getAttGpsList() {
+        loadingAttGpsList();
+        try {
+            let url = base_url + '/attendance/gps/get-att-gps-list';
+            $.ajax({
+                url: url,
+                type: "GET",
+                dataType: "json",
+                success: function (response) {
+                    let data = response.data;
+                    let list = $('#list-att-gps');
+                    list.empty();
+                    if(data.length > 0) {
+                        data.forEach(function (item) {
+                            list.prepend(`
+                                <div class="media media-single">
+                                    <a id="linkFoto${item.id}" href="${item.attachment}"
+                                        class="image-popup-vertical-fit" data-title="${item.att_date}">
+                                        <img id="imageReview${item.id}" src="${item.attachment}" alt="${item.att_date}"
+                                            class="img-fluid avatar avatar-lg rounded">
+                                    </a>
+                                    <div class="media-body">
+                                        <h6><a href="#">${item.att_time}</a></h6>
+                                        <small class="text-fader" class="att-date">${item.att_date}</small>
+                                        <hr>
+                                        <small class="text-fader">Type: ${item.type}</small>
+                                    </div>
+
+                                    <div class="media-right">
+                                        <a class="btn btn-sm ${item.status == 'IN' ? 'btn-success' : 'btn-danger'}" href="javascript:void(0)">${item.status}</a>
+                                    </div>
+                                </div>
+                            `);
+                        });
+                        $('.image-popup-vertical-fit').magnificPopup({
+                            type: 'image',
+                            closeOnContentClick: true,
+                            mainClass: 'mfp-img-mobile',
+                            image: {
+                                verticalFit: true
+                            }
+                        });
+                    }
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Could not get attendance list.',
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                    });
+                },
+                
+            });
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Could not get attendance list.',
+                allowOutsideClick: false,
+                showConfirmButton: true,
+            });
+        }
+    }
+
     $('#type').select2();
+
+    $('.inner-user-div').slimScroll({
+        height: '200px',
+    });
+
     setInterval(updateClock, 1000);
+    getAttGpsList();
     updateClock();
     getLocation();
 });

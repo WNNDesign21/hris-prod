@@ -13,8 +13,8 @@
 @endsection
 
 @section('content')
-    <div class="row d-flex justify-content-center align-items-center" style="height: 60vh;">
-        <div class="col-6">
+    <div class="row d-flex justify-content-center align-items-center">
+        <div class="col-8 p-4">
             <div class="row d-flex justify-content-center">
                 <div class="col-12">
                     <form action="{{ route('attendance.gps.store') }}" enctype="multipart/form-data" id="form-input"
@@ -23,7 +23,7 @@
                         <input type="hidden" name="longitude" id="longitude" class="form-control" readonly>
                         <input type="hidden" name="latitude" id="latitude" class="form-control" readonly>
                         <input type="hidden" name="status" id="status" class="form-control" readonly>
-                        <input type="hidden" name="image" id="image">
+                        <input type="file" name="image" id="image" class="form-control" style="display: none;">
                     </form>
                 </div>
                 <div class="text-center">
@@ -36,6 +36,9 @@
                         <option value="TL">TUGAS LUAR</option>
                     </select>
                 </div>
+            </div>
+            <div class="row d-flex justify-content-center mb-3 p-4">
+                <div id="map" style="height: 200px;"></div>
             </div>
             <div class="row d-flex justify-content-center">
                 <div class="col-6">
@@ -51,6 +54,22 @@
                             <h3>OUT</h3>
                         </div>
                     </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-8 col-md-12 col-sm-12 p-4">
+            <div class="row">
+                <div class="col-12">
+                    <div class="box">
+                        <div class="box-header with-border">
+                            <h4 class="box-title">Attendance Log</h4>
+                        </div>
+                        <div class="box-body p-0">
+                            <div class="media-list media-list-hover media-list-divided inner-user-div"
+                                style="height: 100px;" id="list-att-gps">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
