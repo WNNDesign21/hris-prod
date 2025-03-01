@@ -18,7 +18,7 @@ class QrController extends Controller
     public function __invoke(Request $request)
     {
         $dataValidate = [
-            'id_izin' => ['required', 'string', 'max:255', 'exists:izins,id_izin'],
+            'id' => ['required', 'string', 'max:255'],
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -29,9 +29,9 @@ class QrController extends Controller
         }
 
         try {
-            $id_izin = $request->id_izin;
-            // $encrypted_id = Crypt::encryptString($id_izin);
-            $qrcode = QrCode::format('png')->size(400)->generate($id_izin);
+            $id = $request->id;
+            $encrypted_id = Crypt::encryptString(gzcompress($id));
+            $qrcode = QrCode::format('png')->size(400)->generate($encrypted_id);
             $fileName = 'QR-'.date('YmdHis').'.png';
             Storage::put("attachment/qrcode_generator/{$fileName}", $qrcode);
             $file_path = asset('storage/attachment/qrcode_generator/'.$fileName);

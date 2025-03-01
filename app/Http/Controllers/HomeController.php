@@ -31,6 +31,13 @@ class HomeController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
+
+        $this->middleware(function ($request, $next) {
+            if (auth()->user()->hasRole('security')) {
+                return redirect()->route('security.index');
+            }
+            return $next($request);
+        });
     }
 
     /**

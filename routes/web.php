@@ -19,6 +19,7 @@ use App\Http\Controllers\Attendance\DeviceController;
 use App\Http\Controllers\MasterData\DivisiController;
 use App\Http\Controllers\MasterData\ExportController;
 use App\Http\Controllers\MasterData\PosisiController;
+use App\Http\Controllers\Security\SecurityController;
 use App\Http\Controllers\Utils\DeleteQrImgController;
 use App\Http\Controllers\Attendance\ScanlogController;
 use App\Http\Controllers\MasterData\JabatanController;
@@ -32,7 +33,13 @@ use App\Http\Controllers\Attendance\ShiftgroupController;
 use App\Http\Controllers\MasterData\DepartemenController;
 use App\Http\Controllers\MasterData\OrganisasiController;
 use App\Http\Controllers\StockOpname\StoReportController;
+use App\Http\Controllers\Attendance\AttendanceGpsController;
+use App\Http\Controllers\TugasLuare\AjaxController as TLAjaxController;
+use App\Http\Controllers\TugasLuare\ClaimController as TLClaimController;
+use App\Http\Controllers\TugasLuare\ApprovalController as TLApprovalController;
+use App\Http\Controllers\TugasLuare\PengajuanController as TLPengajuanController;
 use App\Http\Controllers\Attendance\DashboardController as AttendanceDashboardController;
+use App\Http\Controllers\TugasLuare\ApprovalClaimController as TLApprovalClaimController;
 
 Auth::routes();
 Route::get('/', function () {
@@ -46,8 +53,10 @@ Route::group(['middleware' => ['auth']], function () {
     // Route::get('/generate_approval_cuti',[TestController::class, 'generate_approval_cuti']);
     Route::post('/generate-qrcode', QrController::class);
     Route::delete('/delete-qrcode-img', DeleteQrImgController::class);
+    Route::get('/upload-karyawan', [TestController::class, 'upload_karyawan_view']);
     Route::get('/upload-pin', [TestController::class, 'upload_pin_view']);
     Route::post('/upload-pin/store', [TestController::class, 'upload_pin'])->name('upload-pin.store');
+    Route::post('/upload-karyawan/store', [TestController::class, 'upload_karyawan'])->name('upload-karyawan.store');
     Route::get('/rekap-presensi', [TestController::class, 'test_rekap_presensi']);
     Route::get('/test', [TestController::class, 'test']);
 
@@ -117,6 +126,13 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/attendance/presensi/get-summary-presensi', [PresensiController::class, 'get_summary_presensi_html']);
     Route::post('/attendance/presensi/get-detail-presensi', [PresensiController::class, 'get_detail_presensi']);
     Route::get('/attendance/shift-group/get-data-grup-pattern/{idGrupPattern}', [ShiftgroupController::class, 'get_data_grup_pattern']);
+
+    //AJAX CONTROLLER
+    Route::group(['prefix' => 'ajax'], function () {
+        Route::post('/tugasluare/pengajuan/select-get-data-karyawan', [TLAjaxController::class, 'select_get_data_karyawan']);
+        Route::get('/tugasluare/pengajuan/select-get-data-all-karyawan', [TLAjaxController::class, 'select_get_data_all_karyawan']);
+        Route::get('/tugasluare/pengajuan/get-data-pengikut/{idTugasLuar}', [TLAjaxController::class, 'get_data_pengikut']);
+    });
 });
 
 
@@ -433,39 +449,103 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
     });
 
       /** ATTENDANCE */
-    Route::group(['prefix' => 'attendance', 'middleware' => ['role:personalia|admin-dept']], function () {
-        Route::get('/dashboard', [AttendanceDashboardController::class, 'index'])->name('attendance.dashboard');
-
-        // SCANLOG
-        Route::group(['middleware' => ['role:personalia']], function () {
-            Route::get('/scanlog', [ScanlogController::class, 'index'])->name('attendance.scanlog');
-            Route::post('/scanlog/datatable', [ScanlogController::class, 'datatable']);
-            Route::post('/scanlog/download-scanlog', [ScanlogController::class, 'download_scanlog'])->name('attendance.scanlog.download-scanlog');
-            Route::post('/scanlog/export-scanlog', [ScanlogController::class, 'export_scanlog'])->name('attendance.scanlog.export-scanlog');
+    Route::group(['prefix' => 'attendance'], function () {
+        Route::group(['middleware' => ['role:personalia|admin-dept']], function () {
+            Route::get('/dashboard', [AttendanceDashboardController::class, 'index'])->name('attendance.dashboard');
     
-            // DEVICE
-            Route::get('/device', [DeviceController::class, 'index'])->name('attendance.device');
-            Route::post('/device/datatable', [DeviceController::class, 'datatable']);
-            Route::post('/device/store', [DeviceController::class, 'store'])->name('attendance.device.store');
-            Route::patch('/device/update/{idDevice}', [DeviceController::class, 'update'])->name('attendance.device.update');
-            Route::delete('/device/delete/{idDevice}', [DeviceController::class, 'delete'])->name('attendance.device.delete');
+            Route::group(['middleware' => ['role:personalia']], function () {
+                // SCANLOG
+                Route::get('/scanlog', [ScanlogController::class, 'index'])->name('attendance.scanlog');
+                Route::post('/scanlog/datatable', [ScanlogController::class, 'datatable']);
+                Route::post('/scanlog/download-scanlog', [ScanlogController::class, 'download_scanlog'])->name('attendance.scanlog.download-scanlog');
+                Route::post('/scanlog/export-scanlog', [ScanlogController::class, 'export_scanlog'])->name('attendance.scanlog.export-scanlog');
+        
+                // DEVICE
+                Route::get('/device', [DeviceController::class, 'index'])->name('attendance.device');
+                Route::post('/device/datatable', [DeviceController::class, 'datatable']);
+                Route::post('/device/store', [DeviceController::class, 'store'])->name('attendance.device.store');
+                Route::patch('/device/update/{idDevice}', [DeviceController::class, 'update'])->name('attendance.device.update');
+                Route::delete('/device/delete/{idDevice}', [DeviceController::class, 'delete'])->name('attendance.device.delete');
+            });
+    
+            // SHIFT GROUP
+            Route::get('/shift-group', [ShiftgroupController::class, 'index'])->name('attendance.shiftgroup');
+            Route::post('/shift-group/datatable', [ShiftgroupController::class, 'datatable']);
+            Route::post('/shift-group/store', [ShiftgroupController::class, 'store'])->name('attendance.shiftgroup.store');
+            Route::patch('/shift-group/update/{idKaryawan}', [ShiftgroupController::class, 'update'])->name('attendance.shiftgroup.update');
+    
+            // PRESENSI
+            Route::get('/presensi', [PresensiController::class, 'index'])->name('attendance.presensi');
+            Route::post('/presensi/datatable', [PresensiController::class, 'datatable']);
+            Route::post('/presensi/check-presensi', [PresensiController::class, 'check_presensi'])->name('attendance.presensi.check-presensi');
+    
+            // REKAP
+            Route::get('/rekap', [RekapController::class, 'index'])->name('attendance.rekap');
+            Route::post('/rekap/export-rekap', [RekapController::class, 'export_rekap'])->name('attendance.rekap.export-rekap');
         });
 
-        // SHIFT GROUP
-        Route::get('/shift-group', [ShiftgroupController::class, 'index'])->name('attendance.shiftgroup');
-        Route::post('/shift-group/datatable', [ShiftgroupController::class, 'datatable']);
-        Route::post('/shift-group/store', [ShiftgroupController::class, 'store'])->name('attendance.shiftgroup.store');
-        Route::patch('/shift-group/update/{idKaryawan}', [ShiftgroupController::class, 'update'])->name('attendance.shiftgroup.update');
-
-        // PRESENSI
-        Route::get('/presensi', [PresensiController::class, 'index'])->name('attendance.presensi');
-        Route::post('/presensi/datatable', [PresensiController::class, 'datatable']);
-        Route::post('/presensi/check-presensi', [PresensiController::class, 'check_presensi'])->name('attendance.presensi.check-presensi');
-
-        // REKAP
-        Route::get('/rekap', [RekapController::class, 'index'])->name('attendance.rekap');
-        Route::post('/rekap/export-rekap', [RekapController::class, 'export_rekap'])->name('attendance.rekap.export-rekap');
+        Route::get('/gps', [AttendanceGpsController::class, 'index'])->name('attendance.gps');
+        Route::get('/gps/get-att-gps-list', [AttendanceGpsController::class, 'get_att_gps_list']);
+        Route::post('/gps/datatable', [AttendanceGpsController::class, 'datatable']);
+        Route::post('/gps/store', [AttendanceGpsController::class, 'store'])->name('attendance.gps.store');
+        // GPS
     });
+
+    /** TUGASLUARE */
+    Route::group(['prefix' => 'tugasluare'], function () {
+        // PENGAJUAN TL
+        Route::group(['middleware' => ['role:atasan|member']], function () {
+            Route::get('/pengajuan', [TLPengajuanController::class, 'index'])->name('tugasluare.pengajuan');
+            Route::post('/pengajuan/datatable', [TLPengajuanController::class, 'datatable']);
+            Route::post('/pengajuan/store', [TLPengajuanController::class, 'store'])->name('tugasluare.pengajuan.store');
+            Route::patch('/pengajuan/update/{idTugasLuar}', [TLPengajuanController::class, 'update'])->name('tugasluare.pengajuan.update');
+            Route::delete('/pengajuan/delete/{idTugasLuar}', [TLPengajuanController::class, 'destroy'])->name('tugasluare.pengajuan.delete');
+            Route::patch('/pengajuan/verifikasi/{idTugasLuar}', [TLPengajuanController::class, 'verifikasi'])->name('tugasluare.pengajuan.verifikasi');
+            Route::patch('/pengajuan/aktual/{idTugasLuar}', [TLPengajuanController::class, 'aktual'])->name('tugasluare.pengajuan.aktual');
+        });
+        
+        // APPROVAL TL
+        Route::group(['middleware' => ['role:atasan|personalia|security']], function () {
+            Route::get('/approval', [TLApprovalController::class, 'index'])->name('tugasluare.approval');
+            Route::post('/approval/datatable', [TLApprovalController::class, 'datatable']);
+            Route::patch('/approval/checked/{idTugasLuar}', [TLApprovalController::class, 'checked'])->name('tugasluare.approval.checked');
+            Route::patch('/approval/legalized/{idTugasLuar}', [TLApprovalController::class, 'legalized'])->name('tugasluare.approval.legalized');
+            Route::patch('/approval/known/{idTugasLuar}', [TLApprovalController::class, 'known'])->name('tugasluare.approval.known');
+            Route::patch('/approval/rejected/{idTugasLuar}', [TLApprovalController::class, 'rejected'])->name('tugasluare.approval.rejected');
+            Route::delete('/approval/delete/{idTugasLuar}', [TLApprovalController::class, 'destroy'])->name('tugasluare.approval.delete');
+        });
+
+        // CLAIM TL
+        Route::get('/claim', [TLClaimController::class, 'index'])->name('tugasluare.claim');
+        Route::post('/claim/datatable', [TLClaimController::class, 'datatable']);
+        Route::post('/claim/store', [TLClaimController::class, 'store'])->name('tugasluare.claim.store');
+        Route::patch('/claim/update/{idMillage}', [TLClaimController::class, 'update'])->name('tugasluare.claim.update');
+        Route::delete('/claim/delete/{idMillage}', [TLClaimController::class, 'destroy'])->name('tugasluare.claim.delete');
+        
+        Route::group(['middleware' => ['role:personalia']], function () {
+            Route::patch('/claim/claimed/{idMillage}', [TLClaimController::class, 'claimed'])->name('tugasluare.claim.claimed');
+        });
+
+        // APPROVAL CLAIM TL
+        Route::group(['middleware' => ['role:atasan|personalia']], function () {
+            Route::get('/approval-claim', [TLApprovalClaimController::class, 'index'])->name('tugasluare.approval-claim');
+            Route::post('/approval-claim/datatable', [TLApprovalClaimController::class, 'datatable']);
+            Route::patch('/approval-claim/checked/{idMillage}', [TLApprovalClaimController::class, 'checked'])->name('tugasluare.approval-claim.checked');
+            Route::patch('/approval-claim/legalized/{idMillage}', [TLApprovalClaimController::class, 'legalized'])->name('tugasluare.approval-claim.legalized');
+            Route::patch('/approval-claim/rejected/{idMillage}', [TLApprovalClaimController::class, 'rejected'])->name('tugasluare.approval-claim.rejected');
+            Route::delete('/approval-claim/delete/{idMillage}', [TLApprovalClaimController::class, 'destroy'])->name('tugasluare.approval-claim.delete');
+        });
+    });
+    
+    /** SECURITY */
+    Route::group(['prefix' => 'security', 'middleware' => ['role:security']], function () {
+        Route::get('/', [SecurityController::class, 'index'])->name('security.index');
+        Route::patch('/confirmed/{id}', [SecurityController::class, 'confirmed']);
+        Route::get('/get-qr-detail/{id}', [SecurityController::class, 'get_qr_detail']);
+        Route::post('/datatable/izin', [SecurityController::class, 'izin_datatable']);
+        Route::post('/datatable/tugasluar', [SecurityController::class, 'tugasluar_datatable']);
+    });
+
 });
 
 // STOCK-OPNAME

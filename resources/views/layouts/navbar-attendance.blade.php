@@ -6,6 +6,15 @@
                 <!-- sidebar menu-->
                 <ul class="sidebar-menu" data-widget="tree">
                     <li class="header">Attendance-E Menu</li>
+                    @if (auth()->user()->hasRole('member') || auth()->user()->hasRole('atasan'))
+                        <li class="{{ $page == 'attendance-gps' ? 'active' : '' }}">
+                            <a href="{{ route('attendance.gps') }}">
+                                <i class="icon-Layout-4-blocks"><span class="path1"></span><span
+                                        class="path2"></span></i>
+                                <span>Presensi TL</span>
+                            </a>
+                        </li>
+                    @endif
                     @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('admin-dept'))
                         <li class="{{ $page == 'attendance-presensi' ? 'active' : '' }}">
                             <a href="{{ route('attendance.presensi') }}">

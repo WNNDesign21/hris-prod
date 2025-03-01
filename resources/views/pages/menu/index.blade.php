@@ -34,27 +34,27 @@
                             </a>
                         </div>
                     @endif
+                @endif
 
-                    {{-- CARD ATTENDANCE SYSTEM --}}
-                    <div class="col-lg-6 col-12">
-                        <a href="{{ route('attendance.presensi') }}" class="box pull-up">
-                            <div class="box-body">
-                                <div class="d-flex align-items-center">
-                                    <div class="icon bg-primary-light rounded-circle w-60 h-60 text-center l-h-80">
-                                        <span class="fs-30 icon-Done-circle"><span class="path1"></span><span
-                                                class="path2"></span><span class="path3"></span><span
-                                                class="path4"></span></span>
-                                    </div>
-                                    <div class="ms-15">
-                                        <h5 class="mb-0">Attendance-E</h5>
-                                        <p class="text-fade fs-12 mb-0">Sistem Monitoring & Pengambilan data Presensi dari
-                                            Mesin</p>
-                                    </div>
+                {{-- CARD ATTENDANCE SYSTEM --}}
+                <div class="col-lg-6 col-12">
+                    <a href="{{ route('attendance.gps') }}" class="box pull-up">
+                        <div class="box-body">
+                            <div class="d-flex align-items-center">
+                                <div class="icon bg-primary-light rounded-circle w-60 h-60 text-center l-h-80">
+                                    <span class="fs-30 icon-Done-circle"><span class="path1"></span><span
+                                            class="path2"></span><span class="path3"></span><span
+                                            class="path4"></span></span>
+                                </div>
+                                <div class="ms-15">
+                                    <h5 class="mb-0">Attendance-E</h5>
+                                    <p class="text-fade fs-12 mb-0">Sistem Monitoring & Pengambilan data Presensi dari
+                                        Mesin</p>
                                 </div>
                             </div>
-                        </a>
-                    </div>
-                @endif
+                        </div>
+                    </a>
+                </div>
 
                 @if (!auth()->user()->hasRole('security'))
                     {{-- CARD CUTI SYSTEM --}}
@@ -139,24 +139,32 @@
                         </div>
                     </a>
                 </div>
-                {{-- CARD STO --}}
-                {{-- <div class="col-lg-6 col-12">
-                    <a href="{{route('sto.input-label')}}" class="box pull-up">
+                {{-- CARD TUGASLUAR SYSTEM --}}
+                <div class="col-lg-6 col-12">
+                    <a href="{{ auth()->user()->hasRole('personalia') || auth()->user()->hasRole('security') ? route('tugasluare.approval') : route('tugasluare.pengajuan') }}"
+                        class="box pull-up">
                         <div class="box-body position-relative">
+                            {{-- @if ($lembure['approval_lembur'] + $lembure['pengajuan_lembur'] + $lembure['review_lembur'] > 0)
+                                <span class="position-absolute top-0 start-95 translate-middle badge bg-danger">
+                                    <i class="ti-bell"></i>
+                                    {{ $lembure['approval_lembur'] + $lembure['pengajuan_lembur'] + $lembure['review_lembur'] }}
+                                </span>
+                            @endif --}}
                             <div class="d-flex align-items-center">
                                 <div class="icon bg-primary-light rounded-circle w-60 h-60 text-center l-h-80">
-                                    <span class="fs-30 mdi mdi-truck-delivery"><span class="path1"></span><span
+                                    <span class="fs-30 icon-Marker"><span class="path1"></span><span
                                             class="path2"></span><span class="path3"></span><span
                                             class="path4"></span></span>
                                 </div>
                                 <div class="ms-15">
-                                    <h5 class="mb-0">Stock Opname</h5>
-                                    <p class="text-fade fs-12 mb-0">Sistem Stock Opname</p>
+                                    <h5 class="mb-0">TugasLuar-E</h5>
+                                    <p class="text-fade fs-12 mb-0">Sistem Pengajuan & Approval Tugas Luar Digital
+                                    </p>
                                 </div>
                             </div>
                         </div>
                     </a>
-                </div> --}}
+                </div>
             </div>
         </div>
 

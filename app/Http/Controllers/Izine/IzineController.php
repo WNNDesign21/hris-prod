@@ -1299,7 +1299,8 @@ class IzineController extends Controller
 
     public function confirmed(Request $request, string $id_izin)
     {
-        $izin = Izine::find($id_izin);
+        $decrypt_id = Crypt::decrypt(gzuncompress($id_izin));
+        $izin = Izine::find($decrypt_id);
 
         DB::beginTransaction();
         try{

@@ -10,16 +10,17 @@
     <link rel="icon" href="{{ asset('favicon.ico') }}">
     <title>@yield('title')</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+    {{-- <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
-        rel="stylesheet">
+        rel="stylesheet"> --}}
     <link rel="stylesheet" href="{{ asset('assets/vendor_plugins/fontawesome/css/all.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/vendor_components/sweetalert2/dist/sweetalert2.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/vendor_components/datatable/datatables.min.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/vendor_components/animate/animate.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/vendor_components/lightbox-master/dist/ekko-lightbox.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/vendor_components/leaflet/leaflet.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/vendor_components/nestable/nestable.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/vendor_plugins/select2-theme/select2-bootstrap-5-theme.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/vendors_css.css') }}">
@@ -67,6 +68,7 @@
     <script src="{{ asset('assets/vendor_components/moment/min/moment.min.js') }}"></script>
     <script src="{{ asset('assets/vendor_components/fullcalendar/fullcalendar.js') }}"></script>
     <script src="{{ asset('assets/vendor_plugins/polyfill/datetime-polyfill.js') }}"></script>
+    <script src="{{ asset('assets/vendor_components/leaflet/leaflet.js') }}"></script>
 
     <!-- EduAdmin App -->
     <script src="{{ asset('js/template.js') }}"></script>
@@ -274,6 +276,21 @@
         @vite(['resources/js/pages/attendance/attendance-rekap.js'])
     @endif
 
+    @if ($page == 'attendance-gps')
+        @vite(['resources/js/pages/attendance/attendance-gps.js'])
+    @endif
+
+    @if ($page == 'tugasluare-pengajuan')
+        @vite(['resources/js/pages/tugasluare/tugasluare-pengajuan.js'])
+    @endif
+
+    @if ($page == 'tugasluare-approval')
+        @vite(['resources/js/pages/tugasluare/tugasluare-approval.js'])
+    @endif
+
+    @if ($page == 'tugasluare-claim')
+        @vite(['resources/js/pages/tugasluare/tugasluare-claim.js'])
+    @endif
 </body>
 
 </html>
