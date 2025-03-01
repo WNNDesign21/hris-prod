@@ -53,8 +53,10 @@ Route::group(['middleware' => ['auth']], function () {
     // Route::get('/generate_approval_cuti',[TestController::class, 'generate_approval_cuti']);
     Route::post('/generate-qrcode', QrController::class);
     Route::delete('/delete-qrcode-img', DeleteQrImgController::class);
+    Route::get('/upload-karyawan', [TestController::class, 'upload_karyawan_view']);
     Route::get('/upload-pin', [TestController::class, 'upload_pin_view']);
     Route::post('/upload-pin/store', [TestController::class, 'upload_pin'])->name('upload-pin.store');
+    Route::post('/upload-karyawan/store', [TestController::class, 'upload_karyawan'])->name('upload-karyawan.store');
     Route::get('/rekap-presensi', [TestController::class, 'test_rekap_presensi']);
     Route::get('/test', [TestController::class, 'test']);
 

@@ -18,7 +18,7 @@ class AttendanceGpsController extends Controller
         $this->middleware('auth');
 
         $this->middleware(function ($request, $next) {
-            if (auth()->user()->hasRole('security')) {
+            if (auth()->user()->hasRole('security') || auth()->user()->hasRole('personalia')) {
                 return redirect()->route('attendance.presensi');
             }
             return $next($request);

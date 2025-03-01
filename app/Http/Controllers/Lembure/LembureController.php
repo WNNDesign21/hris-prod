@@ -4167,9 +4167,9 @@ class LembureController extends Controller
                     Log::info($row[0]);
                     activity('upload_upah_lembur_karyawan')->log('Upload Upah Lembur Karyawan '.$row[0]);
                     $karyawan = Karyawan::where('ni_karyawan', $row[0])->organisasi($organisasi_id)->first();
-                    $setting_lembur_karyawan = SettingLemburKaryawan::where('karyawan_id', $karyawan->id_karyawan)->first();
 
                     if($karyawan){
+                        $setting_lembur_karyawan = SettingLemburKaryawan::where('karyawan_id', $karyawan->id_karyawan)->first();
                         if($karyawan->user->organisasi_id !== auth()->user()->organisasi_id){
                             DB::rollback();
                             return response()->json(['message' => 'NIK Karyawan '.$karyawan->nama.' tidak terdaftar di Plant Anda!'], 404);
@@ -4200,7 +4200,7 @@ class LembureController extends Controller
                             ]);
                         }
                     } else {
-                        DB::rollback();
+                        continue;
                         return response()->json(['message' => 'Data Karyawan dengan NI Karyawan '.$row[0]].' tidak ditemukan, periksa kembali di data master');
                     }
                 }

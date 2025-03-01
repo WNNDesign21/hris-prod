@@ -11,6 +11,7 @@ use App\Models\Karyawan;
 use App\Helpers\Approval;
 use App\Models\ApprovalCuti;
 use Illuminate\Http\Request;
+use App\Jobs\UploadKaryawanJob;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use App\Models\Attendance\ScanlogDetail;
@@ -213,10 +214,19 @@ class TestController extends Controller
     public function upload_pin_view()
     {
         $dataPage = [
-            'pageTitle' => "Test Upload Pin",
-            'page' => 'test-upload-pin',
+            'pageTitle' => "Upload Pin",
+            'page' => 'upload-pin',
         ];
-        return view('test', $dataPage);
+        return view('pages.upload-master-data.pin', $dataPage);
+    }
+
+    public function upload_karyawan_view()
+    {
+        $dataPage = [
+            'pageTitle' => "Upload Karyawan",
+            'page' => 'upload-karyawan',
+        ];
+        return view('pages.upload-master-data.karyawan', $dataPage);
     }
 
     public function upload_pin(Request $request)
@@ -452,5 +462,47 @@ class TestController extends Controller
             $data[] = $ps->departemen_id;
         }
         return $data;
+    }
+
+    public function upload_karyawan(Request $request) 
+    {
+        $dataValidate = [
+            'upload' => ['required', 'file', 'mimes:xlsx,xls'],
+        ];
+        
+        $validator = Validator::make(request()->all(), $dataValidate);
+    
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        try {
+            $upload = $request->file('upload');
+            $organisasi_id = auth()->user()->organisasi_id;
+            if ($request->hasFile('upload')){
+                $spreadsheet = IOFactory::load($upload->getPathname());
+                $worksheet = $spreadsheet->getActiveSheet();
+                $data = $worksheet->toArray();
+                $dataWithoutHeader = array_slice($data, 1);
+                $chunks = array_chunk($dataWithoutHeader, 25);
+
+                foreach ($chunks as $chunk) {
+                    UploadKaryawanJob::dispatch($chunk, $organisasi_id);
+                }
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'File uploaded successfully, please wait for the process to finish (job)',
+                ], 200);
+            } else {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Please upload a file',
+                ], 500);
+            }
+
+        } catch (Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 }

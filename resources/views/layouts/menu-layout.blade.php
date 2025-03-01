@@ -32,12 +32,6 @@
             </div>
             <div class="navbar-custom-menu r-side">
                 <ul class="nav navbar-nav">
-                    <li class="btn-group nav-item">
-                        <a href="#" class="waves-effect waves-light nav-link push-btn" role="button">
-                            <span class="icon-Barcode-read"><span class="path1"></span><span
-                                    class="path2"></span><span class="path3"></span></span>
-                        </a>
-                    </li>
                     <li class="dropdown notifications-menu">
                         @include('layouts.partials.notification', ['notification' => $notification])
                     </li>
