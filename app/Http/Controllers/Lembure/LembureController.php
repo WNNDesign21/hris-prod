@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Lembure;
 
 use Throwable;
 use Carbon\Carbon;
+use App\Models\Divisi;
 use App\Models\Posisi;
 use App\Models\Lembure;
 use App\Models\Karyawan;
@@ -443,9 +444,30 @@ class LembureController extends Controller
             $dataFilter['member_posisi_ids'] = $member_posisi_ids;
             $is_can_checked = true;
             $is_has_department_head = $this->has_department_head($posisi);
-        }  elseif (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->organisasi_id !== null){
-            $dataFilter['organisasi_id'] = $organisasi_id;
-            $is_can_approved = true;
+        }  elseif (auth()->user()->karyawan->posisi[0]->jabatan_id == 2){
+            // JIKA PLANT HEAD
+            if (auth()->user()->karyawan->posisi[0]->divisi_id == 3) {
+                $posisis_has_div_head = Posisi::where('jabatan_id', 2)
+                    ->whereHas('karyawan')
+                    ->whereNot('divisi_id', 3)
+                    ->where(function ($query) {
+                        $query->whereNull('organisasi_id')
+                            ->orWhere('organisasi_id', auth()->user()->organisasi_id);
+                    })
+                    ->distinct()
+                    ->pluck('divisi_id')
+                    ->toArray();
+                $divisis = Divisi::whereNotIn('id_divisi', $posisis_has_div_head)->pluck('id_divisi');
+                $dataFilter['divisi_id'] = $divisis;
+                $dataFilter['organisasi_id'] = $organisasi_id;
+                $is_can_approved = true;
+            // JIKA NON PLANT HEAD
+            } else {
+                $member_posisi_ids = $this->get_member_posisi($posisi);
+                $dataFilter['member_posisi_ids'] = $member_posisi_ids;
+                $dataFilter['is_div_head'] = true;
+                $is_can_approved = true;
+            }
         }
 
         $filterUrutan = $request->urutan;
