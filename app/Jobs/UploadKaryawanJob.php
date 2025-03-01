@@ -90,7 +90,7 @@ class UploadKaryawanJob implements ShouldQueue
                 $users[] = [
                     'email' => $email_perusahaan,
                     'username' => $username,
-                    'password' => Hash::make($password),
+                    'password' => $password,
                     'organisasi_id' => $organisasi_id,
                 ];
 
