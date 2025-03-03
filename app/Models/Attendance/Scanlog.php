@@ -40,10 +40,9 @@ class Scanlog extends Model
         );
 
         $data->leftJoin('karyawans', 'karyawans.pin','attendance_scanlogs.pin');
-        $data->leftJoin('users', 'users.id','karyawans.user_id');
 
         $data->where('attendance_scanlogs.organisasi_id', auth()->user()->organisasi_id);
-        $data->where('users.organisasi_id', auth()->user()->organisasi_id);
+        $data->where('karyawans.organisasi_id', auth()->user()->organisasi_id);
 
         if (isset($dataFilter['date'])) {
             $data->whereDate('attendance_scanlogs.scan_date', $dataFilter['date']);

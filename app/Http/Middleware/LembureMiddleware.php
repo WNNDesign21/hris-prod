@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use App\Models\Divisi;
 use App\Models\Posisi;
 use App\Models\Lembure;
 use App\Helpers\Approval;
@@ -52,18 +53,50 @@ class LembureMiddleware
                         ->whereNull('actual_legalized_by');
                 });
             })->where('organisasi_id', $organisasi_id)->count();
-        } elseif ($user->karyawan && $user->karyawan->posisi[0]->jabatan_id == 2 && $user->karyawan->posisi[0]->organisasi_id !== NULL){ 
-            $approval_lembur = Lembure::where(function($query) {
-                $query->where(function($query) {
-                    $query->where('status', 'WAITING')
-                        ->whereNotNull('plan_checked_by')
-                        ->whereNull('plan_approved_by');
-                })->orWhere(function($query) {
-                    $query->where('status', 'COMPLETED')
-                        ->whereNotNull('actual_checked_by')
-                        ->whereNull('actual_approved_by');
-                });
-            })->where('organisasi_id', $organisasi_id)->count();
+        } elseif ($user->karyawan && $user->karyawan->posisi[0]->jabatan_id == 2){ 
+            if (auth()->user()->karyawan->posisi[0]->divisi_id == 3) {
+                $posisis_has_div_head = Posisi::where('jabatan_id', 2)
+                ->whereHas('karyawan')
+                ->whereNot('divisi_id', 3)
+                ->where(function ($query) {
+                    $query->whereNull('organisasi_id')
+                        ->orWhere('organisasi_id', auth()->user()->organisasi_id);
+                })
+                ->distinct()
+                ->pluck('divisi_id')
+                ->toArray();
+                $divisis = Divisi::whereNotIn('id_divisi', $posisis_has_div_head)->pluck('id_divisi');
+                    $approval_lembur = Lembure::where(function($query) {
+                        $query->where(function($query) {
+                            $query->where('status', 'WAITING')
+                                ->whereNotNull('plan_checked_by')
+                                ->whereNull('plan_approved_by');
+                        })->orWhere(function($query) {
+                            $query->where('status', 'COMPLETED')
+                                ->whereNotNull('actual_checked_by')
+                                ->whereNull('actual_approved_by');
+                        });
+                    })
+                    ->where('organisasi_id', $organisasi_id)
+                    ->whereIn('divisi_id', $divisis)
+                    ->count();
+            } else {
+                $posisi = $user->karyawan->posisi;
+                $member_posisi_ids = $this->get_member_posisi($posisi);
+                $approval_lembur = Lembure::leftJoin('karyawan_posisi', 'lemburs.issued_by', 'karyawan_posisi.karyawan_id')
+                ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')->whereIn('posisis.id_posisi', $member_posisi_ids)
+                ->where(function($query) {
+                    $query->where(function($query) {
+                        $query->where('status', 'WAITING')
+                            ->whereNotNull('plan_checked_by')
+                            ->whereNull('plan_approved_by');
+                    })->orWhere(function($query) {
+                        $query->where('status', 'COMPLETED')
+                            ->whereNotNull('actual_checked_by')
+                            ->whereNull('actual_approved_by');
+                    });
+                })->count();
+            }
         } elseif ($user->karyawan && $user->karyawan->posisi[0]->jabatan_id == 4 || $user->karyawan && $user->karyawan->posisi[0]->jabatan_id == 3) {
             $posisi = $user->karyawan->posisi;
             $member_posisi_ids = $this->get_member_posisi($posisi);

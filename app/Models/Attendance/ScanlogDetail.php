@@ -57,7 +57,7 @@ class ScanlogDetail extends Model
                                 END
                             END AS scan_type
                     FROM attendance_scanlogs s_1
-                    JOIN attendance_karyawan_grup k_1 ON s_1.pin::text = k_1.pin::text AND k_1.active_date <= s_1.scan_date
+                    JOIN attendance_karyawan_grup k_1 ON s_1.pin::text = k_1.pin::text AND k_1.active_date <= s_1.scan_date AND k_1.organisasi_id = '".$dataFilter['organisasi_id']."'
                     LEFT JOIN grups sg ON k_1.grup_id = sg.id_grup
                     )
             SELECT k.ni_karyawan,
