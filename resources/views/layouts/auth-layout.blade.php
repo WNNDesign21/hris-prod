@@ -280,6 +280,10 @@
         @vite(['resources/js/pages/attendance/attendance-gps.js'])
     @endif
 
+    @if ($page == 'attendance-approval')
+        @vite(['resources/js/pages/attendance/attendance-approval.js'])
+    @endif
+
     @if ($page == 'tugasluare-pengajuan')
         @vite(['resources/js/pages/tugasluare/tugasluare-pengajuan.js'])
     @endif

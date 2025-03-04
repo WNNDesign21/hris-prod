@@ -2350,7 +2350,7 @@ class LembureController extends Controller
         if (!empty($search)) {
             if(auth()->user()->karyawan->posisi[0]->jabatan_id == 5){
                 //Sementara
-                $query->where('users.organisasi_id', $organisasi_id)
+                $query->where('karyawans.organisasi_id', $organisasi_id)
                 ->whereIn('posisis.id_posisi', $id_posisi_members)
                 ->where(function ($dat) use ($search) {
                     $dat->where(function ($subQuery) use ($search) {
@@ -2364,7 +2364,7 @@ class LembureController extends Controller
             }
         } else {
             if(auth()->user()->karyawan->posisi[0]->jabatan_id == 5){
-                $query->where('users.organisasi_id', $organisasi_id);
+                $query->where('karyawans.organisasi_id', $organisasi_id);
                 $query->whereIn('posisis.id_posisi', $id_posisi_members);
                 $query->orWhere('karyawans.id_karyawan', auth()->user()->karyawan->id_karyawan);
             } else {
@@ -2375,8 +2375,7 @@ class LembureController extends Controller
         //Ambil karyawan yang scope Aktif jika ada parameter status
         $query->aktif();
         $query->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
-        ->leftJoin('users', 'karyawans.user_id', 'users.id')
-        ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+        ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')->whereNull('posisis.deleted_at')
         ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
         ->rightJoin('setting_lembur_karyawans', 'karyawans.id_karyawan', 'setting_lembur_karyawans.karyawan_id');
 

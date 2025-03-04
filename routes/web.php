@@ -34,6 +34,7 @@ use App\Http\Controllers\MasterData\DepartemenController;
 use App\Http\Controllers\MasterData\OrganisasiController;
 use App\Http\Controllers\StockOpname\StoReportController;
 use App\Http\Controllers\Attendance\AttendanceGpsController;
+use App\Http\Controllers\Attendance\ApprovalController as ATTApprovalController;
 use App\Http\Controllers\TugasLuare\AjaxController as TLAjaxController;
 use App\Http\Controllers\TugasLuare\ClaimController as TLClaimController;
 use App\Http\Controllers\TugasLuare\ApprovalController as TLApprovalController;
@@ -466,6 +467,12 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
                 Route::post('/device/store', [DeviceController::class, 'store'])->name('attendance.device.store');
                 Route::patch('/device/update/{idDevice}', [DeviceController::class, 'update'])->name('attendance.device.update');
                 Route::delete('/device/delete/{idDevice}', [DeviceController::class, 'delete'])->name('attendance.device.delete');
+
+                // APPROVAL
+                Route::get('/approval', [ATTApprovalController::class, 'index'])->name('attendance.approval');
+                Route::post('/approval/datatable', [ATTApprovalController::class, 'datatable']);
+                Route::patch('/approval/legalized/{idAttGps}', [ATTApprovalController::class, 'legalized'])->name('attendance.approval.legalized');
+                Route::patch('/approval/rejected/{idAttGps}', [ATTApprovalController::class, 'rejected'])->name('attendance.approval.rejected');
             });
     
             // SHIFT GROUP

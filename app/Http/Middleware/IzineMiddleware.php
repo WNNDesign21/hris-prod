@@ -61,6 +61,11 @@ class IzineMiddleware
             $posisi = $user->karyawan->posisi;
             $id_posisi_members = $this->get_member_posisi($posisi);
 
+            foreach ($posisi as $ps){
+                $index = array_search($ps->id_posisi, $id_posisi_members);
+                array_splice($id_posisi_members, $index, 1);
+            }
+
             $approval_izin = Izine::leftJoin('karyawan_posisi', 'izins.karyawan_id', 'karyawan_posisi.karyawan_id')
                             ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
                             ->whereIn('posisis.id_posisi', $id_posisi_members)
