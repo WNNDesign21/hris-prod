@@ -315,16 +315,28 @@ class SecurityController extends Controller
             $type = substr($realId, 0, 2);
             if ($type == 'IZ') {
                 $izin = Izine::find($realId);
+
+                if ($izin->jenis_izin == 'TM') {
+                    $jenis_izin = 'TIDAK MASUK';
+                } elseif ($izin->jenis_izin == 'SH') {
+                    $jenis_izin = '1/2 HARI';
+                } elseif ($izin->jenis_izin == 'KP') {
+                    $jenis_izin = 'KELUAR PABRIK';
+                } elseif ($izin->jenis_izin == 'PL') {
+                    $jenis_izin = 'PULANG';
+                }
+
                 $html = '<div class="alert alert-primary text-white" style="text-align:start;" role="alert">'
                     .'<p style="text-align:start;"><strong>Tipe</strong> : IZIN</p>'
                     .'<p style="text-align:start;"><strong>ID Izin</strong> : '.$izin->id_izin.'</p>'
-                    .'<p style="text-align:start;"><strong>Nama</strong> : '.$izin->nama.'</p>'
-                    .'<p style="text-align:start;"><strong>Departemen</strong> : '.$izin->departemen.'</p>'
-                    .'<p style="text-align:start;"><strong>Jenis Izin</strong> : '.$izin->jenis_izin.'</p>'
-                    .'<p style="text-align:start;"><strong>Rencana</strong> : '.($izin->rencana_mulai_or_masuk ? Carbon::parse($izin->rencana_mulai_or_masuk)->format('d M Y, H:i').' WIB' : '-').'</p>'
+                    .'<p style="text-align:start;"><strong>Nama</strong> : '.$izin->karyawan->nama.'</p>'
+                    .'<p style="text-align:start;"><strong>Departemen</strong> : '.$izin->departemen->nama.'</p>'
+                    .'<p style="text-align:start;"><strong>Jenis Izin</strong> : '.$jenis_izin.'</p>'
+                    .'<p style="text-align:start;"><strong>Rencana Mulai/Masuk</strong> : '.($izin->rencana_mulai_or_masuk ? Carbon::parse($izin->rencana_mulai_or_masuk)->format('d M Y, H:i').' WIB' : '-').'</p>'
+                    .'<p style="text-align:start;"><strong>Rencana Selesai/Keluar</strong> : '.($izin->rencana_selesai_or_keluar ? Carbon::parse($izin->rencana_selesai_or_keluar)->format('d M Y, H:i').' WIB' : '-').'</p>'
                     .'<p style="text-align:start;"><strong>Keterangan</strong> : '.$izin->keterangan.'</p>'
                     .'</div>';
-                return response()->json(['message' => 'Data retrieved successfully', 'html' => $html], 200);
+                return response()->json(['message' => 'Data retrieved successfully', 'html' => $html, 'data' => $realId], 200);
             } elseif ($type == 'TL') {
                 $tugasluar = TugasLuar::find($realId);
                 $html = '<div class="alert alert-primary text-white" style="text-align:start;" role="alert">'

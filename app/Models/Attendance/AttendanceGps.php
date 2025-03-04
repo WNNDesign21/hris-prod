@@ -73,6 +73,10 @@ class AttendanceGps extends Model
             ->leftJoin('departemens', 'departemens.id_departemen', 'attendance_gps.departemen_id')
             ->leftJoin('divisis', 'divisis.id_divisi', 'attendance_gps.divisi_id')
             ->leftJoin('karyawans', 'karyawans.id_karyawan', 'attendance_gps.karyawan_id');
+        
+        if (isset($dataFilter['organisasi_id'])) {
+            $data->where('attendance_gps.organisasi_id', $dataFilter['organisasi_id']);
+        }
 
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];

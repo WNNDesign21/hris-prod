@@ -284,6 +284,13 @@ class ApprovalCuti extends Model
                 $checked2_for = $has_director;
                 $approved_for = $has_director;
             }
+
+            //KONDISI 7 (HANYA PUNYA DIVISION HEAD)
+            if($has_leader && !$has_section_head && !$has_department_head){
+                $checked1_for = $has_leader;
+                $checked2_for = $has_division_head;
+                $approved_for = $has_division_head;
+            }
     
             $approval = self::create([
                 'cuti_id' => $cuti_id,

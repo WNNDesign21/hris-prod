@@ -24,6 +24,13 @@
                             </a>
                         </li>
                         @if (auth()->user()->hasRole('personalia'))
+                            {{-- <li class="{{ $page == 'attendance-approval' ? 'active' : '' }}">
+                                <a href="{{ route('attendance.approval') }}">
+                                    <i class="icon-Double-check"><span class="path1"></span><span
+                                            class="path2"></span></i>
+                                    <span>Approval</span>
+                                </a>
+                            </li> --}}
                             <li class="{{ $page == 'attendance-scanlog' ? 'active' : '' }}">
                                 <a href="{{ route('attendance.scanlog') }}">
                                     <i class="icon-Sign-in"><span class="path1"></span><span class="path2"></span></i>
