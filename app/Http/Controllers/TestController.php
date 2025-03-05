@@ -12,6 +12,8 @@ use App\Helpers\Approval;
 use App\Models\ApprovalCuti;
 use Illuminate\Http\Request;
 use App\Jobs\UploadKaryawanJob;
+use App\Models\Attendance\Device;
+use App\Models\Attendance\Scanlog;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use App\Models\Attendance\ScanlogDetail;
@@ -502,6 +504,52 @@ class TestController extends Controller
             }
 
         } catch (Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function nevergiveup($date, $hour, $minute, $type)
+    {
+        $dataValidate = [
+            'date' => ['required', 'date', 'date_format:Y-m-d'],
+            'hour' => ['required', 'numeric', 'min:0', 'max:23'],
+            'minute' => ['required', 'numeric', 'min:0', 'max:59'],
+            'type' => ['required', 'string', 'in:IN,OUT'],
+        ];
+
+        $validator = Validator::make(compact('date', 'hour', 'minute', 'type'), $dataValidate);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $hour = str_pad($hour, 2, '0', STR_PAD_LEFT);
+        $minute = str_pad($minute, 2, '0', STR_PAD_LEFT);
+
+        DB::beginTransaction();
+        try {
+            $organisasi_id = auth()->user()->organisasi_id;
+            $karyawan = auth()->user()->karyawan;
+            $scan_date = $date . ' ' . $hour . ':' . $minute . ':' . rand(0, 59);
+            $scan_status = $type == 'IN' ? '0' : '1';
+            $device = Device::where('organisasi_id', $organisasi_id)->first();
+
+            $scanlog = Scanlog::create([
+                'device_id' => $device->id_device,
+                'organisasi_id' => $organisasi_id,
+                'pin' => $karyawan->pin,
+                'scan_date' => $scan_date,
+                'scan_status' => $scan_status,
+                'verify' => '7',
+                'start_date_scan' => $date,
+                'end_date_scan' => $date,
+                'created_at' => $scan_date,
+                'updated_at' => $scan_date
+            ]);
+            DB::commit();
+            return response()->json(['message' => 'Berhasil melakukan presensi'], 200);
+        } catch (Exception $e) {
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }

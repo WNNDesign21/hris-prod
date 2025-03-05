@@ -57,7 +57,6 @@ export default defineConfig({
                 'resources/js/pages/attendance/attendance-approval.js',
                 'resources/js/pages/tugasluare/tugasluare-pengajuan.js',
                 'resources/js/pages/tugasluare/tugasluare-approval.js',
-                'resources/js/pages/tugasluare/tugasluare-claim.js',
                 'resources/js/pages/security/index.js',
             ],
             // refresh: true,

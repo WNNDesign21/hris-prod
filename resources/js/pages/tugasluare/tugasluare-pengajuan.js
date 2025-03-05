@@ -46,6 +46,16 @@ $(function () {
             title: options.title
         });
     }
+
+    function updatePengajuanNotification(){
+        $.ajax({
+            url: base_url + '/ajax/tugasluare/pengajuan/notification',
+            method: 'GET',
+            success: function(response){
+                $('.notification-pengajuan').html(response.data);
+            }
+        })
+    }
     // END LOADING & ALERT
 
     // DATATABLE
@@ -459,6 +469,7 @@ $(function () {
                 showToast({ title: data.message });
                 close();
                 refreshTable();
+                updatePengajuanNotification();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 loadingSwalClose();
@@ -517,6 +528,7 @@ $(function () {
                     success: function (data) {
                         refreshTable();
                         showToast({ title: data.message });
+                        updatePengajuanNotification();
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
                         showToast({ icon: "error", title: jqXHR.responseJSON.message });
@@ -742,7 +754,6 @@ $(function () {
             },
             dataType: "JSON",
             success: function (response) {
-                console.log(response);
                 loadingSwalClose();
                 closeQrCode();
             },
@@ -797,6 +808,7 @@ $(function () {
                 showToast({ title: data.message });
                 closeVerification();
                 refreshTable();
+                updatePengajuanNotification();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 loadingSwalClose();
@@ -810,11 +822,13 @@ $(function () {
         let kodeWilayah = $(this).data('kode-wilayah');
         let nomorPolisi = $(this).data('nomor-polisi');
         let seriAkhir = $(this).data('seri-akhir');
+        let kilometers = $(this).data('km');
 
         $('#id_tugasluarVerif').val(idTugasLuar);
         $('#kode_wilayahVerif').val(kodeWilayah);
         $('#nomor_polisiVerif').val(nomorPolisi);
         $('#seri_akhirVerif').val(seriAkhir);
+        $('#kilometerVerif').val(kilometers);
         openVerification();
     });
 

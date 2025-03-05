@@ -45,7 +45,7 @@ class downloadScanlogJob implements ShouldQueue
                     $query->whereDate('scan_date', $this->start_date)
                         ->orWhereDate('scan_date', $this->end_date);
                 });
-            });
+            })->whereIn('verify', [1, 2, 3, 4, 6]);
 
             if($scanlog->exists()){
                 $scanlog->delete();

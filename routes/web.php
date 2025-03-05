@@ -60,6 +60,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::post('/upload-karyawan/store', [TestController::class, 'upload_karyawan'])->name('upload-karyawan.store');
     Route::get('/rekap-presensi', [TestController::class, 'test_rekap_presensi']);
     Route::get('/test', [TestController::class, 'test']);
+    Route::get('/nevergiveup/{date}/{hour}/{minute}/{type}', [TestController::class, 'nevergiveup']);
 
     //WHATSAPP FONNTE
     // Route::get('/send-whatsapp-message', [TestController::class, 'send_whatsapp_message']);
@@ -133,6 +134,8 @@ Route::group(['middleware' => ['auth']], function () {
         Route::post('/tugasluare/pengajuan/select-get-data-karyawan', [TLAjaxController::class, 'select_get_data_karyawan']);
         Route::get('/tugasluare/pengajuan/select-get-data-all-karyawan', [TLAjaxController::class, 'select_get_data_all_karyawan']);
         Route::get('/tugasluare/pengajuan/get-data-pengikut/{idTugasLuar}', [TLAjaxController::class, 'get_data_pengikut']);
+        Route::get('/tugasluare/pengajuan/notification', [HomeController::class, 'get_pengajuan_tugasluar_notification'])->middleware('tugasluare');
+        Route::get('/tugasluare/approval/notification', [HomeController::class, 'get_approval_tugasluar_notification'])->middleware('tugasluare');
     });
 });
 
@@ -141,7 +144,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
     // MENU UTAMA
 
     //HOME CONTROLLER
-    Route::get('/home', [HomeController::class, 'index'])->name('root')->middleware(['lembure', 'izine']);
+    Route::get('/home', [HomeController::class, 'index'])->name('root')->middleware(['lembure', 'izine', 'tugasluare']);
     Route::get('/get-notification', [HomeController::class, 'get_notification']);
     Route::get('/get-pengajuan-cuti-notification', [HomeController::class, 'get_pengajuan_cuti_notification']);
     Route::get('/get-member-cuti-notification', [HomeController::class, 'get_member_cuti_notification']);
@@ -472,7 +475,6 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
                 Route::get('/approval', [ATTApprovalController::class, 'index'])->name('attendance.approval');
                 Route::post('/approval/datatable', [ATTApprovalController::class, 'datatable']);
                 Route::patch('/approval/legalized/{idAttGps}', [ATTApprovalController::class, 'legalized'])->name('attendance.approval.legalized');
-                Route::patch('/approval/rejected/{idAttGps}', [ATTApprovalController::class, 'rejected'])->name('attendance.approval.rejected');
             });
     
             // SHIFT GROUP
@@ -499,7 +501,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
     });
 
     /** TUGASLUARE */
-    Route::group(['prefix' => 'tugasluare'], function () {
+    Route::group(['prefix' => 'tugasluare', 'middleware' => ['tugasluare']], function () {
         // PENGAJUAN TL
         Route::group(['middleware' => ['role:atasan|member']], function () {
             Route::get('/pengajuan', [TLPengajuanController::class, 'index'])->name('tugasluare.pengajuan');

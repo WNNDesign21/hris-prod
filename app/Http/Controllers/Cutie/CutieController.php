@@ -1012,9 +1012,11 @@ class CutieController extends Controller
             } elseif ($jenis_cuti == 'PRIBADI') {
                 $jatah_cuti = $sisa_cuti_pribadi - $durasi_cuti;
                 if($sisa_cuti_pribadi < 0){
+                    DB::rollback();
                     return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Hubungi HRD untuk informasi lebih lanjut!'], 402);
                 } else {
                     if($jatah_cuti < 0){
+                        DB::rollback();
                         return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Silahkan baca ketentuan pembagian cuti pribadi lagi!'], 402);
                     } else {
                         $kry->sisa_cuti_pribadi = $jatah_cuti;

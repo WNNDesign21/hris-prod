@@ -291,10 +291,6 @@
     @if ($page == 'tugasluare-approval')
         @vite(['resources/js/pages/tugasluare/tugasluare-approval.js'])
     @endif
-
-    @if ($page == 'tugasluare-claim')
-        @vite(['resources/js/pages/tugasluare/tugasluare-claim.js'])
-    @endif
 </body>
 
 </html>
