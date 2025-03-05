@@ -182,6 +182,10 @@ class TugasLuar extends Model
             $data->where('tugasluars.status', $status);
         }
 
+        if (isset($dataFilter['approval_atasan'])) {
+            $data->where('tugasluars.checked_by', $dataFilter['checked_by']);
+        }
+
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
             $data->where(function ($query) use ($search) {
@@ -227,5 +231,114 @@ class TugasLuar extends Model
     public static function countData($dataFilter)
     {
         return self::_query($dataFilter)->get()->count();
+    }
+
+    // Middleware
+    private static function _queryMiddleware($dataFilter)
+    {
+
+        $getPengemudi = Karyawan::select("id_karyawan as id_pengemudi", "nama as nama_pengemudi");
+        $data = self::select(
+            'tugasluars.id_tugasluar',
+            'tugasluars.organisasi_id',
+            'tugasluars.karyawan_id',
+            'tugasluars.ni_karyawan',
+            'tugasluars.departemen_id',
+            'tugasluars.divisi_id',
+            'tugasluars.tanggal',
+            'tugasluars.tanggal_pergi_planning',
+            'tugasluars.tanggal_kembali_planning',
+            'tugasluars.tanggal_pergi_aktual',
+            'tugasluars.tanggal_kembali_aktual',
+            'tugasluars.jenis_kendaraan',
+            'tugasluars.jenis_kepemilikan',
+            'tugasluars.jenis_keberangkatan',
+            'tugasluars.no_polisi',
+            'tugasluars.km_awal',
+            'tugasluars.km_akhir',
+            'tugasluars.km_selisih',
+            'tugasluars.km_standar',
+            'tugasluars.pengemudi_id',
+            'tugasluars.tempat_asal',
+            'tugasluars.tempat_tujuan',
+            'tugasluars.keterangan',
+            'tugasluars.pembagi',
+            'tugasluars.bbm',
+            'tugasluars.rate',
+            'tugasluars.nominal',
+            'tugasluars.millage_id',
+            'tugasluars.status',
+            'tugasluars.checked_by',
+            'tugasluars.checked_at',
+            'tugasluars.legalized_by',
+            'tugasluars.legalized_at',
+            'tugasluars.rejected_by',
+            'tugasluars.rejected_at',
+            'tugasluars.rejected_note',
+            'tugasluars.last_changed_by',
+            'tugasluars.last_changed_at',
+            'karyawans.nama as karyawan',
+            'departemens.nama as departemen',
+            'divisis.nama as divisi',
+            'p.nama_pengemudi',
+        );
+        $data->leftJoin('karyawans', 'tugasluars.karyawan_id', 'karyawans.id_karyawan')
+        ->leftJoinSub($getPengemudi, 'p', function (JoinClause $joinPengemudi) {
+            $joinPengemudi->on('tugasluars.pengemudi_id', 'p.id_pengemudi');
+        })
+        ->leftJoin('karyawan_posisi', 'tugasluars.karyawan_id', 'karyawan_posisi.karyawan_id')
+        ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+        ->leftJoin('departemens', 'tugasluars.departemen_id', 'departemens.id_departemen')
+        ->leftJoin('divisis', 'tugasluars.divisi_id', 'divisis.id_divisi');
+
+        if (isset($dataFilter['organisasi_id'])) {
+            $data->where('tugasluars.organisasi_id', $dataFilter['organisasi_id']);
+        }
+
+        if (isset($dataFilter['member_posisi_id'])) {
+            $data->whereIn('posisis.id_posisi', $dataFilter['member_posisi_id']);
+        }
+
+        if (isset($dataFilter['must_checked'])) {
+            $data->whereNull('tugasluars.checked_by');
+            $data->whereNull('tugasluars.rejected_by');
+        }
+
+        if (isset($dataFilter['must_legalized'])) {
+            $data->whereNotNull('tugasluars.checked_by')
+            ->whereNull('tugasluars.legalized_by')
+            ->whereNull('tugasluars.rejected_by');
+        }
+
+        if (isset($dataFilter['karyawan_id'])) {
+            $data->where('tugasluars.karyawan_id', $dataFilter['karyawan_id'])
+            ->whereNotNull('tugasluars.legalized_by')
+            ->whereNull('tugasluars.rejected_by')
+            ->where(function ($query) {
+                $query->where(function ($query) {
+                    $query->where('tugasluars.status', 'WAITING')
+                    ->whereNull('tugasluars.tanggal_pergi_aktual');
+                })->orWhere(function ($query) {
+                    $query->where('tugasluars.status', 'ONGOING')
+                        ->whereNull('tugasluars.tanggal_kembali_aktual');
+                });
+            });
+        }
+
+        $result = $data;
+        return $result;
+    }
+
+    public static function getDataMiddleware($dataFilter, $settings)
+    {
+        return self::_query($dataFilter)->offset($settings['start'])
+            ->limit($settings['limit'])
+            ->orderBy($settings['order'], $settings['dir'])
+            ->get();
+    }
+
+    public static function countDataMiddleware($dataFilter)
+    {
+        return self::_queryMiddleware($dataFilter)->get()->count();
     }
 }

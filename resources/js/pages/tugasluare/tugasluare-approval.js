@@ -43,6 +43,16 @@ $(function () {
             title: options.title
         });
     }
+
+    function updateApprovalNotification(){
+        $.ajax({
+            url: base_url + '/ajax/tugasluare/approval/notification',
+            method: 'GET',
+            success: function(response){
+                $('.notification-approval').html(response.data);
+            }
+        })
+    }
     // END LOADING & ALERT
 
     // DATATABLE
@@ -245,6 +255,7 @@ $(function () {
                 refreshTable();
                 closeReject();
                 loadingSwalClose();
+                updateApprovalNotification();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 loadingSwalClose();
@@ -281,6 +292,7 @@ $(function () {
                         showToast({ title: data.message });
                         refreshTable();
                         loadingSwalClose();
+                        updateApprovalNotification();
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
                         loadingSwalClose();
@@ -358,6 +370,7 @@ $(function () {
                         showToast({ title: data.message });
                         refreshTable();
                         loadingSwalClose();
+                        updateApprovalNotification();
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
                         loadingSwalClose();
@@ -385,6 +398,7 @@ $(function () {
                 refreshTable();
                 closeVerification();
                 loadingSwalClose();
+                updateApprovalNotification();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 loadingSwalClose();

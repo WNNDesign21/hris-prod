@@ -77,7 +77,7 @@ class ScanlogController extends Controller
                         $query->whereDate('scan_date', $startDate)
                             ->orWhereDate('scan_date', $endDate);
                     });
-                });
+                })->whereIn('verify', [1, 2, 3, 4, 6]);
 
                 if($scanlog->exists()){
                     $scanlog->delete();
@@ -207,7 +207,7 @@ class ScanlogController extends Controller
                 } elseif ($data->verify == '6') {
                     $nestedData['verify'] = '<i class="fas fa-user"></i> Vein';
                 } else {
-                    $nestedData['verify'] = '<i class="fas fa-times"></i> Kosong';
+                    $nestedData['verify'] = '<i class="fas fa-laugh-beam"></i> Face';
                 }
 
                 $nestedData['karyawan'] = $data->karyawan;

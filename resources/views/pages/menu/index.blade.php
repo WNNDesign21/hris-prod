@@ -144,12 +144,12 @@
                     <a href="{{ auth()->user()->hasRole('personalia') || auth()->user()->hasRole('security') ? route('tugasluare.approval') : route('tugasluare.pengajuan') }}"
                         class="box pull-up">
                         <div class="box-body position-relative">
-                            {{-- @if ($lembure['approval_lembur'] + $lembure['pengajuan_lembur'] + $lembure['review_lembur'] > 0)
+                            @if ($tugasluare['approval'] + $tugasluare['pengajuan'] > 0)
                                 <span class="position-absolute top-0 start-95 translate-middle badge bg-danger">
                                     <i class="ti-bell"></i>
-                                    {{ $lembure['approval_lembur'] + $lembure['pengajuan_lembur'] + $lembure['review_lembur'] }}
+                                    {{ $tugasluare['approval'] + $tugasluare['pengajuan'] }}
                                 </span>
-                            @endif --}}
+                            @endif
                             <div class="d-flex align-items-center">
                                 <div class="icon bg-primary-light rounded-circle w-60 h-60 text-center l-h-80">
                                     <span class="fs-30 icon-Marker"><span class="path1"></span><span

@@ -286,7 +286,7 @@ class PengajuanController extends Controller
                     if($data->jenis_keberangkatan == 'KTR'){
                         if($data->status == 'WAITING') {
                             $aksi = '
-                            <div class="btn-group"><button class="btn btn-sm btn-primary btnPergi" data-id-tugasluar="'.$data->id_tugasluar.'" data-kode-wilayah"'.($kode_wilayah ?? '').'" data-nomor-polisi"'.($nomor_polisi ?? '').'" data-seri-akhir"'.($seri_akhir ?? '').'"><i class="fas fa-running"></i>&nbsp;Pergi</button><button class="btn btn-sm btn-danger btnDelete" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-times"></i> Delete</button></div>
+                            <div class="btn-group"><button class="btn btn-sm btn-primary btnPergi" data-id-tugasluar="'.$data->id_tugasluar.'" data-kode-wilayah="'.($kode_wilayah ?? '').'" data-nomor-polisi="'.($nomor_polisi ?? '').'" data-seri-akhir="'.($seri_akhir ?? '').'" data-km="'.($data->km_awal ?? '').'"><i class="fas fa-running"></i>&nbsp;Pergi</button><button class="btn btn-sm btn-danger btnDelete" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-times"></i> Delete</button></div>
                             ';
                             if($data->km_awal) {
                                 $aksi = '
@@ -295,7 +295,7 @@ class PengajuanController extends Controller
                             };
                         } elseif ($data->status == 'ONGOING') {
                             $aksi = '
-                            <div class="btn-group"><button class="btn btn-sm btn-primary btnKembali" data-id-tugasluar="'.$data->id_tugasluar.'" data-kode-wilayah"'.($kode_wilayah ?? '').'" data-nomor-polisi"'.($nomor_polisi ?? '').'" data-seri-akhir"'.($seri_akhir ?? '').'"><i class="fas fa-running"></i>&nbsp;Pergi</button><button class="btn btn-sm btn-danger btnDelete" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-times"></i> Delete</button></div>
+                            <div class="btn-group"><button class="btn btn-sm btn-primary btnKembali" data-id-tugasluar="'.$data->id_tugasluar.'" data-kode-wilayah="'.($kode_wilayah ?? '').'" data-nomor-polisi="'.($nomor_polisi ?? '').'" data-seri-akhir="'.($seri_akhir ?? '').'" data-km="'.($data->km_awal ?? '').'"><i class="fas fa-home"></i>&nbsp;Kembali</button><button class="btn btn-sm btn-danger btnDelete" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-times"></i> Delete</button></div>
                             ';
 
                             if($data->km_akhir) {
@@ -307,11 +307,11 @@ class PengajuanController extends Controller
                     } else {
                         if($data->status == 'WAITING') {
                             $aksi = '
-                                <div class="btn-group"><button class="btn btn-sm btn-primary btnPergi" data-id-tugasluar="'.$data->id_tugasluar.'" data-kode-wilayah"'.($kode_wilayah ?? '').'" data-nomor-polisi"'.($nomor_polisi ?? '').'" data-seri-akhir"'.($seri_akhir ?? '').'"><i class="fas fa-running"></i>&nbsp;Pergi</button><button class="btn btn-sm btn-danger btnDelete" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-times"></i> Delete</button></div>
+                                <div class="btn-group"><button class="btn btn-sm btn-primary btnPergi" data-id-tugasluar="'.$data->id_tugasluar.'" data-kode-wilayah="'.($kode_wilayah ?? '').'" data-nomor-polisi="'.($nomor_polisi ?? '').'" data-seri-akhir="'.($seri_akhir ?? '').'" data-km="'.($data->km_awal ?? '').'"><i class="fas fa-running"></i>&nbsp;Pergi</button><button class="btn btn-sm btn-danger btnDelete" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-times"></i> Delete</button></div>
                             ';
                         } elseif ($data->status == 'ONGOING'){
                             $aksi = '
-                                <div class="btn-group"><button class="btn btn-sm btn-primary btnKembali" data-id-tugasluar="'.$data->id_tugasluar.'" data-kode-wilayah"'.($kode_wilayah ?? '').'" data-nomor-polisi"'.($nomor_polisi ?? '').'" data-seri-akhir"'.($seri_akhir ?? '').'"><i class="fas fa-running"></i>&nbsp;Pergi</button><button class="btn btn-sm btn-danger btnDelete" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-times"></i> Delete</button></div>
+                                <div class="btn-group"><button class="btn btn-sm btn-primary btnKembali" data-id-tugasluar="'.$data->id_tugasluar.'" data-kode-wilayah="'.($kode_wilayah ?? '').'" data-nomor-polisi="'.($nomor_polisi ?? '').'" data-seri-akhir="'.($seri_akhir ?? '').'" data-km="'.($data->km_awal ?? '').'"><i class="fas fa-home"></i>&nbsp;Kembali</button><button class="btn btn-sm btn-danger btnDelete" data-id-tugasluar="'.$data->id_tugasluar.'"><i class="fas fa-times"></i> Delete</button></div>
                             ';
                         }
                     }

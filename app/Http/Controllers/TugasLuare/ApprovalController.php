@@ -62,7 +62,6 @@ class ApprovalController extends Controller
 
         $is_can_checked = false;
         $is_can_legalized = false;
-        $is_can_known = false;
         $organisasi_id = auth()->user()->organisasi_id;
 
         // FILTER
@@ -70,11 +69,6 @@ class ApprovalController extends Controller
             $dataFilter['organisasi_id'] = $organisasi_id;
             $is_can_legalized = true;
         }
-
-        if(auth()->user()->hasRole('security')){
-            $dataFilter['organisasi_id'] = $organisasi_id;
-            $is_can_known = true;
-        } 
 
         if (auth()->user()->hasRole('atasan')){
             $posisi = auth()->user()->karyawan->posisi;
@@ -271,6 +265,11 @@ class ApprovalController extends Controller
                 return response()->json(['message' => 'Pengajuan TL sudah di Legalized, silahkan refresh halaman!'], 403);
             } elseif ($tugasluar->rejected_by) {
                 return response()->json(['message' => 'Pengajuan TL yang sudah di reject tidak dapat di Checked!'], 403);
+            }
+
+            if (!$tugasluar->checked_by) {
+                $tugasluar->checked_by = 'HRD & GA';
+                $tugasluar->checked_at = now();
             }
 
             $tugasluar->legalized_by = 'HRD & GA';

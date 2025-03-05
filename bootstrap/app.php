@@ -6,6 +6,7 @@ use App\Http\Middleware\IzineMiddleware;
 use App\Http\Middleware\PiketMiddleware;
 use App\Http\Middleware\LembureMiddleware;
 use Illuminate\Console\Scheduling\Schedule;
+use App\Http\Middleware\TugasluarMiddleware;
 use App\Http\Middleware\NotificationMiddleware;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -25,6 +26,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'lembure' => LembureMiddleware::class,
             'izine' => IzineMiddleware::class,
             'piket' => PiketMiddleware::class,
+            'tugasluare' => TugasluarMiddleware::class,
         ]);
     })
     ->withSchedule(function (Schedule $schedule) {

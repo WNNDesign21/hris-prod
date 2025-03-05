@@ -9,10 +9,12 @@ use App\Models\Sakite;
 use App\Models\Kontrak;
 use App\Models\Lembure;
 use App\Models\Karyawan;
+use App\Helpers\Approval;
 use App\Models\ApprovalCuti;
 use App\Models\DetailLembur;
 use Illuminate\Http\Request;
 use App\Models\SettingLembur;
+use App\Models\TugasLuare\TugasLuar;
 use App\Models\SettingLemburKaryawan;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
@@ -1289,5 +1291,67 @@ class HomeController extends Controller
         $spreadsheet->disconnectWorksheets();
         unset($spreadsheet);
         exit();
+    }
+
+    public function get_pengajuan_tugasluar_notification(){
+        $pengajuan = 0;
+        $organisasi_id = auth()->user()->organisasi_id;
+
+        // PENGAJUAN
+        if (auth()->user()->hasRole('atasan') || auth()->user()->hasRole('member')) {
+            $dataFilter['karyawan_id'] = auth()->user()->karyawan->id_karyawan;
+            $pengajuan = TugasLuar::countDataMiddleware($dataFilter);
+        }
+
+        $tugasluare = [
+            'pengajuan' => $pengajuan,
+        ];
+
+        $html = view('layouts.partials.notification-pengajuan-tugasluar')->with(compact('tugasluare'))->render();
+        return response()->json(['data' => $html], 200);
+    }
+
+    public function get_approval_tugasluar_notification(){
+        $approval = 0;
+        $organisasi_id = auth()->user()->organisasi_id;
+
+        // APPROVAL PERSONALIA
+        if (auth()->user()->hasRole('personalia')) {
+            $dataFilter['organisasi_id'] = $organisasi_id;
+            $dataFilter['must_legalized'] = true;
+            $approval = TugasLuar::countDataMiddleware($dataFilter);
+        } 
+        
+        // APPROVAL ATASAN
+        if (auth()->user()->hasRole('atasan')) {
+            $posisi = auth()->user()->karyawan->posisi;
+            $id_posisi_members = Approval::GetMemberPosisi($posisi);
+            $has_leader = Approval::HasLeader($posisi);
+            $has_section_head = Approval::HasSectionHead($posisi);
+            $has_department_head = Approval::HasDepartmentHead($posisi);
+
+            foreach ($posisi as $ps){
+                $index = array_search($ps->id_posisi, $id_posisi_members);
+                array_splice($id_posisi_members, $index, 1);
+            }
+
+            $dataFilter['member_posisi_id'] = $id_posisi_members;
+            if(auth()->user()->karyawan->posisi[0]->jabatan_id == 5) {
+                if (!$has_section_head && !$has_department_head) {
+                    $dataFilter['must_checked'] = true;
+                }
+            } else {
+                $dataFilter['must_checked'] = true;
+            }
+
+            $approval = TugasLuar::countDataMiddleware($dataFilter);
+        } 
+
+        $tugasluare = [
+            'approval' => $approval,
+        ];
+
+        $html = view('layouts.partials.notification-approval-tugasluar')->with(compact('tugasluare'))->render();
+        return response()->json(['data' => $html], 200);
     }
 }

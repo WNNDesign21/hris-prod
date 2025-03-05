@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers\Attendance;
 
+use Throwable;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use App\Models\Attendance\Device;
+use App\Models\Attendance\Scanlog;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance\AttendanceGps;
+use Illuminate\Support\Facades\Validator;
 
 class ApprovalController extends Controller
 {
@@ -96,11 +101,12 @@ class ApprovalController extends Controller
                 if ($data->scanlog_id) {
                     $formattedIsLegalized = '✅<br><small class="text-bold">HRD & GA</small><br><small class="text-fade">'.Carbon::parse($data->updated_at)->diffForHumans().'</small>';
                 } else {
-                    if($data->rejected_by){
-                        $formattedIsLegalized = '<span class="badge badge-danger mb-1">REJECTED</span><br><small class="text-fade">❌ HRD & GA - '.Carbon::parse($data->updated_at)->format('Y-m-d').'</small><br><small class="text-fade"> Note : '.$data->rejected_note.'</small>';
-                    } else {
-                        $formattedIsLegalized = '<div class="btn-group"><button class="btn btn-sm btn-success btnLegalized" data-id="'.$data->id_att_gps.'"><i class="fas fa-balance-scale"></i> Legalized</button><button type="button" class="btn btn-sm btn-danger waves-effect btnReject" data-id="'.$data->id_att_gps.'"><i class="far fa-times-circle"></i> Reject</button></div>';
-                    }
+                    $formattedIsLegalized = '<div class="btn-group"><button class="btn btn-sm btn-success btnLegalized" data-id="'.$data->id_att_gps.'"><i class="fas fa-balance-scale"></i> Legalized</button></div>';
+                    // if($data->rejected_by){
+                    //     $formattedIsLegalized = '<span class="badge badge-danger mb-1">REJECTED</span><br><small class="text-fade">❌ HRD & GA - '.Carbon::parse($data->updated_at)->format('Y-m-d').'</small><br><small class="text-fade"> Note : '.$data->rejected_note.'</small>';
+                    // } else {
+                    //     $formattedIsLegalized = '<div class="btn-group"><button class="btn btn-sm btn-success btnLegalized" data-id="'.$data->id_att_gps.'"><i class="fas fa-balance-scale"></i> Legalized</button><button type="button" class="btn btn-sm btn-danger waves-effect btnReject" data-id="'.$data->id_att_gps.'"><i class="far fa-times-circle"></i> Reject</button></div>';
+                    // }
                 }
 
 
@@ -130,51 +136,41 @@ class ApprovalController extends Controller
         return response()->json($json_data, 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function legalized(Request $request, string $id_att_gps)
     {
-        //
-    }
+        $att_gps = AttendanceGps::find($id_att_gps);
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        DB::beginTransaction();
+        try{
+            if ($att_gps->scanlog_id) {
+                return response()->json(['message' => 'Attendance sudah di legalized, silahkan refresh halaman!'], 403);
+            } elseif ($att_gps->rejected_by) {
+                return response()->json(['message' => 'Attendance yang sudah di reject tidak dapat di Legalized!'], 403);
+            }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+            $device = Device::where('organisasi_id', auth()->user()->organisasi_id)->first();
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
+            $scanlog = Scanlog::create([
+                'device_id' => $device->id_device,
+                'organisasi_id' => $att_gps->organisasi_id,
+                'pin' => $att_gps->pin,
+                'scan_date' => $att_gps->attendance_time,
+                'scan_status' => $att_gps->status == 'IN' ? '0' : '1',
+                'verify' => '5', // GPS
+                'start_date_scan' => $att_gps->attendance_date,
+                'end_date_scan' => $att_gps->attendance_date,
+                'created_at' => $att_gps->created_at,
+                'updated_at' => $att_gps->updated_at
+            ]);
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+            $att_gps->scanlog_id = $scanlog->id_scanlog;
+            $att_gps->save();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+            DB::commit();
+            return response()->json(['message' => 'TL berhasil di Legalized!'], 200);
+        } catch (Throwable $e) {
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 }

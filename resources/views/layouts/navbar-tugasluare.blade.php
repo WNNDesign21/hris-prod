@@ -7,34 +7,39 @@
                 <ul class="sidebar-menu" data-widget="tree">
                     <li class="header">TugasLuar-E Menu</li>
                     @if (auth()->user()->hasRole('atasan') || auth()->user()->hasRole('member'))
-                        <li class="{{ $page == 'tugasluare-pengajuan' ? 'active' : '' }}">
+                        <li class="{{ $page == 'tugasluare-pengajuan' ? 'active' : '' }} notification-pengajuan">
                             <a href="{{ route('tugasluare.pengajuan') }}">
                                 <i class="icon-Book"><span class="path1"></span><span class="path2"></span></i>
                                 <span>Pengajuan TL</span>
+                                @if ($tugasluare['pengajuan'] > 0)
+                                    <span class="pull-right-container"
+                                        style="right:10px!important; top:55%!important; margin-top:-13px!important;">
+                                        <div class="badge bg-danger m-0"
+                                            style="border-radius: 20%; line-height: normal; height:100%; width:100%;">
+                                            {{ $tugasluare['pengajuan'] }}
+                                        </div>
+                                    </span>
+                                @endif
                             </a>
                         </li>
-                        {{-- <li class="{{ $page == 'tugasluare-claim' ? 'active' : '' }}">
-                            <a href="{{ route('tugasluare.claim') }}">
-                                <i class="icon-Money"><span class="path1"></span><span class="path2"></span></i>
-                                <span>Claim TL</span>
-                            </a>
-                        </li> --}}
                     @endif
                     @if (auth()->user()->hasRole('atasan') || auth()->user()->hasRole('personalia') || auth()->user()->hasRole('security'))
-                        <li class="{{ $page == 'tugasluare-approval' ? 'active' : '' }}">
+                        <li class="{{ $page == 'tugasluare-approval' ? 'active' : '' }} notification-approval">
                             <a href="{{ route('tugasluare.approval') }}">
                                 <i class="icon-Double-check"><span class="path1"></span><span
                                         class="path2"></span></i>
                                 <span>Approval TL</span>
+                                @if ($tugasluare['approval'] > 0)
+                                    <span class="pull-right-container"
+                                        style="right:10px!important; top:55%!important; margin-top:-13px!important;">
+                                        <div class="badge bg-danger m-0"
+                                            style="border-radius: 20%; line-height: normal; height:100%; width:100%;">
+                                            {{ $tugasluare['approval'] }}
+                                        </div>
+                                    </span>
+                                @endif
                             </a>
                         </li>
-                        {{-- <li class="{{ $page == '#' ? 'active' : '' }}">
-                            <a href="{{ route('tugasluare.pengajuan') }}">
-                                <i class="icon-Double-check"><span class="path1"></span><span
-                                        class="path2"></span></i>
-                                <span>Approval Claim</span>
-                            </a>
-                        </li> --}}
                     @endif
                     {{-- CONTOH --}}
                     {{-- @if (auth()->user()->karyawan && ($lembure['is_leader'] || !$lembure['has_leader']))
