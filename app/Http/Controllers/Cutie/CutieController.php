@@ -1184,7 +1184,7 @@ class CutieController extends Controller
                 DB::rollback();
                 return response()->json(['message' => 'Approval cuti tidak ditemukan, hubungi HRD untuk informasi lebih lanjut!'], 402);
             }
-            
+
             $message = "Nama : *" . $karyawan->nama . "*\n" .
                     "Jenis Cuti : PRIBADI (BYPASS) \n" .
                     "Pembuat dokumen tetap harus melakukan approval \nSegera lakukan approval pada sistem.\n" .
@@ -2416,7 +2416,7 @@ class CutieController extends Controller
         ->rightJoin('setting_lembur_karyawans', 'karyawans.id_karyawan', 'setting_lembur_karyawans.karyawan_id');
 
         $organisasi_id = auth()->user()->organisasi_id;
-        $query->where('users.organisasi_id', $organisasi_id);
+        // $query->where('users.organisasi_id', $organisasi_id);
 
         if(!empty($id_posisi_members)){
             $query->whereIn('posisis.id_posisi', $id_posisi_members);

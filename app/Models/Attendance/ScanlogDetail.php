@@ -35,7 +35,7 @@ class ScanlogDetail extends Model
                         k_1.jam_keluar,
                         k_1.toleransi_waktu,
                         k_1.active_date,
-                        row_number() OVER (PARTITION BY s_1.pin, s_1.scan_date ORDER BY k_1.active_date DESC) AS rn,
+                        row_number() OVER (PARTITION BY s_1.pin, s_1.scan_date ORDER BY k_1.active_date, k_1.id DESC) AS rn,
                             CASE
                                 WHEN sg.jam_masuk <= sg.jam_keluar THEN
                                 CASE
