@@ -292,17 +292,15 @@ class ApprovalCuti extends Model
                 $approved_for = $has_division_head;
             }
     
-            $approval = self::create([
-                'cuti_id' => $cuti_id,
+            $approval = [
                 'checked1_for' => $checked1_for,
                 'checked2_for' => $checked2_for,
                 'approved_for' => $approved_for,
-            ]);
+            ];
 
             return $approval;
         } catch (Throwable $e){
-            DB::rollBack();
-            return response()->json($e->getMessage(), 500);
+            return [];
         }
     }
 }

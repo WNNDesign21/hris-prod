@@ -841,7 +841,13 @@ class HomeController extends Controller
         } elseif ($user->hasRole('atasan')){
             $me = auth()->user()->karyawan;
             $posisi = $user->karyawan->posisi;
-            $my_posisi = $posisi[0]->id_posisi;
+
+            if($posisi->count() > 1){
+                $my_posisi = $posisi->pluck('id_posisi')->toArray();
+            } else {
+                $my_posisi = [$posisi->first()->id_posisi];
+            }
+
             $id_posisi_members = $this->get_member_posisi($posisi);
 
             foreach ($posisi as $ps){
@@ -850,16 +856,17 @@ class HomeController extends Controller
             }
 
             $members = $id_posisi_members;
+
             //My Cuti
             $my_cutie = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari',[$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
-            ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
+            // ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
             ->where('status_dokumen', 'WAITING')
             ->where(function($query) {
                 $query->where('status_cuti', '!=', 'CANCELED')
                       ->orWhereNull('status_cuti');
             })
             ->where('cutis.karyawan_id', $me->id_karyawan)
-            ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
+            // ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
             ->get();
 
             // Notif Approval
@@ -873,13 +880,13 @@ class HomeController extends Controller
             })
             ->where(function($query) use ($my_posisi){
                 $query->where(function($query) use ($my_posisi){
-                    $query->where('approval_cutis.checked1_for', $my_posisi)
+                    $query->whereIn('approval_cutis.checked1_for', $my_posisi)
                         ->whereNull('approval_cutis.checked1_by');
                 })->orWhere(function($query) use ($my_posisi){
-                    $query->where('approval_cutis.checked2_for', $my_posisi)
+                    $query->whereIn('approval_cutis.checked2_for', $my_posisi)
                         ->whereNull('approval_cutis.checked2_by');
                 })->orWhere(function($query) use ($my_posisi){
-                    $query->where('approval_cutis.approved_for', $my_posisi)
+                    $query->whereIn('approval_cutis.approved_for', $my_posisi)
                         ->whereNull('approval_cutis.approved_by');
                 });
             })

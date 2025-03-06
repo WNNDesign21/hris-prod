@@ -1042,6 +1042,19 @@ class CutieController extends Controller
             ]);
 
             $approval_cuti = ApprovalCuti::storeApprovalCuti($cuti->id_cuti, $posisi);
+            
+            if (!empty($approval_cuti)) {
+                ApprovalCuti::create([
+                    'cuti_id' => $cuti->id_cuti,
+                    'checked1_for' => $approval_cuti['checked1_for'],
+                    'checked2_for' => $approval_cuti['checked2_for'],
+                    'approved_for' => $approval_cuti['approved_for'],
+                ]);
+            } else {
+                DB::rollback();
+                return response()->json(['message' => 'Approval cuti tidak ditemukan, hubungi HRD untuk informasi lebih lanjut!'], 402);
+            }
+
             $karyawan = Karyawan::find($karyawan_id);
             $message = "Nama : *" . $karyawan->nama . "*\n" .
                     "Jenis : " . $jenis_cuti . "\n" .
@@ -1159,6 +1172,19 @@ class CutieController extends Controller
             ]);
 
             $approval_cuti = ApprovalCuti::storeApprovalCuti($cuti->id_cuti, $posisi);
+            
+            if (!empty($approval_cuti)) {
+                ApprovalCuti::create([
+                    'cuti_id' => $cuti->id_cuti,
+                    'checked1_for' => $approval_cuti['checked1_for'],
+                    'checked2_for' => $approval_cuti['checked2_for'],
+                    'approved_for' => $approval_cuti['approved_for'],
+                ]);
+            } else {
+                DB::rollback();
+                return response()->json(['message' => 'Approval cuti tidak ditemukan, hubungi HRD untuk informasi lebih lanjut!'], 402);
+            }
+            
             $message = "Nama : *" . $karyawan->nama . "*\n" .
                     "Jenis Cuti : PRIBADI (BYPASS) \n" .
                     "Pembuat dokumen tetap harus melakukan approval \nSegera lakukan approval pada sistem.\n" .
