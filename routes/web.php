@@ -51,7 +51,7 @@ Route::get('/', function () {
 Route::group(['middleware' => ['auth']], function () {
     //Generate System
     // Route::get('/generate-lembur-harian', [LembureController::class, 'generate_lembur_harian']);
-    // Route::get('/generate_approval_cuti',[TestController::class, 'generate_approval_cuti']);
+    Route::get('/generate-approval-cuti',[TestController::class, 'generate_approval_cuti']);
     Route::post('/generate-qrcode', QrController::class);
     Route::delete('/delete-qrcode-img', DeleteQrImgController::class);
     Route::get('/upload-karyawan', [TestController::class, 'upload_karyawan_view']);
