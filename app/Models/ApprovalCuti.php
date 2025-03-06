@@ -298,8 +298,10 @@ class ApprovalCuti extends Model
                 'checked2_for' => $checked2_for,
                 'approved_for' => $approved_for,
             ]);
+
             return $approval;
         } catch (Throwable $e){
+            DB::rollBack();
             return response()->json($e->getMessage(), 500);
         }
     }

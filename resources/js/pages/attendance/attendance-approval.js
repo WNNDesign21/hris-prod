@@ -47,7 +47,7 @@ $(function () {
     var columnsTable = [
         { data: "nama" },
         { data: "departemen" },
-        { data: "divisi" },
+        { data: "tanggal" },
         { data: "tipe" },
         { data: "lokasi" },
         { data: "attachment" },
