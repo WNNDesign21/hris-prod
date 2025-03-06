@@ -21,15 +21,15 @@
                                             <input type="hidden" name="id_tugasluarVerif" id="id_tugasluarVerif"
                                                 class="form-control" required>
                                             <input type="text" name="kode_wilayahVerif" id="kode_wilayahVerif"
-                                                class="form-control" required>
+                                                placeholder="T" class="form-control" required>
                                         </div>
                                         <div class="col-6">
                                             <input type="text" name="nomor_polisiVerif" id="nomor_polisiVerif"
-                                                class="form-control" required>
+                                                placeholder="1234" class="form-control" required>
                                         </div>
                                         <div class="col-3">
                                             <input type="text" name="seri_akhirVerif" id="seri_akhirVerif"
-                                                class="form-control" required>
+                                                placeholder="TCF" class="form-control" required>
                                         </div>
                                     </div>
                                 </div>

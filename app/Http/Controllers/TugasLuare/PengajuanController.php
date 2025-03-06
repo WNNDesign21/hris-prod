@@ -128,6 +128,7 @@ class PengajuanController extends Controller
                 'ni_karyawan' => auth()->user()->karyawan->ni_karyawan,
                 'departemen_id' => $posisi->departemen_id,
                 'divisi_id' => $posisi->divisi_id,
+                'tanggal' => Carbon::now()->format('Y-m-d'),
                 'tanggal_pergi_planning' => $tanggal_pergi,
                 'tanggal_kembali_planning' => $tanggal_kembali,
                 'jenis_kendaraan' => $jenis_kendaraan,

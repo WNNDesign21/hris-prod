@@ -111,8 +111,8 @@ class ApprovalController extends Controller
 
 
                 $nestedData['nama'] = $data->karyawan;
-                $nestedData['departemen'] = $data->departemen;
-                $nestedData['divisi'] = $data->divisi;
+                $nestedData['departemen'] = $data->departemen ? $data->departemen : ($data->divisi ? $data->divisi : '-');
+                $nestedData['tanggal'] = Carbon::parse($data->tanggal)->format('Y-m-d H:i'). ' WIB';
                 $nestedData['tipe'] = $formattedType;
                 $nestedData['lokasi'] = $formattedLocation;
                 $nestedData['attachment'] = $formattedAttachment;

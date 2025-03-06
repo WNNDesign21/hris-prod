@@ -35,7 +35,7 @@
                                 <tr>
                                     <th>Nama</th>
                                     <th>Departemen</th>
-                                    <th>Divisi</th>
+                                    <th>Tanggal</th>
                                     <th>Tipe</th>
                                     <th>Lokasi</th>
                                     <th>Attachment</th>
