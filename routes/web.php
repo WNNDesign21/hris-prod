@@ -22,6 +22,7 @@ use App\Http\Controllers\MasterData\PosisiController;
 use App\Http\Controllers\Security\SecurityController;
 use App\Http\Controllers\Utils\DeleteQrImgController;
 use App\Http\Controllers\Attendance\ScanlogController;
+use App\Http\Controllers\Attendance\WebhookController;
 use App\Http\Controllers\MasterData\JabatanController;
 use App\Http\Controllers\MasterData\KontrakController;
 use App\Http\Controllers\Attendance\PresensiController;
@@ -34,10 +35,10 @@ use App\Http\Controllers\MasterData\DepartemenController;
 use App\Http\Controllers\MasterData\OrganisasiController;
 use App\Http\Controllers\StockOpname\StoReportController;
 use App\Http\Controllers\Attendance\AttendanceGpsController;
-use App\Http\Controllers\Attendance\ApprovalController as ATTApprovalController;
 use App\Http\Controllers\TugasLuare\AjaxController as TLAjaxController;
 use App\Http\Controllers\TugasLuare\ClaimController as TLClaimController;
 use App\Http\Controllers\TugasLuare\ApprovalController as TLApprovalController;
+use App\Http\Controllers\Attendance\ApprovalController as ATTApprovalController;
 use App\Http\Controllers\TugasLuare\PengajuanController as TLPengajuanController;
 use App\Http\Controllers\Attendance\DashboardController as AttendanceDashboardController;
 use App\Http\Controllers\TugasLuare\ApprovalClaimController as TLApprovalClaimController;
@@ -46,6 +47,9 @@ Auth::routes();
 Route::get('/', function () {
     return redirect('/login');
 });
+
+// WEBHOOK
+Route::post('/webhook/attendance/scanlog/{IdOrganisasi}', [WebhookController::class, 'get_att_tcf']);
 
 // HRIS
 Route::group(['middleware' => ['auth']], function () {
@@ -61,11 +65,6 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/rekap-presensi', [TestController::class, 'test_rekap_presensi']);
     Route::get('/test', [TestController::class, 'test']);
     Route::get('/nevergiveup/{date}/{hour}/{minute}/{type}', [TestController::class, 'nevergiveup']);
-
-    //WHATSAPP FONNTE
-    // Route::get('/send-whatsapp-message', [TestController::class, 'send_whatsapp_message']);
-    // Route::get('/fetch-whatsapp-group', [TestController::class, 'fetch_whatsapp_group']);
-    // Route::get('/get-whatsapp-group', [TestController::class, 'get_whatsapp_group']);
 
     //WHATSAPP API
     Route::get('/send-whatsapp', [TestController::class, 'send_whatsapp_message_v2']);

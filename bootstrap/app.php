@@ -28,6 +28,9 @@ return Application::configure(basePath: dirname(__DIR__))
             'piket' => PiketMiddleware::class,
             'tugasluare' => TugasluarMiddleware::class,
         ]);
+        $middleware->validateCsrfTokens(except: [
+            '/webhook/attendance/scanlog/*',
+        ]);
     })
     ->withSchedule(function (Schedule $schedule) {
         $schedule->command('cutie:update-status-completed')
