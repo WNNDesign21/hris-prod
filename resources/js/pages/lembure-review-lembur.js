@@ -90,10 +90,12 @@ $(function () {
                 var organisasi = $('#filterOrganisasi').val();
                 var departemen = $('#filterDepartemen').val();
                 var status = $('#filterStatus').val();
+                var periode = $('#filterPeriode').val();
 
                 dataFilter.departemen = departemen;
                 dataFilter.organisasi = organisasi;
                 dataFilter.status = status;
+                dataFilter.periode = periode;
             },
             dataSrc: function(response) {
                 totalRow = response.recordsFiltered;
@@ -344,6 +346,7 @@ $(function () {
     });
 
     $('.btnResetFilter').on("click", function (){
+        $('#filterPeriode').val('');
         $('#filterOrganisasi').val([]).trigger('change');
         $('#filterDepartemen').val([]).trigger('change');
         $('#filterStatus').val('PLANNING').trigger('change');

@@ -125,6 +125,14 @@ class Lembure extends Model
             });
         }
 
+        if (isset($dataFilter['month'])) {
+            $data->whereMonth('detail_lemburs.rencana_mulai_lembur', $dataFilter['month']);
+        }
+
+        if (isset($dataFilter['year'])) {
+            $data->whereYear('detail_lemburs.rencana_mulai_lembur', $dataFilter['year']);
+        }
+
         if(isset($dataFilter['organisasi_id'])){
             $data->where('detail_lemburs.organisasi_id', $dataFilter['organisasi_id']);
             if(auth()->user()->hasRole('personalia')){

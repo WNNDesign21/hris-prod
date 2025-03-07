@@ -470,6 +470,12 @@ class LembureController extends Controller
             }
         }
 
+        $filterPeriode = $request->periode;
+        if (!empty($filterPeriode)) {
+            $dataFilter['month'] = Carbon::createFromFormat('Y-m', $filterPeriode)->format('m');
+            $dataFilter['year'] = Carbon::createFromFormat('Y-m', $filterPeriode)->format('Y');
+        }
+
         $filterUrutan = $request->urutan;
         if (!empty($filterUrutan)) {
             $dataFilter['urutan'] = $filterUrutan;
@@ -779,6 +785,12 @@ class LembureController extends Controller
         $search = $request->input('search.value');
         if (!empty($search)) {
             $dataFilter['search'] = $search;
+        }
+
+        $filterPeriode = $request->urutan;
+        if (!empty($filterPeriode)) {
+            $dataFilter['month'] = Carbon::createFromFormat('Y-m', $filterPeriode)->format('m');
+            $dataFilter['year'] = Carbon::createFromFormat('Y-m', $filterPeriode)->format('Y');
         }
 
         $filterOrganisasi = $request->organisasi;

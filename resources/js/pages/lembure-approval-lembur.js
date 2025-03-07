@@ -141,6 +141,7 @@ $(function () {
                 var aksi = $('#filterAksi').val();
                 var status = $('#filterStatus').val();
                 var departemen = $('#filterDepartemen').val();
+                var periode = $('#filterPeriode').val();
 
                 dataFilter.urutan = urutan;
                 dataFilter.jenisHari = jenisHari;
@@ -148,6 +149,7 @@ $(function () {
                 dataFilter.status = status;
                 dataFilter.mustChecked = mustChecked;
                 dataFilter.departemen = departemen;
+                dataFilter.periode = periode;
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 if (jqXHR.responseJSON.data) {
@@ -1840,6 +1842,7 @@ $(function () {
     }
 
     $('.btnResetFilter').on('click', function(){
+        $('#filterPeriode').val('');
         $('#filterUrutan').val('');
         $('#filterDepartemen').val('');
         $('#filterJenisHari').val([]);

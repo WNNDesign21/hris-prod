@@ -586,6 +586,14 @@ class DetailLembur extends Model
             });
         }
 
+        if (isset($dataFilter['month'])) {
+            $data->whereMonth('detail_lemburs.rencana_mulai_lembur', $dataFilter['month']);
+        }
+
+        if (isset($dataFilter['year'])) {
+            $data->whereYear('detail_lemburs.rencana_mulai_lembur', $dataFilter['year']);
+        }
+
         if(isset($dataFilter['departemen'])){
             $data->whereIn('detail_lemburs.departemen_id', $dataFilter['departemen']);
         } 
