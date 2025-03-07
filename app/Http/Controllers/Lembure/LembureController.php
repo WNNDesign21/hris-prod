@@ -787,14 +787,14 @@ class LembureController extends Controller
             $dataFilter['search'] = $search;
         }
 
-        $filterPeriode = $request->urutan;
+        $filterPeriode = $request->periode;
         if (!empty($filterPeriode)) {
             $dataFilter['month'] = Carbon::createFromFormat('Y-m', $filterPeriode)->format('m');
             $dataFilter['year'] = Carbon::createFromFormat('Y-m', $filterPeriode)->format('Y');
         }
 
         $filterOrganisasi = $request->organisasi;
-        if ($filterOrganisasi) {
+        if (!empty($filterOrganisasi)) {
             $dataFilter['organisasi'] = $filterOrganisasi;
         }
 
