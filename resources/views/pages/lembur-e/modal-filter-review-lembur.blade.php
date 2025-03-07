@@ -12,6 +12,10 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="form-group">
+                                <label for="filterPeriode">PERIODE</label>
+                                <input type="month" class="form-control" id="filterPeriode" name="filterPeriode" />
+                            </div>
+                            <div class="form-group">
                                 <label for="filterDepartemen">DEPARTEMEN</label>
                                 <select name="filterDepartemen" id="filterDepartemen" class="form-control"
                                     style="width: 100%;" multiple>

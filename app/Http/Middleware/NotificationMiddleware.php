@@ -120,7 +120,7 @@ class NotificationMiddleware
 
             $agenda_lembur = DetailLembur::where('karyawan_id', auth()->user()->karyawan->id_karyawan)->whereHas('lembur', function ($query) {
                 $query->whereIn('status', ['WAITING', 'PLANNED']);
-            })->orderBy('rencana_mulai_lembur', 'ASC')->get();
+            })->orderBy('rencana_mulai_lembur', 'DESC')->get();
 
         } elseif (auth()->user()->hasRole('member')) {
             $me = auth()->user()->karyawan;
@@ -151,7 +151,7 @@ class NotificationMiddleware
 
             $agenda_lembur = DetailLembur::where('karyawan_id', auth()->user()->karyawan->id_karyawan)->whereHas('lembur', function ($query) {
                 $query->whereIn('status', ['WAITING', 'PLANNED']);
-            })->orderBy('rencana_mulai_lembur', 'ASC')->get();
+            })->orderBy('rencana_mulai_lembur', 'DESC')->get();
         }
 
         if (!auth()->user()->hasRole('security')) {
