@@ -36,6 +36,7 @@
                             <div class="form-group">
                                 <label for="filterStatus">STATUS</label>
                                 <select name="filterStatus" id="filterStatus" class="form-control" style="width: 100%;">
+                                    <option value="">Select Status</option>
                                     <option value="PLANNING">PLANNING</option>
                                     <option value="ACTUAL">ACTUAL</option>
                                 </select>
