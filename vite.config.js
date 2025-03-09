@@ -55,6 +55,7 @@ export default defineConfig({
                 'resources/js/pages/attendance/attendance-rekap.js',
                 'resources/js/pages/attendance/attendance-gps.js',
                 'resources/js/pages/attendance/attendance-approval.js',
+                'resources/js/pages/attendance/attendance-live.js',
                 'resources/js/pages/tugasluare/tugasluare-pengajuan.js',
                 'resources/js/pages/tugasluare/tugasluare-approval.js',
                 'resources/js/pages/security/index.js',
