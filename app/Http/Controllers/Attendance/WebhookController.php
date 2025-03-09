@@ -14,6 +14,7 @@ class WebhookController extends Controller
 {
     public function get_att_tcf(Request $request, string $organisasi_id)
     {
+        activity('webhook_attendance')->log('Request from ' . $request->ip());
         $body = $request->getContent();
 
         //Pengolahan ke Database
@@ -54,15 +55,15 @@ class WebhookController extends Controller
                 'created_at' => now(),
                 'updated_at' => now()
             ]);
+            activity('webhook_attendance')->log('Success: ' . $scanlog->pin);
             DB::commit();
+            $file = "attendance/karawang/attendance-" . Carbon::now()->format('Y-m-d_H-i-s') . ".txt";
+            Storage::append($file, $body);
+            return response()->json(['message' => 'OK'], 200);
         } catch (Throwable $e) {
             DB::rollback();
+            activity('webhook_attendance')->log('Error: ' . $e->getMessage());
+            return response()->json(['message' => 'Internal Server Error'], 500);
         }
-
-        //Simpan data ke File
-        $file = "attendance/karawang/attendance-" . Carbon::now()->format('Y-m-d_H-i-s') . ".txt";
-        Storage::append($file, $body);
-
-        return response()->json(['message' => 'OK'], 200);
     }
 }
