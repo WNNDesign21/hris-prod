@@ -143,7 +143,7 @@ $(function () {
                 }
             },
         },
-
+        scrollX: true,
         columns: columnsTable,
         columnDefs: [
             {

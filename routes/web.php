@@ -35,6 +35,7 @@ use App\Http\Controllers\MasterData\DepartemenController;
 use App\Http\Controllers\MasterData\OrganisasiController;
 use App\Http\Controllers\StockOpname\StoReportController;
 use App\Http\Controllers\Attendance\AttendanceGpsController;
+use App\Http\Controllers\Attendance\LiveAttendanceController;
 use App\Http\Controllers\TugasLuare\AjaxController as TLAjaxController;
 use App\Http\Controllers\TugasLuare\ClaimController as TLClaimController;
 use App\Http\Controllers\TugasLuare\ApprovalController as TLApprovalController;
@@ -49,7 +50,7 @@ Route::get('/', function () {
 });
 
 // WEBHOOK
-Route::post('/webhook/attendance/scanlog/{IdOrganisasi}', [WebhookController::class, 'get_att_tcf']);
+Route::post('/webhook/attendance/scanlog/{IdOrganisasi}', [WebhookController::class, 'get_att_tcf'])->withoutMiddleware(VerifyCsrfToken::class);
 
 // HRIS
 Route::group(['middleware' => ['auth']], function () {
@@ -136,6 +137,12 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/tugasluare/pengajuan/notification', [HomeController::class, 'get_pengajuan_tugasluar_notification'])->middleware('tugasluare');
         Route::get('/tugasluare/approval/notification', [HomeController::class, 'get_approval_tugasluar_notification'])->middleware('tugasluare');
     });
+
+    //LIVE ATTENDANCE
+    Route::get('/live-attendance', [LiveAttendanceController::class, 'index'])->name('attendance.live-attendance');
+    Route::get('/test-live-attendance', [LiveAttendanceController::class, 'test']);
+    Route::post('/get-live-attendance-chart', [LiveAttendanceController::class, 'get_live_attendance_chart']);
+    Route::post('/live-attendance/datatable', [LiveAttendanceController::class, 'datatable']);
 });
 
 
@@ -492,11 +499,11 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::post('/rekap/export-rekap', [RekapController::class, 'export_rekap'])->name('attendance.rekap.export-rekap');
         });
 
+        // GPS
         Route::get('/gps', [AttendanceGpsController::class, 'index'])->name('attendance.gps');
         Route::get('/gps/get-att-gps-list', [AttendanceGpsController::class, 'get_att_gps_list']);
         Route::post('/gps/datatable', [AttendanceGpsController::class, 'datatable']);
         Route::post('/gps/store', [AttendanceGpsController::class, 'store'])->name('attendance.gps.store');
-        // GPS
     });
 
     /** TUGASLUARE */

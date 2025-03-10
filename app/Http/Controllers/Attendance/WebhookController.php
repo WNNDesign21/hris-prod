@@ -14,24 +14,26 @@ class WebhookController extends Controller
 {
     public function get_att_tcf(Request $request, string $organisasi_id)
     {
-        activity('webhook_attendance')->log('Request from ' . $request->ip());
+        activity('webhook_attendance')->log('Hitting webhook');
         $body = $request->getContent();
 
         //Pengolahan ke Database
         $response = json_decode($body, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
+            activity('webhook_attendance')->log('Invalid JSON');
             return response()->json(['message' => 'Invalid JSON'], 400);
         }
         $cloudId = $response['cloud_id'];
         $device_id = Device::where('cloud_id', $cloudId)->pluck('id_device')->first();
         $data = $response['data'];
-        return response()->json(['message' => 'OK', 'data' => $data], 200);
 
         if (!$device_id) {
+            activity('webhook_attendance')->log('Device not found');
             return response()->json(['message' => 'Device not found'], 404);
         }
 
         if (empty($data)) {
+            activity('webhook_attendance')->log('Data not found');
             return response()->json(['message' => 'Data not found'], 404);
         }
 
