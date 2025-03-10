@@ -138,9 +138,10 @@ Route::group(['middleware' => ['auth']], function () {
         Route::get('/tugasluare/approval/notification', [HomeController::class, 'get_approval_tugasluar_notification'])->middleware('tugasluare');
     });
 
-    //DISPLAY
+    //LIVE ATTENDANCE
     Route::get('/live-attendance', [LiveAttendanceController::class, 'index'])->name('attendance.live-attendance');
     Route::get('/test-live-attendance', [LiveAttendanceController::class, 'test']);
+    Route::post('/get-live-attendance-chart', [LiveAttendanceController::class, 'get_live_attendance_chart']);
     Route::post('/live-attendance/datatable', [LiveAttendanceController::class, 'datatable']);
 });
 

@@ -6,6 +6,7 @@ use Throwable;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Attendance\Scanlog;
+use Illuminate\Support\Facades\DB;
 use App\Events\LiveAttendanceEvent;
 use App\Http\Controllers\Controller;
 
@@ -22,21 +23,25 @@ class LiveAttendanceController extends Controller
 
     public function test()
     {
+        DB::beginTransaction();
         try {
-            Scanlog::create([
-                'pin' => '261',
+            $organisasi_id = auth()->user()->organisasi_id;
+            $data = Scanlog::create([
+                'pin' => 'AGU-cltgv5ge6000es60ehsvxq6tu',
                 'scan_date' => now(),
                 'scan_status' => '1',
-                'verify' => '1',
-                'device_id' => 1,
-                'organisasi_id' => 1,
+                'verify' => '4',
+                'device_id' => 2,
+                'organisasi_id' => 2,
                 'start_date_scan' => date('Y-m-d'),
                 'end_date_scan' => date('Y-m-d'),
             ]);
 
-            LiveAttendanceEvent::dispatch(true);
-            return response()->json(['message' => 'Success'], 200);
+            LiveAttendanceEvent::dispatch(true, $organisasi_id);
+            DB::commit();
+            return response()->json(['message' => 'Success', 'data' => $data], 200);
         } catch (Throwable $th) {
+            DB::rollBack();
             return response()->json(['message' => $th->getMessage()], 500);
         }
     }
@@ -69,6 +74,8 @@ class LiveAttendanceController extends Controller
             $dataFilter['search'] = $search;
         }
 
+        $dataFilter['date'] = date('Y-m-d');
+
         $scanlogs = Scanlog::getData($dataFilter, $settings);
         $totalFiltered = Scanlog::countData($dataFilter);
 
@@ -76,24 +83,8 @@ class LiveAttendanceController extends Controller
 
         if (!empty($scanlogs)) {
             foreach ($scanlogs as $data) {
-                if ($data->verify == '1') {
-                    $nestedData['verify'] = '<i class="fas fa-fingerprint"></i> Finger';
-                } elseif ($data->verify == '2') {
-                    $nestedData['verify'] = '<i class="fas fa-unlock-alt"></i> Password';
-                } elseif ($data->verify == '3') {
-                    $nestedData['verify'] = '<i class="fas fa-id-card"></i> Card';
-                } elseif ($data->verify == '4') {
-                    $nestedData['verify'] = '<i class="fas fa-laugh-beam"></i> Face';
-                } elseif ($data->verify == '5') {
-                    $nestedData['verify'] = '<i class="fas fa-map-marker-alt"></i> GPS';
-                } elseif ($data->verify == '6') {
-                    $nestedData['verify'] = '<i class="fas fa-user"></i> Vein';
-                } else {
-                    $nestedData['verify'] = '<i class="fas fa-laugh-beam"></i> Face';
-                }
-
                 $nestedData['karyawan'] = $data->karyawan;
-                $nestedData['pin'] = $data->pin;
+                $nestedData['departemen'] = 'ICT';
                 $nestedData['scan_date'] = Carbon::parse($data->scan_date)->format('d M Y, H:i');
 
                 $dataTable[] = $nestedData;
@@ -111,5 +102,19 @@ class LiveAttendanceController extends Controller
         );
 
         return response()->json($json_data, 200);
+    }
+
+    public function get_live_attendance_chart(Request $request)
+    {
+        try {
+            $dataFilter['date'] = date('Y-m-d');
+            $dataFilter['organisasi_id'] = auth()->user()->organisasi_id;
+
+            $data = Scanlog::getLiveAttendanceChart($dataFilter);
+            return response()->json(['message' => 'Success', 'data' => $data], 200);
+        } catch (Throwable $th) {
+            return response()->json(['message' => $th->getMessage()], 500);
+        }
+        
     }
 }

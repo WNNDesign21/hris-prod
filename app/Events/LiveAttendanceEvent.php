@@ -14,13 +14,14 @@ class LiveAttendanceEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    protected $is_update;
+    protected $is_update, $organisasi_id;
     /**
      * Create a new event instance.
      */
-    public function __construct(bool $isUpdate)
+    public function __construct(bool $isUpdate, int $organisasiId)
     {
         $this->is_update = $isUpdate;
+        $this->organisasi_id = $organisasiId;
     }
 
     public function broadcastWith(): array
@@ -38,8 +39,8 @@ class LiveAttendanceEvent implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new Channel('live-attendance'),
-            // new PrivateChannel('channel-name'),
+            // new Channel('live-attendance'),
+            new PrivateChannel('live-attendance.' . $this->organisasi_id),
         ];
     }
 }

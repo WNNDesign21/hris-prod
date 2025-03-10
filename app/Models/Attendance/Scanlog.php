@@ -2,8 +2,9 @@
 
 namespace App\Models\Attendance;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Scanlog extends Model
 {
@@ -80,5 +81,42 @@ class Scanlog extends Model
     public static function countData($dataFilter)
     {
         return self::_query($dataFilter)->get()->count();
+    }
+
+    public static function getLiveAttendanceChart($dataFilter)
+    {
+        $totalKaryawan = DB::table('karyawans')
+            ->join('karyawan_posisi', 'karyawan_posisi.karyawan_id', 'karyawans.id_karyawan')
+            ->join('posisis', 'posisis.id_posisi', 'karyawan_posisi.posisi_id')
+            ->join('departemens', 'departemens.id_departemen', 'posisis.departemen_id')
+            ->where('karyawans.organisasi_id', $dataFilter['organisasi_id'])
+            ->whereNull('karyawans.deleted_at')
+            ->select('departemens.nama as departemen', DB::raw('COUNT(DISTINCT karyawans.pin) as total_karyawan'))
+            ->groupBy('departemens.nama')
+            ->get();
+
+        $karyawanHadir = self::select(
+            'departemens.nama as departemen',
+            DB::raw('COUNT(DISTINCT attendance_scanlogs.pin) as karyawan_hadir')
+        )
+            ->leftJoin('karyawans', 'karyawans.pin', 'attendance_scanlogs.pin')
+            ->leftJoin('karyawan_posisi', 'karyawan_posisi.karyawan_id', 'karyawans.id_karyawan')
+            ->leftJoin('posisis', 'posisis.id_posisi', 'karyawan_posisi.posisi_id')
+            ->leftJoin('departemens', 'departemens.id_departemen', 'posisis.departemen_id')
+            ->whereNull('departemens.deleted_at')
+            ->where('attendance_scanlogs.organisasi_id', $dataFilter['organisasi_id']);
+
+        if (isset($dataFilter['date'])) {
+            $karyawanHadir->whereDate('attendance_scanlogs.scan_date', $dataFilter['date']);
+        }
+
+        $karyawanHadir = $karyawanHadir->groupBy('departemens.nama')->get();
+
+        $result = $totalKaryawan->map(function ($item) use ($karyawanHadir) {
+            $hadir = $karyawanHadir->where('departemen', $item->departemen)->first();
+            $item->karyawan_hadir = $hadir ? $hadir->karyawan_hadir : 0;
+            return $item;
+        });
+        return $result;
     }
 }

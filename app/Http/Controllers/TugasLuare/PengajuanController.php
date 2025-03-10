@@ -44,7 +44,7 @@ class PengajuanController extends Controller
         if ($request->jenis_keberangkatan !== 'KTR') {
             $dataValidate = [
                 'jam_pergi' => ['required', 'date_format:H:i'],
-                'jam_kembali' => ['nullable', 'date_format:H:i'],
+                'jam_kembali' => ['required', 'date_format:H:i'],
                 'jenis_kendaraan' => ['required','in:MOTOR,MOBIL'],
                 'jenis_keberangkatan' => ['required','in:RMH,KTR,LNA'],
                 'jenis_kepemilikan' => ['required','in:OP,OJ,PR'],
@@ -79,7 +79,7 @@ class PengajuanController extends Controller
         } else {
             $dataValidate = [
                 'jam_pergi' => ['required', 'date_format:H:i'],
-                'jam_kembali' => ['nullable', 'date_format:H:i'],
+                'jam_kembali' => ['required', 'date_format:H:i'],
                 'jenis_kendaraan' => ['required','in:MOTOR,MOBIL'],
                 'jenis_kepemilikan' => ['required','in:OP,OJ,PR'],
                 'jenis_keberangkatan' => ['required','in:RMH,KTR,LNA'],
@@ -322,7 +322,7 @@ class PengajuanController extends Controller
                         <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" 
                             data-id-tugasluar="'.$data->id_tugasluar.'" 
                             data-jam-pergi="'.Carbon::createFromFormat('Y-m-d H:i:s', $data->tanggal_pergi_planning)->format('H:i').'" 
-                            data-jam-kembali="'.Carbon::createFromFormat('Y-m-d H:i:s', $data->tanggal_kembali_planning)->format('H:i').'" 
+                            data-jam-kembali="'.($data->tanggal_kembali_planning ? Carbon::createFromFormat('Y-m-d H:i:s', $data->tanggal_kembali_planning)->format('H:i') : '').'" 
                             data-jenis-kendaraan="'.$data->jenis_kendaraan.'" 
                             data-jenis-kepemilikan="'.$data->jenis_kepemilikan.'" 
                             data-jenis-keberangkatan="'.$data->jenis_keberangkatan.'" 

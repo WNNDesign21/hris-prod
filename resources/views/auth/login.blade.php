@@ -1,4 +1,4 @@
-@extends('layouts.guest-layout')
+@extends('layouts.login-layout')
 
 @section('content')
     <div class="content-top-agile pt-40 pb-20 px-20">
