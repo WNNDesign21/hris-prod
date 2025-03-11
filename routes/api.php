@@ -1,0 +1,7 @@
+<?php
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Attendance\WebhookController;
+
+Route::post('/webhook/attendance/scanlog/{IdOrganisasi}', [WebhookController::class, 'get_att_tcf']);

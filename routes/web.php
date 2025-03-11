@@ -49,9 +49,6 @@ Route::get('/', function () {
     return redirect('/login');
 });
 
-// WEBHOOK
-Route::post('/webhook/attendance/scanlog/{IdOrganisasi}', [WebhookController::class, 'get_att_tcf'])->withoutMiddleware(VerifyCsrfToken::class);
-
 // HRIS
 Route::group(['middleware' => ['auth']], function () {
     //Generate System
