@@ -326,7 +326,7 @@ class DetailLembur extends Model
         return $data;
     }
 
-    public static function getMonthlyLemburPerDepartemen($dataFilter)
+    public static function getMonthlyLemburPerDepartemenActual($dataFilter)
     {
         $organisasi_id = auth()->user()->organisasi_id;
         $subquery = self::selectRaw('
@@ -348,6 +348,10 @@ class DetailLembur extends Model
 
         if(auth()->user()->hasRole('personalia') || (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->organisasi_id) || auth()->user()->karyawan->posisi[0]->jabatan_id == 5)){
             $results->where('sub.organisasi_id', $organisasi_id);
+        } else {
+            if(isset($dataFilter['organisasi'])){
+                $results->whereIn('sub.organisasi_id', $dataFilter['organisasi']);
+            }
         }
 
         if(isset($dataFilter['tahun'])){
@@ -360,7 +364,76 @@ class DetailLembur extends Model
             $results->whereIn('sub.departemen_id', $dataFilter['departemen']);
         }
 
-        if(auth()->user()->hasRole('atasan') && (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id == 3 || auth()->user()->karyawan->posisi[0]->jabatan_id == 4))) {
+        if(auth()->user()->hasRole('atasan') && (auth()->user()->karyawan && ((auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && !auth()->user()->karyawan->posisi[0]->organisasi_id) || auth()->user()->karyawan->posisi[0]->jabatan_id == 3 || auth()->user()->karyawan->posisi[0]->jabatan_id == 4))) {
+            $posisi = auth()->user()->karyawan->posisi;
+            if($posisi[0]->jabatan_id == 3){
+                foreach($posisi as $p){
+                    if ($p->departemen_id !== null) {
+                        $departemen_id[] = $p->departemen_id;
+                    }
+                }
+                $results->whereIn('sub.departemen_id', $departemen_id);
+            } else {
+                $results->where('sub.departemen_id', auth()->user()->karyawan->posisi[0]->departemen_id);
+            }
+        }
+
+        $results->selectRaw('
+            SUM(CASE WHEN EXTRACT(MONTH FROM tanggal_lembur) = 1 THEN total_nominal_lembur ELSE 0 END) as januari,
+            SUM(CASE WHEN EXTRACT(MONTH FROM tanggal_lembur) = 2 THEN total_nominal_lembur ELSE 0 END) as februari,
+            SUM(CASE WHEN EXTRACT(MONTH FROM tanggal_lembur) = 3 THEN total_nominal_lembur ELSE 0 END) as maret,
+            SUM(CASE WHEN EXTRACT(MONTH FROM tanggal_lembur) = 4 THEN total_nominal_lembur ELSE 0 END) as april,
+            SUM(CASE WHEN EXTRACT(MONTH FROM tanggal_lembur) = 5 THEN total_nominal_lembur ELSE 0 END) as mei,
+            SUM(CASE WHEN EXTRACT(MONTH FROM tanggal_lembur) = 6 THEN total_nominal_lembur ELSE 0 END) as juni,
+            SUM(CASE WHEN EXTRACT(MONTH FROM tanggal_lembur) = 7 THEN total_nominal_lembur ELSE 0 END) as juli,
+            SUM(CASE WHEN EXTRACT(MONTH FROM tanggal_lembur) = 8 THEN total_nominal_lembur ELSE 0 END) as agustus,
+            SUM(CASE WHEN EXTRACT(MONTH FROM tanggal_lembur) = 9 THEN total_nominal_lembur ELSE 0 END) as september,
+            SUM(CASE WHEN EXTRACT(MONTH FROM tanggal_lembur) = 10 THEN total_nominal_lembur ELSE 0 END) as oktober,
+            SUM(CASE WHEN EXTRACT(MONTH FROM tanggal_lembur) = 11 THEN total_nominal_lembur ELSE 0 END) as november,
+            SUM(CASE WHEN EXTRACT(MONTH FROM tanggal_lembur) = 12 THEN total_nominal_lembur ELSE 0 END) as desember
+        ');
+
+        return $results->first();
+    }
+
+    public static function getMonthlyLemburPerDepartemenPlanning($dataFilter)
+    {
+        $organisasi_id = auth()->user()->organisasi_id;
+        $subquery = self::selectRaw('
+            detail_lemburs.organisasi_id,
+            detail_lemburs.departemen_id,
+            detail_lemburs.divisi_id,
+            DATE(detail_lemburs.aktual_mulai_lembur) AS tanggal_lembur,
+            SUM(detail_lemburs.nominal) AS total_nominal_lembur,
+            SUM(detail_lemburs.durasi) AS total_durasi_lembur
+        ')
+        ->leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
+        ->where('detail_lemburs.is_aktual_approved', 'Y')
+        ->whereNot('lemburs.status', 'REJECTED')
+        ->groupByRaw('detail_lemburs.organisasi_id, detail_lemburs.departemen_id, detail_lemburs.divisi_id, DATE(detail_lemburs.aktual_mulai_lembur)');
+
+        $results = DB::table(DB::raw("( {$subquery->toSql()} ) as sub"))
+            ->mergeBindings($subquery->getQuery());
+
+            if(auth()->user()->hasRole('personalia') || (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->organisasi_id) || auth()->user()->karyawan->posisi[0]->jabatan_id == 5)){
+                $results->where('sub.organisasi_id', $organisasi_id);
+            } else {
+                if(isset($dataFilter['organisasi'])){
+                    $results->whereIn('sub.organisasi_id', $dataFilter['organisasi']);
+                }
+            }
+
+        if(isset($dataFilter['tahun'])){
+            $results->whereYear('sub.tanggal_lembur', $dataFilter['tahun']);
+        } else {
+            $results->whereYear('sub.tanggal_lembur', date('Y'));
+        }
+
+        if(isset($dataFilter['departemen'])){
+            $results->whereIn('sub.departemen_id', $dataFilter['departemen']);
+        }
+
+        if(auth()->user()->hasRole('atasan') && (auth()->user()->karyawan && ((auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && !auth()->user()->karyawan->posisi[0]->organisasi_id) || auth()->user()->karyawan->posisi[0]->jabatan_id == 3 || auth()->user()->karyawan->posisi[0]->jabatan_id == 4))) {
             $posisi = auth()->user()->karyawan->posisi;
             if($posisi[0]->jabatan_id == 3){
                 foreach($posisi as $p){

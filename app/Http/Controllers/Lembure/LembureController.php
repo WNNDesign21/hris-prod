@@ -61,12 +61,15 @@ class LembureController extends Controller
             } else {
                 $departemens = Departemen::whereIn('divisi_id', $divisi_ids)->get();
             }
+
         }
+        $organisasis = Organisasi::all();
 
         $dataPage = [
             'pageTitle' => "Lembur-E - Dashboard",
             'page' => 'lembure-dashboard',
-            'departemens' => $departemens
+            'departemens' => $departemens,
+            'organisasis' => $organisasis
         ];
         return view('pages.lembur-e.index', $dataPage);
     }
@@ -3654,6 +3657,11 @@ class LembureController extends Controller
         try{
             $dataFilter = [];
 
+            $filterOrganisasi = $request->organisasi;
+            if(isset($filterOrganisasi)){
+                $dataFilter['organisasi'] = $filterOrganisasi;
+            }
+
             $filterDepartemen = $request->departemen;
             if(isset($filterDepartemen)){
                 $dataFilter['departemen'] = $filterDepartemen;
@@ -3664,10 +3672,11 @@ class LembureController extends Controller
                 $dataFilter['tahun'] = $filterTahun;
             }
 
-            $data = DetailLembur::getMonthlyLemburPerDepartemen($dataFilter);
+            $dataActual = DetailLembur::getMonthlyLemburPerDepartemenActual($dataFilter);
+            $dataPlanning = DetailLembur::getMonthlyLemburPerDepartemenPlanning($dataFilter);
             $batas = GajiDepartemen::getMonthlyNominalBatasAllDepartemen($dataFilter)->toArray();
 
-            return response()->json(['message' => 'Data Lembur Berhasil Ditemukan', 'data' => $data, 'batas' => $batas], 200);
+            return response()->json(['message' => 'Data Lembur Berhasil Ditemukan', 'dataActual' => $dataActual, 'dataPlanning' => $dataPlanning,  'batas' => $batas], 200);
         } catch (Throwable $e){
             return response()->json(['message' => $e->getMessage()], 500);
         }

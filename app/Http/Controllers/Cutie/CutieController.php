@@ -119,19 +119,17 @@ class CutieController extends Controller
         $columns = array(
             1 => 'rencana_mulai_cuti',
             2 => 'rencana_selesai_cuti',
-            3 => 'aktual_mulai_cuti',
-            4 => 'aktual_selesai_cuti',
-            5 => 'durasi_cuti',
-            6 => 'jenis_cuti',
-            7 => 'checked1_at',
-            8 => 'checked2_at',
-            9 => 'approved_at',
-            10 => 'legalize_at',
-            11 => 'status_dokumen',
-            12 => 'status_cuti',
-            13 => 'alasan_cuti',
-            14 => 'kp.nama_pengganti',
-            15 => 'created_at',
+            3 => 'durasi_cuti',
+            4 => 'jenis_cuti',
+            5 => 'checked1_at',
+            6 => 'checked2_at',
+            7 => 'approved_at',
+            8 => 'legalize_at',
+            9 => 'status_dokumen',
+            10 => 'status_cuti',
+            11 => 'alasan_cuti',
+            12 => 'kp.nama_pengganti',
+            13 => 'created_at',
         );
 
         $limit = $request->input('length');
@@ -253,8 +251,6 @@ class CutieController extends Controller
                 $nestedData['no'] = $data->id_cuti;
                 $nestedData['rencana_mulai_cuti'] = Carbon::parse($data->rencana_mulai_cuti)->format('d M Y');
                 $nestedData['rencana_selesai_cuti'] = Carbon::parse($data->rencana_selesai_cuti)->format('d M Y');
-                $nestedData['aktual_mulai_cuti'] = $data->aktual_mulai_cuti ? Carbon::parse($data->aktual_selesai_cuti)->format('d M Y') : '-';
-                $nestedData['aktual_selesai_cuti'] = $data->aktual_selesai_cuti ? Carbon::parse($data->aktual_selesai_cuti)->format('d M Y') : '-';
                 $nestedData['durasi'] = $data->durasi_cuti.' Hari';
                 $nestedData['jenis'] = $data->jenis_cuti !== 'KHUSUS' ? $data->jenis_cuti : $data->jenis_cuti.' <small class="text-fade">('.$data->jenis_cuti_khusus.')</small>';
                 $nestedData['checked_1'] = $rejected == null ? $btn_group_1 : $rejected;
@@ -266,7 +262,6 @@ class CutieController extends Controller
                 $nestedData['alasan'] = $data->alasan_cuti;
                 $nestedData['karyawan_pengganti'] = $data->nama_pengganti ? '<small class="text-bold">'.$data->nama_pengganti.'</small>' : '-';
                 $nestedData['created_at'] = Carbon::parse($data->created_at)->format('d M Y H:i:s');
-                $nestedData['attachment'] = $data->jenis_cuti !== 'SAKIT' ? 'No Attachment Needed' : '<a href="'.asset('storage/'.$data->attachment).'" target="_blank">Lihat</a>';
                 $nestedData['aksi'] = '
                 <div class="btn-group btn-group-sm">'.
                     ($data->status_cuti !== 'CANCELED' ? (date('Y-m-d') < $data->rencana_mulai_cuti && $data->rejected_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnCancel" data-id="'.$data->id_cuti.'"><i class="fas fa-history"></i> Cancel </button>' : '') : '').
@@ -301,19 +296,17 @@ class CutieController extends Controller
             1 => 'departemens.nama',
             2 => 'rencana_mulai_cuti',
             3 => 'rencana_selesai_cuti',
-            4 => 'aktual_mulai_cuti',
-            5 => 'aktual_selesai_cuti',
-            6 => 'durasi_cuti',
-            7 => 'jenis_cuti',
-            8 => 'checked1_at',
-            9 => 'checked2_at',
-            10 => 'approved_at',
-            11 => 'legalize_at',
-            12 => 'status_dokumen',
-            13 => 'status_cuti',
-            14 => 'alasan_cuti',
-            15 => 'kp.nama_pengganti',
-            16 => 'created_at',
+            4 => 'durasi_cuti',
+            5 => 'jenis_cuti',
+            6 => 'checked1_at',
+            7 => 'checked2_at',
+            8 => 'approved_at',
+            9 => 'legalize_at',
+            10 => 'status_dokumen',
+            11 => 'status_cuti',
+            12 => 'alasan_cuti',
+            13 => 'kp.nama_pengganti',
+            14 => 'created_at',
         );
 
         $totalData = ApprovalCuti::count();
@@ -583,8 +576,6 @@ class CutieController extends Controller
                 $nestedData['departemen'] = $data->nama_departemen;
                 $nestedData['rencana_mulai_cuti'] = Carbon::parse($data->rencana_mulai_cuti)->format('d M Y');
                 $nestedData['rencana_selesai_cuti'] = Carbon::parse($data->rencana_selesai_cuti)->format('d M Y');
-                $nestedData['aktual_mulai_cuti'] = $data->aktual_mulai_cuti ? Carbon::parse($data->aktual_selesai_cuti)->format('d M Y') : '-';
-                $nestedData['aktual_selesai_cuti'] = $data->aktual_selesai_cuti ? Carbon::parse($data->aktual_selesai_cuti)->format('d M Y') : '-';
                 $nestedData['durasi'] = $data->durasi_cuti.' Hari';
                 $nestedData['jenis'] = $data->jenis_cuti !== 'KHUSUS' ? $data->jenis_cuti : $data->jenis_cuti.' <small class="text-fade">('.$data->jenis_cuti_khusus.')</small>';
                 $nestedData['checked_1'] = $checked1_by;
@@ -596,7 +587,6 @@ class CutieController extends Controller
                 $nestedData['alasan'] = $data->alasan_cuti;
                 $nestedData['karyawan_pengganti'] = $karyawan_pengganti;
                 $nestedData['created_at'] = $created_at;
-                $nestedData['attachment'] = $data->jenis_cuti !== 'SAKIT' ? 'No Attachment Needed' : '<a href="'.asset('storage/'.$data->attachment).'" target="_blank">Lihat</a>';
                 $nestedData['aksi'] = '
                 <div class="btn-group btn-group-sm">'.
                     ($data->checked1_by == null || $data->checked2_by == null || $data->approved_by == null || $data->legalized_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id="'.$data->id_cuti.'"><i class="fas fa-edit"></i> Edit</button><button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button>' : '').'
@@ -630,19 +620,17 @@ class CutieController extends Controller
             1 => 'departemens.nama',
             2 => 'rencana_mulai_cuti',
             3 => 'rencana_selesai_cuti',
-            4 => 'aktual_mulai_cuti',
-            5 => 'aktual_selesai_cuti',
-            6 => 'durasi_cuti',
-            7 => 'jenis_cuti',
-            8 => 'checked1_at',
-            9 => 'checked2_at',
-            10 => 'approved_at',
-            11 => 'legalized_at',
-            12 => 'status_dokumen',
-            13 => 'status_cuti',
-            14 => 'alasan_cuti',
-            15 => 'kp.nama_pengganti',
-            16 => 'created_at',
+            4 => 'durasi_cuti',
+            5 => 'jenis_cuti',
+            6 => 'checked1_at',
+            7 => 'checked2_at',
+            8 => 'approved_at',
+            9 => 'legalized_at',
+            10 => 'status_dokumen',
+            11 => 'status_cuti',
+            12 => 'alasan_cuti',
+            13 => 'kp.nama_pengganti',
+            14 => 'created_at',
         );
 
         $totalData = Cutie::count();
@@ -792,8 +780,6 @@ class CutieController extends Controller
                 $nestedData['departemen'] = $data->nama_departemen;
                 $nestedData['rencana_mulai_cuti'] = Carbon::parse($data->rencana_mulai_cuti)->format('d M Y');
                 $nestedData['rencana_selesai_cuti'] = Carbon::parse($data->rencana_selesai_cuti)->format('d M Y');
-                $nestedData['aktual_mulai_cuti'] = $data->aktual_mulai_cuti ? Carbon::parse($data->aktual_selesai_cuti)->format('d M Y') : '-';
-                $nestedData['aktual_selesai_cuti'] = $data->aktual_selesai_cuti ? Carbon::parse($data->aktual_selesai_cuti)->format('d M Y') : '-';
                 $nestedData['durasi'] = $data->durasi_cuti.' Hari';
                 $nestedData['jenis'] = $data->jenis_cuti !== 'KHUSUS' ? $data->jenis_cuti : $data->jenis_cuti.' <small class="text-fade">('.$data->jenis_cuti_khusus.')</small>';
                 $nestedData['checked_1'] = $rejected == null ? $btn_group_1 : $rejected;
@@ -805,7 +791,6 @@ class CutieController extends Controller
                 $nestedData['created_at'] = Carbon::parse($data->created_at)->format('d M Y H:i:s');
                 $nestedData['alasan'] = $data->alasan_cuti;
                 $nestedData['karyawan_pengganti'] = $data->nama_pengganti ? '<small class="text-bold">'.$data->nama_pengganti.'</small>' : '-';
-                $nestedData['attachment'] = $data->jenis_cuti !== 'SAKIT' ? 'No Attachment Needed' : '<a href="'.asset('storage/'.$data->attachment).'" target="_blank">Lihat</a>';
                 $nestedData['aksi'] = $data->status_cuti !== 'CANCELED' && $data->status_dokumen !== 'REJECTED' ? '<div class="btn-group btn-group-sm">
                 <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button>
                 '.(date('Y-m-d') <= Carbon::parse($data->rencana_mulai_cuti)->addDays(7)->format('Y-m-d') ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnCancel" data-id="'.$data->id_cuti.'"><i class="fas fa-history"></i> Cancel </button>' : '').'
@@ -1841,16 +1826,25 @@ class CutieController extends Controller
                 ];
             }
         }
-        
+
         if($cutie){
             foreach ($cutie as $c) {
-                if($c->status_cuti == 'SCHEDULED'){
+                if(Carbon::now()->format('Y-m-d') < $c->rencana_mulai_cuti){
+                    $statusCuti = 'SCHEDULED';
                     $classname = 'bg-warning';
-                } elseif ($c->status_cuti == 'ON LEAVE'){
+                } 
+
+                if (Carbon::now()->between(Carbon::createFromFormat('Y-m-d', $c->rencana_mulai_cuti), Carbon::createFromFormat('Y-m-d', $c->rencana_selesai_cuti))) {
+                    $statusCuti = 'ON LEAVE';
                     $classname = 'bg-secondary';
-                } elseif ($c->status_cuti == 'COMPLETED'){
+                }
+                
+                if(Carbon::now()->format('Y-m-d') > $c->rencana_mulai_cuti){
+                    $statusCuti = 'COMPLETED';
                     $classname = 'bg-success';
-                } else {
+                } 
+
+                if ($c->status_dokumen == 'WAITING') {
                     $classname = 'bg-primary';
                 }
 
@@ -1866,10 +1860,8 @@ class CutieController extends Controller
                     'rencana_selesai_cuti' => Carbon::parse($c->rencana_selesai_cuti)->format('d M Y'),
                     'alasan_cuti' => $c->alasan_cuti,
                     'durasi_cuti' => $c->durasi_cuti.' Hari',
-                    'status_cuti' => !$c->status_cuti ? 'NEED APPROVE' : $c->status_cuti,
+                    'status_cuti' => !$c->status_cuti ? 'NEED APPROVE' : $statusCuti,
                     'attachment' => $c->attachment ? '<a href="'.asset('storage/'.$c->attachment).'" target="_blank">Lihat</a>' : 'No Attachment Needed',
-                    'aktual_mulai_cuti' => $c->aktual_mulai_cuti ? Carbon::parse($c->aktual_mulai_cuti)->format('d M Y') : '',
-                    'aktual_selesai_cuti' => $c->aktual_selesai_cuti ? Carbon::parse($c->aktual_selesai_cuti)->format('d M Y') : '',
                 ];
             }
         } 

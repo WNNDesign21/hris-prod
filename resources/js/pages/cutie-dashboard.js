@@ -112,8 +112,6 @@
                         let durasi_cuti = calEvent.durasi_cuti;
                         let rencana_mulai_cuti = calEvent.rencana_mulai_cuti;   
                         let rencana_selesai_cuti = calEvent.rencana_selesai_cuti;
-                        let aktual_mulai_cuti = calEvent.aktual_mulai_cuti;   
-                        let aktual_selesai_cuti = calEvent.aktual_selesai_cuti;
                         let karyawan_pengganti = calEvent.karyawan_pengganti;
                         let status_cuti = calEvent.status_cuti;
                         let attachment = calEvent.attachment;
@@ -123,7 +121,6 @@
                         $('#jenis_cuti').text(jenis_cuti);
                         $('#durasi_cuti').text(durasi_cuti);
                         $('#rencana_cuti').text(rencana_mulai_cuti + ' - ' + rencana_selesai_cuti);
-                        $('#aktual_cuti').text((aktual_mulai_cuti ? aktual_mulai_cuti : '') + ' - ' + (aktual_selesai_cuti ? aktual_selesai_cuti : ''));
                         $('#karyawan_pengganti').text(karyawan_pengganti);
                         $('#status_cuti').text(status_cuti);
                         $('#attachment').empty();
@@ -155,8 +152,8 @@
 function($) {
     "use strict";
     $.CalendarApp.init()
-    detailCutiChart();
-    jenisCutiMonthlyChart();
+    // detailCutiChart();
+    // jenisCutiMonthlyChart();
 	
     function detailCutiChart() {
         let url = base_url + '/cutie/dashboard-cuti/get-data-cuti-detail-chart';

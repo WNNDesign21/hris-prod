@@ -75,11 +75,16 @@ $(function () {
        dropdownParent: $('#modal-filter-monthly')
     });
 
+    $('#filterOrganisasiMonthly').select2({
+       dropdownParent: $('#modal-filter-monthly')
+    });
+
     $('#filterTahunMonthly').select2({
        dropdownParent: $('#modal-filter-monthly')
     });
 
     $('.btnResetFilterMonthly').on('click', function() {
+        $('#filterOrganisasiMonthly').val('').trigger('change');
         $('#filterDepartemenMonthly').val('').trigger('change');
         $('#filterTahunMonthly').val(new Date().getFullYear()).trigger('change');
     });
@@ -93,23 +98,33 @@ $(function () {
             dataType: 'json',
             data: {
                 departemen: $('#filterDepartemenMonthly').val(),
+                organisasi: $('#filterOrganisasiMonthly').val(),
                 tahun: $('#filterTahunMonthly').val()
             },
             success: function(response) {
               loadingSwalClose();
-                let data = response.data;
+                let dataActual = response.dataActual;
+                let dataPlanning = response.dataPlanning;
                 let batas = response.batas;
                 var series = [];
-                const colors = ['#007bff', '#28a745', '#dc3545', '#ffc107', '#17a2b8', '#6f42c1', '#fd7e14', '#20c997', '#e83e8c', '#6610f2', '#fdc500', '#6c757d'];
-                let colorIndex = 0;
 
-                const monthlyData = [data.januari, data.februari, data.maret, data.april, data.mei, data.juni, data.juli, data.agustus, data.september, data.oktober, data.november, data.desember];   
-                const departmentSeries = {
-                    name: 'Nominal Lembur',
-                    data: monthlyData,
+                const monthlyDataActual = [dataActual.januari, dataActual.februari, dataActual.maret, dataActual.april, dataActual.mei, dataActual.juni, dataActual.juli, dataActual.agustus, dataActual.september, dataActual.oktober, dataActual.november, dataActual.desember];   
+                const departmentSeriesActual = {
+                    name: 'Nominal Lembur Aktual',
+                    data: monthlyDataActual,
                     color: '#007bff', 
                 };
-                series.push(departmentSeries);
+                series.push(departmentSeriesActual);
+
+                const monthlyDataPlanning = [dataPlanning.januari, dataPlanning.februari, dataPlanning.maret, dataPlanning.april, dataPlanning.mei, dataPlanning.juni, dataPlanning.juli, dataPlanning.agustus, dataPlanning.september, dataPlanning.oktober, dataPlanning.november, dataPlanning.desember];   
+                const departmentSeriesPlanning = {
+                    name: 'Nominal Lembur Planning',
+                    data: monthlyDataPlanning,
+                    color: '#ffc107', 
+                };
+                series.push(departmentSeriesPlanning);
+
+                console.log(series)
 
                 let target = [];
                 if(batas){
@@ -156,23 +171,31 @@ $(function () {
             method: 'POST',
             dataType: 'json',
             data: {
+                organisasi: $('#filterOrganisasiMonthly').val(),
                 departemen: $('#filterDepartemenMonthly').val(),
                 tahun: $('#filterTahunMonthly').val()
             },
             success: function(response) {
-                let data = response.data;
+                let dataActual = response.dataActual;
+                let dataPlanning = response.dataPlanning;
                 let batas = response.batas;
                 var series = [];
-                const colors = ['#007bff', '#28a745', '#dc3545', '#ffc107', '#17a2b8', '#6f42c1', '#fd7e14', '#20c997', '#e83e8c', '#6610f2', '#fdc500', '#6c757d'];
-                let colorIndex = 0;
 
-                const monthlyData = [data.januari, data.februari, data.maret, data.april, data.mei, data.juni, data.juli, data.agustus, data.september, data.oktober, data.november, data.desember];   
-                const departmentSeries = {
-                    name: 'Nominal Lembur',
-                    data: monthlyData,
-                    color: '#007bff', 
+                const monthlyDataActual = [dataActual.januari, dataActual.februari, dataActual.maret, dataActual.april, dataActual.mei, dataActual.juni, dataActual.juli, dataActual.agustus, dataActual.september, dataActual.oktober, dataActual.november, dataActual.desember];   
+                const departmentSeriesActual = {
+                  name: 'Nominal Lembur Actual',
+                  data: monthlyDataActual,
+                  color: '#007bff', 
                 };
-                series.push(departmentSeries);
+                series.push(departmentSeriesActual);
+
+                const monthlyDataPlanning = [dataPlanning.januari, dataPlanning.februari, dataPlanning.maret, dataPlanning.april, dataPlanning.mei, dataPlanning.juni, dataPlanning.juli, dataPlanning.agustus, dataPlanning.september, dataPlanning.oktober, dataPlanning.november, dataPlanning.desember];   
+                const departmentSeriesPlanning = {
+                  name: 'Nominal Lembur Planning',
+                  data: monthlyDataPlanning,
+                  color: '#ffc107', 
+                };
+                series.push(departmentSeriesPlanning);
 
                 let target = [];
                 if(batas){

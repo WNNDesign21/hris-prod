@@ -11,6 +11,16 @@
                 <div class="form-group">
                     <div class="row">
                         <div class="col-12">
+                            <div class="form-group">
+                                <label for="filterOrganisasiMonthly">Organisasi</label>
+                                <select name="filterOrganisasiMonthly" id="filterOrganisasiMonthly" class="form-control"
+                                    style="width: 100%;" multiple>
+                                    @foreach ($organisasis as $item)
+                                        <option value="{{ $item->id_organisasi }}"
+                                            data-departemen="{{ $item->nama }}">{{ $item->nama }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
                             @if (auth()->user()->hasRole('personalia'))
                                 <div class="form-group">
                                     <label for="filterDepartemenMonthly">DEPARTEMEN</label>
