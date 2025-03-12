@@ -15,10 +15,8 @@
                         <h5 id="jenis_cuti"></h5>
                         <label for="" class="text-fade">Durasi</label>
                         <h5 id="durasi_cuti"></h5>
-                        <label for="" class="text-fade">Rencana Event</label>
+                        <label for="" class="text-fade">Tanggal</label>
                         <h5 id="rencana_cuti"></h5>
-                        <label for="" class="text-fade">Aktual Event</label>
-                        <h5 id="aktual_cuti"></h5>
                     </div>
                     <div class="col-lg-6 col-12">
                         <label for="" class="text-fade">Karyawan Pengganti (Cuti)</label>

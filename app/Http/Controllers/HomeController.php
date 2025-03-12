@@ -133,7 +133,14 @@ class HomeController extends Controller
                 ];
             }
 
-            $agenda_lembur = DetailLembur::where('karyawan_id', auth()->user()->karyawan->id_karyawan)->whereHas('lembur')->orderBy('rencana_mulai_lembur', 'DESC')->get();
+            $agenda_lembur = DetailLembur::where('karyawan_id', auth()->user()->karyawan->id_karyawan)
+                ->whereHas('lembur')
+                ->whereBetween('rencana_mulai_lembur', [
+                    Carbon::now()->subMonth()->startOfMonth()->toDateString(),
+                    Carbon::now()->endOfMonth()->toDateString()
+                ])
+                ->orderBy('rencana_mulai_lembur', 'DESC')
+                ->get();
             if($agenda_lembur){
                 foreach ($agenda_lembur as $item){
 

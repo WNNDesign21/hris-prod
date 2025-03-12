@@ -69,8 +69,6 @@ $(function () {
         { data: "departemen" },
         { data: "rencana_mulai_cuti" },
         { data: "rencana_selesai_cuti" },
-        { data: "aktual_mulai_cuti" },
-        { data: "aktual_selesai_cuti" },
         { data: "durasi" },
         { data: "jenis" },
         { data: "checked_1" },
@@ -82,7 +80,6 @@ $(function () {
         { data: "alasan" },
         { data: "karyawan_pengganti" },
         { data: "created_at" },
-        { data: "attachment" },
     ];
 
     var cutieTable = $("#member-table").DataTable({

@@ -1,5 +1,5 @@
 <div class="modal fade" id="modal-agenda-lembur">
-    <div class="modal-dialog modal-xl" role="document">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title p-4">Agenda Lembur</h4>

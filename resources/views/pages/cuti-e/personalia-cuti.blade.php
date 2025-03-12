@@ -34,8 +34,6 @@
                                     <th>Departemen</th>
                                     <th>Rencana Mulai</th>
                                     <th>Rencana Selesai</th>
-                                    <th>Aktual Mulai</th>
-                                    <th>Aktual Selesai</th>
                                     <th>Durasi</th>
                                     <th>Jenis</th>
                                     <th>Checked 1</th>
@@ -47,7 +45,6 @@
                                     <th>Alasan</th>
                                     <th>Karyawan Pengganti</th>
                                     <th>Created At</th>
-                                    <th>Attachment</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>
