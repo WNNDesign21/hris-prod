@@ -222,9 +222,11 @@ $(function () {
         });
     }
 
-    const organisasiId = authUser.organisasi_id;
+    // PUSHER
+    const organisasiId = authOrg;
     window.Echo.private(`live-attendance.${organisasiId}`)
     .listen('LiveAttendanceEvent', (e) => {
+        console.log('websocket connected!');
         updateLiveAttendanceChart();
         refreshTable();
     });

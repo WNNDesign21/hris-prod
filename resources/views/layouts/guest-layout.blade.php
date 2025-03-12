@@ -39,7 +39,7 @@
     <script src="{{ asset('assets/vendor_components/apexcharts-bundle-new/dist/apexcharts.js') }}"></script>
 
     <script>
-        let authUser = @json(auth()->user());
+        const authOrg = {{ auth()->user()->organisasi_id }};
         let base_url = window.location.origin;
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
         var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
