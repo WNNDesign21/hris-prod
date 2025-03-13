@@ -59,7 +59,7 @@ $(function () {
         search: {
             return: true,
         },
-        order: [[0, "DESC"]],
+        order: [[2, "DESC"]],
         processing: true,
         serverSide: true,
         ajax: {

@@ -119,7 +119,7 @@ class RekapController extends Controller
             $sheet->getColumnDimension($column)->setAutoSize(true);
         }
         $sheet->setAutoFilter('A1:K1');
-        $hari_kerja = Carbon::parse($start)->diffInWeekDays(Carbon::parse($end)) + 1;
+        $hari_kerja = 21;
         
         try {
 
