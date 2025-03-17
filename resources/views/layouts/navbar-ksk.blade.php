@@ -1,0 +1,51 @@
+<aside class="main-sidebar">
+    <!-- sidebar-->
+    <section class="sidebar position-relative">
+        <div class="multinav">
+            <div class="multinav-scroll" style="height: 100%;">
+                <!-- sidebar menu-->
+                <ul class="sidebar-menu" data-widget="tree">
+                    <li class="header">KSK-E Menu</li>
+                    @if (auth()->user()->hasRole('personalia'))
+                        <li class="{{ $page == 'ksk-release' ? 'active' : '' }} notification-release">
+                            <a href="{{ route('ksk.release') }}">
+                                <i class="icon-Book"><span class="path1"></span><span class="path2"></span></i>
+                                <span>Release KSK</span>
+                                {{-- <span class="pull-right-container"
+                                    style="right:10px!important; top:55%!important; margin-top:-13px!important;">
+                                    <div class="badge bg-danger m-0"
+                                        style="border-radius: 20%; line-height: normal; height:100%; width:100%;">
+                                    </div>
+                                </span> --}}
+                            </a>
+                        </li>
+                    @endif
+                    @if (auth()->user()->hasRole('atasan') || auth()->user()->hasRole('personalia'))
+                        <li class="{{ $page == 'ksk-approval' ? 'active' : '' }} notification-approval">
+                            <a href="{{ route('ksk.approval') }}">
+                                <i class="icon-Double-check"><span class="path1"></span><span
+                                        class="path2"></span></i>
+                                <span>Approval KSK</span>
+                                {{-- <span class="pull-right-container"
+                                    style="right:10px!important; top:55%!important; margin-top:-13px!important;">
+                                    <div class="badge bg-danger m-0"
+                                        style="border-radius: 20%; line-height: normal; height:100%; width:100%;">
+                                    </div>
+                                </span> --}}
+                            </a>
+                        </li>
+                    @endif
+                </ul>
+            </div>
+        </div>
+    </section>
+    <div class="sidebar-footer d-flex justify-content-center">
+        <a href="{{ route('logout') }}"
+            onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="link"
+            data-bs-toggle="tooltip" title="Logout"><span class="icon-Lock-overturning"><span
+                    class="path1"></span><span class="path2"></span></span></a>
+        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+            @csrf
+        </form>
+    </div>
+</aside>

@@ -291,6 +291,14 @@
     @if ($page == 'tugasluare-approval')
         @vite(['resources/js/pages/tugasluare/tugasluare-approval.js'])
     @endif
+
+    @if ($page == 'ksk-approval')
+        @vite(['resources/js/pages/ksk/ksk-approval.js'])
+    @endif
+
+    @if ($page == 'ksk-release')
+        @vite(['resources/js/pages/ksk/ksk-release.js'])
+    @endif
 </body>
 
 </html>

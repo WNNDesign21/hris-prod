@@ -31,7 +31,7 @@ class ApprovalController extends Controller
         $columns = array(
             0 => 'karyawans.nama',
             1 => 'departemens.nama',
-            2 => 'divisis.nama',
+            2 => 'attendance_gps.attendance_time',
             3 => 'attendance_gps.type',
             4 => 'attendance_gps.latitude',
             5 => 'attendance_gps.attachment',
@@ -112,7 +112,7 @@ class ApprovalController extends Controller
 
                 $nestedData['nama'] = $data->karyawan;
                 $nestedData['departemen'] = $data->departemen ? $data->departemen : ($data->divisi ? $data->divisi : '-');
-                $nestedData['tanggal'] = Carbon::parse($data->tanggal)->format('Y-m-d H:i'). ' WIB';
+                $nestedData['tanggal'] = Carbon::parse($data->attendance_time)->format('Y-m-d H:i'). ' WIB';
                 $nestedData['tipe'] = $formattedType;
                 $nestedData['lokasi'] = $formattedLocation;
                 $nestedData['attachment'] = $formattedAttachment;

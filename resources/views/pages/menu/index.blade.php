@@ -165,6 +165,34 @@
                         </div>
                     </a>
                 </div>
+
+
+                {{-- CARD KSK SYSTEM --}}
+                {{-- <div class="col-lg-6 col-12">
+                    <a href="{{ auth()->user()->hasRole('personalia') ? route('ksk.approval') : route('ksk.release') }}"
+                        class="box pull-up">
+                        <div class="box-body position-relative">
+                            @if ($tugasluare['approval'] + $tugasluare['pengajuan'] > 0)
+                                <span class="position-absolute top-0 start-95 translate-middle badge bg-danger">
+                                    <i class="ti-bell"></i>
+                                    {{ $tugasluare['approval'] + $tugasluare['pengajuan'] }}
+                                </span>
+                            @endif
+                            <div class="d-flex align-items-center">
+                                <div class="icon bg-primary-light rounded-circle w-60 h-60 text-center l-h-80">
+                                    <span class="fs-30 icon-File"><span class="path1"></span><span
+                                            class="path2"></span><span class="path3"></span><span
+                                            class="path4"></span></span>
+                                </div>
+                                <div class="ms-15">
+                                    <h5 class="mb-0">KSK-E</h5>
+                                    <p class="text-fade fs-12 mb-0">Sistem Pengisian KSK Digital
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div> --}}
             </div>
         </div>
     </div>
