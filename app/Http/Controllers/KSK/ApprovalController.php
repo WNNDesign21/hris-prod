@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\TugasLuare;
+namespace App\Http\Controllers\KSK;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-class ClaimController extends Controller
+class ApprovalController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -13,10 +13,10 @@ class ClaimController extends Controller
     public function index()
     {
         $dataPage = [
-            'pageTitle' => "TugasLuar-E - Claim TL",
-            'page' => 'tugasluare-claim',
+            'pageTitle' => "KSK-E - Approval KSK",
+            'page' => 'ksk-approval',
         ];
-        return view('pages.tugasluar-e.claim.index', $dataPage);
+        return view('pages.ksk-e.approval.index', $dataPage);
     }
 
     /**

@@ -45,7 +45,6 @@
                                     <th>Alasan</th>
                                     <th>Karyawan Pengganti</th>
                                     <th>Created At</th>
-                                    <th>Attachment</th>
                                 </tr>
                             </thead>
                             <tbody></tbody>

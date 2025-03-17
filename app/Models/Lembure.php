@@ -112,7 +112,7 @@ class Lembure extends Model
             ->leftJoin('departemens', 'lemburs.departemen_id', 'departemens.id_departemen')
             ->leftJoin('divisis', 'lemburs.divisi_id', 'divisis.id_divisi')
             ->rightJoin('detail_lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
-            ->leftJoin('karyawan_posisi', 'detail_lemburs.karyawan_id', 'karyawan_posisi.karyawan_id')
+            ->leftJoin('karyawan_posisi', 'lemburs.issued_by', 'karyawan_posisi.karyawan_id')
             ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi');
         
         if (isset($dataFilter['search'])) {

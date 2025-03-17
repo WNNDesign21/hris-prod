@@ -1,18 +1,22 @@
 <?php
 
-namespace App\Http\Controllers\TugasLuare;
+namespace App\Http\Controllers\KSK;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
-class ApprovalClaimController extends Controller
+class ReleaseController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        //
+        $dataPage = [
+            'pageTitle' => "KSK-E - Release KSK",
+            'page' => 'ksk-release',
+        ];
+        return view('pages.ksk-e.release.index', $dataPage);
     }
 
     /**
