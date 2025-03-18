@@ -38,9 +38,17 @@
                             </a>
                         </li>
                     @endif
-                    @if (auth()->user()->karyawan &&
-                            (auth()->user()->karyawan->posisi[0]->jabatan_id <= 3 ||
-                                (auth()->user()->karyawan->posisi[0]->jabatan_id == 4 && !$lembure['has_dept_head'])))
+                    {{-- @if (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id <= 3 || (auth()->user()->karyawan->posisi[0]->jabatan_id == 4 && !$lembure['has_dept_head'])))
+                        <li class="{{ $page == 'lembure-bypass-lembur' ? 'active' : '' }}">
+                            <a href="{{ route('lembure.bypass-lembur') }}">
+                                <i class="icon-Thunder1"><span class="path1"></span><span class="path2"></span></i>
+                                <span>Bypass Lembur</span>
+                            </a>
+                        </li>
+                    @endif --}}
+                    @if (auth()->user()->hasRole('atasan') &&
+                            auth()->user()->karyawan->posisi[0]->jabatan_id == 2 &&
+                            auth()->user()->karyawan->posisi[0]->divisi_id == 3)
                         <li class="{{ $page == 'lembure-bypass-lembur' ? 'active' : '' }}">
                             <a href="{{ route('lembure.bypass-lembur') }}">
                                 <i class="icon-Thunder1"><span class="path1"></span><span class="path2"></span></i>

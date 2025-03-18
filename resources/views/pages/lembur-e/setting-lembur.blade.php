@@ -26,6 +26,14 @@
                         id="form-setting-lembur">
                         @csrf
                         @method('PATCH')
+                        {{-- BATAS PENGAJUAN LEMBUR --}}
+                        <div class="row">
+                            <div class="col-lg-3 col-12 p-4">
+                                <h4>Batas Pengajuan Lembur <span class="text-danger">*</span></h4>
+                                <input type="time" class="form-control" name="batas_pengajuan_lembur"
+                                    id="batas_pengajuan_lembur" value="{{ $setting_lembur['batas_pengajuan_lembur'] }}">
+                            </div>
+                        </div>
                         {{-- PEMBAGI UPAH LEMBUR --}}
                         <div class="row">
                             <div class="col-lg-3 col-12 p-4">
@@ -114,7 +122,8 @@
                                             <div class="form-group">
                                                 <label for="">Start (Jumat)</label>
                                                 <input type="time" name="jam_istirahat_mulai_jumat"
-                                                    id="jam_istirahat_mulai_jumat" class="form-control" style="width: 100%;"
+                                                    id="jam_istirahat_mulai_jumat" class="form-control"
+                                                    style="width: 100%;"
                                                     value="{{ $setting_lembur['jam_istirahat_mulai_jumat'] }}">
 
                                             </div>
