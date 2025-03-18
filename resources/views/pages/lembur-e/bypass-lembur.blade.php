@@ -28,7 +28,11 @@
                         <div class="row">
                             <div class="col-lg-6">
                                 <div class="form-group">
-                                    <label for="issued_by">Issued By</label>
+                                    <label for="issued_by">Penanggung Jawab</label>
+                                    <br>
+                                    <small class="text-fade">Note : Pilih Leader dari karyawan yang akan lembur, namun jika
+                                        member tersebut
+                                        tidak memiliki leader, maka langsung masukkan nama karyawan yang lemburnya</small>
                                     <select name="issued_by" id="issued_by" class="form-control" style="width: 100%;"
                                         required>
                                         <option value="">PILIH ISSUED BY</option>
@@ -48,7 +52,7 @@
                                 </div>
                                 <div class="form-group">
                                     <button type="button" class="btn btn-success waves-effect btnAddDetailLembur"><i
-                                            class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Detail</button>
+                                            class="fas fa-plus"></i>&nbsp;&nbsp;Tambah Karyawan Lembur</button>
                                 </div>
                             </div>
                         </div>
