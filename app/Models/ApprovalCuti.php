@@ -23,8 +23,8 @@ class ApprovalCuti extends Model
 
     protected $fillable = [
         'cuti_id',
-        'checked1_for', 'checked1_by', 'checked1_karyawan_id', 
-        'checked2_for', 'checked2_by','checked2_karyawan_id', 
+        'checked1_for', 'checked1_by', 'checked1_karyawan_id',
+        'checked2_for', 'checked2_by','checked2_karyawan_id',
         'approved_for', 'approved_by', 'approved_karyawan_id'
     ];
 
@@ -89,7 +89,7 @@ class ApprovalCuti extends Model
         ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
         ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
         ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen');
-        
+
         if (isset($dataFilter['organisasi_id'])) {
             $data->where('cutis.organisasi_id', $dataFilter['organisasi_id']);
         }
@@ -153,7 +153,7 @@ class ApprovalCuti extends Model
             $data->whereYear('rencana_mulai_cuti', Carbon::parse($dataFilter['rencanaMulai'])->year)
                 ->whereMonth('rencana_mulai_cuti', Carbon::parse($dataFilter['rencanaMulai'])->month);
         }
-        
+
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
             $data->where(function ($query) use ($search) {
@@ -180,14 +180,14 @@ class ApprovalCuti extends Model
         }
 
         if(auth()->user()->hasRole('personalia')){
-            $data->orderByRaw("CASE 
+            $data->orderByRaw("CASE
                 WHEN cutis.approved_by IS NOT NULL AND cutis.legalized_by IS NULL THEN 0
                 ELSE 1
             END");
         }
 
         if(auth()->user()->hasRole('atasan')){
-            $data->orderByRaw("CASE 
+            $data->orderByRaw("CASE
                 WHEN approval_cutis.checked1_by IS NULL AND cutis.legalized_by IS NULL AND (cutis.status_cuti IS NULL OR cutis.status_cuti != 'CANCELED') AND cutis.status_dokumen != 'REJECTED' THEN 0
                 WHEN approval_cutis.checked2_by IS NULL AND cutis.legalized_by IS NULL AND (cutis.status_cuti IS NULL OR cutis.status_cuti != 'CANCELED') AND cutis.status_dokumen != 'REJECTED' THEN 1
                 WHEN approval_cutis.approved_by IS NULL AND cutis.legalized_by IS NULL AND (cutis.status_cuti IS NULL OR cutis.status_cuti != 'CANCELED') AND cutis.status_dokumen != 'REJECTED' THEN 2
@@ -224,60 +224,60 @@ class ApprovalCuti extends Model
             $has_department_head = $list_atasan['department_head'] ?? null;
             $has_division_head = $list_atasan['division_head'] ?? null;
             $has_director = $list_atasan['director'] ?? null;
-    
+
             $checked1_for = null;
             $checked2_for = null;
             $approved_for = null;
-    
+
             //KONDISI 1 (PUNYA SEMUA)
             if($has_leader && $has_section_head && $has_department_head){
                 $checked1_for = $has_leader;
                 $checked2_for = $has_section_head;
                 $approved_for = $has_department_head;
             }
-    
+
             //KONDISI 2 (HANYA PUNYA LEADER & SECTION HEAD)
             if($has_leader && $has_section_head && !$has_department_head){
                 $checked1_for = $has_leader;
                 $checked2_for = $has_section_head;
                 $approved_for = $has_section_head;
             }
-    
+
             //KONDISI 3 (HANYA PUNYA LEADER DAN DEPARTMENT HEAD)
             if($has_leader && !$has_section_head && $has_department_head){
                 $checked1_for = $has_leader;
                 $checked2_for = $has_department_head;
                 $approved_for = $has_department_head;
             }
-    
+
             //KONDISI 4 (HANYA PUNYA DEPARTMENT HEAD)
             if(!$has_leader && !$has_section_head && $has_department_head){
                 $checked1_for = $has_department_head;
                 $checked2_for = $has_department_head;
                 $approved_for = $has_department_head;
             }
-            
+
             //KONDISI 5 (HANYA PUNYA SECTION HEAD)
             if(!$has_leader && $has_section_head && !$has_department_head){
                 $checked1_for = $has_section_head;
                 $checked2_for = $has_section_head;
                 $approved_for = $has_section_head;
             }
-    
+
             //KONDISI 6 (HANYA PUNYA SECTION HEAD DAN DEPARTMENT HEAD)
             if(!$has_leader && $has_section_head && $has_department_head){
                 $checked1_for = $has_section_head;
                 $checked2_for = $has_section_head;
                 $approved_for = $has_department_head;
             }
-    
+
             //KONDISI 7 (HANYA PUNYA DIVISION HEAD)
             if(!$has_leader && !$has_section_head && !$has_department_head){
                 $checked1_for = $has_division_head;
                 $checked2_for = $has_division_head;
-                $approved_for = $has_division_head;
+                $approved_for = $has_director;
             }
-    
+
             //KONDISI 8 (HANYA PUNYA DIRECTOR)
             if(!$has_leader && !$has_section_head && !$has_department_head && $my_jabatan == 2){
                 $checked1_for = $has_director;
@@ -291,7 +291,7 @@ class ApprovalCuti extends Model
                 $checked2_for = $has_division_head;
                 $approved_for = $has_division_head;
             }
-    
+
             $approval = [
                 'checked1_for' => $checked1_for,
                 'checked2_for' => $checked2_for,
