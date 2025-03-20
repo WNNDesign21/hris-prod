@@ -370,6 +370,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::get('/review-lembur', [LembureController::class, 'review_lembur_view'])->name('lembure.review-lembur');
             Route::post('/review-lembur-datatable', [LembureController::class, 'review_lembur_datatable']);
             Route::patch('/review-lembur/reviewed', [LembureController::class, 'reviewed'])->name('lembure.review-lembur.reviewed');
+            Route::patch('/review-lembur/rejected/{idDetailLembur}', [LembureController::class, 'review_lembur_rejected'])->name('lembure.review-lembur.rejected');
         });
 
         Route::group(['middleware' => ['role:personalia']], function () {

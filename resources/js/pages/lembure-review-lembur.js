@@ -7,6 +7,12 @@ $(function () {
 
     $.fn.modal.Constructor.prototype._enforceFocus = function () {};
 
+    let departemenId;
+    let divisiId;
+    let organisasiId;
+    let tanggalLembur;
+    let status;
+
     // ALERT & LOADING
     let loadingSwal;
     function loadingSwalShow() {
@@ -28,7 +34,7 @@ $(function () {
             toast: true,
             position: "top-end",
             showConfirmButton: false,
-            timer: 3000, 
+            timer: 3000,
             timerProgressBar: true,
             didOpen: (toast) => {
             toast.onmouseenter = Swal.stopTimer;
@@ -56,10 +62,10 @@ $(function () {
     let totalRow = 0;
     let selectedRow = [];
     var columnsTable = [
-        { 
-            data: "checkbox", 
-            orderable: false, 
-            searchable: false, 
+        {
+            data: "checkbox",
+            orderable: false,
+            searchable: false,
             render: function (data, type, row, meta) {
                 return '<input type="checkbox" class="row-checkbox" style="opacity: 1!important; position:relative!important; left:0px!important;" value="' + data + '">';
             },
@@ -142,7 +148,7 @@ $(function () {
         columns: columnsTable,
         scrollX: true,
         columnDefs: [
-            
+
         ],
     })
 
@@ -150,7 +156,7 @@ $(function () {
     $('#unchecked-all').on('click', function() {
         var rows = reviewTable.rows({ 'search': 'applied' }).nodes();
         $('input[type="checkbox"]', rows).prop('checked', false).trigger('change');
-        
+
         selectedRow = [];
         $('#select-all').prop('checked', false).prop('indeterminate', false);
     });
@@ -222,7 +228,7 @@ $(function () {
         document.getElementById("modal-detail-review-lembur"),
         modalDetailReviewLemburOptions
     );
-    
+
     function openDetail() {
         modalDetailReviewLembur.show();
     }
@@ -231,15 +237,33 @@ $(function () {
         modalDetailReviewLembur.hide();
     }
 
+    var modalRejectOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalReject = new bootstrap.Modal(
+        document.getElementById("modal-reject"),
+        modalRejectOptions
+    );
+
+    function openReject() {
+        modalReject.show();
+    }
+
+    function closeReject() {
+        modalReject.hide();
+    }
+
     $('#review-table').on('click', '.btnDetail', function() {
         loadingSwalShow();
         let departemenId = $(this).data('departemen-id');
         let divisiId = $(this).data('divisi-id');
         let organisasiId = $(this).data('organisasi-id');
         let tanggalLembur = $(this).data('tanggal-lembur');
+        let status = $(this).data('status');
         let departemen = $(this).data('departemen');
         let organisasi = $(this).data('organisasi');
-        let status = $(this).data('status');
         let url = base_url + '/lembure/review-lembur/get-review-lembur-detail'
         $.ajax({
             url: url,
@@ -263,14 +287,21 @@ $(function () {
                     $.each(data, function (i, val){
                         tbody.append(`
                             <tr>
-                                <td>${val.lembur_id}</td>    
-                                <td>${val.karyawan}</td>    
-                                <td>${val.deskripsi_pekerjaan}</td>    
-                                <td>${val.tanggal_mulai}</td>    
-                                <td>${val.tanggal_selesai}</td>    
-                                <td>${val.keterangan ?? ''}</td>    
-                                <td>${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(val.nominal)}</td>   
-                            </tr> 
+                                <td>
+                                    ${status == 'PLANNING' ? `<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id-detail-lembur="${val.id_detail_lembur}" data-departemen-id="${departemenId}" data-divisi-id="${divisiId}" data-organisasi-id="${organisasiId}" data-tanggal-lembur="${tanggalLembur}" data-status="${status}">
+                                        <i class="far fa-times-circle"></i> Cancel
+                                    </button>` : '-'}
+                                </td>
+                                <td>${val.lembur_id}</td>
+                                <td>${val.karyawan}</td>
+                                <td>${val.deskripsi_pekerjaan}</td>
+                                <td>${moment(val.tanggal_mulai).format('D MMM YYYY HH:mm')}</td>
+                                <td>${moment(val.tanggal_selesai).format('D MMM YYYY HH:mm')}</td>
+                                <td>${val.keterangan ?? ''}</td>
+                                <td>${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(val.nominal)}</td>
+                                <td>${status == 'PLANNING' ? '✅<br><small class="text-bold">' + val.plan_checked_by + '</small><br><small class="text-fade">' + moment(val.plan_checked_at).format('D MMM YYYY HH:mm') + '</small>' : '✅<br><small class="text-bold">' + val.actual_checked_by + '</small><br><small class="text-fade">' + moment(val.actual_checked_at).format('D MMM YYYY HH:mm') + '</small>'}</td>
+                                <td>${status == 'PLANNING' ? '✅<br><small class="text-bold">' + val.plan_approved_by + '</small><br><small class="text-fade">' + moment(val.plan_approved_at).format('D MMM YYYY HH:mm') + '</small>' : '✅<br><small class="text-bold">' + val.actual_approved_by + '</small><br><small class="text-fade">' + moment(val.actual_approved_at).format('D MMM YYYY HH:mm') + '</small>'}</td>
+                            </tr>
                         `);
                     });
                 }
@@ -285,6 +316,98 @@ $(function () {
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
             }
         })
+    });
+
+    $('#detail-review-table').on("click", '.btnReject', function () {
+        departemenId = $(this).data('departemen-id');
+        divisiId = $(this).data('divisi-id');
+        organisasiId = $(this).data('organisasi-id');
+        tanggalLembur = $(this).data('tanggal-lembur');
+        status = $(this).data('status');
+        let idDetailLembur = $(this).data('id-detail-lembur');
+        let url = base_url + '/lembure/review-lembur/rejected/' + idDetailLembur;
+        $('#form-reject').attr('action', url);
+        openReject();
+    })
+
+    $('#form-reject').on('submit', function (e){
+        loadingSwalShow();
+        e.preventDefault();
+        let url = $('#form-reject').attr('action');
+        var formData = new FormData($('#form-reject')[0]);
+
+        $.ajax({
+            url: url,
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (data) {
+                $('#rejected_note').val('');
+                showToast({ title: data.message });
+                refreshTable();
+                closeReject();
+                loadingSwalClose();
+
+                $('#detail-review-table').DataTable().destroy();
+                let url = base_url + '/lembure/review-lembur/get-review-lembur-detail'
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    dataType: 'json',
+                    data: {
+                        departemen_id: departemenId,
+                        divisi_id: divisiId,
+                        organisasi_id: organisasiId,
+                        tanggal_lembur: tanggalLembur,
+                        status: status
+                    },
+                    success: function(response){
+                        let data = response.data;
+                        let tbody = $('#detailReviewContent').empty();
+                        if (data.length > 0) {
+                            $.each(data, function (i, val){
+                                tbody.append(`
+                                    <tr>
+                                        <td>
+                                            ${status == 'PLANNING' ? `<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id-detail-lembur="${val.id_detail_lembur}" data-departemen-id="${departemenId}" data-divisi-id="${divisiId}" data-organisasi-id="${organisasiId}" data-tanggal-lembur="${tanggalLembur}" data-status="${status}">
+                                                <i class="far fa-times-circle"></i> Cancel
+                                            </button>` : '-'}
+                                        </td>
+                                        <td>${val.lembur_id}</td>
+                                        <td>${val.karyawan}</td>
+                                        <td>${val.deskripsi_pekerjaan}</td>
+                                        <td>${moment(val.tanggal_mulai).format('D MMM YYYY HH:mm')}</td>
+                                        <td>${moment(val.tanggal_selesai).format('D MMM YYYY HH:mm')}</td>
+                                        <td>${val.keterangan ?? ''}</td>
+                                        <td>${new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(val.nominal)}</td>
+                                        <td>${status == 'PLANNING' ? '✅<br><small class="text-bold">' + val.plan_checked_by + '</small><br><small class="text-fade">' + moment(val.plan_checked_at).format('D MMM YYYY HH:mm') + '</small>' : '✅<br><small class="text-bold">' + val.actual_checked_by + '</small><br><small class="text-fade">' + moment(val.actual_checked_at).format('D MMM YYYY HH:mm') + '</small>'}</td>
+                                        <td>${status == 'PLANNING' ? '✅<br><small class="text-bold">' + val.plan_approved_by + '</small><br><small class="text-fade">' + moment(val.plan_approved_at).format('D MMM YYYY HH:mm') + '</small>' : '✅<br><small class="text-bold">' + val.actual_approved_by + '</small><br><small class="text-fade">' + moment(val.actual_approved_at).format('D MMM YYYY HH:mm') + '</small>'}</td>
+                                    </tr>
+                                `);
+                            });
+                            $('#detail-review-table').DataTable({
+                                order: [[0, 'asc']]
+                            });
+                        } else {
+                            closeDetail();
+                        }
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                    }
+                })
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        })
+    });
+
+    $('.btnRejectClose').on('click', function (){
+        closeReject();
     });
 
     $('#accept').on('click', function (){
@@ -366,7 +489,7 @@ $(function () {
         document.getElementById("modal-filter-review-lembur"),
         modalFilterReviewLemburOptions
     );
-    
+
     function openFilter() {
         modalFilterReviewLembur.show();
     }
