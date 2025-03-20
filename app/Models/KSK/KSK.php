@@ -18,7 +18,7 @@ class KSK extends Model
     protected $table = 'ksk';
     protected $primaryKey = 'id_ksk';
     public $incrementing = false;
-    
+
     protected $fillable = [
         'id_ksk',
         'organisasi_id',
@@ -39,6 +39,9 @@ class KSK extends Model
         'reviewed_div_by_id',
         'reviewed_div_by',
         'reviewed_div_at',
+        'reviewed_ph_by_id',
+        'reviewed_ph_by',
+        'reviewed_ph_at',
         'reviewed_dir_by_id',
         'reviewed_dir_by',
         'reviewed_dir_at',
@@ -69,5 +72,74 @@ class KSK extends Model
     public function changeHistoryKSK()
     {
         return $this->hasMany(ChangeHistoryKSK::class, 'ksk_detail_id', 'id_ksk_detail');
+    }
+
+    private static function _query($dataFilter)
+    {
+
+        $data = self::select(
+            'ksk.id_ksk',
+            'ksk.organisasi_id',
+            'ksk.divisi_id',
+            'ksk.nama_divisi',
+            'ksk.departemen_id',
+            'ksk.nama_departemen',
+            'ksk.release_date',
+            'ksk.released_by_id',
+            'ksk.released_by',
+            'ksk.released_at',
+            'ksk.checked_by_id',
+            'ksk.checked_by',
+            'ksk.checked_at',
+            'ksk.approved_by_id',
+            'ksk.approved_by',
+            'ksk.approved_at',
+            'ksk.reviewed_div_by_id',
+            'ksk.reviewed_div_by',
+            'ksk.reviewed_div_at',
+            'ksk.reviewed_ph_by_id',
+            'ksk.reviewed_ph_by',
+            'ksk.reviewed_ph_at',
+            'ksk.reviewed_dir_by_id',
+            'ksk.reviewed_dir_by',
+            'ksk.reviewed_dir_at',
+            'ksk.legalized_by',
+            'ksk.legalized_at',
+        );
+
+        $data->leftJoin('organisasis', 'ksk.organisasi_id', '=', 'organisasis.id_organisasi');
+
+        if (isset($dataFilter['search'])) {
+            $search = $dataFilter['search'];
+            $data->where(function ($query) use ($search) {
+                $query->where('ksk.id_ksk', 'ILIKE', "%{$search}%")
+                    ->orWhere('ksk.nama_divisi', 'ILIKE', "%{$search}%")
+                    ->orWhere('ksk.nama_departemen', 'ILIKE', "%{$search}%")
+                    ->orWhere('organisasis.nama', 'ILIKE', "%{$search}%")
+                    ->orWhere('ksk.released_by', 'ILIKE', "%{$search}%")
+                    ->orWhere('ksk.checked_by', 'ILIKE', "%{$search}%")
+                    ->orWhere('ksk.approved_by', 'ILIKE', "%{$search}%")
+                    ->orWhere('ksk.reviewed_div_by', 'ILIKE', "%{$search}%")
+                    ->orWhere('ksk.reviewed_ph_by', 'ILIKE', "%{$search}%")
+                    ->orWhere('ksk.reviewed_dir_by', 'ILIKE', "%{$search}%")
+                    ->orWhere('ksk.legalized_by', 'ILIKE', "%{$search}%");
+            });
+        }
+
+        $result = $data;
+        return $result;
+    }
+
+    public static function getData($dataFilter, $settings)
+    {
+        return self::_query($dataFilter)->offset($settings['start'])
+            ->limit($settings['limit'])
+            ->orderBy($settings['order'], $settings['dir'])
+            ->get();
+    }
+
+    public static function countData($dataFilter)
+    {
+        return self::_query($dataFilter)->get()->count();
     }
 }

@@ -43,120 +43,98 @@ $(function () {
         });
     }
 
-    // function updateApprovalSkdNotification(){
-    //     $.ajax({
-    //         url: base_url + '/get-approval-skd-notification',
-    //         method: 'GET',
-    //         success: function(response){
-    //             $('.notification-approval-skd').html(response.data);
-    //         }
-    //     })
-    // }
+    var columnsTable = [
+        { data: "level" },
+        { data: "divisi" },
+        { data: "departemen" },
+        { data: "release_for" },
+        { data: "jumlah_karyawan_habis" },
+        { data: "action" }
+    ];
 
-    // var columnsTable = [
-    //     { data: "nama" },
-    //     { data: "departemen" },
-    //     { data: "posisi" },
-    //     { data: "created_at" },
-    //     { data: "tanggal_mulai" },
-    //     { data: "tanggal_selesai" },
-    //     { data: "durasi" },
-    //     { data: "keterangan" },
-    //     { data: "lampiran" },
-    //     { data: "approved_by" },
-    //     { data: "legalized_by" }
-    // ];
-
-    // var approvalTable = $("#approval-table").DataTable({
-    //     search: {
-    //         return: true,
-    //     },
-    //     order: [[0, "DESC"]],
-    //     processing: true,
-    //     serverSide: true,
-    //     ajax: {
-    //         url: base_url + "/ksk/approval/datatable",
-    //         dataType: "json",
-    //         type: "POST",
-    //         data: function (dataFilter) {
-    //             // let urutan = $('#filterUrutan').val();
-    //             // let departemen = $('#filterDepartemen').val();
-    //             // let status = $('#filterStatus').val();
-
-    //             // dataFilter.urutan = urutan;
-    //             // dataFilter.departemen = departemen;
-    //             // dataFilter.status = status;
-    //         },
-    //         error: function (jqXHR, textStatus, errorThrown) {
-    //             if (jqXHR.responseJSON.data) {
-    //                 var error = jqXHR.responseJSON.data.error;
-    //                 Swal.fire({
-    //                     icon: "error",
-    //                     title: " <br>Application error!",
-    //                     html:
-    //                         '<div class="alert alert-danger text-left" role="alert">' +
-    //                         "<p>Error Message: <strong>" +
-    //                         error +
-    //                         "</strong></p>" +
-    //                         "</div>",
-    //                     allowOutsideClick: false,
-    //                     showConfirmButton: true,
-    //                 }).then(function () {
-    //                     refreshTable();
-    //                 });
-    //             } else {
-    //                 var message = jqXHR.responseJSON.message;
-    //                 var errorLine = jqXHR.responseJSON.line;
-    //                 var file = jqXHR.responseJSON.file;
-    //                 Swal.fire({
-    //                     icon: "error",
-    //                     title: " <br>Application error!",
-    //                     html:
-    //                         '<div class="alert alert-danger text-left" role="alert">' +
-    //                         "<p>Error Message: <strong>" +
-    //                         message +
-    //                         "</strong></p>" +
-    //                         "<p>File: " +
-    //                         file +
-    //                         "</p>" +
-    //                         "<p>Line: " +
-    //                         errorLine +
-    //                         "</p>" +
-    //                         "</div>",
-    //                     allowOutsideClick: false,
-    //                     showConfirmButton: true,
-    //                 }).then(function () {
-    //                     refreshTable();
-    //                 });
-    //             }
-    //         },
-    //     },
-    //     // responsive: true,
-    //     scrollX: true,
-    //     columns: columnsTable,
-    //     columnDefs: [
-    //         // {
-    //         //     orderable: false,
-    //         //     targets: [-1],
-    //         // },
-    //         // {
-    //         //     targets: [-1],
-    //         //     createdCell: function (td, cellData, rowData, row, col) {
-    //         //         // $(td).addClass("text-center");
-    //         //     },
-    //         // },
-    //     ],
-    // })
+    var releaseTable = $("#release-table").DataTable({
+        search: {
+            return: true,
+        },
+        order: [[0, "DESC"]],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: base_url + "/ksk/release/datatable",
+            dataType: "json",
+            type: "POST",
+            data: function (dataFilter) {
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR.responseJSON.data) {
+                    var error = jqXHR.responseJSON.data.error;
+                    Swal.fire({
+                        icon: "error",
+                        title: " <br>Application error!",
+                        html:
+                            '<div class="alert alert-danger text-left" role="alert">' +
+                            "<p>Error Message: <strong>" +
+                            error +
+                            "</strong></p>" +
+                            "</div>",
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                    }).then(function () {
+                        refreshTable();
+                    });
+                } else {
+                    var message = jqXHR.responseJSON.message;
+                    var errorLine = jqXHR.responseJSON.line;
+                    var file = jqXHR.responseJSON.file;
+                    Swal.fire({
+                        icon: "error",
+                        title: " <br>Application error!",
+                        html:
+                            '<div class="alert alert-danger text-left" role="alert">' +
+                            "<p>Error Message: <strong>" +
+                            message +
+                            "</strong></p>" +
+                            "<p>File: " +
+                            file +
+                            "</p>" +
+                            "<p>Line: " +
+                            errorLine +
+                            "</p>" +
+                            "</div>",
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                    }).then(function () {
+                        refreshTable();
+                    });
+                }
+            },
+        },
+        // responsive: true,
+        scrollX: true,
+        columns: columnsTable,
+        columnDefs: [
+            // {
+            //     orderable: false,
+            //     targets: [-1],
+            // },
+            // {
+            //     targets: [-1],
+            //     createdCell: function (td, cellData, rowData, row, col) {
+            //         // $(td).addClass("text-center");
+            //     },
+            // },
+        ],
+    })
 
     // //REFRESH TABLE
-    // function refreshTable() {
-    //     var searchValue = approvalTable.search();
-    //     if (searchValue) {
-    //         approvalTable.search(searchValue).draw();
-    //     } else {
-    //         approvalTable.search("").draw();
-    //     }
-    // }
+    function refreshTable() {
+        var searchValue = releaseTable.search();
+        if (searchValue) {
+            releaseTable.search(searchValue).draw();
+        } else {
+            releaseTable.search("").draw();
+        }
+    }
 
     // //RELOAD TABLE
     // $('.btnReload').on("click", function (){
@@ -340,7 +318,7 @@ $(function () {
     // });
 
     // $(".btnSubmitFilter").on("click", function () {
-    //     approvalTable.draw();
+    //     releaseTable.draw();
     //     closeFilter();
     // });
 });

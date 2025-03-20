@@ -32,21 +32,25 @@ return new class extends Migration
             $table->string('approved_by_id')->nullable();
             $table->string('approved_by')->nullable();
             $table->dateTime('approved_at')->nullable();
-            
+
             $table->string('reviewed_div_by_id')->nullable();
             $table->string('reviewed_div_by')->nullable();
             $table->dateTime('reviewed_div_at')->nullable();
-            
+
+            $table->string('reviewed_ph_by_id')->nullable();
+            $table->string('reviewed_ph_by')->nullable();
+            $table->dateTime('reviewed_ph_at')->nullable();
+
             $table->string('reviewed_dir_by_id')->nullable();
             $table->string('reviewed_dir_by')->nullable();
             $table->dateTime('reviewed_dir_at')->nullable();
-            
+
             $table->string('legalized_by')->nullable();
             $table->dateTime('legalized_at')->nullable();
 
             $table->softDeletes();
             $table->timestamps();
-            
+
             $table->foreign('organisasi_id')->references('id_organisasi')->on('organisasis')->restrictOnDelete();
         });
     }

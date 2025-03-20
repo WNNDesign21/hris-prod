@@ -35,12 +35,11 @@
                             style="width:100%">
                             <thead>
                                 <tr>
-                                    <th>Device ID</th>
-                                    <th>Cloud ID</th>
-                                    <th>Serial Number</th>
-                                    <th>Device Name</th>
-                                    <th>Server IP</th>
-                                    <th>Server Port</th>
+                                    <th>Level</th>
+                                    <th>Divisi</th>
+                                    <th>Departemen</th>
+                                    <th>Release For</th>
+                                    <th>Jumlah Karyawan</th>
                                     <th>Action</th>
                                 </tr>
                             </thead>

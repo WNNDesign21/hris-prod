@@ -10,6 +10,7 @@ use App\Models\Posisi;
 use App\Models\Departemen;
 use App\Models\Organisasi;
 use App\Models\GrupPattern;
+use Illuminate\Support\Facades\DB;
 use App\Models\SettingLemburKaryawan;
 use App\Models\Attendance\KaryawanGrup;
 use Illuminate\Database\Eloquent\Model;
@@ -20,9 +21,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Karyawan extends Model
 {
     use HasFactory, SoftDeletes;
-    
+
     protected $table = 'karyawans';
-    
+
     protected $primaryKey = 'id_karyawan';
     public $incrementing = false;
 
@@ -246,7 +247,7 @@ class Karyawan extends Model
         if(isset($dataFilter['nik'])) {
             $data->where('karyawans.ni_karyawan', $dataFilter['nik']);
         }
-        
+
         $data->leftJoin('users', 'karyawans.user_id', 'users.id')
         ->leftJoin('grups', 'karyawans.grup_id', 'grups.id_grup')
         ->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
@@ -425,5 +426,58 @@ class Karyawan extends Model
     public static function countDataShiftgroup($dataFilter)
     {
         return self::_shiftGroup($dataFilter)->get()->count();
+    }
+
+    private static function _ksk($dataFilter)
+    {
+        $subQuery = DB::table('karyawan_posisi')
+            ->select('karyawan_id', 'posisi_id')
+            ->whereNull('deleted_at')
+            ->distinct();
+
+        $data = self::select(
+            'posisis.jabatan_id',
+            'posisis.id_posisi',
+            'jabatans.nama as jabatan_nama',
+            'departemens.id_departemen',
+            'divisis.id_divisi',
+            'departemens.nama as departemen_nama',
+            'divisis.nama as divisi_nama',
+            DB::raw('COUNT(CASE WHEN EXTRACT(MONTH FROM tanggal_selesai) = EXTRACT(MONTH FROM NOW() + INTERVAL \'1 month\') AND EXTRACT(YEAR FROM tanggal_selesai) = EXTRACT(YEAR FROM NOW() + INTERVAL \'1 month\') THEN 1 END) as jumlah_karyawan_habis')
+        )
+        ->joinSub($subQuery, 'distinct_karyawan_posisi', function ($join) {
+            $join->on('karyawans.id_karyawan', 'distinct_karyawan_posisi.karyawan_id');
+        })
+        ->leftJoin('posisis', 'distinct_karyawan_posisi.posisi_id', 'posisis.id_posisi')
+        ->leftJoin('jabatans', 'posisis.jabatan_id', 'jabatans.id_jabatan')
+        ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
+        ->leftJoin('divisis', 'departemens.divisi_id', 'divisis.id_divisi')
+        ->whereMonth('tanggal_selesai', now()->addMonth()->month)
+        ->where('karyawans.status_karyawan', 'AT')
+        ->where('karyawans.organisasi_id', auth()->user()->organisasi_id);
+
+        if (isset($dataFilter['search'])) {
+            $search = $dataFilter['search'];
+            $data->where(function ($query) use ($search) {
+            $query->where('departemens.nama', 'LIKE', "%{$search}%")
+                ->orWhere('divisis.nama', 'LIKE', "%{$search}%");
+            });
+        }
+
+        $data->groupBy('departemens.nama', 'divisis.nama', 'departemens.id_departemen', 'divisis.id_divisi', 'posisis.jabatan_id', 'jabatans.nama', 'posisis.id_posisi');
+        return $data;
+    }
+
+    public static function getDataKSK($dataFilter, $settings)
+    {
+        return self::_ksk($dataFilter)->offset($settings['start'])
+            ->limit($settings['limit'])
+            ->orderBy($settings['order'], $settings['dir'])
+            ->get();
+    }
+
+    public static function countDataKSK($dataFilter)
+    {
+        return self::_ksk($dataFilter)->get()->count();
     }
 }
