@@ -19,6 +19,7 @@ return new class extends Migration
             $table->unsignedInteger('departemen_id')->nullable();
             $table->string('nama_departemen')->nullable();
             $table->date('release_date')->default(now()->format('Y-m-d'));
+            $table->unsignedInteger('parent_id')->nullable();
 
             // Approval
             $table->string('released_by_id')->nullable();

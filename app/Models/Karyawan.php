@@ -437,12 +437,15 @@ class Karyawan extends Model
 
         $data = self::select(
             'posisis.jabatan_id',
-            'posisis.id_posisi',
+            'posisis.parent_id',
             'jabatans.nama as jabatan_nama',
             'departemens.id_departemen',
             'divisis.id_divisi',
             'departemens.nama as departemen_nama',
+            'departemens.id_departemen',
             'divisis.nama as divisi_nama',
+            DB::raw('EXTRACT(YEAR FROM karyawans.tanggal_selesai) as tahun_selesai'),
+            DB::raw('EXTRACT(MONTH FROM karyawans.tanggal_selesai) as bulan_selesai'),
             DB::raw('COUNT(CASE WHEN EXTRACT(MONTH FROM tanggal_selesai) = EXTRACT(MONTH FROM NOW() + INTERVAL \'1 month\') AND EXTRACT(YEAR FROM tanggal_selesai) = EXTRACT(YEAR FROM NOW() + INTERVAL \'1 month\') THEN 1 END) as jumlah_karyawan_habis')
         )
         ->joinSub($subQuery, 'distinct_karyawan_posisi', function ($join) {
@@ -452,9 +455,18 @@ class Karyawan extends Model
         ->leftJoin('jabatans', 'posisis.jabatan_id', 'jabatans.id_jabatan')
         ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
         ->leftJoin('divisis', 'departemens.divisi_id', 'divisis.id_divisi')
+
         ->whereMonth('tanggal_selesai', now()->addMonth()->month)
         ->where('karyawans.status_karyawan', 'AT')
-        ->where('karyawans.organisasi_id', auth()->user()->organisasi_id);
+        ->where('karyawans.organisasi_id', auth()->user()->organisasi_id)
+        ->whereNotExists(function ($query) {
+            $query->select(DB::raw(1))
+                ->from('ksk')
+                ->whereRaw('EXTRACT(YEAR FROM ksk.release_date) = EXTRACT(YEAR FROM karyawans.tanggal_selesai)')
+                ->whereRaw('EXTRACT(MONTH FROM ksk.release_date) = EXTRACT(MONTH FROM karyawans.tanggal_selesai)')
+                ->whereRaw('ksk.departemen_id = departemens.id_departemen')
+                ->whereRaw('ksk.parent_id = posisis.parent_id');
+        });
 
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
@@ -464,7 +476,17 @@ class Karyawan extends Model
             });
         }
 
-        $data->groupBy('departemens.nama', 'divisis.nama', 'departemens.id_departemen', 'divisis.id_divisi', 'posisis.jabatan_id', 'jabatans.nama', 'posisis.id_posisi');
+        $data->groupBy(
+            'departemens.nama',
+            'divisis.nama',
+            'departemens.id_departemen',
+            'divisis.id_divisi',
+            'posisis.jabatan_id',
+            'jabatans.nama',
+            'posisis.parent_id',
+            DB::raw('EXTRACT(YEAR FROM karyawans.tanggal_selesai)'),
+            DB::raw('EXTRACT(MONTH FROM karyawans.tanggal_selesai)')
+        );
         return $data;
     }
 
@@ -479,5 +501,59 @@ class Karyawan extends Model
     public static function countDataKSK($dataFilter)
     {
         return self::_ksk($dataFilter)->get()->count();
+    }
+
+    public static function getKaryawanKsk($dataFilter)
+    {
+        $subQuery = DB::table('karyawan_posisi')
+            ->select('karyawan_id', 'posisi_id')
+            ->whereNull('deleted_at')
+            ->distinct();
+
+        $data = self::select(
+            'karyawans.id_karyawan',
+            'karyawans.ni_karyawan',
+            'karyawans.nama',
+            'posisis.nama as nama_posisi',
+            'jabatans.nama as nama_jabatan',
+            'karyawans.jenis_kontrak',
+            'karyawans.status_karyawan',
+            'posisis.id_posisi',
+            'jabatans.id_jabatan',
+            'departemens.id_departemen',
+            'departemens.nama as nama_departemen',
+            'divisis.id_divisi',
+            'divisis.nama as nama_divisi',
+            'karyawans.tanggal_selesai',
+        )
+        ->joinSub($subQuery, 'distinct_karyawan_posisi', function ($join) {
+            $join->on('karyawans.id_karyawan', 'distinct_karyawan_posisi.karyawan_id');
+        })
+        ->leftJoin('posisis', 'distinct_karyawan_posisi.posisi_id', 'posisis.id_posisi')
+        ->leftJoin('jabatans', 'posisis.jabatan_id', 'jabatans.id_jabatan')
+        ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
+        ->leftJoin('divisis', 'departemens.divisi_id', 'divisis.id_divisi');
+
+        if (isset($dataFilter['departemen'])) {
+            $data->where('departemens.id_departemen', $dataFilter['departemen']);
+        }
+
+        if (isset($dataFilter['divisi'])) {
+            $data->where('divisis.id_divisi', $dataFilter['divisi']);
+        }
+
+        if (isset($dataFilter['parent_id'])) {
+            $data->where('posisis.parent_id', $dataFilter['parent_id']);
+        }
+
+        if (isset($dataFilter['tahun_selesai'])) {
+            $data->whereYear('karyawans.tanggal_selesai', $dataFilter['tahun_selesai']);
+        }
+
+        if (isset($dataFilter['bulan_selesai'])) {
+            $data->whereMonth('karyawans.tanggal_selesai', $dataFilter['bulan_selesai']);
+        }
+
+        return $data->get();
     }
 }

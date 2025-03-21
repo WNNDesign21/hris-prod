@@ -85,6 +85,7 @@ class KSK extends Model
             'ksk.departemen_id',
             'ksk.nama_departemen',
             'ksk.release_date',
+            'ksk.parent_id',
             'ksk.released_by_id',
             'ksk.released_by',
             'ksk.released_at',

@@ -137,35 +137,65 @@ $(function () {
     }
 
     // //RELOAD TABLE
-    // $('.btnReload').on("click", function (){
-    //     refreshTable();
-    // })
+    $('.btnReload').on("click", function (){
+        refreshTable();
+    })
 
     //  // MODAL REJECT
-    //  var modalRejectOptions = {
-    //     backdrop: true,
-    //     keyboard: false,
-    // };
+     var modalInputOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
 
-    // var modalReject = new bootstrap.Modal(
-    //     document.getElementById("modal-reject-skd"),
-    //     modalRejectOptions
-    // );
+    var modalInput = new bootstrap.Modal(
+        document.getElementById("modal-input"),
+        modalInputOptions
+    );
 
-    // function openReject() {
-    //     modalReject.show();
-    // }
+    function openInput() {
+        modalInput.show();
+    }
 
-    // function closeReject() {
-    //     modalReject.hide();
-    //     $('#rejected_note').val('');
-    // }
+    function closeInput() {
+        modalInput.hide();
+    }
 
-    // $('#approval-skd-table').on('click', '.btnReject', function(){
+    $('#release-table').on('click', '.btnRelease', function(){
+        loadingSwalShow();
+        let idDepartemen = $(this).data('id-departemen');
+        let idDivisi = $(this).data('id-divisi');
+        let parentId = $(this).data('parent-id');
+        let tahunSelesai = $(this).data('tahun-selesai');
+        let bulanSelesai = $(this).data('bulan-selesai');
+        let url = base_url + '/ksk/release/get-karyawans';
+
+        $.ajax({
+            url: url,
+            data: {
+                id_departemen: idDepartemen,
+                id_divisi: idDivisi,
+                parent_id: parentId,
+                tahun_selesai: tahunSelesai,
+                bulan_selesai: bulanSelesai
+            },
+            method: 'POST',
+            dataType: 'JSON',
+            success: function (response){
+                loadingSwalClose();
+                console.log(response);
+            },
+            error: function (jqXHR, textStatus, errorThrown){
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            }
+        });
+    })
+
+    // $('#approval-skd-table').on('click', '.btnInput', function(){
     //     let idSakit = $(this).data('id-sakit');
     //     let url = base_url + '/izine/approval-skd/rejected/' + idSakit;
     //     $('#form-reject-skd').attr('action', url);
-    //     openReject();
+    //     openInput();
     // });
 
     // $('#form-reject-skd').on('submit', function (e) {
@@ -184,7 +214,7 @@ $(function () {
     //             updateApprovalSkdNotification();
     //             showToast({ title: data.message });
     //             refreshTable();
-    //             closeReject();
+    //             closeInput();
     //             loadingSwalClose();
     //         },
     //         error: function (jqXHR, textStatus, errorThrown) {

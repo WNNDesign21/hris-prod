@@ -50,6 +50,5 @@
             </div>
         </div>
     </div>
-    {{-- @include('pages.attendance-e.device.modal-tambah')
-    @include('pages.attendance-e.device.modal-edit') --}}
+    @include('pages.ksk-e.release.modal-tambah')
 @endsection

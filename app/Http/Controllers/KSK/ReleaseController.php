@@ -7,6 +7,7 @@ use App\Models\KSK\KSK;
 use App\Models\Karyawan;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
 
 class ReleaseController extends Controller
 {
@@ -56,9 +57,9 @@ class ReleaseController extends Controller
                 $nestedData['level'] = $data->jabatan_nama;
                 $nestedData['divisi'] = $data->divisi_nama;
                 $nestedData['departemen'] = $data->departemen_nama;
-                $nestedData['release_for'] = Carbon::now()->addMonth()->format('M Y');
+                $nestedData['release_for'] = Carbon::createFromDate($data->tahun_selesai, $data->bulan_selesai, 1)->format('M Y');
                 $nestedData['jumlah_karyawan_habis'] = $data->jumlah_karyawan_habis.' Orang';
-                $nestedData['action'] = '';
+                $nestedData['action'] = '<button class="btn btn-sm btn-success btnRelease" data-id-departemen="'.$data->id_departemen.'" data-id-divisi="'.$data->id_divisi.'" data-parent-id="'.$data->parent_id.'" data-tahun-selesai="'.$data->tahun_selesai.'" data-bulan-selesai="'.$data->bulan_selesai.'"><i class="fas fa-plus"></i> Buat KSK</button>';
 
                 $dataTable[] = $nestedData;
 
@@ -77,51 +78,41 @@ class ReleaseController extends Controller
         return response()->json($json_data, 200);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function get_karyawans(Request $request)
     {
-        //
-    }
+        $dataValidate = [
+            'id_departemen' => ['nullable','exists:departemens,id_departemen'],
+            'id_divisi' => ['nullable', 'exists:divisis,id_divisi'],
+            'tahun_selesai' => ['required', 'numeric'],
+            'bulan_selesai' => ['required', 'numeric'],
+        ];
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        $validator = Validator::make(request()->all(), $dataValidate);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
+        $id_departemen = $request->id_departemen;
+        $id_divisi = $request->id_divisi;
+        $parent_id = $request->parent_id;
+        $tahun_selesai = $request->tahun_selesai;
+        $bulan_selesai = $request->bulan_selesai;
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+        try {
+            $dataFilter = [
+                'id_departemen' => $id_departemen,
+                'id_divisi' => $id_divisi,
+                'parent_id' => $parent_id,
+                'tahun_selesai' => $tahun_selesai,
+                'bulan_selesai' => $bulan_selesai,
+            ];
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+            $datas = Karyawan::getKaryawanKsk($dataFilter);
+            return response()->json(['message' => 'success', 'data' => $datas], 200);
+        } catch (Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 }

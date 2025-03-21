@@ -544,6 +544,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::get('/release', [KSKReleaseController::class, 'index'])->name('ksk.release');
             Route::post('/release/datatable', [KSKReleaseController::class, 'datatable']);
             Route::delete('/release/delete/{idKsk}', [KSKReleaseController::class, 'destroy'])->name('ksk.release.delete');
+            Route::post('/release/get-karyawans', [KSKReleaseController::class, 'get_karyawans']);
         });
         Route::group(['middleware' => ['role:atasan|personalia']], function () {
             Route::get('/approval', [KSKApprovalController::class, 'index'])->name('ksk.approval');
