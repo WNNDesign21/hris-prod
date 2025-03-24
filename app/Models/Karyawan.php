@@ -442,7 +442,6 @@ class Karyawan extends Model
             'departemens.id_departemen',
             'divisis.id_divisi',
             'departemens.nama as departemen_nama',
-            'departemens.id_departemen',
             'divisis.nama as divisi_nama',
             DB::raw('EXTRACT(YEAR FROM karyawans.tanggal_selesai) as tahun_selesai'),
             DB::raw('EXTRACT(MONTH FROM karyawans.tanggal_selesai) as bulan_selesai'),
@@ -458,15 +457,7 @@ class Karyawan extends Model
 
         ->whereMonth('tanggal_selesai', now()->addMonth()->month)
         ->where('karyawans.status_karyawan', 'AT')
-        ->where('karyawans.organisasi_id', auth()->user()->organisasi_id)
-        ->whereNotExists(function ($query) {
-            $query->select(DB::raw(1))
-                ->from('ksk')
-                ->whereRaw('EXTRACT(YEAR FROM ksk.release_date) = EXTRACT(YEAR FROM karyawans.tanggal_selesai)')
-                ->whereRaw('EXTRACT(MONTH FROM ksk.release_date) = EXTRACT(MONTH FROM karyawans.tanggal_selesai)')
-                ->whereRaw('ksk.departemen_id = departemens.id_departemen')
-                ->whereRaw('ksk.parent_id = posisis.parent_id');
-        });
+        ->where('karyawans.organisasi_id', auth()->user()->organisasi_id);
 
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
@@ -513,6 +504,7 @@ class Karyawan extends Model
         $data = self::select(
             'karyawans.id_karyawan',
             'karyawans.ni_karyawan',
+            'karyawans.tanggal_mulai',
             'karyawans.nama',
             'posisis.nama as nama_posisi',
             'jabatans.nama as nama_jabatan',
@@ -525,6 +517,10 @@ class Karyawan extends Model
             'divisis.id_divisi',
             'divisis.nama as nama_divisi',
             'karyawans.tanggal_selesai',
+            'kontraks.tanggal_mulai as tanggal_mulai_kontrak_terakhir',
+            'kontraks.tanggal_selesai as tanggal_selesai_kontrak_terakhir',
+            DB::raw('(SELECT COUNT(*) FROM sakits WHERE sakits.karyawan_id = karyawans.id_karyawan AND sakits.tanggal_selesai BETWEEN kontraks.tanggal_mulai AND kontraks.tanggal_selesai) as total_sakit'),
+            DB::raw('(SELECT COUNT(*) FROM izins WHERE izins.karyawan_id = karyawans.id_karyawan AND izins.jenis_izin = \'TM\' AND DATE(izins.rencana_selesai_or_keluar) BETWEEN kontraks.tanggal_mulai AND kontraks.tanggal_selesai) as total_izin'),
         )
         ->joinSub($subQuery, 'distinct_karyawan_posisi', function ($join) {
             $join->on('karyawans.id_karyawan', 'distinct_karyawan_posisi.karyawan_id');
@@ -532,7 +528,11 @@ class Karyawan extends Model
         ->leftJoin('posisis', 'distinct_karyawan_posisi.posisi_id', 'posisis.id_posisi')
         ->leftJoin('jabatans', 'posisis.jabatan_id', 'jabatans.id_jabatan')
         ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
-        ->leftJoin('divisis', 'departemens.divisi_id', 'divisis.id_divisi');
+        ->leftJoin('divisis', 'departemens.divisi_id', 'divisis.id_divisi')
+        ->leftJoin('kontraks', function ($join) {
+            $join->on('karyawans.id_karyawan', '=', 'kontraks.karyawan_id')
+                ->whereRaw('kontraks.tanggal_selesai = (select max(tanggal_selesai) from kontraks where kontraks.karyawan_id = karyawans.id_karyawan)');
+        });
 
         if (isset($dataFilter['departemen'])) {
             $data->where('departemens.id_departemen', $dataFilter['departemen']);

@@ -31,8 +31,8 @@ return new class extends Migration
             $table->integer('jumlah_sakit')->default(0);
             $table->integer('jumlah_izin')->default(0);
             $table->integer('jumlah_alpa')->default(0);
-            $table->string('status_ksk');
-            $table->date('tanggal_renewal_kontrak');
+            $table->string('status_ksk')->nullable();
+            $table->date('tanggal_renewal_kontrak')->nullable();
             $table->integer('durasi_renewal')->default(0);
 
             $table->timestamps();

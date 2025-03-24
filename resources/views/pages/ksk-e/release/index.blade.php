@@ -50,5 +50,5 @@
             </div>
         </div>
     </div>
-    @include('pages.ksk-e.release.modal-tambah')
+    @include('pages.ksk-e.release.modal-input')
 @endsection

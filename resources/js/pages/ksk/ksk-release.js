@@ -167,7 +167,17 @@ $(function () {
         let parentId = $(this).data('parent-id');
         let tahunSelesai = $(this).data('tahun-selesai');
         let bulanSelesai = $(this).data('bulan-selesai');
+        let namaDivisi = $(this).data('nama-divisi');
+        let namaDepartemen = $(this).data('nama-departemen');
         let url = base_url + '/ksk/release/get-karyawans';
+
+        $('#id_departemen_header').val(idDepartemen);
+        $('#nama_departemen_header').val(namaDepartemen);
+        $('#nama_divisi_header').val(namaDivisi);
+        $('#id_divisi_header').val(idDivisi);
+        $('#parent_id_header').val(parentId);
+        $('#tahun_selesai_header').val(tahunSelesai);
+        $('#bulan_selesai_header').val(bulanSelesai);
 
         $.ajax({
             url: url,
@@ -182,7 +192,9 @@ $(function () {
             dataType: 'JSON',
             success: function (response){
                 loadingSwalClose();
-                console.log(response);
+                let html = response.html;
+                $('#list-karyawan').empty().html(html);
+                openInput();
             },
             error: function (jqXHR, textStatus, errorThrown){
                 loadingSwalClose();
@@ -190,6 +202,32 @@ $(function () {
             }
         });
     })
+
+    $('#form-input').on('submit', function (e) {
+        e.preventDefault();
+        loadingSwalShow();
+        let url = $(this).attr('action');
+        var formData = new FormData($(this)[0]);
+
+        $.ajax({
+            url: url,
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (data) {
+                showToast({ title: data.message });
+                refreshTable();
+                closeInput();
+                loadingSwalClose();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        })
+    });
 
     // $('#approval-skd-table').on('click', '.btnInput', function(){
     //     let idSakit = $(this).data('id-sakit');

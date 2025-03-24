@@ -26,6 +26,7 @@ class KSK extends Model
         'nama_divisi',
         'departemen_id',
         'nama_departemen',
+        'parent_id',
         'release_date',
         'released_by_id',
         'released_by',
