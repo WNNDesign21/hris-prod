@@ -4,8 +4,10 @@ namespace App\Http\Controllers\KSK;
 
 use Throwable;
 use Carbon\Carbon;
+use App\Models\Posisi;
 use App\Models\KSK\KSK;
 use App\Models\Karyawan;
+use App\Helpers\Approval;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\KSK\DetailKSK;
@@ -27,11 +29,14 @@ class ReleaseController extends Controller
         return view('pages.ksk-e.release.index', $dataPage);
     }
 
-    public function datatable(Request $request)
+    public function datatable_unreleased(Request $request)
     {
         $columns = array(
-            0 => 'departemens.nama',
-            1 => 'divisis.nama',
+            0 => 'sub.jabatan_id',
+            1 => 'sub.divisi_nama',
+            2 => 'sub.departemen_nama',
+            3 => 'bulan_selesai',
+            4 => 'jumlah_karyawan_habis',
         );
 
         $limit = $request->input('length');
@@ -58,18 +63,95 @@ class ReleaseController extends Controller
 
         if (!empty($ksk)) {
             foreach ($ksk as $data) {
-
-                if (!KSK::where('divisi_id', $data->id_divisi)->where('departemen_id', $data->id_departemen)->whereYear('release_date', $data->tahun_selesai)->whereMonth('release_date', Carbon::createFromFormat('m', str_pad($data->bulan_selesai, 2, '0', STR_PAD_LEFT))->subMonth()->format('m'))->where('parent_id', $data->parent_id)->exists()) {
-                    $actionFormatted = '<button class="btn btn-sm btn-success btnRelease" data-id-departemen="'.$data->id_departemen.'" data-id-divisi="'.$data->id_divisi.'" data-parent-id="'.$data->parent_id.'" data-tahun-selesai="'.$data->tahun_selesai.'" data-bulan-selesai="'.str_pad($data->bulan_selesai, 2, '0', STR_PAD_LEFT).'" data-nama-departemen="'.$data->departemen_nama.'" data-nama-divisi="'.$data->divisi_nama.'"><i class="fas fa-plus"></i> Buat KSK</button>';
-                } else {
-                    $actionFormatted = '-';
-                }
+                $actionFormatted = '<button class="btn btn-sm btn-success btnRelease" data-id-departemen="'.$data->id_departemen.'" data-id-divisi="'.$data->id_divisi.'" data-parent-id="'.$data->parent_id.'" data-tahun-selesai="'.$data->tahun_selesai.'" data-bulan-selesai="'.str_pad($data->bulan_selesai, 2, '0', STR_PAD_LEFT).'" data-nama-departemen="'.$data->departemen_nama.'" data-nama-divisi="'.$data->divisi_nama.'"><i class="fas fa-plus"></i> Buat KSK</button>';
 
                 $nestedData['level'] = $data->jabatan_nama;
                 $nestedData['divisi'] = $data->divisi_nama;
                 $nestedData['departemen'] = $data->departemen_nama;
                 $nestedData['release_for'] = Carbon::createFromDate($data->tahun_selesai, $data->bulan_selesai, 1)->format('M Y');
                 $nestedData['jumlah_karyawan_habis'] = $data->jumlah_karyawan_habis.' Orang';
+                $nestedData['action'] = $actionFormatted;
+
+                $dataTable[] = $nestedData;
+
+            }
+        }
+
+        $json_data = array(
+            "draw" => intval($request->input('draw')),
+            "recordsTotal" => intval($totalData),
+            "recordsFiltered" => intval($totalFiltered),
+            "data" => $dataTable,
+            "order" => $order,
+            "dir" => $dir,
+        );
+
+        return response()->json($json_data, 200);
+    }
+
+    public function datatable_released(Request $request)
+    {
+        $columns = array(
+            0 => 'ksk.id_ksk',
+            1 => 'ksk.nama_divisi',
+            2 => 'ksk.nama_departemen',
+            3 => 'ksk.release_date',
+            4 => 'ksk.parent_id',
+            5 => 'ksk.released_by',
+            6 => 'ksk.checked_by',
+            7 => 'ksk.approved_by',
+            8 => 'ksk.reviewed_div_by',
+            9 => 'ksk.reviewed_ph_by',
+            10 => 'ksk.reviewed_dir_by',
+            11 => 'ksk.legalized_by',
+        );
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+
+        $settings['start'] = $start;
+        $settings['limit'] = $limit;
+        $settings['dir'] = $dir;
+        $settings['order'] = $order;
+
+        $dataFilter = [];
+        $search = $request->input('search.value');
+        if (!empty($search)) {
+            $dataFilter['search'] = $search;
+        }
+
+        $ksk = KSK::getData($dataFilter, $settings);
+        $totalData = KSK::countData($dataFilter);
+        $totalFiltered = $totalData;
+
+        $dataTable = [];
+
+        if (!empty($ksk)) {
+            foreach ($ksk as $data) {
+                $actionFormatted = '<button class="btn btn-sm btn-primary btnDetail" data-id-ksk="'.$data->id_ksk.'" data-id-departemen="'.$data->departemen_id.'" data-id-divisi="'.$data->divisi_id.'" data-parent-id="'.$data->parent_id.'" data-nama-departemen="'.$data->nama_departemen.'" data-nama-divisi="'.$data->nama_divisi.'" data-id-organisasi="'.$data->organisasi_id.'"><i class="fas fa-eye"></i> Detail KSK</button>';
+
+                $releasedFormatted = $data->released_by ? $data->released_by : '⏳ Waiting';
+                $checkedFormatted = $data->checked_by ? $data->checked_by : '⏳ Waiting';
+                $approvedFormatted = $data->approved_by ? $data->approved_by : '⏳ Waiting';
+                $reviewedDivFormatted = $data->reviewed_div_by ? $data->reviewed_div_by : '⏳ Waiting';
+                $reviewedPhFormatted = $data->reviewed_ph_by ? $data->reviewed_ph_by : '⏳ Waiting';
+                $reviewedDirFormatted = $data->reviewed_dir_by ? $data->reviewed_dir_by : '⏳ Waiting';
+                $legalizedFormatted = $data->legalized_by ? $data->legalized_by : '⏳ Waiting';
+
+                $nestedData['id_ksk'] = $data->id_ksk;
+                $nestedData['nama_divisi'] = $data->nama_divisi;
+                $nestedData['nama_departemen'] = $data->nama_departemen;
+                $nestedData['parent_name'] = $data->parent_name;
+                $nestedData['release_date'] = Carbon::createFromDate($data->release_date)->format('F Y');
+                $nestedData['released_by'] = $releasedFormatted;
+                $nestedData['checked_by'] = $checkedFormatted;
+                $nestedData['approved_by'] = $approvedFormatted;
+                $nestedData['reviewed_div_by'] = $reviewedDivFormatted;
+                $nestedData['reviewed_ph_by'] = $reviewedPhFormatted;
+                $nestedData['reviewed_dir_by'] = $reviewedDirFormatted;
+                $nestedData['legalized_by'] = $legalizedFormatted;
                 $nestedData['action'] = $actionFormatted;
 
                 $dataTable[] = $nestedData;
@@ -188,6 +270,8 @@ class ReleaseController extends Controller
         DB::beginTransaction();
         try {
 
+            $approval = Approval::ApprovalDeptWithPlantHead($parent_id, auth()->user()->organisasi_id);
+
             $ksk = KSK::create([
                 'id_ksk' => 'KSK-' . Str::random(4).'-'. date('YmdHis'),
                 'organisasi_id' => auth()->user()->organisasi_id,
@@ -197,8 +281,12 @@ class ReleaseController extends Controller
                 'nama_departemen' => $nama_departemen,
                 'parent_id' => $parent_id,
                 'release_date' => Carbon::now()->format('Y-m-d'),
-                'released_by' => 'HRD',
-                'released_at' => Carbon::now(),
+                'released_by_id' => $approval['leader'],
+                'checked_by_id' => $approval['section_head'],
+                'approved_by_id' => $approval['department_head'],
+                'reviewed_div_by_id' => $approval['division_head'],
+                'reviewed_ph_by_id' => $approval['plant_head'],
+                'reviewed_dir_by_id' => $approval['director'],
             ]);
 
             $detail_ksk = [];
@@ -235,6 +323,17 @@ class ReleaseController extends Controller
             return response()->json(['message' => 'KSK berhasil di Release'], 200);
         } catch (Throwable $e) {
             DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function get_detail_ksk(string $id)
+    {
+        try {
+            $detailKsk = DetailKSK::select('ksk_details.*', 'karyawans.tanggal_mulai', 'karyawans.tanggal_selesai', 'ksk.*')->where('ksk_id', $id)->leftJoin('karyawans', 'ksk_details.karyawan_id', 'karyawans.id_karyawan')->leftJoin('ksk', 'ksk_details.ksk_id', 'ksk.id_ksk')->get();
+            $html = view('layouts.partials.ksk-list-karyawan-release-detail', ['datas' => $detailKsk])->render();
+            return response()->json(['message' => 'success', 'data' => $detailKsk, 'html' => $html], 200);
+        } catch (Throwable $e) {
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }

@@ -107,9 +107,11 @@ class KSK extends Model
             'ksk.reviewed_dir_at',
             'ksk.legalized_by',
             'ksk.legalized_at',
+            'posisis.nama as parent_name',
         );
 
-        $data->leftJoin('organisasis', 'ksk.organisasi_id', '=', 'organisasis.id_organisasi');
+        $data->leftJoin('organisasis', 'ksk.organisasi_id', 'organisasis.id_organisasi');
+        $data->leftJoin('posisis', 'ksk.parent_id', 'posisis.id_posisi');
 
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];

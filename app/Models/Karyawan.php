@@ -445,7 +445,20 @@ class Karyawan extends Model
             'divisis.nama as divisi_nama',
             DB::raw('EXTRACT(YEAR FROM karyawans.tanggal_selesai) as tahun_selesai'),
             DB::raw('EXTRACT(MONTH FROM karyawans.tanggal_selesai) as bulan_selesai'),
-            DB::raw('COUNT(CASE WHEN EXTRACT(MONTH FROM tanggal_selesai) = EXTRACT(MONTH FROM NOW() + INTERVAL \'1 month\') AND EXTRACT(YEAR FROM tanggal_selesai) = EXTRACT(YEAR FROM NOW() + INTERVAL \'1 month\') THEN 1 END) as jumlah_karyawan_habis')
+            DB::raw('COUNT(CASE WHEN EXTRACT(MONTH FROM tanggal_selesai) = EXTRACT(MONTH FROM NOW() + INTERVAL \'1 month\') AND EXTRACT(YEAR FROM tanggal_selesai) = EXTRACT(YEAR FROM NOW() + INTERVAL \'1 month\') THEN 1 END) as jumlah_karyawan_habis'),
+            DB::raw("(CASE
+                        WHEN EXISTS (
+                            SELECT 1
+                            FROM ksk
+                            WHERE ksk.divisi_id = divisis.id_divisi
+                                AND ksk.departemen_id = departemens.id_departemen
+                                AND EXTRACT(YEAR FROM ksk.release_date) = EXTRACT(YEAR FROM karyawans.tanggal_selesai)
+                                AND EXTRACT(MONTH FROM ksk.release_date) = EXTRACT(MONTH FROM karyawans.tanggal_selesai) - 1
+                                AND ksk.parent_id = posisis.parent_id
+                        ) THEN 'Y'
+                        ELSE NULL
+                    END) as is_released"),
+                    'karyawans.tanggal_selesai'
         )
         ->joinSub($subQuery, 'distinct_karyawan_posisi', function ($join) {
             $join->on('karyawans.id_karyawan', 'distinct_karyawan_posisi.karyawan_id');
@@ -457,13 +470,17 @@ class Karyawan extends Model
 
         ->whereMonth('tanggal_selesai', now()->addMonth()->month)
         ->where('karyawans.status_karyawan', 'AT')
-        ->where('karyawans.organisasi_id', auth()->user()->organisasi_id);
+        ->where('karyawans.organisasi_id', auth()->user()->organisasi_id)
+        ->where('posisis.parent_id', '!=', 0);
 
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
             $data->where(function ($query) use ($search) {
-            $query->where('departemens.nama', 'LIKE', "%{$search}%")
-                ->orWhere('divisis.nama', 'LIKE', "%{$search}%");
+                $query->where('departemens.nama', 'ILIKE', "%{$search}%")
+                    ->orWhere('divisis.nama', 'ILIKE', "%{$search}%")
+                    ->orWhere('jabatans.nama', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.ni_karyawan', 'ILIKE', "%{$search}%");
             });
         }
 
@@ -476,8 +493,14 @@ class Karyawan extends Model
             'jabatans.nama',
             'posisis.parent_id',
             DB::raw('EXTRACT(YEAR FROM karyawans.tanggal_selesai)'),
-            DB::raw('EXTRACT(MONTH FROM karyawans.tanggal_selesai)')
+            DB::raw('EXTRACT(MONTH FROM karyawans.tanggal_selesai)'),
+            'karyawans.tanggal_selesai'
         );
+
+        $subQueryBuilder = DB::table(DB::raw('(' . $data->toSql() . ') as sub'));
+        $subQueryBuilder->mergeBindings($data->getQuery());
+        $data = $subQueryBuilder->whereNull('is_released');
+
         return $data;
     }
 

@@ -542,9 +542,11 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
     Route::group(['prefix' => 'ksk'], function () {
         Route::group(['middleware' => ['role:personalia']], function () {
             Route::get('/release', [KSKReleaseController::class, 'index'])->name('ksk.release');
-            Route::post('/release/datatable', [KSKReleaseController::class, 'datatable']);
+            Route::post('/release/datatable-unreleased', [KSKReleaseController::class, 'datatable_unreleased']);
+            Route::post('/release/datatable-released', [KSKReleaseController::class, 'datatable_released']);
             Route::delete('/release/delete/{idKsk}', [KSKReleaseController::class, 'destroy'])->name('ksk.release.delete');
             Route::post('/release/get-karyawans', [KSKReleaseController::class, 'get_karyawans']);
+            Route::get('/release/get-detail-ksk/{idKSK}', [KSKReleaseController::class, 'get_detail_ksk']);
             Route::post('/release/store', [KSKReleaseController::class, 'store'])->name('ksk.release.store');
         });
         Route::group(['middleware' => ['role:atasan|personalia']], function () {
@@ -553,7 +555,6 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::delete('/approval/delete/{idKsk}', [KSKApprovalController::class, 'destroy'])->name('ksk.approval.delete');
         });
     });
-
 });
 
 // STOCK-OPNAME

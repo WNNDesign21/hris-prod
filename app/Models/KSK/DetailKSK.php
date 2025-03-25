@@ -6,6 +6,7 @@ use App\Models\Divisi;
 use App\Models\Posisi;
 use App\Models\Jabatan;
 use App\Models\KSK\KSK;
+use App\Models\Karyawan;
 use App\Models\Departemen;
 use App\Models\Organisasi;
 use App\Models\KSK\ChangeHistoryKSK;
@@ -21,7 +22,7 @@ class DetailKSK extends Model
     protected $primaryKey = 'id_ksk_detail';
 
     protected $fillable = [
-        'id_ksk',
+        'ksk_id',
         'organisasi_id',
         'divisi_id',
         'nama_divisi',
@@ -44,9 +45,14 @@ class DetailKSK extends Model
         'durasi_renewal',
     ];
 
+    public function karyawan()
+    {
+        return $this->belongsTo(Karyawan::class, 'karyawan_id', 'id_karyawan');
+    }
+
     public function ksk()
     {
-        return $this->belongsTo(KSK::class, 'id_ksk', 'id_ksk');
+        return $this->belongsTo(KSK::class, 'ksk_id', 'id_ksk');
     }
 
     public function organisasi()
