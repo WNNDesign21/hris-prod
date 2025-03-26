@@ -18,6 +18,7 @@ class KSK extends Model
     protected $table = 'ksk';
     protected $primaryKey = 'id_ksk';
     public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         'id_ksk',

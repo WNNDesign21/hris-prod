@@ -1,8 +1,9 @@
 @foreach ($datas as $i => $item)
     <div class="panel p-4 mb-3">
-        <div class="panel-heading" id="detail-ksk-{{ $i }}" role="tab">
-            <a class="panel-title" aria-controls="detail-ksk-content-{{ $i }}" aria-expanded="true"
-                data-bs-toggle="collapse" href="#detail-ksk-content-{{ $i }}" data-parent="#list-detail-ksk">
+        <div class="panel-heading" id="approval-ksk-{{ $i }}" role="tab">
+            <a class="panel-title" aria-controls="approval-ksk-content-{{ $i }}" aria-expanded="true"
+                data-bs-toggle="collapse" href="#approval-ksk-content-{{ $i }}"
+                data-parent="#list-approval-ksk">
                 <div class="row d-flex justify-content-between">
                     <div class="col flex-col">
                         <h5>{{ $item->nama_karyawan }}<br><small class="mt-0">{{ $item->ni_karyawan }}</small></h5>
@@ -10,17 +11,11 @@
                 </div>
             </a>
         </div>
-        <div class="panel-collapse collapse mt-2" id="detail-ksk-content-{{ $i }}"
-            aria-labelledby="detail-ksk-{{ $i }}" role="tabpanel"
-            data-bs-parent="#detail-ksk-{{ $i }}">
+        <div class="panel-collapse collapse mt-2 show" id="approval-ksk-content-{{ $i }}"
+            aria-labelledby="approval-ksk-{{ $i }}" role="tabpanel"
+            data-bs-parent="#approval-ksk-{{ $i }}">
             <div class="panel-body">
                 <div class="row">
-                    <div class="col-6 col-lg-3">
-                        <div class="form-group">
-                            <small class="text-muted">Karyawan</small><br>
-                            <p>{{ $item->ni_karyawan }} - {{ $item->nama_karyawan }}</p>
-                        </div>
-                    </div>
                     <div class="col-6 col-lg-3">
                         <div class="form-group">
                             <small class="text-muted">Tanggal Bergabung</small><br>
@@ -42,43 +37,6 @@
                     </div>
                     <div class="col-6 col-lg-3">
                         <div class="form-group">
-                            <small class="text-muted">Surat Peringatan</small><br>
-                            <input type="hidden" name="id_ksk_detailEdit" id="id_ksk_detailEdit{{ $i }}"
-                                class="form-control" value="{{ $item->id_ksk_detail }}">
-                            <input type="number" name="jumlah_surat_peringatanEdit"
-                                id="jumlah_surat_peringatanEdit{{ $i }}" class="form-control"
-                                value="{{ $item->jumlah_surat_peringatan }}" min="0">
-                        </div>
-                    </div>
-                    <div class="col-6 col-lg-3">
-                        <div class="form-group">
-                            <small class="text-muted">Sakit</small><br>
-                            <input type="number" name="jumlah_sakitEdit" id="jumlah_sakitEdit{{ $i }}"
-                                class="form-control" value="{{ $item->jumlah_sakit }}" min="0">
-                        </div>
-                    </div>
-                    <div class="col-6 col-lg-3">
-                        <div class="form-group">
-                            <small class="text-muted">Izin</small><br>
-                            <input type="number" name="jumlah_izinEdit" id="jumlah_izinEdit{{ $i }}"
-                                class="form-control" value="{{ $item->jumlah_izin }}" min="0">
-                        </div>
-                    </div>
-                    <div class="col-6 col-lg-3">
-                        <div class="form-group">
-                            <small class="text-muted">Alpa</small><br>
-                            <input type="number" name="jumlah_alpaEdit" id="jumlah_alpaEdit{{ $i }}"
-                                class="form-control" value="{{ $item->jumlah_alpa }}" min="0">
-                        </div>
-                    </div>
-                    <div class="col-6 col-lg-3">
-                        <div class="form-group">
-                            <small class="text-muted">Status KSK</small><br>
-                            <p>{{ $item->status_ksk ?? '-' }}</p>
-                        </div>
-                    </div>
-                    <div class="col-6 col-lg-3">
-                        <div class="form-group">
                             <small class="text-muted">Tanggal Perjanjian</small><br>
                             <p>{{ $item->latest_kontrak_tanggal_mulai }} - {{ $item->latest_kontrak_tanggal_selesai }}
                             </p>
@@ -86,8 +44,54 @@
                     </div>
                     <div class="col-6 col-lg-3">
                         <div class="form-group">
+                            <small class="text-muted">Surat Peringatan</small><br>
+                            <input type="hidden" name="id_ksk_approval" id="id_ksk_approval{{ $i }}"
+                                class="form-control" value="{{ $item->id_ksk_detail }}">
+                            <input type="number" name="jumlah_surat_peringatan"
+                                id="jumlah_surat_peringatan{{ $i }}" class="form-control"
+                                value="{{ $item->jumlah_surat_peringatan }}" min="0" readonly>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="form-group">
+                            <small class="text-muted">Sakit</small><br>
+                            <input type="number" name="jumlah_sakit" id="jumlah_sakit{{ $i }}"
+                                class="form-control" value="{{ $item->jumlah_sakit }}" min="0" readonly>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="form-group">
+                            <small class="text-muted">Izin</small><br>
+                            <input type="number" name="jumlah_izin" id="jumlah_izin{{ $i }}"
+                                class="form-control" value="{{ $item->jumlah_izin }}" min="0" readonly>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="form-group">
+                            <small class="text-muted">Alpa</small><br>
+                            <input type="number" name="jumlah_alpa" id="jumlah_alpa{{ $i }}"
+                                class="form-control" value="{{ $item->jumlah_alpa }}" min="0" readonly>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="form-group">
+                            <small class="text-muted">Status KSK <span class="text-danger">*</span></small><br>
+                            <select name="status_ksk" id="status_ksk{{ $i }}" class="form-control select2"
+                                style="width: 100%;" required>
+                                <option value="">Pilih Status KSK</option>
+                                <option value="PPJ" {{ $item->status_ksk == 'PPJ' ? 'selected' : '' }}>PERPANJANG
+                                </option>
+                                <option value="PHK" {{ $item->status_ksk == 'PHK' ? 'selected' : '' }}>PHK</option>
+                                <option value="TTP" {{ $item->status_ksk == 'TTP' ? 'selected' : '' }}>KARYAWAN
+                                    TETAP</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="form-group">
                             <small class="text-muted">Durasi Renewal</small><br>
-                            <p>{{ $item->durasi_renewal ?? '-' }}</p>
+                            <input type="number" name="durasi_renewal" id="durasi_renewal{{ $i }}"
+                                class="form-control" value="{{ $item->durasi_renewal }}" min="0">
                         </div>
                     </div>
                     <div class="col-6 col-lg-6">
@@ -132,14 +136,6 @@
                             $no++;
                         @endphp
                     @endforeach
-                    <hr>
-                    @if ($item->released_by == null)
-                        <div class="d-flex justify-content-end">
-                            <button type="button" class="btn btn-success btnUpdate" data-id="{{ $i }}">
-                                <i class="fas fa-save"></i> Update
-                            </button>
-                        </div>
-                    @endif
                 </div>
             </div>
         </div>

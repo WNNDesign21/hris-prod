@@ -56,8 +56,6 @@ $(function () {
         })
     }
 
-    updateKskNotification();
-
     var columnsUnreleasedTable = [
         { data: "level" },
         { data: "divisi" },
@@ -298,7 +296,7 @@ $(function () {
         let bulanSelesai = $(this).data('bulan-selesai');
         let namaDivisi = $(this).data('nama-divisi');
         let namaDepartemen = $(this).data('nama-departemen');
-        let url = base_url + '/ksk/release/get-karyawans';
+        let url = base_url + '/ksk/ajax/release/get-karyawans';
 
         $('#id_departemen_header').val(idDepartemen);
         $('#nama_departemen_header').val(namaDepartemen);
@@ -341,7 +339,7 @@ $(function () {
         let idKsk = $(this).data('id-ksk');
         let namaDivisi = $(this).data('nama-divisi');
         let namaDepartemen = $(this).data('nama-departemen');
-        let url = base_url + '/ksk/release/get-detail-ksk/' + idKsk
+        let url = base_url + '/ksk/ajax/release/get-detail-ksk/' + idKsk
 
         $('#divisiDetail').text(namaDivisi);
         $('#departemenDetail').text(namaDepartemen);
@@ -349,7 +347,7 @@ $(function () {
         openDetail();
 
         $.ajax({
-            url: base_url + '/ksk/release/get-ksk/' + idKsk,
+            url: base_url + '/ksk/ajax/release/get-ksk/' + idKsk,
             method: 'GET',
             dataType: 'JSON',
             success: function (response){
@@ -437,6 +435,7 @@ $(function () {
             dataType: "JSON",
             success: function (data) {
                 showToast({ title: data.message });
+                updateKskNotification();
                 refreshTable();
                 closeInput();
                 loadingSwalClose();
