@@ -130,7 +130,6 @@ class ReleaseController extends Controller
 
         if (!empty($ksk)) {
             foreach ($ksk as $data) {
-                $actionFormatted = '<button class="btn btn-sm btn-primary btnDetail" data-id-ksk="'.$data->id_ksk.'" data-id-departemen="'.$data->departemen_id.'" data-id-divisi="'.$data->divisi_id.'" data-parent-id="'.$data->parent_id.'" data-nama-departemen="'.$data->nama_departemen.'" data-nama-divisi="'.$data->nama_divisi.'" data-id-organisasi="'.$data->organisasi_id.'"><i class="fas fa-eye"></i> Detail KSK</button>';
 
                 $releasedFormatted = $data->released_by ? $data->released_by : '⏳ Waiting';
                 $checkedFormatted = $data->checked_by ? $data->checked_by : '⏳ Waiting';
@@ -140,7 +139,9 @@ class ReleaseController extends Controller
                 $reviewedDirFormatted = $data->reviewed_dir_by ? $data->reviewed_dir_by : '⏳ Waiting';
                 $legalizedFormatted = $data->legalized_by ? $data->legalized_by : '⏳ Waiting';
 
-                $nestedData['id_ksk'] = $data->id_ksk;
+                $actionFormatted = '<a href="javascript:void(0)" class="btnDetail" data-id-ksk="'.$data->id_ksk.'" data-id-departemen="'.$data->departemen_id.'" data-id-divisi="'.$data->divisi_id.'" data-parent-id="'.$data->parent_id.'" data-nama-departemen="'.$data->nama_departemen.'" data-nama-divisi="'.$data->nama_divisi.'" data-id-organisasi="'.$data->organisasi_id.'">'.$data->id_ksk.' <i class="fas fa-search"></i></a>';
+
+                $nestedData['id_ksk'] = $actionFormatted;
                 $nestedData['nama_divisi'] = $data->nama_divisi;
                 $nestedData['nama_departemen'] = $data->nama_departemen;
                 $nestedData['parent_name'] = $data->parent_name;
@@ -152,7 +153,6 @@ class ReleaseController extends Controller
                 $nestedData['reviewed_ph_by'] = $reviewedPhFormatted;
                 $nestedData['reviewed_dir_by'] = $reviewedDirFormatted;
                 $nestedData['legalized_by'] = $legalizedFormatted;
-                $nestedData['action'] = $actionFormatted;
 
                 $dataTable[] = $nestedData;
 
@@ -327,12 +327,89 @@ class ReleaseController extends Controller
         }
     }
 
+    public function update_detail_ksk(Request $request, int $id)
+    {
+        $dataValidate = [
+            'jumlah_sakit' => ['required', 'numeric', 'min:0'],
+            'jumlah_izin' => ['required', 'numeric', 'min:0'],
+            'jumlah_alpa' => ['required', 'numeric', 'min:0'],
+            'jumlah_surat_peringatan' => ['required', 'numeric', 'min:0'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $jumlah_sakit = $request->jumlah_sakit;
+        $jumlah_izin = $request->jumlah_izin;
+        $jumlah_alpa = $request->jumlah_alpa;
+        $jumlah_surat_peringatan = $request->jumlah_surat_peringatan;
+
+        DB::beginTransaction();
+        try {
+            $detail_ksk = DetailKSK::find($id);
+            $detail_ksk->jumlah_sakit = $jumlah_sakit;
+            $detail_ksk->jumlah_izin = $jumlah_izin;
+            $detail_ksk->jumlah_alpa = $jumlah_alpa;
+            $detail_ksk->jumlah_surat_peringatan = $jumlah_surat_peringatan;
+            $detail_ksk->save();
+
+            $nama_karyawan = $detail_ksk->karyawan->nama;
+
+            DB::commit();
+            return response()->json(['message' => 'Detail KSK '.$nama_karyawan.' berhasil diperbaharui.'], 200);
+        } catch (Throwable $e) {
+            DB::rollback();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
     public function get_detail_ksk(string $id)
     {
         try {
-            $detailKsk = DetailKSK::select('ksk_details.*', 'karyawans.tanggal_mulai', 'karyawans.tanggal_selesai', 'ksk.*')->where('ksk_id', $id)->leftJoin('karyawans', 'ksk_details.karyawan_id', 'karyawans.id_karyawan')->leftJoin('ksk', 'ksk_details.ksk_id', 'ksk.id_ksk')->get();
-            $html = view('layouts.partials.ksk-list-karyawan-release-detail', ['datas' => $detailKsk])->render();
-            return response()->json(['message' => 'success', 'data' => $detailKsk, 'html' => $html], 200);
+            $detail_ksk = DetailKSK::with(['kontrak' => function ($query) {
+                $query->orderBy('tanggal_selesai', 'ASC');
+            }])->select('ksk_details.*', 'karyawans.tanggal_mulai', 'karyawans.tanggal_selesai', 'ksk.*', 'kontraks.tanggal_mulai as latest_kontrak_tanggal_mulai', 'kontraks.tanggal_selesai as latest_kontrak_tanggal_selesai')->where('ksk_id', $id)->leftJoin('karyawans', 'ksk_details.karyawan_id', 'karyawans.id_karyawan')->leftJoin('ksk', 'ksk_details.ksk_id', 'ksk.id_ksk')
+            ->leftJoin('kontraks', function ($join) {
+                $join->on('karyawans.id_karyawan', '=', 'kontraks.karyawan_id')
+                    ->whereRaw('kontraks.tanggal_selesai = (select max(tanggal_selesai) from kontraks where kontraks.karyawan_id = karyawans.id_karyawan)');
+            })
+            ->get();
+            $html = view('layouts.partials.ksk-list-karyawan-release-detail', ['datas' => $detail_ksk])->render();
+            return response()->json(['message' => 'success', 'data' => $detail_ksk, 'html' => $html], 200);
+        } catch (Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function get_ksk(string $id)
+    {
+        try {
+            $ksk = KSK::find($id);
+            $data = [];
+            if (!empty($ksk)) {
+                $releasedFormatted = $ksk->released_by ? '✅'.$ksk->released_by.'<br>'.Carbon::createFromFormat($ksk->released_at)->format('d F Y H:i') : '⏳ Waiting';
+                $checkedFormatted = $ksk->checked_by ? '✅'.$ksk->checked_by.'<br>'.Carbon::createFromFormat($ksk->checked_at)->format('d F Y H:i') : '⏳ Waiting';
+                $approvedFormatted = $ksk->approved_by ? '✅'.$ksk->approved_by.'<br>'.Carbon::createFromFormat($ksk->approved_at)->format('d F Y H:i') : '⏳ Waiting';
+                $reviewedDivFormatted = $ksk->reviewed_div_by ? '✅'.$ksk->reviewed_div_by.'<br>'.Carbon::createFromFormat($ksk->reviewed_div_at)->format('d F Y H:i') : '⏳ Waiting';
+                $reviewedPhFormatted = $ksk->reviewed_ph_by ? '✅'.$ksk->reviewed_ph_by.'<br>'.Carbon::createFromFormat($ksk->reviewed_ph_at)->format('d F Y H:i') : '⏳ Waiting';
+                $reviewedDirFormatted = $ksk->reviewed_dir_by ? '✅'.$ksk->reviewed_dir_by.'<br>'.Carbon::createFromFormat($ksk->reviewed_dir_at)->format('d F Y H:i') : '⏳ Waiting';
+                $legalizedFormatted = $ksk->legalized_by ? '✅'.$ksk->legalized_by.'<br>'.Carbon::createFromFormat($ksk->legalized_at)->format('d F Y H:i') : '⏳ Waiting';
+
+                $data = [
+                    'released_by' => $releasedFormatted,
+                    'checked_by'=> $checkedFormatted,
+                    'approved_by'=> $approvedFormatted,
+                    'reviewed_div_by'=> $reviewedDivFormatted,
+                    'reviewed_ph_by'=> $reviewedPhFormatted,
+                    'reviewed_dir_by'=> $reviewedDirFormatted,
+                    'legalized_by'=> $legalizedFormatted,
+                ];
+            }
+            return response()->json(['message' => 'success', 'data' => $data], 200);
         } catch (Throwable $e) {
             return response()->json(['message' => $e->getMessage()], 500);
         }

@@ -139,7 +139,6 @@ $(function () {
         { data: "reviewed_ph_by" },
         { data: "reviewed_dir_by" },
         { data: "legalized_by" },
-        { data: "action" }
     ];
 
     var releasedTable = $("#released-table").DataTable({
@@ -332,8 +331,26 @@ $(function () {
         $('#divisiDetail').text(namaDivisi);
         $('#departemenDetail').text(namaDepartemen);
         $('#release_dateDetail').text(moment().locale('id').format('dddd, DD MMMM YYYY'));
-
         openDetail();
+
+        $.ajax({
+            url: base_url + '/ksk/release/get-ksk/' + idKsk,
+            method: 'GET',
+            dataType: 'JSON',
+            success: function (response){
+                let data = response.data;
+                $('#released_byDetail').empty().html(data.released_by);
+                $('#checked_byDetail').empty().html(data.checked_by);
+                $('#approved_byDetail').empty().html(data.approved_by);
+                $('#reviewed_div_byDetail').empty().html(data.reviewed_div_by);
+                $('#reviewed_ph_byDetail').empty().html(data.reviewed_ph_by);
+                $('#reviewed_dir_byDetail').empty().html(data.reviewed_dir_by);
+            },
+            error: function (jqXHR, textStatus, errorThrown){
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            }
+        })
 
         $.ajax({
             url: url,
@@ -342,7 +359,8 @@ $(function () {
             success: function (response){
                 loadingSwalClose();
                 let html = response.html;
-                $('#list-ksk-detail').empty().html(html);
+                $('#list-detail-ksk').empty().html(html);
+                onClickUpdate();
             },
             error: function (jqXHR, textStatus, errorThrown){
                 loadingSwalClose();
@@ -350,6 +368,44 @@ $(function () {
             }
         })
     })
+
+    function onClickUpdate(){
+        $('.btnUpdate').on('click', function(){
+            loadingSwalShow();
+            let id = $(this).data('id');
+            let idKskDetail = $('#id_ksk_detailEdit'+id).val();
+            let jumlahSuratPeringatan = $('#jumlah_surat_peringatanEdit'+id).val();
+            let jumlahSakit = $('#jumlah_sakitEdit'+id).val();
+            let jumlahIzin = $('#jumlah_izinEdit'+id).val();
+            let jumlahAlpa = $('#jumlah_alpaEdit'+id).val();
+
+            let url = base_url + '/ksk/release/update-detail-ksk/' + idKskDetail;
+            let formData = new FormData();
+
+            formData.append('_method', 'PATCH');
+            formData.append('jumlah_surat_peringatan', jumlahSuratPeringatan);
+            formData.append('jumlah_sakit', jumlahSakit);
+            formData.append('jumlah_izin', jumlahIzin);
+            formData.append('jumlah_alpa', jumlahAlpa);
+
+            $.ajax({
+                url: url,
+                data: formData,
+                method: 'POST',
+                contentType: false,
+                processData: false,
+                dataType: 'JSON',
+                success: function (data){
+                    loadingSwalClose();
+                    showToast({ title: data.message });
+                },
+                error: function (jqXHR, textStatus, errorThrown){
+                    loadingSwalClose();
+                    showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                }
+            })
+        })
+    }
 
     $('#form-input').on('submit', function (e) {
         e.preventDefault();

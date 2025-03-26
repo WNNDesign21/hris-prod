@@ -69,7 +69,6 @@
                                             <th>Plant Head</th>
                                             <th>Director</th>
                                             <th>Status</th>
-                                            <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -80,6 +79,7 @@
                 </div>
             </div>
         </div>
-        @include('pages.ksk-e.release.modal-input')
-        @include('pages.ksk-e.release.modal-detail')
-    @endsection
+    </div>
+    @include('pages.ksk-e.release.modal-input')
+    @include('pages.ksk-e.release.modal-detail')
+@endsection

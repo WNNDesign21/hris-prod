@@ -5,6 +5,7 @@ namespace App\Models\KSK;
 use App\Models\Divisi;
 use App\Models\Posisi;
 use App\Models\Jabatan;
+use App\Models\Kontrak;
 use App\Models\KSK\KSK;
 use App\Models\Karyawan;
 use App\Models\Departemen;
@@ -48,6 +49,11 @@ class DetailKSK extends Model
     public function karyawan()
     {
         return $this->belongsTo(Karyawan::class, 'karyawan_id', 'id_karyawan');
+    }
+
+    public function kontrak()
+    {
+        return $this->hasMany(Kontrak::class, 'karyawan_id', 'karyawan_id');
     }
 
     public function ksk()
