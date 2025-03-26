@@ -172,12 +172,12 @@
                     <a href="{{ auth()->user()->hasRole('personalia') ? route('ksk.release') : route('ksk.approval') }}"
                         class="box pull-up">
                         <div class="box-body position-relative">
-                            {{-- @if ($tugasluare['approval'] + $tugasluare['pengajuan'] > 0)
+                            @if ($ksk['total_release_ksk'] + $ksk['total_approval_ksk'] > 0)
                                 <span class="position-absolute top-0 start-95 translate-middle badge bg-danger">
                                     <i class="ti-bell"></i>
-                                    {{ $tugasluare['approval'] + $tugasluare['pengajuan'] }}
+                                    {{ $ksk['total_release_ksk'] + $ksk['total_approval_ksk'] }}
                                 </span>
-                            @endif --}}
+                            @endif
                             <div class="d-flex align-items-center">
                                 <div class="icon bg-primary-light rounded-circle w-60 h-60 text-center l-h-80">
                                     <span class="fs-30 icon-File"><span class="path1"></span><span

@@ -140,6 +140,11 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/test-live-attendance', [LiveAttendanceController::class, 'test']);
     Route::post('/get-live-attendance-chart', [LiveAttendanceController::class, 'get_live_attendance_chart']);
     Route::post('/live-attendance/datatable', [LiveAttendanceController::class, 'datatable']);
+
+    // KSK
+    Route::group(['prefix' => 'ajax'], function () {
+        Route::get('/ksk/get-ksk-notification', [HomeController::class, 'get_ksk_notification']);
+    });
 });
 
 
@@ -147,7 +152,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
     // MENU UTAMA
 
     //HOME CONTROLLER
-    Route::get('/home', [HomeController::class, 'index'])->name('root')->middleware(['lembure', 'izine', 'tugasluare']);
+    Route::get('/home', [HomeController::class, 'index'])->name('root')->middleware(['lembure', 'izine', 'tugasluare', 'ksk']);
     Route::get('/get-notification', [HomeController::class, 'get_notification']);
     Route::get('/get-pengajuan-cuti-notification', [HomeController::class, 'get_pengajuan_cuti_notification']);
     Route::get('/get-member-cuti-notification', [HomeController::class, 'get_member_cuti_notification']);
@@ -541,7 +546,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
     /** KSK */
     Route::group(['prefix' => 'ksk'], function () {
         Route::group(['middleware' => ['role:personalia']], function () {
-            Route::get('/release', [KSKReleaseController::class, 'index'])->name('ksk.release');
+            Route::get('/release', [KSKReleaseController::class, 'index'])->name('ksk.release')->middleware('ksk');
             Route::post('/release/datatable-unreleased', [KSKReleaseController::class, 'datatable_unreleased']);
             Route::post('/release/datatable-released', [KSKReleaseController::class, 'datatable_released']);
             Route::delete('/release/delete/{idKsk}', [KSKReleaseController::class, 'destroy'])->name('ksk.release.delete');
