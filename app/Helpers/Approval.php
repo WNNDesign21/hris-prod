@@ -23,7 +23,7 @@ class Approval
     protected static $has_department_head = null;
     protected static $has_division_head = null;
     protected static $has_director = null;
-    
+
     public static function HasDirector($posisi)
     {
         self::$response = false;
@@ -40,8 +40,8 @@ class Approval
                     }
                 }
             }
-        } 
-        
+        }
+
         return self::$response;
     }
 
@@ -61,8 +61,8 @@ class Approval
                     }
                 }
             }
-        } 
-        
+        }
+
         return self::$response;
     }
 
@@ -82,8 +82,8 @@ class Approval
                     }
                 }
             }
-        } 
-        
+        }
+
         return self::$response;
     }
 
@@ -128,7 +128,7 @@ class Approval
 
         return self::$response;
     }
-    
+
     public static function GetParentPosisi($posisi)
     {
         self::$array = [];
@@ -171,7 +171,7 @@ class Approval
                  }
              }
          }
- 
+
          return self::$has_director;
      }
 
@@ -316,6 +316,35 @@ class Approval
             }
         }
         return self::$member;
+    }
+
+    public static function ApprovalDeptWithPlantHead($parent_id, $organisasi_id)
+    {
+        self::$atasan = ['leader' => null, 'section_head' => null, 'department_head' => null, 'division_head' =>  null, 'plant_head' => Posisi::where('jabatan_id', 2)->where('organisasi_id', auth()->user()->organisasi_id)->where('nama','ILIKE','PLANT%')->first()->id_posisi, 'director' => null];
+        $posisi = Posisi::where('parent_id', $parent_id)->get();
+        if($posisi){
+            foreach($posisi as $pos){
+                $parent_posisi_ids = self::GetParentPosisi($pos);
+                if(!empty($parent_posisi_ids)){
+                    foreach ($parent_posisi_ids as $parent_id){
+                        if($parent_id !== 0){
+                            if(Posisi::where('id_posisi', $parent_id)->first()->jabatan_id == 5){
+                                self::$atasan['leader'] = $parent_id;
+                            } elseif (Posisi::where('id_posisi', $parent_id)->first()->jabatan_id == 4){
+                                self::$atasan['section_head'] = $parent_id;
+                            } elseif (Posisi::where('id_posisi', $parent_id)->first()->jabatan_id == 3){
+                                self::$atasan['department_head'] = $parent_id;
+                            } elseif (Posisi::where('id_posisi', $parent_id)->first()->jabatan_id == 2){
+                                self::$atasan['division_head'] = $parent_id;
+                            } elseif (Posisi::where('id_posisi', $parent_id)->first()->jabatan_id == 1){
+                                self::$atasan['director'] = $parent_id;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return self::$atasan;
     }
 
 }

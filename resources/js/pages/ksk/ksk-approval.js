@@ -23,6 +23,24 @@ $(function () {
         loadingSwal.close();
     }
 
+    var modalApprovalOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalApproval = new bootstrap.Modal(
+        document.getElementById("modal-approval"),
+        modalApprovalOptions
+    );
+
+    function openApproval() {
+        modalApproval.show();
+    }
+
+    function closeApproval() {
+        modalApproval.hide();
+    }
+
     //SHOW TOAST
     function showToast(options) {
         const toast = Swal.mixin({
@@ -43,304 +61,230 @@ $(function () {
         });
     }
 
-    // function updateApprovalSkdNotification(){
-    //     $.ajax({
-    //         url: base_url + '/get-approval-skd-notification',
-    //         method: 'GET',
-    //         success: function(response){
-    //             $('.notification-approval-skd').html(response.data);
-    //         }
-    //     })
-    // }
+    var columnsMustApprovedTable = [
+        { data: "id_ksk" },
+        { data: "nama_divisi" },
+        { data: "nama_departemen" },
+        { data: "parent_name" },
+        { data: "release_date" },
+        { data: "released_by" },
+        { data: "checked_by" },
+        { data: "approved_by" },
+        { data: "reviewed_div_by" },
+        { data: "reviewed_ph_by" },
+        { data: "reviewed_dir_by" },
+        { data: "legalized_by" },
+    ];
 
-    // var columnsTable = [
-    //     { data: "nama" },
-    //     { data: "departemen" },
-    //     { data: "posisi" },
-    //     { data: "created_at" },
-    //     { data: "tanggal_mulai" },
-    //     { data: "tanggal_selesai" },
-    //     { data: "durasi" },
-    //     { data: "keterangan" },
-    //     { data: "lampiran" },
-    //     { data: "approved_by" },
-    //     { data: "legalized_by" }
-    // ];
+    var mustApprovedTable = $("#must-approved-table").DataTable({
+        search: {
+            return: true,
+        },
+        order: [[3, "DESC"]],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: base_url + "/ksk/approval/datatable-must-approved",
+            dataType: "json",
+            type: "POST",
+            data: function (dataFilter) {
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR.responseJSON.data) {
+                    var error = jqXHR.responseJSON.data.error;
+                    Swal.fire({
+                        icon: "error",
+                        title: " <br>Application error!",
+                        html:
+                            '<div class="alert alert-danger text-left" role="alert">' +
+                            "<p>Error Message: <strong>" +
+                            error +
+                            "</strong></p>" +
+                            "</div>",
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                    }).then(function () {
+                        refreshTable();
+                    });
+                } else {
+                    var message = jqXHR.responseJSON.message;
+                    var errorLine = jqXHR.responseJSON.line;
+                    var file = jqXHR.responseJSON.file;
+                    Swal.fire({
+                        icon: "error",
+                        title: " <br>Application error!",
+                        html:
+                            '<div class="alert alert-danger text-left" role="alert">' +
+                            "<p>Error Message: <strong>" +
+                            message +
+                            "</strong></p>" +
+                            "<p>File: " +
+                            file +
+                            "</p>" +
+                            "<p>Line: " +
+                            errorLine +
+                            "</p>" +
+                            "</div>",
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                    }).then(function () {
+                        refreshTable();
+                    });
+                }
+            },
+        },
+        // responsive: true,
+        scrollX: true,
+        columns: columnsMustApprovedTable,
+        columnDefs: [
+            {
+                orderable: false,
+                targets: [-1],
+            },
+            // {
+            //     targets: [-1],
+            //     createdCell: function (td, cellData, rowData, row, col) {
+            //         // $(td).addClass("text-center");
+            //     },
+            // },
+        ],
+    })
 
-    // var approvalTable = $("#approval-table").DataTable({
-    //     search: {
-    //         return: true,
-    //     },
-    //     order: [[0, "DESC"]],
-    //     processing: true,
-    //     serverSide: true,
-    //     ajax: {
-    //         url: base_url + "/ksk/approval/datatable",
-    //         dataType: "json",
-    //         type: "POST",
-    //         data: function (dataFilter) {
-    //             // let urutan = $('#filterUrutan').val();
-    //             // let departemen = $('#filterDepartemen').val();
-    //             // let status = $('#filterStatus').val();
+    var columnsHistoryTable = [
+        { data: "id_ksk" },
+        { data: "nama_divisi" },
+        { data: "nama_departemen" },
+        { data: "parent_name" },
+        { data: "release_date" },
+        { data: "released_by" },
+        { data: "checked_by" },
+        { data: "approved_by" },
+        { data: "reviewed_div_by" },
+        { data: "reviewed_ph_by" },
+        { data: "reviewed_dir_by" },
+        { data: "legalized_by" },
+    ];
 
-    //             // dataFilter.urutan = urutan;
-    //             // dataFilter.departemen = departemen;
-    //             // dataFilter.status = status;
-    //         },
-    //         error: function (jqXHR, textStatus, errorThrown) {
-    //             if (jqXHR.responseJSON.data) {
-    //                 var error = jqXHR.responseJSON.data.error;
-    //                 Swal.fire({
-    //                     icon: "error",
-    //                     title: " <br>Application error!",
-    //                     html:
-    //                         '<div class="alert alert-danger text-left" role="alert">' +
-    //                         "<p>Error Message: <strong>" +
-    //                         error +
-    //                         "</strong></p>" +
-    //                         "</div>",
-    //                     allowOutsideClick: false,
-    //                     showConfirmButton: true,
-    //                 }).then(function () {
-    //                     refreshTable();
-    //                 });
-    //             } else {
-    //                 var message = jqXHR.responseJSON.message;
-    //                 var errorLine = jqXHR.responseJSON.line;
-    //                 var file = jqXHR.responseJSON.file;
-    //                 Swal.fire({
-    //                     icon: "error",
-    //                     title: " <br>Application error!",
-    //                     html:
-    //                         '<div class="alert alert-danger text-left" role="alert">' +
-    //                         "<p>Error Message: <strong>" +
-    //                         message +
-    //                         "</strong></p>" +
-    //                         "<p>File: " +
-    //                         file +
-    //                         "</p>" +
-    //                         "<p>Line: " +
-    //                         errorLine +
-    //                         "</p>" +
-    //                         "</div>",
-    //                     allowOutsideClick: false,
-    //                     showConfirmButton: true,
-    //                 }).then(function () {
-    //                     refreshTable();
-    //                 });
-    //             }
-    //         },
-    //     },
-    //     // responsive: true,
-    //     scrollX: true,
-    //     columns: columnsTable,
-    //     columnDefs: [
-    //         // {
-    //         //     orderable: false,
-    //         //     targets: [-1],
-    //         // },
-    //         // {
-    //         //     targets: [-1],
-    //         //     createdCell: function (td, cellData, rowData, row, col) {
-    //         //         // $(td).addClass("text-center");
-    //         //     },
-    //         // },
-    //     ],
-    // })
+    var historyTable = $("#history-table").DataTable({
+        search: {
+            return: true,
+        },
+        order: [[3, "DESC"]],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: base_url + "/ksk/approval/datatable-history",
+            dataType: "json",
+            type: "POST",
+            data: function (dataFilter) {
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR.responseJSON.data) {
+                    var error = jqXHR.responseJSON.data.error;
+                    Swal.fire({
+                        icon: "error",
+                        title: " <br>Application error!",
+                        html:
+                            '<div class="alert alert-danger text-left" role="alert">' +
+                            "<p>Error Message: <strong>" +
+                            error +
+                            "</strong></p>" +
+                            "</div>",
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                    }).then(function () {
+                        refreshTable();
+                    });
+                } else {
+                    var message = jqXHR.responseJSON.message;
+                    var errorLine = jqXHR.responseJSON.line;
+                    var file = jqXHR.responseJSON.file;
+                    Swal.fire({
+                        icon: "error",
+                        title: " <br>Application error!",
+                        html:
+                            '<div class="alert alert-danger text-left" role="alert">' +
+                            "<p>Error Message: <strong>" +
+                            message +
+                            "</strong></p>" +
+                            "<p>File: " +
+                            file +
+                            "</p>" +
+                            "<p>Line: " +
+                            errorLine +
+                            "</p>" +
+                            "</div>",
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                    }).then(function () {
+                        refreshTable();
+                    });
+                }
+            },
+        },
+        // responsive: true,
+        scrollX: true,
+        columns: columnsHistoryTable,
+        columnDefs: [
+            {
+                orderable: false,
+                targets: [-1],
+            },
+            // {
+            //     targets: [-1],
+            //     createdCell: function (td, cellData, rowData, row, col) {
+            //         // $(td).addClass("text-center");
+            //     },
+            // },
+        ],
+    })
 
     // //REFRESH TABLE
-    // function refreshTable() {
-    //     var searchValue = approvalTable.search();
-    //     if (searchValue) {
-    //         approvalTable.search(searchValue).draw();
-    //     } else {
-    //         approvalTable.search("").draw();
-    //     }
-    // }
+    function refreshTable() {
+        var searchValueMustApproved = mustApprovedTable.search();
+        if (searchValueMustApproved) {
+            mustApprovedTable.search(searchValueMustApproved).draw();
+        } else {
+            mustApprovedTable.search("").draw();
+        }
 
-    // //RELOAD TABLE
-    // $('.btnReload').on("click", function (){
-    //     refreshTable();
-    // })
+        var searchValueHistory = historyTable.search();
+        if (searchValueHistory) {
+            historyTable.search(searchValueHistory).draw();
+        } else {
+            historyTable.search("").draw();
+        }
+    }
 
-    //  // MODAL REJECT
-    //  var modalRejectOptions = {
-    //     backdrop: true,
-    //     keyboard: false,
-    // };
+    $('#must-approved-table').on('click', '.btnApproved', function(){
+        let idKsk = $(this).data('id-ksk');
+        let url = base_url + '/ksk/ajax/approval/get-ksk/' + idKsk;
 
-    // var modalReject = new bootstrap.Modal(
-    //     document.getElementById("modal-reject-skd"),
-    //     modalRejectOptions
-    // );
+        $.ajax({
+            url: url,
+            type: 'GET',
+            success: function(response){
+                let html = response.html;
+                $('#modal-approval-body').empty().html(html);
+                $('.select2').select2({
+                    dropdownParent: $('#modal-approval')
+                });
+                openApproval();
+            },
+            error: function(jqXHR, textStatus, errorThrown){
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            }
+        });
+    });
 
-    // function openReject() {
-    //     modalReject.show();
-    // }
-
-    // function closeReject() {
-    //     modalReject.hide();
-    //     $('#rejected_note').val('');
-    // }
-
-    // $('#approval-skd-table').on('click', '.btnReject', function(){
-    //     let idSakit = $(this).data('id-sakit');
-    //     let url = base_url + '/izine/approval-skd/rejected/' + idSakit;
-    //     $('#form-reject-skd').attr('action', url);
-    //     openReject();
-    // });
-
-    // $('#form-reject-skd').on('submit', function (e) {
-    //     loadingSwalShow();
-    //     e.preventDefault();
-    //     let url = $(this).attr('action');
-    //     var formData = new FormData($(this)[0]);
-    //     $.ajax({
-    //         url: url,
-    //         data: formData,
-    //         method:"POST",
-    //         contentType: false,
-    //         processData: false,
-    //         dataType: "JSON",
-    //         success: function (data) {
-    //             updateApprovalSkdNotification();
-    //             showToast({ title: data.message });
-    //             refreshTable();
-    //             closeReject();
-    //             loadingSwalClose();
-    //         },
-    //         error: function (jqXHR, textStatus, errorThrown) {
-    //             loadingSwalClose();
-    //             showToast({ icon: "error", title: jqXHR.responseJSON.message });
-    //         },
-    //     })
-
-    // })
-
-    // $('#approval-skd-table').on('click', '.btnApproved', function(){
-    //     let idSakit = $(this).data('id-sakit');
-    //     let url = base_url + '/izine/approval-skd/approved/' + idSakit;
-    //     var formData = new FormData();
-    //     formData.append('_method', 'PATCH');
-    //     Swal.fire({
-    //         title: "Approved SKD",
-    //         text: "Data yang sudah di approved tidak bisa diubah!",
-    //         icon: "warning",
-    //         showCancelButton: true,
-    //         confirmButtonColor: "#3085d6",
-    //         cancelButtonColor: "#d33",
-    //         confirmButtonText: "Yes, Tandai sebagai Approved!",
-    //         allowOutsideClick: false,
-    //     }).then((result) => {
-    //         if (result.value) {
-    //             loadingSwalShow();
-    //             $.ajax({
-    //                 url: url,
-    //                 data : formData,
-    //                 method:"POST",
-    //                 contentType: false,
-    //                 processData: false,
-    //                 dataType: "JSON",
-    //                 success: function (data) {
-    //                     updateApprovalSkdNotification();
-    //                     showToast({ title: data.message });
-    //                     refreshTable();
-    //                     loadingSwalClose();
-    //                 },
-    //                 error: function (jqXHR, textStatus, errorThrown) {
-    //                     loadingSwalClose();
-    //                     showToast({ icon: "error", title: jqXHR.responseJSON.message });
-    //                 },
-    //             });
-    //         }
-    //     });
-    // })
-
-    // $('#approval-skd-table').on('click', '.btnLegalized', function(){
-    //     let idSakit = $(this).data('id-sakit');
-    //     let url = base_url + '/izine/approval-skd/legalized/' + idSakit;
-    //     var formData = new FormData();
-    //     formData.append('_method', 'PATCH');
-    //     Swal.fire({
-    //         title: "Legalized SKD",
-    //         text: "Data yang sudah di legalized tidak bisa diubah!",
-    //         icon: "warning",
-    //         showCancelButton: true,
-    //         confirmButtonColor: "#3085d6",
-    //         cancelButtonColor: "#d33",
-    //         confirmButtonText: "Yes, Tandai sebagai Legalized!",
-    //         allowOutsideClick: false,
-    //     }).then((result) => {
-    //         if (result.value) {
-    //             loadingSwalShow();
-    //             $.ajax({
-    //                 url: url,
-    //                 data : formData,
-    //                 method:"POST",
-    //                 contentType: false,
-    //                 processData: false,
-    //                 dataType: "JSON",
-    //                 success: function (data) {
-    //                     updateApprovalSkdNotification();
-    //                     showToast({ title: data.message });
-    //                     refreshTable();
-    //                     loadingSwalClose();
-    //                 },
-    //                 error: function (jqXHR, textStatus, errorThrown) {
-    //                     loadingSwalClose();
-    //                     showToast({ icon: "error", title: jqXHR.responseJSON.message });
-    //                 },
-    //             });
-    //         }
-    //     });
-    // })
-
-    // FILTER
-    // $('.btnFilter').on("click", function (){
-    //     openFilter();
-    // });
-
-    // $('.btnCloseFilter').on("click", function (){
-    //     closeFilter();
-    // });
-
-    // var modalFilterOptions = {
-    //     backdrop: true,
-    //     keyboard: false,
-    // };
-
-    // var modalFilter = new bootstrap.Modal(
-    //     document.getElementById("modal-filter"),
-    //     modalFilterOptions
-    // );
-
-    // function openFilter() {
-    //     modalFilter.show();
-    // }
-
-    // function closeFilter() {
-    //     modalFilter.hide();
-    // }
-
-    // $('.btnResetFilter').on('click', function(){
-    //     $('#filterUrutan').val('');
-    //     $('#filterDepartemen').val('');
-    //     $('#filterStatus').val('');
-    // })
-
-    // $('#filterUrutan').select2({
-    //     dropdownParent: $('#modal-filter')
-    // });
-
-    // $('#filterStatus').select2({
-    //     dropdownParent: $('#modal-filter')
-    // });
-    // $('#filterDepartemen').select2({
-    //     dropdownParent: $('#modal-filter')
-    // });
-
-    // $(".btnSubmitFilter").on("click", function () {
-    //     approvalTable.draw();
-    //     closeFilter();
-    // });
+    $('a[data-bs-toggle="tab"]').on("shown.bs.tab", function (e) {
+        var target = $(e.target).attr("href");
+        if ($(target).find("table").hasClass("dataTable")) {
+            if (!$.fn.DataTable.isDataTable($(target).find("table"))) {
+                $(target).find("table").DataTable();
+            } else {
+                $(target).find("table").DataTable().columns.adjust().draw();
+            }
+        }
+    });
 });

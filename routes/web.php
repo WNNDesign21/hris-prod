@@ -7,9 +7,7 @@ use App\Http\Controllers\TestController;
 use App\Http\Controllers\Utils\QrController;
 use App\Http\Controllers\Cutie\CutieController;
 use App\Http\Controllers\Izine\IzineController;
-use App\Http\Controllers\KSK\ReleaseController as KSKReleaseController;
 use App\Http\Controllers\Izine\SakiteController;
-use App\Http\Controllers\KSK\ApprovalController as KSKApprovalController;
 use App\Http\Controllers\Lembure\LembureController;
 use App\Http\Controllers\MasterData\AkunController;
 use App\Http\Controllers\MasterData\GrupController;
@@ -38,7 +36,10 @@ use App\Http\Controllers\MasterData\OrganisasiController;
 use App\Http\Controllers\StockOpname\StoReportController;
 use App\Http\Controllers\Attendance\AttendanceGpsController;
 use App\Http\Controllers\Attendance\LiveAttendanceController;
+use App\Http\Controllers\KSK\ReleaseController as KSKReleaseController;
+use App\Http\Controllers\KSK\AjaxController as KSKAjaxController;
 use App\Http\Controllers\TugasLuare\AjaxController as TLAjaxController;
+use App\Http\Controllers\KSK\ApprovalController as KSKApprovalController;
 use App\Http\Controllers\TugasLuare\ApprovalController as TLApprovalController;
 use App\Http\Controllers\Attendance\ApprovalController as ATTApprovalController;
 use App\Http\Controllers\TugasLuare\PengajuanController as TLPengajuanController;
@@ -51,6 +52,11 @@ Route::get('/', function () {
 
 // HRIS
 Route::group(['middleware' => ['auth']], function () {
+
+    Route::get('/503/under-maintenance', function () {
+        return view('maintenance-mode');
+    })->name('under-maintenance');
+
     //Generate System
     // Route::get('/generate-lembur-harian', [LembureController::class, 'generate_lembur_harian']);
     Route::get('/generate-approval-cuti',[TestController::class, 'generate_approval_cuti']);
@@ -140,6 +146,11 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/test-live-attendance', [LiveAttendanceController::class, 'test']);
     Route::post('/get-live-attendance-chart', [LiveAttendanceController::class, 'get_live_attendance_chart']);
     Route::post('/live-attendance/datatable', [LiveAttendanceController::class, 'datatable']);
+
+    // KSK
+    Route::group(['prefix' => 'ajax'], function () {
+        Route::get('/ksk/get-ksk-notification', [HomeController::class, 'get_ksk_notification']);
+    });
 });
 
 
@@ -147,7 +158,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
     // MENU UTAMA
 
     //HOME CONTROLLER
-    Route::get('/home', [HomeController::class, 'index'])->name('root')->middleware(['lembure', 'izine', 'tugasluare']);
+    Route::get('/home', [HomeController::class, 'index'])->name('root')->middleware(['lembure', 'izine', 'tugasluare', 'ksk']);
     Route::get('/get-notification', [HomeController::class, 'get_notification']);
     Route::get('/get-pengajuan-cuti-notification', [HomeController::class, 'get_pengajuan_cuti_notification']);
     Route::get('/get-member-cuti-notification', [HomeController::class, 'get_member_cuti_notification']);
@@ -370,6 +381,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::get('/review-lembur', [LembureController::class, 'review_lembur_view'])->name('lembure.review-lembur');
             Route::post('/review-lembur-datatable', [LembureController::class, 'review_lembur_datatable']);
             Route::patch('/review-lembur/reviewed', [LembureController::class, 'reviewed'])->name('lembure.review-lembur.reviewed');
+            Route::patch('/review-lembur/rejected/{idDetailLembur}', [LembureController::class, 'review_lembur_rejected'])->name('lembure.review-lembur.rejected');
         });
 
         Route::group(['middleware' => ['role:personalia']], function () {
@@ -540,17 +552,30 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
     /** KSK */
     Route::group(['prefix' => 'ksk'], function () {
         Route::group(['middleware' => ['role:personalia']], function () {
-            Route::get('/release', [KSKReleaseController::class, 'index'])->name('ksk.release');
-            Route::post('/release/datatable', [KSKReleaseController::class, 'datatable']);
+            Route::get('/release', [KSKReleaseController::class, 'index'])->name('ksk.release')->middleware('ksk');
+            Route::post('/release/datatable-unreleased', [KSKReleaseController::class, 'datatable_unreleased']);
+            Route::post('/release/datatable-released', [KSKReleaseController::class, 'datatable_released']);
             Route::delete('/release/delete/{idKsk}', [KSKReleaseController::class, 'destroy'])->name('ksk.release.delete');
+            Route::post('/release/store', [KSKReleaseController::class, 'store'])->name('ksk.release.store');
+            Route::patch('/release/update-detail-ksk/{idDetailKsk}', [KSKReleaseController::class, 'update_detail_ksk'])->name('ksk.release.update-detail-ksk');
+
+
+            Route::group(['prefix' => 'ajax'], function () {
+                Route::post('/release/get-karyawans', [KSKAjaxController::class, 'get_karyawans']);
+                Route::get('/release/get-detail-ksk/{idKSK}', [KSKAjaxController::class, 'get_detail_ksk']);
+                Route::get('/release/get-ksk/{idKSK}', [KSKAjaxController::class, 'get_ksk']);
+
+                Route::get('/approval/get-ksk/{idKSK}', [KSKAjaxController::class, 'get_approval_ksk']);
+            });
+
         });
         Route::group(['middleware' => ['role:atasan|personalia']], function () {
-            Route::get('/approval', [KSKApprovalController::class, 'index'])->name('ksk.approval');
-            Route::post('/approval/datatable', [KSKApprovalController::class, 'datatable']);
+            Route::get('/approval', [KSKApprovalController::class, 'index'])->name('ksk.approval')->middleware('ksk');
+            Route::post('/approval/datatable-must-approved', [KSKApprovalController::class, 'datatable_must_approved']);
+            Route::post('/approval/datatable-history', [KSKApprovalController::class, 'datatable_history']);
             Route::delete('/approval/delete/{idKsk}', [KSKApprovalController::class, 'destroy'])->name('ksk.approval.delete');
         });
     });
-
 });
 
 // STOCK-OPNAME

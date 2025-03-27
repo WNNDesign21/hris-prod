@@ -33,7 +33,7 @@ $(function () {
             toast: true,
             position: "top-end",
             showConfirmButton: false,
-            timer: 3000, 
+            timer: 3000,
             timerProgressBar: true,
             didOpen: (toast) => {
             toast.onmouseenter = Swal.stopTimer;
@@ -213,7 +213,7 @@ $(function () {
     $('.btnReload').on("click", function (){
         refreshTable();
     })
-    
+
 
     // PLANNING
     $('.btnClose').on("click", function (){
@@ -229,7 +229,7 @@ $(function () {
         document.getElementById("modal-approval-lembur"),
         modalApprovalLemburOptions
     );
-    
+
     function openForm() {
         modalApprovalLembur.show();
     }
@@ -263,7 +263,7 @@ $(function () {
                 let status = header.status;
                 let detail = response.data.detail_lembur;
                 let tbody = $('#list-approval-lembur').empty();
-                
+
                 $.each(detail, function (i, val){
                     tbody.append(`
                          <tr class="${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N' ? 'bg-danger' : ''}">
@@ -280,14 +280,14 @@ $(function () {
                             <td>
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N'  ? `<input id="rencana_selesai_lembur_${i}" name="selesai_lembur[]" type="datetime-local" class="form-control selesaiLembur ${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N'  ? 'bg-danger' : ''}"  data-urutan="${i}" data-selesai="${val.rencana_selesai_lembur}" required>` : `-`}
                             </td>
-                            <td id="durasi-${i}"> 
+                            <td id="durasi-${i}">
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N' ? val.durasi_rencana : '-'}
                             </td>
                             <td id="nominal-${i}">
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N' ? val.nominal : '-'}
                             </td>
                             <td>
-                                `+ ((canApproved || canChecked) && !isPlanned && val.is_rencana_approved == 'Y' && val.is_aktual_approved == 'Y' ? 
+                                `+ ((canApproved || canChecked) && !isPlanned && val.is_rencana_approved == 'Y' && val.is_aktual_approved == 'Y' ?
                                 `
                                     <input type="checkbox" name="is_rencana_approved" data-urutan="${i}" id="is_rencana_approved_${i}" class="filled-in chk-col-primary" ${val.is_rencana_approved == 'Y' ? 'checked' : ''} value="${val.id_detail_lembur}"/>
                                     <label for="is_rencana_approved_${i}"></label>
@@ -297,7 +297,7 @@ $(function () {
                     `)
 
                     let minDate = moment(val.rencana_mulai_lembur).format('YYYY-MM-DDT00:00');
-         
+
                     $('#rencana_mulai_lembur_' + i).attr('min', minDate);
                     $('#rencana_selesai_lembur_' + i).attr('min', minDate);
 
@@ -330,7 +330,7 @@ $(function () {
                     $('#rencana_selesai_lembur_' + i).on('change', function(){
                         if($(this).val() < $('#rencana_mulai_lembur_' + i).val()){
                             $(this).val($(this).data('selesai'));
-                        } 
+                        }
 
                         $.ajax({
                             url: base_url + '/lembure/approval-lembur/get-calculation-durasi-and-nominal-lembur/' + $('#id_detail_lembur_' + i).val(),
@@ -367,12 +367,12 @@ $(function () {
 
                     let jobDescriptions = val.deskripsi_pekerjaan.split(',').map(desc => `<li>${desc.trim()}</li>`).join('');
                     $('#job_description_' + i).html(`<ul>${jobDescriptions}</ul>`);
-                    
+
                     if(val.is_rencana_approved == 'Y'){
                         $('#rencana_mulai_lembur_' + i).val(val.rencana_mulai_lembur);
                         $('#rencana_selesai_lembur_' + i).val(val.rencana_selesai_lembur);
                         $('#id_detail_lembur_' + i).val(val.id_detail_lembur);
-                    } 
+                    }
                     $('#karyawan_id_' + i).text(val.nama);
 
                     $('.btnUpdateStatusDetailLembur').removeClass('btn-warning').addClass('btn-success').text('Approved');
@@ -383,11 +383,11 @@ $(function () {
                         e.preventDefault();
                         let url = $('#form-approval-lembur').attr('action');
                         let formData = new FormData($('#form-approval-lembur')[0]);
-                        let approvedDetail = []; 
-                        $("input:checkbox[name=is_rencana_approved]:checked").each(function() { 
-                            approvedDetail.push($(this).val()); 
-                        }); 
-                        
+                        let approvedDetail = [];
+                        $("input:checkbox[name=is_rencana_approved]:checked").each(function() {
+                            approvedDetail.push($(this).val());
+                        });
+
                         formData.append('is_planned', isPlanned ? 'Y' : 'N');
                         formData.append('approved_detail', approvedDetail);
 
@@ -448,8 +448,8 @@ $(function () {
             error: function (jqXHR, textStatus, errorThrown) {
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
             },
-        }); 
-        
+        });
+
     })
 
     $('#approval-table').on('click', '.btnApproved', function(){
@@ -473,7 +473,7 @@ $(function () {
                 let status = header.status;
                 let detail = response.data.detail_lembur;
                 let tbody = $('#list-approval-lembur').empty();
-                
+
                 $.each(detail, function (i, val){
                     tbody.append(`
                          <tr class="${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N' ? 'bg-danger' : ''}">
@@ -490,14 +490,14 @@ $(function () {
                             <td>
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N'  ? `<input id="rencana_selesai_lembur_${i}" name="selesai_lembur[]" type="datetime-local" class="form-control selesaiLembur ${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N'  ? 'bg-danger' : ''}"  data-urutan="${i}" data-selesai="${val.rencana_selesai_lembur}" required>` : `-`}
                             </td>
-                            <td id="durasi-${i}"> 
+                            <td id="durasi-${i}">
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N' ? val.durasi_rencana : '-'}
                             </td>
                             <td id="nominal-${i}">
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N' ? val.nominal : '-'}
                             </td>
                             <td>
-                                `+ ((canApproved || canChecked) && !isPlanned && val.is_rencana_approved == 'Y' && val.is_aktual_approved == 'Y' ? 
+                                `+ ((canApproved || canChecked) && !isPlanned && val.is_rencana_approved == 'Y' && val.is_aktual_approved == 'Y' ?
                                 `
                                     <input type="checkbox" name="is_rencana_approved" data-urutan="${i}" id="is_rencana_approved_${i}" class="filled-in chk-col-primary" ${val.is_rencana_approved == 'Y' ? 'checked' : ''} value="${val.id_detail_lembur}"/>
                                     <label for="is_rencana_approved_${i}"></label>
@@ -510,10 +510,10 @@ $(function () {
                         $('#rencana_mulai_lembur_' + i).val(val.rencana_mulai_lembur);
                         $('#rencana_selesai_lembur_' + i).val(val.rencana_selesai_lembur);
                         $('#id_detail_lembur_' + i).val(val.id_detail_lembur);
-                    } 
+                    }
 
                     let minDate = moment(val.rencana_mulai_lembur).format('YYYY-MM-DDT00:00');
-         
+
                     $('#rencana_mulai_lembur_' + i).attr('min', minDate);
                     $('#rencana_selesai_lembur_' + i).attr('min', minDate);
 
@@ -546,7 +546,7 @@ $(function () {
                     $('#rencana_selesai_lembur_' + i).on('change', function(){
                         if($(this).val() < $('#rencana_mulai_lembur_' + i).val()){
                             $(this).val($(this).data('selesai'));
-                        } 
+                        }
 
                         $.ajax({
                             url: base_url + '/lembure/approval-lembur/get-calculation-durasi-and-nominal-lembur/' + $('#id_detail_lembur_' + i).val(),
@@ -583,7 +583,7 @@ $(function () {
 
                     let jobDescriptions = val.deskripsi_pekerjaan.split(',').map(desc => `<li>${desc.trim()}</li>`).join('');
                     $('#job_description_' + i).html(`<ul>${jobDescriptions}</ul>`);
-                    
+
                     $('#karyawan_id_' + i).text(val.nama);
 
                     $('.btnUpdateStatusDetailLembur').removeClass('btn-warning').addClass('btn-success').text('Approved');
@@ -594,11 +594,11 @@ $(function () {
                         e.preventDefault();
                         let url = $('#form-approval-lembur').attr('action');
                         let formData = new FormData($('#form-approval-lembur')[0]);
-                        let approvedDetail = []; 
-                        $("input:checkbox[name=is_rencana_approved]:checked").each(function() { 
-                            approvedDetail.push($(this).val()); 
-                        }); 
-                        
+                        let approvedDetail = [];
+                        $("input:checkbox[name=is_rencana_approved]:checked").each(function() {
+                            approvedDetail.push($(this).val());
+                        });
+
                         formData.append('is_planned', isPlanned ? 'Y' : 'N');
                         formData.append('approved_detail', approvedDetail);
 
@@ -659,8 +659,8 @@ $(function () {
             error: function (jqXHR, textStatus, errorThrown) {
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
             },
-        }); 
-        
+        });
+
     })
 
     $('#approval-table').on('click', '.btnLegalized', function(){
@@ -681,7 +681,7 @@ $(function () {
                 let status = header.status;
                 let detail = response.data.detail_lembur;
                 let tbody = $('#list-approval-lembur').empty();
-                
+
                 $.each(detail, function (i, val){
                     tbody.append(`
                          <tr class="${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N' ? 'bg-danger' : ''}">
@@ -698,14 +698,14 @@ $(function () {
                             <td>
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N'  ? `<input id="rencana_selesai_lembur_${i}" name="selesai_lembur[]" type="datetime-local" class="form-control selesaiLembur ${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N'  ? 'bg-danger' : ''}"  data-urutan="${i}" data-selesai="${val.rencana_selesai_lembur}" required>` : `-`}
                             </td>
-                            <td id="durasi-${i}"> 
+                            <td id="durasi-${i}">
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N' ? val.durasi_rencana : '-'}
                             </td>
                             <td id="nominal-${i}">
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N' ? val.nominal : '-'}
                             </td>
                             <td>
-                                `+ (!isPlanned && val.is_rencana_approved == 'Y' && val.is_aktual_approved == 'Y' ? 
+                                `+ (!isPlanned && val.is_rencana_approved == 'Y' && val.is_aktual_approved == 'Y' ?
                                 `
                                     <input type="checkbox" name="is_rencana_approved" data-urutan="${i}" id="is_rencana_approved_${i}" class="filled-in chk-col-primary" ${val.is_rencana_approved == 'Y' ? 'checked' : ''} value="${val.id_detail_lembur}"/>
                                     <label for="is_rencana_approved_${i}"></label>
@@ -718,10 +718,10 @@ $(function () {
                         $('#rencana_mulai_lembur_' + i).val(val.rencana_mulai_lembur);
                         $('#rencana_selesai_lembur_' + i).val(val.rencana_selesai_lembur);
                         $('#id_detail_lembur_' + i).val(val.id_detail_lembur);
-                    } 
+                    }
 
                     let minDate = moment(val.rencana_mulai_lembur).format('YYYY-MM-DDT00:00');
-         
+
                     $('#rencana_mulai_lembur_' + i).attr('min', minDate);
                     $('#rencana_selesai_lembur_' + i).attr('min', minDate);
 
@@ -754,7 +754,7 @@ $(function () {
                     $('#rencana_selesai_lembur_' + i).on('change', function(){
                         if($(this).val() < $('#rencana_mulai_lembur_' + i).val()){
                             $(this).val($(this).data('selesai'));
-                        } 
+                        }
 
                         $.ajax({
                             url: base_url + '/lembure/approval-lembur/get-calculation-durasi-and-nominal-lembur/' + $('#id_detail_lembur_' + i).val(),
@@ -791,7 +791,7 @@ $(function () {
 
                     let jobDescriptions = val.deskripsi_pekerjaan.split(',').map(desc => `<li>${desc.trim()}</li>`).join('');
                     $('#job_description_' + i).html(`<ul>${jobDescriptions}</ul>`);
-                    
+
                     $('#karyawan_id_' + i).text(val.nama);
 
                     $('.btnUpdateStatusDetailLembur').removeClass('btn-warning').addClass('btn-success').text('Legalized');
@@ -802,11 +802,11 @@ $(function () {
                         e.preventDefault();
                         let url = $('#form-approval-lembur').attr('action');
                         let formData = new FormData($('#form-approval-lembur')[0]);
-                        let approvedDetail = []; 
-                        $("input:checkbox[name=is_rencana_approved]:checked").each(function() { 
-                            approvedDetail.push($(this).val()); 
-                        }); 
-                        
+                        let approvedDetail = [];
+                        $("input:checkbox[name=is_rencana_approved]:checked").each(function() {
+                            approvedDetail.push($(this).val());
+                        });
+
                         formData.append('is_planned', isPlanned ? 'Y' : 'N');
                         formData.append('approved_detail', approvedDetail);
 
@@ -866,8 +866,8 @@ $(function () {
             error: function (jqXHR, textStatus, errorThrown) {
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
             },
-        }); 
-        
+        });
+
     })
 
     $('.btnCloseAktual').on("click", function (){
@@ -883,7 +883,7 @@ $(function () {
         document.getElementById("modal-aktual-approval-lembur"),
         modalAktualApprovalLemburOptions
     );
-    
+
     function openAktual() {
         modalAktualApprovalLembur.show();
     }
@@ -914,7 +914,7 @@ $(function () {
                  //attachment
                  let attachmentLembur = response.data.attachment;
                  let previewElement = $('.previewAttachmentLembur').empty();
- 
+
                  if(attachmentLembur.length > 0){
                      $.each(attachmentLembur, function (i, val){
                          let ext = val.path.split('.').pop();
@@ -933,7 +933,7 @@ $(function () {
                  } else {
                      previewElement.append(`<p>No Attachment Uploaded</p>`);
                  }
- 
+
                  //REINITALIZE LIGHTBOX
                  if ($('.image-popup-vertical-fit').length) {
                      $('.image-popup-vertical-fit').magnificPopup({
@@ -945,7 +945,7 @@ $(function () {
                          }
                      });
                  }
-             
+
                 $.each(detail, function (i, val){
                     tbody.append(`
                          <tr class="${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N' ? 'bg-danger' : ''}">
@@ -973,7 +973,7 @@ $(function () {
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N'  ? `<input id="aktual_selesai_lembur_aktual_${i}" name="selesai_lembur[]" type="datetime-local" class="form-control selesaiLembur ${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N'  ? 'bg-danger' : ''}""
                                         data-td-target="#datetimepicker_selesai_aktual_${i}" data-urutan="${i}" data-selesai="${val.aktual_selesai_lembur}" required>` : `-`}
                             </td>
-                            <td id="durasi-aktual-${i}"> 
+                            <td id="durasi-aktual-${i}">
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N' ? val.durasi_aktual : '-'}
                             </td>
                             <td>
@@ -995,10 +995,10 @@ $(function () {
                         $('#id_detail_lembur_aktual_' + i).val(val.id_detail_lembur);
                         $('#aktual_mulai_lembur_aktual_' + i).val(val.aktual_mulai_lembur);
                         $('#aktual_selesai_lembur_aktual_' + i).val(val.aktual_selesai_lembur);
-                    } 
+                    }
 
                     let minDate = moment(val.rencana_mulai_lembur).format('YYYY-MM-DDT00:00');
-         
+
                     $('#aktual_mulai_lembur_aktual_' + i).attr('min', minDate);
                     $('#aktual_selesai_lembur_aktual_' + i).attr('min', minDate);
 
@@ -1053,7 +1053,7 @@ $(function () {
 
                     let jobDescriptions = val.deskripsi_pekerjaan.split(',').map(desc => `<li>${desc.trim()}</li>`).join('');
                     $('#job_description_aktual_' + i).html(`<ul>${jobDescriptions}</ul>`);
-                    
+
                     $('#karyawan_id_aktual_' + i).text(val.nama);
 
                     $('.btnUpdateAktualLembur').removeClass('btn-warning').addClass('btn-success').text('Approved');
@@ -1123,7 +1123,7 @@ $(function () {
             error: function (jqXHR, textStatus, errorThrown) {
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
             },
-        }); 
+        });
     })
 
 
@@ -1149,7 +1149,7 @@ $(function () {
                  //attachment
                  let attachmentLembur = response.data.attachment;
                  let previewElement = $('.previewAttachmentLembur').empty();
- 
+
                  if(attachmentLembur.length > 0){
                      $.each(attachmentLembur, function (i, val){
                          let ext = val.path.split('.').pop();
@@ -1168,7 +1168,7 @@ $(function () {
                  } else {
                      previewElement.append(`<p>No Attachment Uploaded</p>`);
                  }
- 
+
                  //REINITALIZE LIGHTBOX
                  if ($('.image-popup-vertical-fit').length) {
                      $('.image-popup-vertical-fit').magnificPopup({
@@ -1180,7 +1180,7 @@ $(function () {
                          }
                      });
                  }
-             
+
                 $.each(detail, function (i, val){
                     tbody.append(`
                          <tr class="${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N' ? 'bg-danger' : ''}">
@@ -1208,7 +1208,7 @@ $(function () {
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N'  ? `<input id="aktual_selesai_lembur_aktual_${i}" name="selesai_lembur[]" type="datetime-local" class="form-control selesaiLembur ${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N'  ? 'bg-danger' : ''}""
                                         data-td-target="#datetimepicker_selesai_aktual_${i}" data-urutan="${i}" data-selesai="${val.aktual_selesai_lembur}" required>` : `-`}
                             </td>
-                            <td id="durasi-aktual-${i}"> 
+                            <td id="durasi-aktual-${i}">
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N' ? val.durasi_aktual : '-'}
                             </td>
                             <td>
@@ -1230,10 +1230,10 @@ $(function () {
                         $('#id_detail_lembur_aktual_' + i).val(val.id_detail_lembur);
                         $('#aktual_mulai_lembur_aktual_' + i).val(val.aktual_mulai_lembur);
                         $('#aktual_selesai_lembur_aktual_' + i).val(val.aktual_selesai_lembur);
-                    } 
+                    }
 
                     let minDate = moment(val.rencana_mulai_lembur).format('YYYY-MM-DDT00:00');
-         
+
                     $('#aktual_mulai_lembur_aktual_' + i).attr('min', minDate);
                     $('#aktual_selesai_lembur_aktual_' + i).attr('min', minDate);
 
@@ -1288,7 +1288,7 @@ $(function () {
 
                     let jobDescriptions = val.deskripsi_pekerjaan.split(',').map(desc => `<li>${desc.trim()}</li>`).join('');
                     $('#job_description_aktual_' + i).html(`<ul>${jobDescriptions}</ul>`);
-                    
+
                     $('#karyawan_id_aktual_' + i).text(val.nama);
 
                     $('.btnUpdateAktualLembur').removeClass('btn-warning').addClass('btn-success').text('Approved');
@@ -1358,7 +1358,7 @@ $(function () {
             error: function (jqXHR, textStatus, errorThrown) {
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
             },
-        }); 
+        });
     })
 
     $('#approval-table').on("click", '.btnLegalizedAktual' , function () {
@@ -1383,7 +1383,7 @@ $(function () {
                  //attachment
                  let attachmentLembur = response.data.attachment;
                  let previewElement = $('.previewAttachmentLembur').empty();
- 
+
                  if(attachmentLembur.length > 0){
                      $.each(attachmentLembur, function (i, val){
                          let ext = val.path.split('.').pop();
@@ -1402,7 +1402,7 @@ $(function () {
                  } else {
                      previewElement.append(`<p>No Attachment Uploaded</p>`);
                  }
- 
+
                  //REINITALIZE LIGHTBOX
                  if ($('.image-popup-vertical-fit').length) {
                      $('.image-popup-vertical-fit').magnificPopup({
@@ -1414,7 +1414,7 @@ $(function () {
                          }
                      });
                  }
-             
+
                 $.each(detail, function (i, val){
                     tbody.append(`
                          <tr class="${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N' ? 'bg-danger' : ''}">
@@ -1452,7 +1452,7 @@ $(function () {
                                     </div>
                                 </div>` : `-`}
                             </td>
-                            <td id="durasi-aktual-${i}"> 
+                            <td id="durasi-aktual-${i}">
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N' ? val.durasi_aktual : '-'}
                             </td>
                             <td>
@@ -1474,10 +1474,10 @@ $(function () {
                         $('#id_detail_lembur_aktual_' + i).val(val.id_detail_lembur);
                         $('#aktual_mulai_lembur_aktual_' + i).val(val.aktual_mulai_lembur);
                         $('#aktual_selesai_lembur_aktual_' + i).val(val.aktual_selesai_lembur);
-                    } 
+                    }
 
                     let minDate = moment(val.rencana_mulai_lembur).format('YYYY-MM-DDT00:00');
-         
+
                     $('#aktual_mulai_lembur_aktual_' + i).attr('min', minDate);
                     $('#aktual_selesai_lembur_aktual_' + i).attr('min', minDate);
 
@@ -1539,7 +1539,7 @@ $(function () {
 
                     let jobDescriptions = val.deskripsi_pekerjaan.split(',').map(desc => `<li>${desc.trim()}</li>`).join('');
                     $('#job_description_aktual_' + i).html(`<ul>${jobDescriptions}</ul>`);
-                    
+
                     $('#karyawan_id_aktual_' + i).text(val.nama);
 
                     $('.btnUpdateAktualLembur').removeClass('btn-warning').addClass('btn-success').text('Legalized');
@@ -1608,7 +1608,7 @@ $(function () {
             error: function (jqXHR, textStatus, errorThrown) {
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
             },
-        }); 
+        });
     })
 
     // DETAIL
@@ -1625,7 +1625,7 @@ $(function () {
         document.getElementById("modal-detail-approval-lembur"),
         modalDetailApprovalLemburOptions
     );
-    
+
     function openDetail() {
         modalDetailApprovalLembur.show();
     }
@@ -1686,7 +1686,7 @@ $(function () {
                         }
                     });
                 }
-                
+
                 $.each(detail, function (i, val){
                     tbody.append(`
                          <tr class="${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N' ? 'bg-danger' : ''}">
@@ -1703,7 +1703,7 @@ $(function () {
                                 <span id="rencana_selesai_lembur_detail_${i}"></span>
                             </td>
                             <td>
-                                ${val.durasi_rencana} ${val.rencana_last_changed_by ? `<br><p class="text-fade">Last Changed : <br><small>${val.rencana_last_changed_by} <br>(${val.rencana_last_changed_at})</small></p>` : ''}
+                                ${val.durasi_rencana} ${val.rencana_last_changed_by ? `<br><p>Last Changed : <br><small>${val.rencana_last_changed_by} <br>(${val.rencana_last_changed_at})</small></p>` : ''}
                             </td>
                             <td>
                                 <span id="aktual_mulai_lembur_detail_${i}"></span>
@@ -1712,7 +1712,7 @@ $(function () {
                                 <span id="aktual_selesai_lembur_detail_${i}"></span>
                             </td>
                             <td>
-                                ${val.durasi_aktual} ${val.aktual_last_changed_by ? `<br><p class="text-fade">Last Changed : <br><small>${val.aktual_last_changed_by} <br>(${val.aktual_last_changed_at})</small></p>` : ''}
+                                ${val.durasi_aktual} ${val.aktual_last_changed_by ? `<br><p>Last Changed : <br><small>${val.aktual_last_changed_by} <br>(${val.aktual_last_changed_at})</small></p>` : ''}
                             </td>
                             <td>
                                 ${val.keterangan ? val.keterangan : '-'}
@@ -1722,13 +1722,13 @@ $(function () {
                             </td>
                         </tr>
                     `)
-                    
+
                     $('#karyawan_id_detail_' + i).text(val.nama);
 
                     //JOB DESCRIPTION
                     let jobDescriptions = val.deskripsi_pekerjaan.split(',').map(desc => `<li>${desc.trim()}</li>`).join('');
                     $('#job_description_detail_' + i).html(`<ul>${jobDescriptions}</ul>`);
-                    
+
                     //WAKTU
                     $('#rencana_mulai_lembur_detail_' + i).text(val.rencana_mulai_lembur ? val.rencana_mulai_lembur.replace('T', ' ').replace(':', '.') : '-');
                     $('#rencana_selesai_lembur_detail_' + i).text(val.rencana_selesai_lembur ? val.rencana_selesai_lembur.replace('T', ' ').replace(':', '.') : '-');
@@ -1755,7 +1755,7 @@ $(function () {
             error: function (jqXHR, textStatus, errorThrown) {
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
             },
-        }); 
+        });
     })
 
     //REJECT
@@ -1772,7 +1772,7 @@ $(function () {
         document.getElementById("modal-reject-lembur"),
         modalRejectLemburOptions
     );
-    
+
     function openReject() {
         modalRejectLembur.show();
     }
@@ -1832,7 +1832,7 @@ $(function () {
         document.getElementById("modal-filter"),
         modalFilterOptions
     );
-    
+
     function openFilter() {
         modalFilter.show();
     }
@@ -1897,7 +1897,7 @@ $(function () {
         document.getElementById("modal-cross-check-approval-lembur"),
         modalCrossCheckOptions
     );
-    
+
     function openCrossCheck() {
         modalCrossCheck.show();
     }
@@ -1905,7 +1905,7 @@ $(function () {
     function closeCrossCheck() {
         modalCrossCheck.hide();
     }
-    
+
     function getDataCrossCheck(idKaryawan, date)
     {
         loadingSwalShow();

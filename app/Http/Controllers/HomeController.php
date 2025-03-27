@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Throwable;
 use Carbon\Carbon;
 use App\Models\Cutie;
 use App\Models\Izine;
@@ -68,7 +69,7 @@ class HomeController extends Controller
 
             $dataProfile = [
                 'ni_karyawan' => $profile?->ni_karyawan,
-                'foto' => $profile?->foto ? asset('storage/'.$profile->foto) : asset('img/no-image.png'),  
+                'foto' => $profile?->foto ? asset('storage/'.$profile->foto) : asset('img/no-image.png'),
                 'nama' => $profile?->nama,
                 'no_kk' => $profile?->no_kk,
                 'nik' => $profile?->nik,
@@ -112,7 +113,7 @@ class HomeController extends Controller
                     $badge = '<span class="badge badge-pill badge-success">SEDANG BERJALAN</span>';
                 } else {
                     $badge = '<span class="badge badge-pill badge-warning">PROSES PERPANJANGAN</span>';
-                } 
+                }
                 $dataKontrak[] = [
                     'id_kontrak' => $kontrak->id_kontrak,
                     'nama_posisi' => $kontrak->nama_posisi ? $kontrak->nama_posisi : ($kontrak->posisi->nama ? $kontrak->posisi->nama : null),
@@ -229,7 +230,7 @@ class HomeController extends Controller
         $lembure = [
             'pengajuan_lembur' => $pengajuan_lembur,
         ];
-        
+
         $html = view('layouts.partials.notification-planned-pengajuan-lembur')->with(compact('lembure'))->render();
         return response()->json(['data' => $html], 200);
     }
@@ -293,7 +294,7 @@ class HomeController extends Controller
         //HRD
         if ($user->hasRole('personalia')){
             $approval_izin = Izine::where('organisasi_id', $organisasi_id)->whereNull('rejected_by')->whereNull('legalized_by')->whereNotNull('approved_by')->count();
-        } 
+        }
 
         //leader
         if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 5){
@@ -306,7 +307,7 @@ class HomeController extends Controller
                             ->whereNull('rejected_by')
                             ->whereNull('checked_by')
                             ->count();
-        } 
+        }
 
         //section head
         if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 4){
@@ -340,7 +341,7 @@ class HomeController extends Controller
                     $approval_izin++;
                 }
             }
-        } 
+        }
 
         //department head
         if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 3){
@@ -374,7 +375,7 @@ class HomeController extends Controller
                     $approval_izin++;
                 }
             }
-        } 
+        }
 
         //plant head
         if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 2){
@@ -429,7 +430,7 @@ class HomeController extends Controller
         //HRD
         if ($user->hasRole('personalia')){
             $approval_skd = Sakite::where('organisasi_id', $organisasi_id)->whereNull('rejected_by')->whereNull('legalized_by')->whereNotNull('approved_by')->whereNotNull('attachment')->count();
-        } 
+        }
 
         //section head
         if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 4){
@@ -443,7 +444,7 @@ class HomeController extends Controller
                     ->whereNull('approved_by')
                     // ->whereNotNull('attachment')
                     ->count();
-        } 
+        }
 
         //department head
         if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 3){
@@ -457,7 +458,7 @@ class HomeController extends Controller
                     ->whereNull('approved_by')
                     // ->whereNotNull('attachment')
                     ->get();
-            
+
             foreach ($skds as $skd){
                 $posisi = $skd->karyawan->posisi;
                 $has_leader = $this->has_leader($posisi);
@@ -468,7 +469,7 @@ class HomeController extends Controller
                     $approval_skd++;
                 }
             }
-        } 
+        }
 
         //plant head
         if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 2){
@@ -482,7 +483,7 @@ class HomeController extends Controller
                     ->whereNull('approved_by')
                     // ->whereNotNull('attachment')
                     ->get();
-            
+
             foreach ($skds as $skd){
                 $posisi = $skd->karyawan->posisi;
                 $has_leader = $this->has_leader($posisi);
@@ -524,7 +525,7 @@ class HomeController extends Controller
         }
 
         return $has_leader;
-    } 
+    }
 
     public function get_approval_lembur_notification(){
         $user = auth()->user();
@@ -544,7 +545,7 @@ class HomeController extends Controller
                         ->whereNull('actual_legalized_by');
                 });
             })->where('organisasi_id', $organisasi_id)->count();
-        } elseif ($user->karyawan && $user->karyawan->posisi[0]->jabatan_id == 2){ 
+        } elseif ($user->karyawan && $user->karyawan->posisi[0]->jabatan_id == 2){
             if (auth()->user()->karyawan->posisi[0]->divisi_id == 3) {
                 $posisis_has_div_head = Posisi::where('jabatan_id', 2)
                 ->whereHas('karyawan')
@@ -607,7 +608,7 @@ class HomeController extends Controller
         $lembure = [
             'approval_lembur' => $approval_lembur,
         ];
-        
+
         $html = view('layouts.partials.notification-approval-lembur')->with(compact('lembure'))->render();
         return response()->json(['data' => $html], 200);
     }
@@ -669,7 +670,7 @@ class HomeController extends Controller
         $lembure = [
             'review_lembur' => $review_lembur,
         ];
-        
+
         $html = view('layouts.partials.notification-review-lembur')->with(compact('lembure'))->render();
         return response()->json(['data' => $html], 200);
     }
@@ -820,7 +821,7 @@ class HomeController extends Controller
         $html = view('layouts.partials.notification-pengajuan-cuti')->with(compact('notification'))->render();
         return response()->json(['data' => $html], 200);
     }
-    
+
     public function get_member_cuti_notification(){
         $notification = $this->get_notification_cuti();
         $html = view('layouts.partials.notification-member-cuti')->with(compact('notification'))->render();
@@ -1001,7 +1002,7 @@ class HomeController extends Controller
                 'size' => 12,
             ],
         ];
-        
+
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('SLIP LEMBUR');
         $row = 1;
@@ -1101,7 +1102,7 @@ class HomeController extends Controller
             $sheet->getStyle($col . $row.':' . $col . ($row+1))->applyFromArray($fillStyle);
             $col++;
         }
-        
+
         $row += 2;
         //LOOPING AWAL SAMPAI AKHIR BULAN
         $total_jam = 0;
@@ -1120,7 +1121,7 @@ class HomeController extends Controller
                     $total_spl += $slipLembur->nominal;
                     $sheet->setCellValue('A'.$row, $i+1);
                     $sheet->setCellValue('B'.$row, Carbon::parse($date)->locale('id')->translatedFormat('l'));
-    
+
                     //JIKA WEEKEND UBAH STYLE CELL
                     if(Carbon::parse($date)->isWeekend()){
                         $sheet->getStyle('B'.$row)->applyFromArray([
@@ -1147,7 +1148,7 @@ class HomeController extends Controller
                     } else {
                         $keterangan = '';
                     }
-    
+
                     $sheet->setCellValue('C'.$row, Carbon::parse($date)->format('d-m-Y'));
                     $sheet->setCellValue('D'.$row, Carbon::parse($slipLembur->aktual_mulai_lembur)->format('H:i'));
                     $sheet->setCellValue('E'.$row, Carbon::parse($slipLembur->aktual_selesai_lembur)->format('H:i'));
@@ -1158,7 +1159,7 @@ class HomeController extends Controller
                     $sheet->setCellValue('J'.$row, $slipLembur->uang_makan);
                     $sheet->setCellValue('K'.$row, 'Rp '. number_format($slipLembur->nominal, 0, ',', '.'));
                     $sheet->setCellValue('L'.$row, $keterangan);
-        
+
                         //STYLE CELL
                     $sheet->getStyle('C'.$row)->applyFromArray([
                         'alignment' => [
@@ -1267,9 +1268,9 @@ class HomeController extends Controller
             $row++;
         }
 
-        $sheet->setCellValue('H'.$row, number_format($total_jam / 60 , 2));    
-        $sheet->setCellValue('I'.$row, number_format($total_konversi_jam / 60 , 2));    
-        $sheet->setCellValue('J'.$row, 'Rp ' . number_format($total_uang_makan, 0, ',', '.'));    
+        $sheet->setCellValue('H'.$row, number_format($total_jam / 60 , 2));
+        $sheet->setCellValue('I'.$row, number_format($total_konversi_jam / 60 , 2));
+        $sheet->setCellValue('J'.$row, 'Rp ' . number_format($total_uang_makan, 0, ',', '.'));
         $sheet->setCellValue('K'.$row, 'Rp ' . number_format($total_spl, 0, ',', '.'));
         $sheet->setCellValue('J'.$row+1, 'SESUAI SPL');
         $sheet->setCellValue('K'.$row+1, 'Rp ' . number_format($total_spl, 0, ',', '.'));
@@ -1343,8 +1344,8 @@ class HomeController extends Controller
             $dataFilter['organisasi_id'] = $organisasi_id;
             $dataFilter['must_legalized'] = true;
             $approval = TugasLuar::countDataMiddleware($dataFilter);
-        } 
-        
+        }
+
         // APPROVAL ATASAN
         if (auth()->user()->hasRole('atasan')) {
             $posisi = auth()->user()->karyawan->posisi;
@@ -1368,7 +1369,7 @@ class HomeController extends Controller
             }
 
             $approval = TugasLuar::countDataMiddleware($dataFilter);
-        } 
+        }
 
         $tugasluare = [
             'approval' => $approval,
@@ -1376,5 +1377,25 @@ class HomeController extends Controller
 
         $html = view('layouts.partials.notification-approval-tugasluar')->with(compact('tugasluare'))->render();
         return response()->json(['data' => $html], 200);
+    }
+
+    public function get_ksk_notification()
+    {
+        try {
+            $total_release_ksk = 0;
+            $total_approval_ksk = 0;
+
+            if(auth()->user()->hasRole('personalia')) {
+                $dataFilter = [];
+                $total_release_ksk = Karyawan::countDataKSK($dataFilter);
+            }
+
+            $html_release = view('layouts.partials.ksk.notification-release')->with(compact('total_release_ksk'))->render();
+            $html_approval = view('layouts.partials.ksk.notification-approval')->with(compact('total_approval_ksk'))->render();
+
+            return response()->json(['html_release' => $html_release , 'html_approval' => $html_approval], 200);
+        } catch (Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 }

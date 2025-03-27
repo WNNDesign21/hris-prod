@@ -20,6 +20,7 @@
                         style="width:100%">
                         <thead>
                             <tr>
+                                <th>Action</th>
                                 <th>ID Lembur</th>
                                 <th>Karyawan</th>
                                 <th>Job Description</th>
@@ -27,6 +28,8 @@
                                 <th>Tanggal Selesai</th>
                                 <th>Keterangan</th>
                                 <th>Nominal</th>
+                                <th>Chekced</th>
+                                <th>Approved</th>
                             </tr>
                         </thead>
                         <tbody id="detailReviewContent"></tbody>

@@ -43,304 +43,418 @@ $(function () {
         });
     }
 
-    // function updateApprovalSkdNotification(){
-    //     $.ajax({
-    //         url: base_url + '/get-approval-skd-notification',
-    //         method: 'GET',
-    //         success: function(response){
-    //             $('.notification-approval-skd').html(response.data);
-    //         }
-    //     })
-    // }
+    function updateKskNotification(){
+        $.ajax({
+            url: base_url + '/ajax/ksk/get-ksk-notification',
+            method: 'GET',
+            success: function(response){
+                $('.notification-release').html(response.html_release);
+                $('.notification-approval').html(response.html_approval);
+            }, error: function(jqXHR, textStatus, errorThrown){
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            }
+        })
+    }
 
-    // var columnsTable = [
-    //     { data: "nama" },
-    //     { data: "departemen" },
-    //     { data: "posisi" },
-    //     { data: "created_at" },
-    //     { data: "tanggal_mulai" },
-    //     { data: "tanggal_selesai" },
-    //     { data: "durasi" },
-    //     { data: "keterangan" },
-    //     { data: "lampiran" },
-    //     { data: "approved_by" },
-    //     { data: "legalized_by" }
-    // ];
+    var columnsUnreleasedTable = [
+        { data: "level" },
+        { data: "divisi" },
+        { data: "departemen" },
+        { data: "release_for" },
+        { data: "jumlah_karyawan_habis" },
+        { data: "action" }
+    ];
 
-    // var approvalTable = $("#approval-table").DataTable({
-    //     search: {
-    //         return: true,
-    //     },
-    //     order: [[0, "DESC"]],
-    //     processing: true,
-    //     serverSide: true,
-    //     ajax: {
-    //         url: base_url + "/ksk/approval/datatable",
-    //         dataType: "json",
-    //         type: "POST",
-    //         data: function (dataFilter) {
-    //             // let urutan = $('#filterUrutan').val();
-    //             // let departemen = $('#filterDepartemen').val();
-    //             // let status = $('#filterStatus').val();
+    var unreleasedTable = $("#unreleased-table").DataTable({
+        search: {
+            return: true,
+        },
+        order: [[0, "DESC"]],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: base_url + "/ksk/release/datatable-unreleased",
+            dataType: "json",
+            type: "POST",
+            data: function (dataFilter) {
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR.responseJSON.data) {
+                    var error = jqXHR.responseJSON.data.error;
+                    Swal.fire({
+                        icon: "error",
+                        title: " <br>Application error!",
+                        html:
+                            '<div class="alert alert-danger text-left" role="alert">' +
+                            "<p>Error Message: <strong>" +
+                            error +
+                            "</strong></p>" +
+                            "</div>",
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                    }).then(function () {
+                        refreshTable();
+                    });
+                } else {
+                    var message = jqXHR.responseJSON.message;
+                    var errorLine = jqXHR.responseJSON.line;
+                    var file = jqXHR.responseJSON.file;
+                    Swal.fire({
+                        icon: "error",
+                        title: " <br>Application error!",
+                        html:
+                            '<div class="alert alert-danger text-left" role="alert">' +
+                            "<p>Error Message: <strong>" +
+                            message +
+                            "</strong></p>" +
+                            "<p>File: " +
+                            file +
+                            "</p>" +
+                            "<p>Line: " +
+                            errorLine +
+                            "</p>" +
+                            "</div>",
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                    }).then(function () {
+                        refreshTable();
+                    });
+                }
+            },
+        },
+        // responsive: true,
+        scrollX: true,
+        columns: columnsUnreleasedTable,
+        columnDefs: [
+            {
+                orderable: false,
+                targets: [-1],
+            },
+            // {
+            //     targets: [-1],
+            //     createdCell: function (td, cellData, rowData, row, col) {
+            //         // $(td).addClass("text-center");
+            //     },
+            // },
+        ],
+    })
 
-    //             // dataFilter.urutan = urutan;
-    //             // dataFilter.departemen = departemen;
-    //             // dataFilter.status = status;
-    //         },
-    //         error: function (jqXHR, textStatus, errorThrown) {
-    //             if (jqXHR.responseJSON.data) {
-    //                 var error = jqXHR.responseJSON.data.error;
-    //                 Swal.fire({
-    //                     icon: "error",
-    //                     title: " <br>Application error!",
-    //                     html:
-    //                         '<div class="alert alert-danger text-left" role="alert">' +
-    //                         "<p>Error Message: <strong>" +
-    //                         error +
-    //                         "</strong></p>" +
-    //                         "</div>",
-    //                     allowOutsideClick: false,
-    //                     showConfirmButton: true,
-    //                 }).then(function () {
-    //                     refreshTable();
-    //                 });
-    //             } else {
-    //                 var message = jqXHR.responseJSON.message;
-    //                 var errorLine = jqXHR.responseJSON.line;
-    //                 var file = jqXHR.responseJSON.file;
-    //                 Swal.fire({
-    //                     icon: "error",
-    //                     title: " <br>Application error!",
-    //                     html:
-    //                         '<div class="alert alert-danger text-left" role="alert">' +
-    //                         "<p>Error Message: <strong>" +
-    //                         message +
-    //                         "</strong></p>" +
-    //                         "<p>File: " +
-    //                         file +
-    //                         "</p>" +
-    //                         "<p>Line: " +
-    //                         errorLine +
-    //                         "</p>" +
-    //                         "</div>",
-    //                     allowOutsideClick: false,
-    //                     showConfirmButton: true,
-    //                 }).then(function () {
-    //                     refreshTable();
-    //                 });
-    //             }
-    //         },
-    //     },
-    //     // responsive: true,
-    //     scrollX: true,
-    //     columns: columnsTable,
-    //     columnDefs: [
-    //         // {
-    //         //     orderable: false,
-    //         //     targets: [-1],
-    //         // },
-    //         // {
-    //         //     targets: [-1],
-    //         //     createdCell: function (td, cellData, rowData, row, col) {
-    //         //         // $(td).addClass("text-center");
-    //         //     },
-    //         // },
-    //     ],
-    // })
+    var columnsReleasedTable = [
+        { data: "id_ksk" },
+        { data: "nama_divisi" },
+        { data: "nama_departemen" },
+        { data: "parent_name" },
+        { data: "release_date" },
+        { data: "released_by" },
+        { data: "checked_by" },
+        { data: "approved_by" },
+        { data: "reviewed_div_by" },
+        { data: "reviewed_ph_by" },
+        { data: "reviewed_dir_by" },
+        { data: "legalized_by" },
+    ];
+
+    var releasedTable = $("#released-table").DataTable({
+        search: {
+            return: true,
+        },
+        order: [[3, "DESC"]],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: base_url + "/ksk/release/datatable-released",
+            dataType: "json",
+            type: "POST",
+            data: function (dataFilter) {
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR.responseJSON.data) {
+                    var error = jqXHR.responseJSON.data.error;
+                    Swal.fire({
+                        icon: "error",
+                        title: " <br>Application error!",
+                        html:
+                            '<div class="alert alert-danger text-left" role="alert">' +
+                            "<p>Error Message: <strong>" +
+                            error +
+                            "</strong></p>" +
+                            "</div>",
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                    }).then(function () {
+                        refreshTable();
+                    });
+                } else {
+                    var message = jqXHR.responseJSON.message;
+                    var errorLine = jqXHR.responseJSON.line;
+                    var file = jqXHR.responseJSON.file;
+                    Swal.fire({
+                        icon: "error",
+                        title: " <br>Application error!",
+                        html:
+                            '<div class="alert alert-danger text-left" role="alert">' +
+                            "<p>Error Message: <strong>" +
+                            message +
+                            "</strong></p>" +
+                            "<p>File: " +
+                            file +
+                            "</p>" +
+                            "<p>Line: " +
+                            errorLine +
+                            "</p>" +
+                            "</div>",
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                    }).then(function () {
+                        refreshTable();
+                    });
+                }
+            },
+        },
+        // responsive: true,
+        scrollX: true,
+        columns: columnsReleasedTable,
+        columnDefs: [
+            {
+                orderable: false,
+                targets: [-1],
+            },
+            // {
+            //     targets: [-1],
+            //     createdCell: function (td, cellData, rowData, row, col) {
+            //         // $(td).addClass("text-center");
+            //     },
+            // },
+        ],
+    })
 
     // //REFRESH TABLE
-    // function refreshTable() {
-    //     var searchValue = approvalTable.search();
-    //     if (searchValue) {
-    //         approvalTable.search(searchValue).draw();
-    //     } else {
-    //         approvalTable.search("").draw();
-    //     }
-    // }
+    function refreshTable() {
+        var searchValueUnreleased = unreleasedTable.search();
+        if (searchValueUnreleased) {
+            unreleasedTable.search(searchValueUnreleased).draw();
+        } else {
+            unreleasedTable.search("").draw();
+        }
+
+        var searchValueReleased = releasedTable.search();
+        if (searchValueReleased) {
+            releasedTable.search(searchValueReleased).draw();
+        } else {
+            releasedTable.search("").draw();
+        }
+    }
 
     // //RELOAD TABLE
-    // $('.btnReload').on("click", function (){
-    //     refreshTable();
-    // })
+    $('.btnReload').on("click", function (){
+        refreshTable();
+    })
 
     //  // MODAL REJECT
-    //  var modalRejectOptions = {
-    //     backdrop: true,
-    //     keyboard: false,
-    // };
+    var modalInputOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
 
-    // var modalReject = new bootstrap.Modal(
-    //     document.getElementById("modal-reject-skd"),
-    //     modalRejectOptions
-    // );
+    var modalInput = new bootstrap.Modal(
+        document.getElementById("modal-input"),
+        modalInputOptions
+    );
 
-    // function openReject() {
-    //     modalReject.show();
-    // }
+    function openInput() {
+        modalInput.show();
+    }
 
-    // function closeReject() {
-    //     modalReject.hide();
-    //     $('#rejected_note').val('');
-    // }
+    function closeInput() {
+        modalInput.hide();
+    }
 
-    // $('#approval-skd-table').on('click', '.btnReject', function(){
-    //     let idSakit = $(this).data('id-sakit');
-    //     let url = base_url + '/izine/approval-skd/rejected/' + idSakit;
-    //     $('#form-reject-skd').attr('action', url);
-    //     openReject();
-    // });
+    var modalDetailOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
 
-    // $('#form-reject-skd').on('submit', function (e) {
-    //     loadingSwalShow();
-    //     e.preventDefault();
-    //     let url = $(this).attr('action');
-    //     var formData = new FormData($(this)[0]);
-    //     $.ajax({
-    //         url: url,
-    //         data: formData,
-    //         method:"POST",
-    //         contentType: false,
-    //         processData: false,
-    //         dataType: "JSON",
-    //         success: function (data) {
-    //             updateApprovalSkdNotification();
-    //             showToast({ title: data.message });
-    //             refreshTable();
-    //             closeReject();
-    //             loadingSwalClose();
-    //         },
-    //         error: function (jqXHR, textStatus, errorThrown) {
-    //             loadingSwalClose();
-    //             showToast({ icon: "error", title: jqXHR.responseJSON.message });
-    //         },
-    //     })
+    var modalDetail = new bootstrap.Modal(
+        document.getElementById("modal-detail"),
+        modalDetailOptions
+    );
 
-    // })
+    function openDetail() {
+        modalDetail.show();
+    }
 
-    // $('#approval-skd-table').on('click', '.btnApproved', function(){
-    //     let idSakit = $(this).data('id-sakit');
-    //     let url = base_url + '/izine/approval-skd/approved/' + idSakit;
-    //     var formData = new FormData();
-    //     formData.append('_method', 'PATCH');
-    //     Swal.fire({
-    //         title: "Approved SKD",
-    //         text: "Data yang sudah di approved tidak bisa diubah!",
-    //         icon: "warning",
-    //         showCancelButton: true,
-    //         confirmButtonColor: "#3085d6",
-    //         cancelButtonColor: "#d33",
-    //         confirmButtonText: "Yes, Tandai sebagai Approved!",
-    //         allowOutsideClick: false,
-    //     }).then((result) => {
-    //         if (result.value) {
-    //             loadingSwalShow();
-    //             $.ajax({
-    //                 url: url,
-    //                 data : formData,
-    //                 method:"POST",
-    //                 contentType: false,
-    //                 processData: false,
-    //                 dataType: "JSON",
-    //                 success: function (data) {
-    //                     updateApprovalSkdNotification();
-    //                     showToast({ title: data.message });
-    //                     refreshTable();
-    //                     loadingSwalClose();
-    //                 },
-    //                 error: function (jqXHR, textStatus, errorThrown) {
-    //                     loadingSwalClose();
-    //                     showToast({ icon: "error", title: jqXHR.responseJSON.message });
-    //                 },
-    //             });
-    //         }
-    //     });
-    // })
+    function closeDetail() {
+        modalDetail.hide();
+    }
 
-    // $('#approval-skd-table').on('click', '.btnLegalized', function(){
-    //     let idSakit = $(this).data('id-sakit');
-    //     let url = base_url + '/izine/approval-skd/legalized/' + idSakit;
-    //     var formData = new FormData();
-    //     formData.append('_method', 'PATCH');
-    //     Swal.fire({
-    //         title: "Legalized SKD",
-    //         text: "Data yang sudah di legalized tidak bisa diubah!",
-    //         icon: "warning",
-    //         showCancelButton: true,
-    //         confirmButtonColor: "#3085d6",
-    //         cancelButtonColor: "#d33",
-    //         confirmButtonText: "Yes, Tandai sebagai Legalized!",
-    //         allowOutsideClick: false,
-    //     }).then((result) => {
-    //         if (result.value) {
-    //             loadingSwalShow();
-    //             $.ajax({
-    //                 url: url,
-    //                 data : formData,
-    //                 method:"POST",
-    //                 contentType: false,
-    //                 processData: false,
-    //                 dataType: "JSON",
-    //                 success: function (data) {
-    //                     updateApprovalSkdNotification();
-    //                     showToast({ title: data.message });
-    //                     refreshTable();
-    //                     loadingSwalClose();
-    //                 },
-    //                 error: function (jqXHR, textStatus, errorThrown) {
-    //                     loadingSwalClose();
-    //                     showToast({ icon: "error", title: jqXHR.responseJSON.message });
-    //                 },
-    //             });
-    //         }
-    //     });
-    // })
+    $('#unreleased-table').on('click', '.btnRelease', function(){
+        loadingSwalShow();
+        let idDepartemen = $(this).data('id-departemen');
+        let idDivisi = $(this).data('id-divisi');
+        let parentId = $(this).data('parent-id');
+        let tahunSelesai = $(this).data('tahun-selesai');
+        let bulanSelesai = $(this).data('bulan-selesai');
+        let namaDivisi = $(this).data('nama-divisi');
+        let namaDepartemen = $(this).data('nama-departemen');
+        let url = base_url + '/ksk/ajax/release/get-karyawans';
 
-    // FILTER
-    // $('.btnFilter').on("click", function (){
-    //     openFilter();
-    // });
+        $('#id_departemen_header').val(idDepartemen);
+        $('#nama_departemen_header').val(namaDepartemen);
+        $('#nama_divisi_header').val(namaDivisi);
+        $('#id_divisi_header').val(idDivisi);
+        $('#parent_id_header').val(parentId);
+        $('#tahun_selesai_header').val(tahunSelesai);
+        $('#bulan_selesai_header').val(bulanSelesai);
+        $('#divisi').text(namaDivisi);
+        $('#departemen').text(namaDepartemen);
+        $('#release_date').text(moment().locale('id').format('dddd, DD MMMM YYYY'));
 
-    // $('.btnCloseFilter').on("click", function (){
-    //     closeFilter();
-    // });
+        $.ajax({
+            url: url,
+            data: {
+                id_departemen: idDepartemen,
+                id_divisi: idDivisi,
+                parent_id: parentId,
+                tahun_selesai: tahunSelesai,
+                bulan_selesai: bulanSelesai
+            },
+            method: 'POST',
+            dataType: 'JSON',
+            success: function (response){
+                loadingSwalClose();
+                let html = response.html;
+                $('#list-karyawan').empty().html(html);
+                openInput();
+            },
+            error: function (jqXHR, textStatus, errorThrown){
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            }
+        });
+    })
 
-    // var modalFilterOptions = {
-    //     backdrop: true,
-    //     keyboard: false,
-    // };
+    $('#released-table').on('click', '.btnDetail', function(){
+        loadingSwalShow();
 
-    // var modalFilter = new bootstrap.Modal(
-    //     document.getElementById("modal-filter"),
-    //     modalFilterOptions
-    // );
+        let idKsk = $(this).data('id-ksk');
+        let namaDivisi = $(this).data('nama-divisi');
+        let namaDepartemen = $(this).data('nama-departemen');
+        let url = base_url + '/ksk/ajax/release/get-detail-ksk/' + idKsk
 
-    // function openFilter() {
-    //     modalFilter.show();
-    // }
+        $('#divisiDetail').text(namaDivisi);
+        $('#departemenDetail').text(namaDepartemen);
+        $('#release_dateDetail').text(moment().locale('id').format('dddd, DD MMMM YYYY'));
+        openDetail();
 
-    // function closeFilter() {
-    //     modalFilter.hide();
-    // }
+        $.ajax({
+            url: base_url + '/ksk/ajax/release/get-ksk/' + idKsk,
+            method: 'GET',
+            dataType: 'JSON',
+            success: function (response){
+                let data = response.data;
+                $('#released_byDetail').empty().html(data.released_by);
+                $('#checked_byDetail').empty().html(data.checked_by);
+                $('#approved_byDetail').empty().html(data.approved_by);
+                $('#reviewed_div_byDetail').empty().html(data.reviewed_div_by);
+                $('#reviewed_ph_byDetail').empty().html(data.reviewed_ph_by);
+                $('#reviewed_dir_byDetail').empty().html(data.reviewed_dir_by);
+            },
+            error: function (jqXHR, textStatus, errorThrown){
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            }
+        })
 
-    // $('.btnResetFilter').on('click', function(){
-    //     $('#filterUrutan').val('');
-    //     $('#filterDepartemen').val('');
-    //     $('#filterStatus').val('');
-    // })
+        $.ajax({
+            url: url,
+            method: 'GET',
+            dataType: 'JSON',
+            success: function (response){
+                loadingSwalClose();
+                let html = response.html;
+                $('#list-detail-ksk').empty().html(html);
+                onClickUpdate();
+            },
+            error: function (jqXHR, textStatus, errorThrown){
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            }
+        })
+    })
 
-    // $('#filterUrutan').select2({
-    //     dropdownParent: $('#modal-filter')
-    // });
+    function onClickUpdate(){
+        $('.btnUpdate').on('click', function(){
+            loadingSwalShow();
+            let id = $(this).data('id');
+            let idKskDetail = $('#id_ksk_detailEdit'+id).val();
+            let jumlahSuratPeringatan = $('#jumlah_surat_peringatanEdit'+id).val();
+            let jumlahSakit = $('#jumlah_sakitEdit'+id).val();
+            let jumlahIzin = $('#jumlah_izinEdit'+id).val();
+            let jumlahAlpa = $('#jumlah_alpaEdit'+id).val();
 
-    // $('#filterStatus').select2({
-    //     dropdownParent: $('#modal-filter')
-    // });
-    // $('#filterDepartemen').select2({
-    //     dropdownParent: $('#modal-filter')
-    // });
+            let url = base_url + '/ksk/release/update-detail-ksk/' + idKskDetail;
+            let formData = new FormData();
 
-    // $(".btnSubmitFilter").on("click", function () {
-    //     approvalTable.draw();
-    //     closeFilter();
-    // });
+            formData.append('_method', 'PATCH');
+            formData.append('jumlah_surat_peringatan', jumlahSuratPeringatan);
+            formData.append('jumlah_sakit', jumlahSakit);
+            formData.append('jumlah_izin', jumlahIzin);
+            formData.append('jumlah_alpa', jumlahAlpa);
+
+            $.ajax({
+                url: url,
+                data: formData,
+                method: 'POST',
+                contentType: false,
+                processData: false,
+                dataType: 'JSON',
+                success: function (data){
+                    loadingSwalClose();
+                    showToast({ title: data.message });
+                },
+                error: function (jqXHR, textStatus, errorThrown){
+                    loadingSwalClose();
+                    showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                }
+            })
+        })
+    }
+
+    $('#form-input').on('submit', function (e) {
+        e.preventDefault();
+        loadingSwalShow();
+        let url = $(this).attr('action');
+        var formData = new FormData($(this)[0]);
+
+        $.ajax({
+            url: url,
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (data) {
+                showToast({ title: data.message });
+                updateKskNotification();
+                refreshTable();
+                closeInput();
+                loadingSwalClose();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        })
+    });
+
+    $('a[data-bs-toggle="tab"]').on("shown.bs.tab", function (e) {
+        var target = $(e.target).attr("href");
+        if ($(target).find("table").hasClass("dataTable")) {
+            if (!$.fn.DataTable.isDataTable($(target).find("table"))) {
+                $(target).find("table").DataTable();
+            } else {
+                $(target).find("table").DataTable().columns.adjust().draw();
+            }
+        }
+    });
 });

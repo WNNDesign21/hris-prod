@@ -10,6 +10,7 @@ use App\Models\Posisi;
 use App\Models\Departemen;
 use App\Models\Organisasi;
 use App\Models\GrupPattern;
+use Illuminate\Support\Facades\DB;
 use App\Models\SettingLemburKaryawan;
 use App\Models\Attendance\KaryawanGrup;
 use Illuminate\Database\Eloquent\Model;
@@ -20,9 +21,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Karyawan extends Model
 {
     use HasFactory, SoftDeletes;
-    
+
     protected $table = 'karyawans';
-    
+
     protected $primaryKey = 'id_karyawan';
     public $incrementing = false;
 
@@ -246,7 +247,7 @@ class Karyawan extends Model
         if(isset($dataFilter['nik'])) {
             $data->where('karyawans.ni_karyawan', $dataFilter['nik']);
         }
-        
+
         $data->leftJoin('users', 'karyawans.user_id', 'users.id')
         ->leftJoin('grups', 'karyawans.grup_id', 'grups.id_grup')
         ->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
@@ -425,5 +426,157 @@ class Karyawan extends Model
     public static function countDataShiftgroup($dataFilter)
     {
         return self::_shiftGroup($dataFilter)->get()->count();
+    }
+
+    private static function _ksk($dataFilter)
+    {
+        $subQuery = DB::table('karyawan_posisi')
+            ->select('karyawan_id', 'posisi_id')
+            ->whereNull('deleted_at')
+            ->distinct();
+
+        $data = self::select(
+            'posisis.jabatan_id',
+            'posisis.parent_id',
+            'jabatans.nama as jabatan_nama',
+            'departemens.id_departemen',
+            'divisis.id_divisi',
+            'departemens.nama as departemen_nama',
+            'divisis.nama as divisi_nama',
+            DB::raw('EXTRACT(YEAR FROM karyawans.tanggal_selesai) as tahun_selesai'),
+            DB::raw('EXTRACT(MONTH FROM karyawans.tanggal_selesai) as bulan_selesai'),
+            DB::raw('COUNT(CASE WHEN EXTRACT(MONTH FROM tanggal_selesai) = EXTRACT(MONTH FROM NOW() + INTERVAL \'1 month\') AND EXTRACT(YEAR FROM tanggal_selesai) = EXTRACT(YEAR FROM NOW() + INTERVAL \'1 month\') THEN 1 END) as jumlah_karyawan_habis'),
+            DB::raw("(CASE
+                        WHEN EXISTS (
+                            SELECT 1
+                            FROM ksk
+                            WHERE ksk.divisi_id = divisis.id_divisi
+                                AND ksk.departemen_id = departemens.id_departemen
+                                AND EXTRACT(YEAR FROM ksk.release_date) = EXTRACT(YEAR FROM karyawans.tanggal_selesai)
+                                AND EXTRACT(MONTH FROM ksk.release_date) = EXTRACT(MONTH FROM karyawans.tanggal_selesai) - 1
+                                AND ksk.parent_id = posisis.parent_id
+                        ) THEN 'Y'
+                        ELSE NULL
+                    END) as is_released"),
+                    'karyawans.tanggal_selesai'
+        )
+        ->joinSub($subQuery, 'distinct_karyawan_posisi', function ($join) {
+            $join->on('karyawans.id_karyawan', 'distinct_karyawan_posisi.karyawan_id');
+        })
+        ->leftJoin('posisis', 'distinct_karyawan_posisi.posisi_id', 'posisis.id_posisi')
+        ->leftJoin('jabatans', 'posisis.jabatan_id', 'jabatans.id_jabatan')
+        ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
+        ->leftJoin('divisis', 'departemens.divisi_id', 'divisis.id_divisi')
+
+        ->whereMonth('tanggal_selesai', now()->addMonth()->month)
+        ->where('karyawans.status_karyawan', 'AT')
+        ->where('karyawans.organisasi_id', auth()->user()->organisasi_id)
+        ->where('posisis.parent_id', '!=', 0);
+
+        if (isset($dataFilter['search'])) {
+            $search = $dataFilter['search'];
+            $data->where(function ($query) use ($search) {
+                $query->where('departemens.nama', 'ILIKE', "%{$search}%")
+                    ->orWhere('divisis.nama', 'ILIKE', "%{$search}%")
+                    ->orWhere('jabatans.nama', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.ni_karyawan', 'ILIKE', "%{$search}%");
+            });
+        }
+
+        $data->groupBy(
+            'departemens.nama',
+            'divisis.nama',
+            'departemens.id_departemen',
+            'divisis.id_divisi',
+            'posisis.jabatan_id',
+            'jabatans.nama',
+            'posisis.parent_id',
+            DB::raw('EXTRACT(YEAR FROM karyawans.tanggal_selesai)'),
+            DB::raw('EXTRACT(MONTH FROM karyawans.tanggal_selesai)'),
+            'karyawans.tanggal_selesai'
+        );
+
+        $subQueryBuilder = DB::table(DB::raw('(' . $data->toSql() . ') as sub'));
+        $subQueryBuilder->mergeBindings($data->getQuery());
+        $data = $subQueryBuilder->whereNull('is_released');
+
+        return $data;
+    }
+
+    public static function getDataKSK($dataFilter, $settings)
+    {
+        return self::_ksk($dataFilter)->offset($settings['start'])
+            ->limit($settings['limit'])
+            ->orderBy($settings['order'], $settings['dir'])
+            ->get();
+    }
+
+    public static function countDataKSK($dataFilter)
+    {
+        return self::_ksk($dataFilter)->get()->count();
+    }
+
+    public static function getKaryawanKsk($dataFilter)
+    {
+        $subQuery = DB::table('karyawan_posisi')
+            ->select('karyawan_id', 'posisi_id')
+            ->whereNull('deleted_at')
+            ->distinct();
+
+        $data = self::select(
+            'karyawans.id_karyawan',
+            'karyawans.ni_karyawan',
+            'karyawans.tanggal_mulai',
+            'karyawans.nama',
+            'posisis.nama as nama_posisi',
+            'jabatans.nama as nama_jabatan',
+            'karyawans.jenis_kontrak',
+            'karyawans.status_karyawan',
+            'posisis.id_posisi',
+            'jabatans.id_jabatan',
+            'departemens.id_departemen',
+            'departemens.nama as nama_departemen',
+            'divisis.id_divisi',
+            'divisis.nama as nama_divisi',
+            'karyawans.tanggal_selesai',
+            'kontraks.tanggal_mulai as tanggal_mulai_kontrak_terakhir',
+            'kontraks.tanggal_selesai as tanggal_selesai_kontrak_terakhir',
+            DB::raw('(SELECT COUNT(*) FROM sakits WHERE sakits.karyawan_id = karyawans.id_karyawan AND sakits.tanggal_selesai BETWEEN kontraks.tanggal_mulai AND kontraks.tanggal_selesai) as total_sakit'),
+            DB::raw('(SELECT COUNT(*) FROM izins WHERE izins.karyawan_id = karyawans.id_karyawan AND izins.jenis_izin = \'TM\' AND DATE(izins.rencana_selesai_or_keluar) BETWEEN kontraks.tanggal_mulai AND kontraks.tanggal_selesai) as total_izin'),
+        )
+        ->joinSub($subQuery, 'distinct_karyawan_posisi', function ($join) {
+            $join->on('karyawans.id_karyawan', 'distinct_karyawan_posisi.karyawan_id');
+        })
+        ->leftJoin('posisis', 'distinct_karyawan_posisi.posisi_id', 'posisis.id_posisi')
+        ->leftJoin('jabatans', 'posisis.jabatan_id', 'jabatans.id_jabatan')
+        ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
+        ->leftJoin('divisis', 'departemens.divisi_id', 'divisis.id_divisi')
+        ->leftJoin('kontraks', function ($join) {
+            $join->on('karyawans.id_karyawan', '=', 'kontraks.karyawan_id')
+                ->whereRaw('kontraks.tanggal_selesai = (select max(tanggal_selesai) from kontraks where kontraks.karyawan_id = karyawans.id_karyawan)');
+        });
+
+        if (isset($dataFilter['departemen'])) {
+            $data->where('departemens.id_departemen', $dataFilter['departemen']);
+        }
+
+        if (isset($dataFilter['divisi'])) {
+            $data->where('divisis.id_divisi', $dataFilter['divisi']);
+        }
+
+        if (isset($dataFilter['parent_id'])) {
+            $data->where('posisis.parent_id', $dataFilter['parent_id']);
+        }
+
+        if (isset($dataFilter['tahun_selesai'])) {
+            $data->whereYear('karyawans.tanggal_selesai', $dataFilter['tahun_selesai']);
+        }
+
+        if (isset($dataFilter['bulan_selesai'])) {
+            $data->whereMonth('karyawans.tanggal_selesai', $dataFilter['bulan_selesai']);
+        }
+
+        return $data->get();
     }
 }

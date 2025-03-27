@@ -29,7 +29,7 @@ $(function () {
             toast: true,
             position: "top-end",
             showConfirmButton: false,
-            timer: 2000, 
+            timer: 2000,
             timerProgressBar: true,
             didOpen: (toast) => {
             toast.onmouseenter = Swal.stopTimer;
@@ -122,7 +122,7 @@ $(function () {
                 }
             });
         },
-        drawCallback: function () { 
+        drawCallback: function () {
             $('.image-popup-vertical-fit').magnificPopup({
                 type: 'image',
                 closeOnContentClick: true,
@@ -136,11 +136,11 @@ $(function () {
         columnDefs: [
             {
                 orderable: false,
-                targets: [0, -1],
+                targets: "_all",
             },
             {
-                targets: [-1, -2],
-                createdCell: function (td, cellData, rowData, row, col) {
+            targets: [-1, -2],
+            createdCell: function (td, cellData, rowData, row, col) {
                     $(td).addClass("text-center");
                 },
             },

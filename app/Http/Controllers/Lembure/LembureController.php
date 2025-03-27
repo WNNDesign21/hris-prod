@@ -196,7 +196,9 @@ class LembureController extends Controller
                     ->where('posisis.jabatan_id', '!=', 2)
                     ->aktif()
                     ->pluck('karyawans.nama', 'karyawans.id_karyawan');
-            } elseif (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->divisi_id == 3){
+            } elseif (auth()->user()->karyawan->posisi[0]->jabatan_id == 2){
+            // Versi Pak Kuncara Query dibawah ini di Comment
+            // } elseif (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->divisi_id == 3){
                 $karyawans = Karyawan::select('karyawans.nama', 'karyawans.id_karyawan', 'posisis.jabatan_id')->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
                     ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
                     ->whereIn('posisis.id_posisi', $member_posisi_ids)
@@ -207,26 +209,26 @@ class LembureController extends Controller
 
                 $karyawans_non_member = Karyawan::select('karyawans.nama', 'karyawans.id_karyawan', 'posisis.jabatan_id')->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
                     ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
-                    // ->whereIn('posisis.parent_id', $my_posisi_ids)
-                    // ->where('posisis.jabatan_id', '!=', 3)
+                    ->whereIn('posisis.parent_id', $my_posisi_ids)
+                    ->where('posisis.jabatan_id', '!=', 3)
                     ->organisasi(auth()->user()->organisasi_id)
                     ->aktif()
                     ->pluck('karyawans.nama', 'karyawans.id_karyawan');
             } else {
-                return redirect()->route('root');
-                // $karyawans = Karyawan::select('karyawans.nama', 'karyawans.id_karyawan', 'posisis.jabatan_id')->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
-                //     ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
-                //     ->whereIn('posisis.id_posisi', $member_posisi_ids)
-                //     ->whereIn('posisis.jabatan_id', [4, 5])
-                //     ->aktif()
-                //     ->pluck('karyawans.nama', 'karyawans.id_karyawan');
+                // return redirect()->route('root');
+                $karyawans = Karyawan::select('karyawans.nama', 'karyawans.id_karyawan', 'posisis.jabatan_id')->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
+                    ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                    ->whereIn('posisis.id_posisi', $member_posisi_ids)
+                    ->whereIn('posisis.jabatan_id', [4, 5])
+                    ->aktif()
+                    ->pluck('karyawans.nama', 'karyawans.id_karyawan');
 
-                // $karyawans_non_member = Karyawan::select('karyawans.nama', 'karyawans.id_karyawan', 'posisis.jabatan_id')->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
-                //     ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
-                //     ->whereIn('posisis.parent_id', $my_posisi_ids)
-                //     ->whereNotIn('posisis.jabatan_id', [4, 5])
-                //     ->aktif()
-                //     ->pluck('karyawans.nama', 'karyawans.id_karyawan');
+                $karyawans_non_member = Karyawan::select('karyawans.nama', 'karyawans.id_karyawan', 'posisis.jabatan_id')->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
+                    ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                    ->whereIn('posisis.parent_id', $my_posisi_ids)
+                    ->whereNotIn('posisis.jabatan_id', [4, 5])
+                    ->aktif()
+                    ->pluck('karyawans.nama', 'karyawans.id_karyawan');
             }
 
             $karyawans = $karyawans->merge($karyawans_non_member);
@@ -1250,10 +1252,10 @@ class LembureController extends Controller
         try {
 
             // VALIDASI BATAS PENGAJUAN LEMBUR
-            $batas_pengajuan_lembur = SettingLembur::where('setting_name', 'batas_pengajuan_lembur')->where('organisasi_id', $organisasi_id)->first() ? SettingLembur::where('setting_name', 'batas_pengajuan_lembur')->where('organisasi_id', $organisasi_id)->first()->value : '17:00';
+            $batas_pengajuan_lembur = SettingLembur::where('setting_name', 'batas_pengajuan_lembur')->where('organisasi_id', $organisasi_id)->first() ? SettingLembur::where('setting_name', 'batas_pengajuan_lembur')->where('organisasi_id', $organisasi_id)->first()->value : '23:59';
             if (Carbon::now()->format('H:i') > $batas_pengajuan_lembur) {
                 DB::rollback();
-                return response()->json(['message' => 'Batas waktu pengajuan lembur telah berakhir, silahkan lakukan bypass ke Plant Head!'], 402);
+                return response()->json(['message' => 'Batas waktu pengajuan lembur telah berakhir ('.$batas_pengajuan_lembur.' WIB), silahkan lakukan bypass ke Plant Head!'], 402);
             }
 
             $date = Carbon::parse($rencana_mulai_lemburs[0])->format('Y-m-d');
@@ -3482,7 +3484,50 @@ class LembureController extends Controller
             DB::rollback();
             return response()->json(['message' => $e->getMessage()], 500);
         }
+    }
 
+    public function review_lembur_rejected(Request $request, string $idDetailLembur)
+    {
+        $dataValidate = [
+            'rejected_note' => ['required'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $rejected_note = $request->rejected_note;
+
+        DB::beginTransaction();
+        try{
+            $rejected_by = auth()->user()->karyawan->nama;
+            $detail = DetailLembur::find($idDetailLembur);
+            $detailCount = DetailLembur::where('lembur_id', $detail->lembur_id)->where('is_rencana_approved', 'Y')->count();
+
+            $detail->rencana_last_changed_by = $rejected_by;
+            $detail->rencana_last_changed_at = now();
+            $detail->is_rencana_approved = 'N';
+            $detail->is_aktual_approved = 'N';
+            $detail->save();
+
+            $lembur = $detail->lembur;
+            if ($detailCount <= 1) {
+                $lembur->status = 'REJECTED';
+                $lembur->rejected_by = $rejected_by;
+                $lembur->rejected_note = $rejected_note;
+                $lembur->rejected_at = now();
+                $lembur->save();
+            }
+
+            DB::commit();
+            return response()->json(['message' => 'Pengajuan Lembur berhasil di Rejected!'],200);
+        } catch (Throwable $e){
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 
     public function rejected(Request $request, string $id_lembur)
@@ -4445,7 +4490,7 @@ class LembureController extends Controller
 
         try {
             if ($status == 'PLANNING') {
-                $data = DetailLembur::selectRaw('detail_lemburs.rencana_mulai_lembur as tanggal_mulai, detail_lemburs.rencana_selesai_lembur as tanggal_selesai, detail_lemburs.deskripsi_pekerjaan, detail_lemburs.keterangan, detail_lemburs.nominal, detail_lemburs.durasi, lemburs.status, karyawans.nama as karyawan, detail_lemburs.lembur_id')
+                $data = DetailLembur::selectRaw('detail_lemburs.id_detail_lembur, detail_lemburs.rencana_mulai_lembur as tanggal_mulai, detail_lemburs.rencana_selesai_lembur as tanggal_selesai, detail_lemburs.deskripsi_pekerjaan, detail_lemburs.keterangan, detail_lemburs.nominal, detail_lemburs.durasi, lemburs.status, karyawans.nama as karyawan, detail_lemburs.lembur_id, lemburs.plan_checked_by, lemburs.plan_checked_at, lemburs.plan_approved_by, lemburs.plan_approved_at')
                     ->leftJoin('karyawans', 'karyawans.id_karyawan', 'detail_lemburs.karyawan_id')
                     ->leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
                     ->where('detail_lemburs.departemen_id', $departemen_id)
@@ -4457,7 +4502,7 @@ class LembureController extends Controller
                         $query->whereNotNull('lemburs.plan_approved_by');
                     })->get();
             } else {
-                $data = DetailLembur::selectRaw('detail_lemburs.aktual_mulai_lembur as tanggal_mulai, detail_lemburs.aktual_selesai_lembur as tanggal_selesai, detail_lemburs.deskripsi_pekerjaan, detail_lemburs.keterangan, detail_lemburs.nominal, detail_lemburs.durasi, lemburs.status, karyawans.nama as karyawan, detail_lemburs.lembur_id')
+                $data = DetailLembur::selectRaw('detail_lemburs.id_detail_lembur, detail_lemburs.aktual_mulai_lembur as tanggal_mulai, detail_lemburs.aktual_selesai_lembur as tanggal_selesai, detail_lemburs.deskripsi_pekerjaan, detail_lemburs.keterangan, detail_lemburs.nominal, detail_lemburs.durasi, lemburs.status, karyawans.nama as karyawan, detail_lemburs.lembur_id, lemburs.actual_checked_by, lemburs.actual_checked_at, lemburs.actual_approved_by, lemburs.actual_approved_at')
                     ->leftJoin('karyawans', 'karyawans.id_karyawan', 'detail_lemburs.karyawan_id')
                     ->leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
                     ->where('detail_lemburs.departemen_id', $departemen_id)
