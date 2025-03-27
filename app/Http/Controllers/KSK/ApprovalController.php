@@ -14,6 +14,7 @@ class ApprovalController extends Controller
      */
     public function index()
     {
+        return redirect()->route('under-maintenance');
         $dataPage = [
             'pageTitle' => "KSK-E - Approval KSK",
             'page' => 'ksk-approval',
