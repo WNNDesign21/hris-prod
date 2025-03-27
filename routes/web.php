@@ -52,6 +52,11 @@ Route::get('/', function () {
 
 // HRIS
 Route::group(['middleware' => ['auth']], function () {
+
+    Route::get('/503/under-maintenance', function () {
+        return view('maintenance-mode');
+    })->name('under-maintenance');
+
     //Generate System
     // Route::get('/generate-lembur-harian', [LembureController::class, 'generate_lembur_harian']);
     Route::get('/generate-approval-cuti',[TestController::class, 'generate_approval_cuti']);
@@ -567,6 +572,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         Route::group(['middleware' => ['role:atasan|personalia']], function () {
             Route::get('/approval', [KSKApprovalController::class, 'index'])->name('ksk.approval')->middleware('ksk');
             Route::post('/approval/datatable-must-approved', [KSKApprovalController::class, 'datatable_must_approved']);
+            Route::post('/approval/datatable-history', [KSKApprovalController::class, 'datatable_history']);
             Route::delete('/approval/delete/{idKsk}', [KSKApprovalController::class, 'destroy'])->name('ksk.approval.delete');
         });
     });

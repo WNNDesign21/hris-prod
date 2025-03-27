@@ -17,9 +17,6 @@ use Illuminate\Support\Facades\Validator;
 
 class ReleaseController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $dataPage = [
@@ -117,6 +114,7 @@ class ReleaseController extends Controller
         $settings['order'] = $order;
 
         $dataFilter = [];
+        $dataFilter['module'] = 'release';
         $search = $request->input('search.value');
         if (!empty($search)) {
             $dataFilter['search'] = $search;

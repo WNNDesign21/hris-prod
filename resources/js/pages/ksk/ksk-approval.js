@@ -61,7 +61,7 @@ $(function () {
         });
     }
 
-    var columnsReleasedTable = [
+    var columnsMustApprovedTable = [
         { data: "id_ksk" },
         { data: "nama_divisi" },
         { data: "nama_departemen" },
@@ -135,7 +135,96 @@ $(function () {
         },
         // responsive: true,
         scrollX: true,
-        columns: columnsReleasedTable,
+        columns: columnsMustApprovedTable,
+        columnDefs: [
+            {
+                orderable: false,
+                targets: [-1],
+            },
+            // {
+            //     targets: [-1],
+            //     createdCell: function (td, cellData, rowData, row, col) {
+            //         // $(td).addClass("text-center");
+            //     },
+            // },
+        ],
+    })
+
+    var columnsHistoryTable = [
+        { data: "id_ksk" },
+        { data: "nama_divisi" },
+        { data: "nama_departemen" },
+        { data: "parent_name" },
+        { data: "release_date" },
+        { data: "released_by" },
+        { data: "checked_by" },
+        { data: "approved_by" },
+        { data: "reviewed_div_by" },
+        { data: "reviewed_ph_by" },
+        { data: "reviewed_dir_by" },
+        { data: "legalized_by" },
+    ];
+
+    var historyTable = $("#history-table").DataTable({
+        search: {
+            return: true,
+        },
+        order: [[3, "DESC"]],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: base_url + "/ksk/approval/datatable-history",
+            dataType: "json",
+            type: "POST",
+            data: function (dataFilter) {
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR.responseJSON.data) {
+                    var error = jqXHR.responseJSON.data.error;
+                    Swal.fire({
+                        icon: "error",
+                        title: " <br>Application error!",
+                        html:
+                            '<div class="alert alert-danger text-left" role="alert">' +
+                            "<p>Error Message: <strong>" +
+                            error +
+                            "</strong></p>" +
+                            "</div>",
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                    }).then(function () {
+                        refreshTable();
+                    });
+                } else {
+                    var message = jqXHR.responseJSON.message;
+                    var errorLine = jqXHR.responseJSON.line;
+                    var file = jqXHR.responseJSON.file;
+                    Swal.fire({
+                        icon: "error",
+                        title: " <br>Application error!",
+                        html:
+                            '<div class="alert alert-danger text-left" role="alert">' +
+                            "<p>Error Message: <strong>" +
+                            message +
+                            "</strong></p>" +
+                            "<p>File: " +
+                            file +
+                            "</p>" +
+                            "<p>Line: " +
+                            errorLine +
+                            "</p>" +
+                            "</div>",
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                    }).then(function () {
+                        refreshTable();
+                    });
+                }
+            },
+        },
+        // responsive: true,
+        scrollX: true,
+        columns: columnsHistoryTable,
         columnDefs: [
             {
                 orderable: false,
@@ -159,12 +248,12 @@ $(function () {
             mustApprovedTable.search("").draw();
         }
 
-        // var searchValueReleased = mustApprovedTable.search();
-        // if (searchValueReleased) {
-        //     mustApprovedTable.search(searchValueReleased).draw();
-        // } else {
-        //     mustApprovedTable.search("").draw();
-        // }
+        var searchValueHistory = historyTable.search();
+        if (searchValueHistory) {
+            historyTable.search(searchValueHistory).draw();
+        } else {
+            historyTable.search("").draw();
+        }
     }
 
     $('#must-approved-table').on('click', '.btnApproved', function(){
@@ -186,5 +275,16 @@ $(function () {
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
             }
         });
+    });
+
+    $('a[data-bs-toggle="tab"]').on("shown.bs.tab", function (e) {
+        var target = $(e.target).attr("href");
+        if ($(target).find("table").hasClass("dataTable")) {
+            if (!$.fn.DataTable.isDataTable($(target).find("table"))) {
+                $(target).find("table").DataTable();
+            } else {
+                $(target).find("table").DataTable().columns.adjust().draw();
+            }
+        }
     });
 });
