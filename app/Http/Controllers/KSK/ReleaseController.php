@@ -19,7 +19,7 @@ class ReleaseController extends Controller
 {
     public function index()
     {
-        return redirect()->route('under-maintenance');
+        // return redirect()->route('under-maintenance');
         $dataPage = [
             'pageTitle' => "KSK-E - Release KSK",
             'page' => 'ksk-release',
@@ -130,13 +130,13 @@ class ReleaseController extends Controller
         if (!empty($ksk)) {
             foreach ($ksk as $data) {
 
-                $releasedFormatted = $data->released_by ? $data->released_by : '⏳ Waiting';
-                $checkedFormatted = $data->checked_by ? $data->checked_by : '⏳ Waiting';
-                $approvedFormatted = $data->approved_by ? $data->approved_by : '⏳ Waiting';
-                $reviewedDivFormatted = $data->reviewed_div_by ? $data->reviewed_div_by : '⏳ Waiting';
-                $reviewedPhFormatted = $data->reviewed_ph_by ? $data->reviewed_ph_by : '⏳ Waiting';
-                $reviewedDirFormatted = $data->reviewed_dir_by ? $data->reviewed_dir_by : '⏳ Waiting';
-                $legalizedFormatted = $data->legalized_by ? $data->legalized_by : '⏳ Waiting';
+                $releasedFormatted = $data->released_by ? '✅'.$data->released_by.'<br>'.Carbon::createFromFormat('Y-m-d H:i:s', $data->released_at)->format('d F Y H:i') : '⏳ Waiting';
+                $checkedFormatted = $data->checked_by ? '✅'.$data->checked_by.'<br>'.Carbon::createFromFormat('Y-m-d H:i:s', $data->checked_at)->format('d F Y H:i') : '⏳ Waiting';
+                $approvedFormatted = $data->approved_by ? '✅'.$data->approved_by.'<br>'.Carbon::createFromFormat('Y-m-d H:i:s', $data->approved_at)->format('d F Y H:i') : '⏳ Waiting';
+                $reviewedDivFormatted = $data->reviewed_div_by ? '✅'.$data->reviewed_div_by.'<br>'.Carbon::createFromFormat('Y-m-d H:i:s', $data->reviewed_div_at)->format('d F Y H:i') : '⏳ Waiting';
+                $reviewedPhFormatted = $data->reviewed_ph_by ? '✅'.$data->reviewed_ph_by.'<br>'.Carbon::createFromFormat('Y-m-d H:i:s', $data->reviewed_ph_at)->format('d F Y H:i') : '⏳ Waiting';
+                $reviewedDirFormatted = $data->reviewed_dir_by ? '✅'.$data->reviewed_dir_by.'<br>'.Carbon::createFromFormat('Y-m-d H:i:s', $data->reviewed_dir_at)->format('d F Y H:i') : '⏳ Waiting';
+                $legalizedFormatted = $data->legalized_by ? '✅'.$data->legalized_by.'<br>'.Carbon::createFromFormat('Y-m-d H:i:s', $data->legalized_at)->format('d F Y H:i') : '⏳ Waiting';
 
                 $actionFormatted = '<a href="javascript:void(0)" class="btnDetail" data-id-ksk="'.$data->id_ksk.'" data-id-departemen="'.$data->departemen_id.'" data-id-divisi="'.$data->divisi_id.'" data-parent-id="'.$data->parent_id.'" data-nama-departemen="'.$data->nama_departemen.'" data-nama-divisi="'.$data->nama_divisi.'" data-id-organisasi="'.$data->organisasi_id.'">'.$data->id_ksk.' <i class="fas fa-search"></i></a>';
 
@@ -271,6 +271,13 @@ class ReleaseController extends Controller
 
             $approval = Approval::ApprovalDeptWithPlantHead($parent_id, auth()->user()->organisasi_id);
 
+            $released_by = '';
+            $checked_by = '';
+            $approved_by = '';
+            $reviewed_div_by = '';
+            $reviewed_ph_by = '';
+            $reviewed_dir_by = '';
+
             $ksk = KSK::create([
                 'id_ksk' => 'KSK-' . Str::random(4).'-'. date('YmdHis'),
                 'organisasi_id' => auth()->user()->organisasi_id,
@@ -281,10 +288,20 @@ class ReleaseController extends Controller
                 'parent_id' => $parent_id,
                 'release_date' => Carbon::now()->format('Y-m-d'),
                 'released_by_id' => $approval['leader'],
+                'released_by' => !$approval['leader'] ? 'SYSTEM' : null,
+                'released_at' => !$approval['leader'] ? Carbon::now() : null,
                 'checked_by_id' => $approval['section_head'],
+                'checked_by' => !$approval['section_head'] ? 'SYSTEM' : null,
+                'checked_at' => !$approval['section_head'] ? Carbon::now() : null,
                 'approved_by_id' => $approval['department_head'],
+                'approved_by' => !$approval['department_head'] ? 'SYSTEM' : null,
+                'approved_at' => !$approval['department_head'] ? Carbon::now() : null,
                 'reviewed_div_by_id' => $approval['division_head'],
+                'reviewed_div_by' => !$approval['division_head'] ? 'SYSTEM' : null,
+                'reviewed_div_at' => !$approval['division_head'] ? Carbon::now() : null,
                 'reviewed_ph_by_id' => $approval['plant_head'],
+                'reviewed_ph_by' => !$approval['plant_head'] ? 'SYSTEM' : null,
+                'reviewed_ph_at' => !$approval['plant_head'] ? Carbon::now() : null,
                 'reviewed_dir_by_id' => $approval['director'],
             ]);
 

@@ -14,7 +14,7 @@ class ApprovalController extends Controller
      */
     public function index()
     {
-        return redirect()->route('under-maintenance');
+        // return redirect()->route('under-maintenance');
         $dataPage = [
             'pageTitle' => "KSK-E - Approval KSK",
             'page' => 'ksk-approval',
@@ -65,13 +65,13 @@ class ApprovalController extends Controller
         if (!empty($ksk)) {
             foreach ($ksk as $data) {
 
-                $releasedFormatted = $data->released_by ? $data->released_by : '⏳ Waiting';
-                $checkedFormatted = $data->checked_by ? $data->checked_by : '⏳ Waiting';
-                $approvedFormatted = $data->approved_by ? $data->approved_by : '⏳ Waiting';
-                $reviewedDivFormatted = $data->reviewed_div_by ? $data->reviewed_div_by : '⏳ Waiting';
-                $reviewedPhFormatted = $data->reviewed_ph_by ? $data->reviewed_ph_by : '⏳ Waiting';
-                $reviewedDirFormatted = $data->reviewed_dir_by ? $data->reviewed_dir_by : '⏳ Waiting';
-                $legalizedFormatted = $data->legalized_by ? $data->legalized_by : '⏳ Waiting';
+                $releasedFormatted = $data->released_by ? '✅'.$data->released_by.'<br>'.Carbon::createFromFormat('Y-m-d H:i:s', $data->released_at)->format('d F Y H:i') : '⏳ Waiting';
+                $checkedFormatted = $data->checked_by ? '✅'.$data->checked_by.'<br>'.Carbon::createFromFormat('Y-m-d H:i:s', $data->checked_at)->format('d F Y H:i') : '⏳ Waiting';
+                $approvedFormatted = $data->approved_by ? '✅'.$data->approved_by.'<br>'.Carbon::createFromFormat('Y-m-d H:i:s', $data->approved_at)->format('d F Y H:i') : '⏳ Waiting';
+                $reviewedDivFormatted = $data->reviewed_div_by ? '✅'.$data->reviewed_div_by.'<br>'.Carbon::createFromFormat('Y-m-d H:i:s', $data->reviewed_div_at)->format('d F Y H:i') : '⏳ Waiting';
+                $reviewedPhFormatted = $data->reviewed_ph_by ? '✅'.$data->reviewed_ph_by.'<br>'.Carbon::createFromFormat('Y-m-d H:i:s', $data->reviewed_ph_at)->format('d F Y H:i') : '⏳ Waiting';
+                $reviewedDirFormatted = $data->reviewed_dir_by ? '✅'.$data->reviewed_dir_by.'<br>'.Carbon::createFromFormat('Y-m-d H:i:s', $data->reviewed_dir_at)->format('d F Y H:i') : '⏳ Waiting';
+                $legalizedFormatted = $data->legalized_by ? '✅'.$data->legalized_by.'<br>'.Carbon::createFromFormat('Y-m-d H:i:s', $data->legalized_at)->format('d F Y H:i') : '⏳ Waiting';
 
                 $actionFormatted = '<a href="javascript:void(0)" class="btnApproved" data-id-ksk="'.$data->id_ksk.'" data-id-departemen="'.$data->departemen_id.'" data-id-divisi="'.$data->divisi_id.'" data-parent-id="'.$data->parent_id.'" data-nama-departemen="'.$data->nama_departemen.'" data-nama-divisi="'.$data->nama_divisi.'" data-id-organisasi="'.$data->organisasi_id.'">'.$data->id_ksk.' <i class="fas fa-search"></i></a>';
 
@@ -148,13 +148,13 @@ class ApprovalController extends Controller
         if (!empty($ksk)) {
             foreach ($ksk as $data) {
 
-                $releasedFormatted = $data->released_by ? $data->released_by : '⏳ Waiting';
-                $checkedFormatted = $data->checked_by ? $data->checked_by : '⏳ Waiting';
-                $approvedFormatted = $data->approved_by ? $data->approved_by : '⏳ Waiting';
-                $reviewedDivFormatted = $data->reviewed_div_by ? $data->reviewed_div_by : '⏳ Waiting';
-                $reviewedPhFormatted = $data->reviewed_ph_by ? $data->reviewed_ph_by : '⏳ Waiting';
-                $reviewedDirFormatted = $data->reviewed_dir_by ? $data->reviewed_dir_by : '⏳ Waiting';
-                $legalizedFormatted = $data->legalized_by ? $data->legalized_by : '⏳ Waiting';
+                $releasedFormatted = $data->released_by ? '✅'.$data->released_by.'<br>'.Carbon::createFromFormat('Y-m-d H:i:s', $data->released_at)->format('d F Y H:i') : '⏳ Waiting';
+                $checkedFormatted = $data->checked_by ? '✅'.$data->checked_by.'<br>'.Carbon::createFromFormat('Y-m-d H:i:s', $data->checked_at)->format('d F Y H:i') : '⏳ Waiting';
+                $approvedFormatted = $data->approved_by ? '✅'.$data->approved_by.'<br>'.Carbon::createFromFormat('Y-m-d H:i:s', $data->approved_at)->format('d F Y H:i') : '⏳ Waiting';
+                $reviewedDivFormatted = $data->reviewed_div_by ? '✅'.$data->reviewed_div_by.'<br>'.Carbon::createFromFormat('Y-m-d H:i:s', $data->reviewed_div_at)->format('d F Y H:i') : '⏳ Waiting';
+                $reviewedPhFormatted = $data->reviewed_ph_by ? '✅'.$data->reviewed_ph_by.'<br>'.Carbon::createFromFormat('Y-m-d H:i:s', $data->reviewed_ph_at)->format('d F Y H:i') : '⏳ Waiting';
+                $reviewedDirFormatted = $data->reviewed_dir_by ? '✅'.$data->reviewed_dir_by.'<br>'.Carbon::createFromFormat('Y-m-d H:i:s', $data->reviewed_dir_at)->format('d F Y H:i') : '⏳ Waiting';
+                $legalizedFormatted = $data->legalized_by ? '✅'.$data->legalized_by.'<br>'.Carbon::createFromFormat('Y-m-d H:i:s', $data->legalized_at)->format('d F Y H:i') : '⏳ Waiting';
 
                 $actionFormatted = '<a href="javascript:void(0)" class="btnApproved" data-id-ksk="'.$data->id_ksk.'" data-id-departemen="'.$data->departemen_id.'" data-id-divisi="'.$data->divisi_id.'" data-parent-id="'.$data->parent_id.'" data-nama-departemen="'.$data->nama_departemen.'" data-nama-divisi="'.$data->nama_divisi.'" data-id-organisasi="'.$data->organisasi_id.'">'.$data->id_ksk.' <i class="fas fa-search"></i></a>';
 

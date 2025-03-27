@@ -76,13 +76,13 @@ class AjaxController extends Controller
             $ksk = KSK::find($id);
             $data = [];
             if (!empty($ksk)) {
-                $releasedFormatted = $ksk->released_by ? '✅'.$ksk->released_by.'<br>'.Carbon::createFromFormat($ksk->released_at)->format('d F Y H:i') : '⏳ Waiting';
-                $checkedFormatted = $ksk->checked_by ? '✅'.$ksk->checked_by.'<br>'.Carbon::createFromFormat($ksk->checked_at)->format('d F Y H:i') : '⏳ Waiting';
-                $approvedFormatted = $ksk->approved_by ? '✅'.$ksk->approved_by.'<br>'.Carbon::createFromFormat($ksk->approved_at)->format('d F Y H:i') : '⏳ Waiting';
-                $reviewedDivFormatted = $ksk->reviewed_div_by ? '✅'.$ksk->reviewed_div_by.'<br>'.Carbon::createFromFormat($ksk->reviewed_div_at)->format('d F Y H:i') : '⏳ Waiting';
-                $reviewedPhFormatted = $ksk->reviewed_ph_by ? '✅'.$ksk->reviewed_ph_by.'<br>'.Carbon::createFromFormat($ksk->reviewed_ph_at)->format('d F Y H:i') : '⏳ Waiting';
-                $reviewedDirFormatted = $ksk->reviewed_dir_by ? '✅'.$ksk->reviewed_dir_by.'<br>'.Carbon::createFromFormat($ksk->reviewed_dir_at)->format('d F Y H:i') : '⏳ Waiting';
-                $legalizedFormatted = $ksk->legalized_by ? '✅'.$ksk->legalized_by.'<br>'.Carbon::createFromFormat($ksk->legalized_at)->format('d F Y H:i') : '⏳ Waiting';
+                $releasedFormatted = $ksk->released_by ? '✅'.$ksk->released_by.'<br>'.Carbon::createFromFormat('Y-m-d H:i:s', $ksk->released_at)->format('d F Y H:i') : '⏳ Waiting';
+                $checkedFormatted = $ksk->checked_by ? '✅'.$ksk->checked_by.'<br>'.Carbon::createFromFormat('Y-m-d H:i:s', $ksk->checked_at)->format('d F Y H:i') : '⏳ Waiting';
+                $approvedFormatted = $ksk->approved_by ? '✅'.$ksk->approved_by.'<br>'.Carbon::createFromFormat('Y-m-d H:i:s', $ksk->approved_at)->format('d F Y H:i') : '⏳ Waiting';
+                $reviewedDivFormatted = $ksk->reviewed_div_by ? '✅'.$ksk->reviewed_div_by.'<br>'.Carbon::createFromFormat('Y-m-d H:i:s', $ksk->reviewed_div_at)->format('d F Y H:i') : '⏳ Waiting';
+                $reviewedPhFormatted = $ksk->reviewed_ph_by ? '✅'.$ksk->reviewed_ph_by.'<br>'.Carbon::createFromFormat('Y-m-d H:i:s', $ksk->reviewed_ph_at)->format('d F Y H:i') : '⏳ Waiting';
+                $reviewedDirFormatted = $ksk->reviewed_dir_by ? '✅'.$ksk->reviewed_dir_by.'<br>'.Carbon::createFromFormat('Y-m-d H:i:s', $ksk->reviewed_dir_at)->format('d F Y H:i') : '⏳ Waiting';
+                $legalizedFormatted = $ksk->legalized_by ? '✅'.$ksk->legalized_by.'<br>'.Carbon::createFromFormat('Y-m-d H:i:s', $ksk->legalized_at)->format('d F Y H:i') : '⏳ Waiting';
 
                 $data = [
                     'released_by' => $releasedFormatted,

@@ -564,8 +564,6 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
                 Route::post('/release/get-karyawans', [KSKAjaxController::class, 'get_karyawans']);
                 Route::get('/release/get-detail-ksk/{idKSK}', [KSKAjaxController::class, 'get_detail_ksk']);
                 Route::get('/release/get-ksk/{idKSK}', [KSKAjaxController::class, 'get_ksk']);
-
-                Route::get('/approval/get-ksk/{idKSK}', [KSKAjaxController::class, 'get_approval_ksk']);
             });
 
         });
@@ -574,6 +572,10 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::post('/approval/datatable-must-approved', [KSKApprovalController::class, 'datatable_must_approved']);
             Route::post('/approval/datatable-history', [KSKApprovalController::class, 'datatable_history']);
             Route::delete('/approval/delete/{idKsk}', [KSKApprovalController::class, 'destroy'])->name('ksk.approval.delete');
+        });
+
+        Route::group(['prefix' => 'ajax'], function () {
+            Route::get('/approval/get-ksk/{idKSK}', [KSKAjaxController::class, 'get_approval_ksk']);
         });
     });
 });
