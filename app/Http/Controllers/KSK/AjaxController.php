@@ -110,7 +110,7 @@ class AjaxController extends Controller
                             $query->orderBy('tanggal_selesai', 'ASC');
                         },
                         'changeHistoryKSK' => function ($query) {
-                            $query->where('changed_by_id', auth()->user()->karyawan->id_karyawan)->first();
+                            $query->get();
                         }
                     ])->select('ksk_details.*', 'karyawans.tanggal_mulai', 'karyawans.tanggal_selesai', 'ksk.*', 'kontraks.tanggal_mulai as latest_kontrak_tanggal_mulai', 'kontraks.tanggal_selesai as latest_kontrak_tanggal_selesai')->leftJoin('karyawans', 'ksk_details.karyawan_id', 'karyawans.id_karyawan')->leftJoin('ksk', 'ksk_details.ksk_id', 'ksk.id_ksk')
                     ->leftJoin('kontraks', function ($join) {

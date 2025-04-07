@@ -11,8 +11,8 @@
             </div>
             <div class="modal-footer">
                 <div class="d-flex justify-content-end">
-                    <button type="button" class="btn btn-success">
-                        <i class="fas fa-save"></i> Approved
+                    <button type="button" class="btn btn-success" id="btnSubmitApprove">
+                        <i class="fas fa-check-circle"></i> Confirm
                     </button>
                 </div>
             </div>

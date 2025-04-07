@@ -193,12 +193,102 @@ class ApprovalController extends Controller
         return response()->json($json_data, 200);
     }
 
+    public function approve(Request $request, string $id)
+    {
+        $dataValidate = [
+            'id_ksk_detail' => ['required', 'array'],
+            'id_ksk_detail.*' => ['required', 'numeric', 'exists:ksk_details,id_ksk_detail'],
+            'status_ksk' => ['required','array'],
+            'status_ksk.*' => ['required', 'in:PPJ,PHK,TTP'],
+            'durasi_renewal' => ['required','array'],
+            'durasi_renewal.*' => ['required', 'numeric', 'min:0'],
+            'reason' => ['array'],
+            'reason.*' => ['nullable', 'string'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $posisis = auth()->user()->karyawan->posisi->pluck('id_posisi')->toArray();
+        DB::beginTransaction();
+        try {
+            $ksk = KSK::find($id);
+            $countKSKDetail = count($request->id_ksk_detail);
+            $countChangeHistory = ChangeHistoryKSK::whereIn('ksk_detail_id', $request->id_ksk_detail)->where('changed_by_id', auth()->user()->karyawan->id_karyawan)->count();
+
+            if ($countChangeHistory !== $countChangeHistory) {
+                DB::rollback();
+                return response()->json(['message' => 'Silahkan klik save change pada setiap data KSK terlebih dahulu sebelum melakukan Konfirmasi!'], 402);
+            }
+
+            if (in_array($ksk->released_by_id, $posisis)) {
+                $ksk->released_by = auth()->user()->karyawan->nama;
+                $ksk->released_at = Carbon::now();
+            }
+
+            if (in_array($ksk->checked_by_id, $posisis)) {
+                $ksk->checked_by = auth()->user()->karyawan->nama;
+                $ksk->checked_at = Carbon::now();
+            }
+
+            if (in_array($ksk->approved_by_id, $posisis)) {
+                $ksk->approved_by = auth()->user()->karyawan->nama;
+                $ksk->approved_at = Carbon::now();
+            }
+
+            if (in_array($ksk->reviewed_div_by_id, $posisis)) {
+                $ksk->reviewed_div_by = auth()->user()->karyawan->nama;
+                $ksk->reviewed_div_at = Carbon::now();
+            }
+
+            if (in_array($ksk->reviewed_ph_by_id, $posisis)) {
+                $ksk->reviewed_ph_by = auth()->user()->karyawan->nama;
+                $ksk->reviewed_ph_at = Carbon::now();
+            }
+
+            if (in_array($ksk->reviewed_dir_by_id, $posisis)) {
+                $ksk->reviewed_dir_by = auth()->user()->karyawan->nama;
+                $ksk->reviewed_dir_at = Carbon::now();
+            }
+
+            $ksk->save();
+            DB::commit();
+            return response()->json(['message' => 'KSK berhasil di approve.'], 200);
+        } catch (Throwable $e) {
+            DB::rollback();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    // belom kelar
+    public function legalized(string $id)
+    {
+        try {
+            $ksk = KSK::find($id);
+            if (!$ksk->reviewed_dir_by_id) {
+                return response()->json(['message' => 'KSK belum di review oleh Direksi.'], 402);
+            }
+            $ksk->legalized_by = 'HRD & GA';
+            $ksk->legalized_at = Carbon::now();
+            $ksk->save();
+            DB::commit();
+            return response()->json(['message' => 'KSK berhasil di approve.'], 200);
+        } catch (Throwable $e) {
+            DB::rollback();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
     public function update_detail_ksk(Request $request, int $id)
     {
         $dataValidate = [
             'status_ksk' => ['required', 'in:PPJ,PHK,TTP'],
             'durasi_renewal' => ['required', 'numeric', 'min:0'],
-            'reason' => ['required', 'string'],
+            'reason' => ['nullable', 'string'],
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);

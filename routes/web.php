@@ -573,6 +573,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::post('/approval/datatable-history', [KSKApprovalController::class, 'datatable_history']);
             Route::delete('/approval/delete/{idKsk}', [KSKApprovalController::class, 'destroy'])->name('ksk.approval.delete');
             Route::patch('/approval/update-detail-ksk/{idDetailKsk}', [KSKApprovalController::class, 'update_detail_ksk'])->name('ksk.approval.update-detail-ksk');
+            Route::patch('/approval/approve/{idKSK}', [KSKApprovalController::class, 'approve'])->name('ksk.approval.approve');
         });
 
         Route::group(['prefix' => 'ajax'], function () {

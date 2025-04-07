@@ -30,9 +30,7 @@
                         <div class="form-group">
                             <small class="text-muted">Section Head</small><br>
                             @if ($ksk->checked_by)
-                                <p>
-                                    ✅{{ $ksk->checked_by }}<br>
-                                    <span>{{ \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $ksk->checked_at)->format('d F Y H:i') }}</span>
+                                <p>{{ '✅' . $ksk->checked_by . '<br>' . \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $ksk->checked_at)->format('d F Y H:i') }}
                                 </p>
                             @else
                                 <p>⏳ Waiting</p>
@@ -43,9 +41,7 @@
                         <div class="form-group">
                             <small class="text-muted">Dept.Head</small><br>
                             @if ($ksk->approved_by)
-                                <p>
-                                    ✅{{ $ksk->approved_by }}<br>
-                                    <span>{{ \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $ksk->approved_at)->format('d F Y H:i') }}</span>
+                                <p>{{ '✅' . $ksk->approved_by . '<br>' . \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $ksk->approved_at)->format('d F Y H:i') }}
                                 </p>
                             @else
                                 <p>⏳ Waiting</p>
@@ -56,9 +52,7 @@
                         <div class="form-group">
                             <small class="text-muted">Div.Head</small><br>
                             @if ($ksk->reviewed_div_by)
-                                <p>
-                                    ✅{{ $ksk->reviewed_div_by }}<br>
-                                    <span>{{ \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $ksk->reviewed_div_at)->format('d F Y H:i') }}</span>
+                                <p>{{ '✅' . $ksk->reviewed_div_by . '<br>' . \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $ksk->reviewed_div_at)->format('d F Y H:i') }}
                                 </p>
                             @else
                                 <p>⏳ Waiting</p>
@@ -69,9 +63,7 @@
                         <div class="form-group">
                             <small class="text-muted">Plant Head</small><br>
                             @if ($ksk->reviewed_ph_by)
-                                <p>
-                                    ✅{{ $ksk->reviewed_ph_by }}<br>
-                                    <span>{{ \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $ksk->reviewed_ph_at)->format('d F Y H:i') }}</span>
+                                <p>{{ '✅' . $ksk->reviewed_ph_by . '<br>' . \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $ksk->reviewed_ph_at)->format('d F Y H:i') }}
                                 </p>
                             @else
                                 <p>⏳ Waiting</p>
@@ -82,9 +74,7 @@
                         <div class="form-group">
                             <small class="text-muted">Director</small><br>
                             @if ($ksk->reviewed_dir_by)
-                                <p>
-                                    ✅{{ $ksk->reviewed_dir_by }}<br>
-                                    <span>{{ \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $ksk->reviewed_dir_at)->format('d F Y H:i') }}</span>
+                                <p>{{ '✅' . $ksk->reviewed_dir_by . '<br>' . \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $ksk->reviewed_dir_at)->format('d F Y H:i') }}
                                 </p>
                             @else
                                 <p>⏳ Waiting</p>
@@ -96,9 +86,15 @@
             <div class="box-body">
                 <div class="panel-group panel-group-simple panel-group-continuous mb-2" id="list-approval-ksk"
                     aria-multiselectable="true" role="tablist">
-                    @include('layouts.partials.ksk.ksk-list-karyawan-approval', [
-                        'datas' => $ksk->detailKSK,
-                    ])
+                    @role('personalia')
+                        @include('layouts.partials.ksk.ksk-list-karyawan-legalize', [
+                            'datas' => $ksk->detailKSK,
+                        ])
+                        @elserole('atasan')
+                        @include('layouts.partials.ksk.ksk-list-karyawan-approval', [
+                            'datas' => $ksk->detailKSK,
+                        ])
+                    @endrole
                 </div>
             </div>
         </div>

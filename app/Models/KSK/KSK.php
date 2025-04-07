@@ -139,21 +139,31 @@ class KSK extends Model
                         $query->whereNull('ksk.checked_by');
                     })
                     ->orWhere(function ($query) use ($main_posisi){
+                        $query->whereNotNull('ksk.released_by');
                         $query->whereNotNull('ksk.checked_by');
                         $query->whereIn('ksk.approved_by_id', $main_posisi);
                         $query->whereNull('ksk.approved_by');
                     })
                     ->orWhere(function ($query) use ($main_posisi){
+                        $query->whereNotNull('ksk.released_by');
+                        $query->whereNotNull('ksk.checked_by');
                         $query->whereNotNull('ksk.approved_by');
                         $query->whereIn('ksk.reviewed_div_by_id', $main_posisi);
                         $query->whereNull('ksk.reviewed_div_by');
                     })
                     ->orWhere(function ($query) use ($main_posisi){
+                        $query->whereNotNull('ksk.released_by');
+                        $query->whereNotNull('ksk.checked_by');
+                        $query->whereNotNull('ksk.approved_by');
                         $query->whereNotNull('ksk.reviewed_div_by');
                         $query->whereIn('ksk.reviewed_ph_by_id', $main_posisi);
                         $query->whereNull('ksk.reviewed_ph_by');
                     })
                     ->orWhere(function ($query) use ($main_posisi){
+                        $query->whereNotNull('ksk.released_by');
+                        $query->whereNotNull('ksk.checked_by');
+                        $query->whereNotNull('ksk.approved_by');
+                        $query->whereNotNull('ksk.reviewed_div_by');
                         $query->whereNotNull('ksk.reviewed_ph_by');
                         $query->whereIn('ksk.reviewed_dir_by_id', $main_posisi);
                         $query->whereNull('ksk.reviewed_dir_by');
@@ -179,22 +189,37 @@ class KSK extends Model
                     })
                     ->orWhere(function ($query) use ($main_posisi){
                         $query->whereIn('ksk.checked_by_id', $main_posisi);
+                        $query->whereNotNull('ksk.released_by');
                         $query->whereNotNull('ksk.checked_by');
                     })
                     ->orWhere(function ($query) use ($main_posisi){
                         $query->whereIn('ksk.approved_by_id', $main_posisi);
+                        $query->whereNotNull('ksk.released_by');
+                        $query->whereNotNull('ksk.checked_by');
                         $query->whereNotNull('ksk.approved_by');
                     })
                     ->orWhere(function ($query) use ($main_posisi){
                         $query->whereIn('ksk.reviewed_div_by_id', $main_posisi);
+                        $query->whereNotNull('ksk.released_by');
+                        $query->whereNotNull('ksk.checked_by');
+                        $query->whereNotNull('ksk.approved_by');
                         $query->whereNotNull('ksk.reviewed_div_by');
                     })
                     ->orWhere(function ($query) use ($main_posisi){
                         $query->whereIn('ksk.reviewed_ph_by_id', $main_posisi);
+                        $query->whereNotNull('ksk.released_by');
+                        $query->whereNotNull('ksk.checked_by');
+                        $query->whereNotNull('ksk.approved_by');
+                        $query->whereNotNull('ksk.reviewed_div_by');
                         $query->whereNotNull('ksk.reviewed_ph_by');
                     })
                     ->orWhere(function ($query) use ($main_posisi){
                         $query->whereIn('ksk.reviewed_dir_by_id', $main_posisi);
+                        $query->whereNotNull('ksk.released_by');
+                        $query->whereNotNull('ksk.checked_by');
+                        $query->whereNotNull('ksk.approved_by');
+                        $query->whereNotNull('ksk.reviewed_div_by');
+                        $query->whereNotNull('ksk.reviewed_ph_by');
                         $query->whereNotNull('ksk.reviewed_dir_by');
                     });
                 });
