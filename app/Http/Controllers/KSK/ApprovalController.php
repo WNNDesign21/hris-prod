@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers\KSK;
 
+use Throwable;
 use Carbon\Carbon;
 use App\Models\KSK\KSK;
 use Illuminate\Http\Request;
+use App\Models\KSK\DetailKSK;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\KSK\ChangeHistoryKSK;
+use Illuminate\Support\Facades\Validator;
 
 class ApprovalController extends Controller
 {
@@ -186,5 +191,68 @@ class ApprovalController extends Controller
         );
 
         return response()->json($json_data, 200);
+    }
+
+    public function update_detail_ksk(Request $request, int $id)
+    {
+        $dataValidate = [
+            'status_ksk' => ['required', 'in:PPJ,PHK,TTP'],
+            'durasi_renewal' => ['required', 'numeric', 'min:0'],
+            'reason' => ['required', 'string'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $status_ksk = $request->status_ksk;
+        $durasi_renewal = $request->durasi_renewal;
+        $reason = $request->reason;
+        $changed_by_id = auth()->user()->karyawan->id_karyawan;
+        $changed_by = auth()->user()->karyawan->nama;
+        DB::beginTransaction();
+        try {
+            $detail_ksk = DetailKSK::find($id);
+
+            // Update Change History
+            $changeHistoryExists = ChangeHistoryKSK::where('ksk_detail_id', $id)
+                ->where('changed_by_id', $changed_by_id)
+                ->exists();
+
+            if ($changeHistoryExists) {
+                $changeHistory = ChangeHistoryKSK::where('ksk_detail_id', $id)->where('changed_by_id', $changed_by_id)->first();
+                $changeHistory->status_ksk_before = $changeHistory->status_ksk_after;
+                $changeHistory->status_ksk_after = $status_ksk;
+                $changeHistory->durasi_before = $changeHistory->durasi_after;
+                $changeHistory->durasi_after = $durasi_renewal;
+                $changeHistory->reason = $reason;
+                $changeHistory->save();
+            } else {
+                ChangeHistoryKSK::create([
+                    'ksk_detail_id' => $id,
+                    'changed_by_id' => $changed_by_id,
+                    'changed_by' => $changed_by,
+                    'changed_at' => now(),
+                    'reason' => $reason,
+                    'status_ksk_before' => $status_ksk,
+                    'status_ksk_after' => $status_ksk,
+                    'durasi_before' => $durasi_renewal,
+                    'durasi_after' => $durasi_renewal,
+                ]);
+            }
+
+            $detail_ksk->status_ksk = $status_ksk;
+            $detail_ksk->durasi_renewal = $durasi_renewal;
+            $detail_ksk->save();
+
+            DB::commit();
+            return response()->json(['message' => 'Detail KSK '.$detail_ksk->nama_karyawan.' berhasil diperbaharui.'], 200);
+        } catch (Throwable $e) {
+            DB::rollback();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 }

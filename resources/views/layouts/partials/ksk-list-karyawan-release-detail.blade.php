@@ -133,7 +133,7 @@
                         @endphp
                     @endforeach
                     <hr>
-                    @if ($item->released_by == null)
+                    @if ($item->reviewed_dir_by == null)
                         <div class="d-flex justify-content-end">
                             <button type="button" class="btn btn-success btnUpdate" data-id="{{ $i }}">
                                 <i class="fas fa-save"></i> Update

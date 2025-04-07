@@ -168,7 +168,7 @@
 
 
                 {{-- CARD KSK SYSTEM --}}
-                @if (auth()->user()->hasRole('personalia'))
+                @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('atasan'))
                     <div class="col-lg-6 col-12">
                         <a href="{{ auth()->user()->hasRole('personalia') ? route('ksk.release') : route('ksk.approval') }}"
                             class="box pull-up">

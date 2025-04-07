@@ -256,7 +256,44 @@ $(function () {
         }
     }
 
+    function onClickUpdate() {
+        $('.btnUpdate').on('click', function(){
+            loadingSwalShow();
+            let id = $(this).data('id');
+            let idKskDetail = $(this).data('id-ksk-detail');
+            let statusKsk = $('#status_ksk'+id).val();
+            let durasiRenewal = $('#durasi_renewal'+id).val();
+            let alasan = $('#alasan'+id).val();
+
+            let url = base_url + '/ksk/approval/update-detail-ksk/' + idKskDetail;
+            let formData = new FormData();
+
+            formData.append('_method', 'PATCH');
+            formData.append('status_ksk', statusKsk);
+            formData.append('durasi_renewal', durasiRenewal);
+            formData.append('reason', alasan);
+
+            $.ajax({
+                url: url,
+                data: formData,
+                method: 'POST',
+                contentType: false,
+                processData: false,
+                dataType: 'JSON',
+                success: function (data){
+                    loadingSwalClose();
+                    showToast({ title: data.message });
+                },
+                error: function (jqXHR, textStatus, errorThrown){
+                    loadingSwalClose();
+                    showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                }
+            })
+        })
+    }
+
     $('#must-approved-table').on('click', '.btnApproved', function(){
+        loadingSwalShow();
         let idKsk = $(this).data('id-ksk');
         let url = base_url + '/ksk/ajax/approval/get-ksk/' + idKsk;
 
@@ -269,9 +306,12 @@ $(function () {
                 $('.select2').select2({
                     dropdownParent: $('#modal-approval')
                 });
+                loadingSwalClose();
                 openApproval();
+                onClickUpdate();
             },
             error: function(jqXHR, textStatus, errorThrown){
+                loadingSwalClose();
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
             }
         });

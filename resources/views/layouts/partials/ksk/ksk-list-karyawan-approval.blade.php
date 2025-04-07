@@ -18,6 +18,12 @@
                 <div class="row">
                     <div class="col-6 col-lg-3">
                         <div class="form-group">
+                            <small class="text-muted">Karyawan</small><br>
+                            <p>{{ $item->ni_karyawan }} - {{ $item->nama_karyawan }}</p>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="form-group">
                             <small class="text-muted">Tanggal Bergabung</small><br>
                             <p>{{ \Carbon\Carbon::parse($item->karyawan->tanggal_mulai)->translatedFormat('d F Y') }}
                             </p>
@@ -37,40 +43,51 @@
                     </div>
                     <div class="col-6 col-lg-3">
                         <div class="form-group">
-                            <small class="text-muted">Tanggal Perjanjian</small><br>
-                            <p>{{ $item->latest_kontrak_tanggal_mulai }} - {{ $item->latest_kontrak_tanggal_selesai }}
-                            </p>
-                        </div>
-                    </div>
-                    <div class="col-6 col-lg-3">
-                        <div class="form-group">
                             <small class="text-muted">Surat Peringatan</small><br>
                             <input type="hidden" name="id_ksk_approval" id="id_ksk_approval{{ $i }}"
                                 class="form-control" value="{{ $item->id_ksk_detail }}">
                             <input type="number" name="jumlah_surat_peringatan"
                                 id="jumlah_surat_peringatan{{ $i }}" class="form-control"
-                                value="{{ $item->jumlah_surat_peringatan }}" min="0" readonly>
+                                value="{{ $item->jumlah_surat_peringatan }}" min="0" disabled>
                         </div>
                     </div>
                     <div class="col-6 col-lg-3">
                         <div class="form-group">
                             <small class="text-muted">Sakit</small><br>
                             <input type="number" name="jumlah_sakit" id="jumlah_sakit{{ $i }}"
-                                class="form-control" value="{{ $item->jumlah_sakit }}" min="0" readonly>
+                                class="form-control" value="{{ $item->jumlah_sakit }}" min="0" disabled>
                         </div>
                     </div>
                     <div class="col-6 col-lg-3">
                         <div class="form-group">
                             <small class="text-muted">Izin</small><br>
                             <input type="number" name="jumlah_izin" id="jumlah_izin{{ $i }}"
-                                class="form-control" value="{{ $item->jumlah_izin }}" min="0" readonly>
+                                class="form-control" value="{{ $item->jumlah_izin }}" min="0" disabled>
                         </div>
                     </div>
                     <div class="col-6 col-lg-3">
                         <div class="form-group">
                             <small class="text-muted">Alpa</small><br>
                             <input type="number" name="jumlah_alpa" id="jumlah_alpa{{ $i }}"
-                                class="form-control" value="{{ $item->jumlah_alpa }}" min="0" readonly>
+                                class="form-control" value="{{ $item->jumlah_alpa }}" min="0" disabled>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="form-group">
+                            <label for="awal_{{ $i }}"><small class="text-muted">Tanggal Perjanjian
+                                    Awal</small></label>
+                            <input type="date" name="awal" id="awal_{{ $i }}" class="form-control"
+                                style="width: 100%;" value="{{ $item->latest_kontrak_tanggal_mulai }}" disabled>
+                            </input>
+                        </div>
+                    </div>
+                    <div class="col-6 col-lg-3">
+                        <div class="form-group">
+                            <label for="akhir_{{ $i }}"><small class="text-muted">Tanggal Perjanjian
+                                    Akhir</small></label>
+                            <input type="date" name="akhir" id="akhir_{{ $i }}" class="form-control"
+                                style="width: 100%;" value="{{ $item->latest_kontrak_tanggal_selesai }}" disabled>
+                            </input>
                         </div>
                     </div>
                     <div class="col-6 col-lg-3">
@@ -92,6 +109,13 @@
                             <small class="text-muted">Durasi Renewal</small><br>
                             <input type="number" name="durasi_renewal" id="durasi_renewal{{ $i }}"
                                 class="form-control" value="{{ $item->durasi_renewal }}" min="0">
+                        </div>
+                    </div>
+                    <div class="col-12 col-lg-12">
+                        <div class="form-group">
+                            <small class="text-muted">Alasan</small><br>
+                            <textarea name="alasan" id="alasan{{ $i }}" class="form-control" rows="3"
+                                placeholder="Masukan Alasan disini...">{{ $item->changeHistoryKSK[0]->reason }}</textarea>
                         </div>
                     </div>
                     <div class="col-6 col-lg-6">
@@ -136,6 +160,13 @@
                             $no++;
                         @endphp
                     @endforeach
+                    <hr>
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn btn-primary btnUpdate" data-id="{{ $i }}"
+                            data-id-ksk-detail="{{ $item->id_ksk_detail }}">
+                            </i> Save Change
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
