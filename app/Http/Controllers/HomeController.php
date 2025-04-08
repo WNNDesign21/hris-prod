@@ -8,6 +8,7 @@ use App\Models\Cutie;
 use App\Models\Izine;
 use App\Models\Sakite;
 use App\Models\Kontrak;
+use App\Models\KSK\KSK;
 use App\Models\Lembure;
 use App\Models\Karyawan;
 use App\Helpers\Approval;
@@ -1385,10 +1386,12 @@ class HomeController extends Controller
             $total_release_ksk = 0;
             $total_approval_ksk = 0;
 
+            $dataFilter = [];
             if(auth()->user()->hasRole('personalia')) {
-                $dataFilter = [];
                 $total_release_ksk = Karyawan::countDataKSK($dataFilter);
             }
+
+            $total_approval_ksk = KSK::countDataKSK($dataFilter);
 
             $html_release = view('layouts.partials.ksk.notification-release')->with(compact('total_release_ksk'))->render();
             $html_approval = view('layouts.partials.ksk.notification-approval')->with(compact('total_approval_ksk'))->render();

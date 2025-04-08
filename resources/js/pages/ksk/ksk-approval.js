@@ -79,6 +79,19 @@ $(function () {
         });
     }
 
+    function updateKskNotification(){
+        $.ajax({
+            url: base_url + '/ajax/ksk/get-ksk-notification',
+            method: 'GET',
+            success: function(response){
+                $('.notification-release').html(response.html_release);
+                $('.notification-approval').html(response.html_approval);
+            }, error: function(jqXHR, textStatus, errorThrown){
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            }
+        })
+    }
+
     var columnsMustApprovedTable = [
         { data: "id_ksk" },
         { data: "nama_divisi" },
@@ -343,6 +356,7 @@ $(function () {
                 processData: false,
                 dataType: 'JSON',
                 success: function (data){
+                    updateKskNotification();
                     loadingSwalClose();
                     showToast({ title: data.message });
                     closeApproval();

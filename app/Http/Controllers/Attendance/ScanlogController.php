@@ -6,7 +6,7 @@ use Throwable;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
-use App\Jobs\downloadScanlogJob;
+use App\Jobs\DownloadScanlogJob;
 use App\Models\Attendance\Device;
 use App\Models\Attendance\Scanlog;
 use Illuminate\Support\Facades\DB;
@@ -55,7 +55,7 @@ class ScanlogController extends Controller
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
-    
+
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
             return response()->json(['message' => $errors], 402);
@@ -128,7 +128,7 @@ class ScanlogController extends Controller
                             'updated_at' => now()
                         ];
                     }
-                    
+
                     Scanlog::insert($datas);
                     DB::commit();
 
@@ -149,10 +149,10 @@ class ScanlogController extends Controller
                 }
 
                 foreach ($dateRanges as $dr){
-                    downloadScanlogJob::dispatch($organisasi_id, $cloudId, $dr['start_date'], $dr['end_date'], $device->id_device);
+                    DownloadScanlogJob::dispatch($organisasi_id, $cloudId, $dr['start_date'], $dr['end_date'], $device->id_device);
                 }
             }
-            
+
             return response()->json(['message' => 'Data Scanlog Berhasil Diunduh!'], 200);
         } catch (Throwable $e) {
             return response()->json(['message' => $e->getMessage()], 500);
@@ -241,7 +241,7 @@ class ScanlogController extends Controller
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
-    
+
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
             return response()->json(['message' => $errors], 402);
@@ -258,10 +258,10 @@ class ScanlogController extends Controller
                     'attendance_scanlogs.scan_date',
                     'attendance_scanlogs.verify',
                 );
-        
+
                 $scanlogs->leftJoin('karyawans', 'karyawans.pin','attendance_scanlogs.pin')->where('karyawans.organisasi_id', $organisasi_id);
                 $scanlogs->leftJoin('users', 'users.id','karyawans.user_id')->where('users.organisasi_id', $organisasi_id);
-        
+
                 $scanlogs->where('attendance_scanlogs.organisasi_id', $organisasi_id);
                 $scanlogs->where('attendance_scanlogs.device_id', $request->device_id);
                 $scanlogs->whereBetween(DB::raw('DATE(attendance_scanlogs.scan_date)'), [$request->start_date, $request->end_date]);
@@ -273,7 +273,7 @@ class ScanlogController extends Controller
                 $scanlogs = $scanlogs->get();
 
                 $spreadsheet = new Spreadsheet();
-        
+
                 $fillStyle = [
                     'borders' => [
                         'allBorders' => [
@@ -297,7 +297,7 @@ class ScanlogController extends Controller
                         'size' => 12,
                     ],
                 ];
-    
+
                 $headers = [
                     'NIK',
                     'NAMA',
@@ -307,29 +307,29 @@ class ScanlogController extends Controller
                     'HOUR',
                     'VERIFY'
                 ];
-    
-        
+
+
                 if($scanlogs->count() > 0){
                     $sheet = $spreadsheet->getActiveSheet();
                     $sheet->setTitle($request->start_date.' - '.$request->end_date);
-        
+
                     $row = 1;
                     $col = 'A';
-        
+
                     foreach ($headers as $header) {
                         $sheet->setCellValue($col . '1', $header);
                         $sheet->getStyle($col . '1')->applyFromArray($fillStyle);
                         $col++;
                     }
-        
+
                     $row = 2;
-        
+
                     $columns = range('A', 'G');
                     foreach ($columns as $column) {
                         $sheet->getColumnDimension($column)->setAutoSize(true);
                     }
                     $sheet->setAutoFilter('A1:G1');
-    
+
                     foreach ($scanlogs as $data) {
                         if ($data->verify == '1') {
                             $verify = 'Finger';
@@ -346,7 +346,7 @@ class ScanlogController extends Controller
                         } else {
                             $verify = 'Kosong';
                         }
-    
+
                         $sheet->setCellValue('A' . $row, $data->ni_karyawan);
                         $sheet->setCellValue('B' . $row, $data->karyawan);
                         $sheet->setCellValue('C' . $row, $data->pin);
@@ -393,7 +393,7 @@ class ScanlogController extends Controller
                 ");
 
                 $spreadsheet = new Spreadsheet();
-        
+
                 $fillStyle = [
                     'borders' => [
                         'allBorders' => [
@@ -417,7 +417,7 @@ class ScanlogController extends Controller
                         'size' => 12,
                     ],
                 ];
-    
+
                 $headers = [
                     'NIK',
                     'NAMA',
@@ -434,24 +434,24 @@ class ScanlogController extends Controller
                 if(count($scanlogs) > 0){
                     $sheet = $spreadsheet->getActiveSheet();
                     $sheet->setTitle($request->start_date.' - '.$request->end_date);
-        
+
                     $row = 1;
                     $col = 'A';
-        
+
                     foreach ($headers as $header) {
                         $sheet->setCellValue($col . '1', $header);
                         $sheet->getStyle($col . '1')->applyFromArray($fillStyle);
                         $col++;
                     }
-        
+
                     $row = 2;
-        
+
                     $columns = range('A', 'J');
                     foreach ($columns as $column) {
                         $sheet->getColumnDimension($column)->setAutoSize(true);
                     }
                     $sheet->setAutoFilter('A1:D1');
-    
+
                     foreach ($scanlogs as $data) {
                         $sheet->setCellValue('A' . $row, $data->nik);
                         $sheet->setCellValue('B' . $row, $data->karyawan);
@@ -469,11 +469,11 @@ class ScanlogController extends Controller
             }
 
             $writer = new Xlsx($spreadsheet);
-    
+
             header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             header('Content-Disposition: attachment;filename=Scanlog-'.$device->device_name.'-'.$request->start_date.'-'.$request->end_date.'.xlsx');
             header('Cache-Control: max-age=0');
-    
+
             $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
             $writer->save('php://output');
             $spreadsheet->disconnectWorksheets();

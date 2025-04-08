@@ -12,7 +12,7 @@ use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
-class downloadScanlogJob implements ShouldQueue
+class DownloadScanlogJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -61,7 +61,7 @@ class downloadScanlogJob implements ShouldQueue
                 'start_date' => $this->start_date,
                 'end_date' => $this->end_date,
             ];
-            
+
             $headers = [
                 'Content-Type' => 'application/json',
                 'Authorization' => "Bearer ". env('API_TOKEN_FINGERSPOT'),
@@ -96,7 +96,7 @@ class downloadScanlogJob implements ShouldQueue
                         'updated_at' => now()
                     ];
                 }
-                
+
                 Scanlog::insert($datas);
                 activity('success_download_scanlog')->log('Download scanlog from device_id: '.$this->device_id.' start_date: '.$this->start_date.' end_date: '.$this->end_date);
             } else {

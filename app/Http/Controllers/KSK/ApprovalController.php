@@ -220,7 +220,7 @@ class ApprovalController extends Controller
             $countKSKDetail = count($request->id_ksk_detail);
             $countChangeHistory = ChangeHistoryKSK::whereIn('ksk_detail_id', $request->id_ksk_detail)->where('changed_by_id', auth()->user()->karyawan->id_karyawan)->count();
 
-            if ($countChangeHistory !== $countChangeHistory) {
+            if ($countKSKDetail !== $countChangeHistory) {
                 DB::rollback();
                 return response()->json(['message' => 'Silahkan klik save change pada setiap data KSK terlebih dahulu sebelum melakukan Konfirmasi!'], 402);
             }
