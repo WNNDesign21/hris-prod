@@ -87,4 +87,5 @@
         </div>
     </div>
     @include('pages.ksk-e.approval.modal-approval')
+    @include('pages.ksk-e.approval.modal-detail')
 @endsection

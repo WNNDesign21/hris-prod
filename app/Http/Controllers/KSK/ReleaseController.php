@@ -383,7 +383,7 @@ class ReleaseController extends Controller
         }
     }
 
-    public function get_detail_ksk(string $id)
+    public function get_detail_ksk_release(string $id)
     {
         try {
             $detail_ksk = DetailKSK::with(['kontrak' => function ($query) {

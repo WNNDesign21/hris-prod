@@ -94,17 +94,11 @@
                 </div>
             </div>
             <div class="box-body">
-                <div class="panel-group panel-group-simple panel-group-continuous mb-2" id="list-approval-ksk"
+                <div class="panel-group panel-group-simple panel-group-continuous mb-2" id="list-detail-ksk"
                     aria-multiselectable="true" role="tablist">
-                    @role('personalia')
-                        @include('layouts.partials.ksk.ksk-list-karyawan-legalize', [
-                            'datas' => $ksk->detailKSK,
-                        ])
-                        @elserole('atasan')
-                        @include('layouts.partials.ksk.ksk-list-karyawan-approval', [
-                            'datas' => $ksk->detailKSK,
-                        ])
-                    @endrole
+                    @include('layouts.partials.ksk.ksk-list-karyawan-detail-approval', [
+                        'datas' => $ksk->detailKSK,
+                    ])
                 </div>
             </div>
         </div>

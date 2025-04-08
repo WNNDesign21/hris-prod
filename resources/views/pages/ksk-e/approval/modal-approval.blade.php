@@ -11,7 +11,8 @@
             </div>
             <div class="modal-footer">
                 <div class="d-flex justify-content-end">
-                    <button type="button" class="btn btn-success" id="btnSubmitApprove">
+                    <button type="button" class="btn btn-success" id="btnSubmitApprove"
+                        @role('personalia') data-action="legalize" @elserole('atasan') data-action="approve" @endrole>
                         <i class="fas fa-check-circle"></i> Confirm
                     </button>
                 </div>

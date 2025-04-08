@@ -41,6 +41,24 @@ $(function () {
         modalApproval.hide();
     }
 
+    var modalDetailOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalDetail = new bootstrap.Modal(
+        document.getElementById("modal-detail"),
+        modalDetailOptions
+    );
+
+    function openDetail() {
+        modalDetail.show();
+    }
+
+    function closeDetail() {
+        modalDetail.hide();
+    }
+
     //SHOW TOAST
     function showToast(options) {
         const toast = Swal.mixin({
@@ -295,8 +313,9 @@ $(function () {
     function onSubmitApproval(idKSK) {
         $('#btnSubmitApprove').on('click', function(){
             loadingSwalShow();
+            let action = $(this).data('action');
             let formData = new FormData();
-            let url = base_url + '/ksk/approval/approve/' + idKSK;
+            let url = base_url + '/ksk/approval/'+action+'/' + idKSK;
 
             $('input[name="id_ksk_detail[]"]').each(function() {
                 formData.append('id_ksk_detail[]', $(this).val());
@@ -356,6 +375,27 @@ $(function () {
                 loadingSwalClose();
                 openApproval();
                 onClickUpdate();
+            },
+            error: function(jqXHR, textStatus, errorThrown){
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            }
+        });
+    });
+
+    $('#history-table').on('click', '.btnDetail', function(){
+        loadingSwalShow();
+        let idKsk = $(this).data('id-ksk');
+        let url = base_url + '/ksk/ajax/approval/get-detail-ksk/' + idKsk;
+
+        $.ajax({
+            url: url,
+            type: 'GET',
+            success: function(response){
+                let html = response.html;
+                $('#modal-detail-body').empty().html(html);
+                loadingSwalClose();
+                openDetail();
             },
             error: function(jqXHR, textStatus, errorThrown){
                 loadingSwalClose();

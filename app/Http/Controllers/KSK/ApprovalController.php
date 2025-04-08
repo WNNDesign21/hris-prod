@@ -161,7 +161,7 @@ class ApprovalController extends Controller
                 $reviewedDirFormatted = $data->reviewed_dir_by ? '✅'.$data->reviewed_dir_by.'<br>'.Carbon::createFromFormat('Y-m-d H:i:s', $data->reviewed_dir_at)->format('d F Y H:i') : '⏳ Waiting';
                 $legalizedFormatted = $data->legalized_by ? '✅'.$data->legalized_by.'<br>'.Carbon::createFromFormat('Y-m-d H:i:s', $data->legalized_at)->format('d F Y H:i') : '⏳ Waiting';
 
-                $actionFormatted = '<a href="javascript:void(0)" class="btnApproved" data-id-ksk="'.$data->id_ksk.'" data-id-departemen="'.$data->departemen_id.'" data-id-divisi="'.$data->divisi_id.'" data-parent-id="'.$data->parent_id.'" data-nama-departemen="'.$data->nama_departemen.'" data-nama-divisi="'.$data->nama_divisi.'" data-id-organisasi="'.$data->organisasi_id.'">'.$data->id_ksk.' <i class="fas fa-search"></i></a>';
+                $actionFormatted = '<a href="javascript:void(0)" class="btnDetail" data-id-ksk="'.$data->id_ksk.'" data-id-departemen="'.$data->departemen_id.'" data-id-divisi="'.$data->divisi_id.'" data-parent-id="'.$data->parent_id.'" data-nama-departemen="'.$data->nama_departemen.'" data-nama-divisi="'.$data->nama_divisi.'" data-id-organisasi="'.$data->organisasi_id.'">'.$data->id_ksk.' <i class="fas fa-search"></i></a>';
 
                 $nestedData['id_ksk'] = $actionFormatted;
                 $nestedData['nama_divisi'] = $data->nama_divisi;
@@ -265,8 +265,9 @@ class ApprovalController extends Controller
     }
 
     // belom kelar
-    public function legalized(string $id)
+    public function legalize(Request $request, string $id)
     {
+        DB::beginTransaction();
         try {
             $ksk = KSK::find($id);
             if (!$ksk->reviewed_dir_by_id) {

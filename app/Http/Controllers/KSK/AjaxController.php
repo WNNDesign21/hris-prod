@@ -52,7 +52,7 @@ class AjaxController extends Controller
         }
     }
 
-    public function get_detail_ksk(string $id)
+    public function get_detail_ksk_release(string $id)
     {
         try {
             $detail_ksk = DetailKSK::with(['kontrak' => function ($query) {
@@ -120,6 +120,32 @@ class AjaxController extends Controller
                 }
             ])->find($id);
             $html = view('layouts.partials.ksk.modal-body-approval', ['ksk' => $ksk])->render();
+            return response()->json(['message' => 'success', 'html' => $html], 200);
+        } catch (Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function get_detail_ksk_approval(string $id)
+    {
+        try {
+            $ksk = KSK::with([
+                'detailKSK' => function ($query) {
+                    $query->with([
+                        'kontrak' => function ($query) {
+                            $query->orderBy('tanggal_selesai', 'ASC');
+                        },
+                        'changeHistoryKSK' => function ($query) {
+                            $query->get();
+                        }
+                    ])->select('ksk_details.*', 'karyawans.tanggal_mulai', 'karyawans.tanggal_selesai', 'ksk.*', 'kontraks.tanggal_mulai as latest_kontrak_tanggal_mulai', 'kontraks.tanggal_selesai as latest_kontrak_tanggal_selesai')->leftJoin('karyawans', 'ksk_details.karyawan_id', 'karyawans.id_karyawan')->leftJoin('ksk', 'ksk_details.ksk_id', 'ksk.id_ksk')
+                    ->leftJoin('kontraks', function ($join) {
+                        $join->on('karyawans.id_karyawan', '=', 'kontraks.karyawan_id')
+                            ->whereRaw('kontraks.tanggal_selesai = (select max(tanggal_selesai) from kontraks where kontraks.karyawan_id = karyawans.id_karyawan)');
+                    });
+                }
+            ])->find($id);
+            $html = view('layouts.partials.ksk.modal-body-detail-approval', ['ksk' => $ksk])->render();
             return response()->json(['message' => 'success', 'html' => $html], 200);
         } catch (Throwable $e) {
             return response()->json(['message' => $e->getMessage()], 500);
