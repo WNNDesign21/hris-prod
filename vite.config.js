@@ -60,6 +60,8 @@ export default defineConfig({
                 'resources/js/pages/tugasluare/tugasluare-approval.js',
                 'resources/js/pages/ksk/ksk-release.js',
                 'resources/js/pages/ksk/ksk-approval.js',
+                'resources/js/pages/ksk/cleareance/ksk-release.js',
+                'resources/js/pages/ksk/cleareance/ksk-approval.js',
                 'resources/js/pages/security/index.js',
             ],
             // refresh: true,

@@ -287,6 +287,17 @@ $(function () {
         }
     }
 
+    function onChangeStatusKsk() {
+        $('select[name="status_ksk[]"]').on('change', function(){
+            let statusKsk = $(this).val();
+            let id = $(this).data('id');
+
+            if (statusKsk == 'PHK') {
+                $('#durasi_renewal'+id).val(0);
+            }
+        })
+    }
+
     function onClickUpdate() {
         $('.btnUpdate').on('click', function(){
             loadingSwalShow();
@@ -365,7 +376,6 @@ $(function () {
                 error: function (jqXHR, textStatus, errorThrown){
                     loadingSwalClose();
                     showToast({ icon: "error", title: jqXHR.responseJSON.message });
-                    closeApproval();
                 }
             })
         })
@@ -389,6 +399,7 @@ $(function () {
                 loadingSwalClose();
                 openApproval();
                 onClickUpdate();
+                onChangeStatusKsk();
             },
             error: function(jqXHR, textStatus, errorThrown){
                 loadingSwalClose();
@@ -416,6 +427,14 @@ $(function () {
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
             }
         });
+    });
+
+    $('.btnCloseApproval').on('click', function(){
+        closeApproval();
+    });
+
+    $('.btnCloseDetail').on('click', function(){
+        closeDetail();
     });
 
     $('a[data-bs-toggle="tab"]').on("shown.bs.tab", function (e) {

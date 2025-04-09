@@ -163,7 +163,6 @@
                             $no++;
                         @endphp
                     @endforeach
-                    <hr>
                 </div>
             </div>
         </div>

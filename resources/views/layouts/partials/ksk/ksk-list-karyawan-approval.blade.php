@@ -94,7 +94,7 @@
                         <div class="form-group">
                             <small class="text-muted">Status KSK <span class="text-danger">*</span></small><br>
                             <select name="status_ksk[]" id="status_ksk{{ $i }}" class="form-control select2"
-                                style="width: 100%;" required>
+                                data-id="{{ $i }}" style="width: 100%;" required>
                                 <option value="">Pilih Status KSK</option>
                                 <option value="PPJ" {{ $item->status_ksk == 'PPJ' ? 'selected' : '' }}>PERPANJANG
                                 </option>

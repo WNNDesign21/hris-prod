@@ -44,6 +44,8 @@ class DetailKSK extends Model
         'status_ksk',
         'tanggal_renewal_kontrak',
         'durasi_renewal',
+        'cleareance_id',
+        'kontrak_id',
     ];
 
     public function karyawan()
