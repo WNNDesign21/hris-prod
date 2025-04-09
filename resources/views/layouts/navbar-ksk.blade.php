@@ -47,16 +47,16 @@
                             <a href="{{ route('ksk.cleareance.release') }}">
                                 <i class="icon-Shield-check"><span class="path1"></span><span
                                         class="path2"></span></i>
-                                <span>Cleareance</span>
-                                {{-- @if ($ksk['total_approval_ksk'] > 0) --}}
+                                <span>Release Cleareance</span>
+                                {{-- @if ($ksk['total_approval_ksk'] > 0)
                                 <span class="pull-right-container"
                                     style="right:10px!important; top:55%!important; margin-top:-13px!important;">
                                     <div class="badge bg-danger m-0"
                                         style="border-radius: 20%; line-height: normal; height:100%; width:100%;">
-                                        {{-- {{ $ksk['total_approval_ksk'] }} --}}
+                                        {{ $ksk['total_approval_ksk'] }}
                                     </div>
                                 </span>
-                                {{-- @endif --}}
+                                @endif --}}
                             </a>
                         </li>
                     @endif
@@ -67,15 +67,15 @@
                                 <i class="icon-Double-check"><span class="path1"></span><span
                                         class="path2"></span></i>
                                 <span>Approval Cleareance</span>
-                                {{-- @if ($ksk['total_approval_ksk'] > 0) --}}
+                                {{-- @if ($ksk['total_approval_ksk'] > 0)
                                 <span class="pull-right-container"
                                     style="right:10px!important; top:55%!important; margin-top:-13px!important;">
                                     <div class="badge bg-danger m-0"
                                         style="border-radius: 20%; line-height: normal; height:100%; width:100%;">
-                                        {{-- {{ $ksk['total_approval_ksk'] }} --}}
+                                        {{ $ksk['total_approval_ksk'] }}
                                     </div>
                                 </span>
-                                {{-- @endif --}}
+                                @endif --}}
                             </a>
                         </li>
                     @endif

@@ -23,41 +23,41 @@ $(function () {
         loadingSwal.close();
     }
 
-    var modalApprovalOptions = {
-        backdrop: true,
-        keyboard: false,
-    };
+    // var modalApprovalOptions = {
+    //     backdrop: true,
+    //     keyboard: false,
+    // };
 
-    var modalApproval = new bootstrap.Modal(
-        document.getElementById("modal-approval"),
-        modalApprovalOptions
-    );
+    // var modalApproval = new bootstrap.Modal(
+    //     document.getElementById("modal-approval"),
+    //     modalApprovalOptions
+    // );
 
-    function openApproval() {
-        modalApproval.show();
-    }
+    // function openApproval() {
+    //     modalApproval.show();
+    // }
 
-    function closeApproval() {
-        modalApproval.hide();
-    }
+    // function closeApproval() {
+    //     modalApproval.hide();
+    // }
 
-    var modalDetailOptions = {
-        backdrop: true,
-        keyboard: false,
-    };
+    // var modalDetailOptions = {
+    //     backdrop: true,
+    //     keyboard: false,
+    // };
 
-    var modalDetail = new bootstrap.Modal(
-        document.getElementById("modal-detail"),
-        modalDetailOptions
-    );
+    // var modalDetail = new bootstrap.Modal(
+    //     document.getElementById("modal-detail"),
+    //     modalDetailOptions
+    // );
 
-    function openDetail() {
-        modalDetail.show();
-    }
+    // function openDetail() {
+    //     modalDetail.show();
+    // }
 
-    function closeDetail() {
-        modalDetail.hide();
-    }
+    // function closeDetail() {
+    //     modalDetail.hide();
+    // }
 
     //SHOW TOAST
     function showToast(options) {
@@ -92,4 +92,198 @@ $(function () {
             }
         })
     }
+
+    var columnsUnreleasedTable = [
+        { data: "karyawan" },
+        { data: "departemen" },
+        { data: "jabatan" },
+        { data: "posisi" },
+        { data: "action" }
+    ];
+
+    var unreleasedTable = $("#unreleased-table").DataTable({
+        search: {
+            return: true,
+        },
+        order: [[0, "DESC"]],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: base_url + "/ksk/cleareance/release/datatable-unreleased",
+            dataType: "json",
+            type: "POST",
+            data: function (dataFilter) {
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR.responseJSON.data) {
+                    var error = jqXHR.responseJSON.data.error;
+                    Swal.fire({
+                        icon: "error",
+                        title: " <br>Application error!",
+                        html:
+                            '<div class="alert alert-danger text-left" role="alert">' +
+                            "<p>Error Message: <strong>" +
+                            error +
+                            "</strong></p>" +
+                            "</div>",
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                    })
+                } else {
+                    var message = jqXHR.responseJSON.message;
+                    var errorLine = jqXHR.responseJSON.line;
+                    var file = jqXHR.responseJSON.file;
+                    Swal.fire({
+                        icon: "error",
+                        title: " <br>Application error!",
+                        html:
+                            '<div class="alert alert-danger text-left" role="alert">' +
+                            "<p>Error Message: <strong>" +
+                            message +
+                            "</strong></p>" +
+                            "<p>File: " +
+                            file +
+                            "</p>" +
+                            "<p>Line: " +
+                            errorLine +
+                            "</p>" +
+                            "</div>",
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                    });
+                }
+            },
+        },
+        // responsive: true,
+        scrollX: true,
+        columns: columnsUnreleasedTable,
+        columnDefs: [
+            {
+                orderable: false,
+                targets: [-1],
+            },
+            // {
+            //     targets: [-1],
+            //     createdCell: function (td, cellData, rowData, row, col) {
+            //         // $(td).addClass("text-center");
+            //     },
+            // },
+        ],
+    })
+
+    // var columnsReleasedTable = [
+    //     { data: "id_ksk" },
+    //     { data: "nama_divisi" },
+    //     { data: "nama_departemen" },
+    //     { data: "parent_name" },
+    //     { data: "release_date" },
+    //     { data: "released_by" },
+    //     { data: "checked_by" },
+    //     { data: "approved_by" },
+    //     { data: "reviewed_div_by" },
+    //     { data: "reviewed_ph_by" },
+    //     { data: "reviewed_dir_by" },
+    //     { data: "legalized_by" },
+    // ];
+
+    // var releasedTable = $("#released-table").DataTable({
+    //     search: {
+    //         return: true,
+    //     },
+    //     order: [[3, "DESC"]],
+    //     processing: true,
+    //     serverSide: true,
+    //     ajax: {
+    //         url: base_url + "/ksk/release/datatable-released",
+    //         dataType: "json",
+    //         type: "POST",
+    //         data: function (dataFilter) {
+    //         },
+    //         error: function (jqXHR, textStatus, errorThrown) {
+    //             if (jqXHR.responseJSON.data) {
+    //                 var error = jqXHR.responseJSON.data.error;
+    //                 Swal.fire({
+    //                     icon: "error",
+    //                     title: " <br>Application error!",
+    //                     html:
+    //                         '<div class="alert alert-danger text-left" role="alert">' +
+    //                         "<p>Error Message: <strong>" +
+    //                         error +
+    //                         "</strong></p>" +
+    //                         "</div>",
+    //                     allowOutsideClick: false,
+    //                     showConfirmButton: true,
+    //                 });
+    //             } else {
+    //                 var message = jqXHR.responseJSON.message;
+    //                 var errorLine = jqXHR.responseJSON.line;
+    //                 var file = jqXHR.responseJSON.file;
+    //                 Swal.fire({
+    //                     icon: "error",
+    //                     title: " <br>Application error!",
+    //                     html:
+    //                         '<div class="alert alert-danger text-left" role="alert">' +
+    //                         "<p>Error Message: <strong>" +
+    //                         message +
+    //                         "</strong></p>" +
+    //                         "<p>File: " +
+    //                         file +
+    //                         "</p>" +
+    //                         "<p>Line: " +
+    //                         errorLine +
+    //                         "</p>" +
+    //                         "</div>",
+    //                     allowOutsideClick: false,
+    //                     showConfirmButton: true,
+    //                 });
+    //             }
+    //         },
+    //     },
+    //     // responsive: true,
+    //     scrollX: true,
+    //     columns: columnsReleasedTable,
+    //     columnDefs: [
+    //         {
+    //             orderable: false,
+    //             targets: [-1],
+    //         },
+    //         // {
+    //         //     targets: [-1],
+    //         //     createdCell: function (td, cellData, rowData, row, col) {
+    //         //         // $(td).addClass("text-center");
+    //         //     },
+    //         // },
+    //     ],
+    // })
+
+    function refreshTable() {
+        var searchValueUnreleased = unreleasedTable.search();
+        if (searchValueUnreleased) {
+            unreleasedTable.search(searchValueUnreleased).draw();
+        } else {
+            unreleasedTable.search("").draw();
+        }
+
+        // var searchValueReleased = releasedTable.search();
+        // if (searchValueReleased) {
+        //     releasedTable.search(searchValueReleased).draw();
+        // } else {
+        //     releasedTable.search("").draw();
+        // }
+    }
+
+    $('.btnReload').on("click", function (){
+        refreshTable();
+    })
+
+    $('a[data-bs-toggle="tab"]').on("shown.bs.tab", function (e) {
+        var target = $(e.target).attr("href");
+        if ($(target).find("table").hasClass("dataTable")) {
+            if (!$.fn.DataTable.isDataTable($(target).find("table"))) {
+                $(target).find("table").DataTable();
+            } else {
+                $(target).find("table").DataTable().columns.adjust().draw();
+            }
+        }
+    });
 });

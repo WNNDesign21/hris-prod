@@ -68,7 +68,7 @@
                                             <th>Div.Head</th>
                                             <th>Plant Head</th>
                                             <th>Director</th>
-                                            <th>Status</th>
+                                            <th>Legalized</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>

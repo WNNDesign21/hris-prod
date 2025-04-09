@@ -92,4 +92,42 @@ class DetailKSK extends Model
     {
         return $this->hasMany(ChangeHistoryKSK::class, 'ksk_detail_id', 'id_ksk_detail');
     }
+
+    private static function _query($dataFilter)
+    {
+
+        $data = self::select(
+            'ksk_details.*',
+        );
+        $data->where('ksk_details.status_ksk', 'PHK');
+        $data->whereNull('ksk_details.cleareance_id');
+
+        if (isset($dataFilter['search'])) {
+            $search = $dataFilter['search'];
+            $data->where(function ($query) use ($search) {
+                $query->where('ksk_details.nama_karyawan', 'ILIKE', "%{$search}%")
+                    ->orWhere('ksk_details.ni_karyawan', 'ILIKE', "%{$search}%")
+                    ->orWhere('ksk_details.nama_jabatan', 'ILIKE', "%{$search}%")
+                    ->orWhere('ksk_details.nama_divisi', 'ILIKE', "%{$search}%")
+                    ->orWhere('ksk_details.tanggal_renewal_kontrak', 'ILIKE', "%{$search}%")
+                    ->orWhere('ksk_details.nama_departemen', 'ILIKE', "%{$search}%");
+            });
+        }
+
+        $result = $data;
+        return $result;
+    }
+
+    public static function getData($dataFilter, $settings)
+    {
+        return self::_query($dataFilter)->offset($settings['start'])
+            ->limit($settings['limit'])
+            ->orderBy($settings['order'], $settings['dir'])
+            ->get();
+    }
+
+    public static function countData($dataFilter)
+    {
+        return self::_query($dataFilter)->get()->count();
+    }
 }

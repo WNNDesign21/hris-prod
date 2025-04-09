@@ -40,11 +40,10 @@
                                 <table id="unreleased-table" class="table" style="width:100%">
                                     <thead>
                                         <tr>
-                                            <th>Level</th>
-                                            <th>Divisi</th>
+                                            <th>Karyawan</th>
                                             <th>Departemen</th>
-                                            <th>Release For</th>
-                                            <th>Jumlah Karyawan</th>
+                                            <th>Jabatan</th>
+                                            <th>Posisi</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
@@ -57,17 +56,13 @@
                                 <table id="released-table" class="table" style="width:100%">
                                     <thead>
                                         <tr>
-                                            <th>ID KSK</th>
-                                            <th>Divisi</th>
+                                            <th>ID Cleareance</th>
+                                            <th>Karyawan</th>
                                             <th>Departemen</th>
-                                            <th>Atasan Langsung</th>
-                                            <th>Release Date</th>
-                                            <th>Leader</th>
-                                            <th>Section</th>
-                                            <th>Dept.Head</th>
-                                            <th>Div.Head</th>
-                                            <th>Plant Head</th>
-                                            <th>Director</th>
+                                            <th>Jabatan</th>
+                                            <th>Posisi</th>
+                                            <th>Tanggal Akhir Bekerja</th>
+                                            <th>Approval</th>
                                             <th>Status</th>
                                         </tr>
                                     </thead>

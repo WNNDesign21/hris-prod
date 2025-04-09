@@ -587,7 +587,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         Route::group(['prefix' => 'cleareance'], function () {
             Route::group(['middleware' => ['role:personalia']], function () {
                 Route::get('/release', [KSKReleaseCleareanceController::class, 'index'])->name('ksk.cleareance.release')->middleware('ksk');
-                // Route::post('/release/datatable-unreleased', [ReleaseController::class, 'datatable_unreleased']);
+                Route::post('/release/datatable-unreleased', [KSKReleaseCleareanceController::class, 'datatable_unreleased']);
                 // Route::post('/release/datatable-released', [ReleaseController::class, 'datatable_released']);
                 // Route::delete('/release/delete/{idKsk}', [ReleaseController::class, 'destroy'])->name('ksk.release.delete');
                 // Route::post('/release/store', [ReleaseController::class, 'store'])->name('ksk.release.store');
