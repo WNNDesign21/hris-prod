@@ -79,6 +79,23 @@
                             </a>
                         </li>
                     @endif
+                    @role('personalia')
+                        <li class="{{ $page == 'ksk-setting' ? 'active' : '' }} notification-setting">
+                            <a href="{{ route('ksk.setting') }}">
+                                <i class="icon-Tools"><span class="path1"></span><span class="path2"></span></i>
+                                <span>Setting</span>
+                                {{-- @if ($ksk['total_approval_ksk'] > 0)
+                                <span class="pull-right-container"
+                                    style="right:10px!important; top:55%!important; margin-top:-13px!important;">
+                                    <div class="badge bg-danger m-0"
+                                        style="border-radius: 20%; line-height: normal; height:100%; width:100%;">
+                                        {{ $ksk['total_approval_ksk'] }}
+                                    </div>
+                                </span>
+                                @endif --}}
+                            </a>
+                        </li>
+                    @endrole
                 </ul>
             </div>
         </div>

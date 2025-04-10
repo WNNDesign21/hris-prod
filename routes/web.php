@@ -37,12 +37,14 @@ use App\Http\Controllers\StockOpname\StoReportController;
 use App\Http\Controllers\Attendance\AttendanceGpsController;
 use App\Http\Controllers\Attendance\LiveAttendanceController;
 use App\Http\Controllers\KSK\AjaxController as KSKAjaxController;
+use App\Http\Controllers\KSK\SettingController as KSKSettingController;
 use App\Http\Controllers\KSK\ReleaseController as KSKReleaseController;
 use App\Http\Controllers\TugasLuare\AjaxController as TLAjaxController;
 use App\Http\Controllers\KSK\ApprovalController as KSKApprovalController;
 use App\Http\Controllers\TugasLuare\ApprovalController as TLApprovalController;
 use App\Http\Controllers\Attendance\ApprovalController as ATTApprovalController;
 use App\Http\Controllers\TugasLuare\PengajuanController as TLPengajuanController;
+use App\Http\Controllers\KSK\Cleareance\AjaxController as KSKAjaxCleareanceController;
 use App\Http\Controllers\Attendance\DashboardController as AttendanceDashboardController;
 use App\Http\Controllers\KSK\Cleareance\ReleaseController as KSKReleaseCleareanceController;
 use App\Http\Controllers\KSK\Cleareance\ApprovalController as KSKApprovalCleareanceController;
@@ -553,14 +555,16 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
 
     /** KSK */
     Route::group(['prefix' => 'ksk'], function () {
-        Route::group(['middleware' => ['role:personalia']], function () {
-            Route::get('/release', [KSKReleaseController::class, 'index'])->name('ksk.release')->middleware('ksk');
+        Route::group(['middleware' => ['role:personalia', 'ksk']], function () {
+            Route::get('/release', [KSKReleaseController::class, 'index'])->name('ksk.release');
             Route::post('/release/datatable-unreleased', [KSKReleaseController::class, 'datatable_unreleased']);
             Route::post('/release/datatable-released', [KSKReleaseController::class, 'datatable_released']);
             Route::delete('/release/delete/{idKsk}', [KSKReleaseController::class, 'destroy'])->name('ksk.release.delete');
             Route::post('/release/store', [KSKReleaseController::class, 'store'])->name('ksk.release.store');
             Route::patch('/release/update-detail-ksk/{idDetailKsk}', [KSKReleaseController::class, 'update_detail_ksk'])->name('ksk.release.update-detail-ksk');
 
+            Route::get('/setting', [KSKSettingController::class, 'index'])->name('ksk.setting');
+            Route::post('/setting/update', [KSKSettingController::class, 'update'])->name('ksk.setting.update');
 
             Route::group(['prefix' => 'ajax'], function () {
                 Route::post('/release/get-karyawans', [KSKAjaxController::class, 'get_karyawans']);
@@ -595,7 +599,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
 
 
                 Route::group(['prefix' => 'ajax'], function () {
-                    // Route::post('/release/get-karyawans', [KSKAjaxController::class, 'get_karyawans']);
+                    Route::post('/release/get-karyawans', [KSKAjaxCleareanceController::class, 'select_get_karyawans']);
                     // Route::get('/release/get-detail-ksk/{idKSK}', [KSKAjaxController::class, 'get_detail_ksk_release']);
                     // Route::get('/release/get-ksk/{idKSK}', [KSKAjaxController::class, 'get_ksk']);
                 });

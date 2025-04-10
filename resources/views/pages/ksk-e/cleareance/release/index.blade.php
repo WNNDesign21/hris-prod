@@ -75,6 +75,5 @@
             </div>
         </div>
     </div>
-    {{-- @include('pages.ksk-e.release.modal-input')
-    @include('pages.ksk-e.release.modal-detail') --}}
+    @include('pages.ksk-e.cleareance.release.modal-input')
 @endsection

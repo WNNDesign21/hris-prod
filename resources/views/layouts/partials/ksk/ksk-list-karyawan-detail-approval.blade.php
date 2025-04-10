@@ -115,7 +115,7 @@
                             <small class="text-muted">History Perubahan</small><br>
                             <div class="row">
                                 @if ($item->changeHistoryKSK->isNotEmpty())
-                                    @foreach ($item->changeHistoryKSK->sortByDesc('created_at') as $history)
+                                    @foreach ($item->changeHistoryKSK->sortBy('created_at') as $history)
                                         <div class="col-6 col-lg-3">
                                             <p><strong>{{ $history->changed_by }}</strong><br>
                                                 @if ($history->status_ksk_after == 'PPJ')

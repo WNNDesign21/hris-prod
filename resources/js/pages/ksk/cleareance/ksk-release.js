@@ -23,41 +23,27 @@ $(function () {
         loadingSwal.close();
     }
 
-    // var modalApprovalOptions = {
-    //     backdrop: true,
-    //     keyboard: false,
-    // };
+    var modalInputOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
 
-    // var modalApproval = new bootstrap.Modal(
-    //     document.getElementById("modal-approval"),
-    //     modalApprovalOptions
-    // );
+    var modalInput = new bootstrap.Modal(
+        document.getElementById("modal-input"),
+        modalInputOptions
+    );
 
-    // function openApproval() {
-    //     modalApproval.show();
-    // }
+    function openInput() {
+        modalInput.show();
+    }
 
-    // function closeApproval() {
-    //     modalApproval.hide();
-    // }
+    function closeInput() {
+        modalInput.hide();
+    }
 
-    // var modalDetailOptions = {
-    //     backdrop: true,
-    //     keyboard: false,
-    // };
+    function resetInput() {
 
-    // var modalDetail = new bootstrap.Modal(
-    //     document.getElementById("modal-detail"),
-    //     modalDetailOptions
-    // );
-
-    // function openDetail() {
-    //     modalDetail.show();
-    // }
-
-    // function closeDetail() {
-    //     modalDetail.hide();
-    // }
+    }
 
     //SHOW TOAST
     function showToast(options) {
@@ -275,6 +261,84 @@ $(function () {
     $('.btnReload').on("click", function (){
         refreshTable();
     })
+
+    $('.btnClose').on("click", function (){
+        resetInput();
+        closeInput();
+    })
+
+    $('#unreleased-table').on('click', '.btnRelease', function (e) {
+        let idKaryawan = $(this).data('id-karyawan');
+        openInput();
+    });
+
+    $('#dept_it').select2({
+        dropdownParent: $('#modal-input'),
+        ajax: {
+            url: base_url + "/ksk/cleareance/ajax/release/get-karyawans",
+            type: "post",
+            dataType: "json",
+            delay: 250,
+            data: function (params) {
+                return {
+                    search: params.term || "",
+                    page: params.page || 1,
+                };
+            },
+            cache: true,
+        },
+    });
+
+    $('#dept_fat').select2({
+        dropdownParent: $('#modal-input'),
+        ajax: {
+            url: base_url + "/ksk/cleareance/ajax/release/get-karyawans",
+            type: "post",
+            dataType: "json",
+            delay: 250,
+            data: function (params) {
+                return {
+                    search: params.term || "",
+                    page: params.page || 1,
+                };
+            },
+            cache: true,
+        },
+    });
+
+    $('#dept_ga').select2({
+        dropdownParent: $('#modal-input'),
+        ajax: {
+            url: base_url + "/ksk/cleareance/ajax/release/get-karyawans",
+            type: "post",
+            dataType: "json",
+            delay: 250,
+            data: function (params) {
+                return {
+                    search: params.term || "",
+                    page: params.page || 1,
+                };
+            },
+            cache: true,
+        },
+    });
+
+    $('#dept_hr').select2({
+        dropdownParent: $('#modal-input'),
+        ajax: {
+            url: base_url + "/ksk/cleareance/ajax/release/get-karyawans",
+            type: "post",
+            dataType: "json",
+            delay: 250,
+            data: function (params) {
+                return {
+                    search: params.term || "",
+                    page: params.page || 1,
+                };
+            },
+            cache: true,
+        },
+    });
 
     $('a[data-bs-toggle="tab"]').on("shown.bs.tab", function (e) {
         var target = $(e.target).attr("href");

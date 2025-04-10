@@ -5,14 +5,24 @@ namespace App\Http\Controllers\KSK\Cleareance;
 use Illuminate\Http\Request;
 use App\Models\KSK\DetailKSK;
 use App\Http\Controllers\Controller;
+use App\Models\KSK\CleareanceSetting;
 
 class ReleaseController extends Controller
 {
     public function index()
     {
+        $deptIT = CleareanceSetting::where('organisasi_id', auth()->user()->organisasi_id)->where('type', 'IT')->first();
+        $deptGA = CleareanceSetting::where('organisasi_id', auth()->user()->organisasi_id)->where('type', 'GA')->first();
+        $deptHR = CleareanceSetting::where('organisasi_id', auth()->user()->organisasi_id)->where('type', 'HR')->first();
+        $deptFAT = CleareanceSetting::where('organisasi_id', auth()->user()->organisasi_id)->where('type', 'FAT')->first();
+
         $dataPage = [
             'pageTitle' => "KSK-E - Release Cleareance",
             'page' => 'ksk-cleareance-release',
+            'deptIT' => $deptIT,
+            'deptGA' => $deptGA,
+            'deptHR' => $deptHR,
+            'deptFAT' => $deptFAT,
         ];
         return view('pages.ksk-e.cleareance.release.index', $dataPage);
     }
@@ -50,7 +60,7 @@ class ReleaseController extends Controller
 
         if (!empty($detailKSK)) {
             foreach ($detailKSK as $data) {
-                $actionFormatted = '<button class="btn btn-sm btn-success btnRelease" data-id-karyawan="'+$data->karyawan_id+'"><i class="fas fa-plus"></i> Buat Cleareance</button>';
+                $actionFormatted = '<button class="btn btn-sm btn-success btnRelease" data-id-karyawan="'.$data->karyawan_id.'"><i class="fas fa-plus"></i> Buat Cleareance</button>';
 
                 $nestedData['karyawan'] = $data->nama_karyawan;
                 $nestedData['departemen'] = $data->nama_departemen;

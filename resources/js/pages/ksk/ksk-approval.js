@@ -335,7 +335,7 @@ $(function () {
     }
 
     function onSubmitApproval(idKSK) {
-        $('#btnSubmitApprove').on('click', function(){
+        $('#btnSubmitApprove').off('click').on('click', function(){
             loadingSwalShow();
             let action = $(this).data('action');
             let formData = new FormData();
@@ -385,7 +385,6 @@ $(function () {
         loadingSwalShow();
         let idKsk = $(this).data('id-ksk');
         let url = base_url + '/ksk/ajax/approval/get-ksk/' + idKsk;
-        onSubmitApproval(idKsk);
 
         $.ajax({
             url: url,
@@ -400,6 +399,8 @@ $(function () {
                 openApproval();
                 onClickUpdate();
                 onChangeStatusKsk();
+                onSubmitApproval(idKsk);
+
             },
             error: function(jqXHR, textStatus, errorThrown){
                 loadingSwalClose();

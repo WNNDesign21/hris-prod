@@ -307,6 +307,10 @@
     @if ($page == 'ksk-cleareance-approval')
         @vite(['resources/js/pages/ksk/cleareance/ksk-approval.js'])
     @endif
+
+    @if ($page == 'ksk-setting')
+        @vite(['resources/js/pages/ksk/ksk-setting.js'])
+    @endif
 </body>
 
 </html>
