@@ -3748,6 +3748,20 @@ class LembureController extends Controller
                 $dataFilter['tahun'] = $filterTahun;
             }
 
+            if(auth()->user()->hasRole('personalia')){
+                $dataFilter['organisasi_id'] = auth()->user()->organisasi_id;
+            } elseif (auth()->user()->karyawan->posisi[0]->jabatan_id == 4 || auth()->user()->karyawan->posisi[0]->jabatan_id == 3){
+                $dataFilter['departemen_id'] = auth()->user()->karyawan->posisi->pluck('departemen_id')->toArray();
+            }  elseif (auth()->user()->karyawan->posisi[0]->jabatan_id == 2){
+                // JIKA PLANT HEAD
+                if (auth()->user()->karyawan->posisi[0]->divisi_id == 3) {
+                    $dataFilter['organisasi_id'] = auth()->user()->organisasi_id;
+                // JIKA NON PLANT HEAD
+                } else {
+                    $dataFilter['divisi_id'] = auth()->user()->karyawan->posisi->pluck('divisi_id')->toArray();
+                }
+            }
+
             $dataActual = DetailLembur::getMonthlyLemburPerDepartemenActual($dataFilter);
             $dataPlanning = DetailLembur::getMonthlyLemburPerDepartemenPlanning($dataFilter);
             $batas = GajiDepartemen::getMonthlyNominalBatasAllDepartemen($dataFilter)->toArray();
