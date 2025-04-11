@@ -41,6 +41,24 @@ $(function () {
         modalApproval.hide();
     }
 
+    var modalDetailOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalDetail = new bootstrap.Modal(
+        document.getElementById("modal-detail"),
+        modalDetailOptions
+    );
+
+    function openDetail() {
+        modalDetail.show();
+    }
+
+    function closeDetail() {
+        modalDetail.hide();
+    }
+
     //SHOW TOAST
     function showToast(options) {
         const toast = Swal.mixin({
@@ -59,6 +77,19 @@ $(function () {
             icon: options.icon || "success",
             title: options.title
         });
+    }
+
+    function updateKskNotification(){
+        $.ajax({
+            url: base_url + '/ajax/ksk/get-ksk-notification',
+            method: 'GET',
+            success: function(response){
+                $('.notification-release').html(response.html_release);
+                $('.notification-approval').html(response.html_approval);
+            }, error: function(jqXHR, textStatus, errorThrown){
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            }
+        })
     }
 
     var columnsMustApprovedTable = [
@@ -256,7 +287,102 @@ $(function () {
         }
     }
 
+    function onChangeStatusKsk() {
+        $('select[name="status_ksk[]"]').on('change', function(){
+            let statusKsk = $(this).val();
+            let id = $(this).data('id');
+
+            if (statusKsk == 'PHK') {
+                $('#durasi_renewal'+id).val(0);
+            }
+        })
+    }
+
+    function onClickUpdate() {
+        $('.btnUpdate').on('click', function(){
+            loadingSwalShow();
+            let id = $(this).data('id');
+            let idKskDetail = $(this).data('id-ksk-detail');
+            let statusKsk = $('#status_ksk'+id).val();
+            let durasiRenewal = $('#durasi_renewal'+id).val();
+            let alasan = $('#alasan'+id).val();
+
+            let url = base_url + '/ksk/approval/update-detail-ksk/' + idKskDetail;
+            let formData = new FormData();
+
+            formData.append('_method', 'PATCH');
+            formData.append('status_ksk', statusKsk);
+            formData.append('durasi_renewal', durasiRenewal);
+            formData.append('reason', alasan);
+
+            $.ajax({
+                url: url,
+                data: formData,
+                method: 'POST',
+                contentType: false,
+                processData: false,
+                dataType: 'JSON',
+                success: function (data){
+                    loadingSwalClose();
+                    showToast({ title: data.message });
+                },
+                error: function (jqXHR, textStatus, errorThrown){
+                    loadingSwalClose();
+                    showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                }
+            })
+        })
+    }
+
+    function onSubmitApproval(idKSK) {
+        $('#btnSubmitApprove').off('click').on('click', function(){
+            loadingSwalShow();
+            let action = $(this).data('action');
+            let formData = new FormData();
+            let url = base_url + '/ksk/approval/'+action+'/' + idKSK;
+
+            $('input[name="id_ksk_detail[]"]').each(function() {
+                formData.append('id_ksk_detail[]', $(this).val());
+            });
+
+            $('select[name="status_ksk[]"]').each(function() {
+                formData.append('status_ksk[]', $(this).val());
+            });
+
+            $('input[name="durasi_renewal[]"]').each(function() {
+                formData.append('durasi_renewal[]', $(this).val());
+            });
+
+            $('textarea[name="alasan[]"]').each(function() {
+                formData.append('reason[]', $(this).val());
+            });
+
+            formData.append('_method', 'PATCH');
+
+            $.ajax({
+                url: url,
+                data: formData,
+                method: 'POST',
+                contentType: false,
+                processData: false,
+                dataType: 'JSON',
+                success: function (data){
+                    updateKskNotification();
+                    loadingSwalClose();
+                    showToast({ title: data.message });
+                    closeApproval();
+                    refreshTable();
+                },
+                error: function (jqXHR, textStatus, errorThrown){
+                    loadingSwalClose();
+                    showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                }
+            })
+        })
+    }
+
     $('#must-approved-table').on('click', '.btnApproved', function(){
+        loadingSwalShow();
         let idKsk = $(this).data('id-ksk');
         let url = base_url + '/ksk/ajax/approval/get-ksk/' + idKsk;
 
@@ -269,12 +395,47 @@ $(function () {
                 $('.select2').select2({
                     dropdownParent: $('#modal-approval')
                 });
+                loadingSwalClose();
                 openApproval();
+                onClickUpdate();
+                onChangeStatusKsk();
+                onSubmitApproval(idKsk);
+
             },
             error: function(jqXHR, textStatus, errorThrown){
+                loadingSwalClose();
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
             }
         });
+    });
+
+    $('#history-table').on('click', '.btnDetail', function(){
+        loadingSwalShow();
+        let idKsk = $(this).data('id-ksk');
+        let url = base_url + '/ksk/ajax/approval/get-detail-ksk/' + idKsk;
+
+        $.ajax({
+            url: url,
+            type: 'GET',
+            success: function(response){
+                let html = response.html;
+                $('#modal-detail-body').empty().html(html);
+                loadingSwalClose();
+                openDetail();
+            },
+            error: function(jqXHR, textStatus, errorThrown){
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            }
+        });
+    });
+
+    $('.btnCloseApproval').on('click', function(){
+        closeApproval();
+    });
+
+    $('.btnCloseDetail').on('click', function(){
+        closeDetail();
     });
 
     $('a[data-bs-toggle="tab"]').on("shown.bs.tab", function (e) {

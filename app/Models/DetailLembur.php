@@ -16,25 +16,25 @@ class DetailLembur extends Model
     protected $primaryKey = 'id_detail_lembur';
 
     protected $fillable = [
-        'lembur_id', 
-        'karyawan_id', 
-        'organisasi_id', 
-        'departemen_id', 
-        'divisi_id', 
-        'rencana_mulai_lembur', 
-        'rencana_selesai_lembur', 
-        'is_rencana_approved', 
-        'aktual_mulai_lembur', 
-        'aktual_selesai_lembur', 
-        'is_aktual_approved', 
-        'durasi', 
+        'lembur_id',
+        'karyawan_id',
+        'organisasi_id',
+        'departemen_id',
+        'divisi_id',
+        'rencana_mulai_lembur',
+        'rencana_selesai_lembur',
+        'is_rencana_approved',
+        'aktual_mulai_lembur',
+        'aktual_selesai_lembur',
+        'is_aktual_approved',
+        'durasi',
         'durasi_istirahat',
         'durasi_konversi_lembur',
         'gaji_lembur',
         'uang_makan',
         'pembagi_upah_lembur',
-        'deskripsi_pekerjaan', 
-        'keterangan', 
+        'deskripsi_pekerjaan',
+        'keterangan',
         'nominal',
         'rencana_last_changed_by',
         'rencana_last_changed_at',
@@ -287,7 +287,7 @@ class DetailLembur extends Model
 
     public static function generateLemburHarian()
     {
-        //RAW QUERY NYA 
+        //RAW QUERY NYA
         // SELECT
         //     detail_lemburs.organisasi_id,
         //     detail_lemburs.departemen_id,
@@ -303,9 +303,9 @@ class DetailLembur extends Model
         //     detail_lemburs.organisasi_id,
         //     detail_lemburs.departemen_id,
         //     detail_lemburs.divisi_id,
-        //     DATE(detail_lemburs.aktual_mulai_lembur)	
+        //     DATE(detail_lemburs.aktual_mulai_lembur)
         // ORDER BY tanggal_lembur ASC;
-        
+
         $data = self::selectRaw('
             detail_lemburs.organisasi_id,
             detail_lemburs.departemen_id,
@@ -408,7 +408,7 @@ class DetailLembur extends Model
             SUM(detail_lemburs.durasi) AS total_durasi_lembur
         ')
         ->leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
-        ->where('detail_lemburs.is_aktual_approved', 'Y')
+        ->where('detail_lemburs.is_rencana_approved', 'Y')
         ->whereNot('lemburs.status', 'REJECTED')
         ->groupByRaw('detail_lemburs.organisasi_id, detail_lemburs.departemen_id, detail_lemburs.divisi_id, DATE(detail_lemburs.aktual_mulai_lembur)');
 
@@ -523,7 +523,7 @@ class DetailLembur extends Model
 
         $results->whereNotNull('sub.nama');
         $results->selectRaw(
-            'nama as departemen, 
+            'nama as departemen,
             SUM(CASE WHEN EXTRACT(DAY FROM tanggal_lembur) BETWEEN 1 AND 7 THEN total_nominal_lembur ELSE 0 END) as minggu_1,
             SUM(CASE WHEN EXTRACT(DAY FROM tanggal_lembur) BETWEEN 8 AND 15 THEN total_nominal_lembur ELSE 0 END) as minggu_2,
             SUM(CASE WHEN EXTRACT(DAY FROM tanggal_lembur) BETWEEN 16 AND 23 THEN total_nominal_lembur ELSE 0 END) as minggu_3,
@@ -593,7 +593,7 @@ class DetailLembur extends Model
         $results->whereNotNull('sub.nama');
 
         $results->selectRaw(
-            'nama as departemen, 
+            'nama as departemen,
             departemen_id as id_departemen,
             SUM(total_nominal_lembur) as total_nominal,
             SUM(total_durasi_lembur) as total_durasi'
@@ -669,11 +669,11 @@ class DetailLembur extends Model
 
         if(isset($dataFilter['departemen'])){
             $data->whereIn('detail_lemburs.departemen_id', $dataFilter['departemen']);
-        } 
+        }
 
         if(isset($dataFilter['organisasi'])){
             $data->whereIn('detail_lemburs.organisasi_id', $dataFilter['organisasi']);
-        } 
+        }
 
         $data->where('detail_lemburs.is_aktual_approved', 'Y')
         ->groupBy('detail_lemburs.organisasi_id', 'detail_lemburs.departemen_id', 'detail_lemburs.divisi_id', 'departemens.nama', 'divisis.nama', 'organisasis.nama', 'tanggal_lembur', 'lemburs.plan_approved_by', 'lemburs.status');

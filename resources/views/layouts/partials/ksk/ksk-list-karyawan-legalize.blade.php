@@ -94,7 +94,7 @@
                         <div class="form-group">
                             <small class="text-muted">Status KSK <span class="text-danger">*</span></small><br>
                             <select name="status_ksk[]" id="status_ksk{{ $i }}" class="form-control select2"
-                                data-id="{{ $i }}" style="width: 100%;" required>
+                                style="width: 100%;" disabled>
                                 <option value="">Pilih Status KSK</option>
                                 <option value="PPJ" {{ $item->status_ksk == 'PPJ' ? 'selected' : '' }}>PERPANJANG
                                 </option>
@@ -110,7 +110,7 @@
                         <div class="form-group">
                             <small class="text-muted">Durasi Renewal</small><br>
                             <input type="number" name="durasi_renewal[]" id="durasi_renewal{{ $i }}"
-                                class="form-control" value="{{ $item->durasi_renewal }}" min="0">
+                                class="form-control" value="{{ $item->durasi_renewal }}" min="0" disabled>
                             <small class="text-muted mt-1">Last Update :
                                 {{ $item->changeHistoryKSK->isNotEmpty() ? $item->changeHistoryKSK->sortByDesc('created_at')->first()->changed_by : '-' }}</small>
                         </div>
@@ -118,12 +118,7 @@
                     <div class="col-12 col-lg-12">
                         <div class="form-group">
                             <small class="text-muted">Alasan</small><br>
-                            @role('atasan')
-                                <textarea name="alasan[]" id="alasan{{ $i }}" class="form-control" rows="3"
-                                    placeholder="{{ $item->changeHistoryKSK->isNotEmpty() ? $item->changeHistoryKSK->sortByDesc('created_at')->first()?->reason : '-' }} by {{ $item->changeHistoryKSK->isNotEmpty() ? $item->changeHistoryKSK->sortByDesc('created_at')->first()->changed_by : '-' }}">{{ $item->changeHistoryKSK->isNotEmpty() ? $item->changeHistoryKSK->where('changed_by_id', auth()->user()->karyawan->id_karyawan)->first()?->reason : '' }}</textarea>
-                                @elserole('personalia')
-                                <textarea name="alasan[]" id="alasan{{ $i }}" class="form-control" rows="3" disabled>{{ $item->changeHistoryKSK->isNotEmpty() ? $item->changeHistoryKSK->sortByDesc('created_at')->first()?->reason : '-' }} by {{ $item->changeHistoryKSK->isNotEmpty() ? $item->changeHistoryKSK->sortByDesc('created_at')->first()->changed_by : '-' }}</textarea>
-                            @endrole
+                            <textarea name="alasan[]" id="alasan{{ $i }}" class="form-control" rows="3" disabled>{{ $item->changeHistoryKSK->isNotEmpty() ? $item->changeHistoryKSK->sortByDesc('created_at')->first()?->reason : '-' }} by {{ $item->changeHistoryKSK->isNotEmpty() ? $item->changeHistoryKSK->sortByDesc('created_at')->first()->changed_by : '-' }}</textarea>
                         </div>
                     </div>
                     <div class="col-6 col-lg-6">
@@ -168,13 +163,6 @@
                             $no++;
                         @endphp
                     @endforeach
-                    <hr>
-                    <div class="d-flex justify-content-end">
-                        <button type="button" class="btn btn-primary btnUpdate" data-id="{{ $i }}"
-                            data-id-ksk-detail="{{ $item->id_ksk_detail }}">
-                            </i> Save Change
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>

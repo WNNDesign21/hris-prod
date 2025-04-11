@@ -18,7 +18,7 @@
             <div class="box">
                 <div class="box-header d-flex justify-content-between">
                     <div class="row">
-                        <h4 class="box-title">Approval KSK</h4>
+                        <h4 class="box-title">Approval Cleareance</h4>
                     </div>
                     <div>
                         <div class="btn-group">

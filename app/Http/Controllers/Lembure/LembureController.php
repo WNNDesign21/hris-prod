@@ -724,7 +724,7 @@ class LembureController extends Controller
                         }
                     } else {
                         //AFTER PLANNED
-                        $button_legalized_actual = '✅<br><small class="text-bold">'.$data?->actual_legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_legalized_at)->diffForHumans().'</small>';
+                        $button_legalized_actual = '✅<br><small class="text-bold">'.$data?->actual_legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_legalized_at)->diffForHumans().'</small><br><button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnRollback" data-id-lembur="'.$data->id_lembur.'"><i class="fas fa-undo"></i> Rollback</button>';
                     }
                 }
 
@@ -1528,12 +1528,16 @@ class LembureController extends Controller
                     'plan_checked_at' => now(),
                     'plan_approved_by' => 'BYPASS',
                     'plan_approved_at' => now(),
+                    'plan_reviewed_by' => 'BYPASS',
+                    'plan_reviewed_at' => now(),
                     'plan_legalized_by' => 'BYPASS',
                     'plan_legalized_at' => now(),
                     'actual_checked_by' => 'BYPASS',
                     'actual_checked_at' => now(),
                     'actual_approved_by' => 'BYPASS',
                     'actual_approved_at' => now(),
+                    'actual_reviewed_by' => 'BYPASS',
+                    'actual_reviewed_at' => now(),
                     'actual_legalized_by' => 'BYPASS',
                     'actual_legalized_at' => now(),
                 ]);
@@ -2712,6 +2716,22 @@ class LembureController extends Controller
             $lembure->delete();
             DB::commit();
             return response()->json(['message' => 'Pengajuan Lembur Dihapus!'],200);
+        } catch(Throwable $error){
+            DB::rollBack();
+            return response()->json(['message' => $error->getMessage()], 500);
+        }
+    }
+
+    public function rollback(Request $request, string $id_lembur)
+    {
+        DB::beginTransaction();
+        try{
+            $lembure = Lembure::find($id_lembur);
+            $lembure->actual_legalized_by = null;
+            $lembure->actual_legalized_at = null;
+            $lembure->save();
+            DB::commit();
+            return response()->json(['message' => 'Dokumen lembur dengan id '.$id_lembur.' berhasil di rollback'],200);
         } catch(Throwable $error){
             DB::rollBack();
             return response()->json(['message' => $error->getMessage()], 500);

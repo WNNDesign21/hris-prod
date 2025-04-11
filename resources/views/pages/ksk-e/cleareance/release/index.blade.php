@@ -18,7 +18,7 @@
             <div class="box">
                 <div class="box-header d-flex justify-content-between">
                     <div class="row">
-                        <h4 class="box-title">Release KSK</h4>
+                        <h4 class="box-title">Release Cleareance</h4>
                     </div>
                     <div>
                         <div class="btn-group">
@@ -40,11 +40,10 @@
                                 <table id="unreleased-table" class="table" style="width:100%">
                                     <thead>
                                         <tr>
-                                            <th>Level</th>
-                                            <th>Divisi</th>
+                                            <th>Karyawan</th>
                                             <th>Departemen</th>
-                                            <th>Release For</th>
-                                            <th>Jumlah Karyawan</th>
+                                            <th>Jabatan</th>
+                                            <th>Posisi</th>
                                             <th>Action</th>
                                         </tr>
                                     </thead>
@@ -57,18 +56,14 @@
                                 <table id="released-table" class="table" style="width:100%">
                                     <thead>
                                         <tr>
-                                            <th>ID KSK</th>
-                                            <th>Divisi</th>
+                                            <th>ID Cleareance</th>
+                                            <th>Karyawan</th>
                                             <th>Departemen</th>
-                                            <th>Atasan Langsung</th>
-                                            <th>Release Date</th>
-                                            <th>Leader</th>
-                                            <th>Section</th>
-                                            <th>Dept.Head</th>
-                                            <th>Div.Head</th>
-                                            <th>Plant Head</th>
-                                            <th>Director</th>
-                                            <th>Legalized</th>
+                                            <th>Jabatan</th>
+                                            <th>Posisi</th>
+                                            <th>Tanggal Akhir Bekerja</th>
+                                            <th>Approval</th>
+                                            <th>Status</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -80,6 +75,5 @@
             </div>
         </div>
     </div>
-    @include('pages.ksk-e.release.modal-input')
-    @include('pages.ksk-e.release.modal-detail')
+    @include('pages.ksk-e.cleareance.release.modal-input')
 @endsection

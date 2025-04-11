@@ -118,34 +118,53 @@ class KSK extends Model
         // Modul Approval Logic
         if($dataFilter['module'] == 'approval-must-approved') {
             if(auth()->user()->hasRole('personalia')) {
+                $data->where('ksk.organisasi_id', auth()->user()->organisasi_id);
                 $data->where(function ($query) {
                     $query->whereNotNull('ksk.reviewed_dir_by');
                     $query->whereNull('ksk.legalized_by');
                 });
             } else {
-                $main_posisi = auth()->user()->posisi_id;
-                $data->where(function ($query) {
-                    $query->where(function ($query) {
+                $main_posisi = [];
+                foreach (auth()->user()->karyawan->posisi as $key => $value) {
+                    array_push($main_posisi, $value->id_posisi);
+                }
+                $data->where(function ($query) use ($main_posisi){
+                    $query->where(function ($query) use ($main_posisi){
                         $query->whereIn('ksk.released_by_id', $main_posisi);
                         $query->whereNull('ksk.released_by');
                     })
-                    ->orWhere(function ($query) {
+                    ->orWhere(function ($query) use ($main_posisi){
+                        $query->whereNotNull('ksk.released_by');
                         $query->whereIn('ksk.checked_by_id', $main_posisi);
                         $query->whereNull('ksk.checked_by');
                     })
-                    ->orWhere(function ($query) {
+                    ->orWhere(function ($query) use ($main_posisi){
+                        $query->whereNotNull('ksk.released_by');
+                        $query->whereNotNull('ksk.checked_by');
                         $query->whereIn('ksk.approved_by_id', $main_posisi);
                         $query->whereNull('ksk.approved_by');
                     })
-                    ->orWhere(function ($query) {
+                    ->orWhere(function ($query) use ($main_posisi){
+                        $query->whereNotNull('ksk.released_by');
+                        $query->whereNotNull('ksk.checked_by');
+                        $query->whereNotNull('ksk.approved_by');
                         $query->whereIn('ksk.reviewed_div_by_id', $main_posisi);
                         $query->whereNull('ksk.reviewed_div_by');
                     })
-                    ->orWhere(function ($query) {
+                    ->orWhere(function ($query) use ($main_posisi){
+                        $query->whereNotNull('ksk.released_by');
+                        $query->whereNotNull('ksk.checked_by');
+                        $query->whereNotNull('ksk.approved_by');
+                        $query->whereNotNull('ksk.reviewed_div_by');
                         $query->whereIn('ksk.reviewed_ph_by_id', $main_posisi);
                         $query->whereNull('ksk.reviewed_ph_by');
                     })
-                    ->orWhere(function ($query) {
+                    ->orWhere(function ($query) use ($main_posisi){
+                        $query->whereNotNull('ksk.released_by');
+                        $query->whereNotNull('ksk.checked_by');
+                        $query->whereNotNull('ksk.approved_by');
+                        $query->whereNotNull('ksk.reviewed_div_by');
+                        $query->whereNotNull('ksk.reviewed_ph_by');
                         $query->whereIn('ksk.reviewed_dir_by_id', $main_posisi);
                         $query->whereNull('ksk.reviewed_dir_by');
                     });
@@ -153,35 +172,54 @@ class KSK extends Model
             }
         } elseif ($dataFilter['module'] == 'approval-history') {
             if(auth()->user()->hasRole('personalia')) {
+                $data->where('ksk.organisasi_id', auth()->user()->organisasi_id);
                 $data->where(function ($query) {
                     $query->whereNotNull('ksk.reviewed_dir_by');
                     $query->whereNotNull('ksk.legalized_by');
                 });
             } else {
-                $main_posisi = auth()->user()->posisi_id;
-                $data->where(function ($query) {
-                    $query->where(function ($query) {
+                $main_posisi = [];
+                foreach (auth()->user()->karyawan->posisi as $key => $value) {
+                    array_push($main_posisi, $value->id_posisi);
+                }
+                $data->where(function ($query) use ($main_posisi){
+                    $query->where(function ($query) use ($main_posisi){
                         $query->whereIn('ksk.released_by_id', $main_posisi);
                         $query->whereNotNull('ksk.released_by');
                     })
-                    ->orWhere(function ($query) {
+                    ->orWhere(function ($query) use ($main_posisi){
                         $query->whereIn('ksk.checked_by_id', $main_posisi);
+                        $query->whereNotNull('ksk.released_by');
                         $query->whereNotNull('ksk.checked_by');
                     })
-                    ->orWhere(function ($query) {
+                    ->orWhere(function ($query) use ($main_posisi){
                         $query->whereIn('ksk.approved_by_id', $main_posisi);
+                        $query->whereNotNull('ksk.released_by');
+                        $query->whereNotNull('ksk.checked_by');
                         $query->whereNotNull('ksk.approved_by');
                     })
-                    ->orWhere(function ($query) {
+                    ->orWhere(function ($query) use ($main_posisi){
                         $query->whereIn('ksk.reviewed_div_by_id', $main_posisi);
+                        $query->whereNotNull('ksk.released_by');
+                        $query->whereNotNull('ksk.checked_by');
+                        $query->whereNotNull('ksk.approved_by');
                         $query->whereNotNull('ksk.reviewed_div_by');
                     })
-                    ->orWhere(function ($query) {
+                    ->orWhere(function ($query) use ($main_posisi){
                         $query->whereIn('ksk.reviewed_ph_by_id', $main_posisi);
+                        $query->whereNotNull('ksk.released_by');
+                        $query->whereNotNull('ksk.checked_by');
+                        $query->whereNotNull('ksk.approved_by');
+                        $query->whereNotNull('ksk.reviewed_div_by');
                         $query->whereNotNull('ksk.reviewed_ph_by');
                     })
-                    ->orWhere(function ($query) {
+                    ->orWhere(function ($query) use ($main_posisi){
                         $query->whereIn('ksk.reviewed_dir_by_id', $main_posisi);
+                        $query->whereNotNull('ksk.released_by');
+                        $query->whereNotNull('ksk.checked_by');
+                        $query->whereNotNull('ksk.approved_by');
+                        $query->whereNotNull('ksk.reviewed_div_by');
+                        $query->whereNotNull('ksk.reviewed_ph_by');
                         $query->whereNotNull('ksk.reviewed_dir_by');
                     });
                 });
@@ -220,5 +258,211 @@ class KSK extends Model
     public static function countData($dataFilter)
     {
         return self::_query($dataFilter)->get()->count();
+    }
+
+    public static function countDataKSK($dataFilter)
+    {
+
+        $data = self::select(
+            'ksk.id_ksk',
+            'ksk.organisasi_id',
+            'ksk.divisi_id',
+            'ksk.nama_divisi',
+            'ksk.departemen_id',
+            'ksk.nama_departemen',
+            'ksk.release_date',
+            'ksk.parent_id',
+            'ksk.released_by_id',
+            'ksk.released_by',
+            'ksk.released_at',
+            'ksk.checked_by_id',
+            'ksk.checked_by',
+            'ksk.checked_at',
+            'ksk.approved_by_id',
+            'ksk.approved_by',
+            'ksk.approved_at',
+            'ksk.reviewed_div_by_id',
+            'ksk.reviewed_div_by',
+            'ksk.reviewed_div_at',
+            'ksk.reviewed_ph_by_id',
+            'ksk.reviewed_ph_by',
+            'ksk.reviewed_ph_at',
+            'ksk.reviewed_dir_by_id',
+            'ksk.reviewed_dir_by',
+            'ksk.reviewed_dir_at',
+            'ksk.legalized_by',
+            'ksk.legalized_at',
+            'posisis.nama as parent_name',
+        );
+
+        $data->leftJoin('organisasis', 'ksk.organisasi_id', 'organisasis.id_organisasi');
+        $data->leftJoin('posisis', 'ksk.parent_id', 'posisis.id_posisi');
+
+
+        if(auth()->user()->hasRole('personalia')) {
+            $data->where('ksk.organisasi_id', auth()->user()->organisasi_id);
+            $data->where(function ($query) {
+                $query->whereNotNull('ksk.reviewed_dir_by');
+                $query->whereNull('ksk.legalized_by');
+            });
+        } else {
+            $main_posisi = [];
+            foreach (auth()->user()->karyawan->posisi as $key => $value) {
+                array_push($main_posisi, $value->id_posisi);
+            }
+            $data->where(function ($query) use ($main_posisi){
+                $query->where(function ($query) use ($main_posisi){
+                    $query->whereIn('ksk.released_by_id', $main_posisi);
+                    $query->whereNull('ksk.released_by');
+                })
+                ->orWhere(function ($query) use ($main_posisi){
+                    $query->whereNotNull('ksk.released_by');
+                    $query->whereIn('ksk.checked_by_id', $main_posisi);
+                    $query->whereNull('ksk.checked_by');
+                })
+                ->orWhere(function ($query) use ($main_posisi){
+                    $query->whereNotNull('ksk.released_by');
+                    $query->whereNotNull('ksk.checked_by');
+                    $query->whereIn('ksk.approved_by_id', $main_posisi);
+                    $query->whereNull('ksk.approved_by');
+                })
+                ->orWhere(function ($query) use ($main_posisi){
+                    $query->whereNotNull('ksk.released_by');
+                    $query->whereNotNull('ksk.checked_by');
+                    $query->whereNotNull('ksk.approved_by');
+                    $query->whereIn('ksk.reviewed_div_by_id', $main_posisi);
+                    $query->whereNull('ksk.reviewed_div_by');
+                })
+                ->orWhere(function ($query) use ($main_posisi){
+                    $query->whereNotNull('ksk.released_by');
+                    $query->whereNotNull('ksk.checked_by');
+                    $query->whereNotNull('ksk.approved_by');
+                    $query->whereNotNull('ksk.reviewed_div_by');
+                    $query->whereIn('ksk.reviewed_ph_by_id', $main_posisi);
+                    $query->whereNull('ksk.reviewed_ph_by');
+                })
+                ->orWhere(function ($query) use ($main_posisi){
+                    $query->whereNotNull('ksk.released_by');
+                    $query->whereNotNull('ksk.checked_by');
+                    $query->whereNotNull('ksk.approved_by');
+                    $query->whereNotNull('ksk.reviewed_div_by');
+                    $query->whereNotNull('ksk.reviewed_ph_by');
+                    $query->whereIn('ksk.reviewed_dir_by_id', $main_posisi);
+                    $query->whereNull('ksk.reviewed_dir_by');
+                });
+            });
+        }
+        // if($dataFilter['module'] == 'approval-must-approved') {
+        //     if(auth()->user()->hasRole('personalia')) {
+        //         $data->where('ksk.organisasi_id', auth()->user()->organisasi_id);
+        //         $data->where(function ($query) {
+        //             $query->whereNotNull('ksk.reviewed_dir_by');
+        //             $query->whereNull('ksk.legalized_by');
+        //         });
+        //     } else {
+        //         $main_posisi = [];
+        //         foreach (auth()->user()->karyawan->posisi as $key => $value) {
+        //             array_push($main_posisi, $value->id_posisi);
+        //         }
+        //         $data->where(function ($query) use ($main_posisi){
+        //             $query->where(function ($query) use ($main_posisi){
+        //                 $query->whereIn('ksk.released_by_id', $main_posisi);
+        //                 $query->whereNull('ksk.released_by');
+        //             })
+        //             ->orWhere(function ($query) use ($main_posisi){
+        //                 $query->whereNotNull('ksk.released_by');
+        //                 $query->whereIn('ksk.checked_by_id', $main_posisi);
+        //                 $query->whereNull('ksk.checked_by');
+        //             })
+        //             ->orWhere(function ($query) use ($main_posisi){
+        //                 $query->whereNotNull('ksk.released_by');
+        //                 $query->whereNotNull('ksk.checked_by');
+        //                 $query->whereIn('ksk.approved_by_id', $main_posisi);
+        //                 $query->whereNull('ksk.approved_by');
+        //             })
+        //             ->orWhere(function ($query) use ($main_posisi){
+        //                 $query->whereNotNull('ksk.released_by');
+        //                 $query->whereNotNull('ksk.checked_by');
+        //                 $query->whereNotNull('ksk.approved_by');
+        //                 $query->whereIn('ksk.reviewed_div_by_id', $main_posisi);
+        //                 $query->whereNull('ksk.reviewed_div_by');
+        //             })
+        //             ->orWhere(function ($query) use ($main_posisi){
+        //                 $query->whereNotNull('ksk.released_by');
+        //                 $query->whereNotNull('ksk.checked_by');
+        //                 $query->whereNotNull('ksk.approved_by');
+        //                 $query->whereNotNull('ksk.reviewed_div_by');
+        //                 $query->whereIn('ksk.reviewed_ph_by_id', $main_posisi);
+        //                 $query->whereNull('ksk.reviewed_ph_by');
+        //             })
+        //             ->orWhere(function ($query) use ($main_posisi){
+        //                 $query->whereNotNull('ksk.released_by');
+        //                 $query->whereNotNull('ksk.checked_by');
+        //                 $query->whereNotNull('ksk.approved_by');
+        //                 $query->whereNotNull('ksk.reviewed_div_by');
+        //                 $query->whereNotNull('ksk.reviewed_ph_by');
+        //                 $query->whereIn('ksk.reviewed_dir_by_id', $main_posisi);
+        //                 $query->whereNull('ksk.reviewed_dir_by');
+        //             });
+        //         });
+        //     }
+        // } elseif ($dataFilter['module'] == 'approval-history') {
+        //     if(auth()->user()->hasRole('personalia')) {
+        //         $data->where('ksk.organisasi_id', auth()->user()->organisasi_id);
+        //         $data->where(function ($query) {
+        //             $query->whereNotNull('ksk.reviewed_dir_by');
+        //             $query->whereNotNull('ksk.legalized_by');
+        //         });
+        //     } else {
+        //         $main_posisi = [];
+        //         foreach (auth()->user()->karyawan->posisi as $key => $value) {
+        //             array_push($main_posisi, $value->id_posisi);
+        //         }
+        //         $data->where(function ($query) use ($main_posisi){
+        //             $query->where(function ($query) use ($main_posisi){
+        //                 $query->whereIn('ksk.released_by_id', $main_posisi);
+        //                 $query->whereNotNull('ksk.released_by');
+        //             })
+        //             ->orWhere(function ($query) use ($main_posisi){
+        //                 $query->whereIn('ksk.checked_by_id', $main_posisi);
+        //                 $query->whereNotNull('ksk.released_by');
+        //                 $query->whereNotNull('ksk.checked_by');
+        //             })
+        //             ->orWhere(function ($query) use ($main_posisi){
+        //                 $query->whereIn('ksk.approved_by_id', $main_posisi);
+        //                 $query->whereNotNull('ksk.released_by');
+        //                 $query->whereNotNull('ksk.checked_by');
+        //                 $query->whereNotNull('ksk.approved_by');
+        //             })
+        //             ->orWhere(function ($query) use ($main_posisi){
+        //                 $query->whereIn('ksk.reviewed_div_by_id', $main_posisi);
+        //                 $query->whereNotNull('ksk.released_by');
+        //                 $query->whereNotNull('ksk.checked_by');
+        //                 $query->whereNotNull('ksk.approved_by');
+        //                 $query->whereNotNull('ksk.reviewed_div_by');
+        //             })
+        //             ->orWhere(function ($query) use ($main_posisi){
+        //                 $query->whereIn('ksk.reviewed_ph_by_id', $main_posisi);
+        //                 $query->whereNotNull('ksk.released_by');
+        //                 $query->whereNotNull('ksk.checked_by');
+        //                 $query->whereNotNull('ksk.approved_by');
+        //                 $query->whereNotNull('ksk.reviewed_div_by');
+        //                 $query->whereNotNull('ksk.reviewed_ph_by');
+        //             })
+        //             ->orWhere(function ($query) use ($main_posisi){
+        //                 $query->whereIn('ksk.reviewed_dir_by_id', $main_posisi);
+        //                 $query->whereNotNull('ksk.released_by');
+        //                 $query->whereNotNull('ksk.checked_by');
+        //                 $query->whereNotNull('ksk.approved_by');
+        //                 $query->whereNotNull('ksk.reviewed_div_by');
+        //                 $query->whereNotNull('ksk.reviewed_ph_by');
+        //                 $query->whereNotNull('ksk.reviewed_dir_by');
+        //             });
+        //         });
+        //     }
+        // }
+
+        $result = $data;
+        return $result->get()->count();
     }
 }

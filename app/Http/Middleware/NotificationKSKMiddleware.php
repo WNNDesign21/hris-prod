@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use Closure;
+use App\Models\KSK\KSK;
 use App\Models\Karyawan;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,10 +20,12 @@ class NotificationKSKMiddleware
         $total_release_ksk = 0;
         $total_approval_ksk = 0;
 
+        $dataFilter = [];
         if(auth()->user()->hasRole('personalia')) {
-            $dataFilter = [];
             $total_release_ksk = Karyawan::countDataKSK($dataFilter);
         }
+
+        $total_approval_ksk = KSK::countDataKSK($dataFilter);
 
         $datas = [
             'total_release_ksk' => $total_release_ksk,

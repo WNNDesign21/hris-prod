@@ -34,6 +34,8 @@ return new class extends Migration
             $table->string('status_ksk')->nullable();
             $table->date('tanggal_renewal_kontrak')->nullable();
             $table->integer('durasi_renewal')->default(0);
+            $table->string('cleareance_id')->nullable();
+            $table->string('kontrak_id')->nullable();
 
             $table->timestamps();
             $table->softDeletes();

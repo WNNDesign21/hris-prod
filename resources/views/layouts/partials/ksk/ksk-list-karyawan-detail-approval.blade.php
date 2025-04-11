@@ -1,9 +1,8 @@
 @foreach ($datas as $i => $item)
     <div class="panel p-4 mb-3">
-        <div class="panel-heading" id="approval-ksk-{{ $i }}" role="tab">
-            <a class="panel-title" aria-controls="approval-ksk-content-{{ $i }}" aria-expanded="true"
-                data-bs-toggle="collapse" href="#approval-ksk-content-{{ $i }}"
-                data-parent="#list-approval-ksk">
+        <div class="panel-heading" id="detail-ksk-{{ $i }}" role="tab">
+            <a class="panel-title" aria-controls="detail-ksk-content-{{ $i }}" aria-expanded="true"
+                data-bs-toggle="collapse" href="#detail-ksk-content-{{ $i }}" data-parent="#list-detail-ksk">
                 <div class="row d-flex justify-content-between">
                     <div class="col flex-col">
                         <h5>{{ $item->nama_karyawan }}<br><small class="mt-0">{{ $item->ni_karyawan }}</small></h5>
@@ -11,9 +10,9 @@
                 </div>
             </a>
         </div>
-        <div class="panel-collapse collapse mt-2 show" id="approval-ksk-content-{{ $i }}"
-            aria-labelledby="approval-ksk-{{ $i }}" role="tabpanel"
-            data-bs-parent="#approval-ksk-{{ $i }}">
+        <div class="panel-collapse collapse mt-2 show" id="detail-ksk-content-{{ $i }}"
+            aria-labelledby="detail-ksk-{{ $i }}" role="tabpanel"
+            data-bs-parent="#detail-ksk-{{ $i }}">
             <div class="panel-body">
                 <div class="row">
                     <div class="col-6 col-lg-3">
@@ -94,7 +93,7 @@
                         <div class="form-group">
                             <small class="text-muted">Status KSK <span class="text-danger">*</span></small><br>
                             <select name="status_ksk[]" id="status_ksk{{ $i }}" class="form-control select2"
-                                data-id="{{ $i }}" style="width: 100%;" required>
+                                style="width: 100%;" disabled>
                                 <option value="">Pilih Status KSK</option>
                                 <option value="PPJ" {{ $item->status_ksk == 'PPJ' ? 'selected' : '' }}>PERPANJANG
                                 </option>
@@ -102,28 +101,41 @@
                                 <option value="TTP" {{ $item->status_ksk == 'TTP' ? 'selected' : '' }}>KARYAWAN
                                     TETAP</option>
                             </select>
-                            <small class="text-muted mt-1">Last Update :
-                                {{ $item->changeHistoryKSK->isNotEmpty() ? $item->changeHistoryKSK->sortByDesc('created_at')->first()->changed_by : '-' }}</small>
                         </div>
                     </div>
                     <div class="col-6 col-lg-3">
                         <div class="form-group">
                             <small class="text-muted">Durasi Renewal</small><br>
                             <input type="number" name="durasi_renewal[]" id="durasi_renewal{{ $i }}"
-                                class="form-control" value="{{ $item->durasi_renewal }}" min="0">
-                            <small class="text-muted mt-1">Last Update :
-                                {{ $item->changeHistoryKSK->isNotEmpty() ? $item->changeHistoryKSK->sortByDesc('created_at')->first()->changed_by : '-' }}</small>
+                                class="form-control" value="{{ $item->durasi_renewal }}" min="0" disabled>
                         </div>
                     </div>
                     <div class="col-12 col-lg-12">
                         <div class="form-group">
-                            <small class="text-muted">Alasan</small><br>
-                            @role('atasan')
-                                <textarea name="alasan[]" id="alasan{{ $i }}" class="form-control" rows="3"
-                                    placeholder="{{ $item->changeHistoryKSK->isNotEmpty() ? $item->changeHistoryKSK->sortByDesc('created_at')->first()?->reason : '-' }} by {{ $item->changeHistoryKSK->isNotEmpty() ? $item->changeHistoryKSK->sortByDesc('created_at')->first()->changed_by : '-' }}">{{ $item->changeHistoryKSK->isNotEmpty() ? $item->changeHistoryKSK->where('changed_by_id', auth()->user()->karyawan->id_karyawan)->first()?->reason : '' }}</textarea>
-                                @elserole('personalia')
-                                <textarea name="alasan[]" id="alasan{{ $i }}" class="form-control" rows="3" disabled>{{ $item->changeHistoryKSK->isNotEmpty() ? $item->changeHistoryKSK->sortByDesc('created_at')->first()?->reason : '-' }} by {{ $item->changeHistoryKSK->isNotEmpty() ? $item->changeHistoryKSK->sortByDesc('created_at')->first()->changed_by : '-' }}</textarea>
-                            @endrole
+                            <small class="text-muted">History Perubahan</small><br>
+                            <div class="row">
+                                @if ($item->changeHistoryKSK->isNotEmpty())
+                                    @foreach ($item->changeHistoryKSK->sortBy('created_at') as $history)
+                                        <div class="col-6 col-lg-3">
+                                            <p><strong>{{ $history->changed_by }}</strong><br>
+                                                @if ($history->status_ksk_after == 'PPJ')
+                                                    <span class="badge badge-success">Perpanjang</span>
+                                                @elseif ($history->status_ksk_after == 'TTP')
+                                                    <span class="badge badge-primary">Karyawan Tetap</span>
+                                                @elseif ($history->status_ksk_after == 'PHK')
+                                                    <span class="badge badge-danger">PHK</span>
+                                                @endif
+                                                <br>
+                                                {{ $history->durasi_after }} Bulan<br>
+
+                                                {{ \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $history->created_at)->format('d F Y H:i') }}
+                                                WIB <br>
+                                                Alasan : {{ $history->reason }}<br>
+                                            </p>
+                                        </div>
+                                    @endforeach
+                                @endif
+                            </div>
                         </div>
                     </div>
                     <div class="col-6 col-lg-6">
@@ -169,12 +181,6 @@
                         @endphp
                     @endforeach
                     <hr>
-                    <div class="d-flex justify-content-end">
-                        <button type="button" class="btn btn-primary btnUpdate" data-id="{{ $i }}"
-                            data-id-ksk-detail="{{ $item->id_ksk_detail }}">
-                            </i> Save Change
-                        </button>
-                    </div>
                 </div>
             </div>
         </div>
