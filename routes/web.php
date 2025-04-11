@@ -377,6 +377,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::patch('/approval-lembur/checked/{idLembur}', [LembureController::class, 'checked'])->name('lembure.approval-lembur.checked');
             Route::patch('/approval-lembur/approved/{idLembur}', [LembureController::class, 'approved'])->name('lembure.approval-lembur.approved');
             Route::patch('/approval-lembur/legalized/{idLembur}', [LembureController::class, 'legalized'])->name('lembure.approval-lembur.legalized');
+            Route::patch('/approval-lembur/rollback/{idLembur}', [LembureController::class, 'rollback'])->name('lembure.approval-lembur.rollback');
             Route::patch('/approval-lembur/checked-aktual/{idLembur}', [LembureController::class, 'checked_aktual'])->name('lembure.approval-lembur.checked-aktual');
             Route::patch('/approval-lembur/approved-aktual/{idLembur}', [LembureController::class, 'approved_aktual'])->name('lembure.approval-lembur.approved-aktual');
             Route::patch('/approval-lembur/legalized-aktual/{idLembur}', [LembureController::class, 'legalized_aktual'])->name('lembure.approval-lembur.legalized-aktual');

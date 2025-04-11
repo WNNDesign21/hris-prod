@@ -131,6 +131,7 @@ $(function () {
         order: [[1, "DESC"]],
         processing: true,
         serverSide: true,
+        stateSave: true,
         ajax: {
             url: base_url + "/lembure/approval-lembur-datatable",
             dataType: "json",
@@ -1755,6 +1756,43 @@ $(function () {
             error: function (jqXHR, textStatus, errorThrown) {
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
             },
+        });
+    })
+
+    $('#approval-table').on("click", '.btnRollback' , function () {
+        loadingSwalShow();
+        let idLembur = $(this).data('id-lembur');
+        Swal.fire({
+            title: "Rollback Lembur",
+            text: "Apakah kamu yakin untuk mengembalikan Lembur ini ke kondisi sebelum legalized?",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#3085d6",
+            cancelButtonColor: "#d33",
+            confirmButtonText: "Yes, rollback it!",
+            allowOutsideClick: false,
+        }).then((result) => {
+            if (result.value) {
+                loadingSwalShow();
+                var url = base_url + '/lembure/approval-lembur/rollback/' + idLembur;
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    data: {
+                        _method: "patch",
+                    },
+                    dataType: "JSON",
+                    success: function (data) {
+                        loadingSwalClose();
+                        refreshTable();
+                        showToast({ title: data.message });
+                    },
+                    error: function (jqXHR, textStatus, errorThrown) {
+                        loadingSwalClose();
+                        showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                    },
+                });
+            }
         });
     })
 
