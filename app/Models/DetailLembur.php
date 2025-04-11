@@ -346,8 +346,20 @@ class DetailLembur extends Model
         $results = DB::table(DB::raw("( {$subquery->toSql()} ) as sub"))
             ->mergeBindings($subquery->getQuery());
 
-        if(auth()->user()->hasRole('personalia') || (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->organisasi_id) || auth()->user()->karyawan->posisi[0]->jabatan_id == 5)){
-            $results->where('sub.organisasi_id', $organisasi_id);
+        // if(auth()->user()->hasRole('personalia') || (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->organisasi_id) || auth()->user()->karyawan->posisi[0]->jabatan_id == 5)){
+        //     $results->where('sub.organisasi_id', $organisasi_id);
+        // } else {
+        //     if(isset($dataFilter['organisasi'])){
+        //         $results->whereIn('sub.organisasi_id', $dataFilter['organisasi_id']);
+        //     }
+        // }
+
+        // if(isset($dataFilter['organisasi'])){
+        //     $results->whereIn('sub.organisasi_id', $dataFilter['organisasi']);
+        // }
+
+        if(isset($dataFilter['organisasi_id'])){
+            $results->where('sub.organisasi_id', $dataFilter['organisasi_id']);
         } else {
             if(isset($dataFilter['organisasi'])){
                 $results->whereIn('sub.organisasi_id', $dataFilter['organisasi']);
@@ -362,21 +374,29 @@ class DetailLembur extends Model
 
         if(isset($dataFilter['departemen'])){
             $results->whereIn('sub.departemen_id', $dataFilter['departemen']);
-        }
-
-        if(auth()->user()->hasRole('atasan') && (auth()->user()->karyawan && ((auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && !auth()->user()->karyawan->posisi[0]->organisasi_id) || auth()->user()->karyawan->posisi[0]->jabatan_id == 3 || auth()->user()->karyawan->posisi[0]->jabatan_id == 4))) {
-            $posisi = auth()->user()->karyawan->posisi;
-            if($posisi[0]->jabatan_id == 3){
-                foreach($posisi as $p){
-                    if ($p->departemen_id !== null) {
-                        $departemen_id[] = $p->departemen_id;
-                    }
-                }
-                $results->whereIn('sub.departemen_id', $departemen_id);
-            } else {
-                $results->where('sub.departemen_id', auth()->user()->karyawan->posisi[0]->departemen_id);
+        } else {
+            if(isset($dataFilter['departemen_id'])){
+                $results->whereIn('sub.departemen_id', $dataFilter['departemen_id']);
             }
         }
+
+        if(isset($dataFilter['divisi_id'])){
+            $results->whereIn('sub.divisi_id', $dataFilter['divisi_id']);
+        }
+
+        // if(auth()->user()->hasRole('atasan') && (auth()->user()->karyawan && ((auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && !auth()->user()->karyawan->posisi[0]->organisasi_id) || auth()->user()->karyawan->posisi[0]->jabatan_id == 3 || auth()->user()->karyawan->posisi[0]->jabatan_id == 4))) {
+        //     $posisi = auth()->user()->karyawan->posisi;
+        //     if($posisi[0]->jabatan_id == 3){
+        //         foreach($posisi as $p){
+        //             if ($p->departemen_id !== null) {
+        //                 $departemen_id[] = $p->departemen_id;
+        //             }
+        //         }
+        //         $results->whereIn('sub.departemen_id', $departemen_id);
+        //     } else {
+        //         $results->where('sub.departemen_id', auth()->user()->karyawan->posisi[0]->departemen_id);
+        //     }
+        // }
 
         $results->selectRaw('
             SUM(CASE WHEN EXTRACT(MONTH FROM tanggal_lembur) = 1 THEN total_nominal_lembur ELSE 0 END) as januari,
@@ -415,13 +435,13 @@ class DetailLembur extends Model
         $results = DB::table(DB::raw("( {$subquery->toSql()} ) as sub"))
             ->mergeBindings($subquery->getQuery());
 
-            if(auth()->user()->hasRole('personalia') || (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->organisasi_id) || auth()->user()->karyawan->posisi[0]->jabatan_id == 5)){
-                $results->where('sub.organisasi_id', $organisasi_id);
-            } else {
-                if(isset($dataFilter['organisasi'])){
-                    $results->whereIn('sub.organisasi_id', $dataFilter['organisasi']);
-                }
-            }
+        // if(auth()->user()->hasRole('personalia') || (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->organisasi_id) || auth()->user()->karyawan->posisi[0]->jabatan_id == 5)){
+        //     $results->where('sub.organisasi_id', $organisasi_id);
+        // } else {
+        //     if(isset($dataFilter['organisasi'])){
+        //         $results->whereIn('sub.organisasi_id', $dataFilter['organisasi']);
+        //     }
+        // }
 
         if(isset($dataFilter['tahun'])){
             $results->whereYear('sub.tanggal_lembur', $dataFilter['tahun']);
@@ -433,19 +453,45 @@ class DetailLembur extends Model
             $results->whereIn('sub.departemen_id', $dataFilter['departemen']);
         }
 
-        if(auth()->user()->hasRole('atasan') && (auth()->user()->karyawan && ((auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && !auth()->user()->karyawan->posisi[0]->organisasi_id) || auth()->user()->karyawan->posisi[0]->jabatan_id == 3 || auth()->user()->karyawan->posisi[0]->jabatan_id == 4))) {
-            $posisi = auth()->user()->karyawan->posisi;
-            if($posisi[0]->jabatan_id == 3){
-                foreach($posisi as $p){
-                    if ($p->departemen_id !== null) {
-                        $departemen_id[] = $p->departemen_id;
-                    }
-                }
-                $results->whereIn('sub.departemen_id', $departemen_id);
-            } else {
-                $results->where('sub.departemen_id', auth()->user()->karyawan->posisi[0]->departemen_id);
+        if(isset($dataFilter['organisasi_id'])){
+            $results->where('sub.organisasi_id', $dataFilter['organisasi_id']);
+        } else {
+            if(isset($dataFilter['organisasi'])){
+                $results->whereIn('sub.organisasi_id', $dataFilter['organisasi']);
             }
         }
+
+        if(isset($dataFilter['tahun'])){
+            $results->whereYear('sub.tanggal_lembur', $dataFilter['tahun']);
+        } else {
+            $results->whereYear('sub.tanggal_lembur', date('Y'));
+        }
+
+        if(isset($dataFilter['departemen'])){
+            $results->whereIn('sub.departemen_id', $dataFilter['departemen']);
+        } else {
+            if(isset($dataFilter['departemen_id'])){
+                $results->whereIn('sub.departemen_id', $dataFilter['departemen_id']);
+            }
+        }
+
+        if(isset($dataFilter['divisi_id'])){
+            $results->whereIn('sub.divisi_id', $dataFilter['divisi_id']);
+        }
+
+        // if(auth()->user()->hasRole('atasan') && (auth()->user()->karyawan && ((auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && !auth()->user()->karyawan->posisi[0]->organisasi_id) || auth()->user()->karyawan->posisi[0]->jabatan_id == 3 || auth()->user()->karyawan->posisi[0]->jabatan_id == 4))) {
+        //     $posisi = auth()->user()->karyawan->posisi;
+        //     if($posisi[0]->jabatan_id == 3){
+        //         foreach($posisi as $p){
+        //             if ($p->departemen_id !== null) {
+        //                 $departemen_id[] = $p->departemen_id;
+        //             }
+        //         }
+        //         $results->whereIn('sub.departemen_id', $departemen_id);
+        //     } else {
+        //         $results->where('sub.departemen_id', auth()->user()->karyawan->posisi[0]->departemen_id);
+        //     }
+        // }
 
         $results->selectRaw('
             SUM(CASE WHEN EXTRACT(MONTH FROM tanggal_lembur) = 1 THEN total_nominal_lembur ELSE 0 END) as januari,
