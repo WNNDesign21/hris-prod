@@ -72,4 +72,43 @@ class Cleareance extends Model
     {
         return $this->hasMany(CleareanceDetail::class, 'cleareance_id', 'id_cleareance');
     }
+
+    private static function _query($dataFilter)
+    {
+
+        $data = self::select(
+            'cleareances.*',
+        );
+        $data->leftJoin('karyawans', 'karyawans.id_karyawan', 'cleareances.karyawan_id');
+
+        if (isset($dataFilter['search'])) {
+            $search = $dataFilter['search'];
+            $data->where(function ($query) use ($search) {
+                $query->where('cleareances.id_cleareance', 'ILIKE', "%{$search}%")
+                    ->orWhere('cleareances.karyawan_id', 'ILIKE', "%{$search}%")
+                    ->orWhere('cleareances.nama_divisi', 'ILIKE', "%{$search}%")
+                    ->orWhere('cleareances.nama_departemen', 'ILIKE', "%{$search}%")
+                    ->orWhere('cleareances.nama_jabatan', 'ILIKE', "%{$search}%")
+                    ->orWhere('cleareances.nama_posisi', 'ILIKE', "%{$search}%")
+                    ->orWhere('cleareances.tanggal_akhir_bekerja', 'ILIKE', "%{$search}%")
+                    ->orWhere('cleareances.status', 'ILIKE', "%{$search}%");
+            });
+        }
+
+        $result = $data;
+        return $result;
+    }
+
+    public static function getData($dataFilter, $settings)
+    {
+        return self::_query($dataFilter)->offset($settings['start'])
+            ->limit($settings['limit'])
+            ->orderBy($settings['order'], $settings['dir'])
+            ->get();
+    }
+
+    public static function countData($dataFilter)
+    {
+        return self::_query($dataFilter)->get()->count();
+    }
 }
