@@ -131,7 +131,7 @@ $(function () {
         order: [[1, "DESC"]],
         processing: true,
         serverSide: true,
-        stateSave: true,
+        stateSave: !0,
         ajax: {
             url: base_url + "/lembure/approval-lembur-datatable",
             dataType: "json",
@@ -208,7 +208,9 @@ $(function () {
     })
 
     function refreshTable() {
-        approvalTable.search("").draw();
+        var currentPage = approvalTable.page();
+        approvalTable.search('').draw(false);
+        approvalTable.page(currentPage).draw(false);
     }
 
     $('.btnReload').on("click", function (){
