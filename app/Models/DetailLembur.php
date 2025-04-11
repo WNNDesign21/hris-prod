@@ -363,6 +363,8 @@ class DetailLembur extends Model
         } else {
             if(isset($dataFilter['organisasi'])){
                 $results->whereIn('sub.organisasi_id', $dataFilter['organisasi']);
+            } else {
+                $results->where('sub.organisasi_id', $organisasi_id);
             }
         }
 
@@ -443,21 +445,13 @@ class DetailLembur extends Model
         //     }
         // }
 
-        if(isset($dataFilter['tahun'])){
-            $results->whereYear('sub.tanggal_lembur', $dataFilter['tahun']);
-        } else {
-            $results->whereYear('sub.tanggal_lembur', date('Y'));
-        }
-
-        if(isset($dataFilter['departemen'])){
-            $results->whereIn('sub.departemen_id', $dataFilter['departemen']);
-        }
-
         if(isset($dataFilter['organisasi_id'])){
             $results->where('sub.organisasi_id', $dataFilter['organisasi_id']);
         } else {
             if(isset($dataFilter['organisasi'])){
                 $results->whereIn('sub.organisasi_id', $dataFilter['organisasi']);
+            } else {
+                $results->where('sub.organisasi_id', $organisasi_id);
             }
         }
 

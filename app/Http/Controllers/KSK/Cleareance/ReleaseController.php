@@ -4,6 +4,7 @@ namespace App\Http\Controllers\KSK\Cleareance;
 
 use Illuminate\Http\Request;
 use App\Models\KSK\DetailKSK;
+use App\Models\KSK\Cleareance;
 use App\Http\Controllers\Controller;
 use App\Models\KSK\CleareanceSetting;
 
@@ -60,6 +61,64 @@ class ReleaseController extends Controller
 
         if (!empty($detailKSK)) {
             foreach ($detailKSK as $data) {
+                $actionFormatted = '<button class="btn btn-sm btn-success btnRelease" data-id-karyawan="'.$data->karyawan_id.'"><i class="fas fa-plus"></i> Buat Cleareance</button>';
+
+                $nestedData['karyawan'] = $data->nama_karyawan;
+                $nestedData['departemen'] = $data->nama_departemen;
+                $nestedData['jabatan'] = $data->nama_jabatan;
+                $nestedData['posisi'] = $data->nama_posisi;
+                $nestedData['action'] = $actionFormatted;
+
+                $dataTable[] = $nestedData;
+
+            }
+        }
+
+        $json_data = array(
+            "draw" => intval($request->input('draw')),
+            "recordsTotal" => intval($totalData),
+            "recordsFiltered" => intval($totalFiltered),
+            "data" => $dataTable,
+            "order" => $order,
+            "dir" => $dir,
+        );
+
+        return response()->json($json_data, 200);
+    }
+
+    public function datatable_released(Request $request)
+    {
+        $columns = array(
+            0 => 'ksk_details.nama_karyawan',
+            1 => 'ksk_details.nama_departemen',
+            2 => 'ksk_details.nama_jabatan',
+            3 => 'ksk_details.nama_posisi',
+        );
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+
+        $settings['start'] = $start;
+        $settings['limit'] = $limit;
+        $settings['dir'] = $dir;
+        $settings['order'] = $order;
+
+        $dataFilter = [];
+        $search = $request->input('search.value');
+        if (!empty($search)) {
+            $dataFilter['search'] = $search;
+        }
+
+        $cleareances = Cleareance::getData($dataFilter, $settings);
+        $totalData = Cleareance::countData($dataFilter);
+        $totalFiltered = $totalData;
+
+        $dataTable = [];
+
+        if (!empty($cleareances)) {
+            foreach ($cleareances as $data) {
                 $actionFormatted = '<button class="btn btn-sm btn-success btnRelease" data-id-karyawan="'.$data->karyawan_id.'"><i class="fas fa-plus"></i> Buat Cleareance</button>';
 
                 $nestedData['karyawan'] = $data->nama_karyawan;
