@@ -3,6 +3,8 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <form action="#" method="POST" enctype="multipart/form-data" id="form-input">
+                @csrf
+                @method('PATCH')
                 <div class="modal-header">
                     <h4 class="modal-title">Approval Cleareance</h4>
                     <button type="button" class="btn-close btnClose" data-bs-dismiss="modal"
@@ -10,6 +12,12 @@
                 </div>
                 <div class="modal-body p-4">
                     @csrf
+                    <div class="form-group">
+                        <label for="atasan_langsung">Atasan Langsung</label>
+                        <select name="atasan_langsung" id="atasan_langsung" class="form-control" style="width: 100%"
+                            required>
+                        </select>
+                    </div>
                     <div class="form-group">
                         <label for="dept_it">Departemen IT</label>
                         <select name="dept_it" id="dept_it" class="form-control" style="width: 100%">
