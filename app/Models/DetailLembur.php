@@ -425,14 +425,15 @@ class DetailLembur extends Model
             detail_lemburs.organisasi_id,
             detail_lemburs.departemen_id,
             detail_lemburs.divisi_id,
-            DATE(detail_lemburs.aktual_mulai_lembur) AS tanggal_lembur,
+            DATE(detail_lemburs.rencana_mulai_lembur) AS tanggal_lembur,
             SUM(detail_lemburs.nominal) AS total_nominal_lembur,
             SUM(detail_lemburs.durasi) AS total_durasi_lembur
         ')
         ->leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
         ->where('detail_lemburs.is_rencana_approved', 'Y')
+        ->where('detail_lemburs.is_aktual_approved', 'Y')
         ->whereNot('lemburs.status', 'REJECTED')
-        ->groupByRaw('detail_lemburs.organisasi_id, detail_lemburs.departemen_id, detail_lemburs.divisi_id, DATE(detail_lemburs.aktual_mulai_lembur)');
+        ->groupByRaw('detail_lemburs.organisasi_id, detail_lemburs.departemen_id, detail_lemburs.divisi_id, DATE(detail_lemburs.rencana_mulai_lembur)');
 
         $results = DB::table(DB::raw("( {$subquery->toSql()} ) as sub"))
             ->mergeBindings($subquery->getQuery());
@@ -519,6 +520,7 @@ class DetailLembur extends Model
         ')
         ->leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
         ->leftJoin('departemens', 'departemens.id_departemen', 'detail_lemburs.departemen_id')
+        ->where('detail_lemburs.is_rencana_approved', 'Y')
         ->where('detail_lemburs.is_aktual_approved', 'Y')
         ->where('lemburs.status', 'COMPLETED')
         ->whereNotNull('lemburs.actual_legalized_by')
