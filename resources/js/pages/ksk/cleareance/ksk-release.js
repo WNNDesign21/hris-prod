@@ -50,6 +50,28 @@ $(function () {
         $('#form-input').attr('action', )
     }
 
+    var modalDetailOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalDetail = new bootstrap.Modal(
+        document.getElementById("modal-detail"),
+        modalDetailOptions
+    );
+
+    function openDetail() {
+        modalDetail.show();
+    }
+
+    function closeDetail() {
+        modalDetail.hide();
+    }
+
+    function resetDetail() {
+        $('#detail-cleareance-content').html('');
+    }
+
     //SHOW TOAST
     function showToast(options) {
         const toast = Swal.mixin({
@@ -75,9 +97,7 @@ $(function () {
             url: base_url + '/ajax/ksk/get-ksk-notification',
             method: 'GET',
             success: function(response){
-                $('.notification-release').html(response.html_release);
-                $('.notification-approval').html(response.html_approval);
-                $('.notification-cleareance').html(response.html_cleareance);
+                $('.notification-cleareance-release').html(response.html_release_cleareance);
             }, error: function(jqXHR, textStatus, errorThrown){
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
             }
@@ -270,7 +290,7 @@ $(function () {
         closeInput();
     })
 
-    $('#unreleased-table').on('click', '.btnRelease', function (e) {
+    $('#unreleased-table').on('click', '.btnRelease', function () {
         let idKSKDetail = $(this).data('id-ksk-detail');
         let karyawanId = $(this).data('karyawan-id');
         let url = base_url + "/ksk/cleareance/release/update/" + idKSKDetail;
@@ -295,6 +315,157 @@ $(function () {
             },
         });
     });
+
+    $('#released-table').on('click', '.btnDetail', function () {
+        loadingSwalShow();
+        let idCleareance = $(this).data('id-cleareance');
+        let karyawanId = $(this).data('karyawan-id');
+        let url = base_url + "/ksk/cleareance/ajax/release/get-detail-cleareance/" + idCleareance;
+        $.ajax({
+            url: url,
+            method: 'GET',
+            success: function(response){
+                loadingSwalClose();
+                $('#detail-cleareance-content').html(response.html);
+
+                $('#confirmed_by_idAL').select2({
+                    dropdownParent: $('#modal-detail'),
+                    ajax: {
+                    url: base_url + "/ksk/cleareance/ajax/release/get-atasan-langsung",
+                    type: "post",
+                    dataType: "json",
+                    delay: 250,
+                    data: function (params) {
+                        return {
+                        search: params.term || "",
+                        page: params.page || 1,
+                        id_karyawan: karyawanId
+                        };
+                    },
+                    cache: true,
+                    },
+                });
+
+                $('#confirmed_by_idIT').select2({
+                    dropdownParent: $('#modal-detail'),
+                    ajax: {
+                        url: base_url + "/ksk/cleareance/ajax/release/get-karyawans",
+                        type: "post",
+                        dataType: "json",
+                        delay: 250,
+                        data: function (params) {
+                            return {
+                                search: params.term || "",
+                                page: params.page || 1,
+                            };
+                        },
+                        cache: true,
+                    },
+                });
+
+                $('#confirmed_by_idFAT').select2({
+                    dropdownParent: $('#modal-detail'),
+                    ajax: {
+                        url: base_url + "/ksk/cleareance/ajax/release/get-karyawans",
+                        type: "post",
+                        dataType: "json",
+                        delay: 250,
+                        data: function (params) {
+                            return {
+                                search: params.term || "",
+                                page: params.page || 1,
+                            };
+                        },
+                        cache: true,
+                    },
+                });
+
+                $('#confirmed_by_idGA').select2({
+                    dropdownParent: $('#modal-detail'),
+                    ajax: {
+                        url: base_url + "/ksk/cleareance/ajax/release/get-karyawans",
+                        type: "post",
+                        dataType: "json",
+                        delay: 250,
+                        data: function (params) {
+                            return {
+                                search: params.term || "",
+                                page: params.page || 1,
+                            };
+                        },
+                        cache: true,
+                    },
+                });
+
+                $('#confirmed_by_idHR').select2({
+                    dropdownParent: $('#modal-detail'),
+                    ajax: {
+                        url: base_url + "/ksk/cleareance/ajax/release/get-karyawans",
+                        type: "post",
+                        dataType: "json",
+                        delay: 250,
+                        data: function (params) {
+                            return {
+                                search: params.term || "",
+                                page: params.page || 1,
+                            };
+                        },
+                        cache: true,
+                    },
+                });
+
+                $('.btnRollback').on('click', function () {
+                    let idCleareanceDetail = $(this).data('id-cleareance-detail');
+                    let type = $(this).data('type');
+                    let confirmedById = $('#confirmed_by_id' + type).val();
+                    let url = base_url + "/ksk/cleareance/release/rollback/" + idCleareanceDetail;
+                    let formData = new FormData();
+                    formData.append('_method', 'PATCH');
+                    formData.append('confirmed_by_id', confirmedById);
+                    Swal.fire({
+                        title: "Rollback Cleareance",
+                        text: "Cleareance yang di rollback harus melakukan konfirmasi ulang pada pihak terkait, yakin?",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#3085d6",
+                        cancelButtonColor: "#d33",
+                        confirmButtonText: "Yes, rollback it!",
+                        allowOutsideClick: false,
+                    }).then((result) => {
+                        if (result.value) {
+                            loadingSwalShow();
+                            $.ajax({
+                                url: url,
+                                data: formData,
+                                method: "POST",
+                                contentType: false,
+                                processData: false,
+                                dataType: "JSON",
+                                success: function (response) {
+                                    let html = response.html;
+                                    loadingSwalClose();
+                                    refreshTable();
+                                    showToast({ title: response.message });
+
+                                    $('#keteranganText'+type).empty();
+                                    $('#statusText'+type).empty().html(html);
+                                },
+                                error: function (jqXHR, textStatus, errorThrown) {
+                                    loadingSwalClose();
+                                    showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                                },
+                            });
+                        }
+                    });
+                })
+
+                openDetail();
+            }, error: function(jqXHR, textStatus, errorThrown){
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            }
+        })
+    })
 
     $('#dept_it').select2({
         dropdownParent: $('#modal-input'),
@@ -379,6 +550,7 @@ $(function () {
             processData: false,
             dataType: "JSON",
             success: function (data) {
+                updateKskNotification();
                 showToast({ title: data.message });
                 refreshTable();
                 closeInput();

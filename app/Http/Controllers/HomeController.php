@@ -1385,18 +1385,21 @@ class HomeController extends Controller
         try {
             $total_release_ksk = 0;
             $total_approval_ksk = 0;
+            $total_release_cleareance = 0;
 
             $dataFilter = [];
             if(auth()->user()->hasRole('personalia')) {
                 $total_release_ksk = Karyawan::countDataKSK($dataFilter);
+                $total_release_cleareance = DetailKSK::where('organisasi_id', auth()->user()->organisasi_id)->where('status_ksk', 'PHK')->whereNull('cleareance_id')->count();
             }
 
             $total_approval_ksk = KSK::countDataKSK($dataFilter);
 
             $html_release = view('layouts.partials.ksk.notification-release')->with(compact('total_release_ksk'))->render();
             $html_approval = view('layouts.partials.ksk.notification-approval')->with(compact('total_approval_ksk'))->render();
+            $html_release_cleareance = view('layouts.partials.ksk.cleareance.notification-release')->with(compact('total_release_cleareance'))->render();
 
-            return response()->json(['html_release' => $html_release , 'html_approval' => $html_approval], 200);
+            return response()->json(['html_release' => $html_release , 'html_approval' => $html_approval, 'html_release_cleareance' => $html_release_cleareance], 200);
         } catch (Throwable $e) {
             return response()->json(['message' => $e->getMessage()], 500);
         }

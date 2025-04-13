@@ -4,7 +4,9 @@ namespace App\Http\Controllers\KSK\Cleareance;
 
 use App\Models\Karyawan;
 use Illuminate\Http\Request;
+use App\Models\KSK\Cleareance;
 use App\Http\Controllers\Controller;
+use App\Models\KSK\CleareanceDetail;
 
 class AjaxController extends Controller
 {
@@ -110,5 +112,21 @@ class AjaxController extends Controller
         );
 
         return response()->json($results);
+    }
+
+    public function get_detail_cleareance(string $id_cleareance)
+    {
+        try {
+            $header = Cleareance::find($id_cleareance);
+            if (!$header) {
+                return response()->json(['message' => 'Data tidak ditemukan'], 404);
+            }
+            $detail = CleareanceDetail::where('cleareance_id', $header->id_cleareance)->orderBy('type')->get();
+
+            $html = view('layouts.partials.ksk.cleareance.modal-body-detail', ['header' => $header, 'detail' => $detail])->render();
+            return response()->json(['message' => 'success', 'html' => $html], 200);
+        } catch (Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 }

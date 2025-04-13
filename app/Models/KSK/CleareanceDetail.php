@@ -2,6 +2,7 @@
 
 namespace App\Models\KSK;
 
+use App\Models\Karyawan;
 use App\Models\KSK\Cleareance;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -19,6 +20,7 @@ class CleareanceDetail extends Model
         'organisasi_id',
         'type',
         'is_clear',
+        'attachment',
         'keterangan',
         'confirmed_by_id',
         'confirmed_by',
@@ -29,4 +31,10 @@ class CleareanceDetail extends Model
     {
         return $this->belongsTo(Cleareance::class, 'cleareance_id', 'id_cleareance');
     }
+
+    public function karyawan()
+    {
+        return $this->belongsTo(Karyawan::class, 'confirmed_by_id', 'id_karyawan');
+    }
+
 }

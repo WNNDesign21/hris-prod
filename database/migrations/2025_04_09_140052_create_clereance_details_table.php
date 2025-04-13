@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('confirmed_by_id')->nullable();
             $table->string('confirmed_by')->nullable();
             $table->dateTime('confirmed_at')->nullable();
+            $table->string('attachment')->nullable();
 
             $table->timestamps();
             $table->softDeletes();

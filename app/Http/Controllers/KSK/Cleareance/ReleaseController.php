@@ -11,6 +11,7 @@ use App\Models\KSK\DetailKSK;
 use App\Models\KSK\Cleareance;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\KSK\CleareanceDetail;
 use App\Models\KSK\CleareanceSetting;
 use Illuminate\Support\Facades\Validator;
 
@@ -128,7 +129,7 @@ class ReleaseController extends Controller
 
         if (!empty($cleareances)) {
             foreach ($cleareances as $data) {
-                $actionFormatted = '<a href="javascript:void(0)" class="btnDetail" data-id-cleareance="'.$data->id_cleareance.'">'.$data->id_cleareance.' <i class="fas fa-search"></i></a>';
+                $actionFormatted = '<a href="javascript:void(0)" class="btnDetail" data-id-cleareance="'.$data->id_cleareance.'" data-karyawan-id="'.$data->karyawan_id.'">'.$data->id_cleareance.' <i class="fas fa-search"></i></a>';
                 $approvalFormatted = $data->approved.'/'.$data->detail;
                 $statusFormatted = $data->status == 'Y' ? '<span class="badge badge-success">COMPLETED</span>' : '<span class="badge badge-warning">WAITING</span>';
 
@@ -200,43 +201,22 @@ class ReleaseController extends Controller
             ]);
 
 
-            if ($atasan_langsung) {
-                $cleareance->cleareanceDetail()->create([
-                    'organisasi_id' => $cleareance->organisasi_id,
-                    'type' => 'AL',
-                    'confirmed_by_id' => $atasan_langsung,
-                ]);
-            }
+            $departments = [
+                'AL' => $atasan_langsung,
+                'IT' => $dept_it_id,
+                'FAT' => $dept_fat_id,
+                'GA' => $dept_ga_id,
+                'HR' => $dept_hr_id,
+            ];
 
-            if ($dept_it_id) {
+            foreach ($departments as $type => $confirmed_by_id) {
                 $cleareance->cleareanceDetail()->create([
                     'organisasi_id' => $cleareance->organisasi_id,
-                    'type' => 'IT',
-                    'confirmed_by_id' => $dept_it_id,
-                ]);
-            }
-
-            if ($dept_fat_id) {
-                $cleareance->cleareanceDetail()->create([
-                    'organisasi_id' => $cleareance->organisasi_id,
-                    'type' => 'FAT',
-                    'confirmed_by_id' => $dept_fat_id,
-                ]);
-            }
-
-            if ($dept_ga_id) {
-                $cleareance->cleareanceDetail()->create([
-                    'organisasi_id' => $cleareance->organisasi_id,
-                    'type' => 'GA',
-                    'confirmed_by_id' => $dept_ga_id,
-                ]);
-            }
-
-            if ($dept_hr_id) {
-                $cleareance->cleareanceDetail()->create([
-                    'organisasi_id' => $cleareance->organisasi_id,
-                    'type' => 'HR',
-                    'confirmed_by_id' => $dept_hr_id,
+                    'type' => $type,
+                    'confirmed_by_id' => $confirmed_by_id,
+                    'confirmed_by' => $confirmed_by_id === null ? 'SYSTEM' : null,
+                    'confirmed_at' => $confirmed_by_id === null ? Carbon::now() : null,
+                    'is_clear' => $confirmed_by_id === null ? 'Y' : 'N',
                 ]);
             }
 
@@ -246,6 +226,66 @@ class ReleaseController extends Controller
 
             DB::commit();
             return response()->json(['message' => 'Berhasil membuat form clearance untuk karyawan'], 200);
+        } catch (Throwable $e) {
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function rollback(Request $request, int $id_cleareance_detail)
+    {
+        $dataValidate = [
+            'confirmed_by_id' => ['nullable', 'exists:karyawans,id_karyawan'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        DB::beginTransaction();
+        try {
+            $cleareanceDetail = CleareanceDetail::findOrFail($id_cleareance_detail);
+            $cleareance = $cleareanceDetail->cleareance;
+
+            if ($cleareance->karyawan->status_karyawan !== 'AT') {
+                DB::rollBack();
+                return response()->json(['message' => 'Rollback gagal, status karyawan sudah tidak aktif.'], 422);
+            }
+
+            if ($request->confirmed_by_id == null && $cleareanceDetail->type == 'AL') {
+                DB::rollBack();
+                return response()->json(['message' => 'Konfirmasi atasan langsung tidak boleh kosong!'], 422);
+            }
+
+            $cleareanceDetail->confirmed_by_id = $request->confirmed_by_id;
+            $cleareanceDetail->confirmed_by = $request->confirmed_by_id === null ? 'SYSTEM' : null;
+            $cleareanceDetail->confirmed_at = $request->confirmed_by_id === null ? Carbon::now() : null;
+            $cleareanceDetail->is_clear = $request->confirmed_by_id === null ? 'Y' : 'N';
+            $cleareanceDetail->save();
+
+            if ($request->confirmed_by_id !== null) {
+                $cleareance->status = 'N';
+                $cleareance->save();
+            }
+
+            if ($request->confirmed_by_id !== null) {
+                $html = '<p>⏳ Waiting</p>';
+            } else {
+                $html = '<p>
+                            ✅' . $cleareanceDetail->confirmed_by . '<br>
+                            <span>' . Carbon::now()->format('d F Y H:i') . '</span>
+                         </p>';
+            }
+
+            DB::commit();
+            return response()->json(
+                [
+                    'message' => 'Rollback konfirmasi berhasil dilakukan, silahkan konfirmasi ulang pada pihak yang bersangkutan',
+                    'html' => $html,
+                ], 200);
         } catch (Throwable $e) {
             DB::rollBack();
             return response()->json(['message' => $e->getMessage()], 500);
