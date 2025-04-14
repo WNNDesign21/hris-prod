@@ -278,23 +278,57 @@ $(function () {
     });
 
     $('#need-action-table').on('click', '.btnTurnover', function () {
-        let idDetailKSK = $(this).data('id-detail-ksk');
+        let idKSKDetail = $(this).data('id-ksk-detail');
+        console.log(idKSKDetail)
         let namaKaryawan = $(this).data('nama-karyawan');
         let idKaryawan = $(this).data('karyawan-id');
         let statusKSK = $(this).data('status-ksk');
         let tanggalAkhirBekerja = $(this).data('tgl-akhir-bekerja');
 
         let option = new Option(namaKaryawan, idKaryawan, true, true);
+        $('#karyawan_idTurnover').empty();
         $('#karyawan_idTurnover').append(option);
         $('#karyawan_idTurnover').select2({
             dropdownParent: $('#modal-turnover'),
         });
+        $('#status_karyawanTurnover').val('');
         $('#status_karyawanTurnover').select2({
             dropdownParent: $('#modal-turnover'),
         });
+        $('#tanggal_keluarTurnover').val('');
         $('#tanggal_keluarTurnover').val(tanggalAkhirBekerja).attr('readonly', true);
+
+        $('#id_ksk_detailTurnover').val('');
+        $('#id_ksk_detailTurnover').val(idKSKDetail);
         openTurnover();
     })
+
+    $('#form-turnover').on('submit', function (e) {
+        e.preventDefault();
+        loadingSwalShow();
+        let url = $(this).attr('action');
+        var formData = new FormData($(this)[0]);
+
+        $.ajax({
+            url: url,
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (data) {
+                // updateKskNotification();
+                showToast({ title: data.message });
+                refreshTable();
+                closeTurnover();
+                loadingSwalClose();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        })
+    });
 
     $('a[data-bs-toggle="tab"]').on("shown.bs.tab", function (e) {
         var target = $(e.target).attr("href");

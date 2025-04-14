@@ -577,6 +577,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::get('/tindak-lanjut', [KSKTindakLanjutController::class, 'index'])->name('ksk.tindak-lanjut');
             Route::post('/tindak-lanjut/datatable-need-action', [KSKTindakLanjutController::class, 'datatable_need_action']);
             Route::post('/tindak-lanjut/datatable-history', [KSKTindakLanjutController::class, 'datatable_history']);
+            Route::post('/tindak-lanjut/store-turnover', [KSKTindakLanjutController::class, 'store_turnover'])->name('ksk.tindak-lanjut.store-turnover');
         });
 
         Route::group(['middleware' => ['role:atasan|personalia']], function () {

@@ -2,10 +2,15 @@
 
 namespace App\Http\Controllers\KSK;
 
+use Exception;
 use Carbon\Carbon;
+use App\Models\Karyawan;
+use App\Models\Turnover;
 use Illuminate\Http\Request;
 use App\Models\KSK\DetailKSK;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Validator;
 
 class TindakLanjutController extends Controller
 {
@@ -56,21 +61,21 @@ class TindakLanjutController extends Controller
 
         if (!empty($detailKSK)) {
             foreach ($detailKSK as $data) {
-                $idKSK = '<a href="javascript:void(0)" class="btnDetail" data-id-detail-ksk="'.$data->id_detail_ksk.'">'.$data->ksk_id.' <i class="fas fa-search"></i></a>';
+                $idKSK = '<a href="javascript:void(0)" class="btnDetail" data-id-ksk-detail="'.$data->id_ksk_detail.'">'.$data->ksk_id.' <i class="fas fa-search"></i></a>';
                 if ($data->status_ksk == 'PHK') {
                     $statusFormatted = '<span class="badge badge-danger">PHK</span>';
                     if ($data->tanggal_akhir_bekerja >= Carbon::now()) {
-                        $actionFormatted = '<button class="btn btn-sm btn-success btnTurnover" data-karyawan-id="'.$data->karyawan_id.'" data-status-ksk="'.$data->status_ksk.'" data-id-detail-ksk="'.$data->id_detail_ksk.'" data-nama-karyawan="'.$data->nama_karyawan.'" data-tgl-akhir-bekerja="'.$data->karyawan->tanggal_selesai.'"><i class="fas fa-plus"></i> Buat Turnover</button>';
+                        $actionFormatted = '<button class="btn btn-sm btn-success btnTurnover" data-karyawan-id="'.$data->karyawan_id.'" data-status-ksk="'.$data->status_ksk.'" data-id-ksk-detail="'.$data->id_ksk_detail.'" data-nama-karyawan="'.$data->nama_karyawan.'" data-tgl-akhir-bekerja="'.$data->karyawan->tanggal_selesai.'"><i class="fas fa-plus"></i> Buat Turnover</button>';
                     } else {
-                        $actionFormatted = '<button class="btn btn-sm btn-success btnTurnover" data-karyawan-id="'.$data->karyawan_id.'" data-status-ksk="'.$data->status_ksk.'" data-id-detail-ksk="'.$data->id_detail_ksk.'" data-nama-karyawan="'.$data->nama_karyawan.'" data-tgl-akhir-bekerja="'.$data->karyawan->tanggal_selesai.'"><i class="fas fa-plus"></i> Buat Turnover</button>';
+                        $actionFormatted = '<button class="btn btn-sm btn-success btnTurnover" data-karyawan-id="'.$data->karyawan_id.'" data-status-ksk="'.$data->status_ksk.'" data-id-ksk-detail="'.$data->id_ksk_detail.'" data-nama-karyawan="'.$data->nama_karyawan.'" data-tgl-akhir-bekerja="'.$data->karyawan->tanggal_selesai.'"><i class="fas fa-plus"></i> Buat Turnover</button>';
                         // $actionFormatted = 'Turnover Tersedia pada tanggal <strong>'.Carbon::parse($data->tanggal_akhir_bekerja)->translatedFormat('d F Y').'</strong>';
                     }
                 } elseif ($data->status_ksk == 'PPJ') {
                     $statusFormatted = '<span class="badge badge-success">PERPANJANG</span>';
-                    $actionFormatted = '<button class="btn btn-sm btn-success btnKontrak" data-karyawan-id="'.$data->karyawan_id.'" data-status-ksk="'.$data->status_ksk.'" data-id-detail-ksk="'.$data->id_detail_ksk.'" data-nama-karyawan="'.$data->nama_karyawan.'"><i class="fas fa-plus"></i> Buat Kontrak</button>';
+                    $actionFormatted = '<button class="btn btn-sm btn-success btnKontrak" data-karyawan-id="'.$data->karyawan_id.'" data-status-ksk="'.$data->status_ksk.'" data-id-ksk-detail="'.$data->id_ksk_detail.'" data-nama-karyawan="'.$data->nama_karyawan.'"><i class="fas fa-plus"></i> Buat Kontrak</button>';
                 } else {
                     $statusFormatted = '<span class="badge badge-primary">KARYAWAN TETAP</span>';
-                    $actionFormatted = '<button class="btn btn-sm btn-success btnKontrak" data-karyawan-id="'.$data->karyawan_id.'" data-status-ksk="'.$data->status_ksk.'" data-id-detail-ksk="'.$data->id_detail_ksk.'" data-nama-karyawan="'.$data->nama_karyawan.'"><i class="fas fa-plus"></i> Buat Kontrak</button>';
+                    $actionFormatted = '<button class="btn btn-sm btn-success btnKontrak" data-karyawan-id="'.$data->karyawan_id.'" data-status-ksk="'.$data->status_ksk.'" data-id-ksk-detail="'.$data->id_ksk_detail.'" data-nama-karyawan="'.$data->nama_karyawan.'"><i class="fas fa-plus"></i> Buat Kontrak</button>';
                 }
 
                 $nestedData['id_detail_ksk'] = $idKSK;
@@ -169,5 +174,58 @@ class TindakLanjutController extends Controller
         );
 
         return response()->json($json_data, 200);
+    }
+
+    public function store_turnover(Request $request)
+    {
+        $dataValidate = [
+            'id_ksk_detailTurnover' => ['required', 'exists:ksk_details,id_ksk_detail'],
+            'karyawan_idTurnover' => ['required', 'exists:karyawans,id_karyawan'],
+            'status_karyawanTurnover' => ['required'],
+            'tanggal_keluarTurnover' => ['required','date'],
+            'keteranganTurnover' => ['nullable'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $id_ksk_detail = $request->id_ksk_detailTurnover;
+        $karyawan_id = $request->karyawan_idTurnover;
+        $status_karyawan = $request->status_karyawanTurnover;
+        $tanggal_keluar = $request->tanggal_keluarTurnover;
+        $keterangan = $request->keteranganTurnover;
+        $organisasi_id = auth()->user()->organisasi_id;
+        $jumlah_aktif_karyawan_terakhir = Karyawan::organisasi($organisasi_id)->where('status_karyawan', 'AT')->count();
+
+        DB::beginTransaction();
+        try {
+
+            $turnover = Turnover::create([
+                'karyawan_id' => $karyawan_id,
+                'status_karyawan' => $status_karyawan,
+                'tanggal_keluar' => $tanggal_keluar,
+                'keterangan' => $keterangan,
+                'organisasi_id' => $organisasi_id,
+                'jumlah_aktif_karyawan_terakhir' => $jumlah_aktif_karyawan_terakhir,
+            ]);
+
+            $karyawan = Karyawan::find($karyawan_id);
+            $karyawan->status_karyawan = $status_karyawan;
+            if($status_karyawan == 'MD' || $status_karyawan == 'TM'){
+                $karyawan->tanggal_selesai = $tanggal_keluar;
+            }
+            $karyawan->save();
+
+            DB::commit();
+            return response()->json(['message' => 'Data Turnover berhasil ditambahkan!'], 200);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage() ], 402);
+        }
+
     }
 }
