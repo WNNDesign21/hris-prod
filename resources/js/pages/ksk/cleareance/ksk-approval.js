@@ -84,9 +84,10 @@ $(function () {
             url: base_url + '/ajax/ksk/get-ksk-notification',
             method: 'GET',
             success: function(response){
-                $('.notification-release').html(response.html_release);
-                $('.notification-approval').html(response.html_approval);
-                $('.notification-cleareance').html(response.html_cleareance);
+                // $('.notification-release').html(response.html_release);
+                // $('.notification-approval').html(response.html_approval);
+                $('.notification-cleareance-release').html(response.html_release_cleareance);
+                $('.notification-cleareance-approval').html(response.html_approval_cleareance);
             }, error: function(jqXHR, textStatus, errorThrown){
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
             }

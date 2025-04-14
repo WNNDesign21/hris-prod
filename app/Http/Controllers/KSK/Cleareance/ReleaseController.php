@@ -19,6 +19,7 @@ class ReleaseController extends Controller
 {
     public function index()
     {
+        return redirect()->route('under-maintenance');
         $deptIT = CleareanceSetting::where('organisasi_id', auth()->user()->organisasi_id)->where('type', 'IT')->first();
         $deptGA = CleareanceSetting::where('organisasi_id', auth()->user()->organisasi_id)->where('type', 'GA')->first();
         $deptHR = CleareanceSetting::where('organisasi_id', auth()->user()->organisasi_id)->where('type', 'HR')->first();

@@ -41,12 +41,10 @@
                             </a>
                         </li>
                     @endif
-                    @if (auth()->user()->hasRole('atasan') || auth()->user()->hasRole('personalia'))
-                        <li
-                            class="{{ $page == 'ksk-cleareance-release' ? 'active' : '' }} notification-cleareance-release">
+                    @role('personalia')
+                        <li class="{{ $page == 'ksk-cleareance-release' ? 'active' : '' }} notification-cleareance-release">
                             <a href="{{ route('ksk.cleareance.release') }}">
-                                <i class="icon-Shield-check"><span class="path1"></span><span
-                                        class="path2"></span></i>
+                                <i class="icon-Shield-check"><span class="path1"></span><span class="path2"></span></i>
                                 <span>Release Cleareance</span>
                                 @if ($ksk['total_release_cleareance'] > 0)
                                     <span class="pull-right-container"
@@ -59,22 +57,22 @@
                                 @endif
                             </a>
                         </li>
-                    @endif
+                    @endrole
                     @role('atasan')
                         <li
                             class="{{ $page == 'ksk-cleareance-approval' ? 'active' : '' }} notification-cleareance-approval">
                             <a href="{{ route('ksk.cleareance.approval') }}">
                                 <i class="icon-Double-check"><span class="path1"></span><span class="path2"></span></i>
                                 <span>Approval Cleareance</span>
-                                {{-- @if ($ksk['total_approval_ksk'] > 0)
-                                <span class="pull-right-container"
-                                    style="right:10px!important; top:55%!important; margin-top:-13px!important;">
-                                    <div class="badge bg-danger m-0"
-                                        style="border-radius: 20%; line-height: normal; height:100%; width:100%;">
-                                        {{ $ksk['total_approval_ksk'] }}
-                                    </div>
-                                </span>
-                                @endif --}}
+                                @if ($ksk['total_approval_cleareance'] > 0)
+                                    <span class="pull-right-container"
+                                        style="right:10px!important; top:55%!important; margin-top:-13px!important;">
+                                        <div class="badge bg-danger m-0"
+                                            style="border-radius: 20%; line-height: normal; height:100%; width:100%;">
+                                            {{ $ksk['total_approval_cleareance'] }}
+                                        </div>
+                                    </span>
+                                @endif
                             </a>
                         </li>
                     @endrole

@@ -15,7 +15,9 @@ use App\Helpers\Approval;
 use App\Models\ApprovalCuti;
 use App\Models\DetailLembur;
 use Illuminate\Http\Request;
+use App\Models\KSK\DetailKSK;
 use App\Models\SettingLembur;
+use App\Models\KSK\CleareanceDetail;
 use App\Models\TugasLuare\TugasLuar;
 use App\Models\SettingLemburKaryawan;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -1386,11 +1388,14 @@ class HomeController extends Controller
             $total_release_ksk = 0;
             $total_approval_ksk = 0;
             $total_release_cleareance = 0;
+            $total_approval_cleareance = 0;
 
             $dataFilter = [];
             if(auth()->user()->hasRole('personalia')) {
                 $total_release_ksk = Karyawan::countDataKSK($dataFilter);
                 $total_release_cleareance = DetailKSK::where('organisasi_id', auth()->user()->organisasi_id)->where('status_ksk', 'PHK')->whereNull('cleareance_id')->count();
+            } else {
+                $total_approval_cleareance = CleareanceDetail::where('confirmed_by_id', auth()->user()->karyawan->id_karyawan)->where('is_clear', 'N')->count();
             }
 
             $total_approval_ksk = KSK::countDataKSK($dataFilter);
@@ -1398,8 +1403,9 @@ class HomeController extends Controller
             $html_release = view('layouts.partials.ksk.notification-release')->with(compact('total_release_ksk'))->render();
             $html_approval = view('layouts.partials.ksk.notification-approval')->with(compact('total_approval_ksk'))->render();
             $html_release_cleareance = view('layouts.partials.ksk.cleareance.notification-release')->with(compact('total_release_cleareance'))->render();
+            $html_approval_cleareance = view('layouts.partials.ksk.cleareance.notification-approval')->with(compact('total_approval_cleareance'))->render();
 
-            return response()->json(['html_release' => $html_release , 'html_approval' => $html_approval, 'html_release_cleareance' => $html_release_cleareance], 200);
+            return response()->json(['html_release' => $html_release , 'html_approval' => $html_approval, 'html_release_cleareance' => $html_release_cleareance, 'html_approval_cleareance' => $html_approval_cleareance], 200);
         } catch (Throwable $e) {
             return response()->json(['message' => $e->getMessage()], 500);
         }

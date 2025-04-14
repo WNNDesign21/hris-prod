@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\KSK\Cleareance;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\KSK\Cleareance;
 use App\Http\Controllers\Controller;
@@ -11,6 +12,7 @@ class ApprovalController extends Controller
 {
     public function index()
     {
+        return redirect()->route('under-maintenance');
         $dataPage = [
             'pageTitle' => "KSK-E - Approval Cleareance",
             'page' => 'ksk-cleareance-approval',
@@ -57,7 +59,7 @@ class ApprovalController extends Controller
 
         if (!empty($cleareances)) {
             foreach ($cleareances as $data) {
-                $actionFormatted = '<a href="javascript:void(0)" class="btnDetail" data-id-cleareance="'.$data->id_cleareance.'">'.$data->id_cleareance.' <i class="fas fa-search"></i></a>';
+                $actionFormatted = '<a href="javascript:void(0)" class="btnDetail" data-id-cleareance="'.$data->cleareance_id.'">'.$data->cleareance_id.' <i class="fas fa-search"></i></a>';
 
                 if ($data->status == 'Y') {
                     $statusFormatted = '<span class="badge badge-success">COMPLETED</span>';
