@@ -311,6 +311,10 @@
     @if ($page == 'ksk-setting')
         @vite(['resources/js/pages/ksk/ksk-setting.js'])
     @endif
+
+    @if ($page == 'ksk-tindak-lanjut')
+        @vite(['resources/js/pages/ksk/ksk-tindak-lanjut.js'])
+    @endif
 </body>
 
 </html>

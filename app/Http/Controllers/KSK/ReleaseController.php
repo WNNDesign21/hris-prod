@@ -19,7 +19,7 @@ class ReleaseController extends Controller
 {
     public function index()
     {
-        return redirect()->route('under-maintenance');
+        // return redirect()->route('under-maintenance');
         $dataPage = [
             'pageTitle' => "KSK-E - Release KSK",
             'page' => 'ksk-release',

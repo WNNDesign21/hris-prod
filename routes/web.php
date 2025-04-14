@@ -575,6 +575,8 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             });
 
             Route::get('/tindak-lanjut', [KSKTindakLanjutController::class, 'index'])->name('ksk.tindak-lanjut');
+            Route::post('/tindak-lanjut/datatable-need-action', [KSKTindakLanjutController::class, 'datatable_need_action']);
+            Route::post('/tindak-lanjut/datatable-history', [KSKTindakLanjutController::class, 'datatable_history']);
         });
 
         Route::group(['middleware' => ['role:atasan|personalia']], function () {

@@ -98,10 +98,45 @@ class DetailKSK extends Model
 
         $data = self::select(
             'ksk_details.*',
+            'karyawans.status_karyawan'
         );
-        $data->where('ksk_details.status_ksk', 'PHK');
-        $data->whereNull('ksk_details.cleareance_id');
+        $data->leftJoin('karyawans', 'karyawans.id_karyawan', 'ksk_details.karyawan_id');
         $data->where('ksk_details.organisasi_id', auth()->user()->organisasi_id);
+
+        if (isset($dataFilter['module']) && $dataFilter['module'] == 'need_action') {
+            $data->whereNotNull('ksk_details.cleareance_id');
+            $data->where(function ($query) {
+                // PHK
+                $query->where(function ($query) {
+                    $query->where('ksk_details.status_ksk', 'PHK')
+                    ->where('karyawans.status_karyawan', 'AT');
+                });
+
+                // PERPANJANG
+                $query->orWhere(function ($query) {
+                    $query->whereIn('ksk_details.status_ksk', ['PPJ', 'TTP'])
+                    ->whereNull('ksk_details.kontrak_id');
+                });
+            });
+        } elseif (isset($dataFilter['module']) && $dataFilter['module'] == 'history') {
+            $data->whereNotNull('ksk_details.cleareance_id');
+            $data->where(function ($query) {
+                // PHK
+                $query->where(function ($query) {
+                    $query->where('ksk_details.status_ksk', 'PHK')
+                    ->whereNot('karyawans.status_karyawan', 'AT');
+                });
+
+                // PERPANJANG
+                $query->orWhere(function ($query) {
+                    $query->whereIn('ksk_details.status_ksk', ['PPJ', 'TTP'])
+                    ->whereNotNull('ksk_details.kontrak_id');
+                });
+            });
+        } else {
+            $data->where('ksk_details.status_ksk', 'PHK');
+            $data->whereNull('ksk_details.cleareance_id');
+        }
 
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];

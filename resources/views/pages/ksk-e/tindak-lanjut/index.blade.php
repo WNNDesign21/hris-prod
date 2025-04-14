@@ -28,22 +28,48 @@
                     </div>
                 </div>
                 <div class="box-body">
-                    <div class="table-responsive">
-                        <table id="tindak-lanjut-table" class="table" style="width:100%">
-                            <thead>
-                                <tr>
-                                    <th>ID Cleareance</th>
-                                    <th>Karyawan</th>
-                                    <th>Departemen</th>
-                                    <th>Jabatan</th>
-                                    <th>Posisi</th>
-                                    <th>Tanggal Akhir Bekerja</th>
-                                    <th>Status KSK</th>
-                                    <th>Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
+                    <ul class="nav nav-pills mb-20">
+                        <li class="nav-item"> <a href="#need-action" class="nav-link active" data-bs-toggle="tab"
+                                aria-expanded="false">Need Action</a> </li>
+                        <li class="nav-item"> <a href="#history" class="nav-link" data-bs-toggle="tab"
+                                aria-expanded="false">History</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div id="need-action" class="tab-pane active">
+                            <div class="table-responsive">
+                                <table id="need-action-table" class="table" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th>ID KSK</th>
+                                            <th>Karyawan</th>
+                                            <th>Departemen</th>
+                                            <th>Jabatan</th>
+                                            <th>Posisi</th>
+                                            <th>Tanggal Akhir Bekerja</th>
+                                            <th>Status KSK</th>
+                                            <th>Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div id="history" class="tab-pane">
+                            <table id="history-table" class="table" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th>ID KSK</th>
+                                        <th>Karyawan</th>
+                                        <th>Departemen</th>
+                                        <th>Jabatan</th>
+                                        <th>Posisi</th>
+                                        <th>Tanggal Akhir Bekerja</th>
+                                        <th>Status KSK</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </div>
