@@ -594,23 +594,26 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
                 Route::get('/release', [KSKReleaseCleareanceController::class, 'index'])->name('ksk.cleareance.release')->middleware('ksk');
                 Route::post('/release/datatable-unreleased', [KSKReleaseCleareanceController::class, 'datatable_unreleased']);
                 Route::post('/release/datatable-released', [KSKReleaseCleareanceController::class, 'datatable_released']);
+                Route::patch('/release/update/{idDetailKSK}', [KSKReleaseCleareanceController::class, 'update'])->name('ksk.cleareance.update');
+                Route::patch('/release/rollback/{idCleareanceDetail}', [KSKReleaseCleareanceController::class, 'rollback'])->name('ksk.cleareance.rollback');
                 // Route::post('/release/datatable-released', [ReleaseController::class, 'datatable_released']);
                 // Route::delete('/release/delete/{idKsk}', [ReleaseController::class, 'destroy'])->name('ksk.release.delete');
-                // Route::post('/release/store', [ReleaseController::class, 'store'])->name('ksk.release.store');
                 // Route::patch('/release/update-detail-ksk/{idDetailKsk}', [ReleaseController::class, 'update_detail_ksk'])->name('ksk.release.update-detail-ksk');
 
 
                 Route::group(['prefix' => 'ajax'], function () {
                     Route::post('/release/get-karyawans', [KSKAjaxCleareanceController::class, 'select_get_karyawans']);
+                    Route::post('/release/get-atasan-langsung', [KSKAjaxCleareanceController::class, 'select_get_atasan_langsung']);
+                    Route::get('/release/get-detail-cleareance/{idCleareance}', [KSKAjaxCleareanceController::class, 'get_detail_cleareance']);
                     // Route::get('/release/get-detail-ksk/{idKSK}', [KSKAjaxController::class, 'get_detail_ksk_release']);
                     // Route::get('/release/get-ksk/{idKSK}', [KSKAjaxController::class, 'get_ksk']);
                 });
             });
 
-            Route::group(['middleware' => ['role:atasan|personalia']], function () {
+            Route::group(['middleware' => ['role:atasan']], function () {
                 Route::get('/approval', [KSKApprovalCleareanceController::class, 'index'])->name('ksk.cleareance.approval')->middleware('ksk');
-                // Route::post('/approval/datatable-must-approved', [KSKApprovalController::class, 'datatable_must_approved']);
-                // Route::post('/approval/datatable-history', [KSKApprovalController::class, 'datatable_history']);
+                Route::post('/approval/datatable-must-approved', [KSKApprovalCleareanceController::class, 'datatable_must_approved']);
+                Route::post('/approval/datatable-history', [KSKApprovalCleareanceController::class, 'datatable_history']);
                 // Route::delete('/approval/delete/{idKsk}', [KSKApprovalController::class, 'destroy'])->name('ksk.approval.delete');
                 // Route::patch('/approval/update-detail-ksk/{idDetailKsk}', [KSKApprovalController::class, 'update_detail_ksk'])->name('ksk.approval.update-detail-ksk');
                 // Route::patch('/approval/approve/{idKSK}', [KSKApprovalController::class, 'approve'])->name('ksk.approval.approve');

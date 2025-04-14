@@ -26,6 +26,9 @@ return new class extends Migration
             $table->date('tanggal_akhir_bekerja')->nullable();
             $table->string('status', 1)->default('N');
 
+            $table->timestamps();
+            $table->softDeletes();
+
             $table->foreign('karyawan_id')->references('id_karyawan')->on('karyawans')->onDelete('cascade');
             $table->foreign('organisasi_id')->references('id_organisasi')->on('organisasis')->onDelete('cascade');
         });

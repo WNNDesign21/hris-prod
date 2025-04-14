@@ -76,4 +76,5 @@
         </div>
     </div>
     @include('pages.ksk-e.cleareance.release.modal-input')
+    @include('pages.ksk-e.cleareance.release.modal-detail')
 @endsection

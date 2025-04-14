@@ -40,17 +40,12 @@
                                 <table id="must-approved-table" class="table" style="width:100%">
                                     <thead>
                                         <tr>
-                                            <th>ID KSK</th>
-                                            <th>Divisi</th>
+                                            <th>ID Clearance</th>
+                                            <th>Nama</th>
                                             <th>Departemen</th>
-                                            <th>Atasan Langsung</th>
-                                            <th>Release Date</th>
-                                            <th>Leader</th>
-                                            <th>Section</th>
-                                            <th>Dept.Head</th>
-                                            <th>Div.Head</th>
-                                            <th>Plant Head</th>
-                                            <th>Director</th>
+                                            <th>Jabatan</th>
+                                            <th>Posisi</th>
+                                            <th>Tanggal Akhir Bekerja</th>
                                             <th>Status</th>
                                         </tr>
                                     </thead>
@@ -63,17 +58,12 @@
                                 <table id="history-table" class="table" style="width:100%">
                                     <thead>
                                         <tr>
-                                            <th>ID KSK</th>
-                                            <th>Divisi</th>
+                                            <th>ID Clearance</th>
+                                            <th>Nama</th>
                                             <th>Departemen</th>
-                                            <th>Atasan Langsung</th>
-                                            <th>Release Date</th>
-                                            <th>Leader</th>
-                                            <th>Section</th>
-                                            <th>Dept.Head</th>
-                                            <th>Div.Head</th>
-                                            <th>Plant Head</th>
-                                            <th>Director</th>
+                                            <th>Jabatan</th>
+                                            <th>Posisi</th>
+                                            <th>Tanggal Akhir Bekerja</th>
                                             <th>Status</th>
                                         </tr>
                                     </thead>
@@ -86,6 +76,6 @@
             </div>
         </div>
     </div>
-    @include('pages.ksk-e.approval.modal-approval')
-    @include('pages.ksk-e.approval.modal-detail')
+    {{-- @include('pages.ksk-e.approval.modal-approval')
+    @include('pages.ksk-e.approval.modal-detail') --}}
 @endsection

@@ -101,6 +101,7 @@ class DetailKSK extends Model
         );
         $data->where('ksk_details.status_ksk', 'PHK');
         $data->whereNull('ksk_details.cleareance_id');
+        $data->where('ksk_details.organisasi_id', auth()->user()->organisasi_id);
 
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];

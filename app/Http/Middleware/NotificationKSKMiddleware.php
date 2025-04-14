@@ -6,6 +6,8 @@ use Closure;
 use App\Models\KSK\KSK;
 use App\Models\Karyawan;
 use Illuminate\Http\Request;
+use App\Models\KSK\DetailKSK;
+use App\Models\KSK\CleareanceDetail;
 use Symfony\Component\HttpFoundation\Response;
 
 class NotificationKSKMiddleware
@@ -19,17 +21,28 @@ class NotificationKSKMiddleware
     {
         $total_release_ksk = 0;
         $total_approval_ksk = 0;
+        $total_release_cleareance = 0;
+        $total_approval_cleareance = 0;
 
         $dataFilter = [];
         if(auth()->user()->hasRole('personalia')) {
             $total_release_ksk = Karyawan::countDataKSK($dataFilter);
+            $total_release_cleareance = DetailKSK::where('organisasi_id', auth()->user()->organisasi_id)->where('status_ksk', 'PHK')->whereNull('cleareance_id')->count();
+        } else {
+            if (!auth()->user()->hasRole('security')) {
+                $total_approval_cleareance = CleareanceDetail::where('confirmed_by_id', auth()->user()->karyawan->id_karyawan)->where('is_clear', 'N')->count();
+            }
         }
 
-        $total_approval_ksk = KSK::countDataKSK($dataFilter);
+        if (!auth()->user()->hasRole('security')) {
+            $total_approval_ksk = KSK::countDataKSK($dataFilter);
+        }
 
         $datas = [
             'total_release_ksk' => $total_release_ksk,
             'total_approval_ksk' => $total_approval_ksk,
+            'total_release_cleareance' => $total_release_cleareance,
+            'total_approval_cleareance' => $total_approval_cleareance,
         ];
 
         view()->share('ksk', $datas);

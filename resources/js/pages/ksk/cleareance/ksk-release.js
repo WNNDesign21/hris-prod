@@ -42,7 +42,34 @@ $(function () {
     }
 
     function resetInput() {
+        $('#atasan_langsung').val('');
+        $('#dept_it').val('');
+        $('#dept_fat').val('');
+        $('#dept_ga').val('');
+        $('#dept_hr').val('');
+        $('#form-input').attr('action', )
+    }
 
+    var modalDetailOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalDetail = new bootstrap.Modal(
+        document.getElementById("modal-detail"),
+        modalDetailOptions
+    );
+
+    function openDetail() {
+        modalDetail.show();
+    }
+
+    function closeDetail() {
+        modalDetail.hide();
+    }
+
+    function resetDetail() {
+        $('#detail-cleareance-content').html('');
     }
 
     //SHOW TOAST
@@ -70,9 +97,7 @@ $(function () {
             url: base_url + '/ajax/ksk/get-ksk-notification',
             method: 'GET',
             success: function(response){
-                $('.notification-release').html(response.html_release);
-                $('.notification-approval').html(response.html_approval);
-                $('.notification-cleareance').html(response.html_cleareance);
+                $('.notification-cleareance-release').html(response.html_release_cleareance);
             }, error: function(jqXHR, textStatus, errorThrown){
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
             }
@@ -94,6 +119,7 @@ $(function () {
         order: [[0, "DESC"]],
         processing: true,
         serverSide: true,
+        stateSave: !0,
         ajax: {
             url: base_url + "/ksk/cleareance/release/datatable-unreleased",
             dataType: "json",
@@ -157,90 +183,87 @@ $(function () {
         ],
     })
 
-    // var columnsReleasedTable = [
-    //     { data: "id_ksk" },
-    //     { data: "nama_divisi" },
-    //     { data: "nama_departemen" },
-    //     { data: "parent_name" },
-    //     { data: "release_date" },
-    //     { data: "released_by" },
-    //     { data: "checked_by" },
-    //     { data: "approved_by" },
-    //     { data: "reviewed_div_by" },
-    //     { data: "reviewed_ph_by" },
-    //     { data: "reviewed_dir_by" },
-    //     { data: "legalized_by" },
-    // ];
+    var columnsReleasedTable = [
+        { data: "id_cleareance" },
+        { data: "karyawan" },
+        { data: "departemen" },
+        { data: "jabatan" },
+        { data: "posisi" },
+        { data: "tanggal_akhir_bekerja" },
+        { data: "approval" },
+        { data: "status" },
+    ];
 
-    // var releasedTable = $("#released-table").DataTable({
-    //     search: {
-    //         return: true,
-    //     },
-    //     order: [[3, "DESC"]],
-    //     processing: true,
-    //     serverSide: true,
-    //     ajax: {
-    //         url: base_url + "/ksk/release/datatable-released",
-    //         dataType: "json",
-    //         type: "POST",
-    //         data: function (dataFilter) {
-    //         },
-    //         error: function (jqXHR, textStatus, errorThrown) {
-    //             if (jqXHR.responseJSON.data) {
-    //                 var error = jqXHR.responseJSON.data.error;
-    //                 Swal.fire({
-    //                     icon: "error",
-    //                     title: " <br>Application error!",
-    //                     html:
-    //                         '<div class="alert alert-danger text-left" role="alert">' +
-    //                         "<p>Error Message: <strong>" +
-    //                         error +
-    //                         "</strong></p>" +
-    //                         "</div>",
-    //                     allowOutsideClick: false,
-    //                     showConfirmButton: true,
-    //                 });
-    //             } else {
-    //                 var message = jqXHR.responseJSON.message;
-    //                 var errorLine = jqXHR.responseJSON.line;
-    //                 var file = jqXHR.responseJSON.file;
-    //                 Swal.fire({
-    //                     icon: "error",
-    //                     title: " <br>Application error!",
-    //                     html:
-    //                         '<div class="alert alert-danger text-left" role="alert">' +
-    //                         "<p>Error Message: <strong>" +
-    //                         message +
-    //                         "</strong></p>" +
-    //                         "<p>File: " +
-    //                         file +
-    //                         "</p>" +
-    //                         "<p>Line: " +
-    //                         errorLine +
-    //                         "</p>" +
-    //                         "</div>",
-    //                     allowOutsideClick: false,
-    //                     showConfirmButton: true,
-    //                 });
-    //             }
-    //         },
-    //     },
-    //     // responsive: true,
-    //     scrollX: true,
-    //     columns: columnsReleasedTable,
-    //     columnDefs: [
-    //         {
-    //             orderable: false,
-    //             targets: [-1],
-    //         },
-    //         // {
-    //         //     targets: [-1],
-    //         //     createdCell: function (td, cellData, rowData, row, col) {
-    //         //         // $(td).addClass("text-center");
-    //         //     },
-    //         // },
-    //     ],
-    // })
+    var releasedTable = $("#released-table").DataTable({
+        search: {
+            return: true,
+        },
+        order: [[2, "DESC"]],
+        processing: true,
+        serverSide: true,
+        stateSave: !0,
+        ajax: {
+            url: base_url + "/ksk/cleareance/release/datatable-released",
+            dataType: "json",
+            type: "POST",
+            data: function (dataFilter) {
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR.responseJSON.data) {
+                    var error = jqXHR.responseJSON.data.error;
+                    Swal.fire({
+                        icon: "error",
+                        title: " <br>Application error!",
+                        html:
+                            '<div class="alert alert-danger text-left" role="alert">' +
+                            "<p>Error Message: <strong>" +
+                            error +
+                            "</strong></p>" +
+                            "</div>",
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                    });
+                } else {
+                    var message = jqXHR.responseJSON.message;
+                    var errorLine = jqXHR.responseJSON.line;
+                    var file = jqXHR.responseJSON.file;
+                    Swal.fire({
+                        icon: "error",
+                        title: " <br>Application error!",
+                        html:
+                            '<div class="alert alert-danger text-left" role="alert">' +
+                            "<p>Error Message: <strong>" +
+                            message +
+                            "</strong></p>" +
+                            "<p>File: " +
+                            file +
+                            "</p>" +
+                            "<p>Line: " +
+                            errorLine +
+                            "</p>" +
+                            "</div>",
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                    });
+                }
+            },
+        },
+        // responsive: true,
+        scrollX: true,
+        columns: columnsReleasedTable,
+        columnDefs: [
+            {
+                orderable: false,
+                targets: [-2],
+            },
+            // {
+            //     targets: [-1],
+            //     createdCell: function (td, cellData, rowData, row, col) {
+            //         // $(td).addClass("text-center");
+            //     },
+            // },
+        ],
+    })
 
     function refreshTable() {
         var searchValueUnreleased = unreleasedTable.search();
@@ -250,12 +273,12 @@ $(function () {
             unreleasedTable.search("").draw();
         }
 
-        // var searchValueReleased = releasedTable.search();
-        // if (searchValueReleased) {
-        //     releasedTable.search(searchValueReleased).draw();
-        // } else {
-        //     releasedTable.search("").draw();
-        // }
+        var searchValueReleased = releasedTable.search();
+        if (searchValueReleased) {
+            releasedTable.search(searchValueReleased).draw();
+        } else {
+            releasedTable.search("").draw();
+        }
     }
 
     $('.btnReload').on("click", function (){
@@ -267,10 +290,182 @@ $(function () {
         closeInput();
     })
 
-    $('#unreleased-table').on('click', '.btnRelease', function (e) {
-        let idKaryawan = $(this).data('id-karyawan');
+    $('#unreleased-table').on('click', '.btnRelease', function () {
+        let idKSKDetail = $(this).data('id-ksk-detail');
+        let karyawanId = $(this).data('karyawan-id');
+        let url = base_url + "/ksk/cleareance/release/update/" + idKSKDetail;
+        $('#form-input').attr('action', url);
         openInput();
+
+        $('#atasan_langsung').select2({
+            dropdownParent: $('#modal-input'),
+            ajax: {
+            url: base_url + "/ksk/cleareance/ajax/release/get-atasan-langsung",
+            type: "post",
+            dataType: "json",
+            delay: 250,
+            data: function (params) {
+                return {
+                search: params.term || "",
+                page: params.page || 1,
+                id_karyawan: karyawanId
+                };
+            },
+            cache: true,
+            },
+        });
     });
+
+    $('#released-table').on('click', '.btnDetail', function () {
+        loadingSwalShow();
+        let idCleareance = $(this).data('id-cleareance');
+        let karyawanId = $(this).data('karyawan-id');
+        let url = base_url + "/ksk/cleareance/ajax/release/get-detail-cleareance/" + idCleareance;
+        $.ajax({
+            url: url,
+            method: 'GET',
+            success: function(response){
+                loadingSwalClose();
+                $('#detail-cleareance-content').html(response.html);
+
+                $('#confirmed_by_idAL').select2({
+                    dropdownParent: $('#modal-detail'),
+                    ajax: {
+                    url: base_url + "/ksk/cleareance/ajax/release/get-atasan-langsung",
+                    type: "post",
+                    dataType: "json",
+                    delay: 250,
+                    data: function (params) {
+                        return {
+                        search: params.term || "",
+                        page: params.page || 1,
+                        id_karyawan: karyawanId
+                        };
+                    },
+                    cache: true,
+                    },
+                });
+
+                $('#confirmed_by_idIT').select2({
+                    dropdownParent: $('#modal-detail'),
+                    ajax: {
+                        url: base_url + "/ksk/cleareance/ajax/release/get-karyawans",
+                        type: "post",
+                        dataType: "json",
+                        delay: 250,
+                        data: function (params) {
+                            return {
+                                search: params.term || "",
+                                page: params.page || 1,
+                            };
+                        },
+                        cache: true,
+                    },
+                });
+
+                $('#confirmed_by_idFAT').select2({
+                    dropdownParent: $('#modal-detail'),
+                    ajax: {
+                        url: base_url + "/ksk/cleareance/ajax/release/get-karyawans",
+                        type: "post",
+                        dataType: "json",
+                        delay: 250,
+                        data: function (params) {
+                            return {
+                                search: params.term || "",
+                                page: params.page || 1,
+                            };
+                        },
+                        cache: true,
+                    },
+                });
+
+                $('#confirmed_by_idGA').select2({
+                    dropdownParent: $('#modal-detail'),
+                    ajax: {
+                        url: base_url + "/ksk/cleareance/ajax/release/get-karyawans",
+                        type: "post",
+                        dataType: "json",
+                        delay: 250,
+                        data: function (params) {
+                            return {
+                                search: params.term || "",
+                                page: params.page || 1,
+                            };
+                        },
+                        cache: true,
+                    },
+                });
+
+                $('#confirmed_by_idHR').select2({
+                    dropdownParent: $('#modal-detail'),
+                    ajax: {
+                        url: base_url + "/ksk/cleareance/ajax/release/get-karyawans",
+                        type: "post",
+                        dataType: "json",
+                        delay: 250,
+                        data: function (params) {
+                            return {
+                                search: params.term || "",
+                                page: params.page || 1,
+                            };
+                        },
+                        cache: true,
+                    },
+                });
+
+                $('.btnRollback').on('click', function () {
+                    let idCleareanceDetail = $(this).data('id-cleareance-detail');
+                    let type = $(this).data('type');
+                    let confirmedById = $('#confirmed_by_id' + type).val();
+                    let url = base_url + "/ksk/cleareance/release/rollback/" + idCleareanceDetail;
+                    let formData = new FormData();
+                    formData.append('_method', 'PATCH');
+                    formData.append('confirmed_by_id', confirmedById);
+                    Swal.fire({
+                        title: "Rollback Cleareance",
+                        text: "Cleareance yang di rollback harus melakukan konfirmasi ulang pada pihak terkait, yakin?",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#3085d6",
+                        cancelButtonColor: "#d33",
+                        confirmButtonText: "Yes, rollback it!",
+                        allowOutsideClick: false,
+                    }).then((result) => {
+                        if (result.value) {
+                            loadingSwalShow();
+                            $.ajax({
+                                url: url,
+                                data: formData,
+                                method: "POST",
+                                contentType: false,
+                                processData: false,
+                                dataType: "JSON",
+                                success: function (response) {
+                                    let html = response.html;
+                                    loadingSwalClose();
+                                    refreshTable();
+                                    showToast({ title: response.message });
+
+                                    $('#keteranganText'+type).empty();
+                                    $('#statusText'+type).empty().html(html);
+                                },
+                                error: function (jqXHR, textStatus, errorThrown) {
+                                    loadingSwalClose();
+                                    showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                                },
+                            });
+                        }
+                    });
+                })
+
+                openDetail();
+            }, error: function(jqXHR, textStatus, errorThrown){
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            }
+        })
+    })
 
     $('#dept_it').select2({
         dropdownParent: $('#modal-input'),
@@ -338,6 +533,34 @@ $(function () {
             },
             cache: true,
         },
+    });
+
+    $('#form-input').on('submit', function (e) {
+        e.preventDefault();
+        loadingSwalShow();
+        let url = $(this).attr('action');
+        console.log(url);
+        var formData = new FormData($(this)[0]);
+
+        $.ajax({
+            url: url,
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (data) {
+                updateKskNotification();
+                showToast({ title: data.message });
+                refreshTable();
+                closeInput();
+                loadingSwalClose();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        })
     });
 
     $('a[data-bs-toggle="tab"]').on("shown.bs.tab", function (e) {

@@ -8,6 +8,7 @@ use App\Models\Jabatan;
 use App\Models\Karyawan;
 use App\Models\Departemen;
 use App\Models\Organisasi;
+use Illuminate\Support\Facades\DB;
 use App\Models\KSK\CleareanceDetail;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -20,7 +21,7 @@ class Cleareance extends Model
     protected $table = 'cleareances';
     protected $primaryKey = 'id_cleareance';
     public $incrementing = false;
-    protected $keyType = 'string';
+    // protected $keyType = 'string';
 
     protected $fillable = [
         'id_cleareance',
@@ -68,7 +69,7 @@ class Cleareance extends Model
         return $this->belongsTo(Posisi::class, 'posisi_id', 'id_posisi');
     }
 
-    public function cleareance()
+    public function cleareanceDetail()
     {
         return $this->hasMany(CleareanceDetail::class, 'cleareance_id', 'id_cleareance');
     }
@@ -77,21 +78,38 @@ class Cleareance extends Model
     {
 
         $data = self::select(
-            'cleareances.*',
+            'cleareances.id_cleareance',
+            'cleareances.karyawan_id',
+            'cleareances.organisasi_id',
+            'cleareances.divisi_id',
+            'cleareances.departemen_id',
+            'cleareances.jabatan_id',
+            'cleareances.posisi_id',
+            'cleareances.nama_divisi',
+            'cleareances.nama_departemen',
+            'cleareances.nama_jabatan',
+            'cleareances.nama_posisi',
+            'cleareances.tanggal_akhir_bekerja',
+            'cleareances.status',
+            'karyawans.nama as nama_karyawan',
+            'karyawans.ni_karyawan',
+            DB::raw("(SELECT COUNT(*) FROM cleareance_details WHERE cleareance_id = cleareances.id_cleareance) as detail"),
+            DB::raw("(SELECT COUNT(*) FROM cleareance_details WHERE cleareance_id = cleareances.id_cleareance AND is_clear = 'N') as open"),
+            DB::raw("(SELECT COUNT(*) FROM cleareance_details WHERE cleareance_id = cleareances.id_cleareance AND is_clear = 'Y') as approved"),
         );
         $data->leftJoin('karyawans', 'karyawans.id_karyawan', 'cleareances.karyawan_id');
 
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
             $data->where(function ($query) use ($search) {
-                $query->where('cleareances.id_cleareance', 'ILIKE', "%{$search}%")
-                    ->orWhere('cleareances.karyawan_id', 'ILIKE', "%{$search}%")
-                    ->orWhere('cleareances.nama_divisi', 'ILIKE', "%{$search}%")
-                    ->orWhere('cleareances.nama_departemen', 'ILIKE', "%{$search}%")
-                    ->orWhere('cleareances.nama_jabatan', 'ILIKE', "%{$search}%")
-                    ->orWhere('cleareances.nama_posisi', 'ILIKE', "%{$search}%")
-                    ->orWhere('cleareances.tanggal_akhir_bekerja', 'ILIKE', "%{$search}%")
-                    ->orWhere('cleareances.status', 'ILIKE', "%{$search}%");
+                $query->where('cleareances.id_cleareance', 'LIKE', "%{$search}%")
+                    ->orWhere('cleareances.karyawan_id', 'LIKE', "%{$search}%")
+                    ->orWhere('cleareances.nama_divisi', 'LIKE', "%{$search}%")
+                    ->orWhere('cleareances.nama_departemen', 'LIKE', "%{$search}%")
+                    ->orWhere('cleareances.nama_jabatan', 'LIKE', "%{$search}%")
+                    ->orWhere('cleareances.nama_posisi', 'LIKE', "%{$search}%")
+                    ->orWhere('cleareances.tanggal_akhir_bekerja', 'LIKE', "%{$search}%")
+                    ->orWhere('cleareances.status', 'LIKE', "%{$search}%");
             });
         }
 
