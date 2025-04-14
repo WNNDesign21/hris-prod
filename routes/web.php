@@ -37,13 +37,14 @@ use App\Http\Controllers\StockOpname\StoReportController;
 use App\Http\Controllers\Attendance\AttendanceGpsController;
 use App\Http\Controllers\Attendance\LiveAttendanceController;
 use App\Http\Controllers\KSK\AjaxController as KSKAjaxController;
-use App\Http\Controllers\KSK\SettingController as KSKSettingController;
 use App\Http\Controllers\KSK\ReleaseController as KSKReleaseController;
+use App\Http\Controllers\KSK\SettingController as KSKSettingController;
 use App\Http\Controllers\TugasLuare\AjaxController as TLAjaxController;
 use App\Http\Controllers\KSK\ApprovalController as KSKApprovalController;
 use App\Http\Controllers\TugasLuare\ApprovalController as TLApprovalController;
 use App\Http\Controllers\Attendance\ApprovalController as ATTApprovalController;
 use App\Http\Controllers\TugasLuare\PengajuanController as TLPengajuanController;
+use App\Http\Controllers\KSK\TindakLanjutController as KSKTindakLanjutController;
 use App\Http\Controllers\KSK\Cleareance\AjaxController as KSKAjaxCleareanceController;
 use App\Http\Controllers\Attendance\DashboardController as AttendanceDashboardController;
 use App\Http\Controllers\KSK\Cleareance\ReleaseController as KSKReleaseCleareanceController;
@@ -572,6 +573,8 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
                 Route::get('/release/get-detail-ksk/{idKSK}', [KSKAjaxController::class, 'get_detail_ksk_release']);
                 Route::get('/release/get-ksk/{idKSK}', [KSKAjaxController::class, 'get_ksk']);
             });
+
+            Route::get('/tindak-lanjut', [KSKTindakLanjutController::class, 'index'])->name('ksk.tindak-lanjut');
         });
 
         Route::group(['middleware' => ['role:atasan|personalia']], function () {

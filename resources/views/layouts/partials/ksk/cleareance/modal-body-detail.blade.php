@@ -44,7 +44,7 @@
                             <p><strong>Dept.HR</strong></p>
                         @endif
                         <select name="confirmed_by_id" id="confirmed_by_id{{ $item->type }}" class="form-control"
-                            style="width: 100%" required>
+                            style="width: 100%" {{ $header->status == 'Y' ? 'disabled' : 'required' }}>
                             @if ($item->confirmed_by_id)
                                 <option value="">TIDAK DIPERLUKAN</option>
                                 <option value="{{ $item->confirmed_by_id }}" selected>
@@ -86,11 +86,15 @@
                         @endif
                     </td>
                     <td>
-                        <button class="btn btn-warning btnRollback"
-                            data-id-cleareance-detail="{{ $item->id_cleareance_detail }}"
-                            data-type="{{ $item->type }}">
-                            <i class="fas fa-undo"></i> Rollback
-                        </button>
+                        @if ($header->status == 'N')
+                            <button class="btn btn-warning btnRollback"
+                                data-id-cleareance-detail="{{ $item->id_cleareance_detail }}"
+                                data-type="{{ $item->type }}">
+                                <i class="fas fa-undo"></i> Rollback
+                            </button>
+                        @else
+                            -
+                        @endif
                     </td>
                 </tr>
             @endforeach
