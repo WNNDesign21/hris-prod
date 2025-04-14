@@ -58,7 +58,7 @@
                             </a>
                         </li>
                     @endrole
-                    @role('atasan')
+                    @hasanyrole('atasan|member')
                         <li
                             class="{{ $page == 'ksk-cleareance-approval' ? 'active' : '' }} notification-cleareance-approval">
                             <a href="{{ route('ksk.cleareance.approval') }}">

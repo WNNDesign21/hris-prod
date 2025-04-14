@@ -41,23 +41,23 @@ $(function () {
     //     modalApproval.hide();
     // }
 
-    // var modalDetailOptions = {
-    //     backdrop: true,
-    //     keyboard: false,
-    // };
+    var modalDetailOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
 
-    // var modalDetail = new bootstrap.Modal(
-    //     document.getElementById("modal-detail"),
-    //     modalDetailOptions
-    // );
+    var modalDetail = new bootstrap.Modal(
+        document.getElementById("modal-detail"),
+        modalDetailOptions
+    );
 
-    // function openDetail() {
-    //     modalDetail.show();
-    // }
+    function openDetail() {
+        modalDetail.show();
+    }
 
-    // function closeDetail() {
-    //     modalDetail.hide();
-    // }
+    function closeDetail() {
+        modalDetail.hide();
+    }
 
     //SHOW TOAST
     function showToast(options) {
@@ -273,6 +273,68 @@ $(function () {
 
     $('.btnReload').on('click', function() {
         refreshTable();
+    });
+
+    $('#history-table, #must-approved-table').on('click', '.btnDetail', function () {
+        loadingSwalShow();
+        let idCleareance = $(this).data('id-cleareance');
+        let url = base_url + "/ksk/cleareance/ajax/approval/get-detail-cleareance/" + idCleareance;
+        $.ajax({
+            url: url,
+            method: 'GET',
+            success: function(response){
+                loadingSwalClose();
+                $('#detail-cleareance-content').html(response.html);
+
+                $('.btnKonfirmasi').on('click', function () {
+                    let idCleareanceDetail = $(this).data('id-cleareance-detail');
+                    let type = $(this).data('type');
+                    let keteranganApproval = $('#keteranganApproval' + type).val();
+                    let url = base_url + "/ksk/cleareance/approval/konfirmasi/" + idCleareanceDetail;
+                    let formData = new FormData();
+                    formData.append('_method', 'PATCH');
+                    formData.append('keterangan', keteranganApproval);
+                    Swal.fire({
+                        title: "Konfirmasi Cleareance",
+                        text: "Cleareance yang di konfirmasi tidak dapat diubah lagi statusnya, yakin?",
+                        icon: "warning",
+                        showCancelButton: true,
+                        confirmButtonColor: "#3085d6",
+                        cancelButtonColor: "#d33",
+                        confirmButtonText: "Yes, Confirm it!",
+                        allowOutsideClick: false,
+                    }).then((result) => {
+                        if (result.value) {
+                            loadingSwalShow();
+                            $.ajax({
+                                url: url,
+                                data: formData,
+                                method: "POST",
+                                contentType: false,
+                                processData: false,
+                                dataType: "JSON",
+                                success: function (response) {
+                                    loadingSwalClose();
+                                    closeDetail();
+                                    refreshTable();
+                                    showToast({ title: response.message });
+                                    updateKskNotification();
+                                },
+                                error: function (jqXHR, textStatus, errorThrown) {
+                                    loadingSwalClose();
+                                    showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                                },
+                            });
+                        }
+                    });
+                })
+
+                openDetail();
+            }, error: function(jqXHR, textStatus, errorThrown){
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            }
+        })
     });
 
     $('a[data-bs-toggle="tab"]').on("shown.bs.tab", function (e) {

@@ -76,6 +76,5 @@
             </div>
         </div>
     </div>
-    {{-- @include('pages.ksk-e.approval.modal-approval')
-    @include('pages.ksk-e.approval.modal-detail') --}}
+    @include('pages.ksk-e.cleareance.approval.modal-detail')
 @endsection
