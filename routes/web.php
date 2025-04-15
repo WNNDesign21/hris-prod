@@ -569,15 +569,18 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::post('/setting/update', [KSKSettingController::class, 'update'])->name('ksk.setting.update');
 
             Route::group(['prefix' => 'ajax'], function () {
+                Route::post('/tindak-lanjut/get-posisis', [KSKAjaxController::class, 'select_get_posisis']);
                 Route::post('/release/get-karyawans', [KSKAjaxController::class, 'get_karyawans']);
                 Route::get('/release/get-detail-ksk/{idKSK}', [KSKAjaxController::class, 'get_detail_ksk_release']);
                 Route::get('/release/get-ksk/{idKSK}', [KSKAjaxController::class, 'get_ksk']);
+                Route::get('/tindak-lanjut/get-detail-ksk/{idDetailKSK}', [KSKAjaxController::class, 'get_detail_ksk_tindak_lanjut']);
             });
 
             Route::get('/tindak-lanjut', [KSKTindakLanjutController::class, 'index'])->name('ksk.tindak-lanjut');
             Route::post('/tindak-lanjut/datatable-need-action', [KSKTindakLanjutController::class, 'datatable_need_action']);
             Route::post('/tindak-lanjut/datatable-history', [KSKTindakLanjutController::class, 'datatable_history']);
             Route::post('/tindak-lanjut/store-turnover', [KSKTindakLanjutController::class, 'store_turnover'])->name('ksk.tindak-lanjut.store-turnover');
+            Route::post('/tindak-lanjut/store-kontrak', [KSKTindakLanjutController::class, 'store_kontrak'])->name('ksk.tindak-lanjut.store-kontrak');
         });
 
         Route::group(['middleware' => ['role:atasan|personalia']], function () {

@@ -16,13 +16,14 @@ $(function () {
             title: '<i class="fas fa-sync-alt fa-spin fs-80"></i>',
             allowOutsideClick: false,
             background: 'rgba(0, 0, 0, 0)'
-          });
+        });
     }
 
     function loadingSwalClose() {
         loadingSwal.close();
     }
 
+    // KONTRAK
     var modalKontrakOptions = {
         backdrop: true,
         keyboard: false,
@@ -37,10 +38,11 @@ $(function () {
         modalKontrak.show();
     }
 
-    function closeApproval() {
+    function closeKontrak() {
         modalKontrak.hide();
     }
 
+    // TURNOVER
     var modalTurnoverOptions = {
         backdrop: true,
         keyboard: false,
@@ -57,6 +59,25 @@ $(function () {
 
     function closeTurnover() {
         modalTurnover.hide();
+    }
+
+    // DETAIL
+    var modalDetailOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalDetail = new bootstrap.Modal(
+        document.getElementById("modal-detail"),
+        modalDetailOptions
+    );
+
+    function openDetail() {
+        modalDetail.show();
+    }
+
+    function closeDetail() {
+        modalDetail.hide();
     }
 
     //SHOW TOAST
@@ -277,9 +298,96 @@ $(function () {
         closeTurnover();
     });
 
+    $('.btnCloseKontrak').on('click', function(){
+        closeKontrak();
+    });
+
+    $('.btnCloseDetail').on('click', function(){
+        closeDetail();
+    });
+
+    $('#need-action-table, #history-table').on('click', '.btnDetail', function () {
+        loadingSwalShow();
+        let idKSKDetail = $(this).data('id-ksk-detail');
+        let url = base_url + '/ksk/ajax/tindak-lanjut/get-detail-ksk/' + idKSKDetail;
+
+        $.ajax({
+            url: url,
+            type: 'GET',
+            success: function(response){
+                let html = response.html;
+                $('#detail-content').empty().html(html);
+                loadingSwalClose();
+                openDetail();
+            },
+            error: function(jqXHR, textStatus, errorThrown){
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            }
+        });
+    });
+
+    $('#need-action-table').on('click', '.btnKontrak', function () {
+        let idKSKDetail = $(this).data('id-ksk-detail');
+        let namaKaryawan = $(this).data('nama-karyawan');
+        let idKaryawan = $(this).data('karyawan-id');
+        let tempat = $(this).data('tempat');
+        let jenisKontrak = $(this).data('jenis-kontrak');
+        let tanggalRenewalKontrak = $(this).data('tgl-renewal-kontrak');
+        let durasiRenewal = $(this).data('durasi-renewal');
+        let idPosisi = $(this).data('id-posisi');
+        let namaPosisi = $(this).data('nama-posisi');
+
+        $('#id_detail_kskKontrak').val(idKSKDetail);
+        let option = new Option(namaKaryawan, idKaryawan, true, true);
+        $('#karyawan_idKontrak').empty();
+        $('#karyawan_idKontrak').append(option);
+        $('#karyawan_idKontrak').select2({
+            dropdownParent: $('#modal-kontrak'),
+        });
+
+        $('#jenisKontrak').val(jenisKontrak);
+        $('#durasiKontrak').val(durasiRenewal);
+        $('#tanggal_mulaiKontrak').val(tanggalRenewalKontrak);
+
+        if (jenisKontrak != 'PKWTT') {
+            let tanggalSelesai = moment(tanggalRenewalKontrak).add(durasiRenewal, 'months').subtract(1, 'days').format('YYYY-MM-DD');
+            $('#tanggal_selesaiKontrak').val(tanggalSelesai);
+        }
+
+        let optionPosisi = new Option(namaPosisi, idPosisi, true, true);
+        $('#posisiKontrak').empty();
+        $('#posisiKontrak').append(optionPosisi);
+        $('#posisiKontrak').val(idPosisi);
+
+        $("#posisiKontrak").select2({
+            dropdownParent: $('#modal-kontrak'),
+            ajax: {
+            url: base_url + "/ksk/ajax/tindak-lanjut/get-posisis",
+            type: "post",
+            dataType: "json",
+            delay: 250,
+            data: function (params) {
+                return {
+                    search: params.term || "",
+                    page: params.page || 1,
+                };
+            },
+            cache: true,
+            },
+        });
+
+        $('#issued_dateKontrak').val('');
+        $('#issued_dateKontrak').val(tanggalRenewalKontrak);
+
+        $('#tempat_administrasiKontrak').val('');
+        $('#tempat_administrasiKontrak').val(tempat);
+
+        openKontrak();
+    });
+
     $('#need-action-table').on('click', '.btnTurnover', function () {
         let idKSKDetail = $(this).data('id-ksk-detail');
-        console.log(idKSKDetail)
         let namaKaryawan = $(this).data('nama-karyawan');
         let idKaryawan = $(this).data('karyawan-id');
         let statusKSK = $(this).data('status-ksk');
@@ -317,10 +425,37 @@ $(function () {
             processData: false,
             dataType: "JSON",
             success: function (data) {
-                // updateKskNotification();
+                updateKskNotification();
                 showToast({ title: data.message });
                 refreshTable();
                 closeTurnover();
+                loadingSwalClose();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        })
+    });
+
+    $('#form-kontrak').on('submit', function (e) {
+        e.preventDefault();
+        loadingSwalShow();
+        let url = $(this).attr('action');
+        var formData = new FormData($(this)[0]);
+
+        $.ajax({
+            url: url,
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (data) {
+                updateKskNotification();
+                showToast({ title: data.message });
+                refreshTable();
+                closeKontrak();
                 loadingSwalClose();
             },
             error: function (jqXHR, textStatus, errorThrown) {

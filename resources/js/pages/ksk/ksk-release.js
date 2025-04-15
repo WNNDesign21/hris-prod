@@ -344,7 +344,6 @@ $(function () {
         $('#divisiDetail').text(namaDivisi);
         $('#departemenDetail').text(namaDepartemen);
         $('#release_dateDetail').text(moment().locale('id').format('dddd, DD MMMM YYYY'));
-        openDetail();
 
         $.ajax({
             url: base_url + '/ksk/ajax/release/get-ksk/' + idKsk,
@@ -374,6 +373,7 @@ $(function () {
                 let html = response.html;
                 $('#list-detail-ksk').empty().html(html);
                 onClickUpdate();
+                openDetail();
             },
             error: function (jqXHR, textStatus, errorThrown){
                 loadingSwalClose();

@@ -74,7 +74,13 @@
                     <div class="col-6 col-lg-3">
                         <div class="form-group">
                             <small class="text-muted">Status KSK</small><br>
-                            <p>{{ $item->status_ksk ?? '-' }}</p>
+                            @if ($item->status_ksk == 'PPJ')
+                                <span class="badge bg-success">PERPANJANG</span>
+                            @elseif ($item->status_ksk == 'TTP')
+                                <span class="badge bg-primary">KARYAWAN TETAP</span>
+                            @else
+                                <span class="badge bg-danger">PHK</span>
+                            @endif
                         </div>
                     </div>
                     <div class="col-6 col-lg-3">
@@ -90,49 +96,50 @@
                             <p>{{ $item->durasi_renewal ?? '-' }}</p>
                         </div>
                     </div>
+                    <hr>
                     <div class="col-6 col-lg-6">
                         <small class="text-muted">History Kontrak</small><br>
                     </div>
-                    <hr>
                     @php
                         $no = 1;
                     @endphp
-                    @foreach ($item->kontrak as $kontrak)
-                        <div class="col-12">
-                            <div class="row  d-flex">
-                                <div class="col-6 col-lg-3">
-                                    <div class="form-group">
-                                        <small class="text-muted">Jenis</small><br>
-                                        <p>{{ $kontrak->jenis . ' ' . $no ?? '-' }}</p>
+                    @if ($item->karyawan->kontrak)
+                        @foreach ($item->karyawan->kontrak()->where('status', 'DONE')->orderByDesc('tanggal_selesai')->get() as $kontrak)
+                            <div class="col-12">
+                                <div class="row  d-flex">
+                                    <div class="col-6 col-lg-3">
+                                        <div class="form-group">
+                                            <small class="text-muted">Jenis</small><br>
+                                            <p>{{ $no . '. ' . $kontrak->jenis ?? '-' }}</p>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-6 col-lg-3">
-                                    <div class="form-group">
-                                        <small class="text-muted">ID Kontrak</small><br>
-                                        <p>{{ $kontrak->id_kontrak ?? '-' }}</p>
+                                    <div class="col-6 col-lg-3">
+                                        <div class="form-group">
+                                            <small class="text-muted">ID Kontrak</small><br>
+                                            <p>{{ $kontrak->id_kontrak ?? '-' }}</p>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-6 col-lg-3">
-                                    <div class="form-group">
-                                        <small class="text-muted">Posisi</small><br>
-                                        <p>{{ $kontrak->nama_posisi ?? '-' }}</p>
+                                    <div class="col-6 col-lg-3">
+                                        <div class="form-group">
+                                            <small class="text-muted">Posisi</small><br>
+                                            <p>{{ $kontrak->nama_posisi ?? '-' }}</p>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-6 col-lg-3">
-                                    <div class="form-group">
-                                        <small class="text-muted">Periode</small><br>
-                                        <p>{{ $kontrak->tanggal_mulai }} - {{ $kontrak->tanggal_selesai }}
-                                            ({{ $kontrak->durasi }} Bulan)
-                                        </p>
+                                    <div class="col-6 col-lg-3">
+                                        <div class="form-group">
+                                            <small class="text-muted">Periode</small><br>
+                                            <p>{{ $kontrak->tanggal_mulai }} - {{ $kontrak->tanggal_selesai }}
+                                                ({{ $kontrak->durasi }} Bulan)
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        @php
-                            $no++;
-                        @endphp
-                    @endforeach
-                    <hr>
+                            @php
+                                $no++;
+                            @endphp
+                        @endforeach
+                    @endif
                     @if ($item->reviewed_dir_by == null)
                         <div class="d-flex justify-content-end">
                             <button type="button" class="btn btn-success btnUpdate" data-id="{{ $i }}">

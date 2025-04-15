@@ -177,11 +177,12 @@
                                 $ksk['total_release_ksk'] +
                                     $ksk['total_approval_ksk'] +
                                     $ksk['total_release_cleareance'] +
-                                    $ksk['total_approval_cleareance'] >
+                                    $ksk['total_approval_cleareance'] +
+                                    $ksk['total_tindak_lanjut'] >
                                     0)
                                 <span class="position-absolute top-0 start-95 translate-middle badge bg-danger">
                                     <i class="ti-bell"></i>
-                                    {{ $ksk['total_release_ksk'] + $ksk['total_approval_ksk'] + $ksk['total_release_cleareance'] + $ksk['total_approval_cleareance'] }}
+                                    {{ $ksk['total_release_ksk'] + $ksk['total_approval_ksk'] + $ksk['total_release_cleareance'] + $ksk['total_approval_cleareance'] + $ksk['total_tindak_lanjut'] }}
                                 </span>
                             @endif
                             <div class="d-flex align-items-center">

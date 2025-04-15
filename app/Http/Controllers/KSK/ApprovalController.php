@@ -264,7 +264,6 @@ class ApprovalController extends Controller
         }
     }
 
-    // belom kelar
     public function legalize(Request $request, string $id)
     {
         DB::beginTransaction();
@@ -273,6 +272,18 @@ class ApprovalController extends Controller
             if (!$ksk->reviewed_dir_by_id) {
                 return response()->json(['message' => 'KSK belum di review oleh Direksi.'], 402);
             }
+
+            $ksk_details = $ksk->detailKSK;
+            if ($ksk_details){
+                foreach ($ksk_details as $ksk_detail) {
+                    if ($ksk_detail->status_ksk != 'PHK') {
+                        $tanggal_renewal_kontrak = Carbon::parse($ksk_detail->karyawan->tanggal_selesai)->addDay();
+                        $ksk_detail->tanggal_renewal_kontrak = $tanggal_renewal_kontrak;
+                        $ksk_detail->save();
+                    }
+                }
+            }
+
             $ksk->legalized_by = 'HRD & GA';
             $ksk->legalized_at = Carbon::now();
             $ksk->save();

@@ -75,6 +75,7 @@
             </div>
         </div>
     </div>
+    @include('pages.ksk-e.tindak-lanjut.modal-detail')
     @include('pages.ksk-e.tindak-lanjut.modal-kontrak')
     @include('pages.ksk-e.tindak-lanjut.modal-turnover')
 @endsection
