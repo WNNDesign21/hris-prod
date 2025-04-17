@@ -37,13 +37,14 @@ use App\Http\Controllers\StockOpname\StoReportController;
 use App\Http\Controllers\Attendance\AttendanceGpsController;
 use App\Http\Controllers\Attendance\LiveAttendanceController;
 use App\Http\Controllers\KSK\AjaxController as KSKAjaxController;
-use App\Http\Controllers\KSK\SettingController as KSKSettingController;
 use App\Http\Controllers\KSK\ReleaseController as KSKReleaseController;
+use App\Http\Controllers\KSK\SettingController as KSKSettingController;
 use App\Http\Controllers\TugasLuare\AjaxController as TLAjaxController;
 use App\Http\Controllers\KSK\ApprovalController as KSKApprovalController;
 use App\Http\Controllers\TugasLuare\ApprovalController as TLApprovalController;
 use App\Http\Controllers\Attendance\ApprovalController as ATTApprovalController;
 use App\Http\Controllers\TugasLuare\PengajuanController as TLPengajuanController;
+use App\Http\Controllers\KSK\TindakLanjutController as KSKTindakLanjutController;
 use App\Http\Controllers\KSK\Cleareance\AjaxController as KSKAjaxCleareanceController;
 use App\Http\Controllers\Attendance\DashboardController as AttendanceDashboardController;
 use App\Http\Controllers\KSK\Cleareance\ReleaseController as KSKReleaseCleareanceController;
@@ -568,10 +569,18 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::post('/setting/update', [KSKSettingController::class, 'update'])->name('ksk.setting.update');
 
             Route::group(['prefix' => 'ajax'], function () {
+                Route::post('/tindak-lanjut/get-posisis', [KSKAjaxController::class, 'select_get_posisis']);
                 Route::post('/release/get-karyawans', [KSKAjaxController::class, 'get_karyawans']);
                 Route::get('/release/get-detail-ksk/{idKSK}', [KSKAjaxController::class, 'get_detail_ksk_release']);
                 Route::get('/release/get-ksk/{idKSK}', [KSKAjaxController::class, 'get_ksk']);
+                Route::get('/tindak-lanjut/get-detail-ksk/{idDetailKSK}', [KSKAjaxController::class, 'get_detail_ksk_tindak_lanjut']);
             });
+
+            Route::get('/tindak-lanjut', [KSKTindakLanjutController::class, 'index'])->name('ksk.tindak-lanjut');
+            Route::post('/tindak-lanjut/datatable-need-action', [KSKTindakLanjutController::class, 'datatable_need_action']);
+            Route::post('/tindak-lanjut/datatable-history', [KSKTindakLanjutController::class, 'datatable_history']);
+            Route::post('/tindak-lanjut/store-turnover', [KSKTindakLanjutController::class, 'store_turnover'])->name('ksk.tindak-lanjut.store-turnover');
+            Route::post('/tindak-lanjut/store-kontrak', [KSKTindakLanjutController::class, 'store_kontrak'])->name('ksk.tindak-lanjut.store-kontrak');
         });
 
         Route::group(['middleware' => ['role:atasan|personalia']], function () {
@@ -610,14 +619,21 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
                 });
             });
 
-            Route::group(['middleware' => ['role:atasan']], function () {
+            Route::group(['middleware' => ['role:atasan|member']], function () {
                 Route::get('/approval', [KSKApprovalCleareanceController::class, 'index'])->name('ksk.cleareance.approval')->middleware('ksk');
                 Route::post('/approval/datatable-must-approved', [KSKApprovalCleareanceController::class, 'datatable_must_approved']);
                 Route::post('/approval/datatable-history', [KSKApprovalCleareanceController::class, 'datatable_history']);
+                Route::patch('/approval/konfirmasi/{idCleareanceDetail}', [KSKApprovalCleareanceController::class, 'konfirmasi'])->name('ksk.cleareance.konfirmasi');
                 // Route::delete('/approval/delete/{idKsk}', [KSKApprovalController::class, 'destroy'])->name('ksk.approval.delete');
                 // Route::patch('/approval/update-detail-ksk/{idDetailKsk}', [KSKApprovalController::class, 'update_detail_ksk'])->name('ksk.approval.update-detail-ksk');
                 // Route::patch('/approval/approve/{idKSK}', [KSKApprovalController::class, 'approve'])->name('ksk.approval.approve');
                 // Route::patch('/approval/legalize/{idKSK}', [KSKApprovalController::class, 'legalize'])->name('ksk.approval.legalize')->middleware('role:personalia');
+
+                Route::group(['prefix' => 'ajax'], function () {
+                    Route::get('/approval/get-detail-cleareance/{idCleareance}', [KSKAjaxCleareanceController::class, 'get_detail_cleareance_approval']);
+                    // Route::get('/release/get-detail-ksk/{idKSK}', [KSKAjaxController::class, 'get_detail_ksk_release']);
+                    // Route::get('/release/get-ksk/{idKSK}', [KSKAjaxController::class, 'get_ksk']);
+                });
             });
         });
     });

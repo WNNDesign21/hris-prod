@@ -8,6 +8,7 @@ use App\Models\Jabatan;
 use App\Models\Karyawan;
 use App\Models\Departemen;
 use App\Models\Organisasi;
+use App\Models\KSK\DetailKSK;
 use Illuminate\Support\Facades\DB;
 use App\Models\KSK\CleareanceDetail;
 use Illuminate\Database\Eloquent\Model;
@@ -72,6 +73,11 @@ class Cleareance extends Model
     public function cleareanceDetail()
     {
         return $this->hasMany(CleareanceDetail::class, 'cleareance_id', 'id_cleareance');
+    }
+
+    public function detailKSK()
+    {
+        return $this->hasOne(DetailKSK::class, 'cleareance_id', 'id_cleareance');
     }
 
     private static function _query($dataFilter)

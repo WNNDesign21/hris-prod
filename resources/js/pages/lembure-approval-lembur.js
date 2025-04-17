@@ -1975,4 +1975,30 @@ $(function () {
             }
         })
     }
+
+    var modalExportOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalExport = new bootstrap.Modal(
+        document.getElementById("modal-export"),
+        modalExportOptions
+    );
+
+    function openExport() {
+        modalExport.show();
+    }
+
+    function closeExport() {
+        modalExport.hide();
+    }
+
+    $('#btnExport').on("click", function (){
+        openExport();
+    });
+
+    $('.btnCloseExport').on("click", function (){
+        closeExport();
+    });
 });

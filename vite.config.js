@@ -61,6 +61,7 @@ export default defineConfig({
                 'resources/js/pages/ksk/ksk-release.js',
                 'resources/js/pages/ksk/ksk-approval.js',
                 'resources/js/pages/ksk/ksk-setting.js',
+                'resources/js/pages/ksk/ksk-tindak-lanjut.js',
                 'resources/js/pages/ksk/cleareance/ksk-release.js',
                 'resources/js/pages/ksk/cleareance/ksk-approval.js',
                 'resources/js/pages/security/index.js',

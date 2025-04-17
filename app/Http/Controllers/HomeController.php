@@ -57,6 +57,7 @@ class HomeController extends Controller
         $dataProfile = [];
         $dataKontrak = [];
         $dataAgendaLembur = [];
+        $dataKSK = [];
         if($profile){
             if($profile?->status_karyawan == 'AT'){
                 $status = 'AKTIF';
@@ -168,6 +169,13 @@ class HomeController extends Controller
                     ];
                 }
             }
+
+            $dataKSK = DetailKSK::where('karyawan_id', auth()->user()->karyawan->id_karyawan)
+            ->where(function ($query) {
+                $query->whereNotNull('cleareance_id')
+                ->orWhereNotNull('kontrak_id');
+            })
+            ->orderBy('created_at', 'DESC')->get();
         } else {
             $dataProfile = [
                 'ni_karyawan' => null,
@@ -216,6 +224,7 @@ class HomeController extends Controller
             'profile' => $dataProfile,
             'kontrak' => $dataKontrak,
             'agendaLembur' => $dataAgendaLembur,
+            'myKSK' => $dataKSK,
         ];
         return view('pages.menu.index', $dataPage);
     }
@@ -1389,11 +1398,13 @@ class HomeController extends Controller
             $total_approval_ksk = 0;
             $total_release_cleareance = 0;
             $total_approval_cleareance = 0;
+            $total_tindak_lanjut = 0;
 
             $dataFilter = [];
             if(auth()->user()->hasRole('personalia')) {
                 $total_release_ksk = Karyawan::countDataKSK($dataFilter);
                 $total_release_cleareance = DetailKSK::where('organisasi_id', auth()->user()->organisasi_id)->where('status_ksk', 'PHK')->whereNull('cleareance_id')->count();
+                $total_tindak_lanjut = DetailKSK::countNeedAction($dataFilter);
             } else {
                 $total_approval_cleareance = CleareanceDetail::where('confirmed_by_id', auth()->user()->karyawan->id_karyawan)->where('is_clear', 'N')->count();
             }
@@ -1404,8 +1415,9 @@ class HomeController extends Controller
             $html_approval = view('layouts.partials.ksk.notification-approval')->with(compact('total_approval_ksk'))->render();
             $html_release_cleareance = view('layouts.partials.ksk.cleareance.notification-release')->with(compact('total_release_cleareance'))->render();
             $html_approval_cleareance = view('layouts.partials.ksk.cleareance.notification-approval')->with(compact('total_approval_cleareance'))->render();
+            $html_tindak_lanjut = view('layouts.partials.ksk.notification-tindak-lanjut')->with(compact('total_tindak_lanjut'))->render();
 
-            return response()->json(['html_release' => $html_release , 'html_approval' => $html_approval, 'html_release_cleareance' => $html_release_cleareance, 'html_approval_cleareance' => $html_approval_cleareance], 200);
+            return response()->json(['html_release' => $html_release , 'html_approval' => $html_approval, 'html_release_cleareance' => $html_release_cleareance, 'html_approval_cleareance' => $html_approval_cleareance, 'html_tindak_lanjut' => $html_tindak_lanjut], 200);
         } catch (Throwable $e) {
             return response()->json(['message' => $e->getMessage()], 500);
         }

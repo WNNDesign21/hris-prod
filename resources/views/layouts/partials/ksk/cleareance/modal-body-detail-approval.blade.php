@@ -23,38 +23,29 @@
             <tr>
                 <th>Departemen</th>
                 <th>Deskripsi</th>
-                <th>Keterangan</th>
                 <th>Status</th>
+                <th>Keterangan</th>
                 <th>Aksi</th>
             </tr>
         </thead>
         <tbody>
             @foreach ($detail as $item)
                 <tr>
-                    <td>
+                    <td style="width: 20%">
                         @if ($item->type == 'AL')
-                            <p><strong>Atasan Langsung</strong></p>
-                        @elseif ($item->type == 'IT')
-                            <p><strong>Dept.IT</strong></p>
-                        @elseif ($item->type == 'FAT')
-                            <p><strong>Dept.Finance</strong></p>
-                        @elseif ($item->type == 'GA')
-                            <p><strong>Dept.GA</strong></p>
-                        @elseif ($item->type == 'HR')
-                            <p><strong>Dept.HR</strong></p>
+                            <p><strong>Atasan Langsung</strong><br>
+                            @elseif ($item->type == 'IT')
+                            <p><strong>Dept.IT</strong><br>
+                            @elseif ($item->type == 'FAT')
+                            <p><strong>Dept.Finance</strong><br>
+                            @elseif ($item->type == 'GA')
+                            <p><strong>Dept.GA</strong><br>
+                            @elseif ($item->type == 'HR')
+                            <p><strong>Dept.HR</strong><br>
                         @endif
-                        <select name="confirmed_by_id" id="confirmed_by_id{{ $item->type }}" class="form-control"
-                            style="width: 100%" {{ $header->status == 'Y' ? 'disabled' : 'required' }}>
-                            @if ($item->confirmed_by_id)
-                                <option value="">TIDAK DIPERLUKAN</option>
-                                <option value="{{ $item->confirmed_by_id }}" selected>
-                                    {{ $item->karyawan->nama }}</option>
-                            @else
-                                <option value="">TIDAK DIPERLUKAN</option>
-                            @endif
-                        </select>
+                        {{ $item?->karyawan?->nama ?? '-' }}</p>
                     </td>
-                    <td>
+                    <td style="width: 20%">
                         @if ($item->type == 'AL')
                             <p><strong>Deskripsi Atasan Langsung</strong></p>
                         @elseif ($item->type == 'HR')
@@ -67,8 +58,7 @@
                             <p><strong>Deskripsi FAT</strong></p>
                         @endif
                     </td>
-                    <td id="keteranganText{{ $item->type }}">{{ $item->keterangan }}</td>
-                    <td id="statusText{{ $item->type }}">
+                    <td style="width: 20%" id="statusText{{ $item->type }}">
                         @if ($item->is_clear == 'Y')
                             <p>
                                 ✅{{ $item->confirmed_by }}<br>
@@ -85,13 +75,29 @@
                             </p>
                         @endif
                     </td>
-                    <td>
-                        @if ($header->status == 'N')
-                            <button class="btn btn-warning btnRollback"
-                                data-id-cleareance-detail="{{ $item->id_cleareance_detail }}"
-                                data-type="{{ $item->type }}">
-                                <i class="fas fa-undo"></i> Rollback
-                            </button>
+                    <td style="width: 20%">
+                        @if ($item->confirmed_by_id == auth()->user()->karyawan->id_karyawan)
+                            @if (!$item->confirmed_by)
+                                <textarea name="keteranganApproval" id="keteranganApproval{{ $item->type }}" cols="30" rows="3"
+                                    class="form-control"></textarea>
+                            @else
+                                {{ $item->keterangan }}
+                            @endif
+                        @else
+                            {{ $item->keterangan }}
+                        @endif
+                    </td>
+                    <td style="width: 20%">
+                        @if ($item->confirmed_by_id == auth()->user()->karyawan->id_karyawan)
+                            @if (!$item->confirmed_by)
+                                <button class="btn btn-success btnKonfirmasi"
+                                    data-id-cleareance-detail="{{ $item->id_cleareance_detail }}"
+                                    data-type="{{ $item->type }}">
+                                    <i class="fas fa-check"></i> Konfirmasi
+                                </button>
+                            @else
+                                -
+                            @endif
                         @else
                             -
                         @endif

@@ -86,6 +86,9 @@ $(function () {
             success: function(response){
                 $('.notification-release').html(response.html_release);
                 $('.notification-approval').html(response.html_approval);
+                $('.notification-cleareance-release').html(response.html_release_cleareance);
+                $('.notification-cleareance-approval').html(response.html_approval_cleareance);
+                $('.notification-tindak-lanjut').html(response.html_tindak_lanjut);
             }, error: function(jqXHR, textStatus, errorThrown){
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
             }

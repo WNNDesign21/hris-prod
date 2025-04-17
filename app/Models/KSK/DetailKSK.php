@@ -10,6 +10,7 @@ use App\Models\KSK\KSK;
 use App\Models\Karyawan;
 use App\Models\Departemen;
 use App\Models\Organisasi;
+use App\Models\KSK\Cleareance;
 use App\Models\KSK\ChangeHistoryKSK;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -55,7 +56,12 @@ class DetailKSK extends Model
 
     public function kontrak()
     {
-        return $this->hasMany(Kontrak::class, 'karyawan_id', 'karyawan_id');
+        return $this->belongsTo(Kontrak::class, 'kontrak_id', 'id_kontrak');
+    }
+
+    public function cleareance()
+    {
+        return $this->belongsTo(Cleareance::class, 'cleareance_id', 'id_cleareance');
     }
 
     public function ksk()
@@ -98,10 +104,50 @@ class DetailKSK extends Model
 
         $data = self::select(
             'ksk_details.*',
+            'karyawans.status_karyawan'
         );
-        $data->where('ksk_details.status_ksk', 'PHK');
-        $data->whereNull('ksk_details.cleareance_id');
+        $data->leftJoin('karyawans', 'karyawans.id_karyawan', 'ksk_details.karyawan_id');
+        $data->leftJoin('ksk', 'ksk.id_ksk', 'ksk_details.ksk_id');
         $data->where('ksk_details.organisasi_id', auth()->user()->organisasi_id);
+
+        if (isset($dataFilter['module']) && $dataFilter['module'] == 'need_action') {
+            $data->where(function ($query) {
+                // PHK
+                $query->where(function ($query) {
+                    $query->where('ksk_details.status_ksk', 'PHK')
+                    ->where('karyawans.status_karyawan', 'AT')
+                    ->whereNotNull('ksk.legalized_by')
+                    ->whereNotNull('ksk_details.cleareance_id');
+                });
+
+                // PERPANJANG
+                $query->orWhere(function ($query) {
+                    $query->whereIn('ksk_details.status_ksk', ['PPJ', 'TTP'])
+                    ->whereNull('ksk_details.kontrak_id')
+                    ->whereNotNull('ksk.legalized_by');
+                });
+            });
+        } elseif (isset($dataFilter['module']) && $dataFilter['module'] == 'history') {
+            $data->where(function ($query) {
+                // PHK
+                $query->where(function ($query) {
+                    $query->where('ksk_details.status_ksk', 'PHK')
+                    ->whereNot('karyawans.status_karyawan', 'AT')
+                    ->whereNotNull('ksk.legalized_by')
+                    ->whereNotNull('ksk_details.cleareance_id');
+                });
+
+                // PERPANJANG
+                $query->orWhere(function ($query) {
+                    $query->whereIn('ksk_details.status_ksk', ['PPJ', 'TTP'])
+                    ->whereNotNull('ksk_details.kontrak_id')
+                    ->whereNotNull('ksk.legalized_by');
+                });
+            });
+        } else {
+            $data->where('ksk_details.status_ksk', 'PHK');
+            $data->whereNull('ksk_details.cleareance_id');
+        }
 
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
@@ -130,5 +176,38 @@ class DetailKSK extends Model
     public static function countData($dataFilter)
     {
         return self::_query($dataFilter)->get()->count();
+    }
+
+    public static function countNeedAction($dataFilter)
+    {
+        $data = self::select(
+            'ksk_details.*',
+            'karyawans.status_karyawan'
+        );
+        $data->leftJoin('karyawans', 'karyawans.id_karyawan', 'ksk_details.karyawan_id');
+        $data->leftJoin('ksk', 'ksk.id_ksk', 'ksk_details.ksk_id');
+        $data->leftJoin('cleareances', 'cleareances.id_cleareance', 'ksk_details.cleareance_id');
+        $data->where('ksk_details.organisasi_id', auth()->user()->organisasi_id);
+
+        $data->where(function ($query) {
+            // PHK
+            $query->where(function ($query) {
+                $query->where('ksk_details.status_ksk', 'PHK')
+                ->where('karyawans.status_karyawan', 'AT')
+                ->whereNotNull('ksk.legalized_by')
+                ->whereDate('cleareances.tanggal_akhir_bekerja', '>=', now())
+                ->whereNotNull('ksk_details.cleareance_id');
+            });
+
+            // PERPANJANG
+            $query->orWhere(function ($query) {
+                $query->whereIn('ksk_details.status_ksk', ['PPJ', 'TTP'])
+                ->whereNull('ksk_details.kontrak_id')
+                ->whereNotNull('ksk.legalized_by');
+            });
+        });
+
+        $result = $data->get()->count();
+        return $result;
     }
 }

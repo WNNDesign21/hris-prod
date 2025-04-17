@@ -5,14 +5,16 @@ namespace App\Http\Controllers\KSK\Cleareance;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\KSK\Cleareance;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\KSK\CleareanceDetail;
+use Illuminate\Support\Facades\Validator;
 
 class ApprovalController extends Controller
 {
     public function index()
     {
-        return redirect()->route('under-maintenance');
+        // return redirect()->route('under-maintenance');
         $dataPage = [
             'pageTitle' => "KSK-E - Approval Cleareance",
             'page' => 'ksk-cleareance-approval',
@@ -61,11 +63,11 @@ class ApprovalController extends Controller
             foreach ($cleareances as $data) {
                 $actionFormatted = '<a href="javascript:void(0)" class="btnDetail" data-id-cleareance="'.$data->cleareance_id.'">'.$data->cleareance_id.' <i class="fas fa-search"></i></a>';
 
-                if ($data->status == 'Y') {
-                    $statusFormatted = '<span class="badge badge-success">COMPLETED</span>';
+                if ($data->is_clear == 'Y') {
+                    $statusFormatted = '<span class="badge badge-success">CONFIRMED</span>';
                 } else {
                     if (!$data->confirmed_by) {
-                        $statusFormatted = '<span class="badge badge-warning">WAITING</span>';
+                        $statusFormatted = '<span class="badge badge-warning">UNCONFIRMED</span>';
                     } else {
                         $statusFormatted = '<span class="badge badge-danger">NOT CLEAR</span>';
                     }
@@ -135,13 +137,13 @@ class ApprovalController extends Controller
 
         if (!empty($cleareances)) {
             foreach ($cleareances as $data) {
-                $actionFormatted = '<a href="javascript:void(0)" class="btnDetail" data-id-cleareance="'.$data->id_cleareance.'">'.$data->id_cleareance.' <i class="fas fa-search"></i></a>';
+                $actionFormatted = '<a href="javascript:void(0)" class="btnDetail" data-id-cleareance="'.$data->cleareance_id.'">'.$data->cleareance_id.' <i class="fas fa-search"></i></a>';
 
-                if ($data->status == 'Y') {
-                    $statusFormatted = '<span class="badge badge-success">COMPLETED</span>';
+                if ($data->is_clear == 'Y') {
+                    $statusFormatted = '<span class="badge badge-success">CONFIRMED</span>';
                 } else {
                     if (!$data->confirmed_by) {
-                        $statusFormatted = '<span class="badge badge-warning">WAITING</span>';
+                        $statusFormatted = '<span class="badge badge-warning">UNCONFIRMED</span>';
                     } else {
                         $statusFormatted = '<span class="badge badge-danger">NOT CLEAR</span>';
                     }
@@ -170,5 +172,43 @@ class ApprovalController extends Controller
         );
 
         return response()->json($json_data, 200);
+    }
+
+    public function konfirmasi(Request $request, int $id_cleareance_detail)
+    {
+        $dataValidate = [
+            'keterangan' => ['required', 'string'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $keterangan = $request->keterangan;
+
+        DB::beginTransaction();
+        try {
+            $cleareanceDetail = CleareanceDetail::findOrFail($id_cleareance_detail);
+            $cleareanceDetail->keterangan = $keterangan;
+            $cleareanceDetail->confirmed_by = auth()->user()->karyawan->nama;
+            $cleareanceDetail->confirmed_at = Carbon::now();
+            $cleareanceDetail->is_clear = 'Y';
+            $cleareanceDetail->save();
+
+            $cleareance = $cleareanceDetail->cleareance;
+            if ($cleareance->cleareanceDetail->where('is_clear', 'N')->count() == 0) {
+                $cleareance->status = 'Y';
+                $cleareance->save();
+            }
+
+            DB::commit();
+            return response()->json(['message' => 'Rollback konfirmasi berhasil dilakukan, silahkan konfirmasi ulang pada pihak yang bersangkutan'], 200);
+        } catch (Throwable $e) {
+            DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 }

@@ -33,6 +33,9 @@
                                         auth()->user()->karyawan->posisi[0]->jabatan_id == '4'))
                                 <button type="button" class="btn btn-success waves-effect btnMustChecked"><i
                                         class="far fa-check-circle"></i> Must Checked</button>
+                                {{-- <button type="button" class="btn btn-primary" id="btnExport"><i
+                                        class="fas fa-file-excel"></i>
+                                    Export</button> --}}
                             @endif
                         </div>
                     </div>
@@ -76,4 +79,5 @@
     @include('pages.lembur-e.modal-reject-lembur')
     @include('pages.lembur-e.modal-filter-lembur')
     @include('pages.lembur-e.modal-cross-check-approval-lembur')
+    @include('pages.lembur-e.modal-export-approval-lembur')
 @endsection

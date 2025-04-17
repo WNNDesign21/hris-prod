@@ -34,18 +34,21 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             UserSeeder::class,
-            StoSeeder::class
-            // EventSeeder::class,
-            // JeniscutiSeeder::class,
-            // OrganisasiSeeder::class,
-            // JabatanSeeder::class,
-            // PosisiSeeder::class,
-            // DivisiSeeder::class,
-            // DepartemenSeeder::class,
-            // SeksiSeeder::class,
-            // GrupSeeder::class,
-            // KaryawanSeeder::class,
-            // SettingLemburKaryawanSeeder::class,
+            SecurityRoleSeeder::class,
+            AdmindeptRoleSeeder::class,
+            JeniscutiSeeder::class,
+            OrganisasiSeeder::class,
+            JabatanSeeder::class,
+            PosisiSeeder::class,
+            DivisiSeeder::class,
+            DepartemenSeeder::class,
+            SeksiSeeder::class,
+            GrupSeeder::class,
+            KaryawanSeeder::class,
+            SettingLemburSeeder::class,
+            SettingLemburKaryawanSeeder::class,
+            BatasLemburSeeder::class,
+            BatasApprovalLemburSeeder::class,
         ]);
     }
 }

@@ -58,7 +58,7 @@
                 $this.$calendarObj = $this.$calendar.fullCalendar({
                     defaultView: 'month',
                     handleWindowResize: true,
-                     
+
                     header: {
                         left: 'prev,next today',
                         center: 'title',
@@ -66,18 +66,18 @@
                     },
                     nextDayThreshold: '09:00:00',
                     events: defaultEvents,
-                    eventLimit: true, 
+                    eventLimit: true,
                     drop: function(date) { $this.onDrop($(this), date); },
                     select: function (start, end, allDay) { $this.onSelect(start, end, allDay); },
-                    eventClick: function(calEvent, jsEvent, view) { 
-                        $this.onEventClick(calEvent, jsEvent, view); 
+                    eventClick: function(calEvent, jsEvent, view) {
+                        $this.onEventClick(calEvent, jsEvent, view);
                         let nama_karyawan = calEvent.nama_karyawan;
                         let alasan_cuti = calEvent.alasan_cuti;
                         let jenis_cuti = calEvent.jenis_cuti;
                         let durasi_cuti = calEvent.durasi_cuti;
-                        let rencana_mulai_cuti = calEvent.rencana_mulai_cuti;   
+                        let rencana_mulai_cuti = calEvent.rencana_mulai_cuti;
                         let rencana_selesai_cuti = calEvent.rencana_selesai_cuti;
-                        let aktual_mulai_cuti = calEvent.aktual_mulai_cuti;   
+                        let aktual_mulai_cuti = calEvent.aktual_mulai_cuti;
                         let aktual_selesai_cuti = calEvent.aktual_selesai_cuti;
                         let karyawan_pengganti = calEvent.karyawan_pengganti;
                         let status_cuti = calEvent.status_cuti;
@@ -114,7 +114,7 @@
     },
 
     $.CalendarApp = new CalendarApp, $.CalendarApp.Constructor = CalendarApp
-    
+
 }(window.jQuery),
 
 function($) {
@@ -173,6 +173,33 @@ function($) {
 
     $('.btnKontrak').on('click', function (){
         openKontrak();
+    })
+
+     // MODAL KSK
+     var modalKSKOptions = {
+        backdrop: true,
+        keyboard: false,
+    };
+
+    var modalKSK = new bootstrap.Modal(
+        document.getElementById("modal-ksk"),
+        modalKSKOptions
+    );
+
+    function openKSK() {
+        modalKSK.show();
+    }
+
+    function closeKSK() {
+        modalKSK.hide();
+    }
+
+    $('.btnCloseKSK').on('click', function (){
+        closeKSK();
+    })
+
+    $('.btnKSK').on('click', function (){
+        openKSK();
     })
 
     //MODAL LEMBUR

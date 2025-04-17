@@ -59,6 +59,9 @@
                                             class="ti-write text-muted me-2"></i>
                                         Kontrak</a>
                                     <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item btnKSK" href="#"><i class="ti-pencil text-muted me-2"></i>
+                                        KSK</a>
+                                    <div class="dropdown-divider"></div>
                                     <a class="dropdown-item btnAgendaLembur position-relative" href="#"><i
                                             class="ti-agenda text-muted me-2"></i>
                                         Agenda Lembur
@@ -106,6 +109,7 @@
         @include('pages.menu.modal-kontrak')
         @include('pages.menu.modal-lembur')
         @include('pages.menu.modal-agenda-lembur')
+        @include('pages.menu.modal-ksk')
     </div>
 
 
