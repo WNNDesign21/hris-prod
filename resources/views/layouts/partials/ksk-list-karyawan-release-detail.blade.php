@@ -82,8 +82,10 @@
                                     <span class="badge bg-success">PERPANJANG</span>
                                 @elseif ($item->status_ksk == 'TTP')
                                     <span class="badge bg-primary">KARYAWAN TETAP</span>
+                                @elseif ($item->status_ksk == 'PHK')
+                                    <span class="badge bg-primary">TIDAK DIPERPANJANG</span>
                                 @else
-                                    <span class="badge bg-danger">PHK</span>
+                                    -
                                 @endif
                             </div>
                         </div>
