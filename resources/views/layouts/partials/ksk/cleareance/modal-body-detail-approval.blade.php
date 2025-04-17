@@ -43,7 +43,7 @@
                             @elseif ($item->type == 'HR')
                             <p><strong>Dept.HR</strong><br>
                         @endif
-                        {{ $item->karyawan->nama }}</p>
+                        {{ $item?->karyawan?->nama ?? '-' }}</p>
                     </td>
                     <td style="width: 20%">
                         @if ($item->type == 'AL')

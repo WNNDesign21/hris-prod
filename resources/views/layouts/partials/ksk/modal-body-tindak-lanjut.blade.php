@@ -133,7 +133,7 @@
                                         Awal</small></label>
                                 <input type="date" name="awal" id="awal_" class="form-control"
                                     style="width: 100%;"
-                                    value="{{ $detail_ksk->karyawan->kontrak->where('tanggal_selesai', '<', $detail_ksk->tanggal_renewal_kontrak)->sortByDesc('tanggal_selesai')->first()->tanggal_mulai ?? '' }}"
+                                    value="{{ $detail_ksk->tanggal_renewal_kontrak ? $detail_ksk->karyawan->kontrak->where('tanggal_selesai', '<', $detail_ksk->tanggal_renewal_kontrak)->sortByDesc('tanggal_selesai')->first()->tanggal_mulai : $detail_ksk->karyawan->kontrak->sortByDesc('tanggal_selesai')->first()->tanggal_mulai ?? '' }}"
                                     disabled>
                             </div>
                         </div>
@@ -143,7 +143,7 @@
                                         Akhir</small></label>
                                 <input type="date" name="akhir" id="akhir_" class="form-control"
                                     style="width: 100%;"
-                                    value="{{ $detail_ksk->karyawan->kontrak->where('tanggal_selesai', '<', $detail_ksk->tanggal_renewal_kontrak)->sortByDesc('tanggal_selesai')->first()->tanggal_selesai ?? '' }}"
+                                    value="{{ $detail_ksk->tanggal_renewal_kontrak ? $detail_ksk->karyawan->kontrak->where('tanggal_selesai', '<', $detail_ksk->tanggal_renewal_kontrak)->sortByDesc('tanggal_selesai')->first()->tanggal_selesai : $detail_ksk->karyawan->kontrak->sortByDesc('tanggal_selesai')->first()->tanggal_selesai ?? '' }}"
                                     disabled>
                             </div>
                         </div>
@@ -347,7 +347,7 @@
                                                             @elseif ($item->type == 'HR')
                                                             <p><strong>Dept.HR</strong><br>
                                                         @endif
-                                                        {{ $item->karyawan->nama }}</p>
+                                                        {{ $item?->karyawan?->nama ?? '-' }}</p>
                                                     </td>
                                                     <td style="width: 25%">
                                                         @if ($item->type == 'AL')

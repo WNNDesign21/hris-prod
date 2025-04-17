@@ -75,11 +75,11 @@ class TindakLanjutController extends Controller
                 $idKSK = '<a href="javascript:void(0)" class="btnDetail" data-id-ksk-detail="'.$data->id_ksk_detail.'">'.$data->ksk_id.' <i class="fas fa-search"></i></a>';
                 if ($data->status_ksk == 'PHK') {
                     $statusFormatted = '<span class="badge badge-danger">PHK</span>';
-                    if ($data->tanggal_akhir_bekerja >= Carbon::now()) {
+                    if ($data->cleareance->tanggal_akhir_bekerja >= Carbon::now()) {
                         $actionFormatted = '<button class="btn btn-sm btn-success btnTurnover" data-karyawan-id="'.$data->karyawan_id.'" data-status-ksk="'.$data->status_ksk.'" data-id-ksk-detail="'.$data->id_ksk_detail.'" data-nama-karyawan="'.$data->nama_karyawan.'" data-tgl-akhir-bekerja="'.$data->karyawan->tanggal_selesai.'"><i class="fas fa-plus"></i> Buat Turnover</button>';
                     } else {
                         // $actionFormatted = '<button class="btn btn-sm btn-success btnTurnover" data-karyawan-id="'.$data->karyawan_id.'" data-status-ksk="'.$data->status_ksk.'" data-id-ksk-detail="'.$data->id_ksk_detail.'" data-nama-karyawan="'.$data->nama_karyawan.'" data-tgl-akhir-bekerja="'.$data->karyawan->tanggal_selesai.'"><i class="fas fa-plus"></i> Buat Turnover</button>';
-                        $actionFormatted = 'Turnover Tersedia pada tanggal <strong>'.Carbon::parse($data->tanggal_akhir_bekerja)->translatedFormat('d F Y').'</strong>';
+                        $actionFormatted = 'Turnover Tersedia pada tanggal <strong>'.Carbon::parse($data->cleareance->tanggal_akhir_bekerja)->translatedFormat('d F Y').'</strong>';
                     }
                 } elseif ($data->status_ksk == 'PPJ') {
                     $statusFormatted = '<span class="badge badge-success">PERPANJANG</span>';
@@ -94,7 +94,7 @@ class TindakLanjutController extends Controller
                 $nestedData['nama_departemen'] = $data->nama_jabatan;
                 $nestedData['nama_jabatan'] = $data->nama_jabatan;
                 $nestedData['nama_posisi'] = $data->nama_posisi;
-                $nestedData['tanggal_akhir_bekerja'] = Carbon::parse($data->tanggal_akhir_bekerja)->translatedFormat('d F Y');
+                $nestedData['tanggal_akhir_bekerja'] = Carbon::parse($data->cleareance->tanggal_akhir_bekerja)->translatedFormat('d F Y');
                 $nestedData['status'] = $statusFormatted;
                 $nestedData['aksi'] = $actionFormatted;
 
@@ -167,7 +167,7 @@ class TindakLanjutController extends Controller
                 $nestedData['nama_departemen'] = $data->nama_jabatan;
                 $nestedData['nama_jabatan'] = $data->nama_jabatan;
                 $nestedData['nama_posisi'] = $data->nama_posisi;
-                $nestedData['tanggal_akhir_bekerja'] = Carbon::parse($data->tanggal_akhir_bekerja)->translatedFormat('d F Y');
+                $nestedData['tanggal_akhir_bekerja'] = Carbon::parse($data->karyawan->tanggal_selesai)->translatedFormat('d F Y');
                 $nestedData['status'] = $statusFormatted;
 
                 $dataTable[] = $nestedData;

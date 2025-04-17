@@ -122,7 +122,6 @@ class AjaxController extends Controller
                 return response()->json(['message' => 'Data tidak ditemukan'], 404);
             }
             $detail = CleareanceDetail::where('cleareance_id', $header->id_cleareance)->orderBy('type')->get();
-
             $html = view('layouts.partials.ksk.cleareance.modal-body-detail', ['header' => $header, 'detail' => $detail])->render();
             return response()->json(['message' => 'success', 'html' => $html], 200);
         } catch (Throwable $e) {

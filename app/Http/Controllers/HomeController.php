@@ -170,7 +170,12 @@ class HomeController extends Controller
                 }
             }
 
-            $dataKSK = DetailKSK::where('karyawan_id', auth()->user()->karyawan->id_karyawan)->orderBy('created_at', 'DESC')->get();
+            $dataKSK = DetailKSK::where('karyawan_id', auth()->user()->karyawan->id_karyawan)
+            ->where(function ($query) {
+                $query->whereNotNull('cleareance_id')
+                ->orWhereNotNull('kontrak_id');
+            })
+            ->orderBy('created_at', 'DESC')->get();
         } else {
             $dataProfile = [
                 'ni_karyawan' => null,

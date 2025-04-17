@@ -17,7 +17,8 @@
                                         aria-expanded="true" data-bs-toggle="collapse"
                                         href="#ksk-content-{{ $i }}" data-parent="#list-ksk">
                                         <div class="d-flex justify-content-between">
-                                            <h3>{{ $item->ksk_id }}</h3>
+                                            <h3>{{ $item->ksk_id }}<br><small>{{ \Carbon\Carbon::parse($item->ksk->release_date)->format('d F Y') }}
+                                                    <small></h3>
                                             <div>
                                                 @if ($item->status_ksk == 'PPJ')
                                                     <span class="badge badge-success">Perpanjang</span>
