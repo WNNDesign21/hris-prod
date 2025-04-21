@@ -115,7 +115,7 @@ class ReleaseController extends Controller
         $settings['order'] = $order;
 
         $dataFilter = [];
-        $dataFilter['module'] = 'release';
+        $dataFilter['module'] = 'released';
         $search = $request->input('search.value');
         if (!empty($search)) {
             $dataFilter['search'] = $search;

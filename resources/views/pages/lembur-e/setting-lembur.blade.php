@@ -26,6 +26,14 @@
                         id="form-setting-lembur">
                         @csrf
                         @method('PATCH')
+                        {{-- BATAS APPROVAL LEMBUR --}}
+                        <div class="row">
+                            <div class="col-lg-3 col-12 p-4">
+                                <h4>Batas Approval Lembur <span class="text-danger">*</span></h4>
+                                <input type="time" class="form-control" name="batas_approval_lembur"
+                                    id="batas_approval_lembur" value="{{ $setting_lembur['batas_approval_lembur'] }}">
+                            </div>
+                        </div>
                         {{-- BATAS PENGAJUAN LEMBUR --}}
                         <div class="row">
                             <div class="col-lg-3 col-12 p-4">

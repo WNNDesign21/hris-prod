@@ -224,6 +224,8 @@ class KSK extends Model
                     });
                 });
             }
+        } elseif ($dataFilter['module'] == 'released') {
+            $data->where('ksk.organisasi_id', auth()->user()->organisasi_id);
         }
 
         if (isset($dataFilter['search'])) {

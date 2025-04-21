@@ -114,7 +114,7 @@ class Lembure extends Model
             ->rightJoin('detail_lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
             ->leftJoin('karyawan_posisi', 'lemburs.issued_by', 'karyawan_posisi.karyawan_id')
             ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi');
-        
+
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
             $data->where(function ($query) use ($search) {
@@ -138,11 +138,11 @@ class Lembure extends Model
             if(auth()->user()->hasRole('personalia')){
                 if(isset($dataFilter['status'])){
                     $data->whereIn('lemburs.status', $dataFilter['status']);
-                } 
+                }
 
                 if(isset($dataFilter['departemen'])){
                     $data->where('departemens.id_departemen', $dataFilter['departemen']);
-                } 
+                }
 
                 if(isset($dataFilter['urutan'])){
                     if($dataFilter['urutan'] == 'NO'){
@@ -271,5 +271,125 @@ class Lembure extends Model
     public static function countData($dataFilter)
     {
         return self::_query($dataFilter)->get()->count();
+    }
+
+    public static function isPastLembur($dataFilter)
+    {
+        $data = self::select(
+            'lemburs.id_lembur',
+            )
+            ->leftJoin('karyawans', 'lemburs.issued_by', 'karyawans.id_karyawan')
+            ->leftJoin('organisasis', 'lemburs.organisasi_id', 'organisasis.id_organisasi')
+            ->leftJoin('departemens', 'lemburs.departemen_id', 'departemens.id_departemen')
+            ->leftJoin('divisis', 'lemburs.divisi_id', 'divisis.id_divisi')
+            ->rightJoin('detail_lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
+            ->leftJoin('karyawan_posisi', 'lemburs.issued_by', 'karyawan_posisi.karyawan_id')
+            ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi');
+
+        if (isset($dataFilter['batasApprovalLembur'])) {
+            $data->where('detail_lemburs.rencana_mulai_lembur', '<', $dataFilter['batasApprovalLembur']);
+        }
+
+        if(isset($dataFilter['organisasi_id'])){
+            $data->where('detail_lemburs.organisasi_id', $dataFilter['organisasi_id']);
+            if(auth()->user()->hasRole('personalia')){
+                if(isset($dataFilter['status'])){
+                    $data->whereIn('lemburs.status', $dataFilter['status']);
+                }
+
+                if(isset($dataFilter['departemen'])){
+                    $data->where('departemens.id_departemen', $dataFilter['departemen']);
+                }
+
+                if(isset($dataFilter['urutan'])){
+                    if($dataFilter['urutan'] == 'NO'){
+                        $data->orderBy('lemburs.issued_date', 'DESC');
+                    } else {
+                        $data->orderBy('lemburs.issued_date', 'ASC');
+                    }
+                } else {
+                    $data->orderByRaw("((lemburs.status = 'WAITING') AND (lemburs.plan_approved_by IS NOT NULL AND lemburs.plan_legalized_by IS NULL AND lemburs.plan_reviewed_by IS NOT NULL)) OR ((lemburs.status = 'COMPLETED') AND (lemburs.actual_approved_by IS NOT NULL AND lemburs.actual_legalized_by IS NULL AND lemburs.actual_reviewed_by IS NOT NULL)) DESC");
+                    $data->orderByRaw("lemburs.status = 'REJECTED' ASC");
+                }
+            } else {
+                if(isset($dataFilter['divisi_id'])){
+                    $data->whereIn('detail_lemburs.divisi_id', $dataFilter['divisi_id']);
+                }
+
+                $data->where(function ($query) {
+                    $query->where(function ($query) {
+                        $query->where('lemburs.status','WAITING');
+                        $query->whereNotNull('lemburs.plan_checked_by');
+                        $query->whereNull('lemburs.plan_approved_by');
+                    });
+                });
+                $data->orderByRaw("(lemburs.status = 'WAITING' AND lemburs.plan_approved_by IS NULL AND lemburs.plan_checked_by IS NOT NULL) OR (lemburs.status = 'WAITING' AND lemburs.plan_approved_by IS NOT NULL) DESC");
+                $data->orderByRaw("lemburs.status = 'COMPLETED' AND lemburs.actual_approved_by IS NULL DESC");
+            }
+        }
+
+        if (isset($dataFilter['is_div_head'])) {
+            $data->whereIn('posisis.id_posisi', $dataFilter['member_posisi_ids']);
+            $data->where(function ($query) {
+                $query->where(function ($query) {
+                    $query->where('lemburs.status','WAITING');
+                    $query->whereNotNull('lemburs.plan_checked_by');
+                    $query->whereNull('lemburs.plan_approved_by');
+                });
+            });
+            $data->orderByRaw("(lemburs.status = 'WAITING' AND lemburs.plan_approved_by IS NULL AND lemburs.plan_checked_by IS NOT NULL) OR (lemburs.status = 'WAITING' AND lemburs.plan_approved_by IS NOT NULL) DESC");
+            $data->orderByRaw("lemburs.status = 'COMPLETED' AND lemburs.actual_approved_by IS NULL DESC");
+        } else {
+            if (isset($dataFilter['member_posisi_ids'])) {
+                $data->whereIn('posisis.id_posisi', $dataFilter['member_posisi_ids']);
+                if($dataFilter['mustChecked'] == 'true'){
+                    $data->whereNull('lemburs.plan_checked_by');
+                } else {
+                    if(isset($dataFilter['status'])){
+                        $data->whereIn('lemburs.status', $dataFilter['status']);
+                    } else {
+                        $data->orderByRaw("(lemburs.status = 'WAITING' AND lemburs.plan_checked_by IS NULL) OR (lemburs.status = 'WAITING' AND lemburs.plan_checked_by IS NOT NULL) DESC");
+                        $data->orderByRaw("lemburs.status = 'COMPLETED' AND lemburs.actual_checked_by IS NULL DESC");
+                        $data->orderByRaw("lemburs.status = 'REJECTED' ASC");
+                    }
+                }
+            }
+        }
+
+        $data->groupBy(
+            'lemburs.id_lembur',
+            'lemburs.organisasi_id',
+            'lemburs.departemen_id',
+            'lemburs.divisi_id',
+            'lemburs.plan_checked_by',
+            'lemburs.plan_checked_at',
+            'lemburs.plan_approved_by',
+            'lemburs.plan_approved_at',
+            'lemburs.plan_reviewed_by',
+            'lemburs.plan_reviewed_at',
+            'lemburs.plan_legalized_by',
+            'lemburs.plan_legalized_at',
+            'lemburs.actual_checked_by',
+            'lemburs.actual_checked_at',
+            'lemburs.actual_approved_by',
+            'lemburs.actual_approved_at',
+            'lemburs.actual_reviewed_by',
+            'lemburs.actual_reviewed_at',
+            'lemburs.actual_legalized_by',
+            'lemburs.actual_legalized_at',
+            'lemburs.total_durasi',
+            'lemburs.status',
+            'lemburs.attachment',
+            'lemburs.issued_date',
+            'lemburs.issued_by',
+            'lemburs.jenis_hari',
+            'organisasis.nama',
+            'departemens.nama',
+            'divisis.nama',
+            'karyawans.nama'
+        );
+
+        $result = $data;
+        return $result->get();
     }
 }
