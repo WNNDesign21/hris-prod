@@ -383,6 +383,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::patch('/approval-lembur/approved-aktual/{idLembur}', [LembureController::class, 'approved_aktual'])->name('lembure.approval-lembur.approved-aktual');
             Route::patch('/approval-lembur/legalized-aktual/{idLembur}', [LembureController::class, 'legalized_aktual'])->name('lembure.approval-lembur.legalized-aktual');
             Route::post('/approval-lembur/get-list-data-cross-check', [LembureController::class, 'get_list_data_cross_check']);
+            Route::get('/approval-lembur/reject-ispast-lembur', [LembureController::class, 'reject_ispast_lembur'])->name('lembure.approval-lembur.reject-ispast-lembur');
 
             Route::get('/review-lembur', [LembureController::class, 'review_lembur_view'])->name('lembure.review-lembur');
             Route::post('/review-lembur-datatable', [LembureController::class, 'review_lembur_datatable']);

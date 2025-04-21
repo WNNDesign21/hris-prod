@@ -2178,6 +2178,7 @@ class LembureController extends Controller
     public function update_setting_lembur(Request $request)
     {
         $dataValidate = [
+            'batas_approval_lembur' => ['required', 'date_format:H:i'],
             'batas_pengajuan_lembur' => ['required', 'date_format:H:i'],
             'pembagi_upah_lembur_harian' => ['required', 'numeric', 'min:1'],
             'uang_makan' => ['required', 'numeric', 'min:0'],
@@ -2204,6 +2205,7 @@ class LembureController extends Controller
         }
 
         $organisasi_id = auth()->user()->organisasi_id;
+        $batas_approval_lembur = $request->batas_approval_lembur;
         $batas_pengajuan_lembur = $request->batas_pengajuan_lembur;
         $pembagi_upah_lembur_harian = $request->pembagi_upah_lembur_harian;
         $uang_makan = $request->uang_makan;
@@ -2232,6 +2234,7 @@ class LembureController extends Controller
             $setting_lembur = SettingLembur::where('organisasi_id', $organisasi_id)->get();
             if($setting_lembur){
                 $settings = [
+                    'batas_approval_lembur' => $batas_approval_lembur,
                     'batas_pengajuan_lembur' => $batas_pengajuan_lembur,
                     'pembagi_upah_lembur_harian' => $pembagi_upah_lembur_harian,
                     'uang_makan' => $uang_makan,
@@ -2760,13 +2763,14 @@ class LembureController extends Controller
         $id_detail_lemburs = $request->id_detail_lembur;
         $keterangan = $request->keterangan;
         $changed_by = auth()->user()->karyawan->nama;
+        $organisasi_id = auth()->user()->organisasi_id;
 
         DB::beginTransaction();
         try{
             $lembur = Lembure::find($id_lembur);
             $detail_lembur = $lembur->detailLembur;
-
             $date = Carbon::parse($mulai_lemburs[0])->format('Y-m-d');
+
             foreach ($mulai_lemburs as $key => $start) {
                 if (Carbon::parse($start)->format('Y-m-d') !== $date) {
                     DB::rollback();
@@ -2775,6 +2779,13 @@ class LembureController extends Controller
             }
 
             if($is_planned == 'N'){
+                $batas_jam_approval_lembur = SettingLembur::where('setting_name', 'batas_approval_lembur')->where('organisasi_id', $organisasi_id)->first() ? SettingLembur::where('setting_name', 'batas_approval_lembur')->where('organisasi_id', $organisasi_id)->first()->value : '16:30';
+                $batas_approval_lembur = Carbon::parse($date . ' ' . $batas_jam_approval_lembur);
+                if ($batas_approval_lembur->isPast()) {
+                    DB::rollback();
+                    return response()->json(['message' => 'Tidak bisa melakukan approval karena sudah melewati batas waktu approval!'], 402);
+                }
+
                 if(!$checked_detail){
                     DB::commit();
                     return response()->json(['message' => 'Minimal ada 1 orang yang di Checked!'], 403);
@@ -2967,6 +2978,13 @@ class LembureController extends Controller
             }
 
             if($is_planned == 'N'){
+                $batas_jam_approval_lembur = SettingLembur::where('setting_name', 'batas_approval_lembur')->where('organisasi_id', $organisasi_id)->first() ? SettingLembur::where('setting_name', 'batas_approval_lembur')->where('organisasi_id', $organisasi_id)->first()->value : '17:00';
+                $batas_approval_lembur = Carbon::parse($date . ' ' . $batas_jam_approval_lembur);
+                if ($batas_approval_lembur->isPast()) {
+                    DB::rollback();
+                    return response()->json(['message' => 'Tidak bisa melakukan approval karena sudah melewati batas waktu approval!'], 402);
+                }
+
                 if(!$approved_detail){
                     DB::commit();
                     return response()->json(['message' => 'Minimal ada 1 orang yang di Approved!'], 403);
@@ -3461,6 +3479,13 @@ class LembureController extends Controller
 
             foreach ($datas_array as $data) {
                 $data_array = explode('|', $data);
+                $batas_jam_approval_lembur = SettingLembur::where('setting_name', 'batas_approval_lembur')->where('organisasi_id', $data_array[3])->first() ? SettingLembur::where('setting_name', 'batas_approval_lembur')->where('organisasi_id', $data_array[3])->first()->value : '16:30';
+                $batas_approval_lembur = Carbon::parse($data_array[0] . ' ' . $batas_jam_approval_lembur);
+                if ($batas_approval_lembur->isPast()) {
+                    DB::rollback();
+                    return response()->json(['message' => 'Tidak bisa melakukan review karena sudah melewati batas waktu review!'], 402);
+                }
+
                 $lembur = Lembure::selectRaw('*')->leftJoin('detail_lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
                          ->whereDate('detail_lemburs.rencana_mulai_lembur', $data_array[0]);
 
@@ -4549,6 +4574,76 @@ class LembureController extends Controller
                     })->get();
             };
             return response()->json(['message' => 'Data Detail Lembur Berhasil didapatkan!', 'data' => $data]);
+        } catch (Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function reject_ispast_lembur()
+    {
+        try {
+            $organisasi_id = auth()->user()->organisasi_id;
+            $date = Carbon::now()->format('Y-m-d');
+            $batas_jam_approval_lembur = SettingLembur::where('setting_name', 'batas_approval_lembur')->where('organisasi_id', $organisasi_id)->first() ? SettingLembur::where('setting_name', 'batas_approval_lembur')->where('organisasi_id', $organisasi_id)->first()->value : '16:30';
+            $batas_approval_lembur = Carbon::parse($date . ' ' . $batas_jam_approval_lembur);
+
+            $organisasi_id = auth()->user()->organisasi_id;
+            $posisi = auth()->user()?->karyawan?->posisi;
+            $mustRejectLembur = [];
+            if (!auth()->user()->hasRole('personalia')) {
+                if (auth()->user()->karyawan->posisi[0]->jabatan_id == 4 || auth()->user()->karyawan->posisi[0]->jabatan_id == 3){
+                    $member_posisi_ids = $this->get_member_posisi($posisi);
+                    $dataFilter['member_posisi_ids'] = $member_posisi_ids;
+                    $is_has_department_head = $this->has_department_head($posisi);
+                }  elseif (auth()->user()->karyawan->posisi[0]->jabatan_id == 2){
+                    // JIKA PLANT HEAD
+                    if (auth()->user()->karyawan->posisi[0]->divisi_id == 3) {
+                        $posisis_has_div_head = Posisi::where('jabatan_id', 2)
+                            ->whereHas('karyawan')
+                            ->whereNot('divisi_id', 3)
+                            ->where(function ($query) {
+                                $query->whereNull('organisasi_id')
+                                    ->orWhere('organisasi_id', auth()->user()->organisasi_id);
+                            })
+                            ->distinct()
+                            ->pluck('divisi_id')
+                            ->toArray();
+                        $divisis = Divisi::whereNotIn('id_divisi', $posisis_has_div_head)->pluck('id_divisi');
+                        $dataFilter['divisi_id'] = $divisis;
+                        $dataFilter['organisasi_id'] = $organisasi_id;
+                    // JIKA NON PLANT HEAD
+                    } else {
+                        $member_posisi_ids = $this->get_member_posisi($posisi);
+                        $dataFilter['member_posisi_ids'] = $member_posisi_ids;
+                        $dataFilter['is_div_head'] = true;
+                    }
+                }
+                $dataFilter['mustChecked'] = true;
+                $dataFilter['batasApprovalLembur'] = $batas_approval_lembur;
+                $mustRejectLembur = Lembure::isPastLembur($dataFilter);
+            }
+
+            if ($mustRejectLembur->isNotEmpty()) {
+                DB::beginTransaction();
+                foreach ($mustRejectLembur as $lembur) {
+                    $lembur->update([
+                        'status' => 'REJECTED',
+                        'rejected_at' => now(),
+                        'rejected_note' => 'MELEWATI BATAS WAKTU APPROVAL',
+                        'rejected_by' => 'SYSTEM',
+                    ]);
+
+                    $lembur->detailLembur()->update([
+                        'is_rencana_approved' => 'N',
+                        'is_aktual_approved' => 'N',
+                    ]);
+                }
+                dd($mustRejectLembur);
+                DB::commit();
+                return response()->json(['message' => 'Berhasil Reject Lembur yang Melewati Batas Waktu Approval', 'count' => $mustRejectLembur->count()], 200);
+            } else {
+                return response()->json(['message' => 'Tidak ada lembur yang harus di reject', 'count' => 0], 200);
+            }
         } catch (Throwable $e) {
             return response()->json(['message' => $e->getMessage()], 500);
         }
