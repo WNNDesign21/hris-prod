@@ -2781,10 +2781,10 @@ class LembureController extends Controller
             if($is_planned == 'N'){
                 $batas_jam_approval_lembur = SettingLembur::where('setting_name', 'batas_approval_lembur')->where('organisasi_id', $organisasi_id)->first() ? SettingLembur::where('setting_name', 'batas_approval_lembur')->where('organisasi_id', $organisasi_id)->first()->value : '16:30';
                 $batas_approval_lembur = Carbon::parse($date . ' ' . $batas_jam_approval_lembur);
-                if ($batas_approval_lembur->isPast()) {
-                    DB::rollback();
-                    return response()->json(['message' => 'Tidak bisa melakukan approval karena sudah melewati batas waktu approval!'], 402);
-                }
+                // if ($batas_approval_lembur->isPast()) {
+                //     DB::rollback();
+                //     return response()->json(['message' => 'Tidak bisa melakukan approval karena sudah melewati batas waktu approval!'], 402);
+                // }
 
                 if(!$checked_detail){
                     DB::commit();
@@ -2980,10 +2980,10 @@ class LembureController extends Controller
             if($is_planned == 'N'){
                 $batas_jam_approval_lembur = SettingLembur::where('setting_name', 'batas_approval_lembur')->where('organisasi_id', $organisasi_id)->first() ? SettingLembur::where('setting_name', 'batas_approval_lembur')->where('organisasi_id', $organisasi_id)->first()->value : '17:00';
                 $batas_approval_lembur = Carbon::parse($date . ' ' . $batas_jam_approval_lembur);
-                if ($batas_approval_lembur->isPast()) {
-                    DB::rollback();
-                    return response()->json(['message' => 'Tidak bisa melakukan approval karena sudah melewati batas waktu approval!'], 402);
-                }
+                // if ($batas_approval_lembur->isPast()) {
+                //     DB::rollback();
+                //     return response()->json(['message' => 'Tidak bisa melakukan approval karena sudah melewati batas waktu approval!'], 402);
+                // }
 
                 if(!$approved_detail){
                     DB::commit();
@@ -3481,10 +3481,10 @@ class LembureController extends Controller
                 $data_array = explode('|', $data);
                 $batas_jam_approval_lembur = SettingLembur::where('setting_name', 'batas_approval_lembur')->where('organisasi_id', $data_array[3])->first() ? SettingLembur::where('setting_name', 'batas_approval_lembur')->where('organisasi_id', $data_array[3])->first()->value : '16:30';
                 $batas_approval_lembur = Carbon::parse($data_array[0] . ' ' . $batas_jam_approval_lembur);
-                if ($batas_approval_lembur->isPast()) {
-                    DB::rollback();
-                    return response()->json(['message' => 'Tidak bisa melakukan review karena sudah melewati batas waktu review!'], 402);
-                }
+                // if ($batas_approval_lembur->isPast()) {
+                //     DB::rollback();
+                //     return response()->json(['message' => 'Tidak bisa melakukan review karena sudah melewati batas waktu review!'], 402);
+                // }
 
                 $lembur = Lembure::selectRaw('*')->leftJoin('detail_lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
                          ->whereDate('detail_lemburs.rencana_mulai_lembur', $data_array[0]);
