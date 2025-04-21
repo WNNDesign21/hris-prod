@@ -30,14 +30,38 @@
                         <div class="row">
                             <div class="col-lg-3 col-12 p-4">
                                 <h4>Batas Approval Lembur <span class="text-danger">*</span></h4>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="onoff_batas_approval_lembur"
+                                        id="onoff_batas_approval_lembur" value="Y"
+                                        {{ $setting_lembur['onoff_batas_approval_lembur'] == 'Y' ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="onoff_batas_approval_lembur">Aktifkan</label>
+                                </div>
+                            </div>
+                        </div>
+                        {{-- JAM BATAS APPROVAL LEMBUR --}}
+                        <div class="row">
+                            <div class="col-lg-3 col-12 p-4">
+                                <h4>Jam Batas Approval Lembur <span class="text-danger">*</span></h4>
                                 <input type="time" class="form-control" name="batas_approval_lembur"
                                     id="batas_approval_lembur" value="{{ $setting_lembur['batas_approval_lembur'] }}">
                             </div>
                         </div>
-                        {{-- BATAS PENGAJUAN LEMBUR --}}
+                        {{-- BATAS APPROVAL LEMBUR --}}
                         <div class="row">
                             <div class="col-lg-3 col-12 p-4">
                                 <h4>Batas Pengajuan Lembur <span class="text-danger">*</span></h4>
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="onoff_batas_pengajuan_lembur"
+                                        id="onoff_batas_pengajuan_lembur" value="Y"
+                                        {{ $setting_lembur['onoff_batas_pengajuan_lembur'] == 'Y' ? 'checked' : '' }}>
+                                    <label class="form-check-label" for="onoff_batas_pengajuan_lembur">Aktifkan</label>
+                                </div>
+                            </div>
+                        </div>
+                        {{-- JAM BATAS PENGAJUAN LEMBUR --}}
+                        <div class="row">
+                            <div class="col-lg-3 col-12 p-4">
+                                <h4>Jam Batas Pengajuan Lembur <span class="text-danger">*</span></h4>
                                 <input type="time" class="form-control" name="batas_pengajuan_lembur"
                                     id="batas_pengajuan_lembur" value="{{ $setting_lembur['batas_pengajuan_lembur'] }}">
                             </div>

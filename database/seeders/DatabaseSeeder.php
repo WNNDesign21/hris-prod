@@ -49,6 +49,7 @@ class DatabaseSeeder extends Seeder
             SettingLemburKaryawanSeeder::class,
             BatasLemburSeeder::class,
             BatasApprovalLemburSeeder::class,
+            OnOffSettingBatasLembur::class,
         ]);
     }
 }
