@@ -2963,6 +2963,7 @@ class LembureController extends Controller
         $id_detail_lemburs = $request->id_detail_lembur;
         $keterangan = $request->keterangan;
         $changed_by = auth()->user()->karyawan->nama;
+        $organisasi_id = auth()->user()->organisasi_id;
 
         DB::beginTransaction();
         try{
