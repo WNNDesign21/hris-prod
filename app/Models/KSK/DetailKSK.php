@@ -12,6 +12,7 @@ use App\Models\Departemen;
 use App\Models\Organisasi;
 use App\Models\KSK\Cleareance;
 use App\Models\KSK\ChangeHistoryKSK;
+use App\Models\KSK\AttachmentKSKDetail;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -97,6 +98,11 @@ class DetailKSK extends Model
     public function changeHistoryKSK()
     {
         return $this->hasMany(ChangeHistoryKSK::class, 'ksk_detail_id', 'id_ksk_detail');
+    }
+
+    public function attachments()
+    {
+        return $this->hasMany(AttachmentKSKDetail::class, 'ksk_detail_id', 'id_ksk_detail');
     }
 
     private static function _query($dataFilter)

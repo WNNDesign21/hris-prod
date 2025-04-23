@@ -403,6 +403,7 @@ $(function () {
                 onClickUpdate();
                 onChangeStatusKsk();
                 onSubmitApproval(idKsk);
+                onChangeAttachment();
 
             },
             error: function(jqXHR, textStatus, errorThrown){
@@ -451,4 +452,67 @@ $(function () {
             }
         }
     });
+
+    function onChangeAttachment(){
+        $('#attachment').on("change", function () {
+            loadingSwalShow();
+            let idKSKDetail = $(this).data('id-ksk-detail');
+            compressAndDisplayImageSave(this, idKSKDetail);
+        });
+    }
+
+    function compressAndDisplayImageSave(input, idKSKDetail) {
+        if (input.files && input.files[0]) {
+          var reader = new FileReader();
+
+          reader.onload = function (e) {
+            var image = new Image();
+            let formData = new FormData();
+            formData.append('ksk_detail_id', idKSKDetail);
+            formData.append('attachment', input.files[0]);
+            let url = base_url + '/ksk/approval/store-attachment';
+
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: formData,
+                contentType: false,
+                processData: false,
+                dataType: "JSON",
+                success: function (data) {
+                    showToast({ title: data.message });
+                    getPreviewAttachment(idKSKDetail);
+                    $('#attachment').val('');
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                }
+            });
+
+            image.src = e.target.result;
+          };
+
+          reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function getPreviewAttachment(idKSKDetail){
+        let url = base_url + '/ksk/ajax/approval/get-attachments-detail-ksk/' + idKSKDetail;
+        $.ajax({
+            url: url,
+            method: "GET",
+            dataType: "JSON",
+            success: function (response) {
+                let html = response.html;
+                $('#previewAttachments').empty().html(html);
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        });
+    }
+
+    $('.btnReload').on('click', function(){
+        refreshTable();
+    })
 });

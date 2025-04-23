@@ -592,11 +592,13 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
             Route::patch('/approval/update-detail-ksk/{idDetailKsk}', [KSKApprovalController::class, 'update_detail_ksk'])->name('ksk.approval.update-detail-ksk');
             Route::patch('/approval/approve/{idKSK}', [KSKApprovalController::class, 'approve'])->name('ksk.approval.approve');
             Route::patch('/approval/legalize/{idKSK}', [KSKApprovalController::class, 'legalize'])->name('ksk.approval.legalize')->middleware('role:personalia');
+            Route::post('/approval/store-attachment', [KSKApprovalController::class, 'store_attachment'])->name('ksk.approval.store-attachment');
         });
 
         Route::group(['prefix' => 'ajax'], function () {
             Route::get('/approval/get-ksk/{idKSK}', [KSKAjaxController::class, 'get_approval_ksk']);
             Route::get('/approval/get-detail-ksk/{idKSK}', [KSKAjaxController::class, 'get_detail_ksk_approval']);
+            Route::get('/approval/get-attachments-detail-ksk/{idDetailKsk}', [KSKAjaxController::class, 'get_attachments_detail_ksk']);
         });
 
         Route::group(['prefix' => 'cleareance'], function () {

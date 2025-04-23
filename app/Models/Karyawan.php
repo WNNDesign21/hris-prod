@@ -451,7 +451,7 @@ class Karyawan extends Model
                             SELECT 1
                             FROM ksk
                             WHERE ksk.divisi_id = divisis.id_divisi
-                                AND ksk.departemen_id = departemens.id_departemen
+                                AND (ksk.departemen_id = departemens.id_departemen OR ksk.departemen_id IS NULL)
                                 AND EXTRACT(YEAR FROM ksk.release_date) = EXTRACT(YEAR FROM karyawans.tanggal_selesai)
                                 AND EXTRACT(MONTH FROM ksk.release_date) = EXTRACT(MONTH FROM karyawans.tanggal_selesai) - 1
                                 AND ksk.parent_id = posisis.parent_id
@@ -466,7 +466,7 @@ class Karyawan extends Model
         ->leftJoin('posisis', 'distinct_karyawan_posisi.posisi_id', 'posisis.id_posisi')
         ->leftJoin('jabatans', 'posisis.jabatan_id', 'jabatans.id_jabatan')
         ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
-        ->leftJoin('divisis', 'departemens.divisi_id', 'divisis.id_divisi')
+        ->leftJoin('divisis', 'posisis.divisi_id', 'divisis.id_divisi')
 
         ->whereMonth('tanggal_selesai', now()->addMonth()->month)
         ->where('karyawans.status_karyawan', 'AT')

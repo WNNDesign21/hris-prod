@@ -5,6 +5,7 @@ namespace App\Http\Controllers\KSK;
 use Throwable;
 use Carbon\Carbon;
 use App\Models\KSK\KSK;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Models\KSK\DetailKSK;
 use Illuminate\Support\Facades\DB;
@@ -354,6 +355,41 @@ class ApprovalController extends Controller
             return response()->json(['message' => 'Detail KSK '.$detail_ksk->nama_karyawan.' berhasil diperbaharui.'], 200);
         } catch (Throwable $e) {
             DB::rollback();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function store_attachment(Request $request)
+    {
+        $dataValidate = [
+            'attachment' => ['mimes:jpeg,jpg,png,pdf', 'max:2048', 'required'],
+            'ksk_detail_id' => ['required', 'exists:ksk_details,id_ksk_detail'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $kskDetail = DetailKSK::find($request->ksk_detail_id);
+        $file = $request->file('attachment');
+
+        DB::beginTransaction();
+        try{
+
+            $fileName = $kskDetail->id_ksk_detail.'-'.Str::random(5).'.'.$file->getClientOriginalExtension();
+            $file_path = $file->storeAs("attachment/ksk", $fileName);
+
+            $kskDetail->attachments()->create([
+                'path' => $file_path
+            ]);
+
+            DB::commit();
+            return response()->json(['message' => 'Attachment Berhasil di Upload!'],200);
+        } catch (Throwable $e){
+            DB::rollBack();
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }
