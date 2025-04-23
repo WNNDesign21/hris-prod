@@ -2307,7 +2307,7 @@ class LembureController extends Controller
 
         DB::beginTransaction();
         try{
-            $gaji_departemen_exist = GajiDepartemen::whereDate('periode', $periode)->exists();
+            $gaji_departemen_exist = GajiDepartemen::whereDate('periode', $periode)->where('organisasi_id', auth()->user()->organisasi_id)->exists();
 
             if($gaji_departemen_exist){
                 DB::rollback();
@@ -2781,11 +2781,11 @@ class LembureController extends Controller
         $id_detail_lemburs = $request->id_detail_lembur;
         $keterangan = $request->keterangan;
         $changed_by = auth()->user()->karyawan->nama;
-        $organisasi_id = auth()->user()->organisasi_id;
 
         DB::beginTransaction();
         try{
             $lembur = Lembure::find($id_lembur);
+            $organisasi_id = $lembur->organisasi_id;
             $detail_lembur = $lembur->detailLembur;
             $date = Carbon::parse($mulai_lemburs[0])->format('Y-m-d');
 
@@ -2985,11 +2985,11 @@ class LembureController extends Controller
         $id_detail_lemburs = $request->id_detail_lembur;
         $keterangan = $request->keterangan;
         $changed_by = auth()->user()->karyawan->nama;
-        $organisasi_id = auth()->user()->organisasi_id;
 
         DB::beginTransaction();
         try{
             $lembur = Lembure::find($id_lembur);
+            $organisasi_id = $lembur->organisasi_id;
             $detail_lembur = $lembur->detailLembur;
 
             $date = Carbon::parse($mulai_lemburs[0])->format('Y-m-d');

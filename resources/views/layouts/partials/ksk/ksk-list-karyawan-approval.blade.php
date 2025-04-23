@@ -165,6 +165,32 @@
                                 @endrole
                             </div>
                         </div>
+                        <hr>
+                        <div class="col-12 col-lg-12">
+                            <div id="previewAttachments">
+                                @if ($item->attachments)
+                                    @foreach ($item->attachments as $index => $attach)
+                                        <a id="attachmentPreview_{{ $index }}"
+                                            href="{{ asset('storage/' . $attach->path) }}"
+                                            data-title="Attachment Ke-{{ $index }}" target="_blank">
+                                            <img src="{{ asset('img/pdf-img.png') }}" alt="Attachment"
+                                                style="width: 3.5rem;height: 3.5rem;" class="p-0">
+                                        </a>
+                                    @endforeach
+                                @else
+                                    -
+                                @endif
+                            </div>
+                            <div class="form-group">
+                                <small class="text-muted">Attachment</small><br>
+                                @role('atasan')
+                                    <input type="file" name="attachment" id="attachment" class="form-control"
+                                        data-id-ksk-detail="{{ $item->id_ksk_detail }}" accept=".pdf">
+                                    <small class="text-muted mt-1">Last Update :
+                                        {{ $item->changeHistoryKSK->isNotEmpty() ? $item->changeHistoryKSK->sortByDesc('created_at')->first()->changed_by : '-' }}</small>
+                                @endrole
+                            </div>
+                        </div>
                         <div class="col-6 col-lg-6">
                             <small class="text-muted">History Kontrak</small><br>
                         </div>

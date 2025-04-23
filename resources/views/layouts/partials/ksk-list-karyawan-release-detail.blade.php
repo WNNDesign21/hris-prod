@@ -83,7 +83,7 @@
                                 @elseif ($item->status_ksk == 'TTP')
                                     <span class="badge bg-primary">KARYAWAN TETAP</span>
                                 @elseif ($item->status_ksk == 'PHK')
-                                    <span class="badge bg-primary">TIDAK DIPERPANJANG</span>
+                                    <span class="badge bg-danger">TIDAK DIPERPANJANG</span>
                                 @else
                                     -
                                 @endif
@@ -92,8 +92,9 @@
                         <div class="col-6 col-lg-3">
                             <div class="form-group">
                                 <small class="text-muted">Tanggal Perjanjian</small><br>
-                                <p>{{ $item->latest_kontrak_tanggal_mulai }} -
-                                    {{ $item->latest_kontrak_tanggal_selesai }}
+                                <p>{{ $item->karyawan->kontrak()->where('status', 'DONE')->orderByDesc('tanggal_mulai')->first()->tanggal_mulai }}
+                                    -
+                                    {{ $item->karyawan->kontrak()->where('status', 'DONE')->orderByDesc('tanggal_selesai')->first()->tanggal_selesai }}
                                 </p>
                             </div>
                         </div>
@@ -103,21 +104,67 @@
                                 <p>{{ $item->durasi_renewal ?? '-' }}</p>
                             </div>
                         </div>
+                        <div class="col-12 col-lg-12">
+                            <div class="form-group">
+                                <small class="text-muted">History Perubahan</small><br>
+                                <div class="row">
+                                    @if ($item->changeHistoryKSK->isNotEmpty())
+                                        @foreach ($item->changeHistoryKSK->sortBy('created_at') as $history)
+                                            <div class="col-6 col-lg-3">
+                                                <p><strong>{{ $history->changed_by }}</strong><br>
+                                                    @if ($history->status_ksk_after == 'PPJ')
+                                                        <span class="badge badge-success">Perpanjang</span>
+                                                    @elseif ($history->status_ksk_after == 'TTP')
+                                                        <span class="badge badge-primary">Karyawan Tetap</span>
+                                                    @elseif ($history->status_ksk_after == 'PHK')
+                                                        <span class="badge badge-danger">PHK</span>
+                                                    @endif
+                                                    <br>
+                                                    {{ $history->durasi_after }} Bulan<br>
+
+                                                    {{ \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $history->created_at)->format('d F Y H:i') }}
+                                                    WIB <br>
+                                                    Alasan : {{ $history->reason }}<br>
+                                                </p>
+                                            </div>
+                                        @endforeach
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="col-12 col-lg-12">
+                            <div class="form-group">
+                                <small class="text-muted">Attachment</small><br>
+                                @if ($item->attachments)
+                                    @foreach ($item->attachments as $index => $attach)
+                                        <a id="attachmentPreview_{{ $index }}"
+                                            href="{{ asset('storage/' . $attach->path) }}"
+                                            data-title="Attachment Ke-{{ $index }}" target="_blank">
+                                            <img src="{{ asset('img/pdf-img.png') }}" alt="Attachment"
+                                                style="width: 3.5rem;height: 3.5rem;" class="p-0">
+                                        </a>
+                                    @endforeach
+                                @else
+                                    -
+                                @endif
+                            </div>
+                        </div>
                         <hr>
                         <div class="col-6 col-lg-6">
                             <small class="text-muted">History Kontrak</small><br>
                         </div>
-                        @php
-                            $no = 1;
-                        @endphp
                         @if ($item->karyawan->kontrak)
+                            @php
+                                $no = $item->karyawan->kontrak->count();
+                            @endphp
                             @foreach ($item->karyawan->kontrak()->where('status', 'DONE')->orderByDesc('tanggal_selesai')->get() as $kontrak)
                                 <div class="col-12">
                                     <div class="row  d-flex">
                                         <div class="col-6 col-lg-3">
                                             <div class="form-group">
                                                 <small class="text-muted">Jenis</small><br>
-                                                <p>{{ $no . '. ' . $kontrak->jenis ?? '-' }}</p>
+                                                <p>{{ $kontrak->jenis . ' ' . $no ?? '-' }}</p>
                                             </div>
                                         </div>
                                         <div class="col-6 col-lg-3">
@@ -143,7 +190,7 @@
                                     </div>
                                 </div>
                                 @php
-                                    $no++;
+                                    $no--;
                                 @endphp
                             @endforeach
                         @endif

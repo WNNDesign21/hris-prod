@@ -13,7 +13,7 @@
                     </div>
                 </a>
             </div>
-            <div class="panel-collapse collapse mt-2 show" id="detail-ksk-content-{{ $i }}"
+            <div class="panel-collapse collapse mt-2" id="detail-ksk-content-{{ $i }}"
                 aria-labelledby="detail-ksk-{{ $i }}" role="tabpanel"
                 data-bs-parent="#detail-ksk-{{ $i }}">
                 <div class="panel-body">
@@ -79,7 +79,9 @@
                                 <label for="awal_{{ $i }}"><small class="text-muted">Tanggal Perjanjian
                                         Awal</small></label>
                                 <input type="date" name="awal" id="awal_{{ $i }}" class="form-control"
-                                    style="width: 100%;" value="{{ $item->latest_kontrak_tanggal_mulai }}" disabled>
+                                    style="width: 100%;"
+                                    value="{{ $item->karyawan->kontrak()->where('status', 'DONE')->orderByDesc('tanggal_mulai')->first()->tanggal_mulai }}"
+                                    disabled>
                                 </input>
                             </div>
                         </div>
@@ -89,7 +91,8 @@
                                         Akhir</small></label>
                                 <input type="date" name="akhir" id="akhir_{{ $i }}"
                                     class="form-control" style="width: 100%;"
-                                    value="{{ $item->latest_kontrak_tanggal_selesai }}" disabled>
+                                    value="{{ $item->karyawan->kontrak()->where('status', 'DONE')->orderByDesc('tanggal_selesai')->first()->tanggal_selesai }}"
+                                    disabled>
                                 </input>
                             </div>
                         </div>
@@ -146,13 +149,31 @@
                             </div>
                         </div>
                         <hr>
+                        <div class="col-12 col-lg-12">
+                            <div class="form-group">
+                                <small class="text-muted">Attachment</small><br>
+                                @if ($item->attachments)
+                                    @foreach ($item->attachments as $index => $attach)
+                                        <a id="attachmentPreview_{{ $index }}"
+                                            href="{{ asset('storage/' . $attach->path) }}"
+                                            data-title="Attachment Ke-{{ $index }}" target="_blank">
+                                            <img src="{{ asset('img/pdf-img.png') }}" alt="Attachment"
+                                                style="width: 3.5rem;height: 3.5rem;" class="p-0">
+                                        </a>
+                                    @endforeach
+                                @else
+                                    -
+                                @endif
+                            </div>
+                        </div>
+                        <hr>
                         <div class="col-6 col-lg-6">
                             <small class="text-muted">History Kontrak</small><br>
                         </div>
-                        @php
-                            $no = 1;
-                        @endphp
                         @if ($item->karyawan->kontrak)
+                            @php
+                                $no = $item->karyawan->kontrak->count();
+                            @endphp
                             @foreach ($item->karyawan->kontrak()->where('status', 'DONE')->orderByDesc('tanggal_selesai')->get() as $kontrak)
                                 <div class="col-12">
                                     <div class="row  d-flex">
@@ -185,7 +206,7 @@
                                     </div>
                                 </div>
                                 @php
-                                    $no++;
+                                    $no--;
                                 @endphp
                             @endforeach
                         @endif

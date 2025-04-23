@@ -43,7 +43,7 @@ class DatabaseSeeder extends Seeder
             DivisiSeeder::class,
             DepartemenSeeder::class,
             SeksiSeeder::class,
-            GrupSeeder::class,
+            // GrupSeeder::class,
             KaryawanSeeder::class,
             SettingLemburSeeder::class,
             SettingLemburKaryawanSeeder::class,
