@@ -22,7 +22,7 @@ class Cleareance extends Model
     protected $table = 'cleareances';
     protected $primaryKey = 'id_cleareance';
     public $incrementing = false;
-    // protected $keyType = 'string';
+    protected $keyType = 'string';
 
     protected $fillable = [
         'id_cleareance',

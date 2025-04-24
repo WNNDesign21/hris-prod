@@ -110,6 +110,7 @@ class DetailKSK extends Model
 
         $data = self::select(
             'ksk_details.*',
+            'ksk_details.jenis_kontrak',
             'karyawans.status_karyawan'
         );
         $data->leftJoin('karyawans', 'karyawans.id_karyawan', 'ksk_details.karyawan_id');
@@ -128,7 +129,7 @@ class DetailKSK extends Model
 
                 // PERPANJANG
                 $query->orWhere(function ($query) {
-                    $query->whereIn('ksk_details.status_ksk', ['PPJ', 'TTP'])
+                    $query->whereIn('ksk_details.status_ksk', ['PPJ','PPJMG','TTP'])
                     ->whereNull('ksk_details.kontrak_id')
                     ->whereNotNull('ksk.legalized_by');
                 });
@@ -145,7 +146,7 @@ class DetailKSK extends Model
 
                 // PERPANJANG
                 $query->orWhere(function ($query) {
-                    $query->whereIn('ksk_details.status_ksk', ['PPJ', 'TTP'])
+                    $query->whereIn('ksk_details.status_ksk', ['PPJ','PPJMG','TTP'])
                     ->whereNotNull('ksk_details.kontrak_id')
                     ->whereNotNull('ksk.legalized_by');
                 });
@@ -188,6 +189,7 @@ class DetailKSK extends Model
     {
         $data = self::select(
             'ksk_details.*',
+            'ksk_details.jenis_kontrak',
             'karyawans.status_karyawan'
         );
         $data->leftJoin('karyawans', 'karyawans.id_karyawan', 'ksk_details.karyawan_id');
@@ -201,13 +203,13 @@ class DetailKSK extends Model
                 $query->where('ksk_details.status_ksk', 'PHK')
                 ->where('karyawans.status_karyawan', 'AT')
                 ->whereNotNull('ksk.legalized_by')
-                ->whereDate('cleareances.tanggal_akhir_bekerja', '>=', now())
+                // ->whereDate('cleareances.tanggal_akhir_bekerja', '>=', now())
                 ->whereNotNull('ksk_details.cleareance_id');
             });
 
             // PERPANJANG
             $query->orWhere(function ($query) {
-                $query->whereIn('ksk_details.status_ksk', ['PPJ', 'TTP'])
+                $query->whereIn('ksk_details.status_ksk', ['PPJ','PPJMG','TTP'])
                 ->whereNull('ksk_details.kontrak_id')
                 ->whereNotNull('ksk.legalized_by');
             });

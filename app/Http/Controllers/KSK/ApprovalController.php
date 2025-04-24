@@ -200,7 +200,7 @@ class ApprovalController extends Controller
             'id_ksk_detail' => ['required', 'array'],
             'id_ksk_detail.*' => ['required', 'numeric', 'exists:ksk_details,id_ksk_detail'],
             'status_ksk' => ['required','array'],
-            'status_ksk.*' => ['required', 'in:PPJ,PHK,TTP'],
+            'status_ksk.*' => ['required', 'in:PPJ,PPJMG,PHK,TTP'],
             'durasi_renewal' => ['required','array'],
             'durasi_renewal.*' => ['required', 'numeric', 'min:0'],
             'reason' => ['array'],
@@ -299,7 +299,7 @@ class ApprovalController extends Controller
     public function update_detail_ksk(Request $request, int $id)
     {
         $dataValidate = [
-            'status_ksk' => ['required', 'in:PPJ,PHK,TTP'],
+            'status_ksk' => ['required', 'in:PPJ,PPJMG,PHK,TTP'],
             'durasi_renewal' => ['required', 'numeric', 'min:0'],
             'reason' => ['nullable', 'string'],
         ];
@@ -320,6 +320,16 @@ class ApprovalController extends Controller
         try {
             $detail_ksk = DetailKSK::find($id);
 
+            if ($status_ksk == 'PPJ') {
+                $jenis_kontrak = 'PKWT';
+            } elseif ($status_ksk == 'PPJMG') {
+                $jenis_kontrak = 'MAGANG';
+            } elseif ($status_ksk == 'TTP') {
+                $jenis_kontrak = 'PKWTT';
+            } else {
+                $jenis_kontrak = 'PHK';
+            }
+
             // Update Change History
             $changeHistoryExists = ChangeHistoryKSK::where('ksk_detail_id', $id)
                 ->where('changed_by_id', $changed_by_id)
@@ -329,6 +339,8 @@ class ApprovalController extends Controller
                 $changeHistory = ChangeHistoryKSK::where('ksk_detail_id', $id)->where('changed_by_id', $changed_by_id)->first();
                 $changeHistory->status_ksk_before = $changeHistory->status_ksk_after;
                 $changeHistory->status_ksk_after = $status_ksk;
+                $changeHistory->jenis_kontrak_before = $changeHistory->jenis_kontrak_after;
+                $changeHistory->jenis_kontrak_after = $jenis_kontrak;
                 $changeHistory->durasi_before = $changeHistory->durasi_after;
                 $changeHistory->durasi_after = $durasi_renewal;
                 $changeHistory->reason = $reason;
@@ -342,11 +354,14 @@ class ApprovalController extends Controller
                     'reason' => $reason,
                     'status_ksk_before' => $status_ksk,
                     'status_ksk_after' => $status_ksk,
+                    'jenis_kontrak_before' => $jenis_kontrak,
+                    'jenis_kontrak_after' => $jenis_kontrak,
                     'durasi_before' => $durasi_renewal,
                     'durasi_after' => $durasi_renewal,
                 ]);
             }
 
+            $detail_ksk->jenis_kontrak = $jenis_kontrak;
             $detail_ksk->status_ksk = $status_ksk;
             $detail_ksk->durasi_renewal = $durasi_renewal;
             $detail_ksk->save();

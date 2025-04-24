@@ -9,6 +9,7 @@ use App\Models\Karyawan;
 use App\Models\ApprovalCuti;
 use App\Models\DetailLembur;
 use Illuminate\Http\Request;
+use App\Models\KSK\Cleareance;
 use Symfony\Component\HttpFoundation\Response;
 
 class NotificationMiddleware
@@ -48,6 +49,7 @@ class NotificationMiddleware
 
             $rejected_cuti = [];
             $agenda_lembur = [];
+            $cleareance = 0;
 
         } elseif ($user->hasRole('atasan')){
             $me = auth()->user()->karyawan;
@@ -118,9 +120,11 @@ class NotificationMiddleware
             ->whereRaw('DATE(rejected_at) <= (rencana_mulai_cuti + INTERVAL \'3 days\')')
             ->get()->toArray();
 
-            $agenda_lembur = DetailLembur::where('karyawan_id', auth()->user()->karyawan->id_karyawan)->whereHas('lembur', function ($query) {
+            $agenda_lembur = DetailLembur::where('karyawan_id', $me->id_karyawan)->whereHas('lembur', function ($query) {
                 $query->whereIn('status', ['WAITING', 'PLANNED']);
             })->orderBy('rencana_mulai_lembur', 'DESC')->get();
+
+            $cleareance = Cleareance::where('karyawan_id', $me->id_karyawan)->where('status', 'N')->count();
 
         } elseif (auth()->user()->hasRole('member')) {
             $me = auth()->user()->karyawan;
@@ -152,6 +156,8 @@ class NotificationMiddleware
             $agenda_lembur = DetailLembur::where('karyawan_id', auth()->user()->karyawan->id_karyawan)->whereHas('lembur', function ($query) {
                 $query->whereIn('status', ['WAITING', 'PLANNED']);
             })->orderBy('rencana_mulai_lembur', 'DESC')->get();
+
+            $cleareance = Cleareance::where('karyawan_id', $me->id_karyawan)->where('status', 'N')->count();
         }
 
         if (!auth()->user()->hasRole('security')) {
@@ -165,6 +171,7 @@ class NotificationMiddleware
                 'count_rejected_cuti' => count($rejected_cuti),
                 'rejected_cuti' => $rejected_cuti,
                 'agenda_lembur' => $agenda_lembur ? $agenda_lembur->count() : 0,
+                'cleareance' => $cleareance,
             ];
         } else {
             $notification = [
@@ -177,6 +184,7 @@ class NotificationMiddleware
                 'count_rejected_cuti' => 0,
                 'rejected_cuti' => [],
                 'agenda_lembur' => 0,
+                'cleareance' => 0,
             ];
         }
         view()->share('notification', $notification);

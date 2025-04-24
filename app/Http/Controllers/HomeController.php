@@ -145,6 +145,7 @@ class HomeController extends Controller
                     Carbon::now()->endOfMonth()->toDateString()
                 ])
                 ->orderBy('rencana_mulai_lembur', 'DESC')
+                ->limit(30)
                 ->get();
             if($agenda_lembur){
                 foreach ($agenda_lembur as $item){
@@ -170,7 +171,7 @@ class HomeController extends Controller
                 }
             }
 
-            $dataKSK = DetailKSK::where('karyawan_id', auth()->user()->karyawan->id_karyawan)
+            $dataKSK = DetailKSK::with(['cleareance', 'kontrak'])->where('karyawan_id', auth()->user()->karyawan->id_karyawan)
             ->where(function ($query) {
                 $query->whereNotNull('cleareance_id')
                 ->orWhereNotNull('kontrak_id');

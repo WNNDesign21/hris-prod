@@ -39,8 +39,8 @@
                         </div>
                         <div class="col-6 col-lg-3">
                             <div class="form-group">
-                                <small class="text-muted">Status</small><br>
-                                <p>{{ $item->jenis_kontrak }}</p>
+                                <small class="text-muted">Kontrak Berjalan</small><br>
+                                <p>{{ $item->karyawan->jenis_kontrak }}</p>
                             </div>
                         </div>
                         <div class="col-6 col-lg-3">
@@ -79,7 +79,9 @@
                             <div class="form-group">
                                 <small class="text-muted">Status KSK</small><br>
                                 @if ($item->status_ksk == 'PPJ')
-                                    <span class="badge bg-success">PERPANJANG</span>
+                                    <span class="badge bg-success">PERPANJANG (PKWT)</span>
+                                @elseif ($item->status_ksk == 'PPJMG')
+                                    <span class="badge bg-success">PERPANJANG (MAGANG)</span>
                                 @elseif ($item->status_ksk == 'TTP')
                                     <span class="badge bg-primary">KARYAWAN TETAP</span>
                                 @elseif ($item->status_ksk == 'PHK')
@@ -113,7 +115,9 @@
                                             <div class="col-6 col-lg-3">
                                                 <p><strong>{{ $history->changed_by }}</strong><br>
                                                     @if ($history->status_ksk_after == 'PPJ')
-                                                        <span class="badge badge-success">Perpanjang</span>
+                                                        <span class="badge badge-success">Perpanjang (PKWT)</span>
+                                                    @elseif ($history->status_ksk_after == 'PPJMG')
+                                                        <span class="badge badge-success">Perpanjang (MAGANG)</span>
                                                     @elseif ($history->status_ksk_after == 'TTP')
                                                         <span class="badge badge-primary">Karyawan Tetap</span>
                                                     @elseif ($history->status_ksk_after == 'PHK')

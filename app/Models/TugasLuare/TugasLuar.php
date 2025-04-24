@@ -20,7 +20,8 @@ class TugasLuar extends Model
     protected $table = 'tugasluars';
     protected $primaryKey = 'id_tugasluar';
     public $incrementing = false;
-    
+    protected $keyType = 'string';
+
     protected $fillable = [
         'id_tugasluar',
         'organisasi_id',
@@ -199,7 +200,7 @@ class TugasLuar extends Model
         }
 
         if (auth()->user()->hasRole('personalia')) {
-            $data->orderByRaw("CASE 
+            $data->orderByRaw("CASE
                 WHEN tugasluars.status = 'WAITING' AND tugasluars.checked_by IS NOT NULL AND tugasluars.legalized_by IS NULL AND tugasluars.rejected_by IS NULL THEN 1
                 WHEN tugasluars.rejected_by IS NOT NULL THEN 3
                 ELSE 2
@@ -208,7 +209,7 @@ class TugasLuar extends Model
 
         if (auth()->user()->hasRole('atasan')) {
             if (!isset($dataFilter['id_karyawan'])) {
-                $data->orderByRaw("CASE 
+                $data->orderByRaw("CASE
                     WHEN tugasluars.status = 'WAITING' AND tugasluars.checked_by IS NULL AND tugasluars.rejected_by IS NULL THEN 1
                     WHEN tugasluars.rejected_by IS NOT NULL THEN 3
                     ELSE 2

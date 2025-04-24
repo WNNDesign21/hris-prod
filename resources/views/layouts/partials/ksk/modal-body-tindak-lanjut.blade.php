@@ -154,7 +154,10 @@
                                     style="width: 100%;" disabled>
                                     <option value="">Pilih Status KSK</option>
                                     <option value="PPJ" {{ $detail_ksk->status_ksk == 'PPJ' ? 'selected' : '' }}>
-                                        PERPANJANG
+                                        PERPANJANG (PKWT)
+                                    </option>
+                                    <option value="PPJMG" {{ $detail_ksk->status_ksk == 'PPJMG' ? 'selected' : '' }}>
+                                        PERPANJANG (MAGANG)
                                     </option>
                                     <option value="PHK" {{ $detail_ksk->status_ksk == 'PHK' ? 'selected' : '' }}>
                                         PHK
@@ -185,7 +188,9 @@
                                     <div class="col-6 col-lg-3">
                                         <p>
                                             @if ($history->status_ksk_after == 'PPJ')
-                                                <span class="badge badge-success">Perpanjang</span>
+                                                <span class="badge badge-success">Perpanjang (PKWT)</span>
+                                            @elseif ($history->status_ksk_after == 'PPJMG')
+                                                <span class="badge badge-success">Perpanjang (MAGANG)</span>
                                             @elseif ($history->status_ksk_after == 'TTP')
                                                 <span class="badge badge-primary">Karyawan Tetap</span>
                                             @elseif ($history->status_ksk_after == 'PHK')
@@ -209,7 +214,7 @@
                 <hr>
                 @if ($detail_ksk->kontrak)
                     <h4 class="box-title">Kontrak Baru</h4>
-                @else
+                @elseif ($detail_ksk->cleareance)
                     <h4 class="box-title">Exit Employee Clearance</h4>
                 @endif
                 <div class="row">
@@ -310,7 +315,7 @@
                                 </p>
                             </div>
                         </div>
-                    @else
+                    @elseif ($detail_ksk->cleareance)
                         <div class="col-6 col-lg-2">
                             <div class="form-group">
                                 <small class="text-muted">ID Clearance</small><br>

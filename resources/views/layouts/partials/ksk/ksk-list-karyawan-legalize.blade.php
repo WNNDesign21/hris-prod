@@ -103,7 +103,10 @@
                                     class="form-control select2" style="width: 100%;" disabled>
                                     <option value="">Pilih Status KSK</option>
                                     <option value="PPJ" {{ $item->status_ksk == 'PPJ' ? 'selected' : '' }}>
-                                        PERPANJANG
+                                        PERPANJANG (PKWT)
+                                    </option>
+                                    <option value="PPJMG" {{ $item->status_ksk == 'PPJMG' ? 'selected' : '' }}>
+                                        PERPANJANG (MAGANG)
                                     </option>
                                     <option value="PHK" {{ $item->status_ksk == 'PHK' ? 'selected' : '' }}>PHK
                                     </option>
@@ -140,7 +143,9 @@
                                             <div class="col-6 col-lg-3">
                                                 <p><strong>{{ $history->changed_by }}</strong><br>
                                                     @if ($history->status_ksk_after == 'PPJ')
-                                                        <span class="badge badge-success">Perpanjang</span>
+                                                        <span class="badge badge-success">Perpanjang (PKWT)</span>
+                                                    @elseif ($history->status_ksk_after == 'PPJMG')
+                                                        <span class="badge badge-success">Perpanjang (MAGANG)</span>
                                                     @elseif ($history->status_ksk_after == 'TTP')
                                                         <span class="badge badge-primary">Karyawan Tetap</span>
                                                     @elseif ($history->status_ksk_after == 'PHK')

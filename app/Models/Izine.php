@@ -15,6 +15,7 @@ class Izine extends Model
     protected $table = 'izins';
     protected $primaryKey = 'id_izin';
     public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         'id_izin',
@@ -97,11 +98,11 @@ class Izine extends Model
             ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
             ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
             ->leftJoin('divisis', 'izins.divisi_id', 'divisis.id_divisi');
-        
+
         if (isset($dataFilter['jenis_izin'])) {
             $data->whereIn('izins.jenis_izin', $dataFilter['jenis_izin']);
         }
-    
+
         if (isset($dataFilter['organisasi_id'])) {
             $data->where('izins.organisasi_id', $dataFilter['organisasi_id']);
         }

@@ -68,21 +68,25 @@ class TindakLanjutController extends Controller
         if (!empty($detailKSK)) {
             foreach ($detailKSK as $data) {
                 $tempat = auth()->user()->organisasi_id == 1 ? 'Purwakarta' : 'Karawang';
-                $jenis_kontrak = $data->status_ksk == 'PPJ' ? $data->karyawan->jenis_kontrak : 'PKWTT';
-                $durasi = $data->status_ksk == 'PPJ' ? $data->durasi_renewal : 0;
+                // $jenis_kontrak = $data->status_ksk == 'PPJ' ? $data->karyawan->jenis_kontrak : 'PKWTT';
+                $jenis_kontrak = $data->jenis_kontrak;
+                $durasi = $data->status_ksk == 'PPJ' || $data->status_ksk == 'PPJMG' ? $data->durasi_renewal : 0;
                 $id_posisi = $data->karyawan->posisi[0]->id_posisi;
                 $nama_posisi = $data->karyawan->posisi[0]->nama;
                 $idKSK = '<a href="javascript:void(0)" class="btnDetail" data-id-ksk-detail="'.$data->id_ksk_detail.'">'.$data->ksk_id.' <i class="fas fa-search"></i></a>';
                 if ($data->status_ksk == 'PHK') {
                     $statusFormatted = '<span class="badge badge-danger">PHK</span>';
-                    if ($data->cleareance->tanggal_akhir_bekerja >= Carbon::now()) {
+                    if ($data->cleareance->tanggal_akhir_bekerja <= Carbon::now()) {
                         $actionFormatted = '<button class="btn btn-sm btn-success btnTurnover" data-karyawan-id="'.$data->karyawan_id.'" data-status-ksk="'.$data->status_ksk.'" data-id-ksk-detail="'.$data->id_ksk_detail.'" data-nama-karyawan="'.$data->nama_karyawan.'" data-tgl-akhir-bekerja="'.$data->karyawan->tanggal_selesai.'"><i class="fas fa-plus"></i> Buat Turnover</button>';
                     } else {
                         // $actionFormatted = '<button class="btn btn-sm btn-success btnTurnover" data-karyawan-id="'.$data->karyawan_id.'" data-status-ksk="'.$data->status_ksk.'" data-id-ksk-detail="'.$data->id_ksk_detail.'" data-nama-karyawan="'.$data->nama_karyawan.'" data-tgl-akhir-bekerja="'.$data->karyawan->tanggal_selesai.'"><i class="fas fa-plus"></i> Buat Turnover</button>';
                         $actionFormatted = 'Turnover Tersedia pada tanggal <strong>'.Carbon::parse($data->cleareance->tanggal_akhir_bekerja)->translatedFormat('d F Y').'</strong>';
                     }
                 } elseif ($data->status_ksk == 'PPJ') {
-                    $statusFormatted = '<span class="badge badge-success">PERPANJANG</span>';
+                    $statusFormatted = '<span class="badge badge-success">PERPANJANG (PKWT)</span>';
+                    $actionFormatted = '<button class="btn btn-sm btn-success btnKontrak" data-karyawan-id="'.$data->karyawan_id.'" data-status-ksk="'.$data->status_ksk.'" data-id-ksk-detail="'.$data->id_ksk_detail.'" data-nama-karyawan="'.$data->nama_karyawan.'" data-tgl-renewal-kontrak="'.$data->tanggal_renewal_kontrak.'" data-tempat="'.$tempat.'" data-jenis-kontrak="'.$jenis_kontrak.'" data-durasi-renewal="'.$durasi.'" data-id-posisi="'.$id_posisi.'" data-nama-posisi="'.$nama_posisi.'"><i class="fas fa-plus"></i> Buat Kontrak</button>';
+                } elseif ($data->status_ksk == 'PPJMG') {
+                    $statusFormatted = '<span class="badge badge-success">PERPANJANG (MAGANG)</span>';
                     $actionFormatted = '<button class="btn btn-sm btn-success btnKontrak" data-karyawan-id="'.$data->karyawan_id.'" data-status-ksk="'.$data->status_ksk.'" data-id-ksk-detail="'.$data->id_ksk_detail.'" data-nama-karyawan="'.$data->nama_karyawan.'" data-tgl-renewal-kontrak="'.$data->tanggal_renewal_kontrak.'" data-tempat="'.$tempat.'" data-jenis-kontrak="'.$jenis_kontrak.'" data-durasi-renewal="'.$durasi.'" data-id-posisi="'.$id_posisi.'" data-nama-posisi="'.$nama_posisi.'"><i class="fas fa-plus"></i> Buat Kontrak</button>';
                 } else {
                     $statusFormatted = '<span class="badge badge-primary">KARYAWAN TETAP</span>';
@@ -94,7 +98,7 @@ class TindakLanjutController extends Controller
                 $nestedData['nama_departemen'] = $data->nama_jabatan;
                 $nestedData['nama_jabatan'] = $data->nama_jabatan;
                 $nestedData['nama_posisi'] = $data->nama_posisi;
-                $nestedData['tanggal_akhir_bekerja'] = Carbon::parse($data->cleareance->tanggal_akhir_bekerja)->translatedFormat('d F Y');
+                $nestedData['tanggal_akhir_bekerja'] = $data->cleareance ? Carbon::parse($data->cleareance->tanggal_akhir_bekerja)->translatedFormat('d F Y') : '-';
                 $nestedData['status'] = $statusFormatted;
                 $nestedData['aksi'] = $actionFormatted;
 
@@ -157,7 +161,9 @@ class TindakLanjutController extends Controller
                 if ($data->status_ksk == 'PHK') {
                     $statusFormatted = '<span class="badge badge-danger">PHK</span>';
                 } elseif ($data->status_ksk == 'PPJ') {
-                    $statusFormatted = '<span class="badge badge-success">PERPANJANG</span>';
+                    $statusFormatted = '<span class="badge badge-success">PERPANJANG (PKWT)</span>';
+                } elseif ($data->status_ksk == 'PPJMG') {
+                    $statusFormatted = '<span class="badge badge-success">PERPANJANG (MAGANG)</span>';
                 } else {
                     $statusFormatted = '<span class="badge badge-primary">KARYAWAN TETAP</span>';
                 }
