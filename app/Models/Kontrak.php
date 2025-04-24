@@ -14,9 +14,10 @@ class Kontrak extends Model
     use HasFactory, SoftDeletes;
 
     protected $table = 'kontraks';
-    
+
     protected $primaryKey = 'id_kontrak';
     public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         'id_kontrak',
@@ -42,7 +43,7 @@ class Kontrak extends Model
         'attachment',
         'evidence'
     ];
-    
+
     protected $dates = [
         'tanggal_mulai',
         'tanggal_selesai',

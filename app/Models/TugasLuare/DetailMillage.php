@@ -13,7 +13,8 @@ class DetailMillage extends Model
     protected $table = 'detail_millages';
     protected $primaryKey = 'id_detail_millage';
     public $incrementing = false;
-    
+    protected $keyType = 'string';
+
     protected $fillable = [
         'id_millage',
         'karyawan_id',

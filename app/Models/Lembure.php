@@ -20,6 +20,7 @@ class Lembure extends Model
     protected $table = 'lemburs';
     protected $primaryKey = 'id_lembur';
     public $incrementing = false;
+    protected $keyType = 'string';
 
     protected $fillable = [
         'id_lembur','organisasi_id','departemen_id','divisi_id','plan_checked_by','plan_checked_at','plan_approved_by',

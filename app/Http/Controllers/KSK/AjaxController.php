@@ -100,7 +100,7 @@ class AjaxController extends Controller
     public function get_detail_ksk_release(string $id)
     {
         try {
-            $detail_ksk = DetailKSK::where('ksk_id', $id)->get();
+            $detail_ksk = DetailKSK::with(['karyawan','changeHistoryKSK', 'karyawan.kontrak'])->where('ksk_id', $id)->get();
             $html = view('layouts.partials.ksk-list-karyawan-release-detail', ['datas' => $detail_ksk])->render();
             return response()->json(['message' => 'success', 'data' => $detail_ksk, 'html' => $html], 200);
         } catch (Throwable $e) {
@@ -111,7 +111,7 @@ class AjaxController extends Controller
     public function get_detail_ksk_tindak_lanjut(string $id)
     {
         try {
-            $detail_ksk = DetailKSK::with(['ksk', 'changeHistoryKSK'])->find($id);
+            $detail_ksk = DetailKSK::with(['ksk', 'changeHistoryKSK', 'kontrak', 'cleareance'])->find($id);
             $html = view('layouts.partials.ksk.modal-body-tindak-lanjut', ['detail_ksk' => $detail_ksk])->render();
             return response()->json(['message' => 'success', 'data' => $detail_ksk, 'html' => $html], 200);
         } catch (Throwable $e) {
@@ -152,7 +152,7 @@ class AjaxController extends Controller
     public function get_approval_ksk(string $id)
     {
         try {
-            $ksk = KSK::find($id);
+            $ksk = KSK::with(['detailKSK', 'changeHistoryKSK', 'detailKSK.karyawan', 'detailKSK.karyawan.kontrak'])->find($id);
             $html = view('layouts.partials.ksk.modal-body-approval', ['ksk' => $ksk])->render();
             return response()->json(['message' => 'success', 'html' => $html], 200);
         } catch (Throwable $e) {
@@ -163,7 +163,7 @@ class AjaxController extends Controller
     public function get_detail_ksk_approval(string $id)
     {
         try {
-            $ksk = KSK::find($id);
+            $ksk = KSK::with(['detailKSK', 'changeHistoryKSK', 'detailKSK.karyawan', 'detailKSK.karyawan.kontrak'])->find($id);
             $html = view('layouts.partials.ksk.modal-body-detail-approval', ['ksk' => $ksk])->render();
             return response()->json(['message' => 'success', 'html' => $html], 200);
         } catch (Throwable $e) {

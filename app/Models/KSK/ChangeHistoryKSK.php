@@ -23,6 +23,8 @@ class ChangeHistoryKSK extends Model
         'reason',
         'status_ksk_before',
         'status_ksk_after',
+        'jenis_kontrak_before',
+        'jenis_kontrak_after',
         'durasi_before',
         'durasi_after',
     ];

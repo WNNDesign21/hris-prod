@@ -10,11 +10,11 @@
             <!-- logo-->
             <div class="logo-lg">
                 @if (auth()->user()->hasRole('personalia'))
-                    <span class="light-logo">PERSONALIA</span>
-                    <span class="dark-logo">PERSONALIA</span>
+                    <span class="light-logo">PERSONALIA ({{ auth()->user()->organisasi->nama }})</span>
+                    <span class="dark-logo">PERSONALIA ({{ auth()->user()->organisasi->nama }})</span>
                 @elseif (auth()->user()->hasRole('security'))
-                    <span class="light-logo">SECURITY</span>
-                    <span class="dark-logo">SECURITY</span>
+                    <span class="light-logo">SECURITY ({{ auth()->user()->organisasi->nama }})</span>
+                    <span class="dark-logo">SECURITY ({{ auth()->user()->organisasi->nama }})</span>
                 @else
                     <span class="light-logo">Hai, {{ auth()->user()->karyawan?->nama }}</span>
                     <span class="dark-logo">Hai, {{ auth()->user()->karyawan?->nama }}</span>

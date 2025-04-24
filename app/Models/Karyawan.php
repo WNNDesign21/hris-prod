@@ -26,6 +26,8 @@ class Karyawan extends Model
 
     protected $primaryKey = 'id_karyawan';
     public $incrementing = false;
+    // use string keys for primary key
+    protected $keyType = 'string';
 
     protected $fillable = [
         'id_karyawan',

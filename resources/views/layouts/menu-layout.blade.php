@@ -27,7 +27,7 @@
         <nav class="navbar m-0 navbar-static-top">
             <div class="app-menu">
                 <h4 class="mb-0 text-primary"><i class="ti-user"></i>
-                    {{ auth()->user()->hasAnyRole(['atasan', 'member'])? auth()->user()->karyawan->nama: (auth()->user()->hasRole('personalia')? 'PERSONALIA': 'SECURITY') }}
+                    {{ auth()->user()->hasAnyRole(['atasan', 'member'])? auth()->user()->karyawan->nama: (auth()->user()->hasRole('personalia')? 'PERSONALIA (' . auth()->user()->organisasi->nama . ')': 'SECURITY (' . auth()->user()->organisasi->nama . ')') }}
                 </h4>
             </div>
             <div class="navbar-custom-menu r-side">
@@ -59,8 +59,17 @@
                                             class="ti-write text-muted me-2"></i>
                                         Kontrak</a>
                                     <div class="dropdown-divider"></div>
-                                    <a class="dropdown-item btnKSK" href="#"><i class="ti-pencil text-muted me-2"></i>
-                                        KSK</a>
+                                    <a class="dropdown-item btnKSK position-relative" href="#"><i
+                                            class="ti-pencil text-muted me-2"></i>
+                                        KSK
+                                        @if ($notification['cleareance'] > 0)
+                                            <span
+                                                class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                                                style="font-size: 1rem;z-index:2;">
+                                                {{ $notification['cleareance'] }}
+                                            </span>
+                                        @endif
+                                    </a>
                                     <div class="dropdown-divider"></div>
                                     <a class="dropdown-item btnAgendaLembur position-relative" href="#"><i
                                             class="ti-agenda text-muted me-2"></i>

@@ -21,7 +21,9 @@
                                                     <small></h3>
                                             <div>
                                                 @if ($item->status_ksk == 'PPJ')
-                                                    <span class="badge badge-success">Perpanjang</span>
+                                                    <span class="badge badge-success">Perpanjang (PKWT)</span>
+                                                @elseif ($item->status_ksk == 'PPJMG')
+                                                    <span class="badge badge-success">Perpanjang (MAGANG)</span>
                                                 @elseif ($item->status_ksk == 'TTP')
                                                     <span class="badge badge-primary">Karyawan
                                                         Tetap</span>
@@ -154,36 +156,203 @@
                                                         value="{{ $item->durasi_renewal }} Bulan" disabled>
                                                 </div>
                                             </div>
-                                            {{-- <div class="col-12 col-lg-12">
-                                                <div class="form-group">
-                                                    <small class="text-muted">History Perubahan</small><br>
-                                                    <div class="row">
-                                                        @if ($item->changeHistoryKSK->isNotEmpty())
-                                                            @foreach ($item->changeHistoryKSK->sortBy('created_at') as $history)
-                                                                <div class="col-6 col-lg-3">
-                                                                    <p><strong>{{ $history->changed_by }}</strong><br>
-                                                                        @if ($history->status_ksk_after == 'PPJ')
-                                                                            <span
-                                                                                class="badge badge-success">Perpanjang</span>
-                                                                        @elseif ($history->status_ksk_after == 'TTP')
-                                                                            <span class="badge badge-primary">Karyawan
-                                                                                Tetap</span>
-                                                                        @elseif ($history->status_ksk_after == 'PHK')
-                                                                            <span class="badge badge-danger">PHK</span>
-                                                                        @endif
-                                                                        <br>
-                                                                        {{ $history->durasi_after }} Bulan<br>
-
-                                                                        {{ \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $history->created_at)->format('d F Y H:i') }}
-                                                                        WIB <br>
-                                                                        Alasan : {{ $history->reason }}<br>
-                                                                    </p>
-                                                                </div>
-                                                            @endforeach
-                                                        @endif
+                                            <hr>
+                                            @if ($item->kontrak)
+                                                <h4 class="box-title">Kontrak Baru</h4>
+                                            @elseif ($item->cleareance)
+                                                <h4 class="box-title">Exit Employee Clearance</h4>
+                                            @endif
+                                            <div class="row">
+                                                @if ($item->kontrak)
+                                                    <div class="col-6 col-lg-2">
+                                                        <div class="form-group">
+                                                            <small class="text-muted">ID Kontrak</small><br>
+                                                            <p>{{ $item->kontrak->id_kontrak }}</p>
+                                                        </div>
                                                     </div>
-                                                </div>
-                                            </div> --}}
+                                                    <div class="col-6 col-lg-2">
+                                                        <div class="form-group">
+                                                            <small class="text-muted">No Surat</small><br>
+                                                            <p>
+                                                                {{ $item->kontrak->no_surat }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 col-lg-2">
+                                                        <div class="form-group">
+                                                            <small class="text-muted">Tanggal Dibuat</small><br>
+                                                            <p>
+                                                                {{ $item->kontrak->issued_date }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 col-lg-2">
+                                                        <div class="form-group">
+                                                            <small class="text-muted">Posisi</small><br>
+                                                            <p>
+                                                                {{ $item->kontrak->nama_posisi ? $item->kontrak->nama_posisi : $item->kontrak->posisi->nama }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 col-lg-2">
+                                                        <div class="form-group">
+                                                            <small class="text-muted">Tempat Administrasi</small><br>
+                                                            <p>
+                                                                {{ $item->kontrak->tempat_administrasi }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 col-lg-2">
+                                                        <div class="form-group">
+                                                            <small class="text-muted">Jenis Kontrak</small><br>
+                                                            <p>
+                                                                {{ $item->kontrak->jenis }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 col-lg-2">
+                                                        <div class="form-group">
+                                                            <small class="text-muted">Status</small><br>
+                                                            @if ($item->kontrak->status == 'ON PROGRESS')
+                                                                <span
+                                                                    class="badge badge-warning">{{ $item->kontrak->status }}</span>
+                                                            @else
+                                                                <span
+                                                                    class="badge badge-success">{{ $item->kontrak->status }}</span>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 col-lg-2">
+                                                        <div class="form-group">
+                                                            <small class="text-muted">Durasi</small><br>
+                                                            <p>
+                                                                {{ $item->kontrak->durasi }} Bulan
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 col-lg-2">
+                                                        <div class="form-group">
+                                                            <small class="text-muted">Salary</small><br>
+                                                            <p>
+                                                                Rp
+                                                                {{ number_format($item->kontrak->salary, 0, ',', '.') }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 col-lg-2">
+                                                        <div class="form-group">
+                                                            <small class="text-muted">Deskripsi</small><br>
+                                                            <p>
+                                                                {{ $item->kontrak->deskripsi }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 col-lg-2">
+                                                        <div class="form-group">
+                                                            <small class="text-muted">Tanggal Mulai</small><br>
+                                                            <p>
+                                                                {{ \Carbon\Carbon::parse($item->kontrak->tanggal_mulai)->translatedFormat('d F Y') }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 col-lg-2">
+                                                        <div class="form-group">
+                                                            <small class="text-muted">Tanggal Selesai</small><br>
+                                                            <p>
+                                                                {{ \Carbon\Carbon::parse($item->kontrak->tanggal_selesai)->translatedFormat('d F Y') }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                @elseif ($item->cleareance)
+                                                    <div class="col-6 col-lg-2">
+                                                        <div class="form-group">
+                                                            <small class="text-muted">ID Clearance</small><br>
+                                                            <p>
+                                                                {{ $item->cleareance->id_cleareance }}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    @if ($item->cleareance)
+                                                        <div class="col-12">
+                                                            <div class="table-responsive">
+                                                                <table id="detail-cleareance-table"
+                                                                    class="table border-primary b-1 table-bordered"
+                                                                    style="width:100%">
+                                                                    <thead class="bg-primary">
+                                                                        <tr>
+                                                                            <th>Departemen</th>
+                                                                            <th>Deskripsi</th>
+                                                                            <th>Status</th>
+                                                                            <th>Keterangan</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        @foreach ($item->cleareance->cleareanceDetail as $item)
+                                                                            <tr
+                                                                                class="{{ !$item->confirmed_by ? 'bg-danger' : '' }}">
+                                                                                <td style="width: 25%">
+                                                                                    @if ($item->type == 'AL')
+                                                                                        <p><strong>Atasan
+                                                                                                Langsung</strong><br>
+                                                                                        @elseif($item->type == 'IT')
+                                                                                        <p><strong>Dept.IT</strong><br>
+                                                                                        @elseif($item->type == 'FAT')
+                                                                                        <p><strong>Dept.Finance</strong><br>
+                                                                                        @elseif($item->type == 'GA')
+                                                                                        <p><strong>Dept.GA</strong><br>
+                                                                                        @elseif($item->type == 'HR')
+                                                                                        <p><strong>Dept.HR</strong><br>
+                                                                                    @endif
+                                                                                    {{ $item?->karyawan?->nama ?? '-' }}
+                                                                                    </p>
+                                                                                </td>
+                                                                                <td style="width: 25%">
+                                                                                    @if ($item->type == 'AL')
+                                                                                        <p><strong>Deskripsi Atasan
+                                                                                                Langsung</strong></p>
+                                                                                    @elseif($item->type == 'HR')
+                                                                                        <p><strong>Deskripsi HR</strong>
+                                                                                        </p>
+                                                                                    @elseif($item->type == 'IT')
+                                                                                        <p><strong>Deskripsi IT</strong>
+                                                                                        </p>
+                                                                                    @elseif($item->type == 'GA')
+                                                                                        <p><strong>Deskripsi GA</strong>
+                                                                                        </p>
+                                                                                    @elseif($item->type == 'FAT')
+                                                                                        <p><strong>Deskripsi
+                                                                                                FAT</strong></p>
+                                                                                    @endif
+                                                                                </td>
+                                                                                <td style="width: 25%">
+                                                                                    @if ($item->is_clear == 'Y')
+                                                                                        <p>
+                                                                                            ✅{{ $item->confirmed_by }}<br>
+                                                                                            <span>{{ \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $item->confirmed_at)->format('d F Y H:i') }}</span>
+                                                                                        </p>
+                                                                                    @else
+                                                                                        <p>
+                                                                                            @if ($item->confirmed_by)
+                                                                                                ❌{{ $item->confirmed_by }}<br>
+                                                                                                <span>{{ \Carbon\Carbon::createFromFormat('Y-m-d H:i:s', $item->confirmed_at)->format('d F Y H:i') }}</span>
+                                                                                            @else
+                                                                                                <p>⏳ Waiting</p>
+                                                                                            @endif
+                                                                                        </p>
+                                                                                    @endif
+                                                                                </td>
+                                                                                <td style="width: 25%">
+                                                                                    {{ $item->keterangan }}
+                                                                                </td>
+                                                                            </tr>
+                                                                        @endforeach
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    @endif
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

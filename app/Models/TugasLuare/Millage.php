@@ -18,7 +18,8 @@ class Millage extends Model
     protected $table = 'millages';
     protected $primaryKey = 'id_millage';
     public $incrementing = false;
-    
+    protected $keyType = 'string';
+
     protected $fillable = [
         'id_millage',
         'karyawan_id',
