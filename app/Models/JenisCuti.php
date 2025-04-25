@@ -14,7 +14,7 @@ class JenisCuti extends Model
     protected $primaryKey = 'id_jenis_cuti';
 
     protected $fillable = [
-        'jenis', 'durasi', 'isUrgent'
+        'jenis', 'durasi', 'isUrgent', 'isWorkday'
     ];
 
     public static function isUsed()
@@ -29,7 +29,8 @@ class JenisCuti extends Model
             'id_jenis_cuti',
             'jenis',
             'durasi',
-            'isUrgent'
+            'isUrgent',
+            'isWorkday',
         );
 
         if (isset($dataFilter['search'])) {
@@ -37,7 +38,8 @@ class JenisCuti extends Model
             $data->where(function ($query) use ($search) {
                 $query->where('jenis', 'ILIKE', "%{$search}%")
                 ->orWhere('durasi', 'ILIKE', "%{$search}%")
-                ->orWhere('isUrgent', 'ILIKE', "%{$search}%");
+                ->orWhere('isUrgent', 'ILIKE', "%{$search}%")
+                ->orWhere('isWorkday', 'ILIKE', "%{$search}%");
             });
         }
 

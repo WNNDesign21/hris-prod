@@ -9,6 +9,9 @@ use App\Models\Cutie;
 use GuzzleHttp\Client;
 use App\Models\Karyawan;
 use App\Helpers\Approval;
+use App\Models\ResetCuti;
+use App\Jobs\ResetCutiJob;
+use App\Jobs\UpdateCutiJob;
 use App\Models\ApprovalCuti;
 use Illuminate\Http\Request;
 use App\Jobs\UploadKaryawanJob;
@@ -235,7 +238,7 @@ class TestController extends Controller
     {
         $file = $request->file('file_pin');
         $organisasi_id = auth()->user()->organisasi_id;
-        
+
         $validator = Validator::make($request->all(), [
             'file_pin' => 'required|mimes:xlsx,xls'
         ]);
@@ -250,7 +253,7 @@ class TestController extends Controller
             if($request->hasFile('file_pin')){
                 $records = 'PIN_' . time() . '.' . $file->getClientOriginalExtension();
                 $pin_file = $file->storeAs("attachment/upload-pin-karyawan", $records);
-            } 
+            }
 
             if (file_exists(storage_path("app/public/".$pin_file))) {
                 $spreadsheet = IOFactory::load(storage_path("app/public/".$pin_file));
@@ -300,7 +303,7 @@ class TestController extends Controller
 
         try {
             $response = $client->post('https://api.fonnte.com/send', [
-                'form_params' => [ 
+                'form_params' => [
                     'target' => '120363375659726514@g.us,085871262080',
                     'message' => 'TEST NOTIF WA - HRIS KE 2',
                 ],
@@ -314,7 +317,7 @@ class TestController extends Controller
             return response()->json($responseData, $response->getStatusCode());
 
         } catch (Exception $e) {
-            return response()->json(['error' => 'Failed to send message'], 500); 
+            return response()->json(['error' => 'Failed to send message'], 500);
         }
     }
 
@@ -344,7 +347,7 @@ class TestController extends Controller
     {
         $client = new Client();
         $url = env('API_URL_WHATSAPP').env('CLIENT_ID_TCF2').'/start-client';
-        
+
         $headers = [
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',
@@ -368,7 +371,7 @@ class TestController extends Controller
             'password' => 'nevergiveup',
             'name' => 'NOTIFICATION BOT TCF2',
         ];
-        
+
         $headers = [
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',
@@ -393,7 +396,7 @@ class TestController extends Controller
             'name' => 'NOTIFICATION BOT TCF2',
             'phone_number' => '087887736910',
         ];
-        
+
         $headers = [
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',
@@ -466,14 +469,14 @@ class TestController extends Controller
         return $data;
     }
 
-    public function upload_karyawan(Request $request) 
+    public function upload_karyawan(Request $request)
     {
         $dataValidate = [
             'upload' => ['required', 'file', 'mimes:xlsx,xls'],
         ];
-        
+
         $validator = Validator::make(request()->all(), $dataValidate);
-    
+
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
             return response()->json(['message' => $errors], 402);
@@ -551,6 +554,97 @@ class TestController extends Controller
             return response()->json(['message' => 'Berhasil melakukan presensi'], 200);
         } catch (Exception $e) {
             return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function update_status_cuti_all_karyawan()
+    {
+        $today = date('Y-m-d');
+        DB::beginTransaction();
+        try {
+            $mustRejectCuti = Cutie::with('karyawan')->where('status_dokumen', 'WAITING')->whereDate('rencana_mulai_cuti', '<=' , $today)->where(function($query){
+                    $query->where('status_cuti', '!=', 'CANCELED')
+                    ->orWhereNull('status_cuti');
+                })->get();
+
+            $mustOnleaveCuti = Cutie::where('status_cuti', 'SCHEDULED')
+                    ->whereDate('rencana_mulai_cuti', '<=',$today)
+                    ->where('status_dokumen', 'APPROVED')
+                    ->get();
+
+            $mustCompletedCuti = Cutie::where('status_cuti', 'ON LEAVE')
+                ->whereDate('rencana_selesai_cuti', '<=' , $today)
+                ->get();
+
+            // REJECT CUTI
+            if ($mustRejectCuti->isNotEmpty()) {
+                foreach ($mustRejectCuti as $data) {
+                    $data->status_dokumen = 'REJECTED';
+                    $data->rejected_at = now();
+                    $data->rejected_by = 'SYSTEM';
+                    $data->rejected_note = 'Cuti otomatis dibatalkan system karena tidak ada persetujuan dari atasan sampai hari H rencana cuti';
+                    $data->save();
+                    activity('automatic_reject_cuti')->log('Reject Cuti ID -'. $data->id_cuti .' Karyawan ID -'. $data->karyawan_id .' per tanggal -'. $today);
+
+                    $karyawan = $data->karyawan;
+                    if ($data->karyawan) {
+                        if ($data->jenis_cuti == 'PRIBADI') {
+                            if ($data->penggunaan_sisa_cuti == 'TB') {
+                                $total_sisa_cuti_pribadi = $karyawan->sisa_cuti_pribadi + $data->durasi_cuti;
+                                $karyawan->sisa_cuti_pribadi = min($total_sisa_cuti_pribadi, 6);
+                            } else {
+                                $total_sisa_cuti_tahun_lalu = $karyawan->sisa_cuti_tahun_lalu + $data->durasi_cuti;
+                                $karyawan->sisa_cuti_tahun_lalu = min($total_sisa_cuti_tahun_lalu, 6);
+                            }
+                            $karyawan->save();
+                            activity('automatic_reject_cuti')->log('Mengembalikan jatah cuti yang terpakai oleh karyawan ID -'. $data->karyawan_id .' per tanggal -'. $today);
+                        }
+                    }
+                }
+                activity('automatic_reject_cuti')->log('Reject Cuti Karyawan per tanggal -'. $today.' berhasil dilakukan.');
+            } else {
+                activity('automatic_reject_cuti')->log('Tidak ada cuti yang harus di reject per tanggal -'. $today);
+            }
+
+            // ON LEAVE CUTI
+            if ($mustOnleaveCuti->isNotEmpty()) {
+                foreach ($mustOnleaveCuti as $data) {
+                    $data->status_cuti = 'ON LEAVE';
+                    $data->aktual_mulai_cuti = $data->rencana_mulai_cuti;
+                    $data->save();
+                    activity('update_cuti_status_onleave')->log('Update Status Onleave Cuti Otomatis karyawan ID -'. $data->karyawan_id .' per tanggal -'. $today);
+                }
+                activity('update_cuti_status_onleave')->log('Update Status Onleave Cuti Otomatis per tanggal -'. $today.' berhasil dilakukan.');
+            } else {
+                activity('update_cuti_status_onleave')->log('Tidak ada cuti yang harus di update status onleave per tanggal -'. $today);
+            }
+
+            // COMPLETED CUTI
+            if ($mustCompletedCuti->isNotEmpty()) {
+                foreach ($mustCompletedCuti as $data) {
+                    $data->status_cuti = 'COMPLETED';
+                    $data->aktual_selesai_cuti = $data->rencana_selesai_cuti;
+                    $data->save();
+                    activity('update_cuti_status_completed')->log('Update Status Completed Cuti Otomatis karyawan ID -'. $data->karyawan_id .' per tanggal -'. $today);
+                }
+                activity('update_cuti_status_completed')->log('Update Status Completed Cuti Otomatis per tanggal -'. $today.' berhasil dilakukan.');
+            } else {
+                activity('update_cuti_status_completed')->log('Tidak ada cuti yang harus di update status completed per tanggal -'. $today);
+            }
+
+            DB::commit();
+            activity('automatic_update_cuti')->log('Update status cuti otomatis per tanggal -'. $today.' berhasil dilakukan.');
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Update status cuti otomatis per tanggal -'. $today.' berhasil dilakukan.'
+            ], 200);
+        } catch (Exception $e) {
+            DB::rollBack();
+            activity('error_automatic_update_cuti')->log('Gagal update cuti karyawan per tanggal -'. $today. ' Error: '. $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal update cuti karyawan per tanggal -'. $today. ' Error: '. $e->getMessage()
+            ], 500);
         }
     }
 }

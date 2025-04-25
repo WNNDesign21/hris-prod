@@ -40,6 +40,7 @@
                                     <th>Jenis Cuti</th>
                                     <th>Durasi</th>
                                     <th>isUrgent</th>
+                                    <th>isWorkday</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>

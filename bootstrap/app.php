@@ -1,5 +1,7 @@
 <?php
 
+use App\Jobs\ResetCutiJob;
+use App\Jobs\UpdateCutiJob;
 use App\Jobs\RollingShiftGroupJob;
 use Illuminate\Foundation\Application;
 use App\Http\Middleware\IzineMiddleware;
@@ -32,33 +34,12 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withSchedule(function (Schedule $schedule) {
-        $schedule->command('cutie:update-status-completed')
-            ->dailyAt('21:00')
-            ->withoutOverlapping()
-            ->runInBackground()
-            ->onOneServer();
-
-        $schedule->command('cutie:update-status-onleave')
-            ->dailyAt('22:00')
-            ->withoutOverlapping()
-            ->runInBackground()
-            ->onOneServer();
-
-        $schedule->command('cutie:automatic-reject-cuti')
-            ->dailyAt('23:00')
-            ->withoutOverlapping()
-            ->runInBackground()
-            ->onOneServer();
-
-        $schedule->command('cutie:automatic-reset-cuti')
-            ->dailyAt('23:30')
-            ->withoutOverlapping()
-            ->runInBackground()
-            ->onOneServer();
-
-        $schedule->job(new RollingShiftGroupJob)->dailyAt('23:45')
-            ->withoutOverlapping()
-            ->onOneServer();
+        $today = date('Y-m-d');
+        $month = now()->month;
+        $day = now()->day;
+        $schedule->job(new UpdateCutiJob($today))->dailyAt('08:00');
+        $schedule->job(new ResetCutiJob($today, $month, $day))->dailyAt('16:30');
+        $schedule->job(new RollingShiftGroupJob)->dailyAt('23:45');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

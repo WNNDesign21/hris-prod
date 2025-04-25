@@ -29,7 +29,7 @@ $(function () {
             toast: true,
             position: "top-end",
             showConfirmButton: false,
-            timer: 2000, 
+            timer: 2000,
             timerProgressBar: true,
             didOpen: (toast) => {
             toast.onmouseenter = Swal.stopTimer;
@@ -81,7 +81,7 @@ $(function () {
             }
         })
     }
-    
+
     //DATATABLE KARYAWAN
     var columnsTable = [
         // { data: "no" },
@@ -221,7 +221,7 @@ $(function () {
     $('#penggunaan_sisa_cuti').select2({
         dropdownParent: $('#modal-pengajuan-cuti'),
     });
-    
+
     $('#jenis_cuti').on('change', function() {
         let jenisCuti = $(this).val();
 
@@ -233,7 +233,7 @@ $(function () {
             conditionalField.append('<label for="jenis_cuti_khusus">Jenis Cuti Khusus</label>');
             var selectField = $('<select style="width:100%;"></select>').attr('id', 'jenis_cuti_khusus').attr('name', 'jenis_cuti_khusus');
             $.each(jenisCutiKhusus, function (i, val){
-                selectField.append('<option value="'+val.id+'" data-durasi="'+val.durasi+'" data-isurgent="'+val.isurgent+'">'+val.text+'</option>');
+                selectField.append('<option value="'+val.id+'" data-durasi="'+val.durasi+'" data-isurgent="'+val.isurgent+'" data-isworkday="'+val.isworkday+'">'+val.text+'</option>');
             });
             conditionalField.append(selectField);
             $('#rencana_selesai_cuti').val('');
@@ -256,18 +256,24 @@ $(function () {
             $('#rencana_mulai_cuti').on('change', function() {
                 var rencanaMulaiCuti = $(this).val();
                 var durasi = $('#jenis_cuti_khusus').find('option:selected').data('durasi');
+                var isWorkday = $('#jenis_cuti_khusus').find('option:selected').data('isworkday');
                 $('#durasi_cuti').val(durasi);
                 var rencanaSelesaiCuti = new Date(rencanaMulaiCuti);
-                
-                //Logic mengecek hari sabtu dan minggu, jika durasi cuti jatuh pada hari sabtu dan minggu, 
-                // maka akan di skip dan dilanjutkan di hari kerja berikutnya
-                for (var i = 0; i < durasi - 1; i++) {
-                    rencanaSelesaiCuti.setDate(rencanaSelesaiCuti.getDate() + 1);
-                    if (rencanaSelesaiCuti.getDay() === 6) { // Saturday
-                        rencanaSelesaiCuti.setDate(rencanaSelesaiCuti.getDate() + 2);
-                    } else if (rencanaSelesaiCuti.getDay() === 0) { // Sunday
+
+                if (isWorkday === 'N') {
+                    // Logic mengecek hari sabtu dan minggu, jika durasi cuti jatuh pada hari sabtu dan minggu,
+                    // maka akan di skip dan dilanjutkan di hari kerja berikutnya
+                    for (var i = 0; i < durasi - 1; i++) {
                         rencanaSelesaiCuti.setDate(rencanaSelesaiCuti.getDate() + 1);
+                        if (rencanaSelesaiCuti.getDay() === 6) { // Saturday
+                            rencanaSelesaiCuti.setDate(rencanaSelesaiCuti.getDate() + 2);
+                        } else if (rencanaSelesaiCuti.getDay() === 0) { // Sunday
+                            rencanaSelesaiCuti.setDate(rencanaSelesaiCuti.getDate() + 1);
+                        }
                     }
+                } else {
+                    // Jika isWorkday bukan 'N', cukup tambahkan rencanaMulaiCuti + durasi
+                    rencanaSelesaiCuti.setDate(rencanaSelesaiCuti.getDate() + (durasi - 1));
                 }
 
                 var year = rencanaSelesaiCuti.getFullYear();
@@ -453,11 +459,11 @@ $(function () {
                 loadingSwalShow();
                 let idCuti = $(this).data('id');
                 let url = base_url + '/cutie/pengajuan-cuti/cancel/' + idCuti;
-        
+
                 var formData = new FormData();
                 formData.append('_method', 'PATCH');
                 $.ajax({
-                    url: url, 
+                    url: url,
                     type: 'POST',
                     data: formData,
                     processData: false,
