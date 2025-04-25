@@ -30,6 +30,13 @@
                                         <option value="N">NO</option>
                                     </select>
                                 </div>
+                                <div class="form-group">
+                                    <label for="isWorkday">isWorkday</label>
+                                    <select name="isWorkday" id="isWorkday" class="form-control">
+                                        <option value="Y">YES</option>
+                                        <option value="N">NO</option>
+                                    </select>
+                                </div>
                                 <div class="d-flex justify-content-end mt-2">
                                     <button type="submit" class="btn btn-success"><i class="fas fa-save"></i>
                                         Submit</button>

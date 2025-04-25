@@ -819,7 +819,8 @@ class CutieController extends Controller
         $columns = array(
             0 => 'jenis',
             1 => 'durasi',
-            2 => 'isUrgent'
+            2 => 'isUrgent',
+            3 => 'isWorkday'
         );
 
         $totalData = JenisCuti::count();
@@ -853,6 +854,7 @@ class CutieController extends Controller
                 $nestedData['jenis'] = $data->jenis;
                 $nestedData['durasi'] = $data->durasi.' Hari';
                 $nestedData['isUrgent'] = $data->isUrgent == 'N' ? '❌' : '✅';
+                $nestedData['isWorkday'] = $data->isWorkday == 'N' ? '❌' : '✅';
                 $nestedData['aksi'] = '<div class="btn-group btn-group-sm"><button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id="'.$data->id_jenis_cuti.'"><i class="fas fa-edit"></i> Edit </button><button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_jenis_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button></div>';
 
                 $dataTable[] = $nestedData;
@@ -880,7 +882,8 @@ class CutieController extends Controller
                 'id' => $jc->id_jenis_cuti,
                 'text' => $jc->jenis,
                 'durasi' => $jc->durasi,
-                'isurgent' => $jc->isUrgent
+                'isurgent' => $jc->isUrgent,
+                'isworkday' => $jc->isWorkday
             ];
         }
         return response()->json(['data' => $dataJenisCutiKhusus],200);
@@ -909,7 +912,8 @@ class CutieController extends Controller
             'id_jenis_cuti' => $jc->id_jenis_cuti,
             'jenis' => $jc->jenis,
             'durasi' => $jc->durasi,
-            'isUrgent' => $jc->isUrgent
+            'isUrgent' => $jc->isUrgent,
+            'isWorkday' => $jc->isWorkday
         ];
         return response()->json(['data' => $data], 200);
     }
@@ -1342,11 +1346,13 @@ class CutieController extends Controller
         $jenis = $request->jenis;
         $durasi = $request->durasi;
         $isUrgent = $request->isUrgent;
+        $isWorkday = $request->isWorkday;
 
         $dataValidate = [
             'jenis' => ['required'],
             'durasi' => ['required', 'numeric', 'min:1'],
             'isUrgent' => ['required', 'string', 'in:Y,N'],
+            'isWorkday' => ['required', 'string', 'in:Y,N'],
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -1362,6 +1368,7 @@ class CutieController extends Controller
                 'jenis' => $jenis,
                 'durasi' => $durasi,
                 'isUrgent' => $isUrgent,
+                'isWorkday' => $isWorkday
             ]);
             DB::commit();
             return response()->json(['message' => 'Store Jenis Cuti Khusus Berhasil dilakukan!'], 200);
@@ -1382,11 +1389,13 @@ class CutieController extends Controller
         $jenis = $request->jenis;
         $durasi = $request->durasi;
         $isUrgent = $request->isUrgent;
+        $isWorkday = $request->isWorkday;
 
         $dataValidate = [
             'jenis' => ['required'],
             'durasi' => ['required', 'numeric', 'min:1'],
             'isUrgent' => ['required', 'string', 'in:Y,N'],
+            'isWorkday' => ['required', 'string', 'in:Y,N'],
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -1403,6 +1412,7 @@ class CutieController extends Controller
                 $jenis_cuti->jenis = $jenis;
                 $jenis_cuti->durasi = $durasi;
                 $jenis_cuti->isUrgent = $isUrgent;
+                $jenis_cuti->isWorkday = $isWorkday;
             }
 
             $jenis_cuti->save();

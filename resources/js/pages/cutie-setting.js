@@ -29,7 +29,7 @@ $(function () {
             toast: true,
             position: "top-end",
             showConfirmButton: false,
-            timer: 2000, 
+            timer: 2000,
             timerProgressBar: true,
             didOpen: (toast) => {
             toast.onmouseenter = Swal.stopTimer;
@@ -48,6 +48,7 @@ $(function () {
         { data: "jenis" },
         { data: "durasi" },
         { data: "isUrgent" },
+        { data: "isWorkday" },
         { data: "aksi" },
     ];
 
@@ -169,6 +170,7 @@ $(function () {
         $('#jenis').val('');
         $('#durasi').val('');
         $('#isUrgent').val('Y');
+        $('#isWorkday').val('Y');
         $('#form-setting-cuti').attr('action', url);
         $('input[name="_method"]').val('POST');
     }
@@ -186,6 +188,7 @@ $(function () {
                 $('#jenis').val(data.jenis);
                 $('#durasi').val(data.durasi);
                 $('#isUrgent').val(data.isUrgent);
+                $('#isWorkday').val(data.isWorkday);
                 $('.modal-title').text('Edit Jenis Cuti Khusus')
 
                 $('#form-setting-cuti').attr('action', base_url + '/cutie/setting-cuti/update/' + idJenisCuti);

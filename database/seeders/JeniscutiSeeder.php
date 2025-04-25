@@ -17,32 +17,56 @@ class JeniscutiSeeder extends Seeder
             [
                 'jenis' => 'Menikah',
                 'durasi' => 3,
-                'isUrgent' => 'N'
+                'isUrgent' => 'N',
+                'isWorkday' => 'Y'
             ],
             [
                 'jenis' => 'Menikahkan Anak Kandung',
                 'durasi' => 2,
-                'isUrgent' => 'N'
+                'isUrgent' => 'N',
+                'isWorkday' => 'Y'
             ],
             [
                 'jenis' => 'Khitanan Anak Kandung',
                 'durasi' => 2,
-                'isUrgent' => 'N'
+                'isUrgent' => 'N',
+                'isWorkday' => 'Y'
             ],
             [
                 'jenis' => 'Baptis Anak Kandung',
                 'durasi' => 2,
-                'isUrgent' => 'N'
+                'isUrgent' => 'N',
+                'isWorkday' => 'Y'
             ],
             [
                 'jenis' => 'Suami/Istri/Orangtua/Mertua/Anak/Menantu/Kakek/Nenek Meninggal',
                 'durasi' => 2,
-                'isUrgent' => 'Y'
+                'isUrgent' => 'Y',
+                'isWorkday' => 'Y'
             ],
             [
                 'jenis' => 'Saudara Kandung/Serumah Meninggal',
                 'durasi' => 1,
-                'isUrgent' => 'Y'
+                'isUrgent' => 'Y',
+                'isWorkday' => 'Y'
+            ],
+            [
+                'jenis' => 'Keguguran',
+                'durasi' => 45,
+                'isUrgent' => 'Y',
+                'isWorkday' => 'N'
+            ],
+            [
+                'jenis' => 'Melahirkan',
+                'durasi' => 90,
+                'isUrgent' => 'Y',
+                'isWorkday' => 'N'
+            ],
+            [
+                'jenis' => 'Ibadah Haji',
+                'durasi' => 40,
+                'isUrgent' => 'N',
+                'isWorkday' => 'N'
             ],
         ];
 
