@@ -26,6 +26,10 @@ class ActivityLog extends Model
             if ($dataFilter['log_name'] == 'error_job_upload_karyawan') {
                 $data->whereDate('activity_log.created_at', date('Y-m-d'));
             }
+
+            if ($dataFilter['log_name'] == 'error_job_upload_kontrak') {
+                $data->whereDate('activity_log.created_at', date('Y-m-d'));
+            }
         }
 
         if (isset($dataFilter['search'])) {

@@ -10,8 +10,10 @@ use App\Models\Kontrak;
 use App\Models\Karyawan;
 use App\Models\Template;
 use App\Models\Departemen;
+use App\Models\ActivityLog;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Jobs\UploadKontrakJob;
 use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\IOFactory;
 use Illuminate\Support\Facades\DB;
@@ -117,7 +119,7 @@ class KontrakController extends Controller
 
         $kontrak = Kontrak::getData($dataFilter, $settings);
         $totalFiltered = Kontrak::countData($dataFilter);
-        
+
         $dataTable = [];
 
         if (!empty($kontrak)) {
@@ -190,7 +192,7 @@ class KontrakController extends Controller
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
-    
+
         if ($validator->fails()) {
             return response()->json(['message' => 'Fill your input correctly!'], 402);
         }
@@ -210,7 +212,7 @@ class KontrakController extends Controller
         $isReactive = $request->isReactive;
         $organisasi_id = auth()->user()->organisasi_id;
 
-        DB::beginTransaction(); 
+        DB::beginTransaction();
         try{
 
             //CEK APAKAH DIA SUDAH ADA KONTRAK SEBELUMNYA ATAU BELUM
@@ -223,7 +225,7 @@ class KontrakController extends Controller
             }
 
             if($jenis !== 'PKWTT'){
-                
+
                 if ($durasi == 0) {
                     DB::commit();
                     return response()->json(['message' => 'Durasi tidak boleh kosong!'], 402);
@@ -366,14 +368,14 @@ class KontrakController extends Controller
     {
         $dataValidate = [
             'no_surat_kontrakEdit' => ['required','digits:3'],
-            'issued_date_kontrakEdit' => ['required','date'],   
+            'issued_date_kontrakEdit' => ['required','date'],
             'tempat_administrasi_kontrakEdit' => ['required'],
             'durasi_kontrakEdit' => ['numeric','nullable'],
             'salary_kontrakEdit' => ['numeric','required'],
             'tanggal_mulai_kontrakEdit' => ['required','date'],
             'tanggal_selesai_kontrakEdit' => ['nullable','date'],
             'jenis_kontrakEdit' => ['required'],
-            'posisi_kontrakEdit' => ['required'], 
+            'posisi_kontrakEdit' => ['required'],
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -385,12 +387,12 @@ class KontrakController extends Controller
         $no_surat = $request->no_surat_kontrakEdit;
         $issued_date = $request->issued_date_kontrakEdit;
         $tempat_administrasi = $request->tempat_administrasi_kontrakEdit;
-        $durasi = $request->durasi_kontrakEdit; 
+        $durasi = $request->durasi_kontrakEdit;
         $salary = $request->salary_kontrakEdit;
         $tanggal_mulai = $request->tanggal_mulai_kontrakEdit;
         $tanggal_selesai = $request->tanggal_selesai_kontrakEdit;
         $jenis = $request->jenis_kontrakEdit;
-        $posisi = $request->posisi_kontrakEdit; 
+        $posisi = $request->posisi_kontrakEdit;
         $nama_posisi = $request->nama_posisi_kontrakEdit;
         $deskripsi = $request->deskripsi_kontrakEdit;
         $organisasi_id = auth()->user()->organisasi_id;
@@ -402,7 +404,7 @@ class KontrakController extends Controller
                 DB::commit();
                 return response()->json(['message' => 'Durasi tidak boleh kosong!'], 402);
             }
-            
+
 
             $kontrak = Kontrak::find($id_kontrak);
             $kontrak_karyawan = Kontrak::where('karyawan_id',$kontrak->karyawan_id)->where('status', 'DONE')->count() + 1;
@@ -413,9 +415,9 @@ class KontrakController extends Controller
             $jenis_on_surat = ($jenis == 'MAGANG' ? 'MG' : $jenis).($jenis == 'PKWT' || $jenis == 'MAGANG' ? '-'.$this->angka_to_romawi($kontrak_karyawan) : '');
             $tahun = Carbon::parse($tanggal_mulai)->format('Y');
             $no_surat_text = 'No. ' . str_pad($no_surat, 3, '0', STR_PAD_LEFT) . '/' . $jenis_on_surat . '/' . $hrd . '/'.$bulan_romawi.'/' . $tahun;
-            
+
             $kontrak->no_surat = $no_surat_text;
-            $kontrak->issued_date = $issued_date;   
+            $kontrak->issued_date = $issued_date;
             $kontrak->tempat_administrasi = $tempat_administrasi;
 
             $kry = Karyawan::find($kontrak->karyawan_id);
@@ -425,8 +427,8 @@ class KontrakController extends Controller
             if($jenis == 'PKWTT'){
                 $durasi = null;
                 $tanggal_selesai = null;
-            } 
-            
+            }
+
             $kontrak->organisasi_id = $organisasi_id;
             $kontrak->durasi = $durasi;
             $kontrak->salary = $salary;
@@ -485,7 +487,7 @@ class KontrakController extends Controller
                     $badge = '<span class="badge badge-pill badge-success">'.$item->status.'</span>';
                 } else {
                     $badge = '<span class="badge badge-pill badge-warning">'.$item->status.'</span>';
-                } 
+                }
                 $list[] = [
                     'id_kontrak' => $item->id_kontrak,
                     'nama_posisi' => $item->nama_posisi,
@@ -615,7 +617,7 @@ class KontrakController extends Controller
         $tanggal = Carbon::parse($tanggal)->format('Y-m-d');
         $date = Carbon::createFromFormat('Y-m-d', $tanggal);
         $namaHari = $date->locale('id')->isoFormat('dddd');
-    
+
         return $namaHari;
     }
 
@@ -636,12 +638,12 @@ class KontrakController extends Controller
             11 => 'November',
             12 => 'Desember'
         ];
-    
+
         $hari = $tanggal->day;
         $bulan = $bulanIndonesia[$tanggal->month];
         $tahun = $tanggal->year;
         $tahun = substr($tahun, 2);
-    
+
         $angkaKeKata = [
             '1' => 'Satu',
             '2' => 'Dua',
@@ -675,10 +677,10 @@ class KontrakController extends Controller
             '30' => 'Tiga Puluh',
             '31' => 'Tiga Puluh Satu',
         ];
-    
+
         $hariKata = $angkaKeKata[$hari];
         $kalimatTanggal = $hariKata . ' ' . $bulan . ' ' . 'Dua Ribu ' . $angkaKeKata[$tahun];
-    
+
         return $kalimatTanggal;
     }
 
@@ -722,10 +724,10 @@ class KontrakController extends Controller
 
     function angka_to_rupiah_text($angka) {
         $angka = (int) $angka;
-    
+
         $bilangan = ['', 'Satu', 'Dua', 'Tiga', 'Empat', 'Lima', 'Enam', 'Tujuh', 'Delapan', 'Sembilan', 'Sepuluh', 'Sebelas'];
         $cabutan = ['', 'Ribu', 'Juta', 'Miliar', 'Triliun'];
-    
+
         $nilai = '';
         if ($angka < 12) {
             $nilai = $bilangan[$angka];
@@ -736,7 +738,7 @@ class KontrakController extends Controller
             $baca = '';
             while ($angka >= 1000) {
                 $sub_angka = $angka % 1000;
-                $angka = intdiv($angka, 1000); 
+                $angka = intdiv($angka, 1000);
                 $baca = $this->angka_to_rupiah_text($sub_angka) . ' ' . $cabutan[$i] . ' ';
                 $i++;
             }
@@ -753,7 +755,7 @@ class KontrakController extends Controller
 
             $nilai = trim($baca);
         }
-    
+
         return $nilai . ' Rupiah';
     }
 
@@ -792,7 +794,7 @@ class KontrakController extends Controller
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
-    
+
         if ($validator->fails()) {
             return response()->json(['message' => 'File harus bertipe PDF & Berukuran maksimal 5 mb.'], 402);
         }
@@ -826,7 +828,7 @@ class KontrakController extends Controller
                     $kontrak->save();
                 }
             }
-            
+
             DB::commit();
             return response()->json(['message' => 'Upload File pada '.$id_kontrak.' Sukses!'],200);
         } catch(Throwable $error){
@@ -914,7 +916,7 @@ class KontrakController extends Controller
                         }
                     }
                 }
-                
+
                 if($kontrak->jenis == 'PKWTT'){
                     $karyawan->tanggal_selesai = null;
                 } else {
@@ -929,7 +931,7 @@ class KontrakController extends Controller
             $karyawan->jenis_kontrak = $kontrak->jenis;
             $karyawan->status_karyawan = 'AT';
             $karyawan->save();
-            
+
             DB::commit();
             return response()->json(['message' => 'Kontrak Berhasil Selesai!'], 200);
         } catch(Throwable $error){
@@ -940,177 +942,284 @@ class KontrakController extends Controller
 
     public function upload_data_kontrak(Request $request)
     {
-        $file = $request->file('kontrak_file');
-        $organisasi_id = auth()->user()->organisasi_id;
-        if ($organisasi_id == '1'){
-            $tempat_administrasi = 'Karawang';
-        } else {
-            $tempat_administrasi = 'Purwakarta';
-        }
-        
-        $validator = Validator::make($request->all(), [
-            'kontrak_file' => 'required|mimes:xlsx,xls'
-        ]);
+        $dataValidate = [
+            'kontrak_file' => ['required', 'file', 'mimes:xlsx,xls'],
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
 
         if ($validator->fails()) {
-            return response()->json(['message' => 'File Harus bertipe Excel!'], 400);
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
         }
 
-        DB::beginTransaction();
         try {
+            $organisasi_id = auth()->user()->organisasi_id;
+            $user = auth()->user();
 
             if($request->hasFile('kontrak_file')){
+                $file = $request->file('kontrak_file');
                 $kontrak_records = 'KN_' . time() . '.' . $file->getClientOriginalExtension();
                 $kontrak_file = $file->storeAs("attachment/upload-kontrak", $kontrak_records);
-            } 
+            }
 
-            if (file_exists(storage_path("app/public/".$kontrak_file))) {
+           if (file_exists(storage_path("app/public/".$kontrak_file))) {
                 $spreadsheet = PhpSpreadsheetIOFactory::load(storage_path("app/public/".$kontrak_file));
                 $worksheet = $spreadsheet->getActiveSheet();
                 $data = $worksheet->toArray();
-                $karyawans = [];
+                $dataWithoutHeader = array_slice($data, 1);
 
-                foreach ($data as $index => $row) {
-                    if ($index == 0) continue; 
-
-                    activity('upload_kontrak_karyawan')->log('insert row ' . $index);
-                    $karyawan_exist = Karyawan::where('ni_karyawan', $row[0])->organisasi(auth()->user()->organisasi_id);
-                    if($karyawan_exist->exists()){
-                        $karyawan = $karyawan_exist->first();
-                        $karyawans[] = $karyawan->id_karyawan;
-                    } else {
-                        return response()->json(['message' => 'Karyawan dengan Nomor Induk '.$row[0].' tidak ditemukan!'], 404);
-                    }
-
-                    //Convert tanggal mulai dan selesai ke format Ymd jika ada
-                    if($row[7] !== null){
-                        try {
-                            $tanggal_mulai = Carbon::createFromFormat('d/m/Y', $row[7])->format('Y-m-d');
-                        } catch (Exception $e) {
-                            return response()->json(['message' => 'Format tanggal mulai salah!'], 402);
-                        }
-                    } 
-
-                    if($row[4] !== 'PKWTT'){ 
-                        if($row[8] !== null){
-                            try {
-                                $tanggal_selesai = Carbon::createFromFormat('d/m/Y', $row[8])->format('Y-m-d');
-                            } catch (Exception $e) {
-                                return response()->json(['message' => 'Format tanggal selesai salah!'], 402);
-                            }
-                        }
-                    }
-
-                    //Validasi Kolom Numeric
-                    if (!is_numeric($row[2]) || !is_numeric($row[5]) || $row[5] < 0 || !is_numeric($row[6]) || $row[6] < 0) {
-                        return response()->json(['message' => 'Kolom ID Posisi, Durasi dan Salary harus berupa numeric!'], 402);
-                    }
-
-                    $posisi_id = Posisi::where('id_posisi', $row[2])->first()->id_posisi;
-                    if($posisi_id == null){
-                        return response()->json(['message' => 'Posisi dengan ID '.$row[2].' tidak ditemukan!'], 404);
-                    }
-
-                    //Validasi Jenis Kontrak
-                    if (!in_array($row[4], ['PKWT', 'PKWTT', 'MAGANG'])) {
-                        return response()->json(['message' => 'Jenis kontrak pada baris ' . ($index + 1) . ' harus PKWT, PKWTT, atau MAGANG!'], 402);
-                    }
-
-                    //Validasi Nomor Induk Karyawan
-                    $karyawan = Karyawan::where('ni_karyawan', $row[0])->first();
-                    if($karyawan->id_karyawan == null){
-                        return response()->json(['message' => 'Karyawan dengan Nomor Induk '.$row[0].' tidak ditemukan!'], 404);
-                    }
-
-                    //Validasi Tempat Administrasi
-                    if (!in_array($row[9], ['Karawang', 'Purwakarta'])) {
-                        return response()->json(['message' => 'Tempat administasi tidak sesuai format!'], 402);
-                    }
-
-                    //Update data karyawan
-                    $karyawan->jenis_kontrak = $row[4];
-                    $karyawan->status_karyawan = 'AT';
-
-                    if($row[4] !== 'PKWTT'){
-                        if($karyawan->tanggal_selesai < $tanggal_selesai || $karyawan->tanggal_selesai == null){
-                            $karyawan->tanggal_selesai = $tanggal_selesai;
-                        }
-                    } else {
-                        $karyawan->tanggal_selesai = null;
-                    }
-
-                    $karyawan->save();
-
-                    // Input Kontrak
-                    Kontrak::create([
-                        'no_surat' => $row[3],
-                        'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,
-                        'karyawan_id' =>  $karyawan->id_karyawan,
-                        'posisi_id' => $posisi_id,
-                        'nama_posisi' => Posisi::find($posisi_id)->nama ? Posisi::find($posisi_id)->nama : '',
-                        'jenis' => $row[4],
-                        'status' => 'DONE',
-                        'durasi' => $row[4] !== 'PKWTT' ? $row[5] : null,
-                        'salary' => $row[6],
-                        'deskripsi' => 'History Kontrak Karyawan',
-                        'tanggal_mulai' => $tanggal_mulai,
-                        'tanggal_selesai' => $row[4] !== 'PKWTT' ? $tanggal_selesai : null,
-                        'tempat_administrasi' => $row[9],
-                        'isReactive' => 'N',
-                        'organisasi_id' => $organisasi_id,
-                        'issued_date' => Carbon::now()->format('Y-m-d'),
-                    ]);
+                if (count($dataWithoutHeader) < 1) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data tidak ditemukan!'
+                    ], 404);
                 }
 
-                //Update sisa cuti bersama karyawan
-                $array_karyawan = array_unique($karyawans);
-                foreach ($array_karyawan as $index => $kry){
-                    $k = Karyawan::find($kry);
-                    //CEK APAKAH ADA CUTI BERSAMA SEBELUM TANGGAL SELESAI KONTRAK YANG BARU DI UPLOAD
-                    if($k && $k->tanggal_selesai !== null && $k->jenis_kontrak !== 'PKWTT'){
-                        $kontrak = Kontrak::where('karyawan_id', $kry)->where('status', 'DONE')->orderBy('tanggal_selesai', 'DESC')->first();
-                        $existingCB = Event::whereDate('tanggal_mulai', '<=', $kontrak->tanggal_selesai)->where('jenis_event', 'CB');
-                        if($existingCB->exists()){
-                            foreach($existingCB->get() as $cutiBersama){
-                                $jatah_cuti_bersama = $k->sisa_cuti_bersama - $cutiBersama->durasi;
-                                if($jatah_cuti_bersama >= 0){
-                                    $k->sisa_cuti_bersama = $jatah_cuti_bersama;
-                                    $k->save();
-                                } else {
-                                    $k->sisa_cuti_bersama = 0;
-                                    $k->hutang_cuti = abs($jatah_cuti_bersama);
-                                    $k->save();
-                                }
-                            }
-                        }
-                    } elseif ($k && $k->jenis_kontrak == 'PKWTT'){
-                        $kontrak = Kontrak::where('karyawan_id', $kry)->where('status', 'DONE')->where('jenis', 'PKWTT')->orderBy('tanggal_mulai', 'DESC')->first();
-                        $tanggal_selesai_temp = Carbon::now()->year.'-'.Carbon::parse($kontrak->tanggal_mulai)->format('m-d');
-                        $existingCB = Event::whereDate('tanggal_mulai', '>=', $tanggal_selesai_temp)->where('jenis_event', 'CB');
-                        if($existingCB->exists()){
-                            foreach($existingCB->get() as $cutiBersama){
-                                $jatah_cuti_bersama = $k->sisa_cuti_bersama - $cutiBersama->durasi;
-                                if($jatah_cuti_bersama >= 0){
-                                    $k->sisa_cuti_bersama = $jatah_cuti_bersama;
-                                    $k->save();
-                                } else {
-                                    $k->sisa_cuti_bersama = 0;
-                                    $k->hutang_cuti = abs($jatah_cuti_bersama);
-                                    $k->save();
-                                }
-                            }
-                        }
-                    }
-                } 
+                UploadKontrakJob::dispatch($dataWithoutHeader, $organisasi_id, $user);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'File uploaded successfully, please wait for the process to finish (job)',
+                ], 200);
             } else {
-                DB::rollBack();
-                return response()->json(['message' => 'Terjadi kesalahan, silahkan upload ulang file!'], 404);
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Please upload a file',
+                ], 500);
             }
-            DB::commit();
-            return response()->json(['message' => 'File berhasil di upload'], 200);
+
         } catch (Throwable $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Error processing the file: ' . $e->getMessage()], 500);
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
+
+    public function upload_datatable(Request $request)
+    {
+
+        $columns = array(
+            0 => 'activity_log.description',
+            1 => 'users.username',
+            2 => 'activity_log.created_at',
+        );
+
+        $totalData = ActivityLog::count();
+        $totalFiltered = $totalData;
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = (!empty($request->input('order.0.column'))) ? $columns[$request->input('order.0.column')] : $columns[0];
+        $dir = (!empty($request->input('order.0.dir'))) ? $request->input('order.0.dir') : "DESC";
+
+        $settings['start'] = $start;
+        $settings['limit'] = $limit;
+        $settings['dir'] = $dir;
+        $settings['order'] = $order;
+
+        $dataFilter = [];
+        $search = $request->input('search.value');
+        if (!empty($search)) {
+            $dataFilter['search'] = $search;
+        }
+
+        $dataFilter['log_name'] = 'error_job_upload_kontrak';
+
+        $uploadLog = ActivityLog::getData($dataFilter, $settings);
+        $totalFiltered = ActivityLog::countData($dataFilter);
+
+        $dataTable = [];
+
+        if (!empty($uploadLog)) {
+            foreach ($uploadLog as $data) {
+                $nestedData['description'] = $data->description;
+                $nestedData['causer'] = $data->username;
+                $nestedData['created_at'] = Carbon::parse($data->created_at)->translatedFormat('d F Y H:i:s');
+                $dataTable[] = $nestedData;
+            }
+        }
+
+        $json_data = array(
+            "draw" => intval($request->input('draw')),
+            "recordsTotal" => intval($totalData),
+            "recordsFiltered" => intval($totalFiltered),
+            "data" => $dataTable,
+            "order" => $order,
+            "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
+            "dir" => $dir,
+            "column"=>$request->input('order.0.column')
+        );
+
+        return response()->json($json_data, 200);
+    }
+
+    // public function upload_data_kontrak(Request $request)
+    // {
+    //     $file = $request->file('kontrak_file');
+    //     $organisasi_id = auth()->user()->organisasi_id;
+    //     $tempat_administrasi = auth()->user()->organisasi->nama;
+
+    //     $validator = Validator::make($request->all(), [
+    //         'kontrak_file' => 'required|mimes:xlsx,xls'
+    //     ]);
+
+    //     if ($validator->fails()) {
+    //         return response()->json(['message' => 'File Harus bertipe Excel!'], 400);
+    //     }
+
+    //     DB::beginTransaction();
+    //     try {
+
+    //         if($request->hasFile('kontrak_file')){
+    //             $kontrak_records = 'KN_' . time() . '.' . $file->getClientOriginalExtension();
+    //             $kontrak_file = $file->storeAs("attachment/upload-kontrak", $kontrak_records);
+    //         }
+
+    //         if (file_exists(storage_path("app/public/".$kontrak_file))) {
+    //             $spreadsheet = PhpSpreadsheetIOFactory::load(storage_path("app/public/".$kontrak_file));
+    //             $worksheet = $spreadsheet->getActiveSheet();
+    //             $data = $worksheet->toArray();
+    //             $karyawans = [];
+
+    //             foreach ($data as $index => $row) {
+    //                 if ($index == 0) continue;
+
+    //                 activity('upload_kontrak_karyawan')->log('insert row ' . $index);
+    //                 $karyawan_exist = Karyawan::where('ni_karyawan', $row[0])->organisasi(auth()->user()->organisasi_id);
+    //                 if($karyawan_exist->exists()){
+    //                     $karyawan = $karyawan_exist->first();
+    //                     $karyawans[] = $karyawan->id_karyawan;
+    //                 } else {
+    //                     return response()->json(['message' => 'Karyawan dengan Nomor Induk '.$row[0].' tidak ditemukan!'], 404);
+    //                 }
+
+    //                 //Convert tanggal mulai dan selesai ke format Ymd jika ada
+    //                 if($row[7] !== null){
+    //                     try {
+    //                         $tanggal_mulai = Carbon::createFromFormat('d/m/Y', $row[7])->format('Y-m-d');
+    //                     } catch (Exception $e) {
+    //                         return response()->json(['message' => 'Format tanggal mulai salah!'], 402);
+    //                     }
+    //                 }
+
+    //                 if($row[4] !== 'PKWTT'){
+    //                     if($row[8] !== null){
+    //                         try {
+    //                             $tanggal_selesai = Carbon::createFromFormat('d/m/Y', $row[8])->format('Y-m-d');
+    //                         } catch (Exception $e) {
+    //                             return response()->json(['message' => 'Format tanggal selesai salah!'], 402);
+    //                         }
+    //                     }
+    //                 }
+
+    //                 //Validasi Kolom Numeric
+    //                 if (!is_numeric($row[2]) || !is_numeric($row[5]) || $row[5] < 0 || !is_numeric($row[6]) || $row[6] < 0) {
+    //                     return response()->json(['message' => 'Kolom ID Posisi, Durasi dan Salary harus berupa numeric!'], 402);
+    //                 }
+
+    //                 $posisi_id = Posisi::where('id_posisi', $row[2])->first()->id_posisi;
+    //                 if($posisi_id == null){
+    //                     return response()->json(['message' => 'Posisi dengan ID '.$row[2].' tidak ditemukan!'], 404);
+    //                 }
+
+    //                 //Validasi Jenis Kontrak
+    //                 if (!in_array($row[4], ['PKWT', 'PKWTT', 'MAGANG'])) {
+    //                     return response()->json(['message' => 'Jenis kontrak pada baris ' . ($index + 1) . ' harus PKWT, PKWTT, atau MAGANG!'], 402);
+    //                 }
+
+    //                 //Validasi Nomor Induk Karyawan
+    //                 $karyawan = Karyawan::where('ni_karyawan', $row[0])->first();
+    //                 if($karyawan->id_karyawan == null){
+    //                     return response()->json(['message' => 'Karyawan dengan Nomor Induk '.$row[0].' tidak ditemukan!'], 404);
+    //                 }
+
+    //                 //Validasi Tempat Administrasi
+    //                 if (!in_array($row[9], ['Karawang', 'Purwakarta'])) {
+    //                     return response()->json(['message' => 'Tempat administasi tidak sesuai format!'], 402);
+    //                 }
+
+    //                 //Update data karyawan
+    //                 $karyawan->jenis_kontrak = $row[4];
+    //                 $karyawan->status_karyawan = 'AT';
+
+    //                 if($row[4] !== 'PKWTT'){
+    //                     if($karyawan->tanggal_selesai < $tanggal_selesai || $karyawan->tanggal_selesai == null){
+    //                         $karyawan->tanggal_selesai = $tanggal_selesai;
+    //                     }
+    //                 } else {
+    //                     $karyawan->tanggal_selesai = null;
+    //                 }
+
+    //                 $karyawan->save();
+
+    //                 // Input Kontrak
+    //                 Kontrak::create([
+    //                     'no_surat' => $row[3],
+    //                     'id_kontrak' => 'KONTRAK-'. Str::random(4) . '-' . now()->timestamp,
+    //                     'karyawan_id' =>  $karyawan->id_karyawan,
+    //                     'posisi_id' => $posisi_id,
+    //                     'nama_posisi' => Posisi::find($posisi_id)->nama ? Posisi::find($posisi_id)->nama : '',
+    //                     'jenis' => $row[4],
+    //                     'status' => 'DONE',
+    //                     'durasi' => $row[4] !== 'PKWTT' ? $row[5] : null,
+    //                     'salary' => $row[6],
+    //                     'deskripsi' => 'History Kontrak Karyawan',
+    //                     'tanggal_mulai' => $tanggal_mulai,
+    //                     'tanggal_selesai' => $row[4] !== 'PKWTT' ? $tanggal_selesai : null,
+    //                     'tempat_administrasi' => $row[9],
+    //                     'isReactive' => 'N',
+    //                     'organisasi_id' => $organisasi_id,
+    //                     'issued_date' => Carbon::now()->format('Y-m-d'),
+    //                 ]);
+    //             }
+
+    //             //Update sisa cuti bersama karyawan
+    //             $array_karyawan = array_unique($karyawans);
+    //             foreach ($array_karyawan as $index => $kry){
+    //                 $k = Karyawan::find($kry);
+    //                 //CEK APAKAH ADA CUTI BERSAMA SEBELUM TANGGAL SELESAI KONTRAK YANG BARU DI UPLOAD
+    //                 if($k && $k->tanggal_selesai !== null && $k->jenis_kontrak !== 'PKWTT'){
+    //                     $kontrak = Kontrak::where('karyawan_id', $kry)->where('status', 'DONE')->orderBy('tanggal_selesai', 'DESC')->first();
+    //                     $existingCB = Event::whereDate('tanggal_mulai', '<=', $kontrak->tanggal_selesai)->where('jenis_event', 'CB');
+    //                     if($existingCB->exists()){
+    //                         foreach($existingCB->get() as $cutiBersama){
+    //                             $jatah_cuti_bersama = $k->sisa_cuti_bersama - $cutiBersama->durasi;
+    //                             if($jatah_cuti_bersama >= 0){
+    //                                 $k->sisa_cuti_bersama = $jatah_cuti_bersama;
+    //                                 $k->save();
+    //                             } else {
+    //                                 $k->sisa_cuti_bersama = 0;
+    //                                 $k->hutang_cuti = abs($jatah_cuti_bersama);
+    //                                 $k->save();
+    //                             }
+    //                         }
+    //                     }
+    //                 } elseif ($k && $k->jenis_kontrak == 'PKWTT'){
+    //                     $kontrak = Kontrak::where('karyawan_id', $kry)->where('status', 'DONE')->where('jenis', 'PKWTT')->orderBy('tanggal_mulai', 'DESC')->first();
+    //                     $tanggal_selesai_temp = Carbon::now()->year.'-'.Carbon::parse($kontrak->tanggal_mulai)->format('m-d');
+    //                     $existingCB = Event::whereDate('tanggal_mulai', '>=', $tanggal_selesai_temp)->where('jenis_event', 'CB');
+    //                     if($existingCB->exists()){
+    //                         foreach($existingCB->get() as $cutiBersama){
+    //                             $jatah_cuti_bersama = $k->sisa_cuti_bersama - $cutiBersama->durasi;
+    //                             if($jatah_cuti_bersama >= 0){
+    //                                 $k->sisa_cuti_bersama = $jatah_cuti_bersama;
+    //                                 $k->save();
+    //                             } else {
+    //                                 $k->sisa_cuti_bersama = 0;
+    //                                 $k->hutang_cuti = abs($jatah_cuti_bersama);
+    //                                 $k->save();
+    //                             }
+    //                         }
+    //                     }
+    //                 }
+    //             }
+    //         } else {
+    //             DB::rollBack();
+    //             return response()->json(['message' => 'Terjadi kesalahan, silahkan upload ulang file!'], 404);
+    //         }
+    //         DB::commit();
+    //         return response()->json(['message' => 'File berhasil di upload'], 200);
+    //     } catch (Throwable $e) {
+    //         DB::rollBack();
+    //         return response()->json(['message' => 'Error processing the file: ' . $e->getMessage()], 500);
+    //     }
+    // }
 }

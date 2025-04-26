@@ -838,43 +838,43 @@ $(function () {
         });
     }
 
-    $('#form-kontrak').on('submit', function (e){
-        loadingSwalShow();
-        e.preventDefault();
-        let url = $('#form-kontrak').attr('action');
+    // $('#form-kontrak').on('submit', function (e){
+    //     loadingSwalShow();
+    //     e.preventDefault();
+    //     let url = $('#form-kontrak').attr('action');
 
-        var formData = new FormData($('#form-kontrak')[0]);
-        $.ajax({
-            url: url,
-            data: formData,
-            method:"POST",
-            contentType: false,
-            processData: false,
-            dataType: "JSON",
-            success: function (data) {
-                let dataKontrak = data.data;
-                showToast({ title: data.message });
-                getListKontrak(dataKontrak.karyawan_id);
-                refreshTable();
-                loadingSwalClose();
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                loadingSwalClose();
-                showToast({ icon: "error", title: jqXHR.responseJSON.message });
-            },
-        })
-    });
+    //     var formData = new FormData($('#form-kontrak')[0]);
+    //     $.ajax({
+    //         url: url,
+    //         data: formData,
+    //         method:"POST",
+    //         contentType: false,
+    //         processData: false,
+    //         dataType: "JSON",
+    //         success: function (data) {
+    //             let dataKontrak = data.data;
+    //             showToast({ title: data.message });
+    //             getListKontrak(dataKontrak.karyawan_id);
+    //             refreshTable();
+    //             loadingSwalClose();
+    //         },
+    //         error: function (jqXHR, textStatus, errorThrown) {
+    //             loadingSwalClose();
+    //             showToast({ icon: "error", title: jqXHR.responseJSON.message });
+    //         },
+    //     })
+    // });
 
-    $('#jenis_kontrakEdit').on('change', function (){
-        let jenisKontrak = $(this).val();
-        if(jenisKontrak == 'PKWTT'){
-            $('#durasi_kontrakEdit').val('').prop('readonly', true);
-            $('#tanggal_selesai_kontrakEdit').val('').prop('readonly', true);
-        } else {
-            $('#durasi_kontrakEdit').val('').prop('readonly', false);
-            $('#tanggal_selesai_kontrakEdit').val('').prop('readonly', false);
-        }
-    })
+    // $('#jenis_kontrakEdit').on('change', function (){
+    //     let jenisKontrak = $(this).val();
+    //     if(jenisKontrak == 'PKWTT'){
+    //         $('#durasi_kontrakEdit').val('').prop('readonly', true);
+    //         $('#tanggal_selesai_kontrakEdit').val('').prop('readonly', true);
+    //     } else {
+    //         $('#durasi_kontrakEdit').val('').prop('readonly', false);
+    //         $('#tanggal_selesai_kontrakEdit').val('').prop('readonly', false);
+    //     }
+    // })
 
     // $('.btnUpload').on('click', function (){
     //     let input = $('#upload-karyawan');
@@ -919,9 +919,9 @@ $(function () {
     //     });
     // });
 
-    $('.btnTemplate').on('click', function () {
-        window.location.href = base_url + '/template/template_upload_karyawan.xlsx';
-    });
+    // $('.btnTemplate').on('click', function () {
+    //     window.location.href = base_url + '/template/template_upload_karyawan.xlsx';
+    // });
 
     //FILTER KARYAWAN
     $('.btnFilter').on("click", function (){

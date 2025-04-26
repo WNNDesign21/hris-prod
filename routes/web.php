@@ -254,6 +254,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
 
             /** MASTER DATA - KONTRAK */
             Route::post('/kontrak/datatable', [KontrakController::class, 'datatable']);
+            Route::post('/kontrak/upload-datatable', [KontrakController::class, 'upload_datatable']);
             Route::get('/kontrak', [KontrakController::class, 'index'])->name('master-data.kontrak');
             Route::post('/kontrak/store', [KontrakController::class, 'store'])->name('master-data.kontrak.store');
             Route::delete('/kontrak/delete/{idKontrak}', [KontrakController::class, 'delete'])->name('master-data.kontrak.delete');
