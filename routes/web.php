@@ -244,6 +244,7 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
 
             /** MASTER DATA - KARYAWAN */
             Route::post('/karyawan/datatable', [KaryawanController::class, 'datatable']);
+            Route::post('/karyawan/upload-datatable', [KaryawanController::class, 'upload_datatable']);
             Route::get('/karyawan', [KaryawanController::class, 'index'])->name('master-data.karyawan');
             Route::post('/karyawan/store', [KaryawanController::class, 'store'])->name('master-data.karyawan.store');
             Route::post('/karyawan/upload-karyawan', [KaryawanController::class, 'upload_karyawan'])->name('master-data.karyawan.upload-karyawan');

@@ -12,8 +12,11 @@ use App\Models\Posisi;
 use App\Models\Kontrak;
 use App\Models\Karyawan;
 use App\Models\Departemen;
+use App\Models\Organisasi;
+use App\Models\ActivityLog;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
+use App\Jobs\UploadKaryawanJob;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Log;
@@ -249,34 +252,35 @@ class KaryawanController extends Controller
     {
         $dataValidate = [
             'nama' => ['required'],
-            'ni_karyawan' => ['required'],
+            'ni_karyawan' => ['required', 'unique:karyawans,ni_karyawan'],
             'no_kk' => ['required','numeric'],
-            'nik' => ['required','numeric'],
-            'tempat_lahir' => ['required','string'],
-            'tanggal_lahir' => ['required','date_format:Y-m-d'],
-            'jenis_kelamin' => ['required'],
-            'agama' => ['required', 'string'],
-            'gol_darah' => ['required', 'string'],
-            'status_keluarga' => ['required', 'string'],
-            'kategori_keluarga' => ['required', 'string'],
-            'alamat' => ['required', 'string'],
-            'domisili' => ['required', 'string'],
-            'no_telp' => ['required','numeric'],
-            'no_telp_darurat' => ['required','numeric'],
-            'email' => ['required', 'email', 'unique:karyawans,email'],
-            'npwp' => ['required'],
-            'no_bpjs_ks' => ['required'],
-            'no_bpjs_kt' => ['required'],
-            'no_rekening' => ['required', 'numeric'],
-            'nama_rekening' => ['required', 'string'],
-            'nama_bank' => ['required', 'string'],
-            'nama_ibu_kandung' => ['required', 'string'],
-            'jenjang_pendidikan' => ['required', 'string'],
-            'jurusan_pendidikan' => ['required', 'string'],
+            'nik' => ['required','numeric','unique:karyawans,nik'],
+            'tempat_lahir' => ['nullable', 'string'],
+            'tanggal_lahir' => ['nullable', 'date_format:Y-m-d'],
+            'jenis_kelamin' => ['required','in:L,P'],
+            'agama' => ['nullable', 'string','in:ISLAM,KATOLIK,KRISTEN,HINDU,BUDHA,KONGHUCU,LAINNYA,PROTESTAN'],
+            'gol_darah' => ['string', 'in:A,B,AB,O'],
+            'status_keluarga' => ['string', 'in:MENIKAH,BELUM MENIKAH,CERAI'],
+            'kategori_keluarga' => ['string','in:TK0,TK1,TK2,TK3,K0,K1,K2,K3'],
+            'alamat' => ['nullable', 'string'],
+            'domisili' => ['nullable', 'string'],
+            'no_telp' => ['required','numeric', 'unique:karyawans,no_telp'],
+            'no_telp_darurat' => ['nullable', 'numeric'],
+            'email' => ['required','email', 'unique:karyawans,email'],
+            'npwp' => ['nullable', 'string', 'unique:karyawans,npwp'],
+            'no_bpjs_kt' => ['nullable', 'numeric', 'unique:karyawans,no_bpjs_kt'],
+            'no_bpjs_ks' => ['nullable', 'numeric', 'unique:karyawans,no_bpjs_ks'],
+            'no_rekening' => ['required','numeric'],
+            'nama_rekening' => ['nullable', 'string'],
+            'nama_bank' => ['nullable', 'string', 'in:BNI,BRI,BCA,MANDIRI,BSI'],
+            'nama_ibu_kandung' => ['nullable', 'string'],
+            'jenjang_pendidikan' => ['nullable', 'string', 'in:SD,SMP,SMA,D1,D2,D3,D4,S1,S2,S3'],
+            'jurusan_pendidikan' => ['nullable', 'string'],
             'tanggal_mulai' => ['required', 'date_format:Y-m-d'],
             'posisi.*' => ['required'],
-            'foto' => ['image', 'mimes:jpeg,png,jpg', 'max:2048'],
-            'isAdmin' => ['in:Y']
+            'foto' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'isAdmin' => ['in:Y'],
+            'pin' => ['nullable', 'string'],
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -303,8 +307,8 @@ class KaryawanController extends Controller
         $no_telp_darurat = $request->no_telp_darurat;
         $email = $request->email;
         $npwp = $request->npwp;
-        $no_bpjs_ks = $request->no_bpjs_ks;
         $no_bpjs_kt = $request->no_bpjs_kt;
+        $no_bpjs_ks = $request->no_bpjs_ks;
         $no_rekening = $request->no_rekening;
         $nama_rekening = $request->nama_rekening;
         $nama_bank = $request->nama_bank;
@@ -319,6 +323,7 @@ class KaryawanController extends Controller
         $password = $request->password;
         $foto = $request->file('foto');
         $organisasi_id = auth()->user()->organisasi_id;
+        $pin = $request->pin;
 
         DB::beginTransaction();
         try{
@@ -377,8 +382,8 @@ class KaryawanController extends Controller
                 'no_telp_darurat' => $no_telp_darurat,
                 'email' => $email,
                 'npwp' => $npwp,
-                'no_bpjs_ks' => $no_bpjs_ks,
                 'no_bpjs_kt' => $no_bpjs_kt,
+                'no_bpjs_ks' => $no_bpjs_ks,
                 'no_rekening' => $no_rekening,
                 'nama_rekening' => $nama_rekening,
                 'nama_bank' => $nama_bank,
@@ -386,6 +391,7 @@ class KaryawanController extends Controller
                 'jenjang_pendidikan' => $jenjang_pendidikan,
                 'jurusan_pendidikan' => $jurusan_pendidikan,
                 'tanggal_mulai' => $tanggal_mulai,
+                'pin' => $pin
             ]);
 
             $jabatan = null;
@@ -438,36 +444,38 @@ class KaryawanController extends Controller
     {
         $dataValidate = [
             'namaEdit' => ['required'],
-            'ni_karyawanEdit' => ['required'],
+            'ni_karyawanEdit' => ['required', 'unique:karyawans,ni_karyawan,'.$request->ni_karyawanEdit.',ni_karyawan'],
             'no_kkEdit' => ['required','numeric'],
-            'nikEdit' => ['required','numeric'],
-            'tempat_lahirEdit' => ['required','string'],
-            'tanggal_lahirEdit' => ['required','date_format:Y-m-d'],
-            'jenis_kelaminEdit' => ['required'],
-            'agamaEdit' => ['required', 'string'],
-            'gol_darahEdit' => ['required', 'string'],
-            'status_keluargaEdit' => ['required', 'string'],
-            'kategori_keluargaEdit' => ['required', 'string'],
-            'alamatEdit' => ['required', 'string'],
-            'domisiliEdit' => ['required', 'string'],
-            'no_telpEdit' => ['required','numeric'],
-            'no_telp_daruratEdit' => ['required','numeric'],
-            'npwpEdit' => ['required'],
-            'no_bpjs_ksEdit' => ['required'],
-            'no_bpjs_ktEdit' => ['required'],
+            'nikEdit' => ['required','numeric', 'unique:karyawans,nik,'.$request->nikEdit.',nik'],
+            'tempat_lahirEdit' => ['nullable', 'string'],
+            'tanggal_lahirEdit' => ['nullable', 'date_format:Y-m-d'],
+            'jenis_kelaminEdit' => ['required', 'in:L,P'],
+            'agamaEdit' => ['nullable', 'string', 'in:ISLAM,KRISTEN,KATOLIK,HINDU,BUDHA,KONGHUCU,LAINNYA,PROTESTAN'],
+            'gol_darahEdit' => ['required','string', 'in:A,B,AB,O'],
+            'status_keluargaEdit' => ['required','string', 'in:MENIKAH,BELUM MENIKAH,CERAI'],
+            'kategori_keluargaEdit' => ['required','string', 'in:TK0,TK1,TK2,TK3,K0,K1,K2,K3'],
+            'alamatEdit' => ['nullable','string'],
+            'domisiliEdit' => ['nullable','string'],
+            'no_telpEdit' => ['required','numeric', 'unique:karyawans,no_telp,'.$request->no_telpEdit.',no_telp'],
+            'no_telp_daruratEdit' => ['nullable','numeric'],
+            'emailEdit' => ['email', 'unique:karyawans,email,'.$request->emailEdit.',email'],
+            'npwpEdit' => ['nullable', 'string', 'unique:karyawans,npwp,'.$request->npwpEdit.',npwp'],
+            'no_bpjs_ksEdit' => ['nullable', 'numeric', 'unique:karyawans,no_bpjs_ks,'.$request->no_bpjs_ksEdit.',no_bpjs_ks'],
+            'no_bpjs_ktEdit' => ['nullable', 'numeric', 'unique:karyawans,no_bpjs_kt,'.$request->no_bpjs_ktEdit.',no_bpjs_kt'],
             'no_rekeningEdit' => ['required','numeric'],
-            'nama_rekeningEdit' => ['required','string'],
-            'nama_bankEdit' => ['required','string'],
-            'nama_ibu_kandungEdit' => ['required','string'],
-            'jenjang_pendidikanEdit' => ['required','string'],
-            'jurusan_pendidikanEdit' => ['required','string'],
+            'nama_rekeningEdit' => ['nullable', 'string'],
+            'nama_bankEdit' => ['nullable', 'string','in:MANDIRI,BCA,BRI,BSI,BNI'],
+            'nama_ibu_kandungEdit' => ['nullable', 'string'],
+            'jenjang_pendidikanEdit' => ['nullable', 'string', 'in:SD,SMP,SMA,D1,D2,D3,D4,S1,S2,S3'],
+            'jurusan_pendidikanEdit' => ['nullable', 'string'],
             'posisiEdit.*' => ['required'],
-            'fotoEdit' => ['image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'fotoEdit' => ['nullable','image', 'mimes:jpeg,png,jpg', 'max:2048'],
             'hutang_cutiEdit' => ['required','numeric'],
             'sisa_cuti_pribadiEdit' => ['required','numeric'],
             'sisa_cuti_bersamaEdit' => ['required','numeric'],
             'sisa_cuti_tahun_laluEdit' => ['required','numeric'],
-            'isAdminEdit' => ['in:Y']
+            'isAdminEdit' => ['in:Y'],
+            'pinEdit' => ['nullable', 'string']
         ];
 
 
@@ -510,6 +518,7 @@ class KaryawanController extends Controller
         $sisa_cuti_tahun_lalu = $request->sisa_cuti_tahun_laluEdit;
         $hutang_cuti = $request->hutang_cutiEdit;
         $expired_date_cuti_tahun_lalu = $request->expired_date_cuti_tahun_laluEdit;
+        $pin = $request->pinEdit;
 
         DB::beginTransaction();
         try{
@@ -531,8 +540,8 @@ class KaryawanController extends Controller
             $karyawan->no_telp_darurat = $no_telp_darurat;
             $karyawan->email = $email;
             $karyawan->npwp = $npwp;
-            $karyawan->no_bpjs_ks = $no_bpjs_ks;
             $karyawan->no_bpjs_kt = $no_bpjs_kt;
+            $karyawan->no_bpjs_ks = $no_bpjs_ks;
             $karyawan->no_rekening = $no_rekening;
             $karyawan->nama_rekening = $nama_rekening;
             $karyawan->nama_bank = $nama_bank;
@@ -544,6 +553,7 @@ class KaryawanController extends Controller
             $karyawan->sisa_cuti_tahun_lalu = $sisa_cuti_tahun_lalu;
             $karyawan->hutang_cuti = $hutang_cuti;
             $karyawan->expired_date_cuti_tahun_lalu = $expired_date_cuti_tahun_lalu;
+            $karyawan->pin = $pin;
             $karyawan->posisi()->detach();
 
             $user = $karyawan->user;
@@ -773,8 +783,8 @@ class KaryawanController extends Controller
                 'no_telp_darurat' => $karyawan->no_telp_darurat,
                 'email' => $karyawan->email,
                 'npwp' => $karyawan->npwp,
-                'no_bpjs_ks' => $karyawan->no_bpjs_ks,
                 'no_bpjs_kt' => $karyawan->no_bpjs_kt,
+                'no_bpjs_ks' => $karyawan->no_bpjs_ks,
                 'no_rekening' => $karyawan->no_rekening,
                 'nama_rekening' => $karyawan->nama_rekening,
                 'nama_bank' => $karyawan->nama_bank,
@@ -792,7 +802,8 @@ class KaryawanController extends Controller
                 'tanggal_selesai' => $karyawan->tanggal_selesai,
                 'posisi' => $karyawan->posisi()->pluck('posisis.id_posisi'),
                 'grup_id' => $karyawan->grup_id,
-                'is_admin' => $karyawan->user->hasRole('admin-dept')
+                'is_admin' => $karyawan->user->hasRole('admin-dept'),
+                'pin' => $karyawan->pin,
             ];
             return response()->json(['data' => $detail], 200);
         } else {
@@ -801,8 +812,16 @@ class KaryawanController extends Controller
 
     }
 
-    function generateIdKaryawan($name)
+    function generateIdKaryawan($name, $organisasi_id)
     {
+        $organisasi = Organisasi::find($organisasi_id)->nama;
+
+        if ($organisasi) {
+            $organisasi = preg_replace('/[^A-Za-z0-9]/', '', strtoupper($organisasi));
+        } else {
+            $organisasi = 'KRY';
+        }
+
         $words = explode(' ', $name);
 
         if (count($words) === 1) {
@@ -812,239 +831,121 @@ class KaryawanController extends Controller
         }
 
         $timestamp = now()->timestamp;
-        $baseString = $initials . $timestamp . rand(100, 999);
+        $baseString = $organisasi.'-'.$initials . $timestamp . rand(100, 999);
 
         return $baseString;
     }
 
     public function upload_karyawan(Request $request)
     {
-        $file = $request->file('karyawan_file');
-        $organisasi_id = auth()->user()->organisasi_id;
+        $dataValidate = [
+            'method' => ['required','in:I,U'],
+            'karyawan_file' => ['required', 'file', 'mimes:xlsx,xls'],
+        ];
 
-        $validator = Validator::make($request->all(), [
-            'karyawan_file' => 'required|mimes:xlsx,xls'
-        ]);
+        $validator = Validator::make(request()->all(), $dataValidate);
 
         if ($validator->fails()) {
-            return response()->json(['message' => 'File Harus bertipe Excel!'], 400);
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
         }
 
-        DB::beginTransaction();
         try {
+            $organisasi_id = auth()->user()->organisasi_id;
+            $method = $request->method;
+            $user = auth()->user();
 
             if($request->hasFile('karyawan_file')){
+                $file = $request->file('karyawan_file');
                 $karyawan_records = 'KR_' . time() . '.' . $file->getClientOriginalExtension();
                 $karyawan_file = $file->storeAs("attachment/upload-karyawan", $karyawan_records);
             }
 
-            if (file_exists(storage_path("app/public/".$karyawan_file))) {
+           if (file_exists(storage_path("app/public/".$karyawan_file))) {
                 $spreadsheet = IOFactory::load(storage_path("app/public/".$karyawan_file));
                 $worksheet = $spreadsheet->getActiveSheet();
                 $data = $worksheet->toArray();
-                $chunkSize = 25;
+                $dataWithoutHeader = array_slice($data, 1);
 
-                //Chunck data agar tidak terlalu banyak
-                for ($i = 1; $i <= count($data); $i += $chunkSize) {
-                    $chunk = array_slice($data, $i, $chunkSize);
-                    foreach ($chunk as $index => $row) {
-                        // Log::info('Memproses data ke-' . $index+1);
-                        // if ($index < 1) {
-                        //     continue;
-                        // }
-
-                        //Convert tanggal lahir ke format Ymd jika ada
-                        if($row[7] !== null){
-                            try {
-                                $tanggal_lahir = Carbon::createFromFormat('d/m/Y', $row[7])->format('Y-m-d');
-                            } catch (Exception $e) {
-                                return response()->json(['message' => 'Format tanggal lahir salah!'], 402);
-                            }
-                        }
-
-                        //Convert tanggal bergabung/mulai ke format Ymd jika ada
-                        if($row[17] !== null){
-                            try {
-                                $tanggal_mulai = Carbon::createFromFormat('d/m/Y', $row[17])->format('Y-m-d');
-                            } catch (Exception $e) {
-                                return response()->json(['message' => 'Format tanggal bergabung salah!'], 402);
-                            }
-
-                        }
-
-                        if($row[33] !== null){
-                            try {
-                                $expired_date_cuti_tahun_lalu = Carbon::createFromFormat('d/m/Y', $row[33])->format('Y-m-d');
-                            } catch (Exception $e) {
-                                return response()->json(['message' => 'Format tanggal expired cuti tahun lalu salah!'], 402);
-                            }
-
-                        } else {
-                            $expired_date_cuti_tahun_lalu = null;
-                        }
-
-
-                        //Cek apakah karyawan sudah ada atau belum
-                        $existingKaryawan = Karyawan::where('ni_karyawan', $row[0])->first();
-                        if (isset($row[1])) {
-                            try {
-                                if (strpos($row[1], ',') !== false) {
-                                    return response()->json(['message' => 'Hanya boleh mengisi 1 posisi utama!'], 402);
-                                    // $posisis = Posisi::whereIn('nama',explode(',', $row[1]))->pluck('id_posisi')->toArray();
-                                } else {
-                                    $posisis = Posisi::where('nama', $row[1])->pluck('id_posisi')->toArray();
-                                }
-                            } catch (Exception $e) {
-                                return response()->json(['message' => 'Format Posisi tidak sesuai template atau Posisi tidak tersedia!'], 402);
-                            }
-                        } else {
-                            $posisis = [];
-                        }
-
-
-                        //VALIDASI EMAIL
-                        if (!filter_var($row[24], FILTER_VALIDATE_EMAIL)) {
-                            return response()->json(['message' => 'Email pribadi harus berformat sebuah Email!'], 402);
-                        }
-
-                        if (!filter_var($row[26], FILTER_VALIDATE_EMAIL)) {
-                            return response()->json(['message' => 'Email perusahaan harus berformat sebuah Email!'], 402);
-                        }
-
-                        if ($existingKaryawan) {
-                            $existingKaryawan->update([
-                                'ni_karyawan' => $row[0],
-                                'organisasi_id' => $organisasi_id,
-                                'nama' => $row[2],
-                                'jenis_kelamin' => in_array(strtoupper($row[3]), ['L', 'P']) ? strtoupper($row[3]) : null,
-                                'alamat' => $row[4],
-                                'domisili' => $row[5],
-                                'tempat_lahir' => $row[6],
-                                'tanggal_lahir' => $tanggal_lahir,
-                                'status_keluarga' => in_array(strtoupper($row[8]), ['MENIKAH', 'BELUM MENIKAH', 'CERAI']) ? strtoupper($row[8]) : null,
-                                'kategori_keluarga' => in_array(strtoupper($row[9]), ['TK0', 'TK1', 'TK2', 'TK3', 'K0', 'K1', 'K2', 'K3']) ? strtoupper($row[9]) : null,
-                                'agama' => in_array(strtoupper($row[10]), ['ISLAM', 'KATOLIK', 'KRISTEN', 'KONGHUCU', 'HINDU', 'BUDHA', 'PROTESTAN', 'LAINNYA']) ? strtoupper($row[10]) : null,
-                                'no_kk' => $row[11],
-                                'nik' => $row[12],
-                                'npwp' => $row[13],
-                                'no_bpjs_ks' => $row[14],
-                                'no_bpjs_kt' => $row[15],
-                                'no_telp' => $row[16],
-                                'no_telp_darurat' => $row[29],
-                                'jenjang_pendidikan' => in_array(strtoupper($row[18]), ['SD', 'SMP', 'SMA', 'D1', 'D2', 'D3', 'S1', 'S2', 'S3']) ? strtoupper($row[18]) : null,
-                                'jurusan_pendidikan' => $row[19],
-                                'nama_ibu_kandung' => $row[20],
-                                'nama_bank' => $row[21],
-                                'nama_rekening' => $row[22],
-                                'no_rekening' => $row[23],
-                                'email' => $row[24],
-                                'gol_darah' => in_array(strtoupper($row[25]), ['O', 'A', 'B', 'AB']) ? strtoupper($row[25]) : null,
-                                'sisa_cuti_pribadi' => $row[30],
-                                'sisa_cuti_bersama' => $row[31],
-                                'sisa_cuti_tahun_lalu' => $row[32] ? $row[32] : 0,
-                                'expired_date_cuti_tahun_lalu' => $expired_date_cuti_tahun_lalu ? $expired_date_cuti_tahun_lalu : null,
-                                'hutang_cuti' => $row[34],
-                            ]);
-
-                            if(isset($row[26]) && isset($row[27]) && isset($row[28])){
-                                $user = User::find($existingKaryawan->user_id);
-                                $user->update([
-                                    'email' => $row[26],
-                                    'username' => $row[27],
-                                    'password' => Hash::make($row[28]),
-                                    'organisasi_id' => $organisasi_id,
-                                ]);
-                            }
-
-                            if(!empty($posisis)){
-                                $existingKaryawan->posisi()->sync($posisis);
-                                if($existingKaryawan->posisi[0]->jabatan_id !== 6){
-                                    if ($user->roles()->count() > 0) {
-                                        $user->roles()->detach();
-                                    }
-                                    $user->assignRole('atasan');
-                                } else {
-                                    if ($user->roles()->count() > 0) {
-                                        $user->roles()->detach();
-                                    }
-                                    $user->assignRole('member');
-                                }
-                            }
-
-                            continue;
-                        }
-
-                        $user = User::create([
-                            'email' => $row[26],
-                            'username' => $row[27],
-                            'password' => Hash::make($row[28]),
-                            'organisasi_id' => $organisasi_id,
-                        ]);
-
-                        $id_karyawan = $this->generateIdKaryawan(strtoupper($row[2]));
-
-                        $karyawan = Karyawan::create([
-                            'user_id' => $user->id,
-                            'organisasi_id' => $organisasi_id,
-                            'id_karyawan' => $id_karyawan,
-                            'ni_karyawan' => $row[0],
-                            'nama' => $row[2],
-                            'jenis_kelamin' => in_array(strtoupper($row[3]), ['L', 'P']) ? strtoupper($row[3]) : null,
-                            'alamat' => $row[4],
-                            'domisili' => $row[5],
-                            'tempat_lahir' => $row[6],
-                            'tanggal_lahir' => $tanggal_lahir,
-                            'status_keluarga' => in_array(strtoupper($row[8]), ['MENIKAH', 'BELUM MENIKAH', 'CERAI']) ? strtoupper($row[8]) : null,
-                            'kategori_keluarga' => in_array(strtoupper($row[9]), ['TK0', 'TK1', 'TK2', 'TK3', 'K0', 'K1', 'K2', 'K3']) ? strtoupper($row[9]) : null,
-                            'agama' => in_array(strtoupper($row[10]), ['ISLAM', 'KATOLIK', 'KRISTEN', 'KONGHUCU', 'HINDU', 'BUDHA', 'PROTESTAN', 'LAINNYA']) ? strtoupper($row[10]) : null,
-                            'no_kk' => $row[11],
-                            'nik' => $row[12],
-                            'npwp' => $row[13],
-                            'no_bpjs_ks' => $row[14],
-                            'no_bpjs_kt' => $row[15],
-                            'no_telp' => $row[16],
-                            'no_telp_darurat' => $row[29],
-                            'jenjang_pendidikan' => in_array(strtoupper($row[18]), ['SD', 'SMP', 'SMA', 'D1', 'D2', 'D3', 'S1', 'S2', 'S3']) ? strtoupper($row[18]) : null,
-                            'jurusan_pendidikan' => $row[19],
-                            'nama_ibu_kandung' => $row[20],
-                            'nama_bank' => $row[21],
-                            'nama_rekening' => $row[22],
-                            'no_rekening' => $row[23],
-                            'email' => $row[24],
-                            'tanggal_mulai' => $tanggal_mulai,
-                            'gol_darah' => in_array(strtoupper($row[25]), ['O', 'A', 'B', 'AB']) ? strtoupper($row[25]) : null,
-                            'sisa_cuti_pribadi' => $row[30],
-                            'sisa_cuti_bersama' => $row[31],
-                            'sisa_cuti_tahun_lalu' => $row[32] ? $row[32] : 0,
-                            'expired_date_cuti_tahun_lalu' => $expired_date_cuti_tahun_lalu ? $expired_date_cuti_tahun_lalu : null,
-                            'hutang_cuti' => $row[34],
-                        ]);
-
-                        if(!empty($posisis)){
-                            $karyawan->posisi()->sync($posisis);
-                            if($karyawan->posisi[0]->jabatan_id !== 6){
-                                if ($user->roles()->count() > 0) {
-                                    $user->roles()->detach();
-                                }
-                                $user->assignRole('atasan');
-                            } else {
-                                if ($user->roles()->count() > 0) {
-                                    $user->roles()->detach();
-                                }
-                                $user->assignRole('member');
-                            }
-                        }
-                    }
+                if (count($dataWithoutHeader) < 1) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Data tidak ditemukan!'
+                    ], 404);
                 }
+
+                UploadKaryawanJob::dispatch($dataWithoutHeader, $organisasi_id, $method, $user);
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'File uploaded successfully, please wait for the process to finish (job)',
+                ], 200);
             } else {
-                DB::rollBack();
-                return response()->json(['message' => 'Terjadi kesalahan, silahkan upload ulang file!'], 404);
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Please upload a file',
+                ], 500);
             }
-            DB::commit();
-            return response()->json(['message' => 'File berhasil di upload'], 200);
+
         } catch (Throwable $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Error processing the file: ' . $e->getMessage()], 500);
+            return response()->json(['message' => $e->getMessage()], 500);
         }
+    }
+
+    public function upload_datatable(Request $request)
+    {
+
+        $columns = array(
+            0 => 'activity_log.description',
+            1 => 'users.username',
+            2 => 'activity_log.created_at',
+        );
+
+        $totalData = ActivityLog::count();
+        $totalFiltered = $totalData;
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = (!empty($request->input('order.0.column'))) ? $columns[$request->input('order.0.column')] : $columns[0];
+        $dir = (!empty($request->input('order.0.dir'))) ? $request->input('order.0.dir') : "DESC";
+
+        $settings['start'] = $start;
+        $settings['limit'] = $limit;
+        $settings['dir'] = $dir;
+        $settings['order'] = $order;
+
+        $dataFilter = [];
+        $search = $request->input('search.value');
+        if (!empty($search)) {
+            $dataFilter['search'] = $search;
+        }
+
+        $dataFilter['log_name'] = 'error_job_upload_karyawan';
+
+        $uploadLog = ActivityLog::getData($dataFilter, $settings);
+        $totalFiltered = ActivityLog::countData($dataFilter);
+
+        $dataTable = [];
+
+        if (!empty($uploadLog)) {
+            foreach ($uploadLog as $data) {
+                $nestedData['description'] = $data->description;
+                $nestedData['causer'] = $data->username;
+                $nestedData['created_at'] = Carbon::parse($data->created_at)->translatedFormat('d F Y H:i:s');
+                $dataTable[] = $nestedData;
+            }
+        }
+
+        $json_data = array(
+            "draw" => intval($request->input('draw')),
+            "recordsTotal" => intval($totalData),
+            "recordsFiltered" => intval($totalFiltered),
+            "data" => $dataTable,
+            "order" => $order,
+            "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
+            "dir" => $dir,
+            "column"=>$request->input('order.0.column')
+        );
+
+        return response()->json($json_data, 200);
     }
 }

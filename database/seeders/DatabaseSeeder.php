@@ -14,24 +14,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        //TRIAL 3 ACCOUNT USER
-        // User::factory()->create([
-        //     'username' => 'FL0001',
-        //     'email' => 'fl0001@email.com',
-        //     'password' =>  Hash::make('password')
-        //   ])->create([
-        //     'username' => 'IN0002',
-        //     'email' => 'in0002@email.com',
-        //     'password' =>  Hash::make('password')
-        //   ])->create([
-        //     'username' => 'AM0003',
-        //     'email' => 'am0003@email.com',
-        //     'password' =>  Hash::make('password')
-        //   ]);
-
-
         $this->call([
             UserSeeder::class,
             SecurityRoleSeeder::class,
@@ -43,13 +25,12 @@ class DatabaseSeeder extends Seeder
             DivisiSeeder::class,
             DepartemenSeeder::class,
             SeksiSeeder::class,
-            // GrupSeeder::class,
             KaryawanSeeder::class,
             SettingLemburSeeder::class,
             SettingLemburKaryawanSeeder::class,
             BatasLemburSeeder::class,
             BatasApprovalLemburSeeder::class,
-            OnOffSettingBatasLembur::class,
+            OnOffSettingBatasLemburSeeder::class,
         ]);
     }
 }
