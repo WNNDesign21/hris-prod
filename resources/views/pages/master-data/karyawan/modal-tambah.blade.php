@@ -114,23 +114,21 @@
                                 <div class="row">
                                     <div class="col-6">
                                         <div class="form-group">
-                                            <label for="">Kota Lahir <span
-                                                    class="text-danger">*</span></label>
+                                            <label for="">Kota Lahir</label>
                                             <br>
                                             <div class="input-group mb-2" style="width:100%;">
                                                 <input type="text" name="tempat_lahir" id="tempat_lahir"
-                                                    class="form-control" required>
+                                                    class="form-control">
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-6">
                                         <div class="form-group">
-                                            <label for="">Tanggal Lahir <span
-                                                    class="text-danger">*</span></label>
+                                            <label for="">Tanggal Lahir</label>
                                             <br>
                                             <div class="input-group mb-2" style="width:100%;">
                                                 <input type="date" name="tanggal_lahir" id="tanggal_lahir"
-                                                    class="form-control" required>
+                                                    class="form-control">
                                             </div>
                                         </div>
                                     </div>
@@ -147,11 +145,11 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label for="">Agama <span class="text-danger">*</span></label>
+                                    <label for="">Agama</label>
                                     <br>
                                     <div class="input-group mb-2" style="width:100%;">
                                         <select name="agama" id="agama" class="form-control"
-                                            style="width: 100%;" required>
+                                            style="width: 100%;">
                                             <option value="">Pilih Agama (Boleh Kosong)</option>
                                             <option value="ISLAM">ISLAM</option>
                                             <option value="KRISTEN">KRISTEN</option>
@@ -206,14 +204,14 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label for="">Alamat KTP <span class="text-danger">*</span></label>
+                                    <label for="">Alamat KTP</label>
                                     <br>
-                                    <textarea name="alamat" id="alamat" class="form-control" required></textarea>
+                                    <textarea name="alamat" id="alamat" class="form-control"></textarea>
                                 </div>
                                 <div class="form-group">
-                                    <label for="">Domisili <span class="text-danger">*</span></label>
+                                    <label for="">Domisili</label>
                                     <br>
-                                    <textarea name="domisili" id="domisili" class="form-control" required></textarea>
+                                    <textarea name="domisili" id="domisili" class="form-control"></textarea>
                                 </div>
                             </div>
                             <div class="col-lg-6 col-12">
@@ -224,17 +222,16 @@
                                         required>
                                 </div>
                                 <div class="form-group mt-2">
-                                    <label for="">Atas Nama Rekening <span
-                                            class="text-danger">*</span></label>
+                                    <label for="">Atas Nama Rekening</label>
                                     <br>
                                     <input type="text" name="nama_rekening" id="nama_rekening"
-                                        class="form-control" required>
+                                        class="form-control">
                                 </div>
                                 <div class="form-group">
-                                    <label for="">Nama Bank <span class="text-danger">*</span></label>
+                                    <label for="">Nama Bank</label>
                                     <br>
                                     <select name="nama_bank" id="nama_bank" class="form-control"
-                                        style="width: 100%;" required>
+                                        style="width: 100%;">
                                         <option value="">Pilih Bank Rekening</option>
                                         <option value="MANDIRI">MANDIRI</option>
                                         <option value="BRI">BRI</option>
@@ -244,17 +241,16 @@
                                     </select>
                                 </div>
                                 <div class="form-group mt-2">
-                                    <label for="">Nama Ibu Kandung <span class="text-danger">*</span></label>
+                                    <label for="">Nama Ibu Kandung</label>
                                     <br>
                                     <input type="text" name="nama_ibu_kandung" id="nama_ibu_kandung"
-                                        class="form-control" required>
+                                        class="form-control">
                                 </div>
                                 <div class="form-group">
-                                    <label for="">Jenjang Pendidikan Terakhir <span
-                                            class="text-danger">*</span></label>
+                                    <label for="">Jenjang Pendidikan Terakhir</label>
                                     <br>
                                     <select name="jenjang_pendidikan" id="jenjang_pendidikan" class="form-control"
-                                        style="width: 100%;" required>
+                                        style="width: 100%;">
                                         <option value="">Pilih Jenjang Pendidikan Terakhir</option>
                                         <option value="SD">SD</option>
                                         <option value="SMP">SMP</option>
@@ -262,17 +258,17 @@
                                         <option value="D1">D1</option>
                                         <option value="D2">D2</option>
                                         <option value="D3">D3</option>
+                                        <option value="D4">D4</option>
                                         <option value="S1">S1</option>
                                         <option value="S2">S2</option>
                                         <option value="S3">S3</option>
                                     </select>
                                 </div>
                                 <div class="form-group mt-2">
-                                    <label for="">Jurusan Pendidikan Terakhir <span
-                                            class="text-danger">*</span></label>
+                                    <label for="">Jurusan Pendidikan Terakhir</label>
                                     <br>
                                     <input type="text" name="jurusan_pendidikan" id="jurusan_pendidikan"
-                                        class="form-control" required>
+                                        class="form-control">
                                 </div>
                                 <div class="form-group">
                                     <label for="">No. Telepon <span class="text-danger">*</span></label>
@@ -281,37 +277,33 @@
                                         required>
                                 </div>
                                 <div class="form-group mt-2">
-                                    <label for="">No.Telp Darurat <span class="text-danger">*</span></label>
+                                    <label for="">No.Telp Darurat</label>
                                     <br>
                                     <input type="text" name="no_telp_darurat" id="no_telp_darurat"
-                                        class="form-control" required>
+                                        class="form-control">
                                 </div>
                                 <div class="form-group mt-2">
                                     <label for="">Email <span class="text-danger">*</span></label>
                                     <br>
                                     <small>Note : Email ini untuk keperluan notifikasi sistem</small>
                                     <br>
-                                    <input type="email" name="email" id="email" class="form-control">
-                                </div>
-                                <div class="form-group mt-2">
-                                    <label for="">NPWP <span class="text-danger">*</span></label>
-                                    <br>
-                                    <input type="text" name="npwp" id="npwp" class="form-control"
+                                    <input type="email" name="email" id="email" class="form-control"
                                         required>
                                 </div>
                                 <div class="form-group mt-2">
-                                    <label for="">No. BPJS Kesehatan <span
-                                            class="text-danger">*</span></label>
+                                    <label for="">NPWP</label>
                                     <br>
-                                    <input type="text" name="no_bpjs_ks" id="no_bpjs_ks" class="form-control"
-                                        required>
+                                    <input type="text" name="npwp" id="npwp" class="form-control">
                                 </div>
                                 <div class="form-group mt-2">
-                                    <label for="">No. BPJS Ketenagakerjaan <span
-                                            class="text-danger">*</span></label>
+                                    <label for="">No. BPJS Ketenagakerjaan</label>
                                     <br>
-                                    <input type="text" name="no_bpjs_kt" id="no_bpjs_kt" class="form-control"
-                                        required>
+                                    <input type="text" name="no_bpjs_kt" id="no_bpjs_kt" class="form-control">
+                                </div>
+                                <div class="form-group mt-2">
+                                    <label for="">No. BPJS Kesehatan</label>
+                                    <br>
+                                    <input type="text" name="no_bpjs_ks" id="no_bpjs_ks" class="form-control">
                                 </div>
                                 <div class="form-group">
                                     <label for="">Tanggal Mulai <span class="text-danger">*</span></label>
@@ -327,6 +319,13 @@
                                         id="posisi" name="posisi[]" style="width: 100%;" required>
                                     </select>
                                 </div>
+                                <div class="form-group">
+                                    <label for="">PIN Fingerprint</label>
+                                    <br>
+                                    <div class="input-group mb-2" style="width:100%;">
+                                        <input type="text" name="pin" id="pin" class="form-control">
+                                    </div>
+                                </div>
                                 <div class="form-group mb-0">
                                     <input type="checkbox" id="isAdmin" name="isAdmin" value="Y"
                                         class="filled-in chk-col-primary" />
@@ -334,7 +333,8 @@
                                         <h5>Is Admin</h5>
                                     </label>
                                 </div>
-                                <small>Note : Check tombol ini jika user merupakan seorang admin departemen, memiliki
+                                <small>Note : Check tombol ini jika user merupakan seorang admin departemen,
+                                    memiliki
                                     beberapa hak akses modul
                                     tertentu.</small>
                             </div>

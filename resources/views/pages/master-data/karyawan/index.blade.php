@@ -27,8 +27,6 @@
                                 class="fas fa-plus"></i></button>
                         <button type="button" class="btn btn-dark waves-effect btnUpload"><i
                                 class="fas fa-upload"></i></button>
-                        <button type="button" class="btn btn-light waves-effect btnTemplate"><i
-                                class="fas fa-file-excel"></i></button>
                     </div>
                     <input type="file" id="upload-karyawan" class="d-none">
                 </div>
@@ -80,6 +78,7 @@
         </div>
     </div>
     @include('pages.master-data.karyawan.modal-tambah')
+    @include('pages.master-data.karyawan.modal-upload')
     @include('pages.master-data.karyawan.modal-edit')
     @include('pages.master-data.karyawan.modal-akun')
     @include('pages.master-data.karyawan.modal-kontrak')

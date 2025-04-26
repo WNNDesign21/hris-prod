@@ -29,7 +29,7 @@ $(function () {
             toast: true,
             position: "top-end",
             showConfirmButton: false,
-            timer: 2000, 
+            timer: 2000,
             timerProgressBar: true,
             didOpen: (toast) => {
             toast.onmouseenter = Swal.stopTimer;
@@ -79,6 +79,7 @@ $(function () {
         order: [[0, "DESC"]],
         processing: true,
         serverSide: true,
+        stateSave: !0,
         ajax: {
             url: base_url + "/master-data/kontrak/datatable",
             dataType: "json",
@@ -120,9 +121,7 @@ $(function () {
                             "</div>",
                         allowOutsideClick: false,
                         showConfirmButton: true,
-                    }).then(function () {
-                        refreshTable();
-                    });
+                    })
                 } else {
                     var message = jqXHR.responseJSON.message;
                     var errorLine = jqXHR.responseJSON.line;
@@ -144,17 +143,11 @@ $(function () {
                             "</div>",
                         allowOutsideClick: false,
                         showConfirmButton: true,
-                    }).then(function () {
-                        refreshTable();
-                    });
+                    })
                 }
             },
         },
         responsive: true,
-        rowReorder: {
-            selector: 'td:nth-child(2)'
-        },
-
         columns: columnsTable,
         columnDefs: [
             {
@@ -168,18 +161,6 @@ $(function () {
                 },
             },
         ],
-        // dom: 'Bfrtip',
-        // buttons: [
-        //     {
-        //         extend: 'excelHtml5', 
-        //         text: 'Export to Excel',
-        //         exportOptions: {
-        //             columns: ':not(:nth-child(14), :nth-child(13))',
-        //             search: 'applied', 
-        //             order: 'applied' 
-        //         }
-        //     },
-        // ],
     })
 
     //REFRESH TABLE
@@ -255,13 +236,13 @@ $(function () {
         if (input && input.type === 'file') {
             input.click();
             $(input).on('change', function(event) {
-                loadingSwalShow(); 
+                loadingSwalShow();
                 var file = event.target.files[0];
                 var formData = new FormData();
                 formData.append(type, file);
-    
+
                 $.ajax({
-                    url: url, 
+                    url: url,
                     type: 'POST',
                     data: formData,
                     processData: false,
@@ -295,13 +276,13 @@ $(function () {
         if (input && input.type === 'file') {
             input.click();
             $(input).on('change', function(event) {
-                loadingSwalShow(); 
+                loadingSwalShow();
                 var file = event.target.files[0];
                 var formData = new FormData();
                 formData.append(type, file);
-    
+
                 $.ajax({
-                    url: url, 
+                    url: url,
                     type: 'POST',
                     data: formData,
                     processData: false,
@@ -332,7 +313,7 @@ $(function () {
         var formData = new FormData();
         formData.append('isReactive', isReactive);
         $.ajax({
-            url: url, 
+            url: url,
             type: 'POST',
             data: formData,
             processData: false,
@@ -602,11 +583,11 @@ $(function () {
     })
 
     $('.btnResetFilter').on("click", function (){
-        $('#filterDepartemen').val("").trigger('change');   
-        $('#filterJeniskontrak').val("").trigger('change');   
-        $('#filterStatuskontrak').val("").trigger('change');   
-        $('#filterAttachment').val("").trigger('change');   
-        $('#filterEvidence').val("").trigger('change');   
+        $('#filterDepartemen').val("").trigger('change');
+        $('#filterJeniskontrak').val("").trigger('change');
+        $('#filterStatuskontrak').val("").trigger('change');
+        $('#filterAttachment').val("").trigger('change');
+        $('#filterEvidence').val("").trigger('change');
         $('#filterNama').val("");
         $('#filterNamaposisi').val("");
         $('#filterTanggalmulaistart').val("");
@@ -653,50 +634,191 @@ $(function () {
         closeFilter();
     });
 
-    $('.btnTemplate').on('click', function () {
-        window.location.href = base_url + '/template/template_upload_kontrak.xlsx';
+    // $('.btnTemplate').on('click', function () {
+    //     window.location.href = base_url + '/template/template_upload_kontrak.xlsx';
+    // });
+
+    // $('.btnUpload').on('click', function (){
+    //     let input = $('#upload-kontrak');
+    //     input.click();
+
+    //     input.off('change').on('change', function () {
+    //         Swal.fire({
+    //             title: "Upload Record Kontrak",
+    //             text: "Kontrak akan menjadi double jika data sudah ada, pastikan untuk tidak mengupload kontrak yang sama",
+    //             icon: "warning",
+    //             showCancelButton: true,
+    //             confirmButtonColor: "#3085d6",
+    //             cancelButtonColor: "#d33",
+    //             confirmButtonText: "Yes, Upload it!",
+    //             allowOutsideClick: false,
+    //         }).then((result) => {
+    //             if (result.value) {
+    //                 loadingSwalShow();
+    //                 const url = base_url + "/master-data/kontrak/upload-data-kontrak";
+    //                 let formData = new FormData();
+    //                 formData.append('kontrak_file', input[0].files[0]);
+
+    //                 $.ajax({
+    //                     url: url,
+    //                     method: "POST",
+    //                     data: formData,
+    //                     contentType: false,
+    //                     processData: false,
+    //                     success: function (data) {
+    //                         input.val('');
+    //                         showToast({ title: data.message });
+    //                         loadingSwalClose();
+    //                         refreshTable();
+    //                     },
+    //                     error: function (jqXHR, textStatus, errorThrown) {
+    //                         loadingSwalClose();
+    //                         showToast({ icon: "error", title: jqXHR.responseJSON.message });
+    //                     },
+    //                 })
+    //             }
+    //         });
+    //     });
+    // });
+
+    // MODAL UPLOAD
+    $('#method').select2({
+        dropdownParent: $('#modal-upload'),
     });
 
-    $('.btnUpload').on('click', function (){
-        let input = $('#upload-kontrak');
-        input.click();
+    var modalUploadOptions = {
+        backdrop: "static",
+        keyboard: false,
+    };
 
-        input.off('change').on('change', function () {
-            Swal.fire({
-                title: "Upload Record Kontrak",
-                text: "Kontrak akan menjadi double jika data sudah ada, pastikan untuk tidak mengupload kontrak yang sama",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Yes, Upload it!",
-                allowOutsideClick: false,
-            }).then((result) => {
-                if (result.value) {
-                    loadingSwalShow();
-                    const url = base_url + "/master-data/kontrak/upload-data-kontrak";
-                    let formData = new FormData();
-                    formData.append('kontrak_file', input[0].files[0]);
+    var modalUpload = new bootstrap.Modal(
+        document.getElementById("modal-upload"),
+        modalUploadOptions
+    );
 
-                    $.ajax({
-                        url: url,
-                        method: "POST",
-                        data: formData,
-                        contentType: false,
-                        processData: false,
-                        success: function (data) {
-                            input.val('');
-                            showToast({ title: data.message });
-                            loadingSwalClose();
-                            refreshTable();
-                        },
-                        error: function (jqXHR, textStatus, errorThrown) {
-                            loadingSwalClose();
-                            showToast({ icon: "error", title: jqXHR.responseJSON.message });
-                        },
-                    })
-                } 
-            });
-        });
+    function openUpload() {
+        modalUpload.show();
+    }
+
+    function closeUpload() {
+        modalUpload.hide();
+        resetUpload();
+        refreshTable();
+        clearInterval(refreshUploadTable);
+    }
+
+    function resetUpload() {
+        $("#kontrak_file").val("");
+    }
+
+    $('.btnUpload').on("click", function (){
+        openUpload();
+        setInterval(refreshUploadTable, 30000);
     });
+
+    $('.btnCloseUpload').on("click", function (){
+        refreshTable();
+        closeUpload();
+    })
+
+    $('#form-upload').on('submit', function (e){
+        e.preventDefault();
+        loadingSwalShow();
+        let url = $('#form-upload').attr('action');
+
+        var formData = new FormData($('#form-upload')[0]);
+        $.ajax({
+            url: url,
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (data) {
+                resetUpload();
+                loadingSwalClose();
+                showToast({ title: data.message });
+                refreshTable();
+                refreshUploadTable();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                resetUpload();
+                refreshTable();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        })
+    });
+
+    var uploadColumnsTable = [
+        { data: "description" },
+        { data: "causer" },
+        { data: "created_at" },
+    ];
+
+    var uploadTable = $("#upload-table").DataTable({
+        search: {
+            return: true,
+        },
+        order: [[2, "DESC"]],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: base_url + "/master-data/kontrak/upload-datatable",
+            dataType: "json",
+            type: "POST",
+            data: function (dataFilter) {
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR.responseJSON.data) {
+                    var error = jqXHR.responseJSON.data.error;
+                    Swal.fire({
+                        icon: "error",
+                        title: " <br>Application error!",
+                        html:
+                            '<div class="alert alert-danger text-left" role="alert">' +
+                            "<p>Error Message: <strong>" +
+                            error +
+                            "</strong></p>" +
+                            "</div>",
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                    });
+                } else {
+                    var message = jqXHR.responseJSON.message;
+                    var errorLine = jqXHR.responseJSON.line;
+                    var file = jqXHR.responseJSON.file;
+                    Swal.fire({
+                        icon: "error",
+                        title: " <br>Application error!",
+                        html:
+                            '<div class="alert alert-danger text-left" role="alert">' +
+                            "<p>Error Message: <strong>" +
+                            message +
+                            "</strong></p>" +
+                            "<p>File: " +
+                            file +
+                            "</p>" +
+                            "<p>Line: " +
+                            errorLine +
+                            "</p>" +
+                            "</div>",
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                    });
+                }
+            },
+        },
+        responsive: true,
+        columns: uploadColumnsTable,
+    })
+
+    function refreshUploadTable() {
+        var searchValue = uploadTable.search();
+        if (searchValue) {
+            uploadTable.search(searchValue).draw();
+        } else {
+            uploadTable.search("").draw();
+        }
+    }
 });

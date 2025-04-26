@@ -29,7 +29,7 @@ $(function () {
             toast: true,
             position: "top-end",
             showConfirmButton: false,
-            timer: 2000, 
+            timer: 2000,
             timerProgressBar: true,
             didOpen: (toast) => {
             toast.onmouseenter = Swal.stopTimer;
@@ -87,6 +87,7 @@ $(function () {
         order: [[0, "DESC"]],
         processing: true,
         serverSide: true,
+        stateSave: !0,
         ajax: {
             url: base_url + "/master-data/karyawan/datatable",
             dataType: "json",
@@ -265,6 +266,7 @@ $(function () {
         $("#jenjang_pendidikan").val("");
         $("#no_telp_darurat").val("");
         $('#status_karyawan').val("");
+        $('#pin').val("");
         // $('#grup').val("");
         $('#posisi').val("");
     }
@@ -331,7 +333,7 @@ $(function () {
         //         cache: true,
         //     },
         // });
-    
+
         $('#posisi').select2({
             dropdownParent: $('#modal-input-karyawan'),
             ajax: {
@@ -401,7 +403,7 @@ $(function () {
         $('#kategori_keluargaEdit').select2({
             dropdownParent: $('#modal-edit-karyawan'),
         });
-        
+
         $('#jenjang_pendidikanEdit').select2({
             dropdownParent: $('#modal-edit-karyawan'),
         });
@@ -484,6 +486,7 @@ $(function () {
                 $('#status_karyawanEdit').val(detailKaryawan.status_karyawan);
                 $('#tanggal_mulaiEdit').val(detailKaryawan.tanggal_mulai);
                 $('#tanggal_selesaiEdit').val(detailKaryawan.tanggal_selesai);
+                $('#pinEdit').val(detailKaryawan.pin);
                 $('#isAdminEdit').prop('checked', detailKaryawan.is_admin);
                 initializeSelect2Edit(detailKaryawan.grup_id, detailKaryawan.posisi);
                 openEditKaryawan();
@@ -491,7 +494,7 @@ $(function () {
             error: function (jqXHR, textStatus, errorThrown) {
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
             },
-        }); 
+        });
     }
 
     //SUBMIT EDIT KARYAWAN
@@ -659,7 +662,7 @@ $(function () {
             dataType: "JSON",
             success: function (response) {
                 let detailAkun = response.data;
-                
+
                 $('#id_akunEdit').val(userId);
                 $('#id_karyawanAkunEdit').val(idKaryawan);
                 $('#akun-title').text('Edit Akun - ' + nama);
@@ -671,7 +674,7 @@ $(function () {
             error: function (jqXHR, textStatus, errorThrown) {
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
             },
-        }); 
+        });
     }
 
     $('#form-akun').on('submit', function (e){
@@ -710,7 +713,7 @@ $(function () {
         let idKaryawan = $(this).data('id');
         let namaKaryawan = $(this).data('nama');
         $('#title-kontrak').text('Kontrak - '+namaKaryawan)
-        
+
 
         $('#jenis_kontrakEdit').select2({
             dropdownParent: $('#modal-kontrak'),
@@ -832,93 +835,93 @@ $(function () {
             error: function (jqXHR, textStatus, errorThrown) {
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
             },
-        }); 
+        });
     }
 
-    $('#form-kontrak').on('submit', function (e){
-        loadingSwalShow();
-        e.preventDefault();
-        let url = $('#form-kontrak').attr('action');
+    // $('#form-kontrak').on('submit', function (e){
+    //     loadingSwalShow();
+    //     e.preventDefault();
+    //     let url = $('#form-kontrak').attr('action');
 
-        var formData = new FormData($('#form-kontrak')[0]);
-        $.ajax({
-            url: url,
-            data: formData,
-            method:"POST",
-            contentType: false,
-            processData: false,
-            dataType: "JSON",
-            success: function (data) {
-                let dataKontrak = data.data;
-                showToast({ title: data.message });
-                getListKontrak(dataKontrak.karyawan_id);
-                refreshTable();
-                loadingSwalClose();
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                loadingSwalClose();
-                showToast({ icon: "error", title: jqXHR.responseJSON.message });
-            },
-        })
-    });
+    //     var formData = new FormData($('#form-kontrak')[0]);
+    //     $.ajax({
+    //         url: url,
+    //         data: formData,
+    //         method:"POST",
+    //         contentType: false,
+    //         processData: false,
+    //         dataType: "JSON",
+    //         success: function (data) {
+    //             let dataKontrak = data.data;
+    //             showToast({ title: data.message });
+    //             getListKontrak(dataKontrak.karyawan_id);
+    //             refreshTable();
+    //             loadingSwalClose();
+    //         },
+    //         error: function (jqXHR, textStatus, errorThrown) {
+    //             loadingSwalClose();
+    //             showToast({ icon: "error", title: jqXHR.responseJSON.message });
+    //         },
+    //     })
+    // });
 
-    $('#jenis_kontrakEdit').on('change', function (){
-        let jenisKontrak = $(this).val();
-        if(jenisKontrak == 'PKWTT'){
-            $('#durasi_kontrakEdit').val('').prop('readonly', true);
-            $('#tanggal_selesai_kontrakEdit').val('').prop('readonly', true);
-        } else {
-            $('#durasi_kontrakEdit').val('').prop('readonly', false);
-            $('#tanggal_selesai_kontrakEdit').val('').prop('readonly', false);
-        }
-    })
+    // $('#jenis_kontrakEdit').on('change', function (){
+    //     let jenisKontrak = $(this).val();
+    //     if(jenisKontrak == 'PKWTT'){
+    //         $('#durasi_kontrakEdit').val('').prop('readonly', true);
+    //         $('#tanggal_selesai_kontrakEdit').val('').prop('readonly', true);
+    //     } else {
+    //         $('#durasi_kontrakEdit').val('').prop('readonly', false);
+    //         $('#tanggal_selesai_kontrakEdit').val('').prop('readonly', false);
+    //     }
+    // })
 
-    $('.btnUpload').on('click', function (){
-        let input = $('#upload-karyawan');
-        input.click();
+    // $('.btnUpload').on('click', function (){
+    //     let input = $('#upload-karyawan');
+    //     input.click();
 
-        input.off('change').on('change', function () {
-            Swal.fire({
-                title: "Upload Record Karyawan",
-                text: "Karyawan dengan ID yang sudah terdaftar akan terupdate sesuai dengan ID Karyawan",
-                icon: "warning",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Yes, Upload it!",
-                allowOutsideClick: false,
-            }).then((result) => {
-                if (result.value) {
-                    loadingSwalShow();
-                    const url = base_url + "/master-data/karyawan/upload-karyawan";
-                    let formData = new FormData();
-                    formData.append('karyawan_file', input[0].files[0]);
+    //     input.off('change').on('change', function () {
+    //         Swal.fire({
+    //             title: "Upload Record Karyawan",
+    //             text: "Karyawan dengan ID yang sudah terdaftar akan terupdate sesuai dengan ID Karyawan",
+    //             icon: "warning",
+    //             showCancelButton: true,
+    //             confirmButtonColor: "#3085d6",
+    //             cancelButtonColor: "#d33",
+    //             confirmButtonText: "Yes, Upload it!",
+    //             allowOutsideClick: false,
+    //         }).then((result) => {
+    //             if (result.value) {
+    //                 loadingSwalShow();
+    //                 const url = base_url + "/master-data/karyawan/upload-karyawan";
+    //                 let formData = new FormData();
+    //                 formData.append('karyawan_file', input[0].files[0]);
 
-                    $.ajax({
-                        url: url,
-                        method: "POST",
-                        data: formData,
-                        contentType: false,
-                        processData: false,
-                        success: function (data) {
-                            showToast({ title: data.message });
-                            input.val('');
-                            loadingSwalClose();
-                            refreshTable();
-                        },
-                        error: function (jqXHR, textStatus, errorThrown) {
-                            loadingSwalClose();
-                            showToast({ icon: "error", title: jqXHR.responseJSON.message });
-                        },
-                    })
-                } 
-            });
-        });
-    });
+    //                 $.ajax({
+    //                     url: url,
+    //                     method: "POST",
+    //                     data: formData,
+    //                     contentType: false,
+    //                     processData: false,
+    //                     success: function (data) {
+    //                         showToast({ title: data.message });
+    //                         input.val('');
+    //                         loadingSwalClose();
+    //                         refreshTable();
+    //                     },
+    //                     error: function (jqXHR, textStatus, errorThrown) {
+    //                         loadingSwalClose();
+    //                         showToast({ icon: "error", title: jqXHR.responseJSON.message });
+    //                     },
+    //                 })
+    //             }
+    //         });
+    //     });
+    // });
 
-    $('.btnTemplate').on('click', function () {
-        window.location.href = base_url + '/template/template_upload_karyawan.xlsx';
-    });
+    // $('.btnTemplate').on('click', function () {
+    //     window.location.href = base_url + '/template/template_upload_karyawan.xlsx';
+    // });
 
     //FILTER KARYAWAN
     $('.btnFilter').on("click", function (){
@@ -930,7 +933,7 @@ $(function () {
     })
 
     $('.btnResetFilter').on("click", function (){
-        $('#filterDepartemen').val("").trigger('change');   
+        $('#filterDepartemen').val("").trigger('change');
         $('#filterGrup').val("").trigger('change');
         $('#filterJeniskontrak').val("").trigger('change');
         $('#filterStatuskaryawan').val("").trigger('change');
@@ -945,7 +948,7 @@ $(function () {
     })
 
 
-    // MODAL TAMBAH KARYAWAN
+    // MODAL FILTER
     var modalFilterKaryawanOptions = {
         backdrop: true,
         keyboard: false,
@@ -1032,8 +1035,147 @@ $(function () {
                 $(input).next(".custom-file-label").html(input.files[0].name);
             };
 
-            reader.readAsDataURL(input.files[0]); 
+            reader.readAsDataURL(input.files[0]);
         }
         loadingSwalClose();
+    }
+
+    // MODAL UPLOAD
+    $('#method').select2({
+        dropdownParent: $('#modal-upload'),
+    });
+
+    var modalUploadOptions = {
+        backdrop: "static",
+        keyboard: false,
+    };
+
+    var modalUpload = new bootstrap.Modal(
+        document.getElementById("modal-upload"),
+        modalUploadOptions
+    );
+
+    function openUpload() {
+        modalUpload.show();
+    }
+
+    function closeUpload() {
+        modalUpload.hide();
+        resetUpload();
+        refreshTable();
+        clearInterval(refreshUploadTable);
+    }
+
+    function resetUpload() {
+        $('#method').val('I').trigger('change');
+        $("#karyawan_file").val("");
+    }
+
+    $('.btnUpload').on("click", function (){
+        openUpload();
+        setInterval(refreshUploadTable, 30000);
+    });
+
+    $('.btnCloseUpload').on("click", function (){
+        closeUpload();
+    })
+
+    $('#form-upload').on('submit', function (e){
+        e.preventDefault();
+        loadingSwalShow();
+        let url = $('#form-upload').attr('action');
+
+        var formData = new FormData($('#form-upload')[0]);
+        $.ajax({
+            url: url,
+            data: formData,
+            method:"POST",
+            contentType: false,
+            processData: false,
+            dataType: "JSON",
+            success: function (data) {
+                resetUpload();
+                loadingSwalClose();
+                showToast({ title: data.message });
+                refreshUploadTable();
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                loadingSwalClose();
+                resetUpload();
+                showToast({ icon: "error", title: jqXHR.responseJSON.message });
+            },
+        })
+    });
+
+    var uploadColumnsTable = [
+        { data: "description" },
+        { data: "causer" },
+        { data: "created_at" },
+    ];
+
+    var uploadTable = $("#upload-table").DataTable({
+        search: {
+            return: true,
+        },
+        order: [[2, "DESC"]],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: base_url + "/master-data/karyawan/upload-datatable",
+            dataType: "json",
+            type: "POST",
+            data: function (dataFilter) {
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR.responseJSON.data) {
+                    var error = jqXHR.responseJSON.data.error;
+                    Swal.fire({
+                        icon: "error",
+                        title: " <br>Application error!",
+                        html:
+                            '<div class="alert alert-danger text-left" role="alert">' +
+                            "<p>Error Message: <strong>" +
+                            error +
+                            "</strong></p>" +
+                            "</div>",
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                    });
+                } else {
+                    var message = jqXHR.responseJSON.message;
+                    var errorLine = jqXHR.responseJSON.line;
+                    var file = jqXHR.responseJSON.file;
+                    Swal.fire({
+                        icon: "error",
+                        title: " <br>Application error!",
+                        html:
+                            '<div class="alert alert-danger text-left" role="alert">' +
+                            "<p>Error Message: <strong>" +
+                            message +
+                            "</strong></p>" +
+                            "<p>File: " +
+                            file +
+                            "</p>" +
+                            "<p>Line: " +
+                            errorLine +
+                            "</p>" +
+                            "</div>",
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                    });
+                }
+            },
+        },
+        responsive: true,
+        columns: uploadColumnsTable,
+    })
+
+    function refreshUploadTable() {
+        var searchValue = uploadTable.search();
+        if (searchValue) {
+            uploadTable.search(searchValue).draw();
+        } else {
+            uploadTable.search("").draw();
+        }
     }
 });
