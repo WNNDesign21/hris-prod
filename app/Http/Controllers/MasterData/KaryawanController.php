@@ -334,7 +334,7 @@ class KaryawanController extends Controller
                     $user = User::create([
                         'username' => $username,
                         'email' => $email_akun,
-                        'password' => Hash::make($password),
+                        'password' => bcrypt($password),
                         'organisasi_id' => $organisasi_id,
                     ]);
 

@@ -15,19 +15,19 @@
                     <li class="{{ $page == 'masterdata-karyawan' ? 'active' : '' }}">
                         <a href="{{ route('master-data.karyawan') }}">
                             <i class="icon-User"><span class="path1"></span><span class="path2"></span></i>
-                            <span>Data Karyawan</span>
+                            <span>Karyawan</span>
                         </a>
                     </li>
                     <li class="{{ $page == 'masterdata-kontrak' ? 'active' : '' }}">
                         <a href="{{ route('master-data.kontrak') }}">
                             <i class="icon-File"><span class="path1"></span><span class="path2"></span><span
                                     class="path3"></span></i>
-                            <span>Kontrak Karyawan</span>
+                            <span>Kontrak</span>
                         </a>
                     </li>
                     <li class="{{ $page == 'masterdata-turnover' ? 'active' : '' }}">
                         <a href="{{ route('master-data.turnover') }}">
-                            <i class="icon-User"><span class="path1"></span><span class="path2"></span></i>
+                            <i class="icon-Outgoing-box"><span class="path1"></span><span class="path2"></span></i>
                             <span>Karyawan Keluar</span>
                         </a>
                     </li>
@@ -37,7 +37,13 @@
                             <span>Susunan & Posisi</span>
                         </a>
                     </li>
-                    <li class="treeview">
+                    <li class="{{ $page == 'masterdata-grup' ? 'active' : '' }}">
+                        <a href="{{ route('master-data.grup') }}">
+                            <i class="icon-Time-schedule"><span class="path1"></span><span class="path2"></span></i>
+                            <span>Shift & Pola</span>
+                        </a>
+                    </li>
+                    {{-- <li class="treeview">
                         <a href="#">
                             <i span class="icon-Layout-grid"><span class="path1"></span><span
                                     class="path2"></span></i>
@@ -72,11 +78,11 @@
                                             class="path1"></span><span class="path2"></span></i>Jabatan</a>
                             </li>
                         </ul>
-                    </li>
+                    </li> --}}
                     <li class="{{ $page == 'masterdata-event' ? 'active' : '' }}">
                         <a href="{{ route('master-data.event') }}">
                             <i class="icon-Building"><span class="path1"></span><span class="path2"></span></i>
-                            <span>Kalender Perusahaan</span>
+                            <span>Kalender Event</span>
                         </a>
                     </li>
                     <li class="{{ $page == 'masterdata-template' ? 'active' : '' }}">

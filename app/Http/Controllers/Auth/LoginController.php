@@ -53,15 +53,15 @@ class LoginController extends Controller
         return $field;
     }
 
-    
+
     protected function sendFailedLoginResponse(Request $request)
     {
         throw ValidationException::withMessages([
             'username' => [trans('auth.failed')],
         ]);
     }
-    
-    /** 
+
+    /**
      * @override attemptLogin on AuthenticatesUsers trait
      * @param  \Illuminate\Http\Request  $request
      * @return bool
@@ -75,7 +75,7 @@ class LoginController extends Controller
 
         if ($user) {
             $authenticatedUser = $this->guard()->user();
-            if ($authenticatedUser->hasAnyRole(['admin','personalia','security'])) {
+            if ($authenticatedUser->hasAnyRole(['admin','personalia','security', 'super user'])) {
                 return true;
             } else {
                 if ($authenticatedUser->karyawan->status_karyawan === 'AT') {
@@ -88,5 +88,30 @@ class LoginController extends Controller
         }
 
         return false;
+    }
+
+    /**
+     * Send the response after the user was authenticated.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Http\JsonResponse
+     */
+    protected function sendLoginResponse(Request $request)
+    {
+        $request->session()->regenerate();
+
+        $this->clearLoginAttempts($request);
+
+        if ($response = $this->authenticated($request, $this->guard()->user())) {
+            return $response;
+        }
+
+        return $request->wantsJson()
+                    ? new JsonResponse([], 204)
+                    : redirect()->intended(
+                        $this->guard()->user()->hasRole('super user')
+                            ? '/superuser/organisasi'
+                            : '/home'
+                    );
     }
 }
