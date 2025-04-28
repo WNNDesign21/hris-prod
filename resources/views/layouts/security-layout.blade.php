@@ -7,7 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="{{ asset('favicon.ico') }}">
+    <link rel="icon"
+        href="{{ file_exists(public_path('storage/system/setting/favicon.ico')) ? asset('storage/system/setting/favicon.ico') : asset('favicon.ico') }}">
     <title>@yield('title')</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="{{ asset('assets/vendor_plugins/fontawesome/css/all.min.css') }}">

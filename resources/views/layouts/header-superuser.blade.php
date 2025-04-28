@@ -18,7 +18,7 @@
     <nav class="navbar navbar-static-top">
         <div class="app-menu">
             <ul class="header-megamenu nav">
-                <li class="btn-group nav-item d-none">
+                <li class="btn-group nav-item d-md-none">
                     <a href="#" class="waves-effect waves-light nav-link push-btn" data-toggle="push-menu"
                         role="button">
                         <span class="icon-Align-left"><span class="path1"></span><span class="path2"></span><span

@@ -52,8 +52,8 @@
                             <span>Activity Log</span>
                         </a>
                     </li>
-                    <li class="{{ $page == 'superuser-system-setting' ? 'active' : '' }}">
-                        <a href="{{ route('superuser.organisasi') }}">
+                    <li class="{{ $page == 'superuser-setting' ? 'active' : '' }}">
+                        <a href="{{ route('superuser.setting') }}">
                             <i class="icon-Settings"><span class="path1"></span><span class="path2"></span></i>
                             <span>Setting</span>
                         </a>

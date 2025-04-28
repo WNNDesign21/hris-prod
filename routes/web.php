@@ -21,6 +21,7 @@ use App\Http\Controllers\MasterData\DivisiController;
 use App\Http\Controllers\MasterData\ExportController;
 use App\Http\Controllers\MasterData\PosisiController;
 use App\Http\Controllers\Security\SecurityController;
+use App\Http\Controllers\Superuser\SettingController;
 use App\Http\Controllers\Utils\DeleteQrImgController;
 use App\Http\Controllers\Attendance\ScanlogController;
 use App\Http\Controllers\Attendance\WebhookController;
@@ -83,6 +84,12 @@ Route::group(['middleware' => ['auth']], function () {
           Route::post('/activity-log/datatable', [ActivityLogController::class, 'datatable']);
           Route::post('/activity-log/causer', [ActivityLogController::class, 'causer']);
           Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('superuser.activity-log');
+
+          /** SUPERUSER - SETTINGS */
+          Route::get('/setting', [SettingController::class, 'index'])->name('superuser.setting');
+          Route::post('/setting/upload-logo', [SettingController::class, 'upload_logo'])->name('superuser.setting.upload-logo');
+          Route::get('/setting/reset-logo', [SettingController::class, 'reset_logo'])->name('superuser.setting.reset-logo');
+          Route::post('/setting/upload-icon', [SettingController::class, 'upload_icon'])->name('superuser.setting.upload-icon');
 
 
         /** SUPERUSER - ORGANISASI */
