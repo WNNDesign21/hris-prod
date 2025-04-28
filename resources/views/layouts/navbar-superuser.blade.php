@@ -46,8 +46,8 @@
                             <span>User</span>
                         </a>
                     </li>
-                    <li class="{{ $page == 'superuser-user' ? 'active' : '' }}">
-                        <a href="{{ route('superuser.organisasi') }}">
+                    <li class="{{ $page == 'superuser-activity-log' ? 'active' : '' }}">
+                        <a href="{{ route('superuser.activity-log') }}">
                             <i class="icon-Clipboard-list"><span class="path1"></span><span class="path2"></span></i>
                             <span>Activity Log</span>
                         </a>

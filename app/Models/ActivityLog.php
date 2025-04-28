@@ -32,6 +32,15 @@ class ActivityLog extends Model
             }
         }
 
+        if (isset($dataFilter['start']) && isset($dataFilter['end'])) {
+            $data->whereDate('activity_log.created_at', '>=', $dataFilter['start']);
+            $data->whereDate('activity_log.created_at', '<=', $dataFilter['end']);
+        }
+
+        if (isset($dataFilter['causer_id'])) {
+            $data->where('activity_log.causer_id', $dataFilter['causer_id']);
+        }
+
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
             $data->where(function ($query) use ($search) {

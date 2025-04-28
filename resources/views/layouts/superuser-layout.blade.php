@@ -52,6 +52,7 @@
     <script src="{{ asset('assets/vendor_components/datatable/datatables.min.js') }}"></script>
     <script src="{{ asset('assets/vendor_components/nestable/jquery.nestable.js') }}"></script>
     <script src="{{ asset('assets/vendor_components/moment/min/moment.min.js') }}"></script>
+    <script src="{{ asset('assets/vendor_components/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
     <script src="{{ asset('js/template.js') }}"></script>
     <script>
         let base_url = window.location.origin;
@@ -83,6 +84,10 @@
 
     @if ($page == 'superuser-user')
         @vite(['resources/js/pages/superuser/user.js'])
+    @endif
+
+    @if ($page == 'superuser-activity-log')
+        @vite(['resources/js/pages/superuser/activity-log.js'])
     @endif
 </body>
 

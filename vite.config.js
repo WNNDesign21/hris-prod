@@ -73,6 +73,7 @@ export default defineConfig({
                 'resources/js/pages/superuser/organisasi.js',
                 'resources/js/pages/superuser/seksi.js',
                 'resources/js/pages/superuser/user.js',
+                'resources/js/pages/superuser/activity-log.js',
 
             ],
             // refresh: true,

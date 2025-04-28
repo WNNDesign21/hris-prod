@@ -35,6 +35,7 @@ use App\Http\Controllers\Attendance\ShiftgroupController;
 use App\Http\Controllers\MasterData\DepartemenController;
 use App\Http\Controllers\MasterData\OrganisasiController;
 use App\Http\Controllers\StockOpname\StoReportController;
+use App\Http\Controllers\Superuser\ActivityLogController;
 use App\Http\Controllers\Attendance\AttendanceGpsController;
 use App\Http\Controllers\Attendance\LiveAttendanceController;
 use App\Http\Controllers\KSK\AjaxController as KSKAjaxController;
@@ -77,6 +78,12 @@ Route::group(['middleware' => ['auth']], function () {
          Route::post('/user/store', [UserController::class, 'store'])->name('superuser.user.store');
          Route::delete('/user/delete/{idUser}', [UserController::class, 'delete'])->name('superuser.user.delete');
          Route::patch('/user/update/{idUser}', [UserController::class, 'update'])->name('superuser.user.update');
+
+          /** SUPERUSER - ACTIVITY LOG */
+          Route::post('/activity-log/datatable', [ActivityLogController::class, 'datatable']);
+          Route::post('/activity-log/causer', [ActivityLogController::class, 'causer']);
+          Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('superuser.activity-log');
+
 
         /** SUPERUSER - ORGANISASI */
         Route::post('/organisasi/datatable', [SuperuserOrganisasiController::class, 'datatable']);
