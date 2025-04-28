@@ -28,21 +28,21 @@
                         <div class="form-group">
                             <label for="passwordEdit">Password</label>
                             <div class="input-group mb-2" style="width:100%;">
-                                <input type="password" name="passwordEdit" id="passwordEdit" class="form-control"
-                                    required>
+                                <input type="password" name="passwordEdit" id="passwordEdit" class="form-control">
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="confirm_passwordEdit">Confirm Password</label>
+                            <label for="passwordEdit_confirmation">Confirm Password</label>
                             <div class="input-group mb-2" style="width:100%;">
-                                <input type="password" name="confirm_passwordEdit" id="confirm_passwordEdit"
-                                    class="form-control" required>
+                                <input type="password" name="passwordEdit_confirmation" id="passwordEdit_confirmation"
+                                    class="form-control">
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="organisasiEdit">Organisasi</label>
                             <select name="organisasiEdit" id="organisasiEdit" class="form-control" required
                                 style="width:100%;">
+                                <option value="" disabled selected>Pilih Organisasi</option>
                                 @foreach ($organisasis as $organisasi)
                                     <option value="{{ $organisasi->id_organisasi }}">{{ $organisasi->nama }}</option>
                                 @endforeach
@@ -50,10 +50,9 @@
                         </div>
                         <div class="form-group">
                             <label for="rolesEdit">Role</label>
-                            <select name="rolesEdit[]" id="rolesEdit" class="form-control" required style="width:100%;"
-                                multiple>
+                            <select name="rolesEdit" id="rolesEdit" class="form-control" required style="width:100%;">
                                 @foreach ($roles as $role)
-                                    <option value="{{ $role->id }}">{{ strtoupper($role->name) }}</option>
+                                    <option value="{{ $role->name }}">{{ strtoupper($role->name) }}</option>
                                 @endforeach
                             </select>
                         </div>

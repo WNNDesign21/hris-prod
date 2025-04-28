@@ -44,6 +44,6 @@
             </div>
         </div>
     </div>
-    @include('pages.superuser.user.modal-tambah')
+    @include('pages.superuser.user.modal-input')
     @include('pages.superuser.user.modal-edit')
 @endsection

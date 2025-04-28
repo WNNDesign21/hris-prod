@@ -60,23 +60,53 @@ class User extends Authenticatable
         return $this->hasOne(Karyawan::class, 'user_id', 'id');
     }
 
+    // private static function _query($dataFilter)
+    // {
+
+    //     $data = self::select(
+    //         'id',
+    //         'username',
+    //         'email',
+    //         'organisasis.nama as organisasi',
+    //         'organisasi_id',
+    //     )->leftJoin('organisasis', 'organisasis.id_organisasi', 'users.organisasi_id');
+
+    //     if (isset($dataFilter['search'])) {
+    //         $search = $dataFilter['search'];
+    //         $data->where(function ($query) use ($search) {
+    //             $query->where('username', 'ILIKE', "%{$search}%")
+    //                 ->orWhere('email', 'ILIKE', "%{$search}%")
+    //                 ->orWhere('organisasis.nama', 'ILIKE', "%{$search}%")
+    //                 ->orWhere('organisasi_id', 'ILIKE', "%{$search}%");
+    //         });
+    //     }
+
+    //     $result = $data;
+    //     return $result;
+    // }
     private static function _query($dataFilter)
     {
-
         $data = self::select(
-            'id',
-            'username',
-            'email',
+            'users.id',
+            'users.username',
+            'users.email',
             'organisasis.nama as organisasi',
-        )->leftJoin('organisasis', 'organisasis.id_organisasi', 'users.organisasi_id');
+            'users.organisasi_id',
+            'roles.name as role',
+        )->leftJoin('organisasis', 'organisasis.id_organisasi', 'users.organisasi_id')
+        ->leftJoin('model_has_roles', 'model_has_roles.model_id', 'users.id')
+        ->leftJoin('roles', 'roles.id', 'model_has_roles.role_id')
+        ->where('model_has_roles.model_type', 'App\Models\User');
+
+        $data->whereIn('roles.name', ['personalia', 'security']);
 
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
             $data->where(function ($query) use ($search) {
-                $query->where('username', 'ILIKE', "%{$search}%")
-                    ->orWhere('email', 'ILIKE', "%{$search}%")
+                $query->where('users.username', 'ILIKE', "%{$search}%")
+                    ->orWhere('users.email', 'ILIKE', "%{$search}%")
                     ->orWhere('organisasis.nama', 'ILIKE', "%{$search}%")
-                    ->orWhere('organisasi_id', 'ILIKE', "%{$search}%");
+                    ->orWhere('users.organisasi_id', 'ILIKE', "%{$search}%");
             });
         }
 

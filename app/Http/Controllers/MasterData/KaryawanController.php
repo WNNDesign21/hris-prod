@@ -410,7 +410,9 @@ class KaryawanController extends Controller
 
             if(isset($request->isAdmin)){
                 $user = User::find($user_id);
-                $user->assignRole('admin-dept');
+                if (!$user->hasRole('admin-dept')) {
+                    $user->assignRole('admin-dept');
+                }
             }
 
             DB::commit();

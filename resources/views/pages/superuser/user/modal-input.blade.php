@@ -1,15 +1,15 @@
 <!-- modal Area -->
-<div class="modal fade" id="modal-tambah">
+<div class="modal fade" id="modal-input">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h4 class="modal-title">Tambah User</h4>
-                <button type="button" class="btn-close btnClose" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btnCloseInput" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <div class="form-group">
                     <form action="{{ route('superuser.user.store') }}" method="POST" enctype="multipart/form-data"
-                        id="form-tambah">
+                        id="form-input">
                         @csrf
                         <div class="form-group">
                             <label for="email">Email</label>
@@ -39,6 +39,7 @@
                         <div class="form-group">
                             <label for="organisasi">Organisasi</label>
                             <select name="organisasi" id="organisasi" class="form-control" required style="width:100%;">
+                                <option value="" disabled selected>Pilih Organisasi</option>
                                 @foreach ($organisasis as $organisasi)
                                     <option value="{{ $organisasi->id_organisasi }}">{{ $organisasi->nama }}</option>
                                 @endforeach
@@ -46,8 +47,8 @@
                         </div>
                         <div class="form-group">
                             <label for="roles">Role</label>
-                            <select name="roles[]" id="roles" class="form-control" required style="width:100%;"
-                                multiple>
+                            <select name="roles" id="roles" class="form-control" required style="width:100%;">
+                                <option value="" disabled selected>Pilih Role</option>
                                 @foreach ($roles as $role)
                                     <option value="{{ $role->name }}">{{ strtoupper($role->name) }}</option>
                                 @endforeach

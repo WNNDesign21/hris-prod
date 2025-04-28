@@ -16,7 +16,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        $roles = Role::whereNot('name', 'super user')->get();
+        $roles = Role::whereIn('name', ['personalia', 'security'])->get();
         $organisasis = Organisasi::all();
         $dataPage = [
             'pageTitle' => "Superuser - User",
@@ -62,19 +62,12 @@ class UserController extends Controller
 
         if (!empty($users)) {
             foreach ($users as $data) {
-                $roles = $data->roles->pluck('name')->toArray();
-                $formattedRoles = array_map(function ($role) {
-                    return '<span class="badge badge-primary">' . strtoupper($role) . '</span>';
-                }, $roles);
+                $formattedRoles = '<span class="badge badge-primary">' . strtoupper($data->role) . '</span>';
 
-                if (!$data->roles->pluck('name')->contains('super user')) {
-                    $formattedActions = '<div class="btn-group">
-                        <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" data-id="'.$data->id.'" data-username="'.$data->username.'" data-email="'.$data->email.'" data-organisasi="'.$data->organisasi_id.'" data-roles="'.implode(',', $roles).'"><i class="fas fa-edit"></i></button>
-                        <button type="button" class="waves-effect waves-light btn btn-danger btnDelete" data-id="'.$data->id.'"><i class="fas fa-trash-alt"></i></button>
-                    </div>';
-                } else {
-                    $formattedActions = '';
-                }
+                $formattedActions = '<div class="btn-group">
+                    <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" data-id="'.$data->id.'" data-username="'.$data->username.'" data-email="'.$data->email.'" data-organisasi="'.$data->organisasi_id.'" data-roles="'.$data->role.'"><i class="fas fa-edit"></i></button>
+                    <button type="button" class="waves-effect waves-light btn btn-danger btnDelete" data-id="'.$data->id.'"><i class="fas fa-trash-alt"></i></button>
+                </div>';
 
                 $nestedData['username'] = $data->username;
                 $nestedData['email'] = $data->email;
@@ -106,12 +99,11 @@ class UserController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'organisasi' => 'required|exists:organisasis,id_organisasi',
-            'roles' => 'required|array',
+            'roles' => 'string|in:personalia,security',
         ]);
 
         DB::beginTransaction();
         try {
-            $allowedRolesCombination = ['member', 'admin-dept'];
             $roles = $request->roles;
 
             $user = User::create([
@@ -121,17 +113,7 @@ class UserController extends Controller
                 'organisasi_id' => $request->organisasi,
             ]);
 
-            foreach ($roles as $role) {
-                foreach ($roles as $otherRole) {
-                    if ($role !== $otherRole &&
-                        !(in_array($role, $allowedRolesCombination) && in_array($otherRole, $allowedRolesCombination))) {
-                        DB::rollBack();
-                        return response()->json(['message' => 'Kombinasi role dilarang, hanya admin-dept + atasan/member yang bisa memiliki 2 role'], 400);
-                    }
-                }
-            }
-
-            $user->assignRole($roles);
+            $user->syncRoles($roles);
 
             activity('store_user')
                 ->causedBy(auth()->user())
@@ -145,6 +127,52 @@ class UserController extends Controller
                 ->causedBy(auth()->user())
                 ->log('Failed to create user: ' . $e->getMessage());
             return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function update(Request $request, string $id)
+    {
+        $request->validate([
+            'usernameEdit' => 'required|string|max:255|unique:users,username,' . $id,
+            'emailEdit' => 'required|string|email|max:255|unique:users,email,' . $id,
+            'organisasiEdit' => 'required|exists:organisasis,id_organisasi',
+            'passwordEdit' => 'nullable|string|min:8|confirmed',
+            'passwordEdit_confirmation' => 'nullable|string|min:8',
+            'roles' => 'string|in:personalia,security',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $user = User::findOrFail($id);
+            $user->update([
+                'username' => $request->usernameEdit,
+                'email' => $request->emailEdit,
+                'organisasi_id' => $request->organisasiEdit,
+                'password' => $request->passwordEdit ? bcrypt($request->passwordEdit) : $user->password,
+            ]);
+
+            if ($request->rolesEdit) {
+                $user->syncRoles($request->rolesEdit);
+            }
+
+            activity('update_user')
+                ->causedBy(auth()->user())
+                ->performedOn($user)
+                ->log('User updated: ' . $user->username);
+            DB::commit();
+            return response()->json(['message' => 'User updated successfully'], 200);
+        } catch (ModelNotFoundException $e) {
+            DB::rollback();
+            activity('update_user')
+                ->causedBy(auth()->user())
+                ->log('Failed to update user: ' . $e->getMessage());
+            return response()->json(['message' => $e->getMessage()], 404);
+        } catch (Throwable $e) {
+            DB::rollback();
+            activity('update_user')
+                ->causedBy(auth()->user())
+                ->log('Failed to update user: ' . $e->getMessage());
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 

@@ -75,8 +75,8 @@ Route::group(['middleware' => ['auth']], function () {
          Route::post('/user/datatable', [UserController::class, 'datatable']);
          Route::get('/user', [UserController::class, 'index'])->name('superuser.user');
          Route::post('/user/store', [UserController::class, 'store'])->name('superuser.user.store');
-         Route::delete('/user/delete/{idOrganisasi}', [UserController::class, 'delete'])->name('superuser.user.delete');
-         Route::patch('/user/update/{idOrganisasi}', [UserController::class, 'update'])->name('superuser.user.update');
+         Route::delete('/user/delete/{idUser}', [UserController::class, 'delete'])->name('superuser.user.delete');
+         Route::patch('/user/update/{idUser}', [UserController::class, 'update'])->name('superuser.user.update');
 
         /** SUPERUSER - ORGANISASI */
         Route::post('/organisasi/datatable', [SuperuserOrganisasiController::class, 'datatable']);

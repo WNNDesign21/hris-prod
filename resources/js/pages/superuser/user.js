@@ -124,6 +124,24 @@ $(function () {
         userTable.search("").draw();
     }
 
+    function resetInput() {
+        $('#username').val('');
+        $('#email').val('');
+        $('#password').val('');
+        $('#confirm_password').val('');
+        $('#organisasi').val('').trigger('change')
+        $('#role').val([]).trigger('change')
+    }
+
+    function resetEdit() {
+        $('#usernameEdit').val('');
+        $('#emailEdit').val('');
+        $('#passwordEdit').val('');
+        $('#confirm_passwordEdit').val('');
+        $('#organisasiEdit').val('').trigger('change')
+        $('#roleEdit').val([]).trigger('change')
+    };
+
     //RELOAD TABLE
     $('.btnReload').on("click", function (){
         refreshTable();
@@ -131,47 +149,42 @@ $(function () {
 
     //OPEN MODAL TAMBAH USER
     $('.btnAdd').on("click", function (){
-        openUser();
+        openInput();
     })
 
     //CLOSE MODAL TAMBAH USER
-    $('.btnClose').on("click", function (){
-        closeUser();
+    $('.btnCloseInput').on("click", function (){
+        closeInput();
     })
 
 
     // MODAL TAMBAH USER
-    var modalInputUserOptions = {
+    var modalInputOptions = {
         backdrop: true,
         keyboard: false,
     };
 
-    var modalInputUser = new bootstrap.Modal(
-        document.getElementById("modal-tambah"),
-        modalInputUserOptions
+    var modalInput = new bootstrap.Modal(
+        document.getElementById("modal-input"),
+        modalInputOptions
     );
 
-    function openUser() {
-        modalInputUser.show();
+    function openInput() {
+        modalInput.show();
     }
 
-    function closeUser() {
-        $('#username').val('');
-        $('#email').val('');
-        $('#password').val('');
-        $('#confirm_password').val('');
-        $('#organisasi').val('');
-        $('#role').val('');
-        modalInputUser.hide();
+    function closeInput() {
+        resetInput();
+        modalInput.hide();
     }
 
     //SUBMIT TAMBAH USERANISASI
-    $('#form-tambah').on('submit', function (e){
+    $('#form-input').on('submit', function (e){
         e.preventDefault();
         loadingSwalShow();
-        let url = $('#form-tambah').attr('action');
+        let url = $('#form-input').attr('action');
 
-        var formData = new FormData($('#form-tambah')[0]);
+        var formData = new FormData($('#form-input')[0]);
         $.ajax({
             url: url,
             data: formData,
@@ -183,6 +196,7 @@ $(function () {
                 loadingSwalClose();
                 showToast({ title: data.message });
                 refreshTable();
+                closeInput();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 loadingSwalClose();
@@ -192,37 +206,43 @@ $(function () {
     });
 
     // MODAL EDIT USER
-    var modalEditUserOptions = {
+    var modalEditOptions = {
         backdrop: true,
         keyboard: false,
     };
 
-    var modalEditUser = new bootstrap.Modal(
+    var modalEdit = new bootstrap.Modal(
         document.getElementById("modal-edit"),
-        modalEditUserOptions
+        modalEditOptions
     );
 
-    function openEditUser() {
-        modalEditUser.show();
+    function openEdit() {
+        modalEdit.show();
     }
 
-    function closeEditUser() {
-        $('#usernameEdit').val('');
-        $('#emailEdit').val('');
-        $('#passwordEdit').val('');
-        $('#confirm_passwordEdit').val('');
-        $('#organisasiEdit').val('');
-        $('#roleEdit').val('');
-        modalEditUser.hide();
+    function closeEdit() {
+        resetEdit();
+        modalEdit.hide();
     }
 
     $('.btnCloseEdit').on("click", function (){
-        closeEditUser();
+        closeEdit();
     })
 
     //EDIT USERANISASI
     $('#user-table').on('click', '.btnEdit', function (){
-        openEditUser();
+        let idUser = $(this).data('id');
+        let username = $(this).data('username');
+        let email = $(this).data('email');
+        let organisasi = $(this).data('organisasi');
+        let roles = $(this).data('roles');
+
+        $('#idEdit').val(idUser);
+        $('#usernameEdit').val(username);
+        $('#emailEdit').val(email);
+        $('#organisasiEdit').val(organisasi).trigger('change');
+        $('#rolesEdit').val(roles).trigger('change');
+        openEdit();
     });
 
     //SUBMIT EDIT USERANISASI
@@ -244,6 +264,7 @@ $(function () {
                 loadingSwalClose();
                 showToast({ title: data.message });
                 refreshTable();
+                closeEdit();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 loadingSwalClose();
@@ -290,11 +311,11 @@ $(function () {
     })
 
     $('#roles').select2({
-        dropdownParent: $('#modal-tambah'),
+        dropdownParent: $('#modal-input'),
     });
 
     $('#organisasi').select2({
-        dropdownParent: $('#modal-tambah'),
+        dropdownParent: $('#modal-input'),
     });
 
     $('#rolesEdit').select2({
