@@ -43,6 +43,6 @@
             </div>
         </div>
     </div>
-    @include('pages.superuser.organisasi.modal-tambah')
+    @include('pages.superuser.organisasi.modal-input')
     @include('pages.superuser.organisasi.modal-edit')
 @endsection

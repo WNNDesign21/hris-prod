@@ -95,6 +95,8 @@ Route::group(['middleware' => ['auth']], function () {
         /** SUPERUSER - ORGANISASI */
         Route::post('/organisasi/datatable', [SuperuserOrganisasiController::class, 'datatable']);
         Route::get('/organisasi', [SuperuserOrganisasiController::class, 'index'])->name('superuser.organisasi');
+        Route::get('/organisasi/render-wizard', [SuperuserOrganisasiController::class, 'render_wizard'])->name('superuser.render-wizard');
+        Route::post('/organisasi/validate-input/{tableName}/{columnName}', [SuperuserOrganisasiController::class, 'validate_input'])->name('superuser.validate-input');
         Route::post('/organisasi/store', [SuperuserOrganisasiController::class, 'store'])->name('superuser.organisasi.store');
         Route::delete('/organisasi/delete/{idOrganisasi}', [SuperuserOrganisasiController::class, 'delete'])->name('superuser.organisasi.delete');
         Route::patch('/organisasi/update/{idOrganisasi}', [SuperuserOrganisasiController::class, 'update'])->name('superuser.organisasi.update');

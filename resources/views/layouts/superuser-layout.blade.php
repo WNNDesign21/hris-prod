@@ -54,6 +54,8 @@
     <script src="{{ asset('assets/vendor_components/nestable/jquery.nestable.js') }}"></script>
     <script src="{{ asset('assets/vendor_components/moment/min/moment.min.js') }}"></script>
     <script src="{{ asset('assets/vendor_components/bootstrap-daterangepicker/daterangepicker.js') }}"></script>
+    <script src="{{ asset('assets/vendor_components/jquery-steps-master/build/jquery.steps.js') }}"></script>
+    <script src="{{ asset('assets/vendor_components/jquery-validation-1.17.0/dist/jquery.validate.min.js') }}"></script>
     <script src="{{ asset('js/template.js') }}"></script>
     <script>
         let base_url = window.location.origin;

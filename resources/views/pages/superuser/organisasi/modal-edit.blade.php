@@ -1,5 +1,5 @@
 <!-- modal Area -->
-<div class="modal fade" id="modal-edit-org">
+<div class="modal fade" id="modal-edit">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -8,7 +8,7 @@
             </div>
             <div class="modal-body">
                 <div class="form-group">
-                    <form action="#" method="POST" enctype="multipart/form-data" id="form-edit-org">
+                    <form action="#" method="POST" enctype="multipart/form-data" id="form-edit">
                         @method('PATCH')
                         @csrf
                         <input type="hidden" name="id_org_edit" id="id_org_edit">
