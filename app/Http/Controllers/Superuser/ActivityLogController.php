@@ -33,8 +33,8 @@ class ActivityLogController extends Controller
 
         $limit = $request->input('length');
         $start = $request->input('start');
-        $order = (!empty($request->input('order.0.column'))) ? $columns[$request->input('order.0.column')] : $columns[0];
-        $dir = (!empty($request->input('order.0.dir'))) ? $request->input('order.0.dir') : "DESC";
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
 
         $settings['start'] = $start;
         $settings['limit'] = $limit;
@@ -70,9 +70,9 @@ class ActivityLogController extends Controller
 
         if (!empty($uploadLog)) {
             foreach ($uploadLog as $data) {
-                $nestedData['log_name'] = $data->log_name;
-                $nestedData['description'] = $data->description;
-                $nestedData['causer'] = $data->username;
+                $nestedData['log_name'] = $data?->log_name;
+                $nestedData['description'] = $data?->description;
+                $nestedData['causer'] = $data?->username;
                 $nestedData['created_at'] = Carbon::parse($data->created_at)->translatedFormat('d F Y H:i:s');
                 $dataTable[] = $nestedData;
             }
@@ -84,7 +84,6 @@ class ActivityLogController extends Controller
             "recordsFiltered" => intval($totalFiltered),
             "data" => $dataTable,
             "order" => $order,
-            "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
             "dir" => $dir,
             "column"=>$request->input('order.0.column')
         );
