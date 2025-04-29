@@ -48,7 +48,7 @@ $(function () {
         { data: "log_name" },
         { data: "description" },
         { data: "causer" },
-        { data: "created_at" },
+        { data: "created_at" }
     ];
 
     var activitylogTable = $("#activity-log-table").DataTable({
@@ -63,8 +63,8 @@ $(function () {
             dataType: "json",
             type: "POST",
             data: function (dataFilter) {
-                let createdAt = $('#created_at').val();
-                let causer = $('#causer').val();
+                var createdAt = $('#created_at').val();
+                var causer = $('#causer').val();
                 dataFilter.createdAt = createdAt;
                 dataFilter.causer = causer;
             },
@@ -82,7 +82,7 @@ $(function () {
                             "</div>",
                         allowOutsideClick: false,
                         showConfirmButton: true,
-                    })
+                    });
                 } else {
                     var message = jqXHR.responseJSON.message;
                     var errorLine = jqXHR.responseJSON.line;
@@ -104,12 +104,12 @@ $(function () {
                             "</div>",
                         allowOutsideClick: false,
                         showConfirmButton: true,
-                    })
+                    });
                 }
             },
         },
-        columns: columnsTable,
-    })
+        columns: columnsTable
+    });
 
     //REFRESH TABLE
     function refreshTable() {
