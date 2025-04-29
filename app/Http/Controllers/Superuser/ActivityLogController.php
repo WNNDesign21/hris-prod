@@ -44,7 +44,7 @@ class ActivityLogController extends Controller
         $dataFilter = [];
 
         $createdAt = $request->createdAt;
-        if (isset($createdAt)) {
+        if (!empty($createdAt)) {
             $createdAt = explode('|', $createdAt);
             $start = $createdAt[0];
             $end = $createdAt[1];
@@ -54,7 +54,7 @@ class ActivityLogController extends Controller
         }
 
         $causer = $request->causer;
-        if (isset($causer)) {
+        if (!empty($causer)) {
             $dataFilter['causer_id'] = $causer;
         }
 

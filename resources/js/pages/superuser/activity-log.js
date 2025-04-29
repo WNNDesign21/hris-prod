@@ -82,9 +82,7 @@ $(function () {
                             "</div>",
                         allowOutsideClick: false,
                         showConfirmButton: true,
-                    }).then(function () {
-                        refreshTable();
-                    });
+                    })
                 } else {
                     var message = jqXHR.responseJSON.message;
                     var errorLine = jqXHR.responseJSON.line;
@@ -106,9 +104,7 @@ $(function () {
                             "</div>",
                         allowOutsideClick: false,
                         showConfirmButton: true,
-                    }).then(function () {
-                        refreshTable();
-                    });
+                    })
                 }
             },
         },
@@ -133,7 +129,6 @@ $(function () {
     });
 
     $('#created_at').on('apply.daterangepicker', function(ev, picker) {
-        console.log('Date range applied:', picker.startDate.format('YYYY-MM-DD'), '-', picker.endDate.format('YYYY-MM-DD'));
         $(this).val(picker.startDate.format('YYYY-MM-DD') + '|' + picker.endDate.format('YYYY-MM-DD'));
         refreshTable();
     });
