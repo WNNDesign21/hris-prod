@@ -2,7 +2,8 @@
 
 @section('content')
     <div class="content-top-agile pt-40 pb-20 px-20">
-        <img src="{{ asset('img/tcf/exist-logo-compress.jpg') }}" alt="TCF Logo" class=" mb-3" style="max-width: 90%;">
+        <img src="{{ file_exists(public_path('storage/system/setting/app_logo.jpg')) ? asset('storage/system/setting/app_logo.jpg') : asset('img/tcf/exist-logo-compress.jpg') }}"
+            alt="TCF Logo" class=" mb-3" style="max-width: 90%;">
         <h3>WELCOME TO SUPERAPPS</h5>
             <h5 class="text-fade">PT TRI CENTRUM FORTUNA</h5>
     </div>

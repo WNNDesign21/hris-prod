@@ -137,7 +137,6 @@ class UploadKaryawanJob implements ShouldQueue
                 $hutang_cuti = $data[35] ? trim($data[35]) : 0;
                 $pin = $data[36] ? trim($data[36]) : null;
 
-                // $p = $posisi;
                 $users[] = [
                     'email' => $email_perusahaan,
                     'username' => $username,
@@ -163,7 +162,6 @@ class UploadKaryawanJob implements ShouldQueue
                     'npwp' => $npwp,
                     'no_bpjs_kt' => $no_bpjs_kt,
                     'no_bpjs_ks' => $no_bpjs_ks,
-                    // 'status_karyawan' => 'AT',
                     'no_telp' => $no_telp,
                     'no_telp_darurat' => $no_telp_darurat,
                     'jenjang_pendidikan' => $jenjang_pendidikan,
@@ -273,7 +271,7 @@ class UploadKaryawanJob implements ShouldQueue
                     $user = $karyawan->user;
                 }
 
-                if (!empty($data[1])) {
+                if (isset($data[1])) {
                     $posisi = Posisi::find($data[1]);
                     if ($posisi) {
                         $karyawan->posisi()->sync($posisi->id_posisi);
@@ -290,7 +288,7 @@ class UploadKaryawanJob implements ShouldQueue
                 if (isset($data[5])) $karyawan->alamat = trim($data[5]);
                 if (isset($data[6])) $karyawan->domisili = trim($data[6]);
                 if (isset($data[7])) $karyawan->tempat_lahir = trim($data[7]);
-                if (isset($data[8])) $karyawan->tanggal_lahir = $data[8] ? Carbon::createFromFormat('d/m/Y', trim($data[8]))->format('Y-m-d') : null;
+                if (isset($data[8])) $karyawan->tanggal_lahir = trim($data[8]) ? Carbon::createFromFormat('d/m/Y', trim($data[8]))->format('Y-m-d') : null;
                 if (isset($data[9])) $karyawan->status_keluarga = trim($data[9]);
                 if (isset($data[10])) $karyawan->kategori_keluarga = trim($data[10]);
                 if (isset($data[11])) $karyawan->agama = trim($data[11]);
@@ -300,7 +298,6 @@ class UploadKaryawanJob implements ShouldQueue
                 if (isset($data[15])) $karyawan->no_bpjs_kt = trim($data[15]);
                 if (isset($data[16])) $karyawan->no_bpjs_ks = trim($data[16]);
                 if (isset($data[17])) $karyawan->no_telp = trim($data[17]);
-                if (isset($data[18])) $karyawan->tanggal_mulai = $data[18] ? Carbon::createFromFormat('d/m/Y', trim($data[18]))->format('Y-m-d') : null;
                 if (isset($data[19])) $karyawan->jenjang_pendidikan = preg_replace('/[^A-Za-z0-9]/', '', strtoupper(trim($data[19])));
                 if (isset($data[20])) $karyawan->jurusan_pendidikan = trim($data[20]);
                 if (isset($data[21])) $karyawan->nama_ibu_kandung = trim($data[21]);
@@ -317,13 +314,13 @@ class UploadKaryawanJob implements ShouldQueue
                 if (isset($data[35])) $karyawan->hutang_cuti = trim($data[35]);
                 if (isset($data[36])) $karyawan->pin = trim($data[36]);
 
-                if (isset($data[27])) $user->email = trim($data[27]);
-                if (isset($data[28])) $user->username = trim($data[28]);
-                if (isset($data[29])) $user->password = Hash::make(trim($data[29]));
+                // if (isset($data[27])) $user->email = trim($data[27]);
+                // if (isset($data[28])) $user->username = trim($data[28]);
+                // if (isset($data[29])) $user->password = Hash::make(trim($data[29]));
 
-                if ($user->isDirty()) {
-                    $user->save();
-                }
+                // if ($user->isDirty()) {
+                //     $user->save();
+                // }
 
                 if ($karyawan->isDirty()) {
                     $karyawan->save();

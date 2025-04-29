@@ -8,6 +8,7 @@ use App\Http\Controllers\Utils\QrController;
 use App\Http\Controllers\Cutie\CutieController;
 use App\Http\Controllers\Izine\IzineController;
 use App\Http\Controllers\Izine\SakiteController;
+use App\Http\Controllers\Superuser\UserController;
 use App\Http\Controllers\Lembure\LembureController;
 use App\Http\Controllers\MasterData\AkunController;
 use App\Http\Controllers\MasterData\GrupController;
@@ -20,6 +21,7 @@ use App\Http\Controllers\MasterData\DivisiController;
 use App\Http\Controllers\MasterData\ExportController;
 use App\Http\Controllers\MasterData\PosisiController;
 use App\Http\Controllers\Security\SecurityController;
+use App\Http\Controllers\Superuser\SettingController;
 use App\Http\Controllers\Utils\DeleteQrImgController;
 use App\Http\Controllers\Attendance\ScanlogController;
 use App\Http\Controllers\Attendance\WebhookController;
@@ -34,6 +36,7 @@ use App\Http\Controllers\Attendance\ShiftgroupController;
 use App\Http\Controllers\MasterData\DepartemenController;
 use App\Http\Controllers\MasterData\OrganisasiController;
 use App\Http\Controllers\StockOpname\StoReportController;
+use App\Http\Controllers\Superuser\ActivityLogController;
 use App\Http\Controllers\Attendance\AttendanceGpsController;
 use App\Http\Controllers\Attendance\LiveAttendanceController;
 use App\Http\Controllers\KSK\AjaxController as KSKAjaxController;
@@ -41,12 +44,18 @@ use App\Http\Controllers\KSK\ReleaseController as KSKReleaseController;
 use App\Http\Controllers\KSK\SettingController as KSKSettingController;
 use App\Http\Controllers\TugasLuare\AjaxController as TLAjaxController;
 use App\Http\Controllers\KSK\ApprovalController as KSKApprovalController;
+use App\Http\Controllers\Superuser\HomeController as SuperuserHomeController;
+use App\Http\Controllers\Superuser\SeksiController as SuperuserSeksiController;
 use App\Http\Controllers\TugasLuare\ApprovalController as TLApprovalController;
 use App\Http\Controllers\Attendance\ApprovalController as ATTApprovalController;
-use App\Http\Controllers\TugasLuare\PengajuanController as TLPengajuanController;
 use App\Http\Controllers\KSK\TindakLanjutController as KSKTindakLanjutController;
+use App\Http\Controllers\Superuser\DivisiController as SuperuserDivisiController;
+use App\Http\Controllers\TugasLuare\PengajuanController as TLPengajuanController;
+use App\Http\Controllers\Superuser\JabatanController as SuperuserJabatanController;
 use App\Http\Controllers\KSK\Cleareance\AjaxController as KSKAjaxCleareanceController;
 use App\Http\Controllers\Attendance\DashboardController as AttendanceDashboardController;
+use App\Http\Controllers\Superuser\DepartemenController as SuperuserDepartemenController;
+use App\Http\Controllers\Superuser\OrganisasiController as SuperuserOrganisasiController;
 use App\Http\Controllers\KSK\Cleareance\ReleaseController as KSKReleaseCleareanceController;
 use App\Http\Controllers\KSK\Cleareance\ApprovalController as KSKApprovalCleareanceController;
 
@@ -61,6 +70,68 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/503/under-maintenance', function () {
         return view('maintenance-mode');
     })->name('under-maintenance');
+
+     /** SUPERUSER */
+     Route::group(['prefix' => 'superuser', 'middleware' => ['role:super user']], function () {
+         /** SUPERUSER - STARTING */
+         Route::get('/starting', [SuperuserOrganisasiController::class, 'starting'])->name('superuser.starting');
+
+         /** SUPERUSER - USER */
+         Route::post('/user/datatable', [UserController::class, 'datatable']);
+         Route::get('/user', [UserController::class, 'index'])->name('superuser.user');
+         Route::post('/user/store', [UserController::class, 'store'])->name('superuser.user.store');
+         Route::delete('/user/delete/{idUser}', [UserController::class, 'delete'])->name('superuser.user.delete');
+         Route::patch('/user/update/{idUser}', [UserController::class, 'update'])->name('superuser.user.update');
+
+          /** SUPERUSER - ACTIVITY LOG */
+          Route::post('/activity-log/datatable', [ActivityLogController::class, 'datatable']);
+          Route::post('/activity-log/causer', [ActivityLogController::class, 'causer']);
+          Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('superuser.activity-log');
+
+          /** SUPERUSER - SETTINGS */
+          Route::get('/setting', [SettingController::class, 'index'])->name('superuser.setting');
+          Route::post('/setting/upload-logo', [SettingController::class, 'upload_logo'])->name('superuser.setting.upload-logo');
+          Route::get('/setting/reset-logo', [SettingController::class, 'reset_logo'])->name('superuser.setting.reset-logo');
+          Route::post('/setting/upload-icon', [SettingController::class, 'upload_icon'])->name('superuser.setting.upload-icon');
+
+
+        /** SUPERUSER - ORGANISASI */
+        Route::post('/organisasi/datatable', [SuperuserOrganisasiController::class, 'datatable']);
+        Route::get('/organisasi', [SuperuserOrganisasiController::class, 'index'])->name('superuser.organisasi');
+        Route::get('/organisasi/render-wizard', [SuperuserOrganisasiController::class, 'render_wizard'])->name('superuser.render-wizard');
+        Route::post('/organisasi/validate-input/{tableName}/{columnName}', [SuperuserOrganisasiController::class, 'validate_input'])->name('superuser.validate-input');
+        Route::post('/organisasi/store', [SuperuserOrganisasiController::class, 'store'])->name('superuser.organisasi.store');
+        Route::delete('/organisasi/delete/{idOrganisasi}', [SuperuserOrganisasiController::class, 'delete'])->name('superuser.organisasi.delete');
+        Route::patch('/organisasi/update/{idOrganisasi}', [SuperuserOrganisasiController::class, 'update'])->name('superuser.organisasi.update');
+
+        /** SUPERUSER - DIVISI */
+        Route::post('/divisi/datatable', [SuperuserDivisiController::class, 'datatable']);
+        Route::get('/divisi', [SuperuserDivisiController::class, 'index'])->name('superuser.divisi');
+        Route::post('/divisi/store', [SuperuserDivisiController::class, 'store'])->name('superuser.divisi.store');
+        Route::delete('/divisi/delete/{idDivisi}', [SuperuserDivisiController::class, 'delete'])->name('superuser.divisi.delete');
+        Route::patch('/divisi/update/{idDivisi}', [SuperuserDivisiController::class, 'update'])->name('superuser.divisi.update');
+
+        /** SUPERUSER - DEPARTEMEN */
+        Route::post('/departemen/datatable', [SuperuserDepartemenController::class, 'datatable']);
+        Route::get('/departemen', [SuperuserDepartemenController::class, 'index'])->name('superuser.departemen');
+        Route::post('/departemen/store', [SuperuserDepartemenController::class, 'store'])->name('superuser.departemen.store');
+        Route::delete('/departemen/delete/{idDepartemen}', [SuperuserDepartemenController::class, 'delete'])->name('superuser.departemen.delete');
+        Route::patch('/departemen/update/{idDepartemen}', [SuperuserDepartemenController::class, 'update'])->name('superuser.departemen.update');
+
+        /** MASTER DATA - SEKSI */
+        Route::post('/seksi/datatable', [SuperuserSeksiController::class, 'datatable']);
+        Route::get('/seksi', [SuperuserSeksiController::class, 'index'])->name('superuser.seksi');
+        Route::post('/seksi/store', [SuperuserSeksiController::class, 'store'])->name('superuser.seksi.store');
+        Route::delete('/seksi/delete/{idSeksi}', [SuperuserSeksiController::class, 'delete'])->name('superuser.seksi.delete');
+        Route::patch('/seksi/update/{idSeksi}', [SuperuserSeksiController::class, 'update'])->name('superuser.seksi.update');
+
+        /** MASTER DATA - JABATAN */
+        Route::post('/jabatan/datatable', [SuperuserJabatanController::class, 'datatable']);
+        Route::get('/jabatan', [SuperuserJabatanController::class, 'index'])->name('superuser.jabatan');
+        Route::post('/jabatan/store', [SuperuserJabatanController::class, 'store'])->name('superuser.jabatan.store');
+        Route::delete('/jabatan/delete/{idJabatan}', [SuperuserJabatanController::class, 'delete'])->name('superuser.jabatan.delete');
+        Route::patch('/jabatan/update/{idJabatan}', [SuperuserJabatanController::class, 'update'])->name('superuser.jabatan.update');
+    });
 
     //Generate System
     // Route::get('/generate-lembur-harian', [LembureController::class, 'generate_lembur_harian']);
@@ -160,9 +231,8 @@ Route::group(['middleware' => ['auth']], function () {
 });
 
 
-Route::group(['middleware' => ['auth', 'notifikasi']], function () {
+Route::group(['middleware' => ['auth', 'notifikasi', 'role:atasan|member|personalia|security']], function () {
     // MENU UTAMA
-
     //HOME CONTROLLER
     Route::get('/home', [HomeController::class, 'index'])->name('root')->middleware(['lembure', 'izine', 'tugasluare', 'ksk']);
     Route::get('/get-notification', [HomeController::class, 'get_notification']);
@@ -187,9 +257,9 @@ Route::group(['middleware' => ['auth', 'notifikasi']], function () {
         Route::get('/dashboard/get-total-data-karyawan-by-status-karyawan-dashboard', [DashboardController::class, 'get_total_data_karyawan_by_status_karyawan_dashboard']);
         Route::get('/event/get-data-event-calendar', [EventController::class, 'get_data_event_calendar']);
 
-        /** MASTER DATA - ORGANISASI */
         Route::group(['middleware' => ['role:personalia']], function () {
 
+            /** MASTER DATA - ORGANISASI */
             Route::post('/organisasi/datatable', [OrganisasiController::class, 'datatable']);
             Route::get('/organisasi', [OrganisasiController::class, 'index'])->name('master-data.organisasi');
             Route::post('/organisasi/store', [OrganisasiController::class, 'store'])->name('master-data.organisasi.store');

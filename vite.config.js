@@ -65,6 +65,18 @@ export default defineConfig({
                 'resources/js/pages/ksk/cleareance/ksk-release.js',
                 'resources/js/pages/ksk/cleareance/ksk-approval.js',
                 'resources/js/pages/security/index.js',
+
+                // Superuser
+                'resources/js/pages/superuser/departemen.js',
+                'resources/js/pages/superuser/divisi.js',
+                'resources/js/pages/superuser/jabatan.js',
+                'resources/js/pages/superuser/organisasi.js',
+                'resources/js/pages/superuser/seksi.js',
+                'resources/js/pages/superuser/user.js',
+                'resources/js/pages/superuser/activity-log.js',
+                'resources/js/pages/superuser/setting.js',
+                'resources/js/pages/superuser/starting.js',
+
             ],
             // refresh: true,
             refresh: ["resources/views/**", "resources/css/**", "app/Http/**"],

@@ -17,7 +17,7 @@
         <div class="col-12">
             <div class="box">
                 <div class="box-header d-flex justify-content-between">
-                    <h4 class="box-title">Grup Shift</h4>
+                    <h4 class="box-title">Shift</h4>
                     <div class="btn-group">
                         <button type="button" class="btn btn-info waves-effect btnReload"><i
                                 class="fas fa-sync-alt"></i></button>
@@ -47,7 +47,7 @@
         <div class="col-12">
             <div class="box">
                 <div class="box-header d-flex justify-content-between">
-                    <h4 class="box-title">Shift Pattern</h4>
+                    <h4 class="box-title">Pola Shift</h4>
                     <div class="btn-group">
                         <button type="button" class="btn btn-info waves-effect btnReloadSp"><i
                                 class="fas fa-sync-alt"></i></button>

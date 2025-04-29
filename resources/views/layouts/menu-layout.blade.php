@@ -106,7 +106,8 @@
         </nav>
     </header>
     <div class="container h-p100">
-        <div class="row align-items-center justify-content-md-center h-p100" id="menu-container">
+        <div class="row align-items-center justify-content-md-center h-p100" id="menu-container"
+            style="margin-top: 2rem;">
             <div class="col-12">
                 <div class="row justify-content-center g-3">
                     @yield('content')
