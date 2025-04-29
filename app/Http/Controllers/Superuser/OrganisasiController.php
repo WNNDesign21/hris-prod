@@ -29,6 +29,24 @@ class OrganisasiController extends Controller
         return view('pages.superuser.organisasi.index', $dataPage);
     }
 
+     /**
+     * Display a listing of the resource.
+     */
+    public function starting()
+    {
+        $organisasi = Organisasi::all()->isNotEmpty();
+
+        if ($organisasi) {
+            return redirect()->route('superuser.organisasi');
+        }
+
+        $dataPage = [
+            'pageTitle' => "Superuser - Starting",
+            'page' => 'superuser-starting',
+        ];
+        return view('pages.superuser.starting', $dataPage);
+    }
+
     public function datatable(Request $request)
     {
         $columns = array(
@@ -260,8 +278,10 @@ class OrganisasiController extends Controller
             ]);
             $security->assignRole('security');
 
+            $organisasiCount = Organisasi::count();
+
             DB::commit();
-            return response()->json(['message' => 'Organisasi Ditambahkan!'],200);
+            return response()->json(['message' => 'Organisasi Ditambahkan!', 'count' => $organisasiCount], 200);
         } catch(Throwable $error){
             return response()->json(['message' => $error->getMessage()], 500);
         }

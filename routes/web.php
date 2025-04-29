@@ -73,6 +73,9 @@ Route::group(['middleware' => ['auth']], function () {
 
      /** SUPERUSER */
      Route::group(['prefix' => 'superuser', 'middleware' => ['role:super user']], function () {
+         /** SUPERUSER - STARTING */
+         Route::get('/starting', [SuperuserOrganisasiController::class, 'starting'])->name('superuser.starting');
+
          /** SUPERUSER - USER */
          Route::post('/user/datatable', [UserController::class, 'datatable']);
          Route::get('/user', [UserController::class, 'index'])->name('superuser.user');

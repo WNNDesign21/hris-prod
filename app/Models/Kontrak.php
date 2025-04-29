@@ -176,6 +176,7 @@ class Kontrak extends Model
                 ->orWhere('kontraks.issued_date', 'ILIKE', "%{$search}%")
                 ->orWhere('kontraks.id_kontrak', 'ILIKE', "%{$search}%")
                 ->orWhere('kontraks.karyawan_id', 'ILIKE', "%{$search}%")
+                ->orWhere('kontraks.no_surat', 'ILIKE', "%{$search}%")
                 ->orWhere('departemens.nama', 'ILIKE', "%{$search}%");
             });
         }

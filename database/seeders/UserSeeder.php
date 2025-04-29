@@ -41,34 +41,16 @@ class UserSeeder extends Seeder
             'guard_name' => 'web'
         ]);
 
-
-        //PERSONALIA
-        $personalia1_tcf2 = User::create([
-            'username' => 'P1TCF2',
-            'email' => "personalia1@tcf2.com",
-            'password' => bcrypt('12345678'),
-            'organisasi_id' => 1
+        //5
+        Role::create([
+            'name' => 'admin-dept',
+            'guard_name' => 'web'
         ]);
 
-        $personalia2_tcf2 = User::create([
-            'username' => 'P2TCF2',
-            'email' => "personalia2@tcf2.com",
-            'password' => bcrypt('12345678'),
-            'organisasi_id' => 1
-        ]);
-
-        $personalia1_tcf3 = User::create([
-            'username' => 'P1TCF3',
-            'email' => "personalia1@tcf3.com",
-            'password' => bcrypt('12345678'),
-            'organisasi_id' => 2
-        ]);
-
-        $personalia2_tcf3 = User::create([
-            'username' => 'P2TCF3',
-            'email' => "personalia2@tcf3.com",
-            'password' => bcrypt('12345678'),
-            'organisasi_id' => 2
+        //6
+        Role::create([
+            'name' => 'security',
+            'guard_name' => 'web'
         ]);
 
         //SUPER USER
@@ -77,45 +59,73 @@ class UserSeeder extends Seeder
             'email' => "superuser@tcf.com",
             'password' => bcrypt('12345678')
         ]);
+        $superUser->assignRole('super user');
 
+        //PERSONALIA
+        // $personalia1_tcf2 = User::create([
+        //     'username' => 'P1TCF2',
+        //     'email' => "personalia1@tcf2.com",
+        //     'password' => bcrypt('12345678'),
+        //     'organisasi_id' => 1
+        // ]);
+
+        // $personalia2_tcf2 = User::create([
+        //     'username' => 'P2TCF2',
+        //     'email' => "personalia2@tcf2.com",
+        //     'password' => bcrypt('12345678'),
+        //     'organisasi_id' => 1
+        // ]);
+
+        // $personalia1_tcf3 = User::create([
+        //     'username' => 'P1TCF3',
+        //     'email' => "personalia1@tcf3.com",
+        //     'password' => bcrypt('12345678'),
+        //     'organisasi_id' => 2
+        // ]);
+
+        // $personalia2_tcf3 = User::create([
+        //     'username' => 'P2TCF3',
+        //     'email' => "personalia2@tcf3.com",
+        //     'password' => bcrypt('12345678'),
+        //     'organisasi_id' => 2
+        // ]);
 
         //USER
-        $user1 = User::create([
-            'username' => 'FL0001',
-            'email' => "fl0001@tcf.com",
-            'password' => bcrypt('12345678'),
-            'organisasi_id' => 2
-        ]);
+        // $user1 = User::create([
+        //     'username' => 'FL0001',
+        //     'email' => "fl0001@tcf.com",
+        //     'password' => bcrypt('12345678'),
+        //     'organisasi_id' => 2
+        // ]);
 
-        $user2 = User::create([
-            'username' => 'IN0002',
-            'email' => "in0002@email.com",
-            'password' => bcrypt('12345678'),
-            'organisasi_id' => 2
-        ]);
+        // $user2 = User::create([
+        //     'username' => 'IN0002',
+        //     'email' => "in0002@email.com",
+        //     'password' => bcrypt('12345678'),
+        //     'organisasi_id' => 2
+        // ]);
 
-        $user3 = User::create([
-            'username' => 'AM0003',
-            'email' => "am0003@tcf.com",
-            'password' => bcrypt('12345678'),
-            'organisasi_id' => 2
-        ]);
+        // $user3 = User::create([
+        //     'username' => 'AM0003',
+        //     'email' => "am0003@tcf.com",
+        //     'password' => bcrypt('12345678'),
+        //     'organisasi_id' => 2
+        // ]);
 
-        $user4 = User::create([
-            'username' => 'FA1722',
-            'email' => "fathan@tcf.com",
-            'password' => bcrypt('12345678'),
-            'organisasi_id' => 2
-        ]);
+        // $user4 = User::create([
+        //     'username' => 'FA1722',
+        //     'email' => "fathan@tcf.com",
+        //     'password' => bcrypt('12345678'),
+        //     'organisasi_id' => 2
+        // ]);
 
-        $personalia1_tcf2->assignRole('personalia');
-        $personalia2_tcf2->assignRole('personalia');
-        $personalia1_tcf3->assignRole('personalia');
-        $personalia2_tcf3->assignRole('personalia');
-        $superUser->assignRole('super user');
-        $user1->assignRole('member');
-        $user2->assignRole('atasan');
-        $user3->assignRole('atasan');
-        $user4->assignRole('atasan');
+        // $personalia1_tcf2->assignRole('personalia');
+        // $personalia2_tcf2->assignRole('personalia');
+        // $personalia1_tcf3->assignRole('personalia');
+        // $personalia2_tcf3->assignRole('personalia');
+        // $user1->assignRole('member');
+        // $user2->assignRole('atasan');
+        // $user3->assignRole('atasan');
+        // $user4->assignRole('atasan');
     }
 }

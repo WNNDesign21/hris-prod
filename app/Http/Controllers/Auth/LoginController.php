@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Models\Organisasi;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Foundation\Auth\AuthenticatesUsers;
 
 class LoginController extends Controller
 {
@@ -99,6 +100,7 @@ class LoginController extends Controller
     protected function sendLoginResponse(Request $request)
     {
         $request->session()->regenerate();
+        $organisasi = Organisasi::all()->isEmpty();
 
         $this->clearLoginAttempts($request);
 
@@ -110,7 +112,7 @@ class LoginController extends Controller
                     ? new JsonResponse([], 204)
                     : redirect()->intended(
                         $this->guard()->user()->hasRole('super user')
-                            ? '/superuser/organisasi'
+                            ? ($organisasi ? '/superuser/starting' : '/superuser/organisasi')
                             : '/home'
                     );
     }

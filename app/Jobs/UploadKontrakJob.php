@@ -44,7 +44,7 @@ class UploadKontrakJob implements ShouldQueue
         DB::beginTransaction();
         try {
             $kontraks = [];
-            $karyawans = [];
+            // $karyawans = [];
             $karyawanIds = [];
             $failedDatas = [];
 
@@ -117,14 +117,8 @@ class UploadKontrakJob implements ShouldQueue
                     $existingKontrak = Kontrak::where('karyawan_id', $karyawan->id_karyawan)
                         ->where('status', 'DONE')
                         ->where('jenis', '!=', 'PKWTT')
-                        ->where(function ($query) use ($tanggal_mulai, $tanggal_selesai) {
-                            $query->whereBetween('tanggal_mulai', [$tanggal_mulai, $tanggal_selesai])
-                                  ->orWhereBetween('tanggal_selesai', [$tanggal_mulai, $tanggal_selesai])
-                                  ->orWhere(function ($subQuery) use ($tanggal_mulai, $tanggal_selesai) {
-                                      $subQuery->where('tanggal_mulai', '<=', $tanggal_mulai)
-                                               ->where('tanggal_selesai', '>=', $tanggal_selesai);
-                                  });
-                        })
+                        ->whereDate('tanggal_mulai', $tanggal_mulai)
+                        ->whereDate('tanggal_selesai', $tanggal_selesai)
                         ->exists();
 
                     if ($existingKontrak) {
@@ -136,12 +130,10 @@ class UploadKontrakJob implements ShouldQueue
                     }
                 }
 
-                $karyawans[$index] = [
-                    'id_karyawan' => $karyawanIds[$index],
-                    'jenis_kontrak' => $item[5],
-                    'status_karyawan' => 'AT',
-                    'tanggal_selesai' => $tanggal_selesai,
-                ];
+                $karyawan->jenis_kontrak = $item[5];
+                $karyawan->status_karyawan = 'AT';
+                $karyawan->tanggal_selesai = $tanggal_selesai;
+                $karyawan->save();
 
                 $kontraks[] = [
                     'no_surat' => $item[4],
@@ -155,7 +147,7 @@ class UploadKontrakJob implements ShouldQueue
                     'salary' => trim($item[7]),
                     'deskripsi' => 'History Kontrak Karyawan',
                     'tanggal_mulai' => $tanggal_mulai,
-                    'tanggal_selesai' => trim($item[5]) !== 'PKWTT' ? $tanggal_selesai : null,
+                    'tanggal_selesai' => trim($item[5]) !== 'PKWTT' ? Carbon::createFromFormat('d/m/Y', $item[9])->format('Y-m-d') : null,
                     'tempat_administrasi' => $item[10],
                     'isReactive' => 'N',
                     'organisasi_id' => $this->organisasi_id,
@@ -163,82 +155,57 @@ class UploadKontrakJob implements ShouldQueue
                 ];
             }
 
-            //Update Karyawan
-            if (!empty($karyawans)) {
-                Karyawan::upsert($karyawans, ['id_karyawan'], [
-                    'jenis_kontrak',
-                    'status_karyawan',
-                    'tanggal_selesai',
-                ]);
-            }
-
             if (!empty($kontraks)) {
-                Kontrak::upsert($kontraks, ['id_kontrak'], [
-                    'no_surat',
-                    'karyawan_id',
-                    'posisi_id',
-                    'nama_posisi',
-                    'jenis',
-                    'status',
-                    'durasi',
-                    'salary',
-                    'deskripsi',
-                    'tanggal_mulai',
-                    'tanggal_selesai',
-                    'tempat_administrasi',
-                    'isReactive',
-                    'organisasi_id',
-                    'issued_date'
-                ]);
+                Kontrak::insert($kontraks);
             }
 
             //Update sisa cuti bersama karyawan
-            if (!empty($karyawanIds)) {
-                $array_karyawan = array_unique($karyawanIds);
-                foreach ($array_karyawan as $index => $kry){
-                    $k = Karyawan::find($kry);
-                    //CEK APAKAH ADA CUTI BERSAMA SEBELUM TANGGAL SELESAI KONTRAK YANG BARU DI UPLOAD
-                    if($k && $k->tanggal_selesai !== null && $k->jenis_kontrak !== 'PKWTT'){
-                        $kontrak = Kontrak::where('karyawan_id', $kry)->where('status', 'DONE')->orderBy('tanggal_selesai', 'DESC')->first();
-                        $existingCB = Event::whereDate('tanggal_mulai', '<=', $kontrak->tanggal_selesai)->where('jenis_event', 'CB');
-                        if($existingCB->exists()){
-                            foreach($existingCB->get() as $cutiBersama){
-                                $jatah_cuti_bersama = $k->sisa_cuti_bersama - $cutiBersama->durasi;
-                                if($jatah_cuti_bersama >= 0){
-                                    $k->sisa_cuti_bersama = $jatah_cuti_bersama;
-                                    $k->save();
-                                } else {
-                                    $k->sisa_cuti_bersama = 0;
-                                    $k->hutang_cuti = abs($jatah_cuti_bersama);
-                                    $k->save();
-                                }
-                            }
-                        }
-                    } elseif ($k && $k->jenis_kontrak == 'PKWTT'){
-                        $kontrak = Kontrak::where('karyawan_id', $kry)->where('status', 'DONE')->where('jenis', 'PKWTT')->orderBy('tanggal_mulai', 'DESC')->first();
-                        $tanggal_selesai_temp = Carbon::now()->year.'-'.Carbon::parse($kontrak->tanggal_mulai)->format('m-d');
-                        $existingCB = Event::whereDate('tanggal_mulai', '>=', $tanggal_selesai_temp)->where('jenis_event', 'CB');
-                        if($existingCB->exists()){
-                            foreach($existingCB->get() as $cutiBersama){
-                                $jatah_cuti_bersama = $k->sisa_cuti_bersama - $cutiBersama->durasi;
-                                if($jatah_cuti_bersama >= 0){
-                                    $k->sisa_cuti_bersama = $jatah_cuti_bersama;
-                                    $k->save();
-                                } else {
-                                    $k->sisa_cuti_bersama = 0;
-                                    $k->hutang_cuti = abs($jatah_cuti_bersama);
-                                    $k->save();
-                                }
-                            }
-                        }
-                    }
-                }
-            } else {
-                $failedDatas[] = [
-                    'row' => $row,
-                    'error' => 'Tidak ada data karyawan yang valid untuk diupdate!'
-                ];
-            }
+            // if (!empty($karyawanIds)) {
+            //     $array_karyawan = array_unique($karyawanIds);
+            //     foreach ($array_karyawan as $index => $kry){
+            //         $k = Karyawan::find($kry);
+            //         //CEK APAKAH ADA CUTI BERSAMA SEBELUM TANGGAL SELESAI KONTRAK YANG BARU DI UPLOAD
+            //         if($k && $k->tanggal_selesai !== null && $k->jenis_kontrak !== 'PKWTT'){
+            //             $kontrak = Kontrak::where('karyawan_id', $kry)->where('status', 'DONE')->orderBy('tanggal_selesai', 'DESC')->first();
+            //             $existingCB = Event::whereDate('tanggal_mulai', '<=', $kontrak->tanggal_selesai)->where('jenis_event', 'CB');
+            //             if($existingCB->exists()){
+            //                 foreach($existingCB->get() as $cutiBersama){
+            //                     $jatah_cuti_bersama = $k->sisa_cuti_bersama - $cutiBersama->durasi;
+            //                     if($jatah_cuti_bersama >= 0){
+            //                         $k->sisa_cuti_bersama = $jatah_cuti_bersama;
+            //                         $k->save();
+            //                     } else {
+            //                         $k->sisa_cuti_bersama = 0;
+            //                         $k->hutang_cuti = abs($jatah_cuti_bersama);
+            //                         $k->save();
+            //                     }
+            //                 }
+            //             }
+            //         } elseif ($k && $k->jenis_kontrak == 'PKWTT'){
+            //             $kontrak = Kontrak::where('karyawan_id', $kry)->where('status', 'DONE')->where('jenis', 'PKWTT')->orderBy('tanggal_mulai', 'DESC')->first();
+            //             $tanggal_selesai_temp = Carbon::now()->year.'-'.Carbon::parse($kontrak->tanggal_mulai)->format('m-d');
+            //             $existingCB = Event::whereDate('tanggal_mulai', '>=', $tanggal_selesai_temp)->where('jenis_event', 'CB');
+            //             if($existingCB->exists()){
+            //                 foreach($existingCB->get() as $cutiBersama){
+            //                     $jatah_cuti_bersama = $k->sisa_cuti_bersama - $cutiBersama->durasi;
+            //                     if($jatah_cuti_bersama >= 0){
+            //                         $k->sisa_cuti_bersama = $jatah_cuti_bersama;
+            //                         $k->save();
+            //                     } else {
+            //                         $k->sisa_cuti_bersama = 0;
+            //                         $k->hutang_cuti = abs($jatah_cuti_bersama);
+            //                         $k->save();
+            //                     }
+            //                 }
+            //             }
+            //         }
+            //     }
+            // } else {
+            //     $failedDatas[] = [
+            //         'row' => $row,
+            //         'error' => 'Tidak ada data karyawan yang valid untuk diupdate!'
+            //     ];
+            // }
 
             if (!empty($failedDatas)) {
                 foreach ($failedDatas as $item) {
