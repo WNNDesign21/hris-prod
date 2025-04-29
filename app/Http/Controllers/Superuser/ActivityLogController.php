@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Superuser;
 
+use Exception;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\ActivityLog;
@@ -21,74 +22,81 @@ class ActivityLogController extends Controller
 
     public function datatable(Request $request)
     {
-        $columns = array(
-            0 => 'activity_log.log_name',
-            1 => 'activity_log.description',
-            2 => 'users.username',
-            3 => 'activity_log.created_at',
-        );
+        try {
+            $columns = array(
+                0 => 'activity_log.log_name',
+                1 => 'activity_log.description',
+                2 => 'users.username',
+                3 => 'activity_log.created_at',
+            );
 
-        $totalData = ActivityLog::count();
-        $totalFiltered = $totalData;
+            $totalData = ActivityLog::count();
+            $totalFiltered = $totalData;
 
-        $limit = $request->input('length');
-        $start = $request->input('start');
-        $order = $columns[$request->input('order.0.column')];
-        $dir = $request->input('order.0.dir');
+            $limit = $request->input('length');
+            $start = $request->input('start');
+            $order = $columns[$request->input('order.0.column')];
+            $dir = $request->input('order.0.dir');
 
-        $settings['start'] = $start;
-        $settings['limit'] = $limit;
-        $settings['dir'] = $dir;
-        $settings['order'] = $order;
+            $settings['start'] = $start;
+            $settings['limit'] = $limit;
+            $settings['dir'] = $dir;
+            $settings['order'] = $order;
 
-        $dataFilter = [];
+            $dataFilter = [];
 
-        $createdAt = $request->createdAt;
-        if (!empty($createdAt)) {
-            $createdAt = explode('|', $createdAt);
-            $start = $createdAt[0];
-            $end = $createdAt[1];
+            $createdAt = $request->createdAt;
+            if (!empty($createdAt)) {
+                $createdAt = explode('|', $createdAt);
+                $start = $createdAt[0];
+                $end = $createdAt[1];
 
-            $dataFilter['start'] = $start;
-            $dataFilter['end'] = $end;
-        }
-
-        $causer = $request->causer;
-        if (!empty($causer)) {
-            $dataFilter['causer_id'] = $causer;
-        }
-
-        $search = $request->input('search.value');
-        if (!empty($search)) {
-            $dataFilter['search'] = $search;
-        }
-
-        $uploadLog = ActivityLog::getData($dataFilter, $settings);
-        $totalFiltered = ActivityLog::countData($dataFilter);
-
-        $dataTable = [];
-
-        if (!empty($uploadLog)) {
-            foreach ($uploadLog as $data) {
-                $nestedData['log_name'] = $data?->log_name;
-                $nestedData['description'] = $data?->description;
-                $nestedData['causer'] = $data?->username;
-                $nestedData['created_at'] = Carbon::parse($data->created_at)->translatedFormat('d F Y H:i:s');
-                $dataTable[] = $nestedData;
+                $dataFilter['start'] = $start;
+                $dataFilter['end'] = $end;
             }
+
+            $causer = $request->causer;
+            if (!empty($causer)) {
+                $dataFilter['causer_id'] = $causer;
+            }
+
+            $search = $request->input('search.value');
+            if (!empty($search)) {
+                $dataFilter['search'] = $search;
+            }
+
+            $uploadLog = ActivityLog::getData($dataFilter, $settings);
+            $totalFiltered = ActivityLog::countData($dataFilter);
+
+            $dataTable = [];
+
+            if (!empty($uploadLog)) {
+                foreach ($uploadLog as $data) {
+                    $nestedData['log_name'] = $data?->log_name;
+                    $nestedData['description'] = $data?->description;
+                    $nestedData['causer'] = $data?->username;
+                    $nestedData['created_at'] = Carbon::parse($data->created_at)->translatedFormat('d F Y H:i:s');
+                    $dataTable[] = $nestedData;
+                }
+            }
+
+            $json_data = array(
+                "draw" => intval($request->input('draw')),
+                "recordsTotal" => intval($totalData),
+                "recordsFiltered" => intval($totalFiltered),
+                "data" => $dataTable,
+                "order" => $order,
+                "dir" => $dir,
+                "column"=>$request->input('order.0.column')
+            );
+
+            return response()->json($json_data, 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => false,
+                'message' => $e->getMessage(),
+            ], 500);
         }
-
-        $json_data = array(
-            "draw" => intval($request->input('draw')),
-            "recordsTotal" => intval($totalData),
-            "recordsFiltered" => intval($totalFiltered),
-            "data" => $dataTable,
-            "order" => $order,
-            "dir" => $dir,
-            "column"=>$request->input('order.0.column')
-        );
-
-        return response()->json($json_data, 200);
     }
 
     public function causer(Request $request){
