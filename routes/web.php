@@ -146,6 +146,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/test', [TestController::class, 'test']);
     Route::get('/nevergiveup/{date}/{hour}/{minute}/{type}', [TestController::class, 'nevergiveup']);
     Route::get('/update-status-cuti-all-karyawan', [TestController::class, 'update_status_cuti_all_karyawan']);
+    Route::get('/test-summary-presensi', [TestController::class, 'test_summary_presensi']);
 
     //WHATSAPP API
     Route::get('/send-whatsapp', [TestController::class, 'send_whatsapp_message_v2']);

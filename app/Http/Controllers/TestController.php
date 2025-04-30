@@ -647,4 +647,23 @@ class TestController extends Controller
             ], 500);
         }
     }
+
+    public function test_summary_presensi()
+    {
+        try {
+            $dataFilter = [];
+            $dataFilter['organisasi_id'] = 1;
+            $dataFilter['karyawan_id'] = 'AW1731585210644';
+            $dataFilter['pin'] = '265';
+            $dataFilter['tanggal'] = '2024-12-31';
+            $data = ScanlogDetail::summarizePresensi($dataFilter);
+            dd($data);
+            return response()->json($data, 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
 }
