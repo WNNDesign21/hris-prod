@@ -327,7 +327,7 @@ class KaryawanController extends Controller
 
         DB::beginTransaction();
         try{
-            $id_karyawan = $this->generateIdKaryawan($nama);
+            $id_karyawan = $this->generateIdKaryawan($nama, $organisasi_id);
 
             if($user_id == null){
                 if($username !== null && $email_akun !== null && $password !== null){
