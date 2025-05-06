@@ -252,40 +252,46 @@ class ScanlogDetail extends Model
                     karyawan_posisi.deleted_at,
                     row_number() OVER (PARTITION BY karyawan_posisi.karyawan_id ORDER BY karyawan_posisi.posisi_id DESC) AS rn
                 FROM karyawan_posisi
-                ), activegroup AS (
-                SELECT s_1.id_scanlog,
-                    k_1.pin,
-                    sg.id_grup,
-                    sg.nama,
-                    k_1.jam_masuk,
-                    k_1.jam_keluar,
-                    k_1.toleransi_waktu,
-                    k_1.active_date,
-                    row_number() OVER (PARTITION BY s_1.pin, s_1.scan_date ORDER BY k_1.active_date, k_1.id DESC) AS rn,
+                ),
+                activegroup AS (
+                    SELECT
+                        s_1.id_scanlog,
+                        k_1.pin,
+                        sg.id_grup,
+                        sg.nama,
+                        k_1.jam_masuk,
+                        k_1.jam_keluar,
+                        k_1.toleransi_waktu,
+                        k_1.active_date,
+                        k_1.organisasi_id,
+                        ROW_NUMBER() OVER (PARTITION BY s_1.pin, s_1.scan_date ORDER BY k_1.active_date, k_1.id DESC) AS rn,
                         CASE
-                            WHEN sg.jam_masuk <= sg.jam_keluar THEN
-                            CASE
-                                WHEN s_1.scan_date >= (s_1.scan_date::date + sg.jam_masuk::interval - '02:00:00'::interval) AND s_1.scan_date <= (s_1.scan_date::date + sg.jam_masuk::interval + sg.toleransi_waktu::interval + '02:00:00'::interval) THEN 'IN'::text
-                                ELSE 'OUT'::text
-                            END
-                            ELSE
-                            CASE
-                                WHEN to_char(s_1.scan_date, 'HH24:MI:SS'::text)::time without time zone > (to_char(sg.jam_masuk::interval, 'HH24:MI:SS'::text)::time without time zone + '02:00:00'::interval) THEN
+                            WHEN sg.jam_masuk IS NOT NULL THEN
                                 CASE
-                                    WHEN s_1.scan_date >= (s_1.scan_date::date + sg.jam_masuk::interval - '02:00:00'::interval) AND s_1.scan_date <= (s_1.scan_date::date + sg.jam_masuk::interval + sg.toleransi_waktu::interval + '02:00:00'::interval) THEN 'IN'::text
-                                    ELSE 'OUT'::text
+                                    WHEN s_1.scan_date >= (s_1.scan_date::date + sg.jam_masuk::interval - '03:00:00'::interval)
+                                        AND s_1.scan_date <= (s_1.scan_date::date + sg.jam_masuk::interval + '02:00:00'::interval)
+                                    THEN 'IN'::text
+                                    WHEN sg.jam_keluar IS NOT NULL THEN -- Pastikan jam_keluar ada untuk OUT
+                                        CASE
+                                            WHEN s_1.scan_date >= (s_1.scan_date::date + sg.jam_keluar::interval - '01:00:00'::interval)
+                                            THEN 'OUT'::text
+                                            ELSE 'UNDEFINED'::text
+                                        END
+                                    ELSE 'UNDEFINED'::text
                                 END
-                                ELSE
-                                CASE
-                                    WHEN s_1.scan_date >= (s_1.scan_date::date - '1 day'::interval + sg.jam_masuk::interval - '02:00:00'::interval) AND s_1.scan_date <= (s_1.scan_date::date - '1 day'::interval + sg.jam_masuk::interval + sg.toleransi_waktu::interval + '02:00:00'::interval) THEN 'IN'::text
-                                    ELSE 'OUT'::text
-                                END
-                            END
+                            ELSE 'UNDEFINED'::text
                         END AS scan_type
-                FROM attendance_scanlogs s_1
-                JOIN attendance_karyawan_grup k_1 ON s_1.pin::text = k_1.pin::text AND k_1.active_date <= s_1.scan_date AND k_1.organisasi_id = '".$dataFilter['organisasi_id']."'
-                LEFT JOIN grups sg ON k_1.grup_id = sg.id_grup
-            )
+                    FROM attendance_scanlogs s_1
+                    JOIN attendance_karyawan_grup k_1
+                        ON s_1.pin::text = k_1.pin::text
+                        AND k_1.active_date <= s_1.scan_date
+                        AND k_1.organisasi_id = '".$dataFilter['organisasi_id']."'
+                        AND k_1.karyawan_id = '".$dataFilter['karyawan_id']."'
+                    LEFT JOIN grups sg
+                        ON k_1.grup_id = sg.id_grup
+                    WHERE
+                        k_1.pin = '".$dataFilter['pin']."'
+                )
         SELECT k.ni_karyawan,
             k.id_karyawan,
             s.pin,

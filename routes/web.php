@@ -583,6 +583,8 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'role:atasan|member|persona
             Route::get('/presensi', [PresensiController::class, 'index'])->name('attendance.presensi');
             Route::post('/presensi/datatable', [PresensiController::class, 'datatable']);
             Route::post('/presensi/check-presensi', [PresensiController::class, 'check_presensi'])->name('attendance.presensi.check-presensi');
+            Route::post('/presensi/apply-presensi', [PresensiController::class, 'apply_presensi'])->name('attendance.presensi.apply-presensi');
+            Route::post('/presensi/reset-presensi', [PresensiController::class, 'reset_presensi'])->name('attendance.presensi.reset-presensi');
 
             // REKAP
             Route::get('/rekap', [RekapController::class, 'index'])->name('attendance.rekap');

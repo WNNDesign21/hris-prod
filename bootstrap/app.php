@@ -39,7 +39,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $day = now()->day;
         $schedule->job(new UpdateCutiJob($today))->dailyAt('10:00');
         $schedule->job(new ResetCutiJob($today, $month, $day))->dailyAt('16:30');
-        $schedule->job(new RollingShiftGroupJob)->dailyAt('23:45');
+        $schedule->job(new RollingShiftGroupJob)->sundays()->at('23:45');
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

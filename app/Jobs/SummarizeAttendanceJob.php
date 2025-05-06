@@ -45,7 +45,7 @@ class SummarizeAttendanceJob implements ShouldQueue
             $summarize = [];
             $failedDatas = [];
             $formattedDate = Carbon::createFromFormat('Y-m-d', $this->tanggal);
-            $karyawans = Karyawan::where('pin', '265')
+            $karyawans = Karyawan::whereIn('pin', $this->data)
                 ->where('organisasi_id', $this->organisasi_id)
                 ->get(['id_karyawan', 'pin', 'nama']);
 

@@ -160,7 +160,7 @@ class IzineController extends Controller
         $izine = Izine::getData($dataFilter, $settings);
         $totalFiltered = Izine::countData($dataFilter);
         $dataTable = [];
-        
+
 
         if (!empty($izine)) {
             foreach ($izine as $data) {
@@ -170,7 +170,7 @@ class IzineController extends Controller
                 $legalized_by = '🕛Waiting';
                 if($data->checked_by){
                     $checked_by = '✅<br><small class="text-bold">'.$data->checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked_at)->diffForHumans().'</small>';
-                } 
+                }
 
                 if($data->approved_by){
                     $approved_by = '✅<br><small class="text-bold">'.$data->approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->approved_at)->diffForHumans().'</small>';
@@ -191,8 +191,8 @@ class IzineController extends Controller
                     $aksi = '-';
                     if($data->checked_by && $data->approved_by && $data->legalized_by && !$data->rejected_by && !$data->aktual_mulai_or_masuk && !$data->aktual_selesai_or_keluar){
                         $aksi = '<div class="btn-group btn-group-sm"><button class="btn btn-sm btn-success btnDone" data-id-izin="'.$data->id_izin.'"><i class="fas fa-check"></i> Done</button><button class="btn btn-sm btn-danger btnCancel" data-id-izin="'.$data->id_izin.'"><i class="fas fa-history"></i> Cancel</button></div>';
-                    } 
-                    
+                    }
+
                     if((!$data->checked_by || !$data->approved_by || !$data->legalized_by) && !$data->rejected_by){
                         $aksi = '<div class="btn-group btn-group-sm"><button class="btn btn-sm btn-warning btnEdit" data-id-izin="'.$data->id_izin.'"><i class="fas fa-edit"></i> Edit</button><button class="btn btn-sm btn-danger btnDelete" data-id-izin="'.$data->id_izin.'"><i class="fas fa-trash"></i> Delete</button></div>';
                     }
@@ -226,8 +226,8 @@ class IzineController extends Controller
                     $aksi = '-';
                     if($data->checked_by && $data->approved_by && $data->legalized_by && !$data->rejected_by && !$data->aktual_mulai_or_masuk){
                         $aksi = '<div class="btn-group btn-group-sm"><button class="btn btn-sm btn-primary btnShowQR" data-id-izin="'.$data->id_izin.'"><i class="fas fa-qrcode"></i>  Show QR</button><button class="btn btn-sm btn-danger btnCancel" data-id-izin="'.$data->id_izin.'"><i class="fas fa-history"></i> Cancel</button></div>';
-                    } 
-                    
+                    }
+
                     if((!$data->checked_by || !$data->approved_by || !$data->legalized_by) && !$data->rejected_by){
                         $aksi = '<div class="btn-group btn-group-sm"><button class="btn btn-sm btn-warning btnEdit" data-id-izin="'.$data->id_izin.'"><i class="fas fa-edit"></i> Edit</button><button class="btn btn-sm btn-danger btnDelete" data-id-izin="'.$data->id_izin.'"><i class="fas fa-trash"></i> Delete</button></div>';
                     }
@@ -338,7 +338,7 @@ class IzineController extends Controller
         if(auth()->user()->hasRole('personalia')){
             $dataFilter['organisasi_id'] = $organisasi_id;
             $is_can_legalized = true;
-        } 
+        }
 
         //FILTER MEMBER
         if (auth()->user()->hasRole('atasan')){
@@ -352,13 +352,13 @@ class IzineController extends Controller
 
             if (auth()->user()->karyawan->posisi[0]->jabatan_id >= 4){
                 $is_can_checked = true;
-            } 
+            }
 
             if (auth()->user()->karyawan->posisi[0]->jabatan_id <= 4){
                 $is_can_approved = true;
             }
 
-            
+
 
              //CEK APAKAH DIA ORANG PIKET
             $today = Carbon::now()->format('Y-m-d');
@@ -375,7 +375,7 @@ class IzineController extends Controller
             } else {
                 $dataFilter['member_posisi_id'] = $id_posisi_members;
             }
-        } 
+        }
 
         // FILTER CUSTOM
         $filterUrutan = $request->urutan;
@@ -443,7 +443,7 @@ class IzineController extends Controller
 
                 if($data->checked_by){
                     $checked_by = '✅<br><small class="text-bold">'.$data->checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked_at)->diffForHumans().'</small>';
-                } 
+                }
 
                 if($data->approved_by){
                     $approved_by = '✅<br><small class="text-bold">'.$data->approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->approved_at)->diffForHumans().'</small>';
@@ -452,7 +452,7 @@ class IzineController extends Controller
                 if($data->legalized_by){
                     $legalized_by = '✅<br><small class="text-bold">'.$data->legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->legalized_at)->diffForHumans().'</small>';
                 }
-        
+
 
                 //TOMBOL CHECKED
                 if ($is_can_checked){
@@ -461,19 +461,19 @@ class IzineController extends Controller
                     if($has_leader && $my_posisi == 5){
                         if(!$data->checked_by){
                             $checked_by = '<div class="btn-group"><button class="btn btn-sm btn-success btnChecked" data-id-izin="'.$data->id_izin.'"><i class="fas fa-thumbs-up"></i> Checked</button><button type="button" class="btn btn-sm btn-danger waves-effect btnReject" data-id-izin="'.$data->id_izin.'"><i class="far fa-times-circle"></i> Reject</button></div>';
-                        } 
+                        }
                     }
 
                     if(!$has_leader && $has_section_head && $has_department_head && $my_posisi == 4){
                         if(!$data->checked_by){
                             $checked_by = '<div class="btn-group"><button class="btn btn-sm btn-success btnChecked" data-id-izin="'.$data->id_izin.'"><i class="fas fa-thumbs-up"></i> Checked</button><button type="button" class="btn btn-sm btn-danger waves-effect btnReject" data-id-izin="'.$data->id_izin.'"><i class="far fa-times-circle"></i> Reject</button></div>';
-                        } 
+                        }
                     }
 
                     if(!$has_leader && !$has_section_head && $has_department_head || !$has_leader && !$has_section_head && !$has_department_head || !$has_leader && $has_section_head && !$has_department_head){
                         if(!$data->checked_by){
                             $checked_by = 'Directly Approved';
-                        } 
+                        }
                     }
                 }
 
@@ -485,33 +485,33 @@ class IzineController extends Controller
                     if($has_leader && $my_posisi == 4){
                         if($data->checked_by && !$data->approved_by){
                             $approved_by = '<div class="btn-group"><button class="btn btn-sm btn-success btnApproved" data-id-izin="'.$data->id_izin.'"><i class="fas fa-thumbs-up"></i> Approved</button><button type="button" class="btn btn-sm btn-danger waves-effect btnReject" data-id-izin="'.$data->id_izin.'"><i class="far fa-times-circle"></i> Reject</button></div>';
-                        } 
+                        }
                     }
 
                     if(!$has_leader && $my_posisi == 4){
                         if(!$data->approved_by){
                             $approved_by = '<div class="btn-group"><button class="btn btn-sm btn-success btnApproved" data-id-izin="'.$data->id_izin.'"><i class="fas fa-thumbs-up"></i> Approved</button><button type="button" class="btn btn-sm btn-danger waves-effect btnReject" data-id-izin="'.$data->id_izin.'"><i class="far fa-times-circle"></i> Reject</button></div>';
-                        } 
+                        }
                     }
 
                     //KONDISI UNTUK DEPT HEAD
                     if($has_leader && !$has_section_head && $my_posisi == 3){
                         if($data->checked_by && !$data->approved_by){
                             $approved_by = '<div class="btn-group"><button class="btn btn-sm btn-success btnApproved" data-id-izin="'.$data->id_izin.'"><i class="fas fa-thumbs-up"></i> Approved</button><button type="button" class="btn btn-sm btn-danger waves-effect btnReject" data-id-izin="'.$data->id_izin.'"><i class="far fa-times-circle"></i> Reject</button></div>';
-                        } 
+                        }
                     }
 
                     if(!$has_leader && !$has_section_head && $my_posisi == 3){
                         if(!$data->approved_by){
                             $approved_by = '<div class="btn-group"><button class="btn btn-sm btn-success btnApproved" data-id-izin="'.$data->id_izin.'"><i class="fas fa-thumbs-up"></i> Approved</button><button type="button" class="btn btn-sm btn-danger waves-effect btnReject" data-id-izin="'.$data->id_izin.'"><i class="far fa-times-circle"></i> Reject</button></div>';
-                        } 
+                        }
                     }
 
                     //KONDISI UNTUK DIV / PLANT HEAD
                     if(!$has_leader && !$has_section_head && !$has_department_head){
                         if(!$data->approved_by){
                             $approved_by = '<div class="btn-group"><button class="btn btn-sm btn-success btnApproved" data-id-izin="'.$data->id_izin.'"><i class="fas fa-thumbs-up"></i> Approved</button><button type="button" class="btn btn-sm btn-danger waves-effect btnReject" data-id-izin="'.$data->id_izin.'"><i class="far fa-times-circle"></i> Reject</button></div>';
-                        } 
+                        }
                     }
                 }
 
@@ -606,7 +606,7 @@ class IzineController extends Controller
         $izine = Izine::getData($dataFilter, $settings);
         $totalFiltered = Izine::countData($dataFilter);
         $dataTable = [];
-        
+
 
         if (!empty($izine)) {
             $rencana = '-';
@@ -620,7 +620,7 @@ class IzineController extends Controller
                     } elseif ($data->rencana_selesai_or_keluar){
                         $rencana = Carbon::parse($data->rencana_selesai_or_keluar)->format('d M Y, H:i').' WIB';
                     }
-    
+
                     if ($data->aktual_mulai_or_masuk){
                         $aktual = Carbon::parse($data->aktual_mulai_or_masuk)->format('d M Y, H:i').' WIB';
                     } elseif ($data->aktual_selesai_or_keluar){
@@ -631,11 +631,11 @@ class IzineController extends Controller
                     if ($data->rencana_selesai_or_keluar && $data->rencana_mulai_or_masuk){
                         $rencana = Carbon::parse($data->rencana_selesai_or_keluar)->format('d M Y, H:i').' WIB - '.Carbon::parse($data->rencana_mulai_or_masuk)->format('d M Y, H:i').' WIB';
                     }
-    
+
                     if ($data->aktual_selesai_or_keluar){
                         $aktual = Carbon::parse($data->aktual_selesai_or_keluar)->format('d M Y, H:i').' WIB - UNKNOWN';
-                    } 
-                    
+                    }
+
                     if ($data->aktual_mulai_or_masuk){
                         $aktual = Carbon::parse($data->aktual_selesai_or_keluar)->format('d M Y, H:i').' WIB - '.Carbon::parse($data->aktual_mulai_or_masuk)->format('d M Y, H:i').' WIB';
                     }
@@ -643,11 +643,11 @@ class IzineController extends Controller
                     $jenis_izin = '<span class="badge badge-dark">Pulang</span>';
                     if ($data->rencana_selesai_or_keluar){
                         $rencana = Carbon::parse($data->rencana_selesai_or_keluar)->format('d M Y, H:i').' WIB';
-                    } 
+                    }
 
                     if ($data->aktual_selesai_or_keluar){
                         $aktual = Carbon::parse($data->aktual_selesai_or_keluar)->format('d M Y, H:i').' WIB';
-                    } 
+                    }
                 }
 
                 $nestedData['id_izin'] = $data->id_izin;
@@ -718,7 +718,7 @@ class IzineController extends Controller
         $pikets = Piket::getData($dataFilter, $settings);
         $totalFiltered = Piket::countData($dataFilter);
         $dataTable = [];
-        
+
 
         if (!empty($pikets)) {
             foreach ($pikets as $data) {
@@ -765,7 +765,7 @@ class IzineController extends Controller
     {
         $jenis_izin = $request->jenis_izin;
         $keterangan = $request->keterangan;
-        
+
         //IZIN TIDAK MASUK
         $rencana_mulai_or_masuk = $request->rencana_mulai_or_masuk;
         $rencana_selesai_or_keluar = $request->rencana_selesai_or_keluar;
@@ -805,7 +805,7 @@ class IzineController extends Controller
         }
 
         $validator = Validator::make(request()->all(), $dataValidate);
-    
+
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
             return response()->json(['message' => $errors], 402);
@@ -888,7 +888,7 @@ class IzineController extends Controller
         }
     }
 
-    public function piket_store(Request $request) 
+    public function piket_store(Request $request)
     {
         $dataValidate = [
             'karyawan_id.*' => ['required', 'exists:karyawans,id_karyawan'],
@@ -896,7 +896,7 @@ class IzineController extends Controller
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
-    
+
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
             return response()->json(['message' => $errors], 402);
@@ -934,7 +934,7 @@ class IzineController extends Controller
         }
     }
 
-    public function piket_update(Request $request, string $id_piket) 
+    public function piket_update(Request $request, string $id_piket)
     {
         $dataValidate = [
             'karyawan_idEdit' => ['required', 'exists:karyawans,id_karyawan'],
@@ -942,7 +942,7 @@ class IzineController extends Controller
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
-    
+
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
             return response()->json(['message' => $errors], 402);
@@ -997,7 +997,7 @@ class IzineController extends Controller
     {
         $izin = Izine::find($id_izin);
         $keterangan = $request->keteranganEdit;
-        
+
         //IZIN TIDAK MASUK
         $rencana_mulai_or_masuk = $request->rencana_mulai_or_masukEdit;
         $rencana_selesai_or_keluar = $request->rencana_selesai_or_keluarEdit;
@@ -1033,7 +1033,7 @@ class IzineController extends Controller
         }
 
         $validator = Validator::make(request()->all(), $dataValidate);
-    
+
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
             return response()->json(['message' => $errors], 402);
@@ -1258,14 +1258,14 @@ class IzineController extends Controller
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
-    
+
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
             return response()->json(['message' => $errors], 402);
         }
 
         $is_shift_malam = $request->is_shift_malam;
-        
+
         DB::beginTransaction();
         try{
             $izin = Izine::find($id_izin);
@@ -1311,8 +1311,8 @@ class IzineController extends Controller
             if ($izin->jenis_izin == 'SH') {
                 if ($izin->aktual_mulai_or_masuk || $izin->aktual_selesai_or_keluar) {
                     return response()->json(['message' => 'Data izin sudah di konfirmasi, silahkan reload halaman!'], 403);
-                } 
-    
+                }
+
                 if($izin->rencana_mulai_or_masuk){
                     $izin->aktual_mulai_or_masuk = now();
                 } elseif ($izin->rencana_selesai_or_keluar){
@@ -1321,8 +1321,8 @@ class IzineController extends Controller
             } elseif ($izin->jenis_izin == 'KP') {
                 if ($izin->aktual_mulai_or_masuk) {
                     return response()->json(['message' => 'Data izin sudah di konfirmasi, silahkan reload halaman!'], 403);
-                } 
-                
+                }
+
                 if ($izin->aktual_selesai_or_keluar) {
                     $izin->aktual_mulai_or_masuk = now();
                 } else {
@@ -1331,8 +1331,8 @@ class IzineController extends Controller
             } elseif ($izin->jenis_izin == 'PL') {
                 if ($izin->aktual_selesai_or_keluar) {
                     return response()->json(['message' => 'Data izin sudah di konfirmasi, silahkan reload halaman!'], 403);
-                } 
-    
+                }
+
                 $izin->aktual_selesai_or_keluar = now();
             } else {
                 return response()->json(['message' => 'Jenis izin tidak ditemukan'], 404);
@@ -1362,12 +1362,12 @@ class IzineController extends Controller
             ];
 
             $validator = Validator::make(request()->all(), $dataValidate);
-        
+
             if ($validator->fails()) {
                 $errors = $validator->errors()->all();
                 return response()->json(['message' => $errors], 402);
             }
-            
+
             $izin->aktual_mulai_or_masuk = $aktual_mulai_or_masuk;
             $izin->aktual_selesai_or_keluar = $aktual_selesai_or_keluar;
             $izin->save();
@@ -1388,9 +1388,9 @@ class IzineController extends Controller
             'rejected_note' => ['required'],
             'is_shift_malam' => ['required', 'in:Y,N'],
         ];
-        
+
         $validator = Validator::make(request()->all(), $dataValidate);
-    
+
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
             return response()->json(['message' => $errors], 402);
@@ -1446,7 +1446,7 @@ class IzineController extends Controller
             unset($spreadsheet);
             exit();
         }
-        
+
         if($export_data == 'IZIN'){
             $izins = Izine::where('organisasi_id',$organisasi_id)->whereNull('rejected_by')->whereNotNull('legalized_by');
             if($departemen){
@@ -1494,7 +1494,7 @@ class IzineController extends Controller
         if(!$izins && !$skds){
             $izins = Izine::where('organisasi_id',$organisasi_id)->whereNull('rejected_by')->whereNotNull('legalized_by');
             $skds = Sakite::where('organisasi_id',$organisasi_id)->whereNull('rejected_by')->whereNotNull('legalized_by')->whereNotNull('attachment');
-            
+
             if($departemen){
                 $izins->where('departemen_id', $departemen);
                 $skds->where('departemen_id', $departemen);
@@ -1652,9 +1652,9 @@ class IzineController extends Controller
             // $skds = $skds->get();
             foreach ($skds as $skd) {
                 $sheet->setCellValue('A' . $row, $row - 1);
-                $sheet->setCellValue('B' . $row, $skd->karyawan->ni_karyawan);
-                $sheet->setCellValue('C' . $row, $skd->karyawan->nama);
-                $sheet->setCellValue('D' . $row, $skd->departemen->nama);
+                $sheet->setCellValue('B' . $row, $skd?->karyawan?->ni_karyawan);
+                $sheet->setCellValue('C' . $row, $skd?->karyawan?->nama);
+                $sheet->setCellValue('D' . $row, $skd?->departemen?->nama);
                 $sheet->setCellValue('E' . $row, $skd->tanggal_mulai);
                 $sheet->setCellValue('F' . $row, $skd->tanggal_selesai);
                 $sheet->setCellValue('G' . $row, $skd->keterangan);

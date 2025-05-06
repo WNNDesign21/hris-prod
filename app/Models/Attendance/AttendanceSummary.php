@@ -2,6 +2,7 @@
 
 namespace App\Models\Attendance;
 
+use DB;
 use App\Models\Seksi;
 use App\Models\Divisi;
 use App\Models\Jabatan;
@@ -186,5 +187,100 @@ class AttendanceSummary extends Model
     public function seksi()
     {
         return $this->belongsTo(Seksi::class, 'seksi_id', 'id_seksi');
+    }
+
+    private static function _query($dataFilter)
+    {
+
+        $data = self::select(
+            'attendance_summaries.*',
+            'karyawans.nama as karyawan',
+            'karyawans.ni_karyawan as nik',
+            'departemens.nama as departemen',
+            'divisis.nama as divisi',
+            DB::raw('
+            COALESCE(tanggal1_selisih, 0) +
+            COALESCE(tanggal2_selisih, 0) +
+            COALESCE(tanggal3_selisih, 0) +
+            COALESCE(tanggal4_selisih, 0) +
+            COALESCE(tanggal5_selisih, 0) +
+            COALESCE(tanggal6_selisih, 0) +
+            COALESCE(tanggal7_selisih, 0) +
+            COALESCE(tanggal8_selisih, 0) +
+            COALESCE(tanggal9_selisih, 0) +
+            COALESCE(tanggal10_selisih, 0) +
+            COALESCE(tanggal11_selisih, 0) +
+            COALESCE(tanggal12_selisih, 0) +
+            COALESCE(tanggal13_selisih, 0) +
+            COALESCE(tanggal14_selisih, 0) +
+            COALESCE(tanggal15_selisih, 0) +
+            COALESCE(tanggal16_selisih, 0) +
+            COALESCE(tanggal17_selisih, 0) +
+            COALESCE(tanggal18_selisih, 0) +
+            COALESCE(tanggal19_selisih, 0) +
+            COALESCE(tanggal20_selisih, 0) +
+            COALESCE(tanggal21_selisih, 0) +
+            COALESCE(tanggal22_selisih, 0) +
+            COALESCE(tanggal23_selisih, 0) +
+            COALESCE(tanggal24_selisih, 0) +
+            COALESCE(tanggal25_selisih, 0) +
+            COALESCE(tanggal26_selisih, 0) +
+            COALESCE(tanggal27_selisih, 0) +
+            COALESCE(tanggal28_selisih, 0) +
+            COALESCE(tanggal29_selisih, 0) +
+            COALESCE(tanggal30_selisih, 0) +
+            COALESCE(tanggal31_selisih, 0)
+            AS menit_keterlambatan
+            ')
+        );
+
+        $data->leftJoin('karyawans', 'karyawans.id_karyawan', 'attendance_summaries.karyawan_id');
+        $data->leftJoin('departemens', 'departemens.id_departemen', 'attendance_summaries.departemen_id');
+        $data->leftJoin('divisis', 'divisis.id_divisi', 'attendance_summaries.divisi_id');
+
+        if (isset($dataFilter['organisasi_id'])) {
+            $data->where('attendance_summaries.organisasi_id', $dataFilter['organisasi_id']);
+        }
+
+        if (isset($dataFilter['departemens'])) {
+            $data->whereIn('attendance_summaries.departemen_id', $dataFilter['departemens']);
+        }
+
+        if (isset($dataFilter['karyawan_ids'])) {
+            $data->whereIn('attendance_summaries.karyawan_id', $dataFilter['karyawan_ids']);
+        }
+
+        if (isset($dataFilter['year']) && isset($dataFilter['month'])) {
+            $data->whereYear('attendance_summaries.periode', $dataFilter['year']);
+            $data->whereMonth('attendance_summaries.periode', $dataFilter['month']);
+        }
+
+        if (isset($dataFilter['search'])) {
+            $search = $dataFilter['search'];
+            $data->where(function ($query) use ($search) {
+                $query->where('karyawans.nama', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.ni_karyawan', 'ILIKE', "%{$search}%")
+                    ->orWhere('attendance_summaries.periode', 'ILIKE', "%{$search}%")
+                    ->orWhere('attendance_summaries.pin', 'ILIKE', "%{$search}%")
+                    ->orWhere('departemens.nama', 'ILIKE', "%{$search}%")
+                    ->orWhere('divisis.nama', 'ILIKE', "%{$search}%");
+            });
+        }
+
+        $result = $data;
+        return $result;
+    }
+
+    public static function getData($dataFilter, $settings)
+    {
+        return self::_query($dataFilter)->offset($settings['start'])
+            ->limit($settings['limit'])
+            ->orderBy($settings['order'], $settings['dir'])
+            ->get();
+    }
+
+    public static function countData($dataFilter)
+    {
+        return self::_query($dataFilter)->get()->count();
     }
 }
