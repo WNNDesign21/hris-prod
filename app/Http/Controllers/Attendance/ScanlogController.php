@@ -158,7 +158,7 @@ class ScanlogController extends Controller
                 }
 
                 foreach ($dateRanges as $dr){
-                    DownloadScanlogJob::dispatch($organisasi_id, $cloudId, $dr['start_date'], $dr['end_date'], $device->id_device);
+                    DownloadScanlogJob::dispatch($organisasi_id, $cloudId, $dr['start_date'], $dr['end_date'], $device->id_device, auth()->user());
                 }
             }
 
