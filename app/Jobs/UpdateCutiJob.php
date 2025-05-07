@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use Exception;
+use Carbon\Carbon;
 use App\Models\Cutie;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Queue\SerializesModels;
@@ -10,6 +11,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use App\Jobs\GenerateSummarizeAttendanceJob;
 
 class UpdateCutiJob implements ShouldQueue
 {
@@ -45,7 +47,7 @@ class UpdateCutiJob implements ShouldQueue
                     ->get();
 
             $mustCompletedCuti = Cutie::where('status_cuti', 'ON LEAVE')
-                ->whereDate('rencana_selesai_cuti', $this->today)
+                ->whereDate('rencana_selesai_cuti', Carbon::parse($this->today)->subDay())
                 ->get();
 
             // REJECT CUTI
@@ -85,6 +87,21 @@ class UpdateCutiJob implements ShouldQueue
                     $data->aktual_mulai_cuti = $data->rencana_mulai_cuti;
                     $data->save();
                     activity('update_cuti_status_onleave')->log('Update Status Onleave Cuti Otomatis karyawan ID -'. $data->karyawan_id .' per tanggal -'. $this->today);
+
+                    $organisasi_id = $data->organisasi_id;
+                    $dateArray = [];
+                    $startDate = Carbon::parse($data->rencana_mulai_cuti);
+                    $endDate = Carbon::parse($data->rencana_selesai_cuti);
+
+                    while ($startDate->lte($endDate)) {
+                        $dateArray[] = $startDate->format('Y-m-d');
+                        $startDate->addDay();
+                    }
+
+                    $dateArray = array_unique($dateArray);
+                    if (!empty($dateArray)) {
+                        GenerateSummarizeAttendanceJob::dispatch($dateArray, $organisasi_id, null, $data->karyawan_id, 'C');
+                    }
                 }
                 activity('update_cuti_status_onleave')->log('Update Status Onleave Cuti Otomatis per tanggal -'. $this->today.' berhasil dilakukan.');
             } else {
@@ -104,8 +121,8 @@ class UpdateCutiJob implements ShouldQueue
                 activity('update_cuti_status_completed')->log('Tidak ada cuti yang harus di update status completed per tanggal -'. $this->today);
             }
 
-            DB::commit();
             activity('automatic_update_cuti')->log('Update status cuti otomatis per tanggal -'. $this->today.' berhasil dilakukan.');
+            DB::commit();
         } catch (Exception $e) {
             DB::rollBack();
             activity('error_automatic_update_cuti')->log('Gagal update cuti karyawan per tanggal -'. $this->today. ' Error: '. $e->getMessage());

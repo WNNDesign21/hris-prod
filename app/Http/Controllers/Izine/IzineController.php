@@ -15,12 +15,16 @@ use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Jobs\SummarizeAttendanceJob;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use App\Models\Attendance\ScanlogDetail;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use Illuminate\Support\Facades\Validator;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Border;
+use App\Jobs\GenerateSummarizeAttendanceJob;
+use App\Models\Attendance\AttendanceSummary;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
 class IzineController extends Controller
@@ -1270,9 +1274,16 @@ class IzineController extends Controller
         try{
             $izin = Izine::find($id_izin);
             if ($izin->legalized_by) {
+                DB::rollBack();
                 return response()->json(['message' => 'Pengajuan izin sudah di legalized!'], 403);
             } elseif ($izin->rejected_by) {
+                DB::rollBack();
                 return response()->json(['message' => 'Pengajuan izin yang sudah di reject tidak dapat di Legalized!'], 403);
+            }
+
+            if ($is_shift_malam == 'Y' && $izin->jenis_izin == 'TM') {
+                DB::rollBack();
+                return response()->json(['message' => 'Pengajuan izin tidak masuk tidak dapat di legalized oleh karyawan!'], 403);
             }
 
             if(!$izin->checked_by){
@@ -1288,6 +1299,23 @@ class IzineController extends Controller
             $izin->legalized_by = $is_shift_malam == 'Y' ? auth()->user()->karyawan->nama : 'HRD & GA';
             $izin->legalized_at = now();
             $izin->save();
+
+            if ($izin->jenis_izin == 'TM'){
+                $organisasi_id = $izin->organisasi_id;
+                $dateArray = [];
+                $startDate = Carbon::parse($izin->rencana_mulai_or_masuk);
+                $endDate = Carbon::parse($izin->rencana_selesai_or_keluar);
+
+                while ($startDate->lte($endDate)) {
+                    $dateArray[] = $startDate->format('Y-m-d');
+                    $startDate->addDay();
+                }
+
+                $dateArray = array_unique($dateArray);
+                if (!empty($dateArray)) {
+                    GenerateSummarizeAttendanceJob::dispatch($dateArray, $organisasi_id, auth()->user(), $izin->karyawan_id, 'I');
+                }
+            }
 
             DB::commit();
             return response()->json(['message' => 'Izin berhasil di Approved!'], 200);

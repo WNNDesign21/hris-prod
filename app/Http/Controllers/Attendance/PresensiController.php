@@ -437,7 +437,12 @@ class PresensiController extends Controller
         try {
             $karyawan = Karyawan::find($karyawan_id);
             $isPersonalia = auth()->user()->hasRole('personalia');
-            $cuti = Cutie::where('organisasi_id', $karyawan->organisasi_id)->where('karyawan_id', $karyawan_id)->where('status_dokumen', '!=', 'REJECTED')->whereDate('rencana_mulai_cuti', '>=', $date)->whereDate('rencana_selesai_cuti', '<=', $date)->get();
+            $cuti = Cutie::where('organisasi_id', $karyawan->organisasi_id)
+                ->where('karyawan_id', $karyawan_id)
+                ->where('status_dokumen', '!=', 'REJECTED')
+                ->whereDate('rencana_mulai_cuti', '<=', $date)
+                ->whereDate('rencana_selesai_cuti', '>=', $date)
+                ->get();
             $izin = Izine::where('organisasi_id', $karyawan->organisasi_id)
                 ->where('karyawan_id', $karyawan_id)
                 ->where('jenis_izin', 'TM')
@@ -445,17 +450,17 @@ class PresensiController extends Controller
                 ->whereDate('rencana_selesai_or_keluar', '>=', $date)
                 ->whereNull('rejected_by')
                 ->get();
-            $sakit = Sakite::where('organisasi_id', $karyawan->organisasi_id)->where('karyawan_id', $karyawan_id)->whereDate('tanggal_mulai', '>=', $date)->whereDate('tanggal_selesai', '<=', $date)->whereNull('rejected_by')->get();
+            $sakit = Sakite::where('organisasi_id', $karyawan->organisasi_id)->where('karyawan_id', $karyawan_id)->whereDate('tanggal_mulai', '<=', $date)->whereDate('tanggal_selesai', '>=', $date)->whereNull('rejected_by')->whereNotNull('legalized_by')->whereNotNull('attachment')->get();
             $scanlog = Scanlog::where('organisasi_id', $karyawan->organisasi_id)->where('pin', $pin)->whereDate('scan_date', $date)->get();
             $datas = [];
             if($scanlog->isNotEmpty()) {
                 $datas = ['data' => $scanlog, 'jenis' => 'scanlog', 'isPersonalia' => $isPersonalia];
             } elseif ($cuti->isNotEmpty()) {
                 $datas = ['data' => $cuti, 'jenis' => 'cuti', 'isPersonalia' => $isPersonalia];
-            } elseif ($izin->isNotEmpty()) {
-                $datas = ['data' => $izin, 'jenis' => 'izin', 'isPersonalia' => $isPersonalia];
             } elseif ($sakit->isNotEmpty()) {
                 $datas = ['data' => $sakit, 'jenis' => 'sakit', 'isPersonalia' => $isPersonalia];
+            } elseif ($izin->isNotEmpty()) {
+                $datas = ['data' => $izin, 'jenis' => 'izin', 'isPersonalia' => $isPersonalia];
             } else {
                 $datas = ['data' => null, 'jenis' => '', 'isPersonalia' => $isPersonalia];
             }

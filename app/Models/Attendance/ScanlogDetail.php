@@ -452,28 +452,6 @@ class ScanlogDetail extends Model
         return $results->first();
     }
 
-    // public static function getSummary($dataFilter, $settings)
-    // {
-    //     $results = self::_query($dataFilter);
-
-    //     if (isset($dataFilter['search'])) {
-    //         $search = $dataFilter['search'];
-    //         $results->where(function ($query) use ($search) {
-    //             $query->where('karyawan', 'ILIKE', "%{$search}%");
-    //             $query->orWhere('pin', 'ILIKE', "%{$search}%");
-    //             $query->orWhere('departemen', 'ILIKE', "%{$search}%");
-    //         });
-    //     }
-
-    //     if (isset($dataFilter['departemens'])) {
-    //         $results->whereIn('departemen_id', $dataFilter['departemens']);
-    //     }
-
-    //     return $results->offset($settings['start'])
-    //         ->limit($settings['limit'])
-    //         ->get();
-    // }
-
     public static function getPresensiPerbulan($dataFilter, $settings)
     {
         $results = self::_query($dataFilter);
