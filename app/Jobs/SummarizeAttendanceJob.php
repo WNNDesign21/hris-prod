@@ -42,7 +42,7 @@ class SummarizeAttendanceJob implements ShouldQueue
         DB::beginTransaction();
         try {
             $row = 0;
-            $summarize = [];
+            // $summarize = [];
             $failedDatas = [];
             $formattedDate = Carbon::createFromFormat('Y-m-d', $this->tanggal);
             $karyawans = Karyawan::whereIn('pin', $this->data)
@@ -83,7 +83,7 @@ class SummarizeAttendanceJob implements ShouldQueue
                     } else {
                         if ($finalSummary) {
                             $keterlambatan = $finalSummary->in_selisih ? intval(Carbon::createFromFormat('H:i:s', $finalSummary->in_selisih)->minute) : 0;
-                            $summarize[] = [
+                            AttendanceSummary::create([
                                 'karyawan_id' => $finalSummary->id_karyawan,
                                 'periode' => Carbon::createFromFormat('Y-m-d', $this->tanggal)->startOfMonth()->format('Y-m-d'),
                                 'pin' => $finalSummary->pin,
@@ -96,7 +96,21 @@ class SummarizeAttendanceJob implements ShouldQueue
                                 "tanggal".$formattedDate->day."_selisih" => $keterlambatan,
                                 "tanggal".$formattedDate->day."_in" => $finalSummary->in_time,
                                 "tanggal".$formattedDate->day."_out" => $finalSummary->out_time,
-                            ];
+                            ]);
+                            // $summarize[] = [
+                            //     'karyawan_id' => $finalSummary->id_karyawan,
+                            //     'periode' => Carbon::createFromFormat('Y-m-d', $this->tanggal)->startOfMonth()->format('Y-m-d'),
+                            //     'pin' => $finalSummary->pin,
+                            //     'organisasi_id' => $finalSummary->organisasi_id,
+                            //     'divisi_id' => $finalSummary->divisi_id,
+                            //     'departemen_id' => $finalSummary->departemen_id,
+                            //     'seksi_id' => $finalSummary->seksi_id,
+                            //     'jabatan_id' => $finalSummary->jabatan_id,
+                            //     "tanggal".$formattedDate->day."_status" => "H",
+                            //     "tanggal".$formattedDate->day."_selisih" => $keterlambatan,
+                            //     "tanggal".$formattedDate->day."_in" => $finalSummary->in_time,
+                            //     "tanggal".$formattedDate->day."_out" => $finalSummary->out_time,
+                            // ];
                         } else {
                             $failedDatas[] = [
                                 'row' => $row,
@@ -113,9 +127,9 @@ class SummarizeAttendanceJob implements ShouldQueue
                 ];
             }
 
-            if (!empty($summarize)) {
-                AttendanceSummary::insert($summarize);
-            }
+            // if (!empty($summarize)) {
+            //     AttendanceSummary::insert($summarize);
+            // }
 
             if (!empty($failedDatas)) {
                 foreach ($failedDatas as $failedData) {

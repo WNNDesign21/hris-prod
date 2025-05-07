@@ -3,9 +3,11 @@
 namespace App\Jobs;
 
 use Throwable;
+use App\Models\User;
 use GuzzleHttp\Client;
 use App\Models\Attendance\Scanlog;
 use Illuminate\Support\Facades\DB;
+use App\Jobs\SummarizeAttendanceJob;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Foundation\Queue\Queueable;
@@ -16,19 +18,20 @@ class DownloadScanlogJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public $organisasi_id, $cloud_id, $start_date, $end_date, $device_id;
+    public $organisasi_id, $cloud_id, $start_date, $end_date, $device_id, $user;
     public $timeout = 1800;
 
     /**
      * Create a new job instance.
      */
-    public function __construct($organisasi_id, $cloud_id, $start_date, $end_date, $device_id)
+    public function __construct($organisasi_id, $cloud_id, $start_date, $end_date, $device_id, User $user)
     {
         $this->organisasi_id = $organisasi_id;
         $this->cloud_id = $cloud_id;
         $this->start_date = $start_date;
         $this->end_date = $end_date;
         $this->device_id = $device_id;
+        $this->user = $user;
     }
 
     /**
@@ -99,12 +102,18 @@ class DownloadScanlogJob implements ShouldQueue
 
                 Scanlog::insert($datas);
                 activity('success_download_scanlog')->log('Download scanlog from device_id: '.$this->device_id.' start_date: '.$this->start_date.' end_date: '.$this->end_date);
+                DB::commit();
+
+                if ($this->start_date == $this->end_date) {
+                    SummarizeAttendanceJob::dispatch($pins, $this->organisasi_id,  $this->user, $this->start_date);
+                } else {
+                    SummarizeAttendanceJob::dispatch($pins, $this->organisasi_id,  $this->user, $this->start_date);
+                    SummarizeAttendanceJob::dispatch($pins, $this->organisasi_id,  $this->user, $this->end_date);
+                }
             } else {
                 DB::rollBack();
                 activity('error_download_scanlog')->log('Error download scanlog - No Response from API');
             }
-
-            DB::commit();
         } catch (Throwable $e) {
             DB::rollback();
             activity('error_download_scanlog')->log($e->getMessage());
