@@ -29,7 +29,7 @@ $(function () {
             toast: true,
             position: "top-end",
             showConfirmButton: false,
-            timer: 2000, 
+            timer: 2000,
             timerProgressBar: true,
             didOpen: (toast) => {
             toast.onmouseenter = Swal.stopTimer;
@@ -189,6 +189,7 @@ $(function () {
     });
 
     $('#shiftgroup-table').on("click", '.btnEdit', function (){
+        loadingSwalShow();
         let idKaryawan = $(this).data('id-karyawan');
         let idGrup = $(this).data('id-grup');
         let idGrupPattern = $(this).data('id-grup-pattern');
@@ -197,7 +198,7 @@ $(function () {
         let url = base_url + '/attendance/shift-group/update/' + idKaryawan;
         $('#form-edit-shiftgroup').attr('action', url);
 
-        $('#grup_pattern_edit').on('change', function (){
+        $('#grup_pattern_edit').off('change').on('change', function (){
             let idGrupPattern = $(this).val();
             $('#current_shift').removeClass('d-none');
             if (idGrupPattern == '') {
@@ -217,21 +218,23 @@ $(function () {
                     $.each(data, function (key, value){
                         select.append('<option value="' + value.id_grup + '">' + value.nama + ' (' +value.jam_masuk+ ' - ' + value.jam_keluar + ')' + '</option>');
                     });
-    
+
                     select.select2({
                         dropdownParent: $('#modal-edit-shiftgroup'),
                     });
 
                     $('#grup_edit').val(idGrup).trigger('change');
+                    loadingSwalClose();
+                    openShiftgroupEdit();
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
+                    loadingSwalClose();
                     showToast({ icon: "error", title: jqXHR.responseJSON.message });
                 }
             })
         })
 
         $('#grup_pattern_edit').val(idGrupPattern).trigger('change');
-        openShiftgroupEdit();
     })
 
     $('.btnCloseEdit').on("click", function (){
