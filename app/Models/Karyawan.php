@@ -559,6 +559,10 @@ class Karyawan extends Model
                 ->whereRaw('kontraks.tanggal_selesai = (select max(tanggal_selesai) from kontraks where kontraks.karyawan_id = karyawans.id_karyawan)');
         });
 
+        $data->where('karyawans.status_karyawan', 'AT')
+            ->where('karyawans.organisasi_id', auth()->user()->organisasi_id)
+            ->where('posisis.parent_id', '!=', 0);
+
         if (isset($dataFilter['departemen'])) {
             $data->where('departemens.id_departemen', $dataFilter['departemen']);
         }
@@ -578,6 +582,24 @@ class Karyawan extends Model
         if (isset($dataFilter['bulan_selesai'])) {
             $data->whereMonth('karyawans.tanggal_selesai', $dataFilter['bulan_selesai']);
         }
+        $data->groupBy(
+            'karyawans.id_karyawan',
+            'karyawans.ni_karyawan',
+            'karyawans.nama',
+            'posisis.nama',
+            'jabatans.nama',
+            'karyawans.jenis_kontrak',
+            'karyawans.status_karyawan',
+            'posisis.id_posisi',
+            'jabatans.id_jabatan',
+            'departemens.id_departemen',
+            'departemens.nama',
+            'divisis.id_divisi',
+            'divisis.nama',
+            'karyawans.tanggal_selesai',
+            'kontraks.tanggal_mulai',
+            'kontraks.tanggal_selesai'
+        );
 
         return $data->get();
     }

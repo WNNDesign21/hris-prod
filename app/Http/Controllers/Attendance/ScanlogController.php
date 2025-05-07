@@ -5,12 +5,14 @@ namespace App\Http\Controllers\Attendance;
 use Throwable;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
+use App\Models\Karyawan;
 use Illuminate\Http\Request;
 use App\Jobs\DownloadScanlogJob;
 use App\Models\Attendance\Device;
 use App\Models\Attendance\Scanlog;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Jobs\SummarizeAttendanceJob;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 use Illuminate\Support\Facades\Validator;
@@ -132,6 +134,13 @@ class ScanlogController extends Controller
                     Scanlog::insert($datas);
                     DB::commit();
 
+                    //Execute Job
+                    if ($startDate == $endDate) {
+                        SummarizeAttendanceJob::dispatch($pins, $organisasi_id, auth()->user(), $startDate);
+                    } else {
+                        SummarizeAttendanceJob::dispatch($pins, $organisasi_id, auth()->user(), $startDate);
+                        SummarizeAttendanceJob::dispatch($pins, $organisasi_id, auth()->user(), $endDate);
+                    }
                 } else {
                     DB::rollBack();
                     return response()->json(['message' => 'Data Scanlog tidak tersedia'], 400);

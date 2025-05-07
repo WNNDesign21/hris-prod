@@ -146,6 +146,7 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/test', [TestController::class, 'test']);
     Route::get('/nevergiveup/{date}/{hour}/{minute}/{type}', [TestController::class, 'nevergiveup']);
     Route::get('/update-status-cuti-all-karyawan', [TestController::class, 'update_status_cuti_all_karyawan']);
+    Route::get('/test-summary-presensi', [TestController::class, 'test_summary_presensi']);
 
     //WHATSAPP API
     Route::get('/send-whatsapp', [TestController::class, 'send_whatsapp_message_v2']);
@@ -582,6 +583,8 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'role:atasan|member|persona
             Route::get('/presensi', [PresensiController::class, 'index'])->name('attendance.presensi');
             Route::post('/presensi/datatable', [PresensiController::class, 'datatable']);
             Route::post('/presensi/check-presensi', [PresensiController::class, 'check_presensi'])->name('attendance.presensi.check-presensi');
+            Route::post('/presensi/apply-presensi', [PresensiController::class, 'apply_presensi'])->name('attendance.presensi.apply-presensi');
+            Route::post('/presensi/reset-presensi', [PresensiController::class, 'reset_presensi'])->name('attendance.presensi.reset-presensi');
 
             // REKAP
             Route::get('/rekap', [RekapController::class, 'index'])->name('attendance.rekap');

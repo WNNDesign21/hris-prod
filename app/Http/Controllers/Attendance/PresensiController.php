@@ -2,19 +2,23 @@
 
 namespace App\Http\Controllers\Attendance;
 
+use Exception;
 use Throwable;
 use Carbon\Carbon;
 use App\Models\Cutie;
 use App\Models\Izine;
 use App\Models\Sakite;
 use App\Models\Karyawan;
+use App\Helpers\Approval;
 use App\Models\Departemen;
 use Illuminate\Http\Request;
 use App\Models\Attendance\Scanlog;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\Attendance\KaryawanGrup;
 use App\Models\Attendance\ScanlogDetail;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Attendance\AttendanceSummary;
 
 class PresensiController extends Controller
 {
@@ -58,19 +62,35 @@ class PresensiController extends Controller
 
     public function datatable(Request $request)
     {
+        $columns = array(
+            0 => 'karyawans.nama',
+            1 => 'departemens.nama',
+            2 => 'attendance_summaries.periode',
+            3 => 'menit_keterlambatan',
+        );
+
+        $totalData = AttendanceSummary::count();
+        $totalFiltered = $totalData;
+
         $limit = $request->input('length');
         $start = $request->input('start');
+        $order = $columns[$request->input('order.0.column')];
+        $dir = $request->input('order.0.dir');
+
         $settings['start'] = $start;
         $settings['limit'] = $limit;
+        $settings['dir'] = $dir;
+        $settings['order'] = $order;
+
         $dataFilter = [];
-
-
         $search = $request->input('search.value');
         if (!empty($search)) {
             $dataFilter['search'] = $search;
         }
-        
-        $dataFilter['organisasi_id'] = auth()->user()->organisasi_id;
+
+        if (auth()->user()->hasAnyRole(['admin-dept', 'personalia'])) {
+            $dataFilter['organisasi_id'] = auth()->user()->organisasi_id;
+        }
 
         $departemen = $request->departemen;
         if (!empty($departemen)) {
@@ -79,147 +99,84 @@ class PresensiController extends Controller
             if(auth()->user()->hasRole('admin-dept')){
                 $departemen = auth()->user()->karyawan->posisi[0]->departemen_id;
                 $dataFilter['departemens'] = [$departemen];
+            } elseif (auth()->user()->hasRole('atasan')) {
+                $posisis = auth()->user()->karyawan->posisi;
+                $memberPosisi = Approval::GetMemberPosisi($posisis);
+                $karyawanDistinct = Karyawan::leftJoin('karyawan_posisi', 'karyawan_posisi.karyawan_id', 'karyawans.id_karyawan')
+                    ->whereIn('karyawan_posisi.posisi_id', $memberPosisi)
+                    ->distinct()
+                    ->pluck('karyawan_posisi.karyawan_id')->toArray();
+                $dataFilter['karyawan_ids'] = $karyawanDistinct;
             }
         }
 
         $periode = $request->periode;
         if (!empty($periode)) {
-            $dataFilter['periode'] = $periode;
+            $dataFilter['periode'] = Carbon::createFromFormat('Y-m', $periode)->format('Y-m');
+            $dataFilter['year'] = Carbon::createFromFormat('Y-m', $periode)->format('Y');
+            $dataFilter['month'] = Carbon::createFromFormat('Y-m', $periode)->format('m');
         } else {
             $dataFilter['periode'] = Carbon::now()->format('Y-m');
+            $dataFilter['year'] = Carbon::now()->format('Y');
+            $dataFilter['month'] = Carbon::now()->format('m');
         }
-        
-        $presensis = ScanlogDetail::getPresensiPerbulan($dataFilter, $settings);
-        $totalFiltered = ScanlogDetail::countData($dataFilter);
-        $totalData = ScanlogDetail::getPresensiPerbulan($dataFilter, $settings)->count();
+
+        $summaries = AttendanceSummary::getData($dataFilter, $settings);
+        $totalFiltered = AttendanceSummary::countData($dataFilter);
 
         $dataTable = [];
-        if (!empty($presensis)) {
-            foreach ($presensis as $data) {
-                $nestedData['ni_karyawan'] = $data?->ni_karyawan;
+
+        if (!empty($summaries)) {
+            foreach ($summaries as $data) {
                 $nestedData['karyawan'] = $data?->karyawan;
                 $nestedData['departemen'] = $data?->departemen;
-                $nestedData['pin'] = $data?->pin;
-                $nestedData['in_1'] = $data->in_1 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-01" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['in_status_1'] = $data?->in_status_1;
-                $nestedData['out_1'] = $data->out_1 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-01" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['out_status_1'] = $data?->out_status_1;
-                $nestedData['in_2'] = $data->in_2 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-02" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['in_status_2'] = $data?->in_status_2;
-                $nestedData['out_2'] = $data->out_2 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-02" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['out_status_2'] = $data?->out_status_2;
-                $nestedData['in_3'] = $data->in_3 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-03" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['in_status_3'] = $data?->in_status_3;
-                $nestedData['out_3'] = $data->out_3 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-03" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['out_status_3'] = $data?->out_status_3;
-                $nestedData['in_4'] = $data->in_4 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-04" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['in_status_4'] = $data?->in_status_4;
-                $nestedData['out_4'] = $data->out_4 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-04" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['out_status_4'] = $data?->out_status_4;
-                $nestedData['in_5'] = $data->in_5 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-05" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['in_status_5'] = $data?->in_status_5;
-                $nestedData['out_5'] = $data->out_5 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-05" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['out_status_5'] = $data?->out_status_5;
-                $nestedData['in_6'] = $data->in_6 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-06" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['in_status_6'] = $data?->in_status_6;
-                $nestedData['out_6'] = $data->out_6 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-06" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['out_status_6'] = $data?->out_status_6;
-                $nestedData['in_7'] = $data->in_7 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-07" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['in_status_7'] = $data?->in_status_7;
-                $nestedData['out_7'] = $data->out_7 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-07" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['out_status_7'] = $data?->out_status_7;
-                $nestedData['in_8'] = $data->in_8 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-08" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['in_status_8'] = $data?->in_status_8;
-                $nestedData['out_8'] = $data->out_8 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-08" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['out_status_8'] = $data?->out_status_8;
-                $nestedData['in_9'] = $data->in_9 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-09" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['in_status_9'] = $data?->in_status_9;
-                $nestedData['out_9'] = $data->out_9 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-09" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['out_status_9'] = $data?->out_status_9;
-                $nestedData['in_10'] = $data->in_10 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-10" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['in_status_10'] = $data?->in_status_10;
-                $nestedData['out_10'] = $data->out_10 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-10" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['out_status_10'] = $data?->out_status_10;
-                $nestedData['in_11'] = $data->in_11 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-11" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['in_status_11'] = $data?->in_status_11;
-                $nestedData['out_11'] = $data->out_11 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-11" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['out_status_11'] = $data?->out_status_11;
-                $nestedData['in_12'] = $data->in_12 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-12" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['in_status_12'] = $data?->in_status_12;
-                $nestedData['out_12'] = $data->out_12 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-12" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['out_status_12'] = $data?->out_status_12;
-                $nestedData['in_13'] = $data->in_13 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-13" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['in_status_13'] = $data?->in_status_13;
-                $nestedData['out_13'] = $data->out_13 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-13" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['out_status_13'] = $data?->out_status_13;
-                $nestedData['in_14'] = $data->in_14 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-14" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['in_status_14'] = $data?->in_status_14;
-                $nestedData['out_14'] = $data->out_14 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-14" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['out_status_14'] = $data?->out_status_14;
-                $nestedData['in_15'] = $data->in_15 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-15" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['in_status_15'] = $data?->in_status_15;
-                $nestedData['out_15'] = $data->out_15 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-15" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['out_status_15'] = $data?->out_status_15;
-                $nestedData['in_16'] = $data->in_16 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-16" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['in_status_16'] = $data?->in_status_16;
-                $nestedData['out_16'] = $data->out_16 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-16" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>'; 
-                $nestedData['out_status_16'] = $data?->out_status_16;
-                $nestedData['in_17'] = $data->in_17 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-17" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['in_status_17'] = $data?->in_status_17;
-                $nestedData['out_17'] = $data->out_17 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-17" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['out_status_17'] = $data?->out_status_17;
-                $nestedData['in_18'] = $data->in_18 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-18" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['in_status_18'] = $data?->in_status_18;
-                $nestedData['out_18'] = $data->out_18 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-18" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['out_status_18'] = $data?->out_status_18;
-                $nestedData['in_19'] = $data->in_19 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-19" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['in_status_19'] = $data?->in_status_19;
-                $nestedData['out_19'] = $data->out_19 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-19" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['out_status_19'] = $data?->out_status_19;
-                $nestedData['in_20'] = $data->in_20 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-20" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['in_status_20'] = $data?->in_status_20;
-                $nestedData['out_20'] = $data->out_20 ?? '<buton class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-20" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['out_status_20'] = $data?->out_status_20;
-                $nestedData['in_21'] = $data->in_21 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-21" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['in_status_21'] = $data?->in_status_21;
-                $nestedData['out_21'] = $data->out_21 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-21" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['out_status_21'] = $data?->out_status_21;
-                $nestedData['in_22'] = $data->in_22 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-22" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['in_status_22'] = $data?->in_status_22;
-                $nestedData['out_22'] = $data->out_22 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-22" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['out_status_22'] = $data?->out_status_22;
-                $nestedData['in_23'] = $data->in_23 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-23" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['in_status_23'] = $data?->in_status_23;
-                $nestedData['out_23'] = $data->out_23 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-23" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['out_status_23'] = $data?->out_status_23;
-                $nestedData['in_24'] = $data->in_24 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-24" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['in_status_24'] = $data?->in_status_24;
-                $nestedData['out_24'] = $data->out_24 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-24" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['out_status_24'] = $data?->out_status_24;
-                $nestedData['in_25'] = $data->in_25 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-25" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['in_status_25'] = $data?->in_status_25;
-                $nestedData['out_25'] = $data->out_25 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-25" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['out_status_25'] = $data?->out_status_25;
-                $nestedData['in_26'] = $data->in_26 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-26" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['in_status_26'] = $data?->in_status_26;
-                $nestedData['out_26'] = $data->out_26 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-26" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['out_status_26'] = $data?->out_status_26;
-                $nestedData['in_27'] = $data->in_27 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-27" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['in_status_27'] = $data?->in_status_27;
-                $nestedData['out_27'] = $data->out_27 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-27" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['out_status_27'] = $data?->out_status_27;
-                $nestedData['in_28'] = $data->in_28 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-28" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['in_status_28'] = $data?->in_status_28;
-                $nestedData['out_28'] = $data->out_28 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-28" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                $nestedData['out_status_28'] = $data?->out_status_28;
+                $nestedData['periode'] = Carbon::createFromFormat('Y-m-d', $data?->periode)->format('F Y');
+                $nestedData['menit_keterlambatan'] = $data?->menit_keterlambatan. ' Menit';
+
+                for ($i = 1; $i <= 28; $i++) {
+                    if ($data->{"tanggal{$i}_status"} == 'H') {
+                        $nestedData["in_$i"] = '<button class="btn btn-sm btn-success btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="IN">'.($data?->{"tanggal{$i}_in"} ?? 'UNDEFINED').'</button>';
+                        $nestedData["out_$i"] = '<button class="btn btn-sm btn-success btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="OUT">'.($data?->{"tanggal{$i}_out"} ?? 'UNDEFINED').'</button>';
+                    } elseif ($data->{"tanggal{$i}_status"} == 'S') {
+                        $nestedData["in_$i"] = '<button class="btn btn-sm btn-dark btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Sakit</button>';
+                        $nestedData["out_$i"] = '<button class="btn btn-sm btn-dark btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Sakit</button>';
+                    } elseif ($data->{"tanggal{$i}_status"} == 'I') {
+                        $nestedData["in_$i"] = '<button class="btn btn-sm btn-primary btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Izin</button>';
+                        $nestedData["out_$i"] = '<button class="btn btn-sm btn-primary btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Izin</button>';
+                    } elseif ($data->{"tanggal{$i}_status"} == 'C') {
+                        $nestedData["in_$i"] = '<button class="btn btn-sm btn-info btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Cuti</button>';
+                        $nestedData["out_$i"] = '<button class="btn btn-sm btn-info btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Cuti</button>';
+                    } else {
+                        $nestedData["in_$i"] = '<button class="btn btn-sm btn-danger btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="IN">Absen</button>';
+                        $nestedData["out_$i"] = '<button class="btn btn-sm btn-danger btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="OUT">Absen</button>';
+                    }
+
+                    $nestedData["in_status_$i"] = $data?->{"tanggal{$i}_selisih"} > 0 ? 'LATE' : '';
+                    $nestedData["out_status_$i"] = $data?->{"tanggal{$i}_status"};
+                }
 
                 // KONDISI UNTUK BULAN YANG MEMILIKI TANGGAL 29, 30, 31
                 $daysInMonth = Carbon::createFromFormat('Y-m', $dataFilter['periode'])->daysInMonth;
                 if ($daysInMonth >= 29) {
-                    $nestedData['in_29'] = $data->in_29 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-29" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                    $nestedData['in_status_29'] = $data?->in_status_29;
-                    $nestedData['out_29'] = $data->out_29 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-29" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                    $nestedData['out_status_29'] = $data?->out_status_29;
+                    if ($data->{"tanggal29_status"} == 'H') {
+                        $nestedData["in_29"] = '<button class="btn btn-sm btn-success btnCheck" data-id="'.$data->id_att_summary.'"  data-date="' . $dataFilter['periode'] . '-29" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="IN">'.$data->tanggal29_in.'</button>';
+                        $nestedData["out_29"] = '<button class="btn btn-sm btn-success btnCheck" data-id="'.$data->id_att_summary.'"  data-date="' . $dataFilter['periode'] . '-29" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="OUT">'.$data->tanggal29_out.'</button>';
+                    } elseif ($data->{"tanggal29_status"} == 'S') {
+                        $nestedData["in_29"] = '<button class="btn btn-sm btn-dark btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-29" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Sakit</button>';
+                        $nestedData["out_29"] = '<button class="btn btn-sm btn-dark btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-29" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Sakit</button>';
+                    } elseif ($data->{"tanggal29_status"} == 'I') {
+                        $nestedData["in_29"] = '<button class="btn btn-sm btn-primary btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-29" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Izin</button>';
+                        $nestedData["out_29"] = '<button class="btn btn-sm btn-primary btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-29" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Izin</button>';
+                    } elseif ($data->{"tanggal29_status"} == 'C') {
+                        $nestedData["in_29"] = '<button class="btn btn-sm btn-info btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-29" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Cuti</button>';
+                        $nestedData["out_29"] = '<button class="btn btn-sm btn-info btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-29" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Cuti</button>';
+                    } else {
+                        $nestedData["in_29"] = '<button class="btn btn-sm btn-danger btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-29" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="IN">Absen</button>';
+                        $nestedData["out_29"] = '<button class="btn btn-sm btn-danger btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-29" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="OUT">Absen</button>';
+                    }
+
+                    $nestedData["in_status_29"] = $data?->tanggal29_selisih > 0 ? 'LATE' : '';
+                    $nestedData["out_status_29"] = $data?->tanggal29_status;
                 } else {
                     $nestedData['in_29'] = '';
                     $nestedData['in_status_29'] = '';
@@ -228,10 +185,24 @@ class PresensiController extends Controller
                 }
 
                 if ($daysInMonth >= 30) {
-                    $nestedData['in_30'] = $data->in_30 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-30" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                    $nestedData['in_status_30'] = $data?->in_status_30;
-                    $nestedData['out_30'] = $data->out_30 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-30" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                    $nestedData['out_status_30'] = $data?->out_status_30;
+                    if ($data->{"tanggal30_status"} == 'H') {
+                        $nestedData["in_30"] = '<button class="btn btn-sm btn-success btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-30" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="IN">'.$data->tanggal30_in.'</button>';
+                        $nestedData["out_30"] = '<button class="btn btn-sm btn-success btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-30" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="OUT">'.$data->tanggal30_out.'</button>';
+                    } elseif ($data->{"tanggal30_status"} == 'S') {
+                        $nestedData["in_30"] = '<button class="btn btn-sm btn-dark btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-30" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Sakit</button>';
+                        $nestedData["out_30"] = '<button class="btn btn-sm btn-dark btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-30" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Sakit</button>';
+                    } elseif ($data->{"tanggal30_status"} == 'I') {
+                        $nestedData["in_30"] = '<button class="btn btn-sm btn-primary btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-30" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Izin</button>';
+                        $nestedData["out_30"] = '<button class="btn btn-sm btn-primary btnCheck" data-id="'.$data->id_att_summary.'" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-30" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Izin</button>';
+                    } elseif ($data->{"tanggal30_status"} == 'C') {
+                        $nestedData["in_30"] = '<button class="btn btn-sm btn-info btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-30" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Cuti</button>';
+                        $nestedData["out_30"] = '<button class="btn btn-sm btn-info btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-30" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Cuti</button>';
+                    } else {
+                        $nestedData["in_30"] = '<button class="btn btn-sm btn-danger btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-30" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="IN">Absen</button>';
+                        $nestedData["out_30"] = '<button class="btn btn-sm btn-danger btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-30" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="OUT">Absen</button>';
+                    }
+                    $nestedData["in_status_30"] = $data?->tanggal30_selisih > 0 ? 'LATE' : '';
+                    $nestedData["out_status_30"] = $data?->tanggal30_status;
                 } else {
                     $nestedData['in_30'] = '';
                     $nestedData['in_status_30'] = '';
@@ -240,19 +211,31 @@ class PresensiController extends Controller
                 }
 
                 if ($daysInMonth == 31) {
-                    $nestedData['in_31'] = $data->in_31 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-31" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                    $nestedData['in_status_31'] = $data?->in_status_31;
-                    $nestedData['out_31'] = $data->out_31 ?? '<button class="btn btn-sm btn-danger btnCheck" data-date="' . $dataFilter['periode'] . '-31" data-karyawan-id="' . $data?->id_karyawan . '" data-pin="'.$data?->pin.'">Check</button>';
-                    $nestedData['out_status_31'] = $data?->out_status_31;
+                    if ($data->{"tanggal31_status"} == 'H') {
+                        $nestedData["in_31"] = '<button class="btn btn-sm btn-success btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-31" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="IN">'.$data->tanggal31_in.'</button>';
+                        $nestedData["out_31"] = '<button class="btn btn-sm btn-success btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-31" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="OUT">'.$data->tanggal31_out.'</button>';
+                    } elseif ($data->{"tanggal31_status"} == 'S') {
+                        $nestedData["in_31"] = '<button class="btn btn-sm btn-dark btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-31" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Sakit</button>';
+                        $nestedData["out_31"] = '<button class="btn btn-sm btn-dark btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-31" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Sakit</button>';
+                    } elseif ($data->{"tanggal31_status"} == 'I') {
+                        $nestedData["in_31"] = '<button class="btn btn-sm btn-primary btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-31" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Izin</button>';
+                        $nestedData["out_31"] = '<button class="btn btn-sm btn-primary btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-31" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Izin</button>';
+                    } elseif ($data->{"tanggal31_status"} == 'C') {
+                        $nestedData["in_31"] = '<button class="btn btn-sm btn-info btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-31" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Cuti</button>';
+                        $nestedData["out_31"] = '<button class="btn btn-sm btn-info btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-31" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Cuti</button>';
+                    } else {
+                        $nestedData["in_31"] = '<button class="btn btn-sm btn-danger btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-31" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Absen</button>';
+                        $nestedData["out_31"] = '<button class="btn btn-sm btn-danger btnCheck" data-id="'.$data->id_att_summary.'" data-date="' . $dataFilter['periode'] . '-31" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Absen</button>';
+                    }
+
+                    $nestedData["in_status_31"] = $data?->tanggal31_selisih > 0 ? 'LATE' : '';
+                    $nestedData["out_status_31"] = $data?->tanggal31_status;
                 } else {
                     $nestedData['in_31'] = '';
                     $nestedData['in_status_31'] = '';
                     $nestedData['out_31'] = '';
                     $nestedData['out_status_31'] = '';
                 }
-
-                $nestedData['total_in_selisih'] = $data?->total_in_selisih;
-                $nestedData['total_kehadiran'] = $data?->total_kehadiran;
 
                 $dataTable[] = $nestedData;
             }
@@ -263,9 +246,9 @@ class PresensiController extends Controller
             "recordsTotal" => intval($totalData),
             "recordsFiltered" => intval($totalFiltered),
             "data" => $dataTable,
-            // "order" => $order,
+            "order" => $order,
             "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
-            // "dir" => $dir,
+            "dir" => $dir,
         );
 
         return response()->json($json_data, 200);
@@ -296,7 +279,7 @@ class PresensiController extends Controller
             SELECT
                 karyawan,
                 pin,";
-    
+
             $startDate = Carbon::createFromFormat('Y-m', $periode)->startOfMonth();
             $endDate = Carbon::createFromFormat('Y-m', $periode)->endOfMonth();
 
@@ -316,13 +299,13 @@ class PresensiController extends Controller
             FROM DailyScans
             GROUP BY karyawan, pin
             ORDER BY karyawan, pin;";
-    
+
             $results = DB::select($sql);
             return response()->json(['message' => 'Data Presensi Per Bulan Berhasil Ditemukan', 'data' => $results], 200);
         } catch (Throwable $e) {
             return response()->json(['message' => $e->getMessage()], 500);
         }
-        
+
     }
 
     public function get_summary_presensi_html(Request $request)
@@ -332,7 +315,7 @@ class PresensiController extends Controller
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
-    
+
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
             return response()->json(['message' => $errors], 402);
@@ -384,7 +367,7 @@ class PresensiController extends Controller
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
-    
+
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
             return response()->json(['message' => $errors], 402);
@@ -441,7 +424,7 @@ class PresensiController extends Controller
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
-    
+
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
             return response()->json(['message' => $errors], 402);
@@ -452,22 +435,34 @@ class PresensiController extends Controller
         $pin = $request->pin;
 
         try {
-            $cuti = Cutie::where('organisasi_id', auth()->user()->organisasi_id)->where('karyawan_id', $karyawan_id)->where('status_dokumen', '!=', 'REJECTED')->whereDate('rencana_mulai_cuti', '>=', $date)->whereDate('rencana_selesai_cuti', '<=', $date)->get();
-            $izin = Izine::where('organisasi_id', auth()->user()->organisasi_id)->where('karyawan_id', $karyawan_id)->where('jenis_izin', 'TM')->whereDate('rencana_mulai_or_masuk', '>=', $date)->whereDate('rencana_selesai_or_keluar', '<=', $date)->whereNull('rejected_by')->get();
-            $sakit = Sakite::where('organisasi_id', auth()->user()->organisasi_id)->where('karyawan_id', $karyawan_id)->whereDate('tanggal_mulai', '>=', $date)->whereDate('tanggal_selesai', '<=', $date)->whereNull('rejected_by')->get();
-            $scanlog = Scanlog::where('organisasi_id', auth()->user()->organisasi_id)->where('pin', $pin)->whereDate('scan_date', $date)->get();
-
+            $karyawan = Karyawan::find($karyawan_id);
+            $isPersonalia = auth()->user()->hasRole('personalia');
+            $cuti = Cutie::where('organisasi_id', $karyawan->organisasi_id)
+                ->where('karyawan_id', $karyawan_id)
+                ->where('status_dokumen', '!=', 'REJECTED')
+                ->whereDate('rencana_mulai_cuti', '<=', $date)
+                ->whereDate('rencana_selesai_cuti', '>=', $date)
+                ->get();
+            $izin = Izine::where('organisasi_id', $karyawan->organisasi_id)
+                ->where('karyawan_id', $karyawan_id)
+                ->where('jenis_izin', 'TM')
+                ->whereDate('rencana_mulai_or_masuk', '<=', $date)
+                ->whereDate('rencana_selesai_or_keluar', '>=', $date)
+                ->whereNull('rejected_by')
+                ->get();
+            $sakit = Sakite::where('organisasi_id', $karyawan->organisasi_id)->where('karyawan_id', $karyawan_id)->whereDate('tanggal_mulai', '<=', $date)->whereDate('tanggal_selesai', '>=', $date)->whereNull('rejected_by')->whereNotNull('legalized_by')->whereNotNull('attachment')->get();
+            $scanlog = Scanlog::where('organisasi_id', $karyawan->organisasi_id)->where('pin', $pin)->whereDate('scan_date', $date)->get();
             $datas = [];
-            if($scanlog){
-                $datas = ['data' => $scanlog, 'jenis' => 'scanlog'];
-            } elseif ($cuti) {
-                $datas = ['data' => $cuti, 'jenis' => 'cuti'];
-            } elseif ($izin) {
-                $datas = ['data' => $izin, 'jenis' => 'izin'];
-            } elseif ($sakit) {
-                $datas = ['data' => $sakit, 'jenis' => 'sakit'];
+            if($scanlog->isNotEmpty()) {
+                $datas = ['data' => $scanlog, 'jenis' => 'scanlog', 'isPersonalia' => $isPersonalia];
+            } elseif ($cuti->isNotEmpty()) {
+                $datas = ['data' => $cuti, 'jenis' => 'cuti', 'isPersonalia' => $isPersonalia];
+            } elseif ($sakit->isNotEmpty()) {
+                $datas = ['data' => $sakit, 'jenis' => 'sakit', 'isPersonalia' => $isPersonalia];
+            } elseif ($izin->isNotEmpty()) {
+                $datas = ['data' => $izin, 'jenis' => 'izin', 'isPersonalia' => $isPersonalia];
             } else {
-                $datas = ['data' => null, 'jenis' => ''];
+                $datas = ['data' => null, 'jenis' => '', 'isPersonalia' => $isPersonalia];
             }
 
             return response()->json(['message' => 'Pengecekan Data Presensi berhasil dilakukan', 'data' => $datas], 200);
@@ -476,51 +471,187 @@ class PresensiController extends Controller
         }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
+   public function apply_presensi(Request $request)
+   {
+        $dataValidate = [
+            'type' => ['required', 'in:scanlog,cuti,izin,sakit'],
+            'date' => ['required', 'date_format:Y-m-d'],
+            'checkType' => ['nullable', 'in:IN,OUT']
+        ];
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        $validator = Validator::make(request()->all(), $dataValidate);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
+        $id = $request->id;
+        $type = $request->type;
+        $year = Carbon::createFromFormat('Y-m-d', $request->date)->year;
+        $month = Carbon::createFromFormat('Y-m-d', $request->date)->month;
+        $day = Carbon::createFromFormat('Y-m-d', $request->date)->day;
+        DB::beginTransaction();
+        try {
+            if ($type == 'scanlog') {
+                $scanlog = Scanlog::find($id);
+                if ($scanlog) {
+                    $jam_presensi = Carbon::createFromFormat('Y-m-d H:i:s', $scanlog->scan_date)->format('H:i');
+                    $karyawan = Karyawan::where('pin', $scanlog->pin)->where('organisasi_id', $scanlog->organisasi_id)->first();
+                    if ($karyawan) {
+                        $karyawanGrup = KaryawanGrup::where('active_date', '<=', $scanlog->scan_date)->where('karyawan_id', $karyawan->id_karyawan)->orderByDesc('active_date')->first();
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
+                        if ($karyawanGrup) {
+                            if ($request->checkType == 'IN') {
+                                $jam_masuk_shift = Carbon::createFromFormat('H:i:s', $karyawanGrup->jam_masuk)->format('H:i:s');
+                                $jam_masuk_aktual = Carbon::createFromFormat('Y-m-d H:i:s', $scanlog->scan_date)->format('H:i:s');
+                                $selisih_menit = intval(round(Carbon::parse($jam_masuk_shift)->diffInMinutes(Carbon::parse($jam_masuk_aktual), false)));
+                            } else {
+                                $selisih_menit = 0;
+                            }
+                        } else {
+                            $selisih_menit = 0;
+                        }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
+                        $presensiSummary = AttendanceSummary::whereYear('periode', $year)->whereMonth('periode', $month)->where('organisasi_id', auth()->user()->organisasi_id)->where('karyawan_id', $karyawan->id_karyawan)->first();
+                        if ($presensiSummary) {
+                            $checkType = strtolower($request->checkType);
+                            $statusField = "tanggal{$day}_status";
+                            $timeField = "tanggal{$day}_{$checkType}";
+                            $selisihField = "tanggal{$day}_selisih";
+                            $presensiSummary->{$statusField} = 'H';
+                            $presensiSummary->{$timeField} = $jam_presensi;
+                            if ($checkType == 'in') {
+                                $presensiSummary->{$selisihField} = $selisih_menit > 0 ? $selisih_menit : 0;
+                            }
+                            $presensiSummary->save();
+                        }
+                    } else {
+                        DB::rollback();
+                        return response()->json(['message' => 'Karyawan tidak ditemukan'], 500);
+                    }
+                } else {
+                    DB::rollback();
+                    return response()->json(['message' => 'Scanlog tidak ditemukan'], 500);
+                }
+            } elseif ($type == 'cuti') {
+                $cuti = Cutie::find($id);
+                if ($cuti) {
+                    $presensiSummary = AttendanceSummary::whereYear('periode', $year)->whereMonth('periode', $month)->where('organisasi_id', auth()->user()->organisasi_id)->where('karyawan_id', $cuti->karyawan_id)->first();
+                    if ($presensiSummary) {
+                        $statusField = "tanggal{$day}_status";
+                        $inField = "tanggal{$day}_in";
+                        $outField = "tanggal{$day}_out";
+
+                        $presensiSummary->{$statusField} = 'C';
+                        $presensiSummary->{$inField} = '00:00';
+                        $presensiSummary->{$outField} = '00:00';
+                        $presensiSummary->save();
+                    }
+                }else {
+                    DB::rollback();
+                    return response()->json(['message' => 'Cuti tidak ditemukan'], 500);
+                }
+            } elseif ($type == 'izin') {
+                $izin = Izine::find($id);
+                if ($izin) {
+                    $presensiSummary = AttendanceSummary::whereYear('periode', $year)->whereMonth('periode', $month)->where('organisasi_id', auth()->user()->organisasi_id)->where('karyawan_id', $izin->karyawan_id)->first();
+                    if ($presensiSummary) {
+                        $statusField = "tanggal{$day}_status";
+                        $inField = "tanggal{$day}_in";
+                        $outField = "tanggal{$day}_out";
+
+                        $presensiSummary->{$statusField} = 'I';
+                        $presensiSummary->{$inField} = '00:00';
+                        $presensiSummary->{$outField} = '00:00';
+                        $presensiSummary->save();
+                    }
+                } else {
+                    DB::rollback();
+                    return response()->json(['message' => 'Izin tidak ditemukan'], 500);
+                }
+            } elseif ($type == 'sakit') {
+                $sakit = Sakite::find($id);
+                if ($sakit) {
+                    $presensiSummary = AttendanceSummary::whereYear('periode', $year)->whereMonth('periode', $month)->where('organisasi_id', auth()->user()->organisasi_id)->where('karyawan_id', $sakit->karyawan_id)->first();
+                    if ($presensiSummary) {
+                        $statusField = "tanggal{$day}_status";
+                        $inField = "tanggal{$day}_in";
+                        $outField = "tanggal{$day}_out";
+
+                        $presensiSummary->{$statusField} = 'S';
+                        $presensiSummary->{$inField} = '00:00';
+                        $presensiSummary->{$outField} = '00:00';
+                        $presensiSummary->save();
+                    }
+                } else {
+                    DB::rollback();
+                    return response()->json(['message' => 'Sakit tidak ditemukan'], 500);
+                }
+            } else {
+                DB::rollback();
+                return response()->json(['message' => 'Type tidak ditemukan'], 500);
+            }
+            DB::commit();
+            return response()->json(['message' => 'Berhasil mengadjust presensi karyawan'], 200);
+        } catch (Exception $e) {
+            DB::rollback();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+   }
+
+   public function reset_presensi(Request $request)
+   {
+        $dataValidate = [
+            'id' => ['required', 'exists:attendance_summaries,id_att_summary'],
+            'date' => ['required', 'date_format:Y-m-d'],
+            'type' => ['nullable', 'in:IN,OUT']
+        ];
+
+        $validator = Validator::make(request()->all(), $dataValidate);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => $errors], 402);
+        }
+
+        $id = $request->id;
+        $type = $request->type;
+        $year = Carbon::createFromFormat('Y-m-d', $request->date)->year;
+        $month = Carbon::createFromFormat('Y-m-d', $request->date)->month;
+        $day = Carbon::createFromFormat('Y-m-d', $request->date)->day;
+        DB::beginTransaction();
+        try {
+            $presensiSummary = AttendanceSummary::find($id);
+            if ($presensiSummary) {
+                $dataFilter = [];
+                $dataFilter['organisasi_id'] = $presensiSummary->organisasi_id;
+                $dataFilter['karyawan_id'] = $presensiSummary->karyawan_id;
+                $dataFilter['pin'] = $presensiSummary->pin;
+                $dataFilter['tanggal'] = $request->date;
+                $finalSummary = ScanlogDetail::summarizePresensi($dataFilter);
+                if ($finalSummary) {
+                    $keterlambatan = $finalSummary->in_selisih ? intval(Carbon::createFromFormat('H:i:s', $finalSummary->in_selisih)->minute) : 0;
+                    $presensiSummary->update([
+                        "tanggal".$day."_status" => 'H',
+                        "tanggal".$day."_selisih" => $keterlambatan,
+                        "tanggal".$day."_in" => $finalSummary->in_time,
+                        "tanggal".$day."_out" => $finalSummary->out_time,
+                    ]);
+                } else {
+                    $presensiSummary->update([
+                        "tanggal".$day."_status" => 'A',
+                        "tanggal".$day."_selisih" => 0,
+                        "tanggal".$day."_in" => null,
+                        "tanggal".$day."_out" => null,
+                    ]);
+                }
+            }
+            DB::commit();
+            return response()->json(['message' => 'Berhasil mereset presensi karyawan'], 200);
+        } catch (Throwable $e) {
+            DB::rollback();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 }

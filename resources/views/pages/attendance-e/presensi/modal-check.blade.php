@@ -14,10 +14,23 @@
                             <tr>
                                 <th>Tanggal</th>
                                 <th>Jenis</th>
+                                <th>Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="checkContent"></tbody>
                     </table>
+                </div>
+                <div class="row">
+                    <input type="hidden" id="id">
+                    <input type="hidden" id="date">
+                    <input type="hidden" id="type">
+                    @role('personalia')
+                        <div class="col text-end">
+                            <button type="button" class="btn btn-light btnReset">
+                                <i class="fas fa-undo"></i> Reset
+                            </button>
+                        </div>
+                    @endrole
                 </div>
             </div>
             <!-- /.modal-dialog -->

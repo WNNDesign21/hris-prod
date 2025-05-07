@@ -18,6 +18,7 @@ use App\Jobs\UploadKaryawanJob;
 use App\Models\Attendance\Device;
 use App\Models\Attendance\Scanlog;
 use Illuminate\Support\Facades\DB;
+use App\Jobs\SummarizeAttendanceJob;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use App\Models\Attendance\ScanlogDetail;
 use App\Helpers\SendWhatsappNotification;
@@ -644,6 +645,26 @@ class TestController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => 'Gagal update cuti karyawan per tanggal -'. $today. ' Error: '. $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function test_summary_presensi()
+    {
+        try {
+            $dataFilter = [];
+            $dataFilter['organisasi_id'] = 1;
+            $dataFilter['karyawan_id'] = 'RS1729818995';
+            $dataFilter['pin'] = '122';
+            $dataFilter['tanggal'] = '2025-01-02';
+            $data = ScanlogDetail::summarizePresensi($dataFilter);
+            $pins = ['122'];
+            SummarizeAttendanceJob::dispatch($pins, 1, auth()->user(), '2025-01-03');
+            return response()->json($data, 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage()
             ], 500);
         }
     }

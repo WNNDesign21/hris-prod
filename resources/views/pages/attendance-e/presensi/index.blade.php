@@ -85,33 +85,21 @@
                 </div>
                 <div class="box-body">
                     <div class="table-responsive">
-                        <table id="presensi-table" class="table table-striped table-bordered display nowrap"
-                            style="width:100%">
+                        <table id="presensi-table" class="table table-striped display nowrap" style="width:100%">
                             <thead>
                                 <tr>
-                                    <th rowspan="2">NIK</th>
                                     <th rowspan="2">NAMA</th>
                                     <th rowspan="2">DEPARTEMEN</th>
-                                    <th rowspan="2">PIN</th>
+                                    <th rowspan="2">PERIODE</th>
+                                    <th rowspan="2">KETERLAMBATAN</th>
                                     @for ($i = 1; $i <= 31; $i++)
-                                        @if ($i == date('j'))
-                                            <th colspan="2" class="bg-primary">{{ 'Tanggal ' . $i }}</th>
-                                        @else
-                                            <th colspan="2">{{ 'Tanggal ' . $i }}</th>
-                                        @endif
+                                        <th colspan="2">{{ 'Tanggal ' . $i }}</th>
                                     @endfor
-                                    <th rowspan="2">MENIT KETERLAMBATAN</th>
-                                    <th rowspan="2">TOTAL KEHADIRAN</th>
                                 </tr>
                                 <tr>
                                     @for ($i = 1; $i <= 31; $i++)
-                                        @if ($i == date('j'))
-                                            <th class="bg-primary">IN - {{ $i }}</th>
-                                            <th class="bg-primary">OUT- {{ $i }}</th>
-                                        @else
-                                            <th>IN - {{ $i }}</th>
-                                            <th>OUT- {{ $i }}</th>
-                                        @endif
+                                        <th>IN - {{ $i }}</th>
+                                        <th>OUT- {{ $i }}</th>
                                     @endfor
                                 </tr>
                             </thead>

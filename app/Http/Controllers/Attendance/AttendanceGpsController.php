@@ -47,7 +47,7 @@ class AttendanceGpsController extends Controller
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
-    
+
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
             return response()->json(['message' => $errors], 402);
@@ -108,7 +108,7 @@ class AttendanceGpsController extends Controller
                 ->whereDate('attendance_date', $attendance_date)
                 ->orderBy('attendance_date', 'DESC')
                 ->get();
-            
+
             $datas = [];
             foreach ($data as $item) {
                 $datas[] = [

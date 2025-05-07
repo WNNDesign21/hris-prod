@@ -7,14 +7,15 @@ use Carbon\Carbon;
 use App\Models\Posisi;
 use App\Models\Sakite;
 use App\Models\Karyawan;
-use App\Models\Departemen;
 use App\Helpers\Approval;
+use App\Models\Departemen;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use App\Jobs\GenerateSummarizeAttendanceJob;
 
 class SakiteController extends Controller
 {
@@ -23,7 +24,7 @@ class SakiteController extends Controller
      */
     public function index()
     {
-        
+
     }
 
     public function lapor_skd_view()
@@ -59,7 +60,7 @@ class SakiteController extends Controller
                 $departemens = Departemen::whereIn('divisi_id', $divisi_ids)->get();
             }
         }
-        
+
         $dataPage = [
             'pageTitle' => "Izin-E - Approval SKD",
             'page' => 'izine-approval-skd',
@@ -221,7 +222,7 @@ class SakiteController extends Controller
         if(auth()->user()->hasRole('personalia')){
             $dataFilter['organisasi_id'] = $organisasi_id;
             $is_can_legalized = true;
-        } 
+        }
 
         //FILTER MEMBER
         if (auth()->user()->hasRole('atasan')){
@@ -238,7 +239,7 @@ class SakiteController extends Controller
             }
 
             $dataFilter['member_posisi_id'] = $id_posisi_members;
-        } 
+        }
 
         // FILTER CUSTOM
         $filterUrutan = $request->urutan;
@@ -295,14 +296,14 @@ class SakiteController extends Controller
                     if(($has_section_head || $has_department_head) && ($my_posisi == 4 || $my_posisi == 3)){
                         if($data->attachment && !$data->approved_by){
                             $approved_by = '<div class="btn-group"><button class="btn btn-sm btn-success btnApproved" data-id-sakit="'.$data->id_sakit.'"><i class="fas fa-thumbs-up"></i> Approved</button><button type="button" class="btn btn-sm btn-danger waves-effect btnReject" data-id-sakit="'.$data->id_sakit.'"><i class="far fa-times-circle"></i> Reject</button></div>';
-                        } 
+                        }
                     }
 
                     //KONDISI UNTUK DIV / PLANT HEAD
                     if(!$has_section_head && !$has_department_head){
                         if($data->attachment && !$data->approved_by){
                             $approved_by = '<div class="btn-group"><button class="btn btn-sm btn-success btnApproved" data-id-sakit="'.$data->id_sakit.'"><i class="fas fa-thumbs-up"></i> Approved</button><button type="button" class="btn btn-sm btn-danger waves-effect btnReject" data-id-sakit="'.$data->id_sakit.'"><i class="far fa-times-circle"></i> Reject</button></div>';
-                        } 
+                        }
                     }
 
                 }
@@ -408,8 +409,8 @@ class SakiteController extends Controller
                     'departemen_id' => $departemen_id,
                     'divisi_id' => $divisi_id,
                     'tanggal_mulai' => $tanggal_mulai,
-                    'tanggal_selesai' => $tanggal_selesai,  
-                    'keterangan' => $keterangan,    
+                    'tanggal_selesai' => $tanggal_selesai,
+                    'keterangan' => $keterangan,
                     'attachment' => $file_path,
                     'durasi' => $durasi,
                 ]);
@@ -420,9 +421,9 @@ class SakiteController extends Controller
                     'departemen_id' => $departemen_id,
                     'divisi_id' => $divisi_id,
                     'tanggal_mulai' => $tanggal_mulai,
-                    'tanggal_selesai' => $tanggal_selesai,  
-                    'keterangan' => $keterangan,  
-                    'durasi' => $durasi,  
+                    'tanggal_selesai' => $tanggal_selesai,
+                    'keterangan' => $keterangan,
+                    'durasi' => $durasi,
                 ]);
             }
 
@@ -496,8 +497,8 @@ class SakiteController extends Controller
 
                 $sakit->update([
                     'tanggal_mulai' => $tanggal_mulai,
-                    'tanggal_selesai' => $tanggal_selesai,  
-                    'keterangan' => $keterangan,    
+                    'tanggal_selesai' => $tanggal_selesai,
+                    'keterangan' => $keterangan,
                     'attachment' => $file_path,
                     'durasi' => $durasi,
                 ]);
@@ -507,32 +508,32 @@ class SakiteController extends Controller
                         Storage::delete($sakit->attachment);
                         $sakit->update([
                             'tanggal_mulai' => $tanggal_mulai,
-                            'tanggal_selesai' => $tanggal_selesai,  
-                            'keterangan' => $keterangan,  
+                            'tanggal_selesai' => $tanggal_selesai,
+                            'keterangan' => $keterangan,
                             'attachment' => null,
                             'durasi' => $durasi,
                         ]);
                     } else {
                         $sakit->update([
                             'tanggal_mulai' => $tanggal_mulai,
-                            'tanggal_selesai' => $tanggal_selesai,  
-                            'keterangan' => $keterangan,  
-                            'durasi' => $durasi,  
+                            'tanggal_selesai' => $tanggal_selesai,
+                            'keterangan' => $keterangan,
+                            'durasi' => $durasi,
                         ]);
                     }
                 } else {
                     if($sakit->attachment){
                         $sakit->update([
                             'tanggal_mulai' => $tanggal_mulai,
-                            'tanggal_selesai' => $tanggal_selesai,  
-                            'keterangan' => $keterangan,  
-                            'durasi' => $durasi,  
+                            'tanggal_selesai' => $tanggal_selesai,
+                            'keterangan' => $keterangan,
+                            'durasi' => $durasi,
                         ]);
                     } else {
                         DB::rollBack();
                         return response()->json(['message' => 'Lampirkan SKD jika tanggal selesai sudah ada!'], 402);
                     }
-                } 
+                }
             }
 
             DB::commit();
@@ -541,14 +542,6 @@ class SakiteController extends Controller
             DB::rollBack();
             return response()->json(['message' => $e->getMessage()], 500);
         }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 
     public function get_data_sakit(string $id_sakit)
@@ -643,6 +636,21 @@ class SakiteController extends Controller
             $sakit->legalized_at = now();
             $sakit->save();
 
+            $organisasi_id = $sakit->organisasi_id;
+            $dateArray = [];
+            $startDate = Carbon::parse($sakit->tanggal_mulai);
+            $endDate = Carbon::parse($sakit->tanggal_selesai);
+
+            while ($startDate->lte($endDate)) {
+                $dateArray[] = $startDate->format('Y-m-d');
+                $startDate->addDay();
+            }
+
+            $dateArray = array_unique($dateArray);
+            if (!empty($dateArray)) {
+                GenerateSummarizeAttendanceJob::dispatch($dateArray, $organisasi_id, auth()->user(), $sakit->karyawan_id, 'S');
+            }
+
             DB::commit();
             return response()->json(['message' => 'SKD berhasil di Approved!'], 200);
         } catch (Throwable $e) {
@@ -658,9 +666,9 @@ class SakiteController extends Controller
         $dataValidate = [
             'rejected_note' => ['required'],
         ];
-        
+
         $validator = Validator::make(request()->all(), $dataValidate);
-    
+
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
             return response()->json(['message' => $errors], 402);
