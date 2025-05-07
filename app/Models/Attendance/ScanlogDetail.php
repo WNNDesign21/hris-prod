@@ -441,7 +441,7 @@ class ScanlogDetail extends Model
             MAX(CASE WHEN DATE(adjusted_date) = '".$dataFilter['tanggal']."' AND (scan_column = '1_IN' OR scan_column = '1_OUT') THEN 1 ELSE 0 END) AS kehadiran,
             MAX(CASE WHEN DATE(adjusted_date) = '".$dataFilter['tanggal']."' AND scan_column = '1_OUT' AND selisih_menit_keluar > INTERVAL '0' THEN selisih_menit_keluar ELSE INTERVAL '0' END) AS out_selisih
         FROM DailyScans
-            WHERE organisasi_id = '1'
+            WHERE organisasi_id = '".$dataFilter['organisasi_id']."'
             AND DATE(adjusted_date) = '".$dataFilter['tanggal']."'
             GROUP BY karyawan, pin, id_karyawan, organisasi_id, departemen_id, departemen,divisi_id, divisi,seksi_id, seksi,jabatan_id, jabatan, ni_karyawan)
         SELECT * FROM AggregatedData
