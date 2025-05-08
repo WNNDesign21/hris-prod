@@ -104,7 +104,7 @@ class PengajuanController extends Controller
         }
 
         $validator = Validator::make(request()->all(), $dataValidate);
-    
+
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
             return response()->json(['message' => $errors], 402);
@@ -168,7 +168,7 @@ class PengajuanController extends Controller
                         'role' => 'F'
                     ];
                 }
-    
+
                 $tugasLuar->pengikut()->createMany($details);
             } else {
                 $tugasLuar->pengikut()->create([
@@ -249,7 +249,7 @@ class PengajuanController extends Controller
                         return '<span class="badge badge-primary m-1">' . $pengikut . '</span>';
                     }, $pengikutNames);
                 }
-            
+
                 if($data->no_polisi) {
                     $no_polisi_array = explode('-', $data->no_polisi);
                     $kode_wilayah = $no_polisi_array[0];
@@ -283,7 +283,7 @@ class PengajuanController extends Controller
 
                 if($data->legalized_by) {
                     $legalized = '✅<br><small class="text-bold">'.$data?->legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->legalized_at)->diffForHumans().'</small>';
-                    
+
                     if($data->jenis_keberangkatan == 'KTR'){
                         if($data->status == 'WAITING') {
                             $aksi = '
@@ -319,20 +319,20 @@ class PengajuanController extends Controller
                 } else {
                     $legalized = 'NEED LEGALIZED';
                     $aksi = '<div class="btn-group">
-                        <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" 
-                            data-id-tugasluar="'.$data->id_tugasluar.'" 
-                            data-jam-pergi="'.Carbon::createFromFormat('Y-m-d H:i:s', $data->tanggal_pergi_planning)->format('H:i').'" 
-                            data-jam-kembali="'.($data->tanggal_kembali_planning ? Carbon::createFromFormat('Y-m-d H:i:s', $data->tanggal_kembali_planning)->format('H:i') : '').'" 
-                            data-jenis-kendaraan="'.$data->jenis_kendaraan.'" 
-                            data-jenis-kepemilikan="'.$data->jenis_kepemilikan.'" 
-                            data-jenis-keberangkatan="'.$data->jenis_keberangkatan.'" 
-                            data-kode-wilayah="'.($kode_wilayah ?? '').'" 
-                            data-nomor-polisi="'.($nomor_polisi ?? '').'" 
-                            data-seri-akhir="'.($seri_akhir ?? '').'" 
-                            data-tempat-asal="'.$data->tempat_asal.'" 
-                            data-tempat-tujuan="'.$data->tempat_tujuan.'" 
+                        <button type="button" class="waves-effect waves-light btn btn-warning btnEdit"
+                            data-id-tugasluar="'.$data->id_tugasluar.'"
+                            data-jam-pergi="'.Carbon::createFromFormat('Y-m-d H:i:s', $data->tanggal_pergi_planning)->format('H:i').'"
+                            data-jam-kembali="'.($data->tanggal_kembali_planning ? Carbon::createFromFormat('Y-m-d H:i:s', $data->tanggal_kembali_planning)->format('H:i') : '').'"
+                            data-jenis-kendaraan="'.$data->jenis_kendaraan.'"
+                            data-jenis-kepemilikan="'.$data->jenis_kepemilikan.'"
+                            data-jenis-keberangkatan="'.$data->jenis_keberangkatan.'"
+                            data-kode-wilayah="'.($kode_wilayah ?? '').'"
+                            data-nomor-polisi="'.($nomor_polisi ?? '').'"
+                            data-seri-akhir="'.($seri_akhir ?? '').'"
+                            data-tempat-asal="'.$data->tempat_asal.'"
+                            data-tempat-tujuan="'.$data->tempat_tujuan.'"
                             data-pengemudi="'.$data->pengemudi_id.'"
-                            data-km-awal="'.$data->km_awal.'" 
+                            data-km-awal="'.$data->km_awal.'"
                             data-keterangan="'.$data->keterangan.'"
                             >
                             <i class="fas fa-edit"></i>
@@ -462,7 +462,7 @@ class PengajuanController extends Controller
         }
 
         $validator = Validator::make(request()->all(), $dataValidate);
-    
+
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
             return response()->json(['message' => $errors], 402);
@@ -512,14 +512,14 @@ class PengajuanController extends Controller
                 foreach ($pengikuts as $pengikut) {
                     $details[] = [
                         'karyawan_id' => $pengikut->id_karyawan,
-                        'organisasi_id' => $organisasi_id,
+                        'organisasi_id' => $pengikut->organisasi_id,
                         'departemen_id' => $pengikut->posisi[0]->departemen_id,
                         'divisi_id' => $pengikut->posisi[0]->divisi_id,
                         'ni_karyawan' => $pengikut->ni_karyawan,
                         'pin' => $pengikut->pin,
                     ];
                 }
-    
+
                 $tugasLuar->pengikut()->createMany($details);
             } else {
                 $tugasLuar->pengikut()->create([
@@ -575,7 +575,7 @@ class PengajuanController extends Controller
             $errors = $validator->errors()->all();
             return response()->json(['message' => $errors], 402);
         }
-        
+
         DB::beginTransaction();
         try{
             $tugasluar = TugasLuar::find($id_tugasluar);

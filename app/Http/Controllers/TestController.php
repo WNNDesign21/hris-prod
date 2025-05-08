@@ -653,10 +653,10 @@ class TestController extends Controller
     {
         try {
             $dataFilter = [];
-            $dataFilter['organisasi_id'] = 1;
-            $dataFilter['karyawan_id'] = 'RS1729818995';
-            $dataFilter['pin'] = '122';
-            $dataFilter['tanggal'] = '2025-01-02';
+            $dataFilter['organisasi_id'] = 2;
+            $dataFilter['karyawan_id'] = 'TCF3-AB1740814688711';
+            $dataFilter['pin'] = 'AGU-cltgv5ge6000es60ehsvxq6tu';
+            $dataFilter['tanggal'] = '2025-05-02';
             $data = ScanlogDetail::summarizePresensi($dataFilter);
             $pins = ['122'];
             SummarizeAttendanceJob::dispatch($pins, 1, auth()->user(), '2025-01-03');

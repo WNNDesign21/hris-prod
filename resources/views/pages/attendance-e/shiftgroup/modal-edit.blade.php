@@ -12,6 +12,7 @@
                     @method('PATCH')
                     <div class="form-group">
                         <label for="grup_pattern_edit">Shift Pattern</label>
+                        <input type="hidden" id="id_grup_edit">
                         <select name="grup_pattern_edit" id="grup_pattern_edit" class="form-control"
                             style="width: 100%;" required>
                             <option value="">Pilih Pola Shift</option>

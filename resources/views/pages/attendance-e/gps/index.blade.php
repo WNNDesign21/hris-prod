@@ -32,8 +32,8 @@
                 <div class="form-group">
                     <label for="">Type</label>
                     <select name="type" id="type" class="form-control" style="width: 100%;">
+                        <option value="TL" selected>TUGAS LUAR</option>
                         <option value="VS">VENDOR STAY</option>
-                        <option value="TL">TUGAS LUAR</option>
                     </select>
                 </div>
             </div>

@@ -27,12 +27,12 @@ class PresensiController extends Controller
      */
     public function index()
     {
-        $dataFilter = [];
-        $dataFilter['organisasi_id'] = auth()->user()->organisasi_id;
-        $dataFilter['date'] = Carbon::now()->format('Y-m-d');
-        $dataFilter['jenis_izin'] = ['TM'];
-        $dataFilter['statusCuti'] = 'ON LEAVE';
-        $dataFilter['statusKaryawan'] = 'AT';
+        // $dataFilter = [];
+        // $dataFilter['organisasi_id'] = auth()->user()->organisasi_id;
+        // $dataFilter['date'] = Carbon::now()->format('Y-m-d');
+        // $dataFilter['jenis_izin'] = ['TM'];
+        // $dataFilter['statusCuti'] = 'ON LEAVE';
+        // $dataFilter['statusKaryawan'] = 'AT';
 
         if(auth()->user()->hasRole('personalia')){
             $departemens = Departemen::all();
@@ -42,20 +42,20 @@ class PresensiController extends Controller
             $dataFilter['departemens'] = $departemens;
         }
 
-        $hadir = ScanlogDetail::getHadirCountByDate($dataFilter);
-        $sakit = Sakite::countData($dataFilter);
-        $izin = Izine::countData($dataFilter);
-        $cuti = Cutie::countData($dataFilter);
-        $total_karyawan = Karyawan::countData($dataFilter);
+        // $hadir = ScanlogDetail::getHadirCountByDate($dataFilter);
+        // $sakit = Sakite::countData($dataFilter);
+        // $izin = Izine::countData($dataFilter);
+        // $cuti = Cutie::countData($dataFilter);
+        // $total_karyawan = Karyawan::countData($dataFilter);
         $dataPage = [
             'pageTitle' => "Attendance-E - Presensi",
             'page' => 'attendance-presensi',
             'departemens' => $departemens,
-            'hadir' => $hadir,
-            'sakit' => $sakit,
-            'izin' => $izin,
-            'cuti' => $cuti,
-            'total_karyawan' => $total_karyawan,
+            // 'hadir' => $hadir,
+            // 'sakit' => $sakit,
+            // 'izin' => $izin,
+            // 'cuti' => $cuti,
+            // 'total_karyawan' => $total_karyawan,
         ];
         return view('pages.attendance-e.presensi.index', $dataPage);
     }

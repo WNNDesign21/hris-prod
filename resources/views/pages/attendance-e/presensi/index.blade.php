@@ -13,7 +13,7 @@
 @endsection
 
 @section('content')
-    <div class="row mb-2">
+    {{-- <div class="row mb-2">
         <div class="d-flex justify-content-end">
             <div class="btn-group">
                 <button type="button" class="btn btn-warning waves-effect btnFilterSummary"><i
@@ -66,7 +66,7 @@
                 </div>
             </a>
         </div>
-    </div>
+    </div> --}}
     <div class="row">
         <div class="col-12">
             <div class="box">
