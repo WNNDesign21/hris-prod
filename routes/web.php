@@ -522,6 +522,8 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'role:atasan|member|persona
             //IZIN
             Route::get('/approval-izin', [IzineController::class, 'approval_izin_view'])->name('izine.approval-izin');
             Route::post('/approval-izin-datatable', [IzineController::class, 'approval_izin_datatable']);
+            Route::post('/alldata-datatable', [IzineController::class, 'alldata_datatable']);
+            Route::post('/must-approved-datatable', [IzineController::class, 'must_approved_datatable']);
             Route::patch('/approval-izin/checked/{idIzin}', [IzineController::class, 'checked'])->name('izine.approval-izin.checked');
             Route::patch('/approval-izin/approved/{idIzin}', [IzineController::class, 'approved'])->name('izine.approval-izin.approved');
             Route::patch('/approval-izin/legalized/{idIzin}', [IzineController::class, 'legalized'])->name('izine.approval-izin.legalized');

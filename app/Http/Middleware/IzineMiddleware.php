@@ -54,7 +54,7 @@ class IzineMiddleware
         if ($user->hasRole('personalia')){
             $approval_izin = Izine::where('organisasi_id', $organisasi_id)->whereNull('rejected_by')->whereNull('legalized_by')->whereNotNull('approved_by')->count();
             $approval_skd = Sakite::where('organisasi_id', $organisasi_id)->whereNull('rejected_by')->whereNull('legalized_by')->whereNotNull('approved_by')->whereNotNull('attachment')->count();
-        } 
+        }
 
         //leader
         if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 5){
@@ -80,7 +80,7 @@ class IzineMiddleware
                             ->whereNull('approved_by')
                             // ->whereNotNull('attachment')
                             ->count();
-        } 
+        }
 
         //section head
         if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 4){
@@ -120,9 +120,8 @@ class IzineMiddleware
                     ->whereIn('posisis.id_posisi', $id_posisi_members)
                     ->whereNull('rejected_by')
                     ->whereNull('approved_by')
-                    // ->whereNotNull('attachment')
                     ->count();
-        } 
+        }
 
         //department head
         if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 3){
@@ -164,7 +163,7 @@ class IzineMiddleware
                     ->whereNull('approved_by')
                     // ->whereNotNull('attachment')
                     ->get();
-            
+
             foreach ($skds as $skd){
                 $posisi = $skd->karyawan->posisi;
                 $has_leader = $this->has_leader($posisi);
@@ -175,7 +174,7 @@ class IzineMiddleware
                     $approval_skd++;
                 }
             }
-        } 
+        }
 
         //plant head
         if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 2){
@@ -217,7 +216,7 @@ class IzineMiddleware
                     ->whereNull('approved_by')
                     // ->whereNotNull('attachment')
                     ->get();
-            
+
             foreach ($skds as $skd){
                 $posisi = $skd->karyawan->posisi;
                 $has_leader = $this->has_leader($posisi);
@@ -263,7 +262,7 @@ class IzineMiddleware
         }
 
         return $has_dept_head;
-    } 
+    }
 
     function has_section_head($posisi)
     {
@@ -309,7 +308,7 @@ class IzineMiddleware
         }
 
         return $has_leader;
-    } 
+    }
 
     function get_parent_posisi($posisi)
     {
