@@ -69,7 +69,7 @@ class ApprovalController extends Controller
         if (!empty($devices)) {
             foreach ($devices as $data) {
 
-                
+
                 if ($data->latitude && $data->longitude) {
                     $formattedLocation = '<a href="https://www.google.com/maps/place/' . $data->latitude . ',' . $data->longitude . '" target="_blank">View Location</a>';
                 } else {
@@ -102,11 +102,6 @@ class ApprovalController extends Controller
                     $formattedIsLegalized = '✅<br><small class="text-bold">HRD & GA</small><br><small class="text-fade">'.Carbon::parse($data->updated_at)->diffForHumans().'</small>';
                 } else {
                     $formattedIsLegalized = '<div class="btn-group"><button class="btn btn-sm btn-success btnLegalized" data-id="'.$data->id_att_gps.'"><i class="fas fa-balance-scale"></i> Legalized</button></div>';
-                    // if($data->rejected_by){
-                    //     $formattedIsLegalized = '<span class="badge badge-danger mb-1">REJECTED</span><br><small class="text-fade">❌ HRD & GA - '.Carbon::parse($data->updated_at)->format('Y-m-d').'</small><br><small class="text-fade"> Note : '.$data->rejected_note.'</small>';
-                    // } else {
-                    //     $formattedIsLegalized = '<div class="btn-group"><button class="btn btn-sm btn-success btnLegalized" data-id="'.$data->id_att_gps.'"><i class="fas fa-balance-scale"></i> Legalized</button><button type="button" class="btn btn-sm btn-danger waves-effect btnReject" data-id="'.$data->id_att_gps.'"><i class="far fa-times-circle"></i> Reject</button></div>';
-                    // }
                 }
 
 
