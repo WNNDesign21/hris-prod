@@ -29,7 +29,7 @@ $(function () {
             toast: true,
             position: "top-end",
             showConfirmButton: false,
-            timer: 2000, 
+            timer: 2000,
             timerProgressBar: true,
             didOpen: (toast) => {
             toast.onmouseenter = Swal.stopTimer;
@@ -62,7 +62,7 @@ $(function () {
             }
         })
     }
-    
+
     var columnsTable = [
         { data: "nama" },
         { data: "departemen" },
@@ -81,7 +81,7 @@ $(function () {
         search: {
             return: true,
         },
-        order: [[3, "DESC"]],
+        order: [[4, "DESC"]],
         processing: true,
         serverSide: true,
         ajax: {
@@ -151,7 +151,7 @@ $(function () {
                 }
             });
         },
-        drawCallback: function () { 
+        drawCallback: function () {
             $('.image-popup-vertical-fit').magnificPopup({
                 type: 'image',
                 closeOnContentClick: true,
@@ -328,7 +328,7 @@ $(function () {
             }
         });
     })
-    
+
     // FILTER
     $('.btnFilter').on("click", function (){
         openFilter();
@@ -347,7 +347,7 @@ $(function () {
         document.getElementById("modal-filter"),
         modalFilterOptions
     );
-    
+
     function openFilter() {
         modalFilter.show();
     }
@@ -365,7 +365,7 @@ $(function () {
     $('#filterUrutan').select2({
         dropdownParent: $('#modal-filter')
     });
- 
+
     $('#filterStatus').select2({
         dropdownParent: $('#modal-filter')
     });
