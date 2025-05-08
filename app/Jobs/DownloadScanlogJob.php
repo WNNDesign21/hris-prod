@@ -104,11 +104,16 @@ class DownloadScanlogJob implements ShouldQueue
                 activity('success_download_scanlog')->log('Download scanlog from device_id: '.$this->device_id.' start_date: '.$this->start_date.' end_date: '.$this->end_date);
                 DB::commit();
 
+                $newScanlog = Scanlog::where('device_id', $this->device_id)->where(function($query) {
+                    $query->whereDate('scan_date', $this->start_date)
+                        ->orWhereDate('scan_date', $this->end_date);
+                })->pluck('pin')->toArray();
+
                 if ($this->start_date == $this->end_date) {
-                    SummarizeAttendanceJob::dispatch($pins, $this->organisasi_id,  $this->user, $this->start_date);
+                    SummarizeAttendanceJob::dispatch($newScanlog, $this->organisasi_id,  $this->user, $this->start_date);
                 } else {
-                    SummarizeAttendanceJob::dispatch($pins, $this->organisasi_id,  $this->user, $this->start_date);
-                    SummarizeAttendanceJob::dispatch($pins, $this->organisasi_id,  $this->user, $this->end_date);
+                    SummarizeAttendanceJob::dispatch($newScanlog, $this->organisasi_id,  $this->user, $this->start_date);
+                    SummarizeAttendanceJob::dispatch($newScanlog, $this->organisasi_id,  $this->user, $this->end_date);
                 }
             } else {
                 DB::rollBack();

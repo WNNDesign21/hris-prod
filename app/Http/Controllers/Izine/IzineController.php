@@ -517,6 +517,12 @@ class IzineController extends Controller
                             $approved_by = '<div class="btn-group"><button class="btn btn-sm btn-success btnApproved" data-id-izin="'.$data->id_izin.'"><i class="fas fa-thumbs-up"></i> Approved</button><button type="button" class="btn btn-sm btn-danger waves-effect btnReject" data-id-izin="'.$data->id_izin.'"><i class="far fa-times-circle"></i> Reject</button></div>';
                         }
                     }
+
+                    if($has_leader && !$has_section_head && !$has_department_head){
+                        if(!$data->approved_by){
+                            $approved_by = '<div class="btn-group"><button class="btn btn-sm btn-success btnApproved" data-id-izin="'.$data->id_izin.'"><i class="fas fa-thumbs-up"></i> Approved</button><button type="button" class="btn btn-sm btn-danger waves-effect btnReject" data-id-izin="'.$data->id_izin.'"><i class="far fa-times-circle"></i> Reject</button></div>';
+                        }
+                    }
                 }
 
                 //TOMBOL LEGALIZED

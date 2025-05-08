@@ -134,12 +134,19 @@ class ScanlogController extends Controller
                     Scanlog::insert($datas);
                     DB::commit();
 
+                    $newScanlog = Scanlog::where('device_id', $request->device_id)->where(function($query) use ($startDate, $endDate){
+                        $query->where(function($query) use ($startDate, $endDate){
+                            $query->whereDate('scan_date', $startDate)
+                                ->orWhereDate('scan_date', $endDate);
+                        });
+                    })->pluck('pin')->toArray();
+
                     //Execute Job
                     if ($startDate == $endDate) {
-                        SummarizeAttendanceJob::dispatch($pins, $organisasi_id, auth()->user(), $startDate);
+                        SummarizeAttendanceJob::dispatch($newScanlog, $organisasi_id, auth()->user(), $startDate);
                     } else {
-                        SummarizeAttendanceJob::dispatch($pins, $organisasi_id, auth()->user(), $startDate);
-                        SummarizeAttendanceJob::dispatch($pins, $organisasi_id, auth()->user(), $endDate);
+                        SummarizeAttendanceJob::dispatch($newScanlog, $organisasi_id, auth()->user(), $startDate);
+                        SummarizeAttendanceJob::dispatch($newScanlog, $organisasi_id, auth()->user(), $endDate);
                     }
                 } else {
                     DB::rollBack();

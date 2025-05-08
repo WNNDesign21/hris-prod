@@ -9,6 +9,7 @@ use App\Models\Attendance\Device;
 use App\Models\Attendance\Scanlog;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Jobs\SummarizeAttendanceJob;
 use App\Models\Attendance\AttendanceGps;
 use Illuminate\Support\Facades\Validator;
 
@@ -143,6 +144,7 @@ class ApprovalController extends Controller
                 return response()->json(['message' => 'Attendance yang sudah di reject tidak dapat di Legalized!'], 403);
             }
 
+            $pins = [$att_gps->pin];
             $device = Device::where('organisasi_id', auth()->user()->organisasi_id)->first();
 
             $scanlog = Scanlog::create([
@@ -162,6 +164,7 @@ class ApprovalController extends Controller
             $att_gps->save();
 
             DB::commit();
+            SummarizeAttendanceJob::dispatch($pins, $att_gps->organisasi_id, auth()->user(), $att_gps->attendance_date);
             return response()->json(['message' => 'TL berhasil di Legalized!'], 200);
         } catch (Throwable $e) {
             DB::rollBack();
