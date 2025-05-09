@@ -230,6 +230,10 @@ class Izine extends Model
             ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
             ->leftJoin('divisis', 'izins.divisi_id', 'divisis.id_divisi');
 
+        if (auth()->user()->hasRole('personalia')) {
+            $data->where('izins.organisasi_id', auth()->user()->organisasi_id);
+        }
+
         if (isset($dataFilter['member_posisi_id'])) {
             $data->whereIn('posisis.id_posisi', $dataFilter['member_posisi_id']);
         }
@@ -337,6 +341,10 @@ class Izine extends Model
             ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
             ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
             ->leftJoin('divisis', 'izins.divisi_id', 'divisis.id_divisi');
+
+        if (auth()->user()->hasRole('personalia')) {
+            $data->where('izins.organisasi_id', auth()->user()->organisasi_id);
+        }
 
         if (isset($dataFilter['member_posisi_id'])) {
             $data->whereIn('posisis.id_posisi', $dataFilter['member_posisi_id']);
