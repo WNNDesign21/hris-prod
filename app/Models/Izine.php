@@ -352,15 +352,16 @@ class Izine extends Model
 
         if (auth()->user()->hasRole('personalia')) {
             $data->where(function ($query) {
-                $query->whereNotNull('izins.checked_by')
-                    ->whereNotNull('izins.approved_by')
-                    ->whereNull('izins.legalized_by');
-            });
+                $query->whereNull('izins.legalized_by');
+                // $query->whereNotNull('izins.checked_by')
+                //     ->whereNotNull('izins.approved_by')
+                //     ->whereNull('izins.legalized_by');
+            })->whereNull('izins.rejected_by');
         } else {
             $data->where(function ($query) {
                 $query->whereNull('izins.checked_by')
                     ->orWhereNull('izins.approved_by');
-            });
+            })->whereNull('izins.legalized_by');
         }
 
         if (isset($dataFilter['is_shift_malam'])) {

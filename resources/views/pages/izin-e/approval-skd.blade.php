@@ -30,26 +30,57 @@
                     </div>
                 </div>
                 <div class="box-body">
-                    <div class="table-responsive">
-                        <table id="approval-skd-table" class="table table-striped table-bordered display"
-                            style="width:100%">
-                            <thead>
-                                <tr>
-                                    <th>Nama</th>
-                                    <th>Departemen</th>
-                                    <th>Posisi</th>
-                                    <th>Created At</th>
-                                    <th>Tanggal Mulai</th>
-                                    <th>Tanggal Selesai</th>
-                                    <th>Durasi</th>
-                                    <th>Keterangan</th>
-                                    <th>Lampiran</th>
-                                    <th>Approved</th>
-                                    <th>Legalized</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
+                    <ul class="nav nav-pills mb-20">
+                        <li class="nav-item"> <a href="#must-approved" class="nav-link active" data-bs-toggle="tab"
+                                aria-expanded="false">Need Approved</a> </li>
+                        <li class="nav-item"> <a href="#alldata" class="nav-link" data-bs-toggle="tab"
+                                aria-expanded="false">All Data</a></li>
+                    </ul>
+                    <div class="tab-content">
+                        <div id="must-approved" class="tab-pane active">
+                            <div class="table-responsive">
+                                <table id="must-approved-table" class="table" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th>Nama</th>
+                                            <th>Departemen</th>
+                                            <th>Posisi</th>
+                                            <th>Created At</th>
+                                            <th>Tanggal Mulai</th>
+                                            <th>Tanggal Selesai</th>
+                                            <th>Durasi</th>
+                                            <th>Keterangan</th>
+                                            <th>Lampiran</th>
+                                            <th>Approved</th>
+                                            <th>Legalized</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div id="alldata" class="tab-pane">
+                            <div class="table-responsive">
+                                <table id="alldata-table" class="table" style="width:100%">
+                                    <thead>
+                                        <tr>
+                                            <th>Nama</th>
+                                            <th>Departemen</th>
+                                            <th>Posisi</th>
+                                            <th>Created At</th>
+                                            <th>Tanggal Mulai</th>
+                                            <th>Tanggal Selesai</th>
+                                            <th>Durasi</th>
+                                            <th>Keterangan</th>
+                                            <th>Lampiran</th>
+                                            <th>Approved</th>
+                                            <th>Legalized</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

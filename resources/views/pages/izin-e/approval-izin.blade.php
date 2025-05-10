@@ -89,32 +89,6 @@
                         </div>
                     </div>
                 </div>
-                {{-- <div class="box-body">
-                    <div class="table-responsive">
-                        <table id="approval-izin-table" class="table table-striped table-bordered display"
-                            style="width:100%">
-                            <thead>
-                                <tr>
-                                    <th>ID Izin</th>
-                                    <th>Nama</th>
-                                    <th>Departemen</th>
-                                    <th>Posisi</th>
-                                    <th>Rencana Mulai / Masuk</th>
-                                    <th>Rencana Selesai / Keluar</th>
-                                    <th>Aktual Mulai / Masuk</th>
-                                    <th>Aktual Selesai / Keluar</th>
-                                    <th>Jenis Izin</th>
-                                    <th>Durasi</th>
-                                    <th>Keterangan</th>
-                                    <th>Checked</th>
-                                    <th>Approved</th>
-                                    <th>Legalized</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
-                </div> --}}
             </div>
         </div>
     </div>
