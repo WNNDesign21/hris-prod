@@ -2,6 +2,7 @@
 
 use App\Jobs\ResetCutiJob;
 use App\Jobs\UpdateCutiJob;
+use Illuminate\Http\Request;
 use App\Jobs\RollingShiftGroupJob;
 use Illuminate\Foundation\Application;
 use App\Http\Middleware\IzineMiddleware;
@@ -9,9 +10,15 @@ use App\Http\Middleware\LembureMiddleware;
 use Illuminate\Console\Scheduling\Schedule;
 use App\Http\Middleware\TugasluarMiddleware;
 use App\Http\Middleware\NotificationMiddleware;
+use Spatie\Permission\Middleware\RoleMiddleware;
 use App\Http\Middleware\NotificationKSKMiddleware;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Laravel\Sanctum\Http\Middleware\CheckAbilities;
+use Spatie\Permission\Middleware\PermissionMiddleware;
+use Laravel\Sanctum\Http\Middleware\CheckForAnyAbility;
+use Spatie\Permission\Middleware\RoleOrPermissionMiddleware;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -23,9 +30,11 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
-            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
-            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+            'abilities' => CheckAbilities::class,
+            'ability' => CheckForAnyAbility::class,
+            'role' => RoleMiddleware::class,
+            'permission' => PermissionMiddleware::class,
+            'role_or_permission' => RoleOrPermissionMiddleware::class,
             'notifikasi' => NotificationMiddleware::class,
             'lembure' => LembureMiddleware::class,
             'izine' => IzineMiddleware::class,
@@ -42,5 +51,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $schedule->job(new RollingShiftGroupJob)->sundays()->at('21:00');
     })
     ->withExceptions(function (Exceptions $exceptions) {
-        //
+        $exceptions->render(function (AccessDeniedHttpException $e, Request $request) {
+            if ($request->is('api/*')) {
+                return response()->json([
+                    'message' => 'Access Denied'
+                ], 403);
+            }
+        });
     })->create();

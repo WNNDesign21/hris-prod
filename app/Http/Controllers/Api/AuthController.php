@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use Exception;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Helpers\ResponseFormat;
 use Illuminate\Support\Facades\DB;
@@ -20,7 +21,12 @@ class AuthController extends Controller
 
         if (Auth::attempt(['username' => $request->username, 'password' => $request->password])) {
             $user = Auth::user();
-            $token = $user->createToken('auth_token')->plainTextToken;
+
+            $at_expired = 60;
+            $access_token = $user->createToken('access_token', ['access-api'], Carbon::now()->addMinutes($at_expired))->plainTextToken;
+
+            $rt_expired = 30 * 24 * 60;
+            $refresh_token = $user->createToken('refresh_token', ['issue-access-token'], Carbon::now()->addMinutes($rt_expired))->plainTextToken;
 
             if (!$user->hasRole(['atasan', 'member'])) {
                 Auth::logout();
@@ -53,7 +59,8 @@ class AuthController extends Controller
                 'divisi' => $posisi?->divisi,
                 'posisi' => $posisi,
                 'shift' => $currentShift,
-                'token' => $token,
+                'token' => $access_token,
+                'refresh_token' => $refresh_token,
                 'token_type' => 'Bearer',
             ];
 
@@ -65,19 +72,26 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $request->user()->tokens()->delete();
         return ResponseFormat::success(null, 'Logout berhasil');
     }
 
     public function refreshToken(Request $request)
     {
-        $user = Auth::user();
-        $token = $user->createToken('auth_token')->plainTextToken;
+        try {
+            $at_expired = 60;
+            $new_token = $request->user()->createToken('access_token', ['access-api'], Carbon::now()->addMinutes($at_expired))->plainTextToken;
 
-        return ResponseFormat::success([
-            'token' => $token,
-            'token_type' => 'Bearer',
-        ], 'Token refreshed successfully');
+
+            $data = [
+                'token' => $new_token,
+                'token_type' => 'Bearer',
+            ];
+
+            return ResponseFormat::success($data, 'Token refreshed successfully');
+        } catch (Exception $e) {
+            return ResponseFormat::error(null, 'Gagal merefresh token.', 500);
+        }
     }
 
     public function getProfile(Request $request)
@@ -112,7 +126,7 @@ class AuthController extends Controller
 
             return ResponseFormat::success($data, 'Profile retrieved successfully');
         } catch (Exception $e) {
-            return ResponseFormat::error(null, 'Terjadi kesalahan saat mengambil profil: ' . $e->getMessage(), 500);
+            return ResponseFormat::error(null, 'Terjadi kesalahan saat mengambil profile', 500);
         }
     }
 }
