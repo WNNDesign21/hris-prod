@@ -163,12 +163,6 @@ class LembureController extends Controller
     public function bypass_lembur_view()
     {
         if(auth()->user()->hasRole('personalia')){
-            // $karyawans = Karyawan::select('karyawans.nama', 'karyawans.id_karyawan', 'posisis.jabatan_id')->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
-            //     ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
-            //     ->whereIn('posisis.jabatan_id', [3, 2])
-            //     ->organisasi(auth()->user()->organisasi_id)
-            //     ->aktif()
-            //     ->pluck('karyawans.nama', 'karyawans.id_karyawan');
             $karyawans = Karyawan::aktif()->organisasi(auth()->user()->organisasi_id)->pluck('nama', 'id_karyawan');
         } else {
             $posisi = auth()->user()->karyawan->posisi;
