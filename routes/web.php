@@ -44,6 +44,7 @@ use App\Http\Controllers\KSK\ReleaseController as KSKReleaseController;
 use App\Http\Controllers\KSK\SettingController as KSKSettingController;
 use App\Http\Controllers\TugasLuare\AjaxController as TLAjaxController;
 use App\Http\Controllers\KSK\ApprovalController as KSKApprovalController;
+use App\Http\Controllers\Cutie\ApprovalController as CutieApprovalController;
 use App\Http\Controllers\Superuser\HomeController as SuperuserHomeController;
 use App\Http\Controllers\Superuser\SeksiController as SuperuserSeksiController;
 use App\Http\Controllers\TugasLuare\ApprovalController as TLApprovalController;
@@ -239,6 +240,7 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'role:atasan|member|persona
     Route::get('/get-notification', [HomeController::class, 'get_notification']);
     Route::get('/get-pengajuan-cuti-notification', [HomeController::class, 'get_pengajuan_cuti_notification']);
     Route::get('/get-member-cuti-notification', [HomeController::class, 'get_member_cuti_notification']);
+    Route::get('/get-approval-cuti-notification', [HomeController::class, 'get_approval_cuti_notification']);
     Route::get('/get-list-cuti-notification', [HomeController::class, 'get_list_cuti_notification']);
     Route::get('/get-pengajuan-izin-notification', [HomeController::class, 'get_pengajuan_izin_notification']);
     Route::get('/get-approval-izin-notification', [HomeController::class, 'get_approval_izin_notification']);
@@ -382,6 +384,18 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'role:atasan|member|persona
             Route::patch('/pengajuan-cuti/cancel/{idCuti}', [CutieController::class, 'cancel'])->name('cutie.pengajuan-cuti.cancel');
             Route::patch('/pengajuan-cuti/mulai-cuti/{idCuti}', [CutieController::class, 'mulai_cuti'])->name('cutie.pengajuan-cuti.mulai-cuti');
             Route::patch('/pengajuan-cuti/selesai-cuti/{idCuti}', [CutieController::class, 'selesai_cuti'])->name('cutie.pengajuan-cuti.selesai-cuti');
+        });
+
+        /** APPROVAL CUTI */
+        Route::group(['middleware' => ['role:atasan|personalia']], function () {
+            Route::get('/approval-cuti', [CutieApprovalController::class, 'index'])->name('cutie.approval-cuti.index');
+            Route::post('/approval-cuti/must-approved-datatable', [CutieApprovalController::class, 'must_approved_datatable']);
+            Route::post('/approval-cuti/alldata-datatable', [CutieApprovalController::class, 'alldata_datatable']);
+            Route::delete('/approval-cuti/delete/{idCuti}', [CutieApprovalController::class, 'delete'])->name('cutie.approval-cuti.delete');
+            Route::patch('/approval-cuti/cancel/{idCuti}', [CutieApprovalController::class, 'cancel'])->name('cutie.approval-cuti.cancel');
+            Route::patch('/approval-cuti/reject/{idCuti}', [CutieApprovalController::class, 'reject'])->name('cutie.approval-cuti.reject');
+            Route::patch('/approval-cuti/update-karyawan-pengganti/{idCuti}', [CutieApprovalController::class, 'update_karyawan_pengganti'])->name('cutie.approval-cuti.update-karyawan-pengganti');
+            Route::patch('/approval-cuti/update-dokumen-cuti/{idCuti}', [CutieApprovalController::class, 'update_dokumen_cuti'])->name('cutie.approval-cuti.update-document-cuti');
         });
 
         /** MEMBER CUTI */

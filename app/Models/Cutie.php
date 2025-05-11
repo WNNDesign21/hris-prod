@@ -106,7 +106,7 @@ class Cutie extends Model
             ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
             ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
             ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen');
-        
+
         if (isset($dataFilter['organisasi_id'])) {
             $data->where('cutis.organisasi_id', $dataFilter['organisasi_id']);
         }
@@ -122,7 +122,7 @@ class Cutie extends Model
         if(isset($dataFilter['departemen'])) {
             $data->where('departemens.id_departemen', $dataFilter['departemen']);
         }
-        
+
         if(isset($dataFilter['departemens'])) {
             $data->whereIn('departemens.id_departemen', $dataFilter['departemens']);
         }
@@ -155,7 +155,7 @@ class Cutie extends Model
         if(isset($dataFilter['date'])) {
             $data->whereDate('aktual_mulai_cuti', $dataFilter['date']);
         }
-        
+
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
             $data->where(function ($query) use ($search) {
@@ -181,14 +181,14 @@ class Cutie extends Model
             });
         }
 
-        $data->orderByRaw("CASE 
+        $data->orderByRaw("CASE
             WHEN status_dokumen = 'WAITING' AND status_cuti != 'CANCELED' THEN 1
             WHEN status_dokumen = 'REJECTED' OR status_cuti = 'CANCELED' THEN 3
             ELSE 2
         END");
-        
+
         if(auth()->user()->hasRole('personalia')){
-            $data->orderByRaw("CASE 
+            $data->orderByRaw("CASE
                 WHEN approved_by IS NOT NULL AND legalized_by IS NULL THEN 0
                 ELSE 1
             END");
@@ -208,13 +208,171 @@ class Cutie extends Model
             ->get();
     }
 
-    public static function getDataCuti($dataFilter)
-    {
-        return self::_query($dataFilter)->get();
-    }
-
     public static function countData($dataFilter)
     {
         return self::_query($dataFilter)->get()->count();
+    }
+
+    // Must Approved
+    private static function _mustApproved($dataFilter)
+    {
+        $getKaryawanPengganti = Karyawan::select("id_karyawan as kp_id", "nama as nama_pengganti");
+        $getJenisCuti = JenisCuti::select("id_jenis_cuti as jc_id", "jenis as jenis_cuti_khusus");
+        $data = self::select(
+            'id_cuti',
+            'cutis.created_at',
+            'rencana_mulai_cuti',
+            'rencana_selesai_cuti',
+            'aktual_mulai_cuti',
+            'aktual_selesai_cuti',
+            'durasi_cuti',
+            'jenis_cuti',
+            'alasan_cuti',
+            'checked1_at',
+            'checked2_at',
+            'approved_at',
+            'legalized_at',
+            'checked1_by',
+            'checked2_by',
+            'approved_by',
+            'legalized_by',
+            'rejected_by',
+            'rejected_at',
+            'rejected_note',
+            'status_dokumen',
+            'status_cuti',
+            'attachment',
+            'kp.nama_pengganti as nama_pengganti',
+            'jc.jenis_cuti_khusus as jenis_cuti_khusus',
+            'karyawans.nama as nama_karyawan',
+            'cutis.karyawan_id',
+            'karyawan_pengganti_id',
+            'departemens.nama as nama_departemen'
+            )
+            ->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+            ->leftJoinSub($getKaryawanPengganti, 'kp', function (JoinClause $joinKaryawanPengganti) {
+                $joinKaryawanPengganti->on('cutis.karyawan_pengganti_id', 'kp.kp_id');
+            })
+            ->leftJoinSub($getJenisCuti, 'jc', function (JoinClause $joinJenisCuti) {
+                $joinJenisCuti->on('cutis.jenis_cuti_id', 'jc.jc_id');
+            })
+            ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
+            ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+            ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen');
+
+        if (isset($dataFilter['organisasi_id'])) {
+            $data->where('cutis.organisasi_id', $dataFilter['organisasi_id']);
+        }
+
+        if (isset($dataFilter['member_posisi_id'])) {
+            $data->whereIn('posisis.id_posisi', $dataFilter['member_posisi_id']);
+        }
+
+        if(isset($dataFilter['departemen'])) {
+            $data->where('departemens.id_departemen', $dataFilter['departemen']);
+        }
+
+        if(isset($dataFilter['departemens'])) {
+            $data->whereIn('departemens.id_departemen', $dataFilter['departemens']);
+        }
+
+        if(isset($dataFilter['jenisCuti'])) {
+            $data->where('jenis_cuti', $dataFilter['jenisCuti']);
+        }
+
+        if(isset($dataFilter['durasi'])) {
+            $data->where('durasi_cuti', $dataFilter['durasi']);
+        }
+
+        if(isset($dataFilter['statusCuti'])) {
+            $data->where('status_cuti', $dataFilter['statusCuti']);
+        }
+
+        if(isset($dataFilter['statusDokumen'])) {
+            $data->where('status_dokumen', $dataFilter['statusDokumen']);
+        }
+
+        if(isset($dataFilter['nama'])) {
+            $data->where('karyawans.nama', 'ILIKE' , '%'.$dataFilter['nama'].'%');
+        }
+
+        if(isset($dataFilter['rencanaMulai'])) {
+            $data->whereYear('rencana_mulai_cuti', Carbon::parse($dataFilter['rencanaMulai'])->year)
+                ->whereMonth('rencana_mulai_cuti', Carbon::parse($dataFilter['rencanaMulai'])->month);
+        }
+
+        if(isset($dataFilter['date'])) {
+            $data->whereDate('aktual_mulai_cuti', $dataFilter['date']);
+        }
+
+        if (isset($dataFilter['search'])) {
+            $search = $dataFilter['search'];
+            $data->where(function ($query) use ($search) {
+                $query->where('rencana_mulai_cuti', 'ILIKE', "%{$search}%")
+                    ->orWhere('rencana_selesai_cuti', 'ILIKE', "%{$search}%")
+                    ->orWhere('aktual_mulai_cuti', 'ILIKE', "%{$search}%")
+                    ->orWhere('aktual_selesai_cuti', 'ILIKE', "%{$search}%")
+                    ->orWhere('durasi_cuti', 'ILIKE', "%{$search}%")
+                    ->orWhere('jenis_cuti', 'ILIKE', "%{$search}%")
+                    ->orWhere('alasan_cuti', 'ILIKE', "%{$search}%")
+                    ->orWhere('checked1_at', 'ILIKE', "%{$search}%")
+                    ->orWhere('checked2_at', 'ILIKE', "%{$search}%")
+                    ->orWhere('approved_at', 'ILIKE', "%{$search}%")
+                    ->orWhere('legalized_at', 'ILIKE', "%{$search}%")
+                    ->orWhere('rejected_at', 'ILIKE', "%{$search}%")
+                    ->orWhere('status_dokumen', 'ILIKE', "%{$search}%")
+                    ->orWhere('status_cuti', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%")
+                    ->orWhere('jc.jenis_cuti_khusus', 'ILIKE', "%{$search}%")
+                    ->orWhere('cutis.created_at', 'ILIKE', "%{$search}%")
+                    ->orWhere('departemens.nama', 'ILIKE', "%{$search}%")
+                    ->orWhere('kp.nama_pengganti', 'ILIKE', "%{$search}%");
+            });
+        }
+
+        if (auth()->user()->hasRole('personalia')) {
+            $data->where(function ($query) {
+                $query->where('status_dokumen', 'WAITING')
+                ->whereNotNull('approved_by');
+            });
+        } else {
+            $data->where('status_dokumen', 'WAITING');
+        }
+
+        if(auth()->user()->hasRole('personalia')){
+            $data->orderByRaw("CASE
+            WHEN approved_by IS NOT NULL AND legalized_by IS NULL THEN 0
+            ELSE 1
+            END DESC");
+        } else {
+            $data->orderByRaw("CASE
+            WHEN status_dokumen = 'WAITING' AND status_cuti != 'CANCELED' THEN 1
+            WHEN status_dokumen = 'REJECTED' OR status_cuti = 'CANCELED' THEN 3
+            ELSE 2
+            END DESC");
+        }
+
+        $data->groupBy('id_cuti', 'cutis.created_at', 'rencana_mulai_cuti', 'rencana_selesai_cuti', 'aktual_mulai_cuti', 'aktual_selesai_cuti', 'durasi_cuti', 'jenis_cuti', 'alasan_cuti', 'checked1_at', 'checked2_at',  'approved_at', 'legalized_at','checked1_by', 'checked2_by',  'approved_by', 'legalized_by', 'status_dokumen', 'status_cuti', 'attachment', 'kp.nama_pengganti', 'jc.jenis_cuti_khusus', 'karyawans.nama', 'cutis.karyawan_id', 'karyawan_pengganti_id','departemens.nama');
+
+        $result = $data;
+        return $result;
+    }
+
+    public static function getMustApprovedData($dataFilter, $settings)
+    {
+        return self::_mustApproved($dataFilter)->offset($settings['start'])
+            ->limit($settings['limit'])
+            ->orderBy($settings['order'], $settings['dir'])
+            ->get();
+    }
+
+    public static function countMustApprovedData($dataFilter)
+    {
+        return self::_mustApproved($dataFilter)->count();
+    }
+
+    public static function getDataCuti($dataFilter)
+    {
+        return self::_query($dataFilter)->get();
     }
 }
