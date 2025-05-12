@@ -331,7 +331,7 @@ $(function () {
     $('#must-approved-table').on("click",".btnReject", function (){
         let idCuti = $(this).data('id');
         let namaAtasan = $(this).data('nama-atasan');
-        let url = base_url + '/cutie/member-cuti/reject/' + idCuti;
+        let url = base_url + '/cutie/approval-cuti/reject/' + idCuti;
         $('#nama_atasan').val(namaAtasan);
         $('#id_cuti').val(idCuti);
         $('#form-reject-cuti').attr('action', url);
@@ -366,7 +366,7 @@ $(function () {
         })
     });
 
-    $('#must-approved-table').on("click", ".btnAlasan", function () {
+    $('#must-approved-table, #alldata-table').on("click", ".btnAlasan", function () {
         let alasan = $(this).data('alasan');
         const toast = Swal.mixin({
             toast: true,
@@ -402,7 +402,7 @@ $(function () {
                 let issuedName = $(this).data('issued-name');
                 let issuedId = $(this).data('issued-id');
                 let type = $(this).data('type');
-                let url = base_url + '/cutie/member-cuti/update-dokumen-cuti/' + idCuti;
+                let url = base_url + '/cutie/approval-cuti/update-dokumen-cuti/' + idCuti;
 
                 var formData = new FormData();
                 formData.append('issued_name', issuedName);
@@ -459,7 +459,7 @@ $(function () {
 
     function getKaryawanPengganti(idKaryawan, idKaryawanPengganti){
         $.ajax({
-            url: base_url + '/cutie/member-cuti/get-karyawan-pengganti/' + idKaryawan,
+            url: base_url + '/cutie/approval-cuti/get-karyawan-pengganti/' + idKaryawan,
             method: 'GET',
             dataType: 'JSON',
             success: function (data){
@@ -490,7 +490,7 @@ $(function () {
         let idCuti = $(this).data('id');
         let idKaryawan = $(this).data('karyawan-id');
         let idKaryawanPengganti = $(this).data('karyawan-pengganti-id');
-        let url = base_url + '/cutie/member-cuti/update-karyawan-pengganti/' + idCuti;
+        let url = base_url + '/cutie/approval-cuti/update-karyawan-pengganti/' + idCuti;
         $('#id_cuti').val(idCuti);
         $('#form-karyawan-pengganti').attr('action', url);
         openKaryawanPengganti();
@@ -577,6 +577,7 @@ $(function () {
 
     $(".btnSubmitFilter").on("click", function () {
         mustApprovedTable.draw();
+        alldataTable.draw();
         closeFilter();
     });
 
@@ -594,7 +595,7 @@ $(function () {
             if (result.value) {
                 loadingSwalShow();
                 let idCuti = $(this).data('id');
-                let url = base_url + '/cutie/personalia-cuti/cancel/' + idCuti;
+                let url = base_url + '/cutie/approval-cuti/cancel/' + idCuti;
 
                 var formData = new FormData();
                 formData.append('_method', 'PATCH');
@@ -635,8 +636,9 @@ $(function () {
             confirmButtonText: "Yes, delete it!",
             allowOutsideClick: false,
         }).then((result) => {
+            loadingSwalShow();
             if (result.value) {
-                var url = base_url + '/cutie/personalia-cuti/delete/' + idCuti;
+                var url = base_url + '/cutie/approval-cuti/delete/' + idCuti;
                 $.ajax({
                     url: url,
                     type: "POST",
@@ -649,8 +651,10 @@ $(function () {
                         updateApprovalCutiNotification();
                         refreshTable();
                         showToast({ title: data.message });
+                        loadingSwalClose();
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
+                        loadingSwalClose();
                         showToast({ icon: "error", title: jqXHR.responseJSON.message });
                     },
                 });

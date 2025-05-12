@@ -3,16 +3,33 @@
 namespace App\Repositories;
 
 use App\Models\Cutie;
+use App\Models\Posisi;
 use App\Models\Karyawan;
+use App\Helpers\Approval;
 use App\Models\JenisCuti;
 use App\Models\ApprovalCuti;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Query\JoinClause;
+use Illuminate\Database\Eloquent\Collection;
 
 class CutiRepository
 {
-    public function getById($id, $field = ['*'])
+    public function getById(int $id, array $fields = ['*'])
     {
-        return Cutie::select($field)->with('approval')->findOrFail($id);
+        return Cutie::select($fields)->with('approval')->findOrFail($id);
+    }
+
+    public function getKaryawanPengganti(string $id)
+    {
+        $departemen = Karyawan::find($id)->posisi()->value('departemen_id');
+        $karyawanPengganti = Karyawan::select('id_karyawan as id', 'nama as text')
+            ->whereHas('posisi', function($query) use ($departemen) {
+            $query->where('departemen_id', $departemen);
+            })
+            ->where('id_karyawan', '!=', $id)
+            ->get()
+            ->toArray();
+        return $karyawanPengganti;
     }
 
     public function countApprovalCuti()
@@ -22,6 +39,11 @@ class CutiRepository
 
     private function _queryMustApproved(array $dataFilter)
     {
+        $subQuery = DB::table('karyawan_posisi')
+            ->select('karyawan_id', 'posisi_id')
+            ->whereNull('deleted_at')
+            ->distinct('karyawan_id');
+
         $getKaryawanPengganti = Karyawan::select("id_karyawan as kp_id", "nama as nama_pengganti");
         $getJenisCuti = JenisCuti::select("id_jenis_cuti as jc_id", "jenis as jenis_cuti_khusus");
         $data = ApprovalCuti::select(
@@ -63,7 +85,7 @@ class CutiRepository
             'karyawans.nama as nama_karyawan',
             'cutis.karyawan_id',
             'karyawan_pengganti_id',
-            'departemens.nama as nama_departemen'
+            'departemens.nama as nama_departemen',
         )
         ->leftJoin('cutis', 'approval_cutis.cuti_id', 'cutis.id_cuti')
         ->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
@@ -73,8 +95,10 @@ class CutiRepository
         ->leftJoinSub($getJenisCuti, 'jc', function (JoinClause $joinJenisCuti) {
             $joinJenisCuti->on('cutis.jenis_cuti_id', 'jc.jc_id');
         })
-        ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
-        ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+        ->leftJoinSub($subQuery, 'distinct_karyawan_posisi', function ($join) {
+            $join->on('cutis.karyawan_id', 'distinct_karyawan_posisi.karyawan_id');
+        })
+        ->leftJoin('posisis', 'distinct_karyawan_posisi.posisi_id', 'posisis.id_posisi')
         ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen');
 
         if (isset($dataFilter['organisasi_id'])) {
@@ -99,7 +123,7 @@ class CutiRepository
 
                 $data->where('cutis.status_dokumen', 'WAITING');
                 $data->where(function ($query) {
-                    $query->where('cutis.status_cuti', '!=', 'CANCELED')
+                     $query->whereNot('cutis.status_cuti', 'CANCELED')
                     ->orWhereNull('cutis.status_cuti');
                 });
 
@@ -188,7 +212,8 @@ class CutiRepository
 
         $data->groupBy('cutis.id_cuti', 'cutis.created_at', 'cutis.rencana_mulai_cuti', 'cutis.rencana_selesai_cuti', 'cutis.aktual_mulai_cuti', 'cutis.aktual_selesai_cuti', 'cutis.durasi_cuti', 'cutis.jenis_cuti', 'cutis.alasan_cuti', 'cutis.checked1_at', 'cutis.checked2_at',  'cutis.approved_at', 'cutis.legalized_at','cutis.checked1_by', 'cutis.checked2_by',  'cutis.approved_by', 'cutis.legalized_by', 'cutis.status_dokumen', 'cutis.status_cuti', 'cutis.attachment', 'kp.nama_pengganti', 'jc.jenis_cuti_khusus', 'karyawans.nama', 'cutis.karyawan_id', 'cutis.karyawan_pengganti_id','departemens.nama', 'approval_cutis.id_approval_cuti', 'approval_cutis.checked1_for', 'approval_cutis.checked1_by', 'approval_cutis.checked1_karyawan_id', 'approval_cutis.checked2_for', 'approval_cutis.checked2_by', 'approval_cutis.checked2_karyawan_id', 'approval_cutis.approved_for', 'approval_cutis.approved_by', 'approval_cutis.approved_karyawan_id');
 
-        $result = $data;
+        $result = DB::table(DB::raw('(' . $data->toSql() . ') as sub'));
+        $result->mergeBindings($data->getQuery());
         return $result;
     }
 
@@ -208,6 +233,11 @@ class CutiRepository
 
     private function _queryAllData(array $dataFilter)
     {
+        $subQuery = DB::table('karyawan_posisi')
+            ->select('karyawan_id', 'posisi_id')
+            ->whereNull('deleted_at')
+            ->distinct('karyawan_id');
+
         $getKaryawanPengganti = Karyawan::select("id_karyawan as kp_id", "nama as nama_pengganti");
         $getJenisCuti = JenisCuti::select("id_jenis_cuti as jc_id", "jenis as jenis_cuti_khusus");
         $data = ApprovalCuti::select(
@@ -259,8 +289,10 @@ class CutiRepository
         ->leftJoinSub($getJenisCuti, 'jc', function (JoinClause $joinJenisCuti) {
             $joinJenisCuti->on('cutis.jenis_cuti_id', 'jc.jc_id');
         })
-        ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
-        ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+        ->leftJoinSub($subQuery, 'distinct_karyawan_posisi', function ($join) {
+            $join->on('cutis.karyawan_id', 'distinct_karyawan_posisi.karyawan_id');
+        })
+        ->leftJoin('posisis', 'distinct_karyawan_posisi.posisi_id', 'posisis.id_posisi')
         ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen');
 
         if (isset($dataFilter['organisasi_id'])) {
@@ -343,7 +375,8 @@ class CutiRepository
         $data->orderByDesc('cutis.updated_at');
         $data->groupBy('cutis.id_cuti', 'cutis.created_at', 'cutis.rencana_mulai_cuti', 'cutis.rencana_selesai_cuti', 'cutis.aktual_mulai_cuti', 'cutis.aktual_selesai_cuti', 'cutis.durasi_cuti', 'cutis.jenis_cuti', 'cutis.alasan_cuti', 'cutis.checked1_at', 'cutis.checked2_at',  'cutis.approved_at', 'cutis.legalized_at','cutis.checked1_by', 'cutis.checked2_by',  'cutis.approved_by', 'cutis.legalized_by', 'cutis.status_dokumen', 'cutis.status_cuti', 'cutis.attachment', 'kp.nama_pengganti', 'jc.jenis_cuti_khusus', 'karyawans.nama', 'cutis.karyawan_id', 'cutis.karyawan_pengganti_id','departemens.nama', 'approval_cutis.id_approval_cuti', 'approval_cutis.checked1_for', 'approval_cutis.checked1_by', 'approval_cutis.checked1_karyawan_id', 'approval_cutis.checked2_for', 'approval_cutis.checked2_by', 'approval_cutis.checked2_karyawan_id', 'approval_cutis.approved_for', 'approval_cutis.approved_by', 'approval_cutis.approved_karyawan_id');
 
-        $result = $data;
+        $result = DB::table(DB::raw('(' . $data->toSql() . ') as sub'));
+        $result->mergeBindings($data->getQuery());
         return $result;
     }
 
@@ -359,6 +392,98 @@ class CutiRepository
     public function countAllData(array $dataFilter)
     {
         return $this->_queryAllData($dataFilter)->count();
+    }
+
+    private function _queryPengajuan($dataFilter)
+    {
+        $getKaryawanPengganti = Karyawan::select("id_karyawan as kp_id", "nama as nama_pengganti");
+        $getJenisCuti = JenisCuti::select("id_jenis_cuti as jc_id", "jenis as jenis_cuti_khusus");
+        $data = Cutie::select(
+            'id_cuti',
+            'cutis.created_at',
+            'rencana_mulai_cuti',
+            'rencana_selesai_cuti',
+            'aktual_mulai_cuti',
+            'aktual_selesai_cuti',
+            'durasi_cuti',
+            'jenis_cuti',
+            'alasan_cuti',
+            'checked1_at',
+            'checked2_at',
+            'approved_at',
+            'legalized_at',
+            'checked1_by',
+            'checked2_by',
+            'approved_by',
+            'legalized_by',
+            'rejected_by',
+            'rejected_at',
+            'rejected_note',
+            'status_dokumen',
+            'status_cuti',
+            'attachment',
+            'kp.nama_pengganti as nama_pengganti',
+            'jc.jenis_cuti_khusus as jenis_cuti_khusus',
+            'karyawans.nama as nama_karyawan',
+            'cutis.karyawan_id',
+            'karyawan_pengganti_id',
+            'departemens.nama as nama_departemen'
+            )
+            ->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+            ->leftJoinSub($getKaryawanPengganti, 'kp', function (JoinClause $joinKaryawanPengganti) {
+                $joinKaryawanPengganti->on('cutis.karyawan_pengganti_id', 'kp.kp_id');
+            })
+            ->leftJoinSub($getJenisCuti, 'jc', function (JoinClause $joinJenisCuti) {
+                $joinJenisCuti->on('cutis.jenis_cuti_id', 'jc.jc_id');
+            })
+            ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
+            ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+            ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen');
+
+        $data->where('cutis.karyawan_id', auth()->user()->karyawan->id_karyawan);
+
+        if (isset($dataFilter['search'])) {
+            $search = $dataFilter['search'];
+            $data->where(function ($query) use ($search) {
+                $query->where('rencana_mulai_cuti', 'ILIKE', "%{$search}%")
+                    ->orWhere('rencana_selesai_cuti', 'ILIKE', "%{$search}%")
+                    ->orWhere('aktual_mulai_cuti', 'ILIKE', "%{$search}%")
+                    ->orWhere('aktual_selesai_cuti', 'ILIKE', "%{$search}%")
+                    ->orWhere('durasi_cuti', 'ILIKE', "%{$search}%")
+                    ->orWhere('jenis_cuti', 'ILIKE', "%{$search}%")
+                    ->orWhere('alasan_cuti', 'ILIKE', "%{$search}%")
+                    ->orWhere('checked1_at', 'ILIKE', "%{$search}%")
+                    ->orWhere('checked2_at', 'ILIKE', "%{$search}%")
+                    ->orWhere('approved_at', 'ILIKE', "%{$search}%")
+                    ->orWhere('legalized_at', 'ILIKE', "%{$search}%")
+                    ->orWhere('rejected_at', 'ILIKE', "%{$search}%")
+                    ->orWhere('status_dokumen', 'ILIKE', "%{$search}%")
+                    ->orWhere('status_cuti', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%")
+                    ->orWhere('jc.jenis_cuti_khusus', 'ILIKE', "%{$search}%")
+                    ->orWhere('cutis.created_at', 'ILIKE', "%{$search}%")
+                    ->orWhere('departemens.nama', 'ILIKE', "%{$search}%")
+                    ->orWhere('kp.nama_pengganti', 'ILIKE', "%{$search}%");
+            });
+        }
+
+        $data->groupBy('id_cuti', 'cutis.created_at', 'rencana_mulai_cuti', 'rencana_selesai_cuti', 'aktual_mulai_cuti', 'aktual_selesai_cuti', 'durasi_cuti', 'jenis_cuti', 'alasan_cuti', 'checked1_at', 'checked2_at',  'approved_at', 'legalized_at','checked1_by', 'checked2_by',  'approved_by', 'legalized_by', 'status_dokumen', 'status_cuti', 'attachment', 'kp.nama_pengganti', 'jc.jenis_cuti_khusus', 'karyawans.nama', 'cutis.karyawan_id', 'karyawan_pengganti_id','departemens.nama');
+
+        $result = $data;
+        return $result;
+    }
+
+    public function getPengajuan($dataFilter, $settings)
+    {
+        return $this->_queryPengajuan($dataFilter)->offset($settings['start'])
+            ->limit($settings['limit'])
+            ->orderBy($settings['order'], $settings['dir'])
+            ->get();
+    }
+
+    public function countPengajuan($dataFilter)
+    {
+        return $this->_queryPengajuan($dataFilter)->count();
     }
 
     public function rejectCuti(int $id, array $newData)
@@ -382,17 +507,17 @@ class CutiRepository
     {
         $cuti = Cutie::findOrFail($id);
         $karyawan = $cuti->karyawan;
-        if($cutie->rejected_by == null && $cutie->jenis_cuti == 'PRIBADI'){
-            if($cutie->penggunaan_sisa_cuti == 'TB'){
-                $karyawan->sisa_cuti_pribadi = $karyawan->sisa_cuti_pribadi + $cutie->durasi_cuti;
+        if($cuti->rejected_by == null && $cuti->jenis_cuti == 'PRIBADI'){
+            if($cuti->penggunaan_sisa_cuti == 'TB'){
+                $karyawan->sisa_cuti_pribadi = $karyawan->sisa_cuti_pribadi + $cuti->durasi_cuti;
             } else {
-                $karyawan->sisa_cuti_tahun_lalu = $karyawan->sisa_cuti_tahun_lalu + $cutie->durasi_cuti;
+                $karyawan->sisa_cuti_tahun_lalu = $karyawan->sisa_cuti_tahun_lalu + $cuti->durasi_cuti;
             }
             $karyawan->save();
         }
 
-        $cutie->approval->delete();
-        $cutie->delete();
+        $cuti->approval->delete();
+        $cuti->delete();
         $data = [
             'sisa_cuti_tahunan' => $karyawan->sisa_cuti_pribadi + $karyawan->sisa_cuti_bersama,
             'sisa_cuti_pribadi' => $karyawan->sisa_cuti_pribadi,
@@ -406,11 +531,11 @@ class CutiRepository
         $cuti = Cutie::findOrFail($id);
         $cuti->update($newData);
         $karyawan = $cuti->karyawan;
-        if($cutie->rejected_by == null && $cutie->jenis_cuti == 'PRIBADI'){
-            if($cutie->penggunaan_sisa_cuti == 'TB'){
-                $karyawan->sisa_cuti_pribadi = $karyawan->sisa_cuti_pribadi + $cutie->durasi_cuti;
+        if($cuti->rejected_by == null && $cuti->jenis_cuti == 'PRIBADI'){
+            if($cuti->penggunaan_sisa_cuti == 'TB'){
+                $karyawan->sisa_cuti_pribadi = $karyawan->sisa_cuti_pribadi + $cuti->durasi_cuti;
             } else {
-                $karyawan->sisa_cuti_tahun_lalu = $karyawan->sisa_cuti_tahun_lalu + $cutie->durasi_cuti;
+                $karyawan->sisa_cuti_tahun_lalu = $karyawan->sisa_cuti_tahun_lalu + $cuti->durasi_cuti;
             }
             $karyawan->save();
         }
@@ -424,18 +549,115 @@ class CutiRepository
         return $data;
     }
 
+    public function createCuti(array $data)
+    {
+        $cuti = Cutie::create($data);
+        return $cuti;
+    }
+
     public function updateCuti(int $id, array $data)
     {
         $cuti = Cutie::findOrFail($id);
-        $posisi = Karyawan::find($issued_id)->posisi[0]->id_posisi;
-
-        $cuti->save();
+        $cuti->update($data);
+        return $cuti;
     }
 
     public function updateApprovalCuti(int $id, array $data)
     {
         $approval = ApprovalCuti::findOrFail($id);
         $approval->update($data);
+        return $approval;
+    }
+
+    public function createApprovalCuti(array $data)
+    {
+        $approval = ApprovalCuti::create($data);
+        return $approval;
+    }
+
+    public function getStructureApprovalCuti(Collection $posisi)
+    {
+        $list_atasan = Approval::ListAtasan($posisi);
+        $my_jabatan = $posisi[0]->jabatan_id;
+        $has_leader = $list_atasan['leader'] ?? null;
+        $has_section_head = $list_atasan['section_head'] ?? null;
+        $has_department_head = $list_atasan['department_head'] ?? null;
+        $has_division_head = $list_atasan['division_head'] ?? null;
+        $has_director = $list_atasan['director'] ?? null;
+
+        $checked1_for = null;
+        $checked2_for = null;
+        $approved_for = null;
+
+        //KONDISI 1 (PUNYA SEMUA)
+        if($has_leader && $has_section_head && $has_department_head){
+            $checked1_for = $has_leader;
+            $checked2_for = $has_section_head;
+            $approved_for = $has_department_head;
+        }
+
+        //KONDISI 2 (HANYA PUNYA LEADER & SECTION HEAD)
+        if($has_leader && $has_section_head && !$has_department_head){
+            $checked1_for = $has_leader;
+            $checked2_for = $has_section_head;
+            $approved_for = $has_section_head;
+        }
+
+        //KONDISI 3 (HANYA PUNYA LEADER DAN DEPARTMENT HEAD)
+        if($has_leader && !$has_section_head && $has_department_head){
+            $checked1_for = $has_leader;
+            $checked2_for = $has_department_head;
+            $approved_for = $has_department_head;
+        }
+
+        //KONDISI 4 (HANYA PUNYA DEPARTMENT HEAD)
+        if(!$has_leader && !$has_section_head && $has_department_head){
+            $checked1_for = $has_department_head;
+            $checked2_for = $has_department_head;
+            $approved_for = $has_department_head;
+        }
+
+        //KONDISI 5 (HANYA PUNYA SECTION HEAD)
+        if(!$has_leader && $has_section_head && !$has_department_head){
+            $checked1_for = $has_section_head;
+            $checked2_for = $has_section_head;
+            $approved_for = $has_section_head;
+        }
+
+        //KONDISI 6 (HANYA PUNYA SECTION HEAD DAN DEPARTMENT HEAD)
+        if(!$has_leader && $has_section_head && $has_department_head){
+            $checked1_for = $has_section_head;
+            $checked2_for = $has_section_head;
+            $approved_for = $has_department_head;
+        }
+
+        //KONDISI 7 (HANYA PUNYA DIVISION HEAD)
+        if(!$has_leader && !$has_section_head && !$has_department_head){
+            $checked1_for = $has_division_head;
+            $checked2_for = $has_division_head;
+            $approved_for = $has_director;
+        }
+
+        //KONDISI 8 (HANYA PUNYA DIRECTOR)
+        if(!$has_leader && !$has_section_head && !$has_department_head && $my_jabatan == 2){
+            $checked1_for = $has_director;
+            $checked2_for = $has_director;
+            $approved_for = $has_director;
+        }
+
+        //KONDISI 7 (HANYA PUNYA DIVISION HEAD)
+        if($has_leader && !$has_section_head && !$has_department_head){
+            $checked1_for = $has_leader;
+            $checked2_for = $has_division_head;
+            $approved_for = $has_division_head;
+        }
+
+        $approval = [
+            'checked1_for' => $checked1_for,
+            'checked2_for' => $checked2_for,
+            'approved_for' => $approved_for,
+        ];
+
         return $approval;
     }
 

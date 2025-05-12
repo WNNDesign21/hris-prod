@@ -6,6 +6,7 @@ use Throwable;
 use Carbon\Carbon;
 use App\Models\Karyawan;
 use App\Helpers\Approval;
+use App\Models\Departemen;
 use Illuminate\Http\Request;
 use App\Services\CutiService;
 use Illuminate\Support\Facades\DB;
@@ -21,9 +22,11 @@ class ApprovalController extends Controller
 
     public function index()
     {
+        $departemens = Departemen::all();
         $dataPage = [
             'pageTitle' => "Cuti-E - Approval Cuti",
             'page' => 'cutie-approval-cuti',
+            'departemens' => $departemens,
         ];
 
         return view('pages.cuti-e.approval.index', $dataPage);
@@ -32,8 +35,8 @@ class ApprovalController extends Controller
     public function must_approved_datatable(Request $request)
     {
         $columns = array(
-            0 => 'karyawans.nama',
-            1 => 'departemens.nama',
+            0 => 'nama',
+            1 => 'nama_departemen',
             2 => 'rencana_mulai_cuti',
             3 => 'rencana_selesai_cuti',
             4 => 'durasi_cuti',
@@ -45,7 +48,7 @@ class ApprovalController extends Controller
             10 => 'status_dokumen',
             11 => 'status_cuti',
             12 => 'alasan_cuti',
-            13 => 'kp.nama_pengganti',
+            13 => 'nama_pengganti',
             14 => 'created_at',
         );
 
@@ -380,8 +383,8 @@ class ApprovalController extends Controller
     public function alldata_datatable(Request $request)
     {
         $columns = array(
-            0 => 'karyawans.nama',
-            1 => 'departemens.nama',
+            0 => 'nama',
+            1 => 'nama_departemen',
             2 => 'rencana_mulai_cuti',
             3 => 'rencana_selesai_cuti',
             4 => 'durasi_cuti',
@@ -393,7 +396,7 @@ class ApprovalController extends Controller
             10 => 'status_dokumen',
             11 => 'status_cuti',
             12 => 'alasan_cuti',
-            13 => 'kp.nama_pengganti',
+            13 => 'nama_pengganti',
             14 => 'created_at',
         );
 
@@ -560,9 +563,7 @@ class ApprovalController extends Controller
                 }
 
                 //KARYAWAN PENGGANTI
-                if ($data->nama_pengganti && !$data->legalized_by && !$data->rejected_by){
-                    $karyawan_pengganti = '<small class="text-bold">'.$data->nama_pengganti.'</small><br>'.'<button type="button" class="waves-effect waves-light btn btn-sm btn-secondary btnKaryawanPengganti" data-id="'.$data->id_cuti.'" data-karyawan-id="'.$data->karyawan_id.'" data-karyawan-pengganti-id="'.$data->karyawan_pengganti_id.'"><i class="fas fa-user-friends"></i> Pilih</button>';
-                } elseif($data->nama_pengganti && $data->legalized_by && !$data->rejected_by){
+                if ($data->nama_pengganti){
                     $karyawan_pengganti = '<small class="text-bold">'.$data->nama_pengganti.'</small>';
                 } else {
                     $karyawan_pengganti = '-';
@@ -581,6 +582,8 @@ class ApprovalController extends Controller
                     } else {
                         $status_cuti = '-';
                     }
+                } else {
+                    $status_cuti = '<span class="badge badge-pill badge-danger btnAlasan" data-alasan="'.$data->rejected_note.'" style="cursor:pointer;">REJECTED</span>';
                 }
 
                 //JIKA CANCEL
@@ -700,11 +703,13 @@ class ApprovalController extends Controller
 
         $issued_name = $request->issued_name;
         $issued_id = $request->issued_id;
+        $posisi = Karyawan::find($issued_id)->posisi[0]->id_posisi;
         $organisasi_id = auth()->user()->organisasi_id;
 
         DB::beginTransaction();
         try{
             $cuti = $this->cutiService->getById($id_cuti);
+            $id_approval = $cuti->approval->id_approval_cuti;
             if($type == 'checked_1'){
                 $data = [
                     'checked1_by' => $issued_name,
@@ -717,7 +722,7 @@ class ApprovalController extends Controller
                 ];
 
                 $this->cutiService->updateCuti($id_cuti, $data);
-                $this->cutiService->updateApprovalCuti($id_cuti, $approvalData);
+                $this->cutiService->updateApprovalCuti($id_approval, $approvalData);
 
                 // $message = "Nama : *" . $cuti->karyawan->nama . "*\n" .
                 //         "Jenis Cuti : " . $cuti->jenis_cuti . "\n" .
@@ -727,7 +732,6 @@ class ApprovalController extends Controller
                 // $this->send_whatsapp($cuti->karyawan->id_karyawan, $cuti->approval->checked2_for, $message, $data['organisasi_id']);
             } elseif ($type == 'checked_2'){
                 if(!$cuti->checked1_by){
-
                     $data = [
                         'checked1_by' => $issued_name,
                         'checked1_at' => now()
@@ -739,7 +743,7 @@ class ApprovalController extends Controller
                     ];
 
                     $this->cutiService->updateCuti($id_cuti, $data);
-                    $this->cutiService->updateApprovalCuti($id_cuti, $approvalData);
+                    $this->cutiService->updateApprovalCuti($id_approval, $approvalData);
                 }
 
                 $data = [
@@ -753,7 +757,7 @@ class ApprovalController extends Controller
                 ];
 
                 $this->cutiService->updateCuti($id_cuti, $data);
-                $this->cutiService->updateApprovalCuti($id_cuti, $approvalData);
+                $this->cutiService->updateApprovalCuti($id_approval, $approvalData);
 
                 // $message = "Nama : *" . $cuti->karyawan->nama . "*\n" .
                 //         "Jenis Cuti : " . $cuti->jenis_cuti . "\n" .
@@ -774,7 +778,7 @@ class ApprovalController extends Controller
                     ];
 
                     $this->cutiService->updateCuti($id_cuti, $data);
-                    $this->cutiService->updateApprovalCuti($id_cuti, $approvalData);
+                    $this->cutiService->updateApprovalCuti($id_approval, $approvalData);
                 }
 
                 if(!$cuti->checked2_by){
@@ -788,7 +792,7 @@ class ApprovalController extends Controller
                         'checked2_karyawan_id' => $issued_id
                     ];
                     $this->cutiService->updateCuti($id_cuti, $data);
-                    $this->cutiService->updateApprovalCuti($id_cuti, $approvalData);
+                    $this->cutiService->updateApprovalCuti($id_approval, $approvalData);
                 }
 
                 $data = [
@@ -802,7 +806,7 @@ class ApprovalController extends Controller
                 ];
 
                 $this->cutiService->updateCuti($id_cuti, $data);
-                $this->cutiService->updateApprovalCuti($id_cuti, $approvalData);
+                $this->cutiService->updateApprovalCuti($id_approval, $approvalData);
             } else {
                 //LOGIKA UNTUK BYPASS CUTI
                 if($cuti->rencana_mulai_cuti < date('Y-m-d', strtotime('+7 days')) && $cuti->jenis_cuti == 'PRIBADI'){
@@ -866,8 +870,18 @@ class ApprovalController extends Controller
             $cuti = $this->cutiService->updateCuti($id_cuti, $data);
             DB::commit();
             return response()->json(['message' => 'Update Karyawan Pengganti Berhasil dilakukan!'], 200);
-        } catch(Throwable $error){
+        } catch(Throwable $e){
             DB::rollBack();
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function get_karyawan_pengganti(string $id_karyawan)
+    {
+        try {
+            $data = $this->cutiService->getKaryawanPengganti($id_karyawan);
+            return response()->json($data, 200);
+        } catch (Exception $e) {
             return response()->json(['message' => $error->getMessage()], 500);
         }
     }

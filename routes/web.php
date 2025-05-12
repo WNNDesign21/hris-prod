@@ -45,6 +45,7 @@ use App\Http\Controllers\KSK\SettingController as KSKSettingController;
 use App\Http\Controllers\TugasLuare\AjaxController as TLAjaxController;
 use App\Http\Controllers\KSK\ApprovalController as KSKApprovalController;
 use App\Http\Controllers\Cutie\ApprovalController as CutieApprovalController;
+use App\Http\Controllers\Cutie\PengajuanController as CutiePengajuanController;
 use App\Http\Controllers\Superuser\HomeController as SuperuserHomeController;
 use App\Http\Controllers\Superuser\SeksiController as SuperuserSeksiController;
 use App\Http\Controllers\TugasLuare\ApprovalController as TLApprovalController;
@@ -182,7 +183,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     Route::get('/cutie/pengajuan-cuti/get-data-jenis-cuti-khusus', [CutieController::class, 'get_data_jenis_cuti_khusus']);
     Route::get('/cutie/pengajuan-cuti/get-data-detail-cuti/{idCuti}', [CutieController::class, 'get_data_detail_cuti']);
-    Route::get('/cutie/member-cuti/get-karyawan-pengganti/{idKaryawan}', [CutieController::class, 'get_karyawan_pengganti']);
+    Route::get('/cutie/approval-cuti/get-karyawan-pengganti/{idKaryawan}', [CutieApprovalController::class, 'get_karyawan_pengganti']);
     Route::get('/cutie/dashboard-cuti/get-data-cuti-calendar', [CutieController::class, 'get_data_cutie_calendar']);
     Route::get('/cutie/dashboard-cuti/get-data-cuti-detail-chart', [CutieController::class, 'get_data_cuti_detail_chart']);
     Route::get('/cutie/dashboard-cuti/get-data-jenis-cuti-monthly-chart', [CutieController::class, 'get_data_jenis_cuti_monthly_chart']);
@@ -373,50 +374,49 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'role:atasan|member|persona
         Route::get('/export', [CutieController::class, 'export_cuti_view'])->name('cutie.export');
         Route::post('/export/export-cuti', [CutieController::class, 'export_cuti'])->name('cutie.export.cuti');
 
-        /** PERSONAL CUTI */
-
-        Route::group(['middleware' => ['role:atasan|member']], function () {
-            Route::post('/pengajuan-cuti-datatable', [CutieController::class, 'pengajuan_cuti_datatable']);
-            Route::get('/pengajuan-cuti', [CutieController::class, 'pengajuan_cuti_view'])->name('cutie.pengajuan-cuti');
-            Route::post('/pengajuan-cuti/store', [CutieController::class, 'store'])->name('cutie.pengajuan-cuti.store');
-            Route::delete('/pengajuan-cuti/delete/{idCuti}', [CutieController::class, 'delete'])->name('cutie.pengajuan-cuti.delete');
-            Route::patch('/pengajuan-cuti/update/{idCuti}', [CutieController::class, 'update'])->name('cutie.pengajuan-cuti.update');
-            Route::patch('/pengajuan-cuti/cancel/{idCuti}', [CutieController::class, 'cancel'])->name('cutie.pengajuan-cuti.cancel');
-            Route::patch('/pengajuan-cuti/mulai-cuti/{idCuti}', [CutieController::class, 'mulai_cuti'])->name('cutie.pengajuan-cuti.mulai-cuti');
-            Route::patch('/pengajuan-cuti/selesai-cuti/{idCuti}', [CutieController::class, 'selesai_cuti'])->name('cutie.pengajuan-cuti.selesai-cuti');
+        /** PENGAJUAN CUTI */
+        Route::group(['prefix' => 'pengajuan-cuti', 'middleware' => ['role:atasan|member']], function () {
+            Route::get('/', [CutiePengajuanController::class, 'index'])->name('cutie.pengajuan-cuti.index');
+            Route::post('/datatable', [CutiePengajuanController::class, 'datatable']);
+            Route::post('/store', [CutiePengajuanController::class, 'store'])->name('cutie.pengajuan-cuti.store');
+            Route::patch('/update/{idCuti}', [CutiePengajuanController::class, 'update'])->name('cutie.pengajuan-cuti.update');
+            Route::delete('/delete/{idCuti}', [CutiePengajuanController::class, 'delete'])->name('cutie.pengajuan-cuti.delete');
+            Route::patch('/cancel/{idCuti}', [CutiePengajuanController::class, 'cancel'])->name('cutie.pengajuan-cuti.cancel');
+            // Route::patch('/pengajuan-cuti/mulai-cuti/{idCuti}', [CutieController::class, 'mulai_cuti'])->name('cutie.pengajuan-cuti.mulai-cuti');
+            // Route::patch('/pengajuan-cuti/selesai-cuti/{idCuti}', [CutieController::class, 'selesai_cuti'])->name('cutie.pengajuan-cuti.selesai-cuti');
         });
 
         /** APPROVAL CUTI */
-        Route::group(['middleware' => ['role:atasan|personalia']], function () {
-            Route::get('/approval-cuti', [CutieApprovalController::class, 'index'])->name('cutie.approval-cuti.index');
-            Route::post('/approval-cuti/must-approved-datatable', [CutieApprovalController::class, 'must_approved_datatable']);
-            Route::post('/approval-cuti/alldata-datatable', [CutieApprovalController::class, 'alldata_datatable']);
-            Route::delete('/approval-cuti/delete/{idCuti}', [CutieApprovalController::class, 'delete'])->name('cutie.approval-cuti.delete');
-            Route::patch('/approval-cuti/cancel/{idCuti}', [CutieApprovalController::class, 'cancel'])->name('cutie.approval-cuti.cancel');
-            Route::patch('/approval-cuti/reject/{idCuti}', [CutieApprovalController::class, 'reject'])->name('cutie.approval-cuti.reject');
-            Route::patch('/approval-cuti/update-karyawan-pengganti/{idCuti}', [CutieApprovalController::class, 'update_karyawan_pengganti'])->name('cutie.approval-cuti.update-karyawan-pengganti');
-            Route::patch('/approval-cuti/update-dokumen-cuti/{idCuti}', [CutieApprovalController::class, 'update_dokumen_cuti'])->name('cutie.approval-cuti.update-document-cuti');
+        Route::group(['prefix' => 'approval-cuti', 'middleware' => ['role:atasan|personalia']], function () {
+            Route::get('/', [CutieApprovalController::class, 'index'])->name('cutie.approval-cuti.index');
+            Route::post('/must-approved-datatable', [CutieApprovalController::class, 'must_approved_datatable']);
+            Route::post('/alldata-datatable', [CutieApprovalController::class, 'alldata_datatable']);
+            Route::delete('/delete/{idCuti}', [CutieApprovalController::class, 'delete'])->name('cutie.approval-cuti.delete');
+            Route::patch('/cancel/{idCuti}', [CutieApprovalController::class, 'cancel'])->name('cutie.approval-cuti.cancel');
+            Route::patch('/reject/{idCuti}', [CutieApprovalController::class, 'reject'])->name('cutie.approval-cuti.reject');
+            Route::patch('/update-karyawan-pengganti/{idCuti}', [CutieApprovalController::class, 'update_karyawan_pengganti'])->name('cutie.approval-cuti.update-karyawan-pengganti');
+            Route::patch('/update-dokumen-cuti/{idCuti}', [CutieApprovalController::class, 'update_dokumen_cuti'])->name('cutie.approval-cuti.update-document-cuti');
         });
 
         /** MEMBER CUTI */
-        Route::group(['middleware' => ['role:atasan']], function () {
-            Route::post('/member-cuti-datatable', [CutieController::class, 'member_cuti_datatable']);
-            Route::get('/member-cuti', [CutieController::class, 'member_cuti_view'])->name('cutie.member-cuti');
-            Route::post('/member-cuti/store', [CutieController::class, 'store'])->name('cutie.member-cuti.store');
-            Route::delete('/member-cuti/delete/{idCuti}', [CutieController::class, 'delete'])->name('cutie.member-cuti.delete');
-            Route::patch('/member-cuti/update/{idCuti}', [CutieController::class, 'update'])->name('cutie.member-cuti.update');
-            Route::patch('/member-cuti/update-karyawan-pengganti/{idCuti}', [CutieController::class, 'update_karyawan_pengganti'])->name('cutie.member-cuti.update-karyawan-pengganti');
-            Route::patch('/member-cuti/reject/{idCuti}', [CutieController::class, 'reject'])->name('cutie.member-cuti.reject');
-        });
-        Route::patch('/member-cuti/update-dokumen-cuti/{idCuti}', [CutieController::class, 'update_dokumen_cuti'])->name('cutie.member-cuti.update-document-cuti');
+        // Route::group(['middleware' => ['role:atasan']], function () {
+        //     Route::post('/member-cuti-datatable', [CutieController::class, 'member_cuti_datatable']);
+        //     Route::get('/member-cuti', [CutieController::class, 'member_cuti_view'])->name('cutie.member-cuti');
+        //     Route::post('/member-cuti/store', [CutieController::class, 'store'])->name('cutie.member-cuti.store');
+        //     Route::delete('/member-cuti/delete/{idCuti}', [CutieController::class, 'delete'])->name('cutie.member-cuti.delete');
+        //     Route::patch('/member-cuti/update/{idCuti}', [CutieController::class, 'update'])->name('cutie.member-cuti.update');
+        //     Route::patch('/member-cuti/update-karyawan-pengganti/{idCuti}', [CutieController::class, 'update_karyawan_pengganti'])->name('cutie.member-cuti.update-karyawan-pengganti');
+        //     Route::patch('/member-cuti/reject/{idCuti}', [CutieController::class, 'reject'])->name('cutie.member-cuti.reject');
+        // });
+        // Route::patch('/member-cuti/update-dokumen-cuti/{idCuti}', [CutieController::class, 'update_dokumen_cuti'])->name('cutie.member-cuti.update-document-cuti');
 
         /** PERSONALIA CUTI */
         Route::group(['middleware' => ['role:personalia']], function () {
-            Route::post('/personalia-cuti-datatable', [CutieController::class, 'personalia_cuti_datatable']);
-            Route::get('/personalia-cuti', [CutieController::class, 'personalia_cuti_view'])->name('cutie.personalia-cuti');
-            Route::delete('/personalia-cuti/delete/{idCuti}', [CutieController::class, 'delete'])->name('cutie.personalia-cuti.delete');
-            Route::patch('/personalia-cuti/cancel/{idCuti}', [CutieController::class, 'cancel'])->name('cutie.personalia-cuti.cancel');
-            Route::patch('/personalia-cuti/reject/{idCuti}', [CutieController::class, 'reject'])->name('cutie.personalia-cuti.reject');
+            // Route::post('/personalia-cuti-datatable', [CutieController::class, 'personalia_cuti_datatable']);
+            // Route::get('/personalia-cuti', [CutieController::class, 'personalia_cuti_view'])->name('cutie.personalia-cuti');
+            // Route::delete('/personalia-cuti/delete/{idCuti}', [CutieController::class, 'delete'])->name('cutie.personalia-cuti.delete');
+            // Route::patch('/personalia-cuti/cancel/{idCuti}', [CutieController::class, 'cancel'])->name('cutie.personalia-cuti.cancel');
+            // Route::patch('/personalia-cuti/reject/{idCuti}', [CutieController::class, 'reject'])->name('cutie.personalia-cuti.reject');
 
             /** SETTING CUTI */
             Route::post('/setting-cuti-datatable', [CutieController::class, 'setting_cuti_datatable']);

@@ -84,7 +84,6 @@ $(function () {
 
     //DATATABLE KARYAWAN
     var columnsTable = [
-        // { data: "no" },
         { data: "aksi" },
         { data: "rencana_mulai_cuti" },
         { data: "rencana_selesai_cuti" },
@@ -109,7 +108,7 @@ $(function () {
         processing: true,
         serverSide: true,
         ajax: {
-            url: base_url + "/cutie/pengajuan-cuti-datatable",
+            url: base_url + "/cutie/pengajuan-cuti/datatable",
             dataType: "json",
             type: "POST",
             data: function (dataFilter) {
@@ -400,6 +399,7 @@ $(function () {
             allowOutsideClick: false,
         }).then((result) => {
             if (result.value) {
+                loadingSwalShow();
                 var url = base_url + '/cutie/pengajuan-cuti/delete/' + idCuti;
                 $.ajax({
                     url: url,
@@ -416,8 +416,10 @@ $(function () {
                         updatePengajuanCutiNotification();
                         refreshTable();
                         showToast({ title: data.message });
+                        loadingSwalClose();
                     },
                     error: function (jqXHR, textStatus, errorThrown) {
+                        loadingSwalClose();
                         showToast({ icon: "error", title: jqXHR.responseJSON.message });
                     },
                 });

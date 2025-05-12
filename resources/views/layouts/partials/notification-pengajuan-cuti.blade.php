@@ -1,4 +1,4 @@
-<a href="{{ route('cutie.pengajuan-cuti') }}">
+<a href="{{ route('cutie.pengajuan-cuti.index') }}">
     <i class="icon-User"><span class="path1"></span><span class="path2"></span></i>
     <span>Pengajuan Cuti</span>
     @if ($notification['count_my_cutie'] + $notification['count_rejected_cuti'] > 0)

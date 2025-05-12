@@ -20,6 +20,10 @@
                                 <label for="filterDepartemen">Departemen</label>
                                 <select name="filterDepartemen" id="filterDepartemen" class="form-control"
                                     style="width: 100%;">
+                                    <option value="">Pilih Departemen</option>
+                                    @foreach ($departemens as $item)
+                                        <option value="{{ $item->id_departemen }}">{{ $item->nama }}</option>
+                                    @endforeach
                                 </select>
                             </div>
                             <div class="form-group">
