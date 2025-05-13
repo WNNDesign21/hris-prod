@@ -60,7 +60,7 @@ $(function () {
         processing: true,
         serverSide: true,
         ajax: {
-            url: base_url + "/cutie/setting-cuti-datatable",
+            url: base_url + "/cutie/setting-cuti/datatable",
             dataType: "json",
             type: "POST",
             data: function (dataFilter) {

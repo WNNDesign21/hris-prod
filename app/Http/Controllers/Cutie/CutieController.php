@@ -63,84 +63,83 @@ class CutieController extends Controller
         return view('pages.cuti-e.export-cuti', $dataPage);
     }
 
-    public function bypass_cuti_view()
-    {
-        $dataPage = [
-            'pageTitle' => "Cuti-E - Bypass Cuti",
-            'page' => 'cutie-bypass-cuti',
-        ];
-        return view('pages.cuti-e.bypass-cuti', $dataPage);
-    }
+    // public function bypass_cuti_view()
+    // {
+    //     $dataPage = [
+    //         'pageTitle' => "Cuti-E - Bypass Cuti",
+    //         'page' => 'cutie-bypass-cuti',
+    //     ];
+    //     return view('pages.cuti-e.bypass-cuti', $dataPage);
+    // }
 
-    public function setting_cuti_view()
-    {
-        $dataPage = [
-            'pageTitle' => "Cuti-E - Setting Cuti Khusus",
-            'page' => 'cutie-setting',
-        ];
-        return view('pages.cuti-e.setting-cuti', $dataPage);
-    }
+    // public function setting_cuti_view()
+    // {
+    //     $dataPage = [
+    //         'pageTitle' => "Cuti-E - Setting Cuti Khusus",
+    //         'page' => 'cutie-setting',
+    //     ];
+    //     return view('pages.cuti-e.setting-cuti', $dataPage);
+    // }
 
-    public function setting_cuti_datatable(Request $request)
-    {
-        $columns = array(
-            0 => 'jenis',
-            1 => 'durasi',
-            2 => 'isUrgent',
-            3 => 'isWorkday'
-        );
+    // public function setting_cuti_datatable(Request $request)
+    // {
+    //     $columns = array(
+    //         0 => 'jenis',
+    //         1 => 'durasi',
+    //         2 => 'isUrgent',
+    //         3 => 'isWorkday'
+    //     );
 
-        $totalData = JenisCuti::count();
-        $totalFiltered = $totalData;
+    //     $totalData = JenisCuti::count();
+    //     $totalFiltered = $totalData;
 
-        $limit = $request->input('length');
-        $start = $request->input('start');
-        $order = (!empty($request->input('order.0.column'))) ? $columns[$request->input('order.0.column')] : $columns[0];
-        $dir = (!empty($request->input('order.0.dir'))) ? $request->input('order.0.dir') : "DESC";
+    //     $limit = $request->input('length');
+    //     $start = $request->input('start');
+    //     $order = (!empty($request->input('order.0.column'))) ? $columns[$request->input('order.0.column')] : $columns[0];
+    //     $dir = (!empty($request->input('order.0.dir'))) ? $request->input('order.0.dir') : "DESC";
 
-        $settings['start'] = $start;
-        $settings['limit'] = $limit;
-        $settings['dir'] = $dir;
-        $settings['order'] = $order;
+    //     $settings['start'] = $start;
+    //     $settings['limit'] = $limit;
+    //     $settings['dir'] = $dir;
+    //     $settings['order'] = $order;
 
-        $dataFilter = [];
-        $search = $request->input('search.value');
-        if (!empty($search)) {
-            $dataFilter['search'] = $search;
-        }
-
-
-        $jenis_cuti = JenisCuti::getData($dataFilter, $settings);
-        $totalFiltered = JenisCuti::countData($dataFilter);
-
-        $dataTable = [];
+    //     $dataFilter = [];
+    //     $search = $request->input('search.value');
+    //     if (!empty($search)) {
+    //         $dataFilter['search'] = $search;
+    //     }
 
 
-        if (!empty($jenis_cuti)) {
-            foreach ($jenis_cuti as $data) {
-                $nestedData['jenis'] = $data->jenis;
-                $nestedData['durasi'] = $data->durasi.' Hari';
-                $nestedData['isUrgent'] = $data->isUrgent == 'N' ? '❌' : '✅';
-                $nestedData['isWorkday'] = $data->isWorkday == 'N' ? '❌' : '✅';
-                $nestedData['aksi'] = '<div class="btn-group btn-group-sm"><button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id="'.$data->id_jenis_cuti.'"><i class="fas fa-edit"></i> Edit </button><button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_jenis_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button></div>';
+    //     $jenis_cuti = JenisCuti::getData($dataFilter, $settings);
+    //     $totalFiltered = JenisCuti::countData($dataFilter);
 
-                $dataTable[] = $nestedData;
-            }
-        }
+    //     $dataTable = [];
 
-        $json_data = array(
-            "draw" => intval($request->input('draw')),
-            "recordsTotal" => intval($totalData),
-            "recordsFiltered" => intval($totalFiltered),
-            "data" => $dataTable,
-            "order" => $order,
-            "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
-            "dir" => $dir,
-            "column"=>$request->input('order.0.column')
-        );
 
-        return response()->json($json_data, 200);
-    }
+    //     if (!empty($jenis_cuti)) {
+    //         foreach ($jenis_cuti as $data) {
+    //             $nestedData['jenis'] = $data->jenis;
+    //             $nestedData['durasi'] = $data->durasi.' Hari';
+    //             $nestedData['isUrgent'] = $data->isUrgent == 'N' ? '❌' : '✅';
+    //             $nestedData['isWorkday'] = $data->isWorkday == 'N' ? '❌' : '✅';
+    //             $nestedData['aksi'] = '<div class="btn-group btn-group-sm"><button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id="'.$data->id_jenis_cuti.'"><i class="fas fa-edit"></i> Edit </button><button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_jenis_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button></div>';
+
+    //             $dataTable[] = $nestedData;
+    //         }
+    //     }
+
+    //     $json_data = array(
+    //         "draw" => intval($request->input('draw')),
+    //         "recordsTotal" => intval($totalData),
+    //         "recordsFiltered" => intval($totalFiltered),
+    //         "data" => $dataTable,
+    //         "order" => $order,
+    //         "dir" => $dir,
+    //         "column"=>$request->input('order.0.column')
+    //     );
+
+    //     return response()->json($json_data, 200);
+    // }
 
     // public function get_data_jenis_cuti_khusus(){
     //     $data = JenisCuti::all();
@@ -185,237 +184,237 @@ class CutieController extends Controller
     //     return response()->json(['data' => $data], 200);
     // }
 
-    public function bypass_store(Request $request)
-    {
-        $dataValidate = [
-            'id_karyawan' => ['required'],
-            'penggunaan_sisa_cuti' => ['required','in:TL,TB'],
-            'rencana_mulai_cuti' => ['date','required'],
-            'rencana_selesai_cuti' => ['date','required', 'after_or_equal:rencana_mulai_cuti'],
-            'alasan_cuti' => ['required'],
-            'durasi_cuti' => ['numeric','required'],
-        ];
+    // public function bypass_store(Request $request)
+    // {
+    //     $dataValidate = [
+    //         'id_karyawan' => ['required'],
+    //         'penggunaan_sisa_cuti' => ['required','in:TL,TB'],
+    //         'rencana_mulai_cuti' => ['date','required'],
+    //         'rencana_selesai_cuti' => ['date','required', 'after_or_equal:rencana_mulai_cuti'],
+    //         'alasan_cuti' => ['required'],
+    //         'durasi_cuti' => ['numeric','required'],
+    //     ];
 
-        $validator = Validator::make(request()->all(), $dataValidate);
+    //     $validator = Validator::make(request()->all(), $dataValidate);
 
-        if ($validator->fails()) {
-            $errors = $validator->errors()->all();
-            return response()->json(['message' => $errors], 402);
-        }
+    //     if ($validator->fails()) {
+    //         $errors = $validator->errors()->all();
+    //         return response()->json(['message' => $errors], 402);
+    //     }
 
-        $id_karyawan = $request->id_karyawan;
-        $karyawan = Karyawan::find($id_karyawan);
-        $posisi = $karyawan->posisi;
-        $sisa_cuti_pribadi = $karyawan->sisa_cuti_pribadi;
-        $sisa_cuti_tahun_lalu = $karyawan->sisa_cuti_tahun_lalu;
-        $expired_date_cuti_tahun_lalu = $karyawan->expired_date_cuti_tahun_lalu;
+    //     $id_karyawan = $request->id_karyawan;
+    //     $karyawan = Karyawan::find($id_karyawan);
+    //     $posisi = $karyawan->posisi;
+    //     $sisa_cuti_pribadi = $karyawan->sisa_cuti_pribadi;
+    //     $sisa_cuti_tahun_lalu = $karyawan->sisa_cuti_tahun_lalu;
+    //     $expired_date_cuti_tahun_lalu = $karyawan->expired_date_cuti_tahun_lalu;
 
-        $penggunaan_sisa_cuti = $request->penggunaan_sisa_cuti;
-        $rencana_mulai_cuti = $request->rencana_mulai_cuti;
-        $rencana_selesai_cuti = $request->rencana_selesai_cuti;
-        $alasan_cuti = $request->alasan_cuti;
-        $durasi_cuti = $request->durasi_cuti;
-        $organisasi_id = auth()->user()->organisasi_id;
+    //     $penggunaan_sisa_cuti = $request->penggunaan_sisa_cuti;
+    //     $rencana_mulai_cuti = $request->rencana_mulai_cuti;
+    //     $rencana_selesai_cuti = $request->rencana_selesai_cuti;
+    //     $alasan_cuti = $request->alasan_cuti;
+    //     $durasi_cuti = $request->durasi_cuti;
+    //     $organisasi_id = auth()->user()->organisasi_id;
 
-        DB::beginTransaction();
-        try{
+    //     DB::beginTransaction();
+    //     try{
 
-            if($penggunaan_sisa_cuti == 'TB'){
-                $jatah_cuti = $sisa_cuti_pribadi - $durasi_cuti;
-                if($sisa_cuti_pribadi < 0){
-                    DB::rollback();
-                    return response()->json(['message' => 'Sisa cuti pribadi karyawan tidak mencukupi, Hubungi HRD untuk informasi lebih lanjut!'], 402);
-                } else {
-                    if($jatah_cuti < 0){
-                        DB::rollback();
-                        return response()->json(['message' => 'Sisa cuti pribadi karyawan tidak mencukupi, Silahkan baca ketentuan pembagian cuti pribadi lagi!'], 402);
-                    } else {
-                        $karyawan->sisa_cuti_pribadi = $jatah_cuti;
-                        $karyawan->save();
-                    }
-                }
-            } else {
-                $jatah_cuti = $sisa_cuti_tahun_lalu - $durasi_cuti;
-                if($sisa_cuti_tahun_lalu < 0){
-                    DB::rollback();
-                    return response()->json(['message' => 'Karyawan tidak memiliki sisa cuti tahun lalu!, Silahkan input menggunakan sisa cuti tahun berjalan karyawan!'], 402);
-                } else {
-                    if($jatah_cuti < 0){
-                        DB::rollback();
-                        return response()->json(['message' => 'Sisa cuti tahun lalu karyawan tidak mencukupi, Silahkan input menggunakan sisa cuti tahun berjalan karyawan!!'], 402);
-                    } else {
-                        $karyawan->sisa_cuti_tahun_lalu = $jatah_cuti;
-                        $karyawan->save();
-                    }
-                }
-            }
+    //         if($penggunaan_sisa_cuti == 'TB'){
+    //             $jatah_cuti = $sisa_cuti_pribadi - $durasi_cuti;
+    //             if($sisa_cuti_pribadi < 0){
+    //                 DB::rollback();
+    //                 return response()->json(['message' => 'Sisa cuti pribadi karyawan tidak mencukupi, Hubungi HRD untuk informasi lebih lanjut!'], 402);
+    //             } else {
+    //                 if($jatah_cuti < 0){
+    //                     DB::rollback();
+    //                     return response()->json(['message' => 'Sisa cuti pribadi karyawan tidak mencukupi, Silahkan baca ketentuan pembagian cuti pribadi lagi!'], 402);
+    //                 } else {
+    //                     $karyawan->sisa_cuti_pribadi = $jatah_cuti;
+    //                     $karyawan->save();
+    //                 }
+    //             }
+    //         } else {
+    //             $jatah_cuti = $sisa_cuti_tahun_lalu - $durasi_cuti;
+    //             if($sisa_cuti_tahun_lalu < 0){
+    //                 DB::rollback();
+    //                 return response()->json(['message' => 'Karyawan tidak memiliki sisa cuti tahun lalu!, Silahkan input menggunakan sisa cuti tahun berjalan karyawan!'], 402);
+    //             } else {
+    //                 if($jatah_cuti < 0){
+    //                     DB::rollback();
+    //                     return response()->json(['message' => 'Sisa cuti tahun lalu karyawan tidak mencukupi, Silahkan input menggunakan sisa cuti tahun berjalan karyawan!!'], 402);
+    //                 } else {
+    //                     $karyawan->sisa_cuti_tahun_lalu = $jatah_cuti;
+    //                     $karyawan->save();
+    //                 }
+    //             }
+    //         }
 
-            $today = Carbon::now();
-            if ($today->between(Carbon::parse($rencana_mulai_cuti), Carbon::parse($rencana_selesai_cuti))) {
-                $status_cuti = 'ON LEAVE';
-                $aktual_mulai_cuti = $rencana_mulai_cuti;
-            } elseif (Carbon::parse($rencana_selesai_cuti)->lt($today)) {
-                $status_cuti = 'COMPLETED';
-                $aktual_mulai_cuti = $rencana_mulai_cuti;
-                $aktual_selesai_cuti = $rencana_selesai_cuti;
-            } else {
-                $status_cuti = 'SCHEDULED';
-                $aktual_mulai_cuti = null;
-                $aktual_selesai_cuti = null;
-            }
+    //         $today = Carbon::now();
+    //         if ($today->between(Carbon::parse($rencana_mulai_cuti), Carbon::parse($rencana_selesai_cuti))) {
+    //             $status_cuti = 'ON LEAVE';
+    //             $aktual_mulai_cuti = $rencana_mulai_cuti;
+    //         } elseif (Carbon::parse($rencana_selesai_cuti)->lt($today)) {
+    //             $status_cuti = 'COMPLETED';
+    //             $aktual_mulai_cuti = $rencana_mulai_cuti;
+    //             $aktual_selesai_cuti = $rencana_selesai_cuti;
+    //         } else {
+    //             $status_cuti = 'SCHEDULED';
+    //             $aktual_mulai_cuti = null;
+    //             $aktual_selesai_cuti = null;
+    //         }
 
-            $cuti = Cutie::create([
-                'karyawan_id' => $id_karyawan,
-                'organisasi_id' => $karyawan->user->organisasi_id,
-                'jenis_cuti' => 'PRIBADI',
-                'attachment' => null,
-                'rencana_mulai_cuti' => $rencana_mulai_cuti,
-                'rencana_selesai_cuti' => $rencana_selesai_cuti,
-                'alasan_cuti' => $alasan_cuti,
-                'durasi_cuti' => $durasi_cuti,
-            ]);
+    //         $cuti = Cutie::create([
+    //             'karyawan_id' => $id_karyawan,
+    //             'organisasi_id' => $karyawan->user->organisasi_id,
+    //             'jenis_cuti' => 'PRIBADI',
+    //             'attachment' => null,
+    //             'rencana_mulai_cuti' => $rencana_mulai_cuti,
+    //             'rencana_selesai_cuti' => $rencana_selesai_cuti,
+    //             'alasan_cuti' => $alasan_cuti,
+    //             'durasi_cuti' => $durasi_cuti,
+    //         ]);
 
-            $approval_cuti = ApprovalCuti::storeApprovalCuti($cuti->id_cuti, $posisi);
+    //         $approval_cuti = ApprovalCuti::storeApprovalCuti($cuti->id_cuti, $posisi);
 
-            if (!empty($approval_cuti)) {
-                ApprovalCuti::create([
-                    'cuti_id' => $cuti->id_cuti,
-                    'checked1_for' => $approval_cuti['checked1_for'],
-                    'checked2_for' => $approval_cuti['checked2_for'],
-                    'approved_for' => $approval_cuti['approved_for'],
-                ]);
-            } else {
-                DB::rollback();
-                return response()->json(['message' => 'Approval cuti tidak ditemukan, hubungi HRD untuk informasi lebih lanjut!'], 402);
-            }
+    //         if (!empty($approval_cuti)) {
+    //             ApprovalCuti::create([
+    //                 'cuti_id' => $cuti->id_cuti,
+    //                 'checked1_for' => $approval_cuti['checked1_for'],
+    //                 'checked2_for' => $approval_cuti['checked2_for'],
+    //                 'approved_for' => $approval_cuti['approved_for'],
+    //             ]);
+    //         } else {
+    //             DB::rollback();
+    //             return response()->json(['message' => 'Approval cuti tidak ditemukan, hubungi HRD untuk informasi lebih lanjut!'], 402);
+    //         }
 
-            $message = "Nama : *" . $karyawan->nama . "*\n" .
-                    "Jenis Cuti : PRIBADI (BYPASS) \n" .
-                    "Pembuat dokumen tetap harus melakukan approval \nSegera lakukan approval pada sistem.\n" .
-                    "Klik link dibawah untuk melakukan approval \n" .
-                    ($organisasi_id == 1 ? env('URL_SERVER_HRIS_TCF2') : env('URL_SERVER_HRIS_TCF3'))."cutie/member-cuti";
-            // $this->send_whatsapp($id_karyawan, $approval_cuti?->checked1_for, $message, $organisasi_id);
-            DB::commit();
-            return response()->json(['message' => 'Bypass Cuti Berhasil Dilakukan!'], 200);
-        } catch(Throwable $error){
-            DB::rollBack();
-            return response()->json(['message' => $error->getMessage()], 500);
-        }
-    }
+    //         $message = "Nama : *" . $karyawan->nama . "*\n" .
+    //                 "Jenis Cuti : PRIBADI (BYPASS) \n" .
+    //                 "Pembuat dokumen tetap harus melakukan approval \nSegera lakukan approval pada sistem.\n" .
+    //                 "Klik link dibawah untuk melakukan approval \n" .
+    //                 ($organisasi_id == 1 ? env('URL_SERVER_HRIS_TCF2') : env('URL_SERVER_HRIS_TCF3'))."cutie/member-cuti";
+    //         // $this->send_whatsapp($id_karyawan, $approval_cuti?->checked1_for, $message, $organisasi_id);
+    //         DB::commit();
+    //         return response()->json(['message' => 'Bypass Cuti Berhasil Dilakukan!'], 200);
+    //     } catch(Throwable $error){
+    //         DB::rollBack();
+    //         return response()->json(['message' => $error->getMessage()], 500);
+    //     }
+    // }
 
-    public function store_jenis_cuti(Request $request)
-    {
-        $jenis = $request->jenis;
-        $durasi = $request->durasi;
-        $isUrgent = $request->isUrgent;
-        $isWorkday = $request->isWorkday;
+    // public function store_jenis_cuti(Request $request)
+    // {
+    //     $jenis = $request->jenis;
+    //     $durasi = $request->durasi;
+    //     $isUrgent = $request->isUrgent;
+    //     $isWorkday = $request->isWorkday;
 
-        $dataValidate = [
-            'jenis' => ['required'],
-            'durasi' => ['required', 'numeric', 'min:1'],
-            'isUrgent' => ['required', 'string', 'in:Y,N'],
-            'isWorkday' => ['required', 'string', 'in:Y,N'],
-        ];
+    //     $dataValidate = [
+    //         'jenis' => ['required'],
+    //         'durasi' => ['required', 'numeric', 'min:1'],
+    //         'isUrgent' => ['required', 'string', 'in:Y,N'],
+    //         'isWorkday' => ['required', 'string', 'in:Y,N'],
+    //     ];
 
-        $validator = Validator::make(request()->all(), $dataValidate);
+    //     $validator = Validator::make(request()->all(), $dataValidate);
 
-        if ($validator->fails()) {
-            $errors = $validator->errors()->all();
-            return response()->json(['message' => 'Fill your input correctly!'], 402);
-        }
+    //     if ($validator->fails()) {
+    //         $errors = $validator->errors()->all();
+    //         return response()->json(['message' => 'Fill your input correctly!'], 402);
+    //     }
 
-        DB::beginTransaction();
-        try{
-            JenisCuti::create([
-                'jenis' => $jenis,
-                'durasi' => $durasi,
-                'isUrgent' => $isUrgent,
-                'isWorkday' => $isWorkday
-            ]);
-            DB::commit();
-            return response()->json(['message' => 'Store Jenis Cuti Khusus Berhasil dilakukan!'], 200);
-        } catch(Throwable $error){
-            DB::rollBack();
-            return response()->json(['message' => $error->getMessage()], 500);
-        } catch (QueryException $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Database error: ' . $e->getMessage()], 500);
-        } catch (ModelNotFoundException $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Model not found: ' . $e->getMessage()], 404);
-        }
-    }
+    //     DB::beginTransaction();
+    //     try{
+    //         JenisCuti::create([
+    //             'jenis' => $jenis,
+    //             'durasi' => $durasi,
+    //             'isUrgent' => $isUrgent,
+    //             'isWorkday' => $isWorkday
+    //         ]);
+    //         DB::commit();
+    //         return response()->json(['message' => 'Store Jenis Cuti Khusus Berhasil dilakukan!'], 200);
+    //     } catch(Throwable $error){
+    //         DB::rollBack();
+    //         return response()->json(['message' => $error->getMessage()], 500);
+    //     } catch (QueryException $e) {
+    //         DB::rollBack();
+    //         return response()->json(['message' => 'Database error: ' . $e->getMessage()], 500);
+    //     } catch (ModelNotFoundException $e) {
+    //         DB::rollBack();
+    //         return response()->json(['message' => 'Model not found: ' . $e->getMessage()], 404);
+    //     }
+    // }
 
-    public function update_jenis_cuti(Request $request, string $id_jenis_cuti)
-    {
-        $jenis = $request->jenis;
-        $durasi = $request->durasi;
-        $isUrgent = $request->isUrgent;
-        $isWorkday = $request->isWorkday;
+    // public function update_jenis_cuti(Request $request, string $id_jenis_cuti)
+    // {
+    //     $jenis = $request->jenis;
+    //     $durasi = $request->durasi;
+    //     $isUrgent = $request->isUrgent;
+    //     $isWorkday = $request->isWorkday;
 
-        $dataValidate = [
-            'jenis' => ['required'],
-            'durasi' => ['required', 'numeric', 'min:1'],
-            'isUrgent' => ['required', 'string', 'in:Y,N'],
-            'isWorkday' => ['required', 'string', 'in:Y,N'],
-        ];
+    //     $dataValidate = [
+    //         'jenis' => ['required'],
+    //         'durasi' => ['required', 'numeric', 'min:1'],
+    //         'isUrgent' => ['required', 'string', 'in:Y,N'],
+    //         'isWorkday' => ['required', 'string', 'in:Y,N'],
+    //     ];
 
-        $validator = Validator::make(request()->all(), $dataValidate);
+    //     $validator = Validator::make(request()->all(), $dataValidate);
 
-        if ($validator->fails()) {
-            $errors = $validator->errors()->all();
-            return response()->json(['message' => 'Fill your input correctly!'], 402);
-        }
+    //     if ($validator->fails()) {
+    //         $errors = $validator->errors()->all();
+    //         return response()->json(['message' => 'Fill your input correctly!'], 402);
+    //     }
 
-        DB::beginTransaction();
-        try{
-            $jenis_cuti = JenisCuti::find($id_jenis_cuti);
-            if($jenis_cuti){
-                $jenis_cuti->jenis = $jenis;
-                $jenis_cuti->durasi = $durasi;
-                $jenis_cuti->isUrgent = $isUrgent;
-                $jenis_cuti->isWorkday = $isWorkday;
-            }
+    //     DB::beginTransaction();
+    //     try{
+    //         $jenis_cuti = JenisCuti::find($id_jenis_cuti);
+    //         if($jenis_cuti){
+    //             $jenis_cuti->jenis = $jenis;
+    //             $jenis_cuti->durasi = $durasi;
+    //             $jenis_cuti->isUrgent = $isUrgent;
+    //             $jenis_cuti->isWorkday = $isWorkday;
+    //         }
 
-            $jenis_cuti->save();
-            DB::commit();
-            return response()->json(['message' => 'Update Jenis Cuti Khusus Berhasil dilakukan!'], 200);
-        } catch(Throwable $error){
-            DB::rollBack();
-            return response()->json(['message' => $error->getMessage()], 500);
-        } catch (QueryException $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Database error: ' . $e->getMessage()], 500);
-        } catch (ModelNotFoundException $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Model not found: ' . $e->getMessage()], 404);
-        }
-    }
+    //         $jenis_cuti->save();
+    //         DB::commit();
+    //         return response()->json(['message' => 'Update Jenis Cuti Khusus Berhasil dilakukan!'], 200);
+    //     } catch(Throwable $error){
+    //         DB::rollBack();
+    //         return response()->json(['message' => $error->getMessage()], 500);
+    //     } catch (QueryException $e) {
+    //         DB::rollBack();
+    //         return response()->json(['message' => 'Database error: ' . $e->getMessage()], 500);
+    //     } catch (ModelNotFoundException $e) {
+    //         DB::rollBack();
+    //         return response()->json(['message' => 'Model not found: ' . $e->getMessage()], 404);
+    //     }
+    // }
 
-    public function delete_jenis_cuti(string $id_jenis_cuti)
-    {
-        DB::beginTransaction();
-        try{
-            $jenis_cuti = JenisCuti::find($id_jenis_cuti);
-            if($jenis_cuti){
-                if($jenis_cuti->isUsed()){
-                    DB::commit();
-                    return response()->json(['message' => 'Jenis Cuti sudah digunakan, tidak bisa dihapus!'],400);
-                } else {
-                    $jenis_cuti->delete();
-                }
-            } else {
-                DB::commit();
-                return response()->json(['message' => 'Jenis Cuti tidak ditemukan!'],400);
-            }
+    // public function delete_jenis_cuti(string $id_jenis_cuti)
+    // {
+    //     DB::beginTransaction();
+    //     try{
+    //         $jenis_cuti = JenisCuti::find($id_jenis_cuti);
+    //         if($jenis_cuti){
+    //             if($jenis_cuti->isUsed()){
+    //                 DB::commit();
+    //                 return response()->json(['message' => 'Jenis Cuti sudah digunakan, tidak bisa dihapus!'],400);
+    //             } else {
+    //                 $jenis_cuti->delete();
+    //             }
+    //         } else {
+    //             DB::commit();
+    //             return response()->json(['message' => 'Jenis Cuti tidak ditemukan!'],400);
+    //         }
 
-            DB::commit();
-            return response()->json(['message' => 'Jenis Cuti Dihapus!'],200);
-        } catch(Throwable $error){
-            DB::rollBack();
-            return response()->json(['message' => $error->getMessage()], 500);
-        }
-    }
+    //         DB::commit();
+    //         return response()->json(['message' => 'Jenis Cuti Dihapus!'],200);
+    //     } catch(Throwable $error){
+    //         DB::rollBack();
+    //         return response()->json(['message' => $error->getMessage()], 500);
+    //     }
+    // }
 
     public function get_data_cutie_calendar(){
         $organisasi_id = auth()->user()->organisasi_id;
