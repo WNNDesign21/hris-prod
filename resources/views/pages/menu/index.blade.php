@@ -60,7 +60,7 @@
                 @if (!auth()->user()->hasRole('security'))
                     {{-- CARD CUTI SYSTEM --}}
                     <div class="col-lg-6 col-12">
-                        <a href="{{ !auth()->user()->hasRole('member') ? route('cutie.dashboard') : route('cutie.pengajuan-cuti') }}"
+                        <a href="{{ !auth()->user()->hasRole('member') ? route('cutie.dashboard') : route('cutie.pengajuan-cuti.index') }}"
                             class="box pull-up">
                             <div class="box-body position-relative">
                                 @if ($notification['count_cutie_approval'] + $notification['count_my_cutie'] + $notification['count_rejected_cuti'] > 0)

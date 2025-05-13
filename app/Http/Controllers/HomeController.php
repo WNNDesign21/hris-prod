@@ -841,6 +841,12 @@ class HomeController extends Controller
         return response()->json(['data' => $html], 200);
     }
 
+    public function get_approval_cuti_notification(){
+        $notification = $this->get_notification_cuti();
+        $html = view('layouts.partials.notification-approval-cuti')->with(compact('notification'))->render();
+        return response()->json(['data' => $html], 200);
+    }
+
     public function get_list_cuti_notification(){
         $notification = $this->get_notification_cuti();
         $html = view('layouts.partials.notification-list-cuti')->with(compact('notification'))->render();

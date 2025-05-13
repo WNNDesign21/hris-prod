@@ -29,7 +29,7 @@ $(function () {
             toast: true,
             position: "top-end",
             showConfirmButton: false,
-            timer: 2000, 
+            timer: 2000,
             timerProgressBar: true,
             didOpen: (toast) => {
             toast.onmouseenter = Swal.stopTimer;
@@ -51,6 +51,16 @@ $(function () {
         return duration;
     }
 
+    function updateApprovalCutiNotification(){
+        $.ajax({
+            url: base_url + '/get-approval-cuti-notification',
+            method: 'GET',
+            success: function(response){
+                $('.notification-approval-cuti').html(response.data);
+            }
+        })
+    }
+
     function formReset() {
         $('#id_karyawan').val('').trigger('change');
         $('#penggunaan_sisa_cuti').val('TB').trigger('change');
@@ -59,12 +69,12 @@ $(function () {
         $('#alasan_cuti').val('');
     }
 
-    //SELECT2 
+    //SELECT2
     $('#penggunaan_sisa_cuti').select2()
 
     $('#id_karyawan').select2({
         ajax: {
-            url: base_url + "/cutie/bypass-cuti/get-karyawan-cuti",
+            url: base_url + "/cutie/ajax/get-karyawan-cuti",
             type: "post",
             dataType: "json",
             delay: 250,
@@ -94,7 +104,7 @@ $(function () {
 
         var formData = new FormData($('#form-bypass-cuti')[0]);
         formData.append('durasi_cuti', duration);
-        
+
         $.ajax({
             url: url,
             data: formData,
@@ -106,6 +116,7 @@ $(function () {
                 showToast({ title: data.message });
                 loadingSwalClose();
                 formReset();
+                updateApprovalCutiNotification();
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 loadingSwalClose();

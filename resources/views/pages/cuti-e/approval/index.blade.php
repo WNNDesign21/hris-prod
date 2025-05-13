@@ -9,7 +9,7 @@
 @endsection
 
 @section('navbar')
-    @include('layouts.navbar-izine')
+    @include('layouts.navbar-cutie')
 @endsection
 
 @section('content')
@@ -17,16 +17,12 @@
         <div class="col-12">
             <div class="box">
                 <div class="box-header d-flex justify-content-between">
-                    <div class="row">
-                        <h4 class="box-title">List Approval Izin</h4>
-                    </div>
-                    <div>
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-info waves-effect btnReload"><i
-                                    class="fas fa-sync-alt"></i></button>
-                            <button type="button" class="btn btn-warning waves-effect btnFilter"><i
-                                    class="fas fa-filter"></i></button>
-                        </div>
+                    <h4 class="box-title">Approval Cuti</h4>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-info waves-effect btnReload"><i
+                                class="fas fa-sync-alt"></i></button>
+                        <button type="button" class="btn btn-warning waves-effect btnFilter"><i
+                                class="fas fa-filter"></i></button>
                     </div>
                 </div>
                 <div class="box-body">
@@ -42,20 +38,22 @@
                                 <table id="must-approved-table" class="table" style="width:100%">
                                     <thead>
                                         <tr>
-                                            <th>ID Izin</th>
                                             <th>Nama</th>
                                             <th>Departemen</th>
-                                            <th>Posisi</th>
-                                            <th>Rencana Mulai / Masuk</th>
-                                            <th>Rencana Selesai / Keluar</th>
-                                            <th>Aktual Mulai / Masuk</th>
-                                            <th>Aktual Selesai / Keluar</th>
-                                            <th>Jenis Izin</th>
+                                            <th>Rencana Mulai</th>
+                                            <th>Rencana Selesai</th>
                                             <th>Durasi</th>
-                                            <th>Keterangan</th>
-                                            <th>Checked</th>
+                                            <th>Jenis</th>
+                                            <th>Checked 1</th>
+                                            <th>Checked 2</th>
                                             <th>Approved</th>
                                             <th>Legalized</th>
+                                            <th>Status Dokumen</th>
+                                            <th>Status</th>
+                                            <th>Alasan</th>
+                                            <th>Karyawan Pengganti</th>
+                                            <th>Created At</th>
+                                            <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -67,20 +65,22 @@
                                 <table id="alldata-table" class="table" style="width:100%">
                                     <thead>
                                         <tr>
-                                            <th>ID Izin</th>
                                             <th>Nama</th>
                                             <th>Departemen</th>
-                                            <th>Posisi</th>
-                                            <th>Rencana Mulai / Masuk</th>
-                                            <th>Rencana Selesai / Keluar</th>
-                                            <th>Aktual Mulai / Masuk</th>
-                                            <th>Aktual Selesai / Keluar</th>
-                                            <th>Jenis Izin</th>
+                                            <th>Rencana Mulai</th>
+                                            <th>Rencana Selesai</th>
                                             <th>Durasi</th>
-                                            <th>Keterangan</th>
-                                            <th>Checked</th>
+                                            <th>Jenis</th>
+                                            <th>Checked 1</th>
+                                            <th>Checked 2</th>
                                             <th>Approved</th>
                                             <th>Legalized</th>
+                                            <th>Status Dokumen</th>
+                                            <th>Status</th>
+                                            <th>Alasan</th>
+                                            <th>Karyawan Pengganti</th>
+                                            <th>Created At</th>
+                                            <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody></tbody>
@@ -92,6 +92,7 @@
             </div>
         </div>
     </div>
-    @include('pages.izin-e.modal-reject-izin')
-    @include('pages.izin-e.modal-filter-izin')
+    @include('pages.cuti-e.modal-reject-cuti')
+    @include('pages.cuti-e.modal-karyawan-pengganti-cuti')
+    @include('pages.cuti-e.modal-filter')
 @endsection

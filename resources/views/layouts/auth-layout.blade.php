@@ -149,6 +149,10 @@
         @vite(['resources/js/pages/cutie-pengajuan-cuti.js'])
     @endif
 
+    @if ($page == 'cutie-approval-cuti')
+        @vite(['resources/js/pages/cuti/cutie-approval-cuti.js'])
+    @endif
+
     @if ($page == 'cutie-member-cuti')
         @vite(['resources/js/pages/cutie-member-cuti.js'])
     @endif

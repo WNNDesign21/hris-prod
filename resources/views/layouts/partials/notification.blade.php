@@ -44,7 +44,7 @@
             @if (!empty($notification['my_cutie']))
                 @foreach ($notification['my_cutie'] as $my_cutie)
                     <li>
-                        <a href="{{ route('cutie.pengajuan-cuti') }}" style="white-space: normal;">
+                        <a href="{{ route('cutie.pengajuan-cuti.index') }}" style="white-space: normal;">
                             <i class="fa fa-warning text-warning"></i>Pengajuan
                             Cuti
                             {{ $my_cutie['jenis_cuti'] }} dengan durasi
@@ -64,7 +64,7 @@
                 @foreach ($notification['cutie_approval'] as $cutie_approval)
                     <li>
                         @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('super user'))
-                            <a href="{{ route('cutie.personalia-cuti') }}" style="white-space: normal;">
+                            <a href="{{ route('cutie.approval-cuti.index') }}" style="white-space: normal;">
                                 <i class="fa fa-warning text-warning"></i>Pengajuan
                                 Cuti
                                 <strong>{{ $cutie_approval['nama'] }}</strong>
@@ -76,7 +76,7 @@
                                 <strong>REJECTED</strong>.
                             </a>
                         @elseif (auth()->user()->hasRole('atasan'))
-                            <a href="{{ route('cutie.member-cuti') }}" style="white-space: normal;">
+                            <a href="{{ route('cutie.approval-cuti.index') }}" style="white-space: normal;">
                                 <i class="fa fa-warning text-warning"></i>Pengajuan
                                 Cuti
                                 <strong>{{ $cutie_approval['nama'] }}</strong>
@@ -88,7 +88,7 @@
                                 <strong>REJECTED</strong>.
                             </a>
                         @else
-                            <a href="{{ route('cutie.pengajuan-cuti') }}" style="white-space: normal;">
+                            <a href="{{ route('cutie.pengajuan-cuti.index') }}" style="white-space: normal;">
                                 <i class="fa fa-warning text-warning"></i>Pengajuan
                                 Cuti
                                 {{ $cutie_approval['jenis_cuti'] }} dengan durasi
@@ -108,7 +108,7 @@
             @if (!empty($notification['rejected_cuti']))
                 @foreach ($notification['rejected_cuti'] as $rejected_cuti)
                     <li>
-                        <a href="{{ route('cutie.pengajuan-cuti') }}" style="white-space: normal;">
+                        <a href="{{ route('cutie.pengajuan-cuti.index') }}" style="white-space: normal;">
                             <i class="fa fa-warning text-danger"></i></i>Pengajuan
                             Cuti
                             {{ $rejected_cuti['jenis_cuti'] }} dengan durasi

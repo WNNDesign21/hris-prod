@@ -43,16 +43,6 @@ $(function () {
         });
     }
 
-    // function updateNotification(){
-    //     $.ajax({
-    //         url: base_url + '/get-notification',
-    //         method: 'GET',
-    //         success: function(response){
-    //             $('.notifications-menu').html(response.data);
-    //         }
-    //     })
-    // }
-
     function updateApprovalSkdNotification(){
         $.ajax({
             url: base_url + '/get-approval-skd-notification',
@@ -63,7 +53,7 @@ $(function () {
         })
     }
 
-    var columnsTable = [
+    var mustApprovedColumnsTable = [
         { data: "nama" },
         { data: "departemen" },
         { data: "posisi" },
@@ -77,7 +67,7 @@ $(function () {
         { data: "legalized_by" }
     ];
 
-    var ApprovalSkdTable = $("#approval-skd-table").DataTable({
+    var mustApprovedTable = $("#must-approved-table").DataTable({
         search: {
             return: true,
         },
@@ -85,7 +75,7 @@ $(function () {
         processing: true,
         serverSide: true,
         ajax: {
-            url: base_url + "/izine/approval-skd-datatable",
+            url: base_url + "/izine/must-approved-skd-datatable",
             dataType: "json",
             type: "POST",
             data: function (dataFilter) {
@@ -111,9 +101,7 @@ $(function () {
                             "</div>",
                         allowOutsideClick: false,
                         showConfirmButton: true,
-                    }).then(function () {
-                        refreshTable();
-                    });
+                    })
                 } else {
                     var message = jqXHR.responseJSON.message;
                     var errorLine = jqXHR.responseJSON.line;
@@ -135,35 +123,103 @@ $(function () {
                             "</div>",
                         allowOutsideClick: false,
                         showConfirmButton: true,
-                    }).then(function () {
-                        refreshTable();
-                    });
+                    })
                 }
             },
         },
-        initComplete: function () {
-            $('.image-popup-vertical-fit').magnificPopup({
-                type: 'image',
-                closeOnContentClick: true,
-                mainClass: 'mfp-img-mobile',
-                image: {
-                    verticalFit: true
-                }
-            });
+        scrollX: true,
+        columns: mustApprovedColumnsTable,
+        columnDefs: [
+            {
+                orderable: false,
+                targets: [-1],
+            },
+            {
+                targets: [-1],
+                createdCell: function (td, cellData, rowData, row, col) {
+                    // $(td).addClass("text-center");
+                },
+            },
+        ],
+    })
+
+    var alldataColumnsTable = [
+        { data: "nama" },
+        { data: "departemen" },
+        { data: "posisi" },
+        { data: "created_at" },
+        { data: "tanggal_mulai" },
+        { data: "tanggal_selesai" },
+        { data: "durasi" },
+        { data: "keterangan" },
+        { data: "lampiran" },
+        { data: "approved_by" },
+        { data: "legalized_by" }
+    ];
+
+    var alldataTable = $("#alldata-table").DataTable({
+        search: {
+            return: true,
         },
-        drawCallback: function () {
-            $('.image-popup-vertical-fit').magnificPopup({
-                type: 'image',
-                closeOnContentClick: true,
-                mainClass: 'mfp-img-mobile',
-                image: {
-                    verticalFit: true
+        order: [[4, "DESC"]],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: base_url + "/izine/alldata-skd-datatable",
+            dataType: "json",
+            type: "POST",
+            data: function (dataFilter) {
+                let urutan = $('#filterUrutan').val();
+                let departemen = $('#filterDepartemen').val();
+                let status = $('#filterStatus').val();
+
+                dataFilter.urutan = urutan;
+                dataFilter.departemen = departemen;
+                dataFilter.status = status;
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR.responseJSON.data) {
+                    var error = jqXHR.responseJSON.data.error;
+                    Swal.fire({
+                        icon: "error",
+                        title: " <br>Application error!",
+                        html:
+                            '<div class="alert alert-danger text-left" role="alert">' +
+                            "<p>Error Message: <strong>" +
+                            error +
+                            "</strong></p>" +
+                            "</div>",
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                    })
+                } else {
+                    var message = jqXHR.responseJSON.message;
+                    var errorLine = jqXHR.responseJSON.line;
+                    var file = jqXHR.responseJSON.file;
+                    Swal.fire({
+                        icon: "error",
+                        title: " <br>Application error!",
+                        html:
+                            '<div class="alert alert-danger text-left" role="alert">' +
+                            "<p>Error Message: <strong>" +
+                            message +
+                            "</strong></p>" +
+                            "<p>File: " +
+                            file +
+                            "</p>" +
+                            "<p>Line: " +
+                            errorLine +
+                            "</p>" +
+                            "</div>",
+                        allowOutsideClick: false,
+                        showConfirmButton: true,
+                    })
                 }
-            });
+            },
         },
         // responsive: true,
         scrollX: true,
-        columns: columnsTable,
+        columns: alldataColumnsTable,
         columnDefs: [
             {
                 orderable: false,
@@ -180,11 +236,19 @@ $(function () {
 
     //REFRESH TABLE
     function refreshTable() {
-        var searchValue = ApprovalSkdTable.search();
-        if (searchValue) {
-            ApprovalSkdTable.search(searchValue).draw();
+        var mustApprovedSearchValue = mustApprovedTable.search();
+        var alldataSearchValue = alldataTable.search();
+
+        if (mustApprovedSearchValue) {
+            mustApprovedTable.search(mustApprovedSearchValue).draw();
         } else {
-            ApprovalSkdTable.search("").draw();
+            mustApprovedTable.search("").draw();
+        }
+
+        if (alldataSearchValue) {
+            alldataTable.search(alldataSearchValue).draw();
+        } else {
+            alldataTable.search("").draw();
         }
     }
 
@@ -217,7 +281,7 @@ $(function () {
         $('#rejected_note').val('');
     }
 
-    $('#approval-skd-table').on('click', '.btnReject', function(){
+    $('#must-approved-table').on('click', '.btnReject', function(){
         let idSakit = $(this).data('id-sakit');
         let url = base_url + '/izine/approval-skd/rejected/' + idSakit;
         $('#form-reject-skd').attr('action', url);
@@ -251,7 +315,7 @@ $(function () {
 
     })
 
-    $('#approval-skd-table').on('click', '.btnApproved', function(){
+    $('#must-approved-table').on('click', '.btnApproved', function(){
         let idSakit = $(this).data('id-sakit');
         let url = base_url + '/izine/approval-skd/approved/' + idSakit;
         var formData = new FormData();
@@ -374,7 +438,19 @@ $(function () {
     });
 
     $(".btnSubmitFilter").on("click", function () {
-        ApprovalSkdTable.draw();
+        mustApprovedTable.draw();
+        alldataTable.draw();
         closeFilter();
+    });
+
+    $('a[data-bs-toggle="tab"]').on("shown.bs.tab", function (e) {
+        var target = $(e.target).attr("href");
+        if ($(target).find("table").hasClass("dataTable")) {
+            if (!$.fn.DataTable.isDataTable($(target).find("table"))) {
+                $(target).find("table").DataTable();
+            } else {
+                $(target).find("table").DataTable().columns.adjust().draw();
+            }
+        }
     });
 });

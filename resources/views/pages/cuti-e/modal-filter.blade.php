@@ -21,8 +21,8 @@
                                 <select name="filterDepartemen" id="filterDepartemen" class="form-control"
                                     style="width: 100%;">
                                     <option value="">Pilih Departemen</option>
-                                    @foreach ($departemen as $dp)
-                                        <option value="{{ $dp->id_departemen }}">{{ $dp->nama }}</option>
+                                    @foreach ($departemens as $item)
+                                        <option value="{{ $item->id_departemen }}">{{ $item->nama }}</option>
                                     @endforeach
                                 </select>
                             </div>

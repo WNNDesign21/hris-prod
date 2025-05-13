@@ -52,38 +52,6 @@ class CutieController extends Controller
         return view('pages.cuti-e.index', $dataPage);
     }
 
-    public function pengajuan_cuti_view()
-    {
-        $dataPage = [
-            'pageTitle' => "Cuti-E - Pengajuan Cuti",
-            'page' => 'cutie-pengajuan-cuti',
-        ];
-        return view('pages.cuti-e.pengajuan-cuti', $dataPage);
-    }
-
-    public function member_cuti_view()
-    {
-        $departemens = Departemen::all();
-
-        $dataPage = [
-            'pageTitle' => "Cuti-E - Member Cuti",
-            'page' => 'cutie-member-cuti',
-            'departemen' => $departemens
-        ];
-        return view('pages.cuti-e.member-cuti', $dataPage);
-    }
-
-    public function personalia_cuti_view()
-    {
-        $departemens = Departemen::all();
-        $dataPage = [
-            'pageTitle' => "Cuti-E - Personalia",
-            'page' => 'cutie-personalia-cuti',
-            'departemen' => $departemens,
-        ];
-        return view('pages.cuti-e.personalia-cuti', $dataPage);
-    }
-
     public function export_cuti_view()
     {
         $departemens = Departemen::all();
@@ -111,707 +79,6 @@ class CutieController extends Controller
             'page' => 'cutie-setting',
         ];
         return view('pages.cuti-e.setting-cuti', $dataPage);
-    }
-
-    public function pengajuan_cuti_datatable(Request $request)
-    {
-
-        $columns = array(
-            1 => 'rencana_mulai_cuti',
-            2 => 'rencana_selesai_cuti',
-            3 => 'durasi_cuti',
-            4 => 'jenis_cuti',
-            5 => 'checked1_at',
-            6 => 'checked2_at',
-            7 => 'approved_at',
-            8 => 'legalize_at',
-            9 => 'status_dokumen',
-            10 => 'status_cuti',
-            11 => 'alasan_cuti',
-            12 => 'kp.nama_pengganti',
-            13 => 'created_at',
-        );
-
-        $limit = $request->input('length');
-        $start = $request->input('start');
-        $order = (!empty($request->input('order.0.column'))) ? $columns[$request->input('order.0.column')] : $columns[0];
-        $dir = (!empty($request->input('order.0.dir'))) ? $request->input('order.0.dir') : "DESC";
-
-        $settings['start'] = $start;
-        $settings['limit'] = $limit;
-        $settings['dir'] = $dir;
-        $settings['order'] = $order;
-
-        $dataFilter = [];
-        $search = $request->input('search.value');
-        if (!empty($search)) {
-            $dataFilter['search'] = $search;
-        }
-
-        $dataFilter['karyawan_id'] = auth()->user()->karyawan->id_karyawan;
-
-        $totalData = Cutie::where('karyawan_id', auth()->user()->karyawan->id_karyawan)->count();
-        $totalFiltered = $totalData;
-        $cutie = Cutie::getData($dataFilter, $settings);
-        $totalFiltered = Cutie::countData($dataFilter);
-        $dataTable = [];
-
-
-        if (!empty($cutie)) {
-
-            $cuti_id = null;
-            $count_duplicate_cuti = 0;
-
-            foreach ($cutie as $data) {
-
-                //Hapus cuti duplikat
-                if(!$cuti_id){
-                    $cuti_id = $data->id_cuti;
-                } else {
-                    if($cuti_id == $data->id_cuti){
-                        $count_duplicate_cuti++;
-                        continue;
-                    } else {
-                        $cuti_id = $data->id_cuti;
-                    }
-                }
-
-                if($data->rejected_by == null){
-                    $rejected = null;
-                    if($data->checked1_by == null){
-                        $btn_group_1 = '-';
-                    } else {
-                        $btn_group_1 = '✅<br><small class="text-bold">'.$data->checked1_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked1_at)->diffForHumans().'</small>';
-                    }
-
-                    if($data->checked2_by == null){
-                        $btn_group_2 = '-';
-                    } else {
-                        $btn_group_2 = '✅<br><small class="text-bold">'.$data->checked2_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked2_at)->diffForHumans().'</small>';
-                    }
-
-                    if($data->approved_by == null){
-                        $btn_group_3 = '-';
-                    } else {
-                        $btn_group_3 = '✅<br><small class="text-bold">'.$data->approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->approved_at)->diffForHumans().'</small>';
-                    }
-
-                    if($data->legalized_by == null){
-                        if($data->approved_by !== null){
-                            $legalized = 'Waiting For Legalized';
-                        } else {
-                            $legalized = 'Waiting Approved';
-                        }
-                    } else {
-                        $legalized = '✅<br><small class="text-bold">'.$data->legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->legalized_at)->diffForHumans().'</small>';
-                    }
-                } else {
-                    $rejected = '❌<br><small class="text-bold">'.$data->rejected_by.'</small><br><small class="text-fade">'.Carbon::parse($data->rejected_at)->diffForHumans().'</small>';
-                }
-
-                //Status Cuti
-                if($data->rejected_by == null){
-                    if($data->status_cuti == 'SCHEDULED'){
-                        $status_cuti = '<span class="badge badge-pill badge-warning">'.$data->status_cuti.'</span>';
-                    } elseif($data->status_cuti == 'ON LEAVE'){
-                        $status_cuti = '<span class="badge badge-pill badge-secondary">'.$data->status_cuti.'</span>';
-                    } elseif($data->status_cuti == 'COMPLETED'){
-                        $status_cuti = '<span class="badge badge-pill badge-success">'.$data->status_cuti.'</span>';
-                    } elseif ($data->status_cuti == 'CANCELED') {
-                        $status_cuti = '<span class="badge badge-pill badge-danger">'.$data->status_cuti.'</span>';
-                    } else {
-                        $status_cuti = '-';
-                    }
-                } else {
-                    $status_cuti = '<span class="badge badge-pill badge-danger btnAlasan" data-alasan="'.$data->rejected_note.'" style="cursor:pointer;">REJECTED</span>';
-                }
-
-
-                if($data->status_cuti == 'CANCELED'){
-                    if($data->checked1_by == null){
-                        $btn_group_1 = '<span class="badge badge-pill badge-danger">CANCELED</span>';
-                    }
-
-                    if($data->checked2_by == null){
-                        $btn_group_2 = '<span class="badge badge-pill badge-danger">CANCELED</span>';
-                    }
-
-                    if($data->approved_by == null){
-                        $btn_group_3 = '<span class="badge badge-pill badge-danger">CANCELED</span>';
-                    }
-
-                    if ($data->legalized_by == null){
-                        $legalized = '<span class="badge badge-pill badge-danger">CANCELED</span>';
-                    }
-
-                    $btn_karyawan_pengganti = '-';
-                }
-
-
-                $nestedData['no'] = $data->id_cuti;
-                $nestedData['rencana_mulai_cuti'] = Carbon::parse($data->rencana_mulai_cuti)->format('d M Y');
-                $nestedData['rencana_selesai_cuti'] = Carbon::parse($data->rencana_selesai_cuti)->format('d M Y');
-                $nestedData['durasi'] = $data->durasi_cuti.' Hari';
-                $nestedData['jenis'] = $data->jenis_cuti !== 'KHUSUS' ? $data->jenis_cuti : $data->jenis_cuti.' <small class="text-fade">('.$data->jenis_cuti_khusus.')</small>';
-                $nestedData['checked_1'] = $rejected == null ? $btn_group_1 : $rejected;
-                $nestedData['checked_2'] = $rejected == null ? $btn_group_2 : $rejected;
-                $nestedData['approved'] = $rejected == null ? $btn_group_3 : $rejected;
-                $nestedData['legalized'] = $rejected == null ? $legalized : $rejected;
-                $nestedData['status_dokumen'] = $data->status_dokumen == 'WAITING' ? '<span class="badge badge-pill badge-warning">'.$data->status_dokumen.'</span>' : ($data->status_dokumen == 'APPROVED' ? '<span class="badge badge-pill badge-success">'.$data->status_dokumen.'</span>' : '<span class="badge badge-pill badge-danger btnAlasan" data-alasan="'.$data->rejected_note.'" style="cursor:pointer;">'.$data->status_dokumen.'</span>');
-                $nestedData['status'] = $status_cuti;
-                $nestedData['alasan'] = $data->alasan_cuti;
-                $nestedData['karyawan_pengganti'] = $data->nama_pengganti ? '<small class="text-bold">'.$data->nama_pengganti.'</small>' : '-';
-                $nestedData['created_at'] = Carbon::parse($data->created_at)->format('d M Y H:i:s');
-                $nestedData['aksi'] = '
-                <div class="btn-group btn-group-sm">'.
-                    ($data->status_cuti !== 'CANCELED' ? (date('Y-m-d') < $data->rencana_mulai_cuti && $data->rejected_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnCancel" data-id="'.$data->id_cuti.'"><i class="fas fa-history"></i> Cancel </button>' : '') : '').
-                    ($data->checked1_by == null && $data->checked2_by == null && $data->approved_by == null && $data->legalized_by == null && $data->rejected_by == null && $data->status_cuti !== 'CANCELED' ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button>' : '').
-                    '
-                </div>
-                ';
-
-                $dataTable[] = $nestedData;
-            }
-        }
-
-        $json_data = array(
-            "draw" => intval($request->input('draw')),
-            "recordsTotal" => intval($totalData),
-            "recordsFiltered" => intval($totalFiltered) - $count_duplicate_cuti,
-            "data" => $dataTable,
-            "order" => $order,
-            "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
-            "dir" => $dir,
-            "column"=>$request->input('order.0.column')
-        );
-
-        return response()->json($json_data, 200);
-    }
-
-    public function member_cuti_datatable(Request $request)
-    {
-
-        $columns = array(
-            0 => 'karyawans.nama',
-            1 => 'departemens.nama',
-            2 => 'rencana_mulai_cuti',
-            3 => 'rencana_selesai_cuti',
-            4 => 'durasi_cuti',
-            5 => 'jenis_cuti',
-            6 => 'checked1_at',
-            7 => 'checked2_at',
-            8 => 'approved_at',
-            9 => 'legalize_at',
-            10 => 'status_dokumen',
-            11 => 'status_cuti',
-            12 => 'alasan_cuti',
-            13 => 'kp.nama_pengganti',
-            14 => 'created_at',
-        );
-
-        $totalData = ApprovalCuti::count();
-        $totalFiltered = $totalData;
-
-        $limit = $request->input('length');
-        $start = $request->input('start');
-        $order = (!empty($request->input('order.0.column'))) ? $columns[$request->input('order.0.column')] : $columns[0];
-        $dir = (!empty($request->input('order.0.dir'))) ? $request->input('order.0.dir') : "DESC";
-
-        $settings['start'] = $start;
-        $settings['limit'] = $limit;
-        $settings['dir'] = $dir;
-        $settings['order'] = $order;
-
-        $dataFilter = [];
-        $search = $request->input('search.value');
-        if (!empty($search)) {
-            $dataFilter['search'] = $search;
-        }
-
-        //FILTER DATA
-        $departemenFilter = $request->input('departemen');
-        if (!empty($departemenFilter)) {
-            $dataFilter['departemen'] = $departemenFilter;
-        }
-
-        $jenisCutiFilter = $request->input('jenisCuti');
-        if (!empty($jenisCutiFilter)) {
-            $dataFilter['jenisCuti'] = $jenisCutiFilter;
-        }
-
-        $statusCutiFilter = $request->input('statusCuti');
-        if (!empty($statusCutiFilter)) {
-            $dataFilter['statusCuti'] = $statusCutiFilter;
-        }
-
-        $statusDokumenFilter = $request->input('statusDokumen');
-        if (!empty($statusDokumenFilter)) {
-            $dataFilter['statusDokumen'] = $statusDokumenFilter;
-        }
-
-        $namaFilter = $request->input('nama');
-        if (!empty($namaFilter)) {
-            $dataFilter['nama'] = $namaFilter;
-        }
-
-        $durasiFilter = $request->input('durasi');
-        if (!empty($durasiFilter)) {
-            $dataFilter['durasi'] = $durasiFilter;
-        }
-
-        $rencanamulaiFilter = $request->input('rencanaMulai');
-        if (!empty($rencanamulaiFilter)) {
-            $dataFilter['rencanaMulai'] = $rencanamulaiFilter;
-        }
-
-        //MENCARI MEMBER
-        $is_can_checked = false;
-        $is_can_approved = false;
-        $my_posisi = auth()->user()->karyawan->posisi[0]->jabatan_id;
-
-        if(auth()->user()->hasRole('atasan')){
-            if (auth()->user()->karyawan->posisi[0]->jabatan_id >= 4){
-                $is_can_checked = true;
-            }
-
-            if (auth()->user()->karyawan->posisi[0]->jabatan_id <= 4){
-                $is_can_approved = true;
-            }
-
-            $dataFilter['member_posisi_id'] = true;
-        }
-
-        $cutie = ApprovalCuti::getData($dataFilter, $settings);
-        $totalFiltered = ApprovalCuti::countData($dataFilter);
-
-        $dataTable = [];
-
-        if (!empty($cutie)) {
-            $cuti_id = null;
-            $count_duplicate_cuti = 0;
-            foreach ($cutie as $data) {
-
-                if(!$cuti_id){
-                    $cuti_id = $data->id_cuti;
-                } else {
-                    if($cuti_id == $data->id_cuti){
-                        $count_duplicate_cuti++;
-                        continue;
-                    } else {
-                        $cuti_id = $data->id_cuti;
-                    }
-                }
-
-                $karyawan = Karyawan::find($data->karyawan_id);
-                $posisi = $karyawan->posisi;
-                $created_at = Carbon::parse($data->created_at)->format('d M Y, H:i:s');
-                $list_atasan = Approval::ListAtasan($posisi);
-                $has_leader = $list_atasan['leader'];
-                $has_section_head = $list_atasan['section_head'];
-                $has_department_head = $list_atasan['department_head'];
-                $checked1_by = '🕛 Need Checked';
-                $checked2_by = '🕛 Need Checked';
-                $approved_by = '🕛 Need Approved';
-                $legalized_by = '🕛 Need Legalized';
-
-                //KONDISI CHECKED
-                if ($is_can_checked){
-
-                    //CHECKED 1
-                    if($has_leader && $my_posisi == 5){
-                        if(!$data->checked1_by){
-                            $checked1_by = '<div class="btn-group btn-sm">
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-issued-id="'.auth()->user()->karyawan->id_karyawan.'" data-type="checked_1"><i class="far fa-check-circle"></i> Checked</button>
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
-                            </div>';
-                        }
-                    }
-
-                    //CHECKED 2
-                    if($has_section_head && $has_department_head && $my_posisi == 4){
-                        if(!$data->checked2_by){
-                            $checked2_by = '<div class="btn-group btn-sm">
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-issued-id="'.auth()->user()->karyawan->id_karyawan.'" data-type="checked_2"><i class="far fa-check-circle"></i> Checked</button>
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
-                            </div>';
-                        }
-                    }
-                }
-
-                //KONDISI APPROVED
-                if ($is_can_approved){
-
-                    //SECTION HEAD
-                    if($has_leader && $has_section_head && !$has_department_head && $my_posisi == 4){
-                        if(!$data->approved_by){
-                            $approved_by = '<div class="btn-group btn-sm">
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-issued-id="'.auth()->user()->karyawan->id_karyawan.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
-                            </div>';
-                        }
-                    }
-
-                    if(!$has_leader && $has_section_head && !$has_department_head && $my_posisi == 4){
-                        $checked1_by = 'Directly Approved';
-                        $checked2_by = 'Directly Approved';
-                        if(!$data->approved_by){
-                            $approved_by = '<div class="btn-group btn-sm">
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-issued-id="'.auth()->user()->karyawan->id_karyawan.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
-                            </div>';
-                        }
-                    }
-
-                    //DEPARTMENT HEAD
-                    if(!$has_leader && $has_section_head && $has_department_head && $my_posisi == 3){
-                        if(!$data->approved_by){
-                            $approved_by = '<div class="btn-group btn-sm">
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-issued-id="'.auth()->user()->karyawan->id_karyawan.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
-                            </div>';
-                        }
-                    }
-
-                    if($has_leader && $has_section_head && $has_department_head && $my_posisi == 3){
-                        if(!$data->approved_by){
-                            $approved_by = '<div class="btn-group btn-sm">
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-issued-id="'.auth()->user()->karyawan->id_karyawan.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
-                            </div>';
-                        }
-                    }
-
-                    if(!$has_leader && !$has_section_head && $has_department_head && $my_posisi == 3){
-                        $checked1_by = 'Directly Approved';
-                        $checked2_by = 'Directly Approved';
-                        if(!$data->approved_by){
-                            $approved_by = '<div class="btn-group btn-sm">
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-issued-id="'.auth()->user()->karyawan->id_karyawan.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
-                            </div>';
-                        }
-                    }
-
-                    // OTHER
-                    if(!$has_section_head && !$has_department_head){
-                        $checked1_by = 'Directly Approved';
-                        $checked2_by = 'Directly Approved';
-                        if(!$data->approved_by){
-                            $approved_by = '<div class="btn-group btn-sm">
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-issued-id="'.auth()->user()->karyawan->id_karyawan.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
-                            </div>';
-                        }
-                    }
-
-                    if($has_leader && !$has_section_head && $has_department_head && $my_posisi == 3)
-                    {
-                        $checked2_by = 'Directly Approved';
-                        if(!$data->approved_by){
-                            $approved_by = '<div class="btn-group btn-sm">
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'"  data-issued-name="'.auth()->user()->karyawan->nama.'" data-issued-id="'.auth()->user()->karyawan->id_karyawan.'" data-type="approved"><i class="fas fa-thumbs-up"></i> Approved</button>
-                                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="'.auth()->user()->karyawan->nama.'"><i class="far fa-times-circle"></i> Reject</button>
-                            </div>';
-                        }
-                    }
-                }
-
-                //KONDISI JIKA SUDAH ADA DATA
-                if($data->checked1_by){
-                    $checked1_by = '✅<br><small class="text-bold">'.$data->checked1_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked1_at)->diffForHumans().'</small>';
-                }
-
-                if($data->checked2_by){
-                    $checked2_by = '✅<br><small class="text-bold">'.$data->checked2_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked2_at)->diffForHumans().'</small>';
-                }
-
-                if($data->approved_by){
-                    $approved_by = '✅<br><small class="text-bold">'.$data->approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->approved_at)->diffForHumans().'</small>';
-                }
-
-                if($data->legalized_by){
-                    $legalized_by = '✅<br><small class="text-bold">'.$data->legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->legalized_at)->diffForHumans().'</small>';
-                }
-
-                //KARYAWAN PENGGANTI
-                if ($data->nama_pengganti && !$data->legalized_by && !$data->rejected_by){
-                    $karyawan_pengganti = '<small class="text-bold">'.$data->nama_pengganti.'</small><br>'.'<button type="button" class="waves-effect waves-light btn btn-sm btn-secondary btnKaryawanPengganti" data-id="'.$data->id_cuti.'" data-karyawan-id="'.$data->karyawan_id.'" data-karyawan-pengganti-id="'.$data->karyawan_pengganti_id.'"><i class="fas fa-user-friends"></i> Pilih</button>';
-                } elseif($data->nama_pengganti && $data->legalized_by && !$data->rejected_by){
-                    $karyawan_pengganti = '<small class="text-bold">'.$data->nama_pengganti.'</small>';
-                } elseif (!$data->nama_pengganti && !$data->legalized_by && !$data->rejected_by){
-                    $karyawan_pengganti = '<button type="button" class="waves-effect waves-light btn btn-sm btn-secondary btnKaryawanPengganti" data-id="'.$data->id_cuti.'" data-karyawan-id="'.$data->karyawan_id.'" data-karyawan-pengganti-id="'.$data->karyawan_pengganti_id.'"><i class="fas fa-user-friends"></i> Pilih</button>';
-                } else {
-                    $karyawan_pengganti = '-';
-                }
-
-                //STATUS CUTI
-                if(!$data->rejected_by){
-                    if($data->status_cuti == 'SCHEDULED'){
-                        $status_cuti = '<span class="badge badge-pill badge-warning">'.$data->status_cuti.'</span>';
-                    } elseif($data->status_cuti == 'ON LEAVE'){
-                        $status_cuti = '<span class="badge badge-pill badge-secondary">'.$data->status_cuti.'</span>';
-                    } elseif($data->status_cuti == 'COMPLETED'){
-                        $status_cuti = '<span class="badge badge-pill badge-success">'.$data->status_cuti.'</span>';
-                    } elseif ($data->status_cuti == 'CANCELED') {
-                        $status_cuti = '<span class="badge badge-pill badge-danger">'.$data->status_cuti.'</span>';
-                    } else {
-                        $status_cuti = '-';
-                    }
-                } else {
-                    $status_cuti = '<span class="badge badge-pill badge-danger btnAlasan" data-alasan="'.$data->rejected_note.'" style="cursor:pointer;">REJECTED</span>';
-                }
-
-                //JIKA CANCEL
-                if($data->status_cuti == 'CANCELED'){
-                    $checked1_by = $checked2_by = $approved_by = $legalized_by = '<span class="badge badge-pill badge-danger">CANCELED</span>';
-                    $karyawan_pengganti = '-';
-                }
-
-                //JIKA REJECTED
-                if($data->rejected_by){
-                    $checked1_by = $checked2_by = $approved_by = $legalized_by = '❌<br><small class="text-bold">'.$data->rejected_by.'</small><br><small class="text-fade">'.Carbon::parse($data->rejected_at)->diffForHumans().'</small>';
-                }
-
-                $nestedData['nama'] = $data->nama_karyawan;
-                $nestedData['departemen'] = $data->nama_departemen;
-                $nestedData['rencana_mulai_cuti'] = Carbon::parse($data->rencana_mulai_cuti)->format('d M Y');
-                $nestedData['rencana_selesai_cuti'] = Carbon::parse($data->rencana_selesai_cuti)->format('d M Y');
-                $nestedData['durasi'] = $data->durasi_cuti.' Hari';
-                $nestedData['jenis'] = $data->jenis_cuti !== 'KHUSUS' ? $data->jenis_cuti : $data->jenis_cuti.' <small class="text-fade">('.$data->jenis_cuti_khusus.')</small>';
-                $nestedData['checked_1'] = $checked1_by;
-                $nestedData['checked_2'] = $checked2_by;
-                $nestedData['approved'] = $approved_by;
-                $nestedData['legalized'] = $legalized_by;
-                $nestedData['status_dokumen'] = $data->status_dokumen == 'WAITING' ? '<span class="badge badge-pill badge-warning">'.$data->status_dokumen.'</span>' : ($data->status_dokumen == 'APPROVED' ? '<span class="badge badge-pill badge-success">'.$data->status_dokumen.'</span>' : '<span class="badge badge-pill badge-danger btnAlasan" data-alasan="'.$data->rejected_note.'" style="cursor:pointer;">'.$data->status_dokumen.'</span>');
-                $nestedData['status'] = $status_cuti;
-                $nestedData['alasan'] = $data->alasan_cuti;
-                $nestedData['karyawan_pengganti'] = $karyawan_pengganti;
-                $nestedData['created_at'] = $created_at;
-                $nestedData['aksi'] = '
-                <div class="btn-group btn-group-sm">'.
-                    ($data->checked1_by == null || $data->checked2_by == null || $data->approved_by == null || $data->legalized_by == null ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnEdit" data-id="'.$data->id_cuti.'"><i class="fas fa-edit"></i> Edit</button><button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button>' : '').'
-                </div>
-                ';
-
-                $dataTable[] = $nestedData;
-            }
-        }
-
-
-        $json_data = array(
-            "draw" => intval($request->input('draw')),
-            "recordsTotal" => intval($totalData),
-            "recordsFiltered" => intval($totalFiltered) - $count_duplicate_cuti,
-            "data" => $dataTable,
-            "order" => $order,
-            "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
-            "dir" => $dir,
-            "column"=>$request->input('order.0.column')
-        );
-
-        return response()->json($json_data, 200);
-    }
-
-    public function personalia_cuti_datatable(Request $request)
-    {
-
-        $columns = array(
-            0 => 'karyawans.nama',
-            1 => 'departemens.nama',
-            2 => 'rencana_mulai_cuti',
-            3 => 'rencana_selesai_cuti',
-            4 => 'durasi_cuti',
-            5 => 'jenis_cuti',
-            6 => 'checked1_at',
-            7 => 'checked2_at',
-            8 => 'approved_at',
-            9 => 'legalized_at',
-            10 => 'status_dokumen',
-            11 => 'status_cuti',
-            12 => 'alasan_cuti',
-            13 => 'kp.nama_pengganti',
-            14 => 'created_at',
-        );
-
-        $totalData = Cutie::count();
-        $totalFiltered = $totalData;
-
-        $limit = $request->input('length');
-        $start = $request->input('start');
-        $order = (!empty($request->input('order.0.column'))) ? $columns[$request->input('order.0.column')] : $columns[0];
-        $dir = (!empty($request->input('order.0.dir'))) ? $request->input('order.0.dir') : "DESC";
-
-        $settings['start'] = $start;
-        $settings['limit'] = $limit;
-        $settings['dir'] = $dir;
-        $settings['order'] = $order;
-
-        $dataFilter = [];
-        $search = $request->input('search.value');
-        if (!empty($search)) {
-            $dataFilter['search'] = $search;
-        }
-
-        //FILTER DATA
-        $departemenFilter = $request->input('departemen');
-        if (!empty($departemenFilter)) {
-            $dataFilter['departemen'] = $departemenFilter;
-        }
-
-        $jenisCutiFilter = $request->input('jenisCuti');
-        if (!empty($jenisCutiFilter)) {
-            $dataFilter['jenisCuti'] = $jenisCutiFilter;
-        }
-
-        $statusCutiFilter = $request->input('statusCuti');
-        if (!empty($statusCutiFilter)) {
-            $dataFilter['statusCuti'] = $statusCutiFilter;
-        }
-
-        $statusDokumenFilter = $request->input('statusDokumen');
-        if (!empty($statusDokumenFilter)) {
-            $dataFilter['statusDokumen'] = $statusDokumenFilter;
-        }
-
-        $namaFilter = $request->input('nama');
-        if (!empty($namaFilter)) {
-            $dataFilter['nama'] = $namaFilter;
-        }
-
-        $durasiFilter = $request->input('durasi');
-        if (!empty($durasiFilter)) {
-            $dataFilter['durasi'] = $durasiFilter;
-        }
-
-        $rencanamulaiFilter = $request->input('rencanaMulai');
-        if (!empty($rencanamulaiFilter)) {
-            $dataFilter['rencanaMulai'] = $rencanamulaiFilter;
-        }
-
-        $organisasi_id = auth()->user()->organisasi_id;
-        if ($organisasi_id) {
-            $dataFilter['organisasi_id'] = $organisasi_id;
-        }
-
-        $cutie = Cutie::getData($dataFilter, $settings);
-        $totalFiltered = Cutie::countData($dataFilter);
-        // $totalFiltered = Cutie::countData($dataFilter);
-
-        $dataTable = [];
-
-
-        if (!empty($cutie)) {
-            foreach ($cutie as $data) {
-                if($data->rejected_by == null){
-                    $rejected = null;
-                    if($data->checked1_by == null){
-                        $btn_group_1 = '-';
-                    } else {
-                        $btn_group_1 = '✅<br><small class="text-bold">'.$data->checked1_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked1_at)->diffForHumans().'</small>';
-                    }
-
-                    if($data->checked2_by == null){
-                        $btn_group_2 = '-';
-                    } else {
-                        $btn_group_2 = '✅<br><small class="text-bold">'.$data->checked2_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked2_at)->diffForHumans().'</small>';
-                    }
-
-                    if($data->approved_by == null){
-                        $btn_group_3 = '-';
-                    } else {
-                        $btn_group_3 = '✅<br><small class="text-bold">'.$data->approved_by.'</small><br><small class="text-fade">'.Carbon::parse($data->approved_at)->diffForHumans().'</small>';
-                    }
-
-                    if($data->legalized_by == null){
-                        if($data->approved_by !== null){
-                            $legalized = '<button type="button" class="waves-effect waves-light btn btn-sm btn-success btnUpdateDokumen" data-id="'.$data->id_cuti.'" data-issued-name="HRD & GA" data-type="legalized"><i class="fas fa-balance-scale"></i> Legalized</button>';
-                            $reject = '<button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnReject" data-id="'.$data->id_cuti.'" data-nama-atasan="HRD & GA"><i class="far fa-times-circle"></i> Reject</button>';
-                            $legalized = '<div class="btn-group btn-sm">'.$legalized.$reject.'</div>';
-                        } else {
-                            $legalized = 'Waiting Checked/Approved';
-                        }
-                    } else {
-                        $legalized = '✅<br><small class="text-bold">'.$data->legalized_by.'</small><br><small class="text-fade">'.Carbon::parse($data->legalized_at)->diffForHumans().'</small>';
-                    }
-                } else {
-                    $rejected = '❌<br><small class="text-bold">'.$data->rejected_by.'</small><br><small class="text-fade">'.Carbon::parse($data->rejected_at)->diffForHumans().'</small>';
-                }
-
-                //Status Cuti
-                if($data->rejected_by == null){
-                    if($data->status_cuti == 'SCHEDULED'){
-                        $status_cuti = '<span class="badge badge-pill badge-warning">'.$data->status_cuti.'</span>';
-                    } elseif($data->status_cuti == 'ON LEAVE'){
-                        $status_cuti = '<span class="badge badge-pill badge-secondary">'.$data->status_cuti.'</span>';
-                    } elseif($data->status_cuti == 'COMPLETED'){
-                        $status_cuti = '<span class="badge badge-pill badge-success">'.$data->status_cuti.'</span>';
-                    } elseif ($data->status_cuti == 'CANCELED') {
-                        $status_cuti = '<span class="badge badge-pill badge-danger">'.$data->status_cuti.'</span>';
-                    } else {
-                        $status_cuti = '-';
-                    }
-                } else {
-                    $status_cuti = '<span class="badge badge-pill badge-danger btnAlasan" data-alasan="'.$data->rejected_note.'" style="cursor:pointer;">REJECTED</span>';
-                }
-
-                //JIKA CANCEL
-                if($data->status_cuti == 'CANCELED'){
-                    if($data->checked1_by == null){
-                        $btn_group_1 = '<span class="badge badge-pill badge-danger">CANCELED</span>';
-                    }
-
-                    if($data->checked2_by == null){
-                        $btn_group_2 = '<span class="badge badge-pill badge-danger">CANCELED</span>';
-                    }
-
-                    if($data->approved_by == null){
-                        $btn_group_3 = '<span class="badge badge-pill badge-danger">CANCELED</span>';
-                    }
-
-                    if ($data->legalized_by == null){
-                        $legalized = '<span class="badge badge-pill badge-danger">CANCELED</span>';
-                    }
-
-                    $btn_karyawan_pengganti = '-';
-                }
-
-
-                $nestedData['nama'] = $data->nama_karyawan;
-                $nestedData['departemen'] = $data->nama_departemen;
-                $nestedData['rencana_mulai_cuti'] = Carbon::parse($data->rencana_mulai_cuti)->format('d M Y');
-                $nestedData['rencana_selesai_cuti'] = Carbon::parse($data->rencana_selesai_cuti)->format('d M Y');
-                $nestedData['durasi'] = $data->durasi_cuti.' Hari';
-                $nestedData['jenis'] = $data->jenis_cuti !== 'KHUSUS' ? $data->jenis_cuti : $data->jenis_cuti.' <small class="text-fade">('.$data->jenis_cuti_khusus.')</small>';
-                $nestedData['checked_1'] = $rejected == null ? $btn_group_1 : $rejected;
-                $nestedData['checked_2'] = $rejected == null ? $btn_group_2 : $rejected;
-                $nestedData['approved'] = $rejected == null ? $btn_group_3 : $rejected;
-                $nestedData['legalized'] = $rejected == null ? $legalized : $rejected;
-                $nestedData['status_dokumen'] = $data->status_dokumen == 'WAITING' ? '<span class="badge badge-pill badge-warning">'.$data->status_dokumen.'</span>' : ($data->status_dokumen == 'APPROVED' ? '<span class="badge badge-pill badge-success">'.$data->status_dokumen.'</span>' : '<span class="badge badge-pill badge-danger btnAlasan"  data-alasan="'.$data->rejected_note.'" style="cursor:pointer;">'.$data->status_dokumen.'</span>');
-                $nestedData['status'] = $status_cuti;
-                $nestedData['created_at'] = Carbon::parse($data->created_at)->format('d M Y H:i:s');
-                $nestedData['alasan'] = $data->alasan_cuti;
-                $nestedData['karyawan_pengganti'] = $data->nama_pengganti ? '<small class="text-bold">'.$data->nama_pengganti.'</small>' : '-';
-                $nestedData['aksi'] = $data->status_cuti !== 'CANCELED' && $data->status_dokumen !== 'REJECTED' ? '<div class="btn-group btn-group-sm">
-                <button type="button" class="waves-effect waves-light btn btn-sm btn-danger btnDelete" data-id="'.$data->id_cuti.'"><i class="fas fa-trash-alt"></i> Hapus </button>
-                '.(date('Y-m-d') <= Carbon::parse($data->rencana_mulai_cuti)->addDays(7)->format('Y-m-d') ? '<button type="button" class="waves-effect waves-light btn btn-sm btn-warning btnCancel" data-id="'.$data->id_cuti.'"><i class="fas fa-history"></i> Cancel </button>' : '').'
-                </div>' : '-';
-
-                $dataTable[] = $nestedData;
-            }
-        }
-
-        $json_data = array(
-            "draw" => intval($request->input('draw')),
-            "recordsTotal" => intval($totalData),
-            "recordsFiltered" => intval($totalFiltered),
-            "data" => $dataTable,
-            "order" => $order,
-            "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
-            "dir" => $dir,
-            "column"=>$request->input('order.0.column')
-        );
-
-        return response()->json($json_data, 200);
     }
 
     public function setting_cuti_datatable(Request $request)
@@ -875,200 +142,48 @@ class CutieController extends Controller
         return response()->json($json_data, 200);
     }
 
-    public function get_data_jenis_cuti_khusus(){
-        $data = JenisCuti::all();
-        foreach ($data as $jc) {
-            $dataJenisCutiKhusus[] = [
-                'id' => $jc->id_jenis_cuti,
-                'text' => $jc->jenis,
-                'durasi' => $jc->durasi,
-                'isurgent' => $jc->isUrgent,
-                'isworkday' => $jc->isWorkday
-            ];
-        }
-        return response()->json(['data' => $dataJenisCutiKhusus],200);
-    }
+    // public function get_data_jenis_cuti_khusus(){
+    //     $data = JenisCuti::all();
+    //     foreach ($data as $jc) {
+    //         $dataJenisCutiKhusus[] = [
+    //             'id' => $jc->id_jenis_cuti,
+    //             'text' => $jc->jenis,
+    //             'durasi' => $jc->durasi,
+    //             'isurgent' => $jc->isUrgent,
+    //             'isworkday' => $jc->isWorkday
+    //         ];
+    //     }
+    //     return response()->json(['data' => $dataJenisCutiKhusus],200);
+    // }
 
-    public function get_data_detail_cuti(string $id_cuti)
-    {
-        $cutie = Cutie::find($id_cuti);
-        $data = [
-            'id_cuti' => $cutie->id_cuti,
-            'durasi_cuti' => $cutie->durasi_cuti,
-            'jenis_cuti' => $cutie->jenis_cuti,
-            'jenis_cuti_id' => $cutie->jenis_cuti_id,
-            'rencana_mulai_cuti' => $cutie->rencana_mulai_cuti,
-            'rencana_selesai_cuti' => $cutie->rencana_selesai_cuti,
-            'alasan_cuti' => $cutie->alasan_cuti,
-            'durasi_cuti' => $cutie->durasi_cuti,
-        ];
-        return response()->json(['data' => $data], 200);
-    }
+    // public function get_data_detail_cuti(string $id_cuti)
+    // {
+    //     $cutie = Cutie::find($id_cuti);
+    //     $data = [
+    //         'id_cuti' => $cutie->id_cuti,
+    //         'durasi_cuti' => $cutie->durasi_cuti,
+    //         'jenis_cuti' => $cutie->jenis_cuti,
+    //         'jenis_cuti_id' => $cutie->jenis_cuti_id,
+    //         'rencana_mulai_cuti' => $cutie->rencana_mulai_cuti,
+    //         'rencana_selesai_cuti' => $cutie->rencana_selesai_cuti,
+    //         'alasan_cuti' => $cutie->alasan_cuti,
+    //         'durasi_cuti' => $cutie->durasi_cuti,
+    //     ];
+    //     return response()->json(['data' => $data], 200);
+    // }
 
-    public function get_data_detail_jenis_cuti(string $id_jenis_cuti)
-    {
-        $jc = JenisCuti::find($id_jenis_cuti);
-        $data = [
-            'id_jenis_cuti' => $jc->id_jenis_cuti,
-            'jenis' => $jc->jenis,
-            'durasi' => $jc->durasi,
-            'isUrgent' => $jc->isUrgent,
-            'isWorkday' => $jc->isWorkday
-        ];
-        return response()->json(['data' => $data], 200);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-
-        $jenis_cuti = $request->jenis_cuti;
-        $jenis_cuti_id = $request->jenis_cuti_khusus;
-        $rencana_mulai_cuti = $request->rencana_mulai_cuti;
-        $rencana_selesai_cuti = $request->rencana_selesai_cuti;
-        $alasan_cuti = $request->alasan_cuti;
-        $durasi_cuti = $request->durasi_cuti;
-        $kry = auth()->user()->karyawan;
-        $posisi = $kry->posisi;
-        $karyawan_id = $kry->id_karyawan;
-        $sisa_cuti_pribadi = $kry->sisa_cuti_pribadi;
-        $sisa_cuti_tahun_lalu = $kry->sisa_cuti_tahun_lalu;
-        $expired_date_cuti_tahun_lalu = $kry->expired_date_cuti_tahun_lalu;
-
-        if($jenis_cuti == 'PRIBADI'){
-            $dataValidate = [
-                'jenis_cuti' => ['required'],
-                'rencana_mulai_cuti' => ['date','required', 'after_or_equal:'.Carbon::now()->addDays(7)->format('Y-m-d')],
-                'rencana_selesai_cuti' => ['date','required', 'after_or_equal:rencana_mulai_cuti'],
-                'alasan_cuti' => ['required'],
-                'durasi_cuti' => ['numeric','required'],
-            ];
-
-            $err_text = 'Periksa Form Dengan Benar!';
-        } elseif ($jenis_cuti == 'SAKIT') {
-            $dataValidate = [
-                'jenis_cuti' => ['required'],
-                'attachment' => ['image', 'max:2048', 'mimes:jpg,png,jpeg,PNG,JPEG', 'required'],
-                'rencana_mulai_cuti' => ['date','required'],
-                'rencana_selesai_cuti' => ['date','required'],
-                'durasi_cuti' => ['numeric','required'],
-            ];
-
-            $err_text = 'Pastikan Attachment Tidak Lebih dari 2mb & Periksa kembali Form anda!';
-        } else {
-            $dataValidate = [
-                'jenis_cuti' => ['required'],
-                'jenis_cuti_khusus' => ['required','numeric'],
-                'rencana_mulai_cuti' => ['date','required'],
-                'rencana_selesai_cuti' => ['date','required'],
-                'durasi_cuti' => ['numeric','required'],
-            ];
-            $err_text = 'Periksa kembali Form anda & Pilih Jenis Cuti Khusus!';
-        }
-
-        $validator = Validator::make(request()->all(), $dataValidate);
-
-        if ($validator->fails()) {
-            $errors = $validator->errors()->all();
-            return response()->json(['message' => $errors], 402);
-        }
-
-        $organisasi_id = auth()->user()->organisasi_id;
-
-        DB::beginTransaction();
-        try{
-
-            if($jenis_cuti == 'SAKIT'){
-
-                if($request->hasFile('attachment')){
-                    $file = $request->file('attachment');
-                    $surat_dokter = 'SD_' . time() . '.' . $file->getClientOriginalExtension();
-                    $attachment = $file->storeAs("attachment/surat_dokter", $surat_dokter);
-                } else {
-                    DB::rollback();
-                    return response()->json(['message' => 'Attachment tidak boleh kosong!'], 402);
-                }
-
-            } elseif ($jenis_cuti == 'PRIBADI') {
-                $jatah_cuti = $sisa_cuti_pribadi - $durasi_cuti;
-                if($sisa_cuti_pribadi < 0){
-                    DB::rollback();
-                    return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Hubungi HRD untuk informasi lebih lanjut!'], 402);
-                } else {
-                    if($jatah_cuti < 0){
-                        DB::rollback();
-                        return response()->json(['message' => 'Sisa cuti pribadi anda tidak mencukupi, Silahkan baca ketentuan pembagian cuti pribadi lagi!'], 402);
-                    } else {
-                        $kry->sisa_cuti_pribadi = $jatah_cuti;
-                        $kry->save();
-                    }
-                }
-                $attachment = null;
-            } else {
-                $attachment = null;
-            }
-
-            $cuti = Cutie::create([
-                'karyawan_id' => $karyawan_id,
-                'organisasi_id' => $organisasi_id,
-                'jenis_cuti' => $jenis_cuti,
-                'jenis_cuti_id' => $jenis_cuti_id,
-                'attachment' => $attachment,
-                'rencana_mulai_cuti' => $rencana_mulai_cuti,
-                'rencana_selesai_cuti' => $rencana_selesai_cuti,
-                'alasan_cuti' => $alasan_cuti,
-                'durasi_cuti' => $durasi_cuti,
-            ]);
-
-            $approval_cuti = ApprovalCuti::storeApprovalCuti($cuti->id_cuti, $posisi);
-
-            if (!empty($approval_cuti)) {
-                ApprovalCuti::create([
-                    'cuti_id' => $cuti->id_cuti,
-                    'checked1_for' => $approval_cuti['checked1_for'],
-                    'checked2_for' => $approval_cuti['checked2_for'],
-                    'approved_for' => $approval_cuti['approved_for'],
-                ]);
-            } else {
-                DB::rollback();
-                return response()->json(['message' => 'Approval cuti tidak ditemukan, hubungi HRD untuk informasi lebih lanjut!'], 402);
-            }
-
-            $karyawan = Karyawan::find($karyawan_id);
-            $message = "Nama : *" . $karyawan->nama . "*\n" .
-                    "Jenis : " . $jenis_cuti . "\n" .
-                    "Segera lakukan approval sebelum tanggal " . Carbon::parse($rencana_mulai_cuti)->format('d M Y') . ",\n" .
-                    "Klik link dibawah untuk melakukan approval \n" .
-                    ($organisasi_id == 1 ? env('URL_SERVER_HRIS_TCF2') : env('URL_SERVER_HRIS_TCF3'))."cutie/member-cuti";
-            // $this->send_whatsapp($karyawan_id, $approval_cuti->checked1_for, $message, $organisasi_id);
-            $data = [
-                'sisa_cuti_tahunan' => $kry->sisa_cuti_pribadi + $kry->sisa_cuti_bersama,
-                'sisa_cuti_pribadi' => $kry->sisa_cuti_pribadi,
-                'sisa_cuti_tahun_lalu' => $kry->sisa_cuti_tahun_lalu
-            ];
-            DB::commit();
-            return response()->json(['message' => 'Pengajuan cuti berhasil dibuat, konfirmasi ke atasan untuk melakukan approval!', 'data' => $data], 200);
-        } catch(Throwable $error){
-            DB::rollBack();
-            return response()->json(['message' => $error->getMessage()], 500);
-        } catch (QueryException $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Database error: ' . $e->getMessage()], 500);
-        } catch (ModelNotFoundException $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Model not found: ' . $e->getMessage()], 404);
-        }
-    }
+    // public function get_data_detail_jenis_cuti(string $id_jenis_cuti)
+    // {
+    //     $jc = JenisCuti::find($id_jenis_cuti);
+    //     $data = [
+    //         'id_jenis_cuti' => $jc->id_jenis_cuti,
+    //         'jenis' => $jc->jenis,
+    //         'durasi' => $jc->durasi,
+    //         'isUrgent' => $jc->isUrgent,
+    //         'isWorkday' => $jc->isWorkday
+    //     ];
+    //     return response()->json(['data' => $data], 200);
+    // }
 
     public function bypass_store(Request $request)
     {
@@ -1188,159 +303,6 @@ class CutieController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        $jenis_cuti = $request->jenis_cuti;
-        $jenis_cuti_id = $request->jenis_cuti_khusus;
-        $rencana_mulai_cuti = $request->rencana_mulai_cuti;
-        $rencana_selesai_cuti = $request->rencana_selesai_cuti;
-        $alasan_cuti = $request->alasan_cuti;
-        $durasi_cuti = $request->durasi_cuti;
-        $karyawan = auth()->user()->karyawan;
-
-        if($jenis_cuti == 'PRIBADI'){
-            $dataValidate = [
-                'jenis_cuti' => ['required'],
-                'rencana_mulai_cuti' => ['date','required'],
-                'rencana_selesai_cuti' => ['date','required'],
-                'alasan_cuti' => ['required'],
-                'durasi_cuti' => ['numeric','required'],
-            ];
-
-            $err_text = 'Periksa Form Dengan Benar!';
-        } elseif ($jenis_cuti == 'SAKIT') {
-            $dataValidate = [
-                'jenis_cuti' => ['required'],
-                'attachment' => ['image', 'max:2048', 'mimes:jpg,png,jpeg,PNG,JPEG', 'required'],
-                'rencana_mulai_cuti' => ['date','required'],
-                'rencana_selesai_cuti' => ['date','required'],
-                'durasi_cuti' => ['numeric','required'],
-            ];
-
-            $err_text = 'Pastikan Attachment Tidak Lebih dari 2mb & Periksa kembali Form anda!';
-        } else {
-            $dataValidate = [
-                'jenis_cuti' => ['required'] ,
-                'jenis_cuti_khusus' => ['required','numeric'],
-                'rencana_mulai_cuti' => ['date','required'],
-                'rencana_selesai_cuti' => ['date','required'],
-                'durasi_cuti' => ['numeric','required'],
-            ];
-            $err_text = 'Periksa kembali Form anda & Pilih Jenis Cuti Khusus!';
-        }
-
-        $validator = Validator::make(request()->all(), $dataValidate);
-
-        if ($validator->fails()) {
-            $errors = $validator->errors()->all();
-            return response()->json(['message' => $err_text], 402);
-        }
-
-        DB::beginTransaction();
-        try{
-            $cuti = Cutie::find($id);
-            if($jenis_cuti == 'SAKIT'){
-                if($request->hasFile('attachment')){
-                    $file = $request->file('attachment');
-                    $surat_dokter = 'SD_' . time() . '.' . $file->getClientOriginalExtension();
-                    $attachment = $file->storeAs("attachment/surat_dokter", $surat_dokter);
-                    if($cuti->attachment){
-                        Storage::delete($cuti->attachment);
-                    }
-                    $cuti->attachment = $attachment;
-                }
-            }
-            $cuti->jenis_cuti = $jenis_cuti;
-            $cuti->jenis_cuti_id = $jenis_cuti_id;
-            $cuti->rencana_mulai_cuti = $rencana_mulai_cuti;
-            $cuti->rencana_selesai_cuti = $rencana_selesai_cuti;
-            $cuti->alasan_cuti = $alasan_cuti;
-            $cuti->durasi_cuti = $durasi_cuti;
-            $cuti->save();
-            DB::commit();
-            return response()->json(['message' => 'Pengajuan cuti berhasil diubah, konfirmasi ke atasan untuk melakukan approval!', 'data' => $karyawan->sisa_cuti_pribadi + $karyawan->sisa_cuti_bersama], 200);
-        } catch(Throwable $error){
-            DB::rollBack();
-            return response()->json(['message' => $error->getMessage()], 500);
-        } catch (QueryException $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Database error: ' . $e->getMessage()], 500);
-        } catch (ModelNotFoundException $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Model not found: ' . $e->getMessage()], 404);
-        }
-    }
-
-    public function reject(Request $request, string $id_cuti)
-    {
-        $nama_atasan = $request->nama_atasan;
-        $alasan_reject = $request->alasan_reject;
-
-        $dataValidate = [
-            'nama_atasan' => ['required'],
-            'alasan_reject' => ['required'],
-        ];
-
-        $validator = Validator::make(request()->all(), $dataValidate);
-
-        if ($validator->fails()) {
-            $errors = $validator->errors()->all();
-            return response()->json(['message' => 'Alasan reject tidak boleh kosong!'], 402);
-        }
-
-        DB::beginTransaction();
-        try{
-            $cuti = Cutie::find($id_cuti);
-            $cuti->rejected_by = $nama_atasan;
-            $cuti->rejected_at = now();
-            $cuti->rejected_note = $alasan_reject;
-            $cuti->status_dokumen = 'REJECTED';
-            $cuti->save();
-
-            $karyawan = Karyawan::find($cuti->karyawan_id);
-
-            if($cuti->jenis_cuti == 'PRIBADI'){
-                if($cuti->penggunaan_sisa_cuti == 'TB'){
-                    $karyawan->sisa_cuti_pribadi = $karyawan->sisa_cuti_pribadi + $cuti->durasi_cuti;
-                } else {
-                    $karyawan->sisa_cuti_tahun_lalu = $karyawan->sisa_cuti_tahun_lalu + $cuti->durasi_cuti;
-                }
-                $karyawan->save();
-            }
-
-            DB::commit();
-            return response()->json(['message' => 'Reject Cuti Berhasil dilakukan!'], 200);
-        } catch(Throwable $error){
-            DB::rollBack();
-            return response()->json(['message' => $error->getMessage()], 500);
-        } catch (QueryException $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Database error: ' . $e->getMessage()], 500);
-        } catch (ModelNotFoundException $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Model not found: ' . $e->getMessage()], 404);
-        }
-    }
-
     public function store_jenis_cuti(Request $request)
     {
         $jenis = $request->jenis;
@@ -1453,330 +415,6 @@ class CutieController extends Controller
             DB::rollBack();
             return response()->json(['message' => $error->getMessage()], 500);
         }
-    }
-
-    public function update_dokumen_cuti(Request $request, string $id_cuti)
-    {
-        $type = $request->type;
-        $issued_name = $request->issued_name;
-        $issued_id = $request->issued_id;
-        $organisasi_id = auth()->user()->organisasi_id;
-
-        if($type !== 'legalized'){
-            $dataValidate = [
-                'issued_name' => ['required'],
-                'issued_id' => ['required', 'exists:karyawans,id_karyawan'],
-                'type' => ['required'],
-            ];
-        } else {
-            $dataValidate = [
-                'issued_name' => ['required'],
-                'type' => ['required'],
-            ];
-        }
-
-
-        $validator = Validator::make(request()->all(), $dataValidate);
-
-        if ($validator->fails()) {
-            $errors = $validator->errors()->all();
-            return response()->json(['message' => 'Terjadi kesalahan, muat ulang halaman anda!'], 402);
-        }
-
-        DB::beginTransaction();
-        try{
-            $cuti = Cutie::find($id_cuti);
-            if($type == 'checked_1'){
-                $posisi = Karyawan::find($issued_id)->posisi[0]->id_posisi;
-                $cuti->checked1_by = $issued_name;
-                $cuti->checked1_at = now();
-
-                $cuti->approval->update([
-                    'checked1_by' => $posisi,
-                    'checked1_karyawan_id' => $issued_id
-                ]);
-
-                $message = "Nama : *" . $cuti->karyawan->nama . "*\n" .
-                        "Jenis Cuti : " . $cuti->jenis_cuti . "\n" .
-                        "Segera lakukan approval sebelum tanggal " . Carbon::parse($cuti->rencana_mulai_cuti)->format('d M Y') . ",\n" .
-                        "Klik link dibawah untuk melakukan approval \n" .
-                        ($organisasi_id == 1 ? env('URL_SERVER_HRIS_TCF2') : env('URL_SERVER_HRIS_TCF3'))."cutie/member-cuti";
-                // $this->send_whatsapp($cuti->karyawan->id_karyawan, $cuti->approval->checked2_for, $message, $organisasi_id);
-            } elseif ($type == 'checked_2'){
-                $posisi = Karyawan::find($issued_id)->posisi[0]->id_posisi;
-                if(!$cuti->checked1_by){
-                    $cuti->checked1_by = $issued_name;
-                    $cuti->checked1_at = now();
-
-                    $cuti->approval->update([
-                        'checked1_by' => $posisi,
-                        'checked1_karyawan_id' => $issued_id
-                    ]);
-                }
-                $cuti->checked2_by = $issued_name;
-                $cuti->checked2_at = now();
-
-                $cuti->approval->update([
-                    'checked2_by' => $posisi,
-                    'checked2_karyawan_id' => $issued_id
-                ]);
-
-                $message = "Nama : *" . $cuti->karyawan->nama . "*\n" .
-                        "Jenis Cuti : " . $cuti->jenis_cuti . "\n" .
-                        "Segera lakukan approval sebelum tanggal " . Carbon::parse($cuti->rencana_mulai_cuti)->format('d M Y') . ",\n" .
-                        "Klik link dibawah untuk melakukan approval \n" .
-                        ($organisasi_id == 1 ? env('URL_SERVER_HRIS_TCF2') : env('URL_SERVER_HRIS_TCF3'))."cutie/member-cuti";
-                // $this->send_whatsapp($cuti->karyawan->id_karyawan, $cuti->approval->approved_for, $message, $organisasi_id);
-            } elseif ($type == 'approved'){
-                $posisi = Karyawan::find($issued_id)->posisi[0]->id_posisi;
-                if(!$cuti->checked1_by){
-                    $cuti->checked1_by = $issued_name;
-                    $cuti->checked1_at = now();
-
-                    $cuti->approval->update([
-                        'checked1_by' => $posisi,
-                        'checked1_karyawan_id' => $issued_id
-                    ]);
-                }
-
-                if(!$cuti->checked2_by){
-                    $cuti->checked2_by = $issued_name;
-                    $cuti->checked2_at = now();
-
-                    $cuti->approval->update([
-                        'checked2_by' => $posisi,
-                        'checked2_karyawan_id' => $issued_id
-                    ]);
-                }
-                $cuti->approved_by = $issued_name;
-                $cuti->approved_at = now();
-
-                $cuti->approval->update([
-                    'approved_by' => $posisi,
-                    'approved_karyawan_id' => $issued_id
-                ]);
-            } else {
-
-                //LOGIKA UNTUK BYPASS CUTI
-                if($cuti->rencana_mulai_cuti < date('Y-m-d', strtotime('+7 days')) && $cuti->jenis_cuti == 'PRIBADI'){
-                    $cuti->legalized_by = $issued_name;
-                    $cuti->status_dokumen = 'APPROVED';
-
-                    if($cuti->rencana_mulai_cuti > date('Y-m-d')){
-                        $cuti->status_cuti = 'SCHEDULED';
-                    } elseif ($cuti->rencana_mulai_cuti == date('Y-m-d')){
-                        $cuti->status_cuti = 'ON LEAVE';
-                    } else {
-                        $cuti->status_cuti = 'COMPLETED';
-                    }
-                    $cuti->legalized_at = now();
-                //LOGIKAN UNTUK CUTI BIASA
-                } else {
-                    $cuti->legalized_by = $issued_name;
-                    $cuti->status_dokumen = 'APPROVED';
-                    $cuti->status_cuti = 'SCHEDULED';
-                    $cuti->legalized_at = now();
-                }
-            }
-
-            $cuti->save();
-            DB::commit();
-            return response()->json(['message' => 'Update Dokumen Cuti Berhasil dilakukan!'], 200);
-        } catch(Throwable $error){
-            DB::rollBack();
-            return response()->json(['message' => $error->getMessage()], 500);
-        } catch (QueryException $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Database error: ' . $e->getMessage()], 500);
-        } catch (ModelNotFoundException $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Model not found: ' . $e->getMessage()], 404);
-        }
-    }
-
-    public function update_karyawan_pengganti(Request $request, string $id_cuti)
-    {
-        $karyawan_pengganti_id = $request->karyawan_pengganti_id;
-
-        $dataValidate = [
-            'karyawan_pengganti_id' => ['required'],
-        ];
-
-        $validator = Validator::make(request()->all(), $dataValidate);
-
-        if ($validator->fails()) {
-            $errors = $validator->errors()->all();
-            return response()->json(['message' => 'Pilihlah karyawan pengganti terlebih dahulu!'], 402);
-        }
-
-        DB::beginTransaction();
-        try{
-            $cuti = Cutie::find($id_cuti);
-            $cuti->karyawan_pengganti_id = $karyawan_pengganti_id;
-            $cuti->save();
-            DB::commit();
-            return response()->json(['message' => 'Update Karyawan Pengganti Berhasil dilakukan!'], 200);
-        } catch(Throwable $error){
-            DB::rollBack();
-            return response()->json(['message' => $error->getMessage()], 500);
-        } catch (QueryException $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Database error: ' . $e->getMessage()], 500);
-        } catch (ModelNotFoundException $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Model not found: ' . $e->getMessage()], 404);
-        }
-    }
-
-    public function cancel(Request $request, string $id_cuti)
-    {
-        DB::beginTransaction();
-        try{
-            $cutie = Cutie::find($id_cuti);
-            $karyawan = Karyawan::find($cutie->karyawan_id);
-
-            if($cutie->rejected_by == null && $cutie->jenis_cuti == 'PRIBADI'){
-                if($cutie->penggunaan_sisa_cuti == 'TB'){
-                    $karyawan->sisa_cuti_pribadi = $karyawan->sisa_cuti_pribadi + $cutie->durasi_cuti;
-                } else {
-                    $karyawan->sisa_cuti_tahun_lalu = $karyawan->sisa_cuti_tahun_lalu + $cutie->durasi_cuti;
-                }
-                $karyawan->save();
-            }
-
-            $data = [
-                'sisa_cuti_tahunan' => $karyawan->sisa_cuti_pribadi + $karyawan->sisa_cuti_bersama,
-                'sisa_cuti_pribadi' => $karyawan->sisa_cuti_pribadi,
-                'sisa_cuti_tahun_lalu' => $karyawan->sisa_cuti_tahun_lalu
-            ];
-
-            $cutie->status_cuti = 'CANCELED';
-            $cutie->save();
-            DB::commit();
-            return response()->json(['message' => 'Cuti Berhasil dicancel!', 'data' => $data ], 200);
-        } catch(Throwable $error){
-            DB::rollBack();
-            return response()->json(['message' => $error->getMessage()], 500);
-        } catch (QueryException $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Database error: ' . $e->getMessage()], 500);
-        } catch (ModelNotFoundException $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Model not found: ' . $e->getMessage()], 404);
-        }
-    }
-
-    public function mulai_cuti(Request $request, string $id_cuti)
-    {
-        $cutie = Cutie::find($id_cuti);
-
-        if($cutie->status_cuti !== 'SCHEDULED'){
-            return response()->json(['message' => 'Cuti tidak bisa dimulai, status cuti harus SCHEDULED!'], 402);
-        } elseif ($cutie->status_dokumen !== 'APPROVED'){
-            return response()->json(['message' => 'Cuti tidak bisa dimulai, status dokumen harus APPROVED!'], 402);
-        } elseif ($cutie->approved_by == null){
-            return response()->json(['message' => 'Cuti tidak bisa dimulai, Harus melewati approval terlebih dahulu!'], 402);
-        } elseif ($cutie->legalized_by == null){
-            return response()->json(['message' => 'Cuti tidak bisa dimulai, Harus melewati legalisasi terlebih dahulu!'], 402);
-        }
-
-        DB::beginTransaction();
-        try{
-            $cutie->aktual_mulai_cuti = now();
-            $cutie->status_cuti = 'ON LEAVE';
-            $cutie->save();
-            DB::commit();
-            return response()->json(['message' => 'Mulai Cuti Berhasil dilakukan!'], 200);
-        } catch(Throwable $error){
-            DB::rollBack();
-            return response()->json(['message' => $error->getMessage()], 500);
-        } catch (QueryException $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Database error: ' . $e->getMessage()], 500);
-        } catch (ModelNotFoundException $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Model not found: ' . $e->getMessage()], 404);
-        }
-    }
-
-    public function selesai_cuti(Request $request, string $id_cuti)
-    {
-        $cutie = Cutie::find($id_cuti);
-
-        if($cutie->aktual_mulai_cuti == null){
-            return response()->json(['message' => 'Tidak bisa menyelesaikan cuti, mulai saja belum!'], 402);
-        }
-
-        DB::beginTransaction();
-        try{
-            $cutie->aktual_selesai_cuti = now();
-            $cutie->status_cuti = 'COMPLETED';
-            $cutie->save();
-            DB::commit();
-            return response()->json(['message' => 'Selesai Cuti Berhasil dilakukan!'], 200);
-        } catch(Throwable $error){
-            DB::rollBack();
-            return response()->json(['message' => $error->getMessage()], 500);
-        } catch (QueryException $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Database error: ' . $e->getMessage()], 500);
-        } catch (ModelNotFoundException $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Model not found: ' . $e->getMessage()], 404);
-        }
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
-
-    public function delete(string $id_cuti)
-    {
-        DB::beginTransaction();
-        try{
-            $cutie = Cutie::find($id_cuti);
-            $karyawan = Karyawan::find($cutie->karyawan_id);
-
-            if($cutie->rejected_by == null && $cutie->jenis_cuti == 'PRIBADI'){
-                if($cutie->penggunaan_sisa_cuti == 'TB'){
-                    $karyawan->sisa_cuti_pribadi = $karyawan->sisa_cuti_pribadi + $cutie->durasi_cuti;
-                } else {
-                    $karyawan->sisa_cuti_tahun_lalu = $karyawan->sisa_cuti_tahun_lalu + $cutie->durasi_cuti;
-                }
-                $karyawan->save();
-            }
-            $cutie->approval->delete();
-            $cutie->delete();
-            $data = [
-                'sisa_cuti_tahunan' => $karyawan->sisa_cuti_pribadi + $karyawan->sisa_cuti_bersama,
-                'sisa_cuti_pribadi' => $karyawan->sisa_cuti_pribadi,
-                'sisa_cuti_tahun_lalu' => $karyawan->sisa_cuti_tahun_lalu
-            ];
-            DB::commit();
-            return response()->json(['message' => 'Pengajuan Cuti Dihapus!', 'data' => $data],200);
-        } catch(Throwable $error){
-            DB::rollBack();
-            return response()->json(['message' => $error->getMessage()], 500);
-        }
-    }
-
-    public function get_karyawan_pengganti(string $id_karyawan)
-    {
-        $departemen = Karyawan::find($id_karyawan)->posisi[0]->departemen_id;
-        $karyawan = Karyawan::whereHas('posisi', function($query) use ($departemen){
-            $query->where('departemen_id', $departemen);
-        })->where('id_karyawan','!=',$id_karyawan)->get();
-        foreach ($karyawan as $k) {
-            $data[] = [
-            'id' => $k->id_karyawan,
-            'text' => $k->nama
-            ];
-        }
-        return response()->json($data, 200);
     }
 
     public function get_data_cutie_calendar(){
@@ -2076,23 +714,6 @@ class CutieController extends Controller
                 $monthly_khusus = $monthly_khusus->organisasi($organisasi_id);
             }
         $monthly_khusus = $monthly_khusus->count();
-
-        // $monthly_sakit = Cutie::where('jenis_cuti', 'SAKIT')
-        //     ->whereYear('rencana_mulai_cuti', $year)
-        //     ->whereMonth('rencana_mulai_cuti', $month)
-        //     ->where('status_cuti', '!=' ,'CANCELED')
-        //     ->where('status_dokumen', 'APPROVED');
-
-        //     if (isset($members)) {
-        //         $monthly_sakit = $monthly_sakit->whereHas('karyawan.posisi', function($query) use ($members) {
-        //             $query->whereIn('id_posisi', $members);
-        //         });
-        //     } else {
-        //         $monthly_sakit = $monthly_sakit->organisasi($organisasi_id);
-        //     }
-        // $monthly_sakit = $monthly_sakit->count();
-
-
         $data = [$monthly_pribadi, $monthly_khusus];
         return response()->json(['data' => $data], 200);
     }
@@ -2392,89 +1013,89 @@ class CutieController extends Controller
         exit();
     }
 
-    public function get_karyawan_cuti(Request $request)
-    {
-        $search = $request->input('search');
-        $page = $request->input("page");
-        $idCats = $request->input('catsProd');
-        $adOrg = $request->input('adOrg');
+    // public function get_karyawan_cuti(Request $request)
+    // {
+    //     $search = $request->input('search');
+    //     $page = $request->input("page");
+    //     $idCats = $request->input('catsProd');
+    //     $adOrg = $request->input('adOrg');
 
-        $query = Karyawan::select(
-            'karyawans.id_karyawan',
-            'karyawans.nama',
-            'posisis.nama as posisi',
-        );
+    //     $query = Karyawan::select(
+    //         'karyawans.id_karyawan',
+    //         'karyawans.nama',
+    //         'posisis.nama as posisi',
+    //     );
 
-        if(auth()->user()->hasRole('atasan')){
-            $posisi = auth()->user()->karyawan->posisi;
-            $id_posisi_members = $this->get_member_posisi($posisi);
+    //     if(auth()->user()->hasRole('atasan')){
+    //         $posisi = auth()->user()->karyawan->posisi;
+    //         $id_posisi_members = $this->get_member_posisi($posisi);
 
-            foreach ($posisi as $ps){
-                $index = array_search($ps->id_posisi, $id_posisi_members);
-                array_splice($id_posisi_members, $index, 1);
-            }
-        } else {
-            $id_posisi_members = [];
-        }
+    //         foreach ($posisi as $ps){
+    //             $index = array_search($ps->id_posisi, $id_posisi_members);
+    //             array_splice($id_posisi_members, $index, 1);
+    //         }
+    //     } else {
+    //         $id_posisi_members = [];
+    //     }
 
-        $query->aktif();
-        $query->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
-        ->leftJoin('users', 'karyawans.user_id', 'users.id')
-        ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
-        ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
-        ->rightJoin('setting_lembur_karyawans', 'karyawans.id_karyawan', 'setting_lembur_karyawans.karyawan_id');
+    //     $query->aktif();
+    //     $query->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
+    //     ->leftJoin('users', 'karyawans.user_id', 'users.id')
+    //     ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+    //     ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
+    //     ->rightJoin('setting_lembur_karyawans', 'karyawans.id_karyawan', 'setting_lembur_karyawans.karyawan_id');
 
-        $organisasi_id = auth()->user()->organisasi_id;
-        // $query->where('users.organisasi_id', $organisasi_id);
+    //     $organisasi_id = auth()->user()->organisasi_id;
+    //     // $query->where('users.organisasi_id', $organisasi_id);
 
-        if(!empty($id_posisi_members)){
-            $query->whereIn('posisis.id_posisi', $id_posisi_members);
-        }
+    //     if(!empty($id_posisi_members)){
+    //         $query->whereIn('posisis.id_posisi', $id_posisi_members);
+    //     }
 
-        if (!empty($search)) {
-            $query->where(function ($dat) use ($search) {
-                $dat->where('karyawans.id_karyawan', 'ILIKE', "%{$search}%")
-                    ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%");
-            });
-        }
+    //     if (!empty($search)) {
+    //         $query->where(function ($dat) use ($search) {
+    //             $dat->where('karyawans.id_karyawan', 'ILIKE', "%{$search}%")
+    //                 ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%");
+    //         });
+    //     }
 
-        $query->groupBy('karyawans.id_karyawan','karyawans.nama', 'posisis.nama');
-        $data = $query->simplePaginate(10);
+    //     $query->groupBy('karyawans.id_karyawan','karyawans.nama', 'posisis.nama');
+    //     $data = $query->simplePaginate(10);
 
-        $morePages = true;
-        $pagination_obj = json_encode($data);
-        if (empty($data->nextPageUrl())) {
-            $morePages = false;
-        }
+    //     $morePages = true;
+    //     $pagination_obj = json_encode($data);
+    //     if (empty($data->nextPageUrl())) {
+    //         $morePages = false;
+    //     }
 
-        foreach ($data->items() as $karyawan) {
-            $dataUser[] = [
-                'id' => $karyawan->id_karyawan,
-                'text' => $karyawan->nama
-            ];
-        }
+    //     foreach ($data->items() as $karyawan) {
+    //         $dataUser[] = [
+    //             'id' => $karyawan->id_karyawan,
+    //             'text' => $karyawan->nama
+    //         ];
+    //     }
 
-        $results = array(
-            "results" => $dataUser,
-            "pagination" => array(
-                "more" => $morePages
-            )
-        );
+    //     $results = array(
+    //         "results" => $dataUser,
+    //         "pagination" => array(
+    //             "more" => $morePages
+    //         )
+    //     );
 
-        return response()->json($results);
-    }
+    //     return response()->json($results);
+    // }
 
-    function get_member_posisi($posisis)
-    {
-        $data = [];
-        foreach ($posisis as $ps) {
-            if ($ps->children) {
-                $data = array_merge($data, $this->get_member_posisi($ps->children));
-            }
-            $data[] = $ps->id_posisi;
-        }
-        return $data;
-    }
+    // function get_member_posisi($posisis)
+    // {
+    //     $data = [];
+    //     foreach ($posisis as $ps) {
+    //         if ($ps->children) {
+    //             $data = array_merge($data, $this->get_member_posisi($ps->children));
+    //         }
+    //         $data[] = $ps->id_posisi;
+    //     }
+    //     return $data;
+    // }
 
     function send_whatsapp($id_karyawan, $for_posisi, $message, $organisasi_id)
     {
