@@ -29,7 +29,7 @@ class AttendanceController extends Controller
             'attendance_date' => 'required|date',
             'attendance_time' => 'required|date_format:Y-m-d H:i:s',
             'attachment' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
-            'type' => 'required|in:0,1', // 0 = VS, 1 = TL
+            'type' => 'required|in:0,1,2', // 0 = VS, 1 = TL, 2 = MOBILE
             'status' => 'required|in:0,1', // 0 = IN, 1 = OUT
         ]);
 

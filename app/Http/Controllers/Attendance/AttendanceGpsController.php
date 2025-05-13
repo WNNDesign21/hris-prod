@@ -73,6 +73,16 @@ class AttendanceGpsController extends Controller
             $fileName = Str::random(6) . '.' . $image->getClientOriginalExtension();
             $filePath = $image->storeAs('attachment/attendance_gps', $fileName);
 
+            $dupeExists = AttendanceGps::where('karyawan_id', $karyawan_id)
+                ->where('attendance_date', $attendance_date)
+                ->where('status', $status)
+                ->exists();
+
+            if ($dupeExists) {
+                DB::rollBack();
+                return response()->json(['message' => 'Anda sudah melakukan presensi '.$status.' untuk hari ini'], 400);
+            }
+
             $data = AttendanceGps::create([
                 'organisasi_id' => $organisasi_id,
                 'departemen_id' => $departemen_id,
