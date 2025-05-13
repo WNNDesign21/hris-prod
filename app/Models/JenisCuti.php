@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Cutie;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -17,9 +18,9 @@ class JenisCuti extends Model
         'jenis', 'durasi', 'isUrgent', 'isWorkday'
     ];
 
-    public static function isUsed()
+    public static function isUsed($id)
     {
-        return self::hasMany(Cutie::class, 'jenis_cuti_id', 'id_jenis_cuti')->exists();
+        return Cutie::where('jenis_cuti_id', $id)->exists();
     }
 
     private static function _query($dataFilter)

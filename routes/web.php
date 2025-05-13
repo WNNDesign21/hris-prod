@@ -41,11 +41,12 @@ use App\Http\Controllers\Attendance\AttendanceGpsController;
 use App\Http\Controllers\Attendance\LiveAttendanceController;
 use App\Http\Controllers\KSK\AjaxController as KSKAjaxController;
 use App\Http\Controllers\Cutie\AjaxController as CutieAjaxController;
-use App\Http\Controllers\Cutie\BypassController as CutieBypassController;
 use App\Http\Controllers\KSK\ReleaseController as KSKReleaseController;
 use App\Http\Controllers\KSK\SettingController as KSKSettingController;
 use App\Http\Controllers\TugasLuare\AjaxController as TLAjaxController;
+use App\Http\Controllers\Cutie\BypassController as CutieBypassController;
 use App\Http\Controllers\KSK\ApprovalController as KSKApprovalController;
+use App\Http\Controllers\Cutie\SettingController as CutieSettingController;
 use App\Http\Controllers\Cutie\ApprovalController as CutieApprovalController;
 use App\Http\Controllers\Superuser\HomeController as SuperuserHomeController;
 use App\Http\Controllers\Cutie\PengajuanController as CutiePengajuanController;
@@ -421,17 +422,19 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'role:atasan|member|persona
             // Route::patch('/personalia-cuti/reject/{idCuti}', [CutieController::class, 'reject'])->name('cutie.personalia-cuti.reject');
 
             /** SETTING CUTI */
-            Route::post('/setting-cuti-datatable', [CutieController::class, 'setting_cuti_datatable']);
-            Route::get('/setting-cuti', [CutieController::class, 'setting_cuti_view'])->name('cutie.setting-cuti');
-            Route::delete('/setting-cuti/delete/{idCuti}', [CutieController::class, 'delete_jenis_cuti'])->name('cutie.setting-cuti.delete');
-            Route::patch('/setting-cuti/update/{idCuti}', [CutieController::class, 'update_jenis_cuti'])->name('cutie.setting-cuti.update');
-            Route::post('/setting-cuti/store', [CutieController::class, 'store_jenis_cuti'])->name('cutie.setting-cuti.store');
+            Route::group(['prefix' => 'setting-cuti'], function () {
+                Route::get('/', [CutieSettingController::class, 'index'])->name('cutie.setting-cuti.index');
+                Route::post('/datatable', [CutieSettingController::class, 'datatable']);
+                Route::post('/store', [CutieSettingController::class, 'store'])->name('cutie.setting-cuti.store');
+                Route::patch('/update/{idCuti}', [CutieSettingController::class, 'update'])->name('cutie.setting-cuti.update');
+                Route::delete('/delete/{idCuti}', [CutieSettingController::class, 'delete'])->name('cutie.setting-cuti.delete');
+            });
         });
 
         /** BYPASS CUTI */
         Route::group(['prefix' => 'bypass-cuti', 'middleware' => ['role:atasan|personalia']], function () {
             Route::get('/', [CutieBypassController::class, 'index'])->name('cutie.bypass-cuti.index');
-            Route::post('/store', [CutieBypassController::class, 'bypass_store'])->name('cutie.bypass-cuti.store');
+            Route::post('/store', [CutieBypassController::class, 'store'])->name('cutie.bypass-cuti.store');
         });
     });
 

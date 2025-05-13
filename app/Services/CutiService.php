@@ -34,7 +34,7 @@ class CutiService
         return $this->cutiRepository->countAllData($dataFilter);
     }
 
-     public function getPengajuanDatatable(array $dataFilter, array $settings)
+    public function getPengajuanDatatable(array $dataFilter, array $settings)
     {
         return $this->cutiRepository->getPengajuan($dataFilter, $settings);
     }
@@ -42,6 +42,16 @@ class CutiService
     public function countPengajuanDatatable(array $dataFilter)
     {
         return $this->cutiRepository->countPengajuan($dataFilter);
+    }
+
+    public function getSettingCutiDatatable(array $dataFilter, array $settings)
+    {
+        return $this->cutiRepository->getSettingCuti($dataFilter, $settings);
+    }
+
+    public function countSettingCutiDatatable(array $dataFilter)
+    {
+        return $this->cutiRepository->countSettingCuti($dataFilter);
     }
 
     public function getById(int $id, array $fields = ['*'])
@@ -62,6 +72,26 @@ class CutiService
     public function getKaryawanCuti(Collection $posisi = null, array $dataFilter)
     {
         return $this->cutiRepository->getKaryawanCuti($posisi, $dataFilter);
+    }
+
+    public function createJenisCuti(array $data)
+    {
+        return $this->cutiRepository->createJenisCuti($data);
+    }
+
+    public function updateJenisCuti(int $id, array $data)
+    {
+        return $this->cutiRepository->updateJenisCuti($id, $data);
+    }
+
+    public function deleteJenisCuti(int $id)
+    {
+        return $this->cutiRepository->deleteJenisCuti($id);
+    }
+
+    public function countJenisCuti()
+    {
+        return $this->cutiRepository->countJenisCuti();
     }
 
     public function countApprovalCuti()

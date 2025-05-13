@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Cutie;
 
+use Throwable;
 use Carbon\Carbon;
 use App\Models\Karyawan;
 use Illuminate\Http\Request;
 use App\Services\CutiService;
 use App\Services\KaryawanService;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 
 class BypassController extends Controller
@@ -72,7 +74,7 @@ class BypassController extends Controller
                         $dataKaryawan = [
                             'sisa_cuti_pribadi' => $jatah_cuti
                         ];
-                        $this->karyawanService->updateKaryawan($id_karyawan, $dataKaryawan);
+                        $karyawan = $this->karyawanService->updateKaryawan($id_karyawan, $dataKaryawan);
                     }
                 }
             } else {
@@ -88,7 +90,7 @@ class BypassController extends Controller
                         $dataKaryawan = [
                             'sisa_cuti_tahun_lalu' => $jatah_cuti
                         ];
-                        $this->karyawanService->updateKaryawan($id_karyawan, $dataKaryawan);
+                        $karyawan = $this->karyawanService->updateKaryawan($id_karyawan, $dataKaryawan);
                     }
                 }
             }

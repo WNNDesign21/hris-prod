@@ -104,7 +104,7 @@ $(function () {
         search: {
             return: true,
         },
-        order: [[1, "DESC"]],
+        order: [[13, "DESC"]],
         processing: true,
         serverSide: true,
         ajax: {

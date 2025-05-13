@@ -82,9 +82,31 @@ class CutiRepository
         return JenisCuti::select($fields)->findOrFail($id);
     }
 
+    public function createJenisCuti(array $data)
+    {
+        return JenisCuti::create($data);
+    }
+
+    public function updateJenisCuti(int $id, array $data)
+    {
+        $jenisCuti = JenisCuti::findOrFail($id);
+        $jenisCuti->update($data);
+        return $jenisCuti;
+    }
+
+    public function deleteJenisCuti(int $id)
+    {
+        return JenisCuti::findOrFail($id)->delete();
+    }
+
     public function getJenisCuti(array $fields = ['*'])
     {
         return JenisCuti::select($fields)->get();
+    }
+
+    public function countJenisCuti()
+    {
+        return JenisCuti::count();
     }
 
     public function countApprovalCuti()
@@ -546,6 +568,43 @@ class CutiRepository
     public function countPengajuan($dataFilter)
     {
         return $this->_queryPengajuan($dataFilter)->count();
+    }
+
+    private function _querySettingCuti($dataFilter)
+    {
+        $data = JenisCuti::select(
+            'id_jenis_cuti',
+            'jenis',
+            'durasi',
+            'isUrgent',
+            'isWorkday',
+        );
+
+        if (isset($dataFilter['search'])) {
+            $search = $dataFilter['search'];
+            $data->where(function ($query) use ($search) {
+                $query->where('jenis', 'ILIKE', "%{$search}%")
+                ->orWhere('durasi', 'ILIKE', "%{$search}%")
+                ->orWhere('isUrgent', 'ILIKE', "%{$search}%")
+                ->orWhere('isWorkday', 'ILIKE', "%{$search}%");
+            });
+        }
+
+        $result = $data;
+        return $result;
+    }
+
+    public function getSettingCuti($dataFilter, $settings)
+    {
+        return $this->_querySettingCuti($dataFilter)->offset($settings['start'])
+            ->limit($settings['limit'])
+            ->orderBy($settings['order'], $settings['dir'])
+            ->get();
+    }
+
+    public function countSettingCuti($dataFilter)
+    {
+        return $this->_querySettingCuti($dataFilter)->count();
     }
 
     public function rejectCuti(int $id, array $newData)

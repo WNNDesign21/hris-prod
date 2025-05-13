@@ -180,8 +180,8 @@ class PengajuanController extends Controller
 
         $json_data = array(
             "draw" => intval($request->input('draw')),
-            "recordsTotal" => $totalData,
-            "recordsFiltered" => $totalFiltered,
+            "recordsTotal" => intval($totalData),
+            "recordsFiltered" => intval($totalFiltered),
             "data" => $dataTable,
             "order" => $order,
             "dir" => $dir,

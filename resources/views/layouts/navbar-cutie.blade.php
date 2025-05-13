@@ -57,7 +57,7 @@
                     @endif
                     @if (auth()->user()->hasRole('personalia'))
                         <li class="{{ $page == 'cutie-setting' ? 'active' : '' }}">
-                            <a href="{{ route('cutie.setting-cuti') }}">
+                            <a href="{{ route('cutie.setting-cuti.index') }}">
                                 <i class="icon-Tools"><span class="path1"></span><span class="path2"></span></i>
                                 <span>Setting Cuti Khusus</span>
                             </a>

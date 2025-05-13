@@ -721,7 +721,7 @@ class ApprovalController extends Controller
                     'checked1_karyawan_id' => $issued_id
                 ];
 
-                $this->cutiService->updateCuti($id_cuti, $data);
+                $cuti = $this->cutiService->updateCuti($id_cuti, $data);
                 $this->cutiService->updateApprovalCuti($id_approval, $approvalData);
 
                 // $message = "Nama : *" . $cuti->karyawan->nama . "*\n" .
@@ -742,7 +742,7 @@ class ApprovalController extends Controller
                         'checked1_karyawan_id' => $issued_id
                     ];
 
-                    $this->cutiService->updateCuti($id_cuti, $data);
+                    $cuti = $this->cutiService->updateCuti($id_cuti, $data);
                     $this->cutiService->updateApprovalCuti($id_approval, $approvalData);
                 }
 
@@ -756,7 +756,7 @@ class ApprovalController extends Controller
                     'checked2_karyawan_id' => $issued_id
                 ];
 
-                $this->cutiService->updateCuti($id_cuti, $data);
+                $cuti = $this->cutiService->updateCuti($id_cuti, $data);
                 $this->cutiService->updateApprovalCuti($id_approval, $approvalData);
 
                 // $message = "Nama : *" . $cuti->karyawan->nama . "*\n" .
@@ -777,7 +777,7 @@ class ApprovalController extends Controller
                         'checked1_karyawan_id' => $issued_id
                     ];
 
-                    $this->cutiService->updateCuti($id_cuti, $data);
+                    $cuti = $this->cutiService->updateCuti($id_cuti, $data);
                     $this->cutiService->updateApprovalCuti($id_approval, $approvalData);
                 }
 
@@ -791,7 +791,7 @@ class ApprovalController extends Controller
                         'checked2_by' => $posisi,
                         'checked2_karyawan_id' => $issued_id
                     ];
-                    $this->cutiService->updateCuti($id_cuti, $data);
+                    $cuti = $this->cutiService->updateCuti($id_cuti, $data);
                     $this->cutiService->updateApprovalCuti($id_approval, $approvalData);
                 }
 
@@ -805,7 +805,7 @@ class ApprovalController extends Controller
                     'approved_karyawan_id' => $issued_id
                 ];
 
-                $this->cutiService->updateCuti($id_cuti, $data);
+                $cuti = $this->cutiService->updateCuti($id_cuti, $data);
                 $this->cutiService->updateApprovalCuti($id_approval, $approvalData);
             } else {
                 //LOGIKA UNTUK BYPASS CUTI
@@ -817,7 +817,7 @@ class ApprovalController extends Controller
                             'status_cuti' => 'SCHEDULED',
                             'legalized_at' => now()
                         ];
-                        $this->cutiService->updateCuti($id_cuti, $data);
+                        $cuti = $this->cutiService->updateCuti($id_cuti, $data);
                     } elseif ($cuti->rencana_mulai_cuti == date('Y-m-d')){
                         $data = [
                             'legalized_by' => $issued_name,
@@ -825,7 +825,7 @@ class ApprovalController extends Controller
                             'status_cuti' => 'ON LEAVE',
                             'legalized_at' => now()
                         ];
-                        $this->cutiService->updateCuti($id_cuti, $data);
+                        $cuti = $this->cutiService->updateCuti($id_cuti, $data);
                     } else {
                         $data = [
                             'legalized_by' => $issued_name,
@@ -833,7 +833,7 @@ class ApprovalController extends Controller
                             'status_cuti' => 'COMPLETED',
                             'legalized_at' => now()
                         ];
-                        $this->cutiService->updateCuti($id_cuti, $data);
+                        $cuti = $this->cutiService->updateCuti($id_cuti, $data);
                     }
                 //LOGIKAN UNTUK CUTI BIASA
                 } else {
@@ -843,7 +843,7 @@ class ApprovalController extends Controller
                         'status_cuti' => 'SCHEDULED',
                         'legalized_at' => now()
                     ];
-                    $this->cutiService->updateCuti($id_cuti, $data);
+                    $cuti = $this->cutiService->updateCuti($id_cuti, $data);
                 }
             }
             DB::commit();
