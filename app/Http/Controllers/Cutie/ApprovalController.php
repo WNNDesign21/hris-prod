@@ -703,7 +703,6 @@ class ApprovalController extends Controller
 
         $issued_name = $request->issued_name;
         $issued_id = $request->issued_id;
-        $posisi = Karyawan::find($issued_id)->posisi[0]->id_posisi;
         $organisasi_id = auth()->user()->organisasi_id;
 
         DB::beginTransaction();
@@ -711,6 +710,7 @@ class ApprovalController extends Controller
             $cuti = $this->cutiService->getById($id_cuti);
             $id_approval = $cuti->approval->id_approval_cuti;
             if($type == 'checked_1'){
+                $posisi = Karyawan::find($issued_id)->posisi[0]->id_posisi;
                 $data = [
                     'checked1_by' => $issued_name,
                     'checked1_at' => now()
@@ -731,6 +731,7 @@ class ApprovalController extends Controller
                 //         ($data['organisasi_id'] == 1 ? env('URL_SERVER_HRIS_TCF2') : env('URL_SERVER_HRIS_TCF3'))."cutie/approval-cuti";
                 // $this->send_whatsapp($cuti->karyawan->id_karyawan, $cuti->approval->checked2_for, $message, $data['organisasi_id']);
             } elseif ($type == 'checked_2'){
+                $posisi = Karyawan::find($issued_id)->posisi[0]->id_posisi;
                 if(!$cuti->checked1_by){
                     $data = [
                         'checked1_by' => $issued_name,
@@ -766,6 +767,7 @@ class ApprovalController extends Controller
                 //         ($data['organisasi_id'] == 1 ? env('URL_SERVER_HRIS_TCF2') : env('URL_SERVER_HRIS_TCF3'))."cutie/approval-cuti";
                 // $this->send_whatsapp($cuti->karyawan->id_karyawan, $cuti->approval->approved_for, $message, $data['organisasi_id']);
             } elseif ($type == 'approved'){
+                $posisi = Karyawan::find($issued_id)->posisi[0]->id_posisi;
                 if(!$cuti->checked1_by){
                     $data = [
                         'checked1_by' => $issued_name,
