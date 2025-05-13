@@ -49,7 +49,7 @@ $(function () {
     function getJenisCutiKhusus() {
         loadingSwalShow();
         $.ajax({
-            url: base_url + '/cutie/pengajuan-cuti/get-data-jenis-cuti-khusus',
+            url: base_url + '/cutie/ajax/get-data-jenis-cuti-khusus',
             type: "get",
             success: function (response) {
                 var data = response.data;
@@ -489,39 +489,39 @@ $(function () {
         })
     })
 
-    $('#personal-table').on('click', '.btnEdit', function (){
-        var idCuti = $(this).data('id');
-        var url = base_url + '/cutie/pengajuan-cuti/get-data-detail-cuti/' + idCuti;
-        $.ajax({
-            url: url,
-            type: "GET",
-            success: function (response) {
-                var data = response.data;
-                $('#id_cuti').val(data.id_cuti);
-                $('#alasan_cuti').val(data.alasan_cuti);
-                $('#durasi_cuti').val(data.durasi_cuti);
+    // $('#personal-table').on('click', '.btnEdit', function (){
+    //     var idCuti = $(this).data('id');
+    //     var url = base_url + '/cutie/ajax/get-data-detail-cuti/' + idCuti;
+    //     $.ajax({
+    //         url: url,
+    //         type: "GET",
+    //         success: function (response) {
+    //             var data = response.data;
+    //             $('#id_cuti').val(data.id_cuti);
+    //             $('#alasan_cuti').val(data.alasan_cuti);
+    //             $('#durasi_cuti').val(data.durasi_cuti);
 
-                if(data.jenis_cuti == 'KHUSUS') {
-                    $('#jenis_cuti').val(data.jenis_cuti).trigger('change');
-                    $('#jenis_cuti_khusus').val(data.jenis_cuti_id).trigger('change');
-                    $('#rencana_mulai_cuti').val(data.rencana_mulai_cuti).trigger('change');
-                    $('#rencana_selesai_cuti').val(data.rencana_selesai_cuti).attr('min', data.rencana_mulai_cuti).trigger('change');
-                } else if (data.jenis_cuti == 'SAKIT') {
-                    $('#jenis_cuti').val(data.jenis_cuti).trigger('change');
-                    $('#rencana_mulai_cuti').val(data.rencana_mulai_cuti);
-                    $('#rencana_selesai_cuti').val(data.rencana_selesai_cuti).attr('min', data.rencana_mulai_cuti);
-                } else {
-                    $('#jenis_cuti').val(data.jenis_cuti);
-                    $('#rencana_mulai_cuti').val(data.rencana_mulai_cuti);
-                    $('#rencana_selesai_cuti').val(data.rencana_selesai_cuti).attr('min', data.rencana_mulai_cuti);
-                }
-                $('#form-pengajuan-cuti').attr('action', base_url + '/cutie/pengajuan-cuti/update/' + idCuti);
-                $('#form-pengajuan-cuti').append('<input type="hidden" name="_method" value="PATCH">');
-                openForm();
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                showToast({ icon: "error", title: jqXHR.responseJSON.message });
-            },
-        });
-    })
+    //             if(data.jenis_cuti == 'KHUSUS') {
+    //                 $('#jenis_cuti').val(data.jenis_cuti).trigger('change');
+    //                 $('#jenis_cuti_khusus').val(data.jenis_cuti_id).trigger('change');
+    //                 $('#rencana_mulai_cuti').val(data.rencana_mulai_cuti).trigger('change');
+    //                 $('#rencana_selesai_cuti').val(data.rencana_selesai_cuti).attr('min', data.rencana_mulai_cuti).trigger('change');
+    //             } else if (data.jenis_cuti == 'SAKIT') {
+    //                 $('#jenis_cuti').val(data.jenis_cuti).trigger('change');
+    //                 $('#rencana_mulai_cuti').val(data.rencana_mulai_cuti);
+    //                 $('#rencana_selesai_cuti').val(data.rencana_selesai_cuti).attr('min', data.rencana_mulai_cuti);
+    //             } else {
+    //                 $('#jenis_cuti').val(data.jenis_cuti);
+    //                 $('#rencana_mulai_cuti').val(data.rencana_mulai_cuti);
+    //                 $('#rencana_selesai_cuti').val(data.rencana_selesai_cuti).attr('min', data.rencana_mulai_cuti);
+    //             }
+    //             $('#form-pengajuan-cuti').attr('action', base_url + '/cutie/pengajuan-cuti/update/' + idCuti);
+    //             $('#form-pengajuan-cuti').append('<input type="hidden" name="_method" value="PATCH">');
+    //             openForm();
+    //         },
+    //         error: function (jqXHR, textStatus, errorThrown) {
+    //             showToast({ icon: "error", title: jqXHR.responseJSON.message });
+    //         },
+    //     });
+    // })
 });

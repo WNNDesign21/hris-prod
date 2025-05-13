@@ -78,21 +78,10 @@ class PengajuanController extends Controller
             $count_duplicate_cuti = 0;
 
             foreach ($cutie as $data) {
-                if(!$cuti_id){
-                    $cuti_id = $data->id_cuti;
-                } else {
-                    if($cuti_id == $data->id_cuti){
-                        $count_duplicate_cuti++;
-                        continue;
-                    } else {
-                        $cuti_id = $data->id_cuti;
-                    }
-                }
-
                 if($data->checked1_by){
                     $btn_group_1 = '✅<br><small class="text-bold">'.$data->checked1_by.'</small><br><small class="text-fade">'.Carbon::parse($data->checked1_at)->diffForHumans().'</small>';
                 } elseif ($data->rejected_by) {
-                    $btn_group_2 = '❌<br><small class="text-bold">'.$data->rejected_by.'</small><br><small class="text-fade">'.Carbon::parse($data->rejected_at)->diffForHumans().'</small>';
+                    $btn_group_1 = '❌<br><small class="text-bold">'.$data->rejected_by.'</small><br><small class="text-fade">'.Carbon::parse($data->rejected_at)->diffForHumans().'</small>';
                 } else {
                     $btn_group_1 = '-';
                 }
@@ -191,13 +180,12 @@ class PengajuanController extends Controller
 
         $json_data = array(
             "draw" => intval($request->input('draw')),
-            "recordsTotal" => intval($totalData),
-            "recordsFiltered" => intval($totalFiltered) - $count_duplicate_cuti,
+            "recordsTotal" => $totalData,
+            "recordsFiltered" => $totalFiltered,
             "data" => $dataTable,
             "order" => $order,
-            "statusFilter" => !empty($dataFilter['statusFilter']) ? $dataFilter['statusFilter'] : "Kosong",
             "dir" => $dir,
-            "column"=>$request->input('order.0.column')
+            "column" => $request->input('order.0.column')
         );
 
         return response()->json($json_data, 200);

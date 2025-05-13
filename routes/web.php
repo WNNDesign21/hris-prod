@@ -40,13 +40,15 @@ use App\Http\Controllers\Superuser\ActivityLogController;
 use App\Http\Controllers\Attendance\AttendanceGpsController;
 use App\Http\Controllers\Attendance\LiveAttendanceController;
 use App\Http\Controllers\KSK\AjaxController as KSKAjaxController;
+use App\Http\Controllers\Cutie\AjaxController as CutieAjaxController;
+use App\Http\Controllers\Cutie\BypassController as CutieBypassController;
 use App\Http\Controllers\KSK\ReleaseController as KSKReleaseController;
 use App\Http\Controllers\KSK\SettingController as KSKSettingController;
 use App\Http\Controllers\TugasLuare\AjaxController as TLAjaxController;
 use App\Http\Controllers\KSK\ApprovalController as KSKApprovalController;
 use App\Http\Controllers\Cutie\ApprovalController as CutieApprovalController;
-use App\Http\Controllers\Cutie\PengajuanController as CutiePengajuanController;
 use App\Http\Controllers\Superuser\HomeController as SuperuserHomeController;
+use App\Http\Controllers\Cutie\PengajuanController as CutiePengajuanController;
 use App\Http\Controllers\Superuser\SeksiController as SuperuserSeksiController;
 use App\Http\Controllers\TugasLuare\ApprovalController as TLApprovalController;
 use App\Http\Controllers\Attendance\ApprovalController as ATTApprovalController;
@@ -181,14 +183,14 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/master-data/kontrak/download-kontrak-kerja/{idKontrak}', [KontrakController::class, 'download_kontrak_kerja']);
     Route::get('/master-data/kontrak/get-data-detail-kontrak/{idKontrak}', [KontrakController::class, 'get_data_detail_kontrak']);
 
-    Route::get('/cutie/pengajuan-cuti/get-data-jenis-cuti-khusus', [CutieController::class, 'get_data_jenis_cuti_khusus']);
-    Route::get('/cutie/pengajuan-cuti/get-data-detail-cuti/{idCuti}', [CutieController::class, 'get_data_detail_cuti']);
-    Route::get('/cutie/approval-cuti/get-karyawan-pengganti/{idKaryawan}', [CutieApprovalController::class, 'get_karyawan_pengganti']);
+    Route::post('/cutie/ajax/get-karyawan-cuti', [CutieAjaxController::class, 'get_karyawan_cuti']);
+    Route::get('/cutie/ajax/get-data-jenis-cuti-khusus', [CutieAjaxController::class, 'get_data_jenis_cuti_khusus']);
+    Route::get('/cutie/ajax/get-data-detail-cuti/{idCuti}', [CutieAjaxController::class, 'get_data_detail_cuti']);
+    Route::get('/cutie/ajax/get-data-detail-jenis-cuti/{idJenisCuti}', [CutieAjaxController::class, 'get_data_detail_jenis_cuti']);
+    Route::get('/cutie/ajax/get-karyawan-pengganti/{idKaryawan}', [CutieAjaxController::class, 'get_karyawan_pengganti']);
     Route::get('/cutie/dashboard-cuti/get-data-cuti-calendar', [CutieController::class, 'get_data_cutie_calendar']);
     Route::get('/cutie/dashboard-cuti/get-data-cuti-detail-chart', [CutieController::class, 'get_data_cuti_detail_chart']);
     Route::get('/cutie/dashboard-cuti/get-data-jenis-cuti-monthly-chart', [CutieController::class, 'get_data_jenis_cuti_monthly_chart']);
-    Route::get('/cutie/setting-cuti/get-data-detail-jenis-cuti/{idJenisCuti}', [CutieController::class, 'get_data_detail_jenis_cuti']);
-    Route::post('/cutie/bypass-cuti/get-karyawan-cuti', [CutieController::class, 'get_karyawan_cuti']);
 
     Route::post('/lembure/pengajuan-lembur/get-data-karyawan-lembur', [LembureController::class, 'get_data_karyawan_lembur']);
     Route::post('/lembure/pengajuan-lembur/get-data-karyawan-bypass-lembur', [LembureController::class, 'get_data_karyawan_bypass_lembur']);
@@ -426,10 +428,10 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'role:atasan|member|persona
             Route::post('/setting-cuti/store', [CutieController::class, 'store_jenis_cuti'])->name('cutie.setting-cuti.store');
         });
 
-        Route::group(['middleware' => ['role:atasan|personalia']], function () {
-            /** BYPASS CUTI */
-            Route::get('/bypass-cuti', [CutieController::class, 'bypass_cuti_view'])->name('cutie.bypass-cuti');
-            Route::post('/bypass-cuti/store', [CutieController::class, 'bypass_store'])->name('cutie.bypass-cuti.store');
+        /** BYPASS CUTI */
+        Route::group(['prefix' => 'bypass-cuti', 'middleware' => ['role:atasan|personalia']], function () {
+            Route::get('/', [CutieBypassController::class, 'index'])->name('cutie.bypass-cuti.index');
+            Route::post('/store', [CutieBypassController::class, 'bypass_store'])->name('cutie.bypass-cuti.store');
         });
     });
 

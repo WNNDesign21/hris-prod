@@ -178,7 +178,7 @@ $(function () {
     $('#setting-table').on('click', '.btnEdit', function (){
         loadingSwalShow();
         var idJenisCuti = $(this).data('id');
-        var url = base_url + '/cutie/setting-cuti/get-data-detail-jenis-cuti/' + idJenisCuti;
+        var url = base_url + '/cutie/ajax/get-data-detail-jenis-cuti/' + idJenisCuti;
         $.ajax({
             url: url,
             type: "GET",

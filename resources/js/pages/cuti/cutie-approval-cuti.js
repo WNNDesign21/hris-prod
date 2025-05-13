@@ -459,7 +459,7 @@ $(function () {
 
     function getKaryawanPengganti(idKaryawan, idKaryawanPengganti){
         $.ajax({
-            url: base_url + '/cutie/approval-cuti/get-karyawan-pengganti/' + idKaryawan,
+            url: base_url + '/cutie/ajax/get-karyawan-pengganti/' + idKaryawan,
             method: 'GET',
             dataType: 'JSON',
             success: function (data){

@@ -32,6 +32,61 @@ class CutiRepository
         return $karyawanPengganti;
     }
 
+    public function getKaryawanCuti(Collection $posisi = null, array $dataFilter)
+    {
+        // $subQuery = DB::table('karyawan_posisi')
+        //     ->select('karyawan_id', 'posisi_id')
+        //     ->whereNull('deleted_at')
+        //     ->distinct('karyawan_id');
+
+        $query = Karyawan::select(
+            'karyawans.id_karyawan',
+            'karyawans.nama',
+            'posisis.nama as posisi',
+        );
+
+        $id_posisi_members = [];
+        if($posisi){
+            $id_posisi_members = Approval::GetMemberPosisi($posisi);
+            foreach ($posisi as $ps){
+                $index = array_search($ps->id_posisi, $id_posisi_members);
+                array_splice($id_posisi_members, $index, 1);
+            }
+        }
+
+        // $query->leftJoinSub($subQuery, 'distinct_karyawan_posisi', function ($join) {
+        //     $join->on('karyawans.id_karyawan', 'distinct_karyawan_posisi.karyawan_id');
+        // })
+        $query->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
+        ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi');
+
+        if(!empty($id_posisi_members)){
+            $query->whereIn('posisis.id_posisi', $id_posisi_members);
+        }
+
+        if (isset($dataFilter['search'])) {
+            $search = $dataFilter['search'];
+            $query->where(function ($dat) use ($search) {
+                $dat->where('karyawans.id_karyawan', 'ILIKE', "%{$search}%")
+                    ->orWhere('karyawans.nama', 'ILIKE', "%{$search}%");
+            });
+        }
+
+        $query->groupBy('karyawans.id_karyawan','karyawans.nama', 'posisis.nama');
+        $data = $query->simplePaginate(10);
+        return $data;
+    }
+
+    public function getJenisCutiById(int $id, array $fields = ['*'])
+    {
+        return JenisCuti::select($fields)->findOrFail($id);
+    }
+
+    public function getJenisCuti(array $fields = ['*'])
+    {
+        return JenisCuti::select($fields)->get();
+    }
+
     public function countApprovalCuti()
     {
         return ApprovalCuti::count();
@@ -396,6 +451,11 @@ class CutiRepository
 
     private function _queryPengajuan($dataFilter)
     {
+        $subQuery = DB::table('karyawan_posisi')
+            ->select('karyawan_id', 'posisi_id')
+            ->whereNull('deleted_at')
+            ->distinct('karyawan_id');
+
         $getKaryawanPengganti = Karyawan::select("id_karyawan as kp_id", "nama as nama_pengganti");
         $getJenisCuti = JenisCuti::select("id_jenis_cuti as jc_id", "jenis as jenis_cuti_khusus");
         $data = Cutie::select(
@@ -436,8 +496,10 @@ class CutiRepository
             ->leftJoinSub($getJenisCuti, 'jc', function (JoinClause $joinJenisCuti) {
                 $joinJenisCuti->on('cutis.jenis_cuti_id', 'jc.jc_id');
             })
-            ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
-            ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+            ->leftJoinSub($subQuery, 'distinct_karyawan_posisi', function ($join) {
+                $join->on('cutis.karyawan_id', 'distinct_karyawan_posisi.karyawan_id');
+            })
+            ->leftJoin('posisis', 'distinct_karyawan_posisi.posisi_id', 'posisis.id_posisi')
             ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen');
 
         $data->where('cutis.karyawan_id', auth()->user()->karyawan->id_karyawan);
@@ -660,6 +722,5 @@ class CutiRepository
 
         return $approval;
     }
-
 
 }

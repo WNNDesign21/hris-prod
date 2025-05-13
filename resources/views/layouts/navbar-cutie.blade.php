@@ -49,7 +49,7 @@
                             </a>
                         </li>
                         <li class="{{ $page == 'cutie-bypass-cuti' ? 'active' : '' }}">
-                            <a href="{{ route('cutie.bypass-cuti') }}">
+                            <a href="{{ route('cutie.bypass-cuti.index') }}">
                                 <i class="icon-Direction1"><span class="path1"></span><span class="path2"></span></i>
                                 <span>Bypass Cuti</span>
                             </a>

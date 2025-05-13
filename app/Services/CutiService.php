@@ -49,6 +49,21 @@ class CutiService
         return $this->cutiRepository->getById($id, $fields);
     }
 
+    public function getJenisCutiById(int $id, array $fields = ['*'])
+    {
+        return $this->cutiRepository->getJenisCutiById($id, $fields);
+    }
+
+    public function getJenisCuti(array $fields = ['*'])
+    {
+        return $this->cutiRepository->getJenisCuti($fields);
+    }
+
+    public function getKaryawanCuti(Collection $posisi = null, array $dataFilter)
+    {
+        return $this->cutiRepository->getKaryawanCuti($posisi, $dataFilter);
+    }
+
     public function countApprovalCuti()
     {
         return $this->cutiRepository->countApprovalCuti();

@@ -875,14 +875,4 @@ class ApprovalController extends Controller
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }
-
-    public function get_karyawan_pengganti(string $id_karyawan)
-    {
-        try {
-            $data = $this->cutiService->getKaryawanPengganti($id_karyawan);
-            return response()->json($data, 200);
-        } catch (Exception $e) {
-            return response()->json(['message' => $error->getMessage()], 500);
-        }
-    }
 }
