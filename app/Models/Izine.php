@@ -361,7 +361,8 @@ class Izine extends Model
             $data->where(function ($query) {
                 $query->whereNull('izins.checked_by')
                     ->orWhereNull('izins.approved_by');
-            })->whereNull('izins.legalized_by');
+            })->whereNull('izins.legalized_by')
+            ->whereNull('izins.rejected_by');
         }
 
         if (isset($dataFilter['is_shift_malam'])) {
