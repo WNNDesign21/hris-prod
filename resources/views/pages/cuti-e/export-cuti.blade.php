@@ -23,7 +23,7 @@
                 <div class="box-body">
                     <div class="row">
                         <div class="col-12">
-                            <form action="{{ route('cutie.export.cuti') }}" method="POST" enctype="multipart/form-data"
+                            <form action="{{ route('cutie.export.export') }}" method="POST" enctype="multipart/form-data"
                                 id="form-export-cuti">
                                 @csrf
                                 <h5 class="text-bold">Departemen</h5>

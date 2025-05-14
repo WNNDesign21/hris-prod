@@ -40,7 +40,7 @@
                         <div class="col-6 col-lg-3">
                             <div class="form-group">
                                 <small class="text-muted">Status</small><br>
-                                <p>{{ $item->jenis_kontrak }}</p>
+                                <strong class="text-danger">{{ $item->jenis_kontrak }}</strong>
                             </div>
                         </div>
                         <div class="col-6 col-lg-3">
@@ -113,6 +113,8 @@
                                     <option value="TTP" {{ $item->status_ksk == 'TTP' ? 'selected' : '' }}>KARYAWAN
                                         TETAP</option>
                                 </select>
+                                <strong class="text-danger mt-1">Kontrak Berjalan
+                                    : {{ $item->jenis_kontrak }}</strong><br>
                                 <small class="text-muted mt-1">Last Update :
                                     {{ $item->changeHistoryKSK->isNotEmpty() ? $item->changeHistoryKSK->sortByDesc('created_at')->first()->changed_by : '-' }}</small>
                             </div>

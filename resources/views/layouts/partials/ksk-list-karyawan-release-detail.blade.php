@@ -40,7 +40,7 @@
                         <div class="col-6 col-lg-3">
                             <div class="form-group">
                                 <small class="text-muted">Kontrak Berjalan</small><br>
-                                <p>{{ $item->karyawan->jenis_kontrak }}</p>
+                                <strong class="text-danger">{{ $item->karyawan->jenis_kontrak }}</strong>
                             </div>
                         </div>
                         <div class="col-6 col-lg-3">
@@ -89,6 +89,9 @@
                                 @else
                                     -
                                 @endif
+                                <br>
+                                <strong class="text-danger">Kontrak Berjalan :
+                                    {{ $item->karyawan->jenis_kontrak }}</strong>
                             </div>
                         </div>
                         <div class="col-6 col-lg-3">

@@ -59,6 +59,16 @@ class CutiService
         return $this->cutiRepository->getById($id, $fields);
     }
 
+    public function getWithFilters(array $dataFilter, array $fields = ['*'])
+    {
+        return $this->cutiRepository->getWithFilters($dataFilter, $fields);
+    }
+
+    public function getCalendarData(array $dataFilter)
+    {
+        return $this->cutiRepository->getCalendarData($dataFilter);
+    }
+
     public function getJenisCutiById(int $id, array $fields = ['*'])
     {
         return $this->cutiRepository->getJenisCutiById($id, $fields);

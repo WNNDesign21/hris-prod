@@ -63,7 +63,7 @@
                             </a>
                         </li>
                         <li class="{{ $page == 'cutie-export' ? 'active' : '' }}">
-                            <a href="{{ route('cutie.export') }}">
+                            <a href="{{ route('cutie.export.index') }}">
                                 <i class="icon-Chat-check"><span class="path1"></span><span class="path2"></span></i>
                                 <span>Export Data</span>
                             </a>

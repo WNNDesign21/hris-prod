@@ -33,8 +33,8 @@
                         </div>
                         <div class="col-6 col-lg-3">
                             <div class="form-group">
-                                <small class="text-muted">Status</small><br>
-                                <p>{{ $item->jenis_kontrak }}</p>
+                                <small class="text-muted">Kontrak Berjalan</small><br>
+                                <strong class="text-danger">{{ $item->jenis_kontrak }}</strong>
                             </div>
                         </div>
                         <div class="col-6 col-lg-3">
