@@ -354,7 +354,7 @@ $(function () {
         });
     })
 
-    $('#approval-skd-table').on('click', '.btnLegalized', function(){
+    $('#must-approved-table').on('click', '.btnLegalized', function(){
         let idSakit = $(this).data('id-sakit');
         let url = base_url + '/izine/approval-skd/legalized/' + idSakit;
         var formData = new FormData();

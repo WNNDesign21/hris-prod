@@ -19,6 +19,69 @@ class CutiRepository
         return Cutie::select($fields)->with('approval')->findOrFail($id);
     }
 
+    public function getWithFilters(array $dataFilter, array $fields = ['*'])
+    {
+        $query = Cutie::select($fields);
+
+        if (isset($dataFilter['departemen_id'])) {
+            $departemen_id = $dataFilter['departemen_id'];
+            $query->whereHas('karyawan.posisi', function($query) use ($departemen_id){
+                $query->where('departemen_id', $departemen_id);
+            });
+        }
+
+        if (isset($dataFilter['monthly'])) {
+            $bulan = $dataFilter['monthly'];
+            $query->whereMonth('rencana_mulai_cuti', $bulan)->where('status_dokumen', 'APPROVED')->where(function($query) {
+                $query->whereIn('status_cuti', ['SCHEDULED', 'ON LEAVE', 'COMPLETED']);
+            })->orderBy('karyawan_id', 'DESC');
+        }
+
+        if (isset($dataFilter['organisasi_id'])){
+            $query->where('organisasi_id', $dataFilter['organisasi_id']);
+        }
+
+        if (isset($dataFilter['year'])){
+            $query->whereYear('rencana_mulai_cuti', $dataFilter['year']);
+        }
+
+        if (isset($dataFilter['jenis_cuti'])) {
+            $query->whereIn('jenis_cuti', $dataFilter['jenis_cuti']);
+        }
+
+        // Without Get Method
+        return $query;
+    }
+
+    public function getCalendarData(array $dataFilter)
+    {
+        $query = Cutie::whereNot('status_dokumen','REJECTED')->where(function($query){
+            $query->whereIn('status_cuti', ['SCHEDULED', 'ON LEAVE', 'COMPLETED'])
+            ->orWhereNull('status_cuti');
+        });
+
+        if (isset($dataFilter['organisasi_id'])) {
+            $query->where('organisasi_id', $dataFilter['organisasi_id']);
+        }
+
+        if (isset($dataFilter['members'])) {
+            if (isset($dataFilter['jabatan_id']) && $dataFilter['jabatan_id'] == 1) {
+                $query->whereHas('karyawan.posisi', function($query) use ($members) {
+                        $query->whereIn('id_posisi', $members);
+                        $query->whereIn('jabatan_id', [2,3,4]);
+                })->orWhere('karyawan_id', $dataFilter['karyawan_id']);
+            } else {
+                $query->whereHas('karyawan.posisi', function($query) use ($members) {
+                        $query->whereIn('id_posisi', $members);
+                    })->orWhere('karyawan_id', $dataFilter['karyawan_id']);
+            }
+        }
+
+        $data = $query->get();
+        return $data;
+
+    }
+
     public function getKaryawanPengganti(string $id)
     {
         $departemen = Karyawan::find($id)->posisi()->value('departemen_id');
