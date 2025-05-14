@@ -65,6 +65,7 @@ class CutiRepository
         }
 
         if (isset($dataFilter['members'])) {
+            $members = $dataFilter['members'];
             if (isset($dataFilter['jabatan_id']) && $dataFilter['jabatan_id'] == 1) {
                 $query->whereHas('karyawan.posisi', function($query) use ($members) {
                         $query->whereIn('id_posisi', $members);

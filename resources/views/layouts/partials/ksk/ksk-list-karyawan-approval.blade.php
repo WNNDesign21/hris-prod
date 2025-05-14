@@ -114,6 +114,8 @@
                                     <option value="TTP" {{ $item->status_ksk == 'TTP' ? 'selected' : '' }}>KARYAWAN
                                         TETAP</option>
                                 </select>
+                                <strong class="text-danger mt-1">Kontrak Berjalan
+                                    : {{ $item->karyawan->jenis_kontrak }}</strong><br>
                                 <small class="text-muted mt-1">Last Update :
                                     {{ $item->changeHistoryKSK->isNotEmpty() ? $item->changeHistoryKSK->sortByDesc('created_at')->first()->changed_by : '-' }}</small>
                             </div>
@@ -172,7 +174,7 @@
                         </div>
                         <hr>
                         <div class="col-12 col-lg-12">
-                            <div id="previewAttachments">
+                            <div id="previewAttachments_{{ $i }}">
                                 @if ($item->attachments)
                                     @foreach ($item->attachments as $index => $attach)
                                         <a id="attachmentPreview_{{ $index }}"
@@ -186,15 +188,19 @@
                                     -
                                 @endif
                             </div>
-                            <div class="form-group">
-                                <small class="text-muted">Attachment</small><br>
-                                @role('atasan')
-                                    <input type="file" name="attachment" id="attachment" class="form-control"
-                                        data-id-ksk-detail="{{ $item->id_ksk_detail }}" accept=".pdf">
-                                    <small class="text-muted mt-1">Last Update :
-                                        {{ $item->changeHistoryKSK->isNotEmpty() ? $item->changeHistoryKSK->sortByDesc('created_at')->first()->changed_by : '-' }}</small>
-                                @endrole
-                            </div>
+                            @if (in_array($item->ksk->parent_id, auth()->user()->karyawan->posisi->pluck('id_posisi')->toArray()))
+                                <div class="form-group">
+                                    <small class="text-muted">Attachment</small><br>
+                                    @role('atasan')
+                                        <input type="file" name="attachment" id="attachment{{ $i }}"
+                                            class="form-control attachment"
+                                            data-id-ksk-detail="{{ $item->id_ksk_detail }}"
+                                            data-id="{{ $i }}" accept=".pdf">
+                                        <small class="text-muted mt-1">Last Update :
+                                            {{ $item->changeHistoryKSK->isNotEmpty() ? $item->changeHistoryKSK->sortByDesc('created_at')->first()->changed_by : '-' }}</small>
+                                    @endrole
+                                </div>
+                            @endif
                         </div>
                         <div class="col-6 col-lg-6">
                             <small class="text-muted">History Kontrak</small><br>

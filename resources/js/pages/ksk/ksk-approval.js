@@ -454,14 +454,15 @@ $(function () {
     });
 
     function onChangeAttachment(){
-        $('#attachment').on("change", function () {
+        $('.attachment').on("change", function () {
             loadingSwalShow();
             let idKSKDetail = $(this).data('id-ksk-detail');
-            compressAndDisplayImageSave(this, idKSKDetail);
+            let id = $(this).data('id');
+            compressAndDisplayImageSave(this, idKSKDetail, id);
         });
     }
 
-    function compressAndDisplayImageSave(input, idKSKDetail) {
+    function compressAndDisplayImageSave(input, idKSKDetail, id) {
         if (input.files && input.files[0]) {
           var reader = new FileReader();
 
@@ -481,8 +482,8 @@ $(function () {
                 dataType: "JSON",
                 success: function (data) {
                     showToast({ title: data.message });
-                    getPreviewAttachment(idKSKDetail);
-                    $('#attachment').val('');
+                    getPreviewAttachment(idKSKDetail, id);
+                    $('#attachment'+id).val('');
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     showToast({ icon: "error", title: jqXHR.responseJSON.message });
@@ -496,7 +497,7 @@ $(function () {
         }
     }
 
-    function getPreviewAttachment(idKSKDetail){
+    function getPreviewAttachment(idKSKDetail, id){
         let url = base_url + '/ksk/ajax/approval/get-attachments-detail-ksk/' + idKSKDetail;
         $.ajax({
             url: url,
@@ -504,7 +505,7 @@ $(function () {
             dataType: "JSON",
             success: function (response) {
                 let html = response.html;
-                $('#previewAttachments').empty().html(html);
+                $('#previewAttachments_'+id).empty().html(html);
             },
             error: function (jqXHR, textStatus, errorThrown) {
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
