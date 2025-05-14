@@ -102,7 +102,7 @@ class IzineMiddleware
             $izins = Izine::leftJoin('karyawan_posisi', 'izins.karyawan_id', 'karyawan_posisi.karyawan_id')
                     ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
                     ->whereIn('posisis.id_posisi', $id_posisi_members)
-                    ->whereNull('rejected_by')
+                    ->whereNull('izins.rejected_by')
                     ->where(function($query){
                         $query->whereNull('legalized_by')
                         ->where(function($query){
