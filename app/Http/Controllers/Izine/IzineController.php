@@ -822,8 +822,10 @@ class IzineController extends Controller
                 $is_can_checked = true;
             }
 
-            if (auth()->user()->karyawan->posisi[0]->jabatan_id <= 4){
-                $is_can_approved = true;
+            if (!$is_can_checked) {
+                if (auth()->user()->karyawan->posisi[0]->jabatan_id <= 4){
+                    $is_can_approved = true;
+                }
             }
 
              //CEK APAKAH DIA ORANG PIKET
