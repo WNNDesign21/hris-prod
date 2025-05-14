@@ -191,8 +191,6 @@ class LembureController extends Controller
                     ->aktif()
                     ->pluck('karyawans.nama', 'karyawans.id_karyawan');
             } elseif (auth()->user()->karyawan->posisi[0]->jabatan_id == 2){
-            // Versi Pak Kuncara Query dibawah ini di Comment
-            // } elseif (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->divisi_id == 3){
                 $karyawans = Karyawan::select('karyawans.nama', 'karyawans.id_karyawan', 'posisis.jabatan_id')->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
                     ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
                     ->whereIn('posisis.id_posisi', $member_posisi_ids)
@@ -209,7 +207,6 @@ class LembureController extends Controller
                     ->aktif()
                     ->pluck('karyawans.nama', 'karyawans.id_karyawan');
             } else {
-                // return redirect()->route('root');
                 $karyawans = Karyawan::select('karyawans.nama', 'karyawans.id_karyawan', 'posisis.jabatan_id')->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
                     ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
                     ->whereIn('posisis.id_posisi', $member_posisi_ids)
@@ -3666,7 +3663,7 @@ class LembureController extends Controller
             $detail_lembur = $lembur->detailLembur;
 
             if(!$is_aktual_approved){
-                DB::commit();
+                DB::rollback();
                 return response()->json(['message' => 'Minimal ada 1 orang yang di Approved!'], 403);
             } else {
                 $is_aktual_approved = explode(',', $is_aktual_approved);
@@ -3686,12 +3683,24 @@ class LembureController extends Controller
             // Delete detail lembur yang tidak ada di is_aktual_approved
             foreach ($id_detail_lemburs as $key => $id_detail_lembur) {
                 $detail = DetailLembur::find($id_detail_lembur);
+
                 if (!in_array($detail->id_detail_lembur, $is_aktual_approved)) {
                     $detail->aktual_last_changed_by = auth()->user()->karyawan->nama;
                     $detail->aktual_last_changed_at = now();
                     $detail->is_aktual_approved = 'N';
                 } else {
                     if($detail && $detail->is_aktual_approved == 'Y'){
+                        $tanggal_lembur = Carbon::createFromFormat('Y-m-d\TH:i', $aktual_mulai_lemburs[$key])->format('Y-m-d');
+                        $scanlogValidation = Scanlog::whereDate('scan_date', $tanggal_lembur)
+                            ->where('pin', $detail->karyawan?->pin)
+                            ->where('organisasi_id', $detail->organisasi_id)
+                            ->exists();
+
+                        if (!$scanlogValidation) {
+                            DB::rollback();
+                            return response()->json(['message' => 'Tidak ada presensi karyawan '.$detail->karyawan->nama.' pada tanggal '.$tanggal_lembur.', Silahkan uncheck karyawan atau Cancel seluruh dokumen Lembbur'], 402);
+                        }
+
                         $is_changed = false;
                         $karyawan = $detail->karyawan;
                         $gaji_lembur = $karyawan->settingLembur->gaji;
@@ -3733,6 +3742,9 @@ class LembureController extends Controller
 
                         // Hitung durasi dan nominal Aktual
                         $total_durasi_aktual += $durasi;
+                    } else {
+                        DB::rollback();
+                        return response()->json(['message' => 'Detail lembur tidak ditemukan'], 404);
                     }
                 }
                 $detail->keterangan = isset($keterangan[$key]) ? $keterangan[$key] : null;
