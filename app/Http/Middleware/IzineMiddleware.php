@@ -6,6 +6,7 @@ use Closure;
 use App\Models\Izine;
 use App\Models\Posisi;
 use App\Models\Sakite;
+use App\Helpers\Approval;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -59,7 +60,12 @@ class IzineMiddleware
         //leader
         if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 5){
             $posisi = $user->karyawan->posisi;
-            $id_posisi_members = $this->get_member_posisi($posisi);
+            $id_posisi_members = Approval::GetMemberPosisi($posisi);
+
+            foreach ($posisi as $ps){
+                $index = array_search($ps->id_posisi, $id_posisi_members);
+                array_splice($id_posisi_members, $index, 1);
+            }
 
             foreach ($posisi as $ps){
                 $index = array_search($ps->id_posisi, $id_posisi_members);
@@ -86,7 +92,12 @@ class IzineMiddleware
         if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 4){
             $posisi = $user->karyawan->posisi;
             $my_posisi = $posisi[0]->jabatan_id;
-            $id_posisi_members = $this->get_member_posisi($posisi);
+            $id_posisi_members = Approval::GetMemberPosisi($posisi);
+
+            foreach ($posisi as $ps){
+                $index = array_search($ps->id_posisi, $id_posisi_members);
+                array_splice($id_posisi_members, $index, 1);
+            }
 
             $izins = Izine::leftJoin('karyawan_posisi', 'izins.karyawan_id', 'karyawan_posisi.karyawan_id')
                     ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
@@ -127,19 +138,22 @@ class IzineMiddleware
         if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 3){
             $posisi = $user->karyawan->posisi;
             $my_posisi = $posisi[0]->jabatan_id;
-            $id_posisi_members = $this->get_member_posisi($posisi);
+            $id_posisi_members = Approval::GetMemberPosisi($posisi);
+
+            foreach ($posisi as $ps){
+                $index = array_search($ps->id_posisi, $id_posisi_members);
+                array_splice($id_posisi_members, $index, 1);
+            }
 
             $izins = Izine::leftJoin('karyawan_posisi', 'izins.karyawan_id', 'karyawan_posisi.karyawan_id')
                     ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
                     ->whereIn('posisis.id_posisi', $id_posisi_members)
-                    ->whereNull('rejected_by')
-                    ->where(function($query){
-                        $query->whereNull('legalized_by')
-                        ->where(function($query){
-                            $query->whereNull('checked_by');
-                            $query->orWhereNull('approved_by');
-                        });
-                    })->get();
+                    ->where(function ($query) {
+                        $query->whereNull('izins.checked_by')
+                            ->orWhereNull('izins.approved_by');
+                    })->whereNull('izins.legalized_by')
+                    ->whereNull('izins.rejected_by')
+                    ->get();
 
             foreach ($izins as $izin){
                 $posisi = $izin->karyawan->posisi;
@@ -154,6 +168,10 @@ class IzineMiddleware
                 if ($has_leader && !$has_section_head && !$izin->approved_by){
                     $approval_izin++;
                 }
+
+                if (!$has_leader && $has_section_head && !$izin->approved_by){
+                    $approval_izin++;
+                }
             }
 
             $skds = Sakite::leftJoin('karyawan_posisi', 'sakits.karyawan_id', 'karyawan_posisi.karyawan_id')
@@ -161,7 +179,6 @@ class IzineMiddleware
                     ->whereIn('posisis.id_posisi', $id_posisi_members)
                     ->whereNull('rejected_by')
                     ->whereNull('approved_by')
-                    // ->whereNotNull('attachment')
                     ->get();
 
             foreach ($skds as $skd){
@@ -180,19 +197,22 @@ class IzineMiddleware
         if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 2){
             $posisi = $user->karyawan->posisi;
             $my_posisi = $posisi[0]->jabatan_id;
-            $id_posisi_members = $this->get_member_posisi($posisi);
+            $id_posisi_members = Approval::GetMemberPosisi($posisi);
+
+            foreach ($posisi as $ps){
+                $index = array_search($ps->id_posisi, $id_posisi_members);
+                array_splice($id_posisi_members, $index, 1);
+            }
 
             $izins = Izine::leftJoin('karyawan_posisi', 'izins.karyawan_id', 'karyawan_posisi.karyawan_id')
                     ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
                     ->whereIn('posisis.id_posisi', $id_posisi_members)
-                    ->whereNull('rejected_by')
-                    ->where(function($query){
-                        $query->whereNull('legalized_by')
-                        ->where(function($query){
-                            $query->whereNull('checked_by');
-                            $query->orWhereNull('approved_by');
-                        });
-                    })->get();
+                    ->where(function ($query) {
+                        $query->whereNull('izins.checked_by')
+                            ->orWhereNull('izins.approved_by');
+                    })->whereNull('izins.legalized_by')
+                    ->whereNull('izins.rejected_by')
+                    ->get();
 
             foreach ($izins as $izin){
                 $posisi = $izin->karyawan->posisi;
