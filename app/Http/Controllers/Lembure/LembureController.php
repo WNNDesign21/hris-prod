@@ -3690,16 +3690,16 @@ class LembureController extends Controller
                     $detail->is_aktual_approved = 'N';
                 } else {
                     if($detail && $detail->is_aktual_approved == 'Y'){
-                        $tanggal_lembur = Carbon::createFromFormat('Y-m-d\TH:i', $aktual_mulai_lemburs[$key])->format('Y-m-d');
-                        $scanlogValidation = Scanlog::whereDate('scan_date', $tanggal_lembur)
-                            ->where('pin', $detail->karyawan?->pin)
-                            ->where('organisasi_id', $detail->organisasi_id)
-                            ->exists();
+                        // $tanggal_lembur = Carbon::createFromFormat('Y-m-d\TH:i', $aktual_mulai_lemburs[$key])->format('Y-m-d');
+                        // $scanlogValidation = Scanlog::whereDate('scan_date', $tanggal_lembur)
+                        //     ->where('pin', $detail->karyawan?->pin)
+                        //     ->where('organisasi_id', $detail->organisasi_id)
+                        //     ->exists();
 
-                        if (!$scanlogValidation) {
-                            DB::rollback();
-                            return response()->json(['message' => 'Tidak ada presensi karyawan '.$detail->karyawan->nama.' pada tanggal '.$tanggal_lembur.', Silahkan uncheck karyawan atau Cancel seluruh dokumen Lembbur'], 402);
-                        }
+                        // if (!$scanlogValidation) {
+                        //     DB::rollback();
+                        //     return response()->json(['message' => 'Tidak ada presensi karyawan '.$detail->karyawan->nama.' pada tanggal '.$tanggal_lembur.', Silahkan uncheck karyawan atau Cancel seluruh dokumen Lembbur'], 402);
+                        // }
 
                         $is_changed = false;
                         $karyawan = $detail->karyawan;
