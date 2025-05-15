@@ -581,7 +581,7 @@ class LembureController extends Controller
 
                         //AFTER PLANNED
                         if($data->status == 'COMPLETED' && $data->actual_checked_by == null){
-                            $button_checked_actual = '<button class="btn btn-sm btn-success btnCheckedAktual" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="far fa-check-circle"></i> Checked</button>';
+                            $button_checked_actual = '<div class="btn-group"><button class="btn btn-sm btn-success btnCheckedAktual" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="far fa-check-circle"></i> Checked</button><button type="button" class="btn btn-sm btn-danger waves-effect btnRejectLembur" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-times-circle"></i> Reject</button></div>';
                         } elseif ($data->status == 'COMPLETED' && $data->actual_checked_by !== null) {
                             $button_checked_actual = '✅<br><small class="text-bold">'.$data?->actual_checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_checked_at)->diffForHumans().'</small>';
                         }
@@ -646,11 +646,11 @@ class LembureController extends Controller
                     //BUTTON APPROVED DI SISI PLANT HEAD
                     if($data->actual_approved_by == null){
                         if($data->status == 'COMPLETED' && $data->actual_checked_by !== null){
-                            $button_approved_actual = '<button class="btn btn-sm btn-success btnApprovedAktual" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-thumbs-up"></i> Approved</button>';
+                            $button_approved_actual = '<div class="btn-group"><button class="btn btn-sm btn-success btnApprovedAktual" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-thumbs-up"></i> Approved</button><button type="button" class="btn btn-sm btn-danger waves-effect btnRejectLembur" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-times-circle"></i> Reject</button></div>';
                         }
 
                         if($data->status == 'COMPLETED' && !$this->has_department_head($data->issued->posisi) && $data->actual_checked_by == null){
-                            $button_approved_actual = '<button class="btn btn-sm btn-success btnApprovedAktual" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-thumbs-up"></i> Approved</button>';
+                            $button_approved_actual = '<div class="btn-group"><button class="btn btn-sm btn-success btnApprovedAktual" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-thumbs-up"></i> Approved</button><button type="button" class="btn btn-sm btn-danger waves-effect btnRejectLembur" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-times-circle"></i> Reject</button></div>';
                         }
                     } else {
                         //AFTER PLANNED
@@ -711,7 +711,7 @@ class LembureController extends Controller
                     //BUTTON LEGALIZED DI SISI PERSONALIA
                     if($data->actual_legalized_by == null){
                         if($data->actual_reviewed_by !== null){
-                            $button_legalized_actual = '<button class="btn btn-sm btn-success btnLegalizedAktual" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-balance-scale"></i> Legalized</button>';
+                            $button_legalized_actual = '<div class="btn-group"><button class="btn btn-sm btn-success btnLegalizedAktual" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-balance-scale"></i> Legalized</button><button type="button" class="btn btn-sm btn-danger waves-effect btnRejectLembur" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-times-circle"></i> Reject</button></div>';
                         }
                     } else {
                         //AFTER PLANNED
