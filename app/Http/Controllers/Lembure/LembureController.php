@@ -76,7 +76,7 @@ class LembureController extends Controller
 
     public function detail_lembur_view()
     {
-        if(auth()->user()->karyawan && auth()->user()->karyawan->posisi[0]->jabatan_id >= 5){
+        if(auth()->user()->karyawan && auth()->user()->karyawan->posisi[0]->jabatan_id >= 4){
             return redirect()->route('lembure.pengajuan-lembur');
         }
 
@@ -432,15 +432,20 @@ class LembureController extends Controller
         $is_can_checked = false;
         $is_can_approved = false;
         $is_has_department_head = false;
+        $is_can_see_nominal = false;
 
         if(auth()->user()->hasRole('personalia')){
             $dataFilter['organisasi_id'] = $organisasi_id;
             $is_can_legalized = true;
+            $is_can_see_nominal = true;
         } elseif (auth()->user()->karyawan->posisi[0]->jabatan_id == 4 || auth()->user()->karyawan->posisi[0]->jabatan_id == 3){
             $member_posisi_ids = $this->get_member_posisi($posisi);
             $dataFilter['member_posisi_ids'] = $member_posisi_ids;
             $is_can_checked = true;
             $is_has_department_head = $this->has_department_head($posisi);
+            if (auth()->user()->karyawan->posisi[0]->jabatan_id <= 3) {
+                $is_can_see_nominal = true;
+            }
         }  elseif (auth()->user()->karyawan->posisi[0]->jabatan_id == 2){
             // JIKA PLANT HEAD
             if (auth()->user()->karyawan->posisi[0]->divisi_id == 3) {
@@ -458,12 +463,14 @@ class LembureController extends Controller
                 $dataFilter['divisi_id'] = $divisis;
                 $dataFilter['organisasi_id'] = $organisasi_id;
                 $is_can_approved = true;
+                $is_can_see_nominal = true;
             // JIKA NON PLANT HEAD
             } else {
                 $member_posisi_ids = $this->get_member_posisi($posisi);
                 $dataFilter['member_posisi_ids'] = $member_posisi_ids;
                 $dataFilter['is_div_head'] = true;
                 $is_can_approved = true;
+                $is_can_see_nominal = true;
             }
         }
 
@@ -726,7 +733,7 @@ class LembureController extends Controller
                 $nestedData['departemen'] = $data?->nama_departemen;
                 $nestedData['jenis_hari'] = $data->jenis_hari;
                 $nestedData['total_durasi'] = $jam . ' Jam ' . $menit . ' Menit';
-                $nestedData['total_nominal'] = 'Rp. ' . number_format($total_nominal, 0, ',', '.');
+                $nestedData['total_nominal'] = $is_can_see_nominal ? 'Rp. ' . number_format($total_nominal, 0, ',', '.') : '-';
                 $nestedData['status'] = $status;
                 $nestedData['plan_checked_by'] = !$rejected ? $button_checked_plan : '';
                 $nestedData['plan_approved_by'] = !$rejected ? $button_approved_plan : '';
@@ -2698,6 +2705,16 @@ class LembureController extends Controller
                 $hour_aktual = floor($duration_aktual / 60);
                 $minutes_aktual = $duration_aktual % 60;
 
+                //Can See Nominal
+                $is_can_see_nominal = false;
+                if (auth()->user()->hasRole('atasan')) {
+                    if (auth()->user()->karyawan->posisi[0]->jabatan_id <= 3) {
+                        $is_can_see_nominal = true;
+                    }
+                } elseif (auth()->user()->hasRole('personalia')) {
+                    $is_can_see_nominal = true;
+                }
+
                 $data_detail_lembur[] = [
                     'id_detail_lembur' => $data->id_detail_lembur,
                     'lembur_id' => $data->lembur_id,
@@ -2716,7 +2733,7 @@ class LembureController extends Controller
                     'durasi_rencana' => $hour_rencana . ' jam  ' . $minutes_rencana . ' menit',
                     'durasi_aktual' => $hour_aktual . ' jam  ' . $minutes_aktual . ' menit',
                     'keterangan' => $data->keterangan,
-                    'nominal' => 'Rp. ' . number_format($data->nominal, 0, ',', '.'),
+                    'nominal' => $is_can_see_nominal ? 'Rp. ' . number_format($data->nominal, 0, ',', '.') : '-',
                     'rencana_last_changed_by' => $data->rencana_last_changed_by,
                     'rencana_last_changed_at' => $data->rencana_last_changed_at ? Carbon::parse($data->rencana_last_changed_at)->format('Y-m-d H:i') : null,
                     'aktual_last_changed_by' => $data->aktual_last_changed_by,
@@ -4551,6 +4568,16 @@ class LembureController extends Controller
         $selesai_lembur = $request->selesai_lembur;
 
         try{
+            //Can See Nominal
+            $is_can_see_nominal = false;
+            if (auth()->user()->hasRole('atasan')) {
+                if (auth()->user()->karyawan->posisi[0]->jabatan_id <= 3) {
+                    $is_can_see_nominal = true;
+                }
+            } elseif (auth()->user()->hasRole('personalia')) {
+                $is_can_see_nominal = true;
+            }
+
             $datetime_mulai_lembur = $this->pembulatan_menit_ke_bawah($mulai_lembur);
             $datetime_selesai_lembur = $this->pembulatan_menit_ke_bawah($selesai_lembur);
             $durasi = $this->calculate_overtime_per_minutes($datetime_mulai_lembur, $datetime_selesai_lembur, $detail_lembur->karyawan->user->organisasi_id, $jenis_hari, $karyawan_id);
@@ -4560,7 +4587,7 @@ class LembureController extends Controller
             $minutes = $durasi % 60;
 
             $durasi_text = $hours . ' jam ' . $minutes . ' menit';
-            $nominal_text = 'Rp ' . number_format($nominal, 0, ',', '.');
+            $nominal_text = $is_can_see_nominal ? 'Rp ' . number_format($nominal, 0, ',', '.') : '-';
 
             $data = [
                 'durasi' => $durasi_text,
