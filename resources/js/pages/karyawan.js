@@ -380,6 +380,10 @@ $(function () {
     });
 
     function initializeSelect2Edit(grupId, posisi) {
+        $('#organisasiEdit').select2({
+            dropdownParent: $('#modal-edit-karyawan'),
+        });
+
         $('#jenis_kelaminEdit').select2({
             dropdownParent: $('#modal-edit-karyawan'),
         });
@@ -450,6 +454,8 @@ $(function () {
             dataType: "JSON",
             success: function (response) {
                 let detailKaryawan = response.data;
+                $('#id_organisasiEdit').val(detailKaryawan.organisasi_id);
+                $('#organisasiEdit').val(detailKaryawan.organisasi_id);
                 $('#id_karyawanEdit').val(detailKaryawan.id_karyawan);
                 $('#ni_karyawanEdit').val(detailKaryawan.ni_karyawan);
                 $('#link_fotoEdit').attr('href', detailKaryawan.foto);
@@ -500,29 +506,71 @@ $(function () {
     //SUBMIT EDIT KARYAWAN
     $('#form-edit-karyawan').on('submit', function (e){
         e.preventDefault();
-        loadingSwalShow();
-        let idKaryawan = $('#id_karyawanEdit').val();
-        let url = base_url + '/master-data/karyawan/update/' + idKaryawan;
+        let currentOrg = $('#id_organisasiEdit').val();
+        let newOrg = $('#organisasiEdit').val();
 
-        var formData = new FormData($('#form-edit-karyawan')[0]);
-        $.ajax({
-            url: url,
-            data: formData,
-            method:"POST",
-            contentType: false,
-            processData: false,
-            dataType: "JSON",
-            success: function (data) {
-                loadingSwalClose();
-                showToast({ title: data.message });
-                closeEditKaryawan();
-                refreshTable();
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-                loadingSwalClose();
-                showToast({ icon: "error", title: jqXHR.responseJSON.message });
-            },
-        })
+        if (currentOrg !== newOrg) {
+            Swal.fire({
+                title: "Pemindahan Organisasi Karyawan",
+                text: "Ketika sudah di submit, maka data karyawan akan langsung pindah ke organisasi yang dipilih, anda yakin ?",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Ya, pindahkan karyawan!",
+                allowOutsideClick: false,
+            }).then((result) => {
+                if (result.value) {
+                    loadingSwalShow();
+                    let idKaryawan = $('#id_karyawanEdit').val();
+                    let url = base_url + '/master-data/karyawan/update/' + idKaryawan;
+
+                    var formData = new FormData($('#form-edit-karyawan')[0]);
+                    $.ajax({
+                        url: url,
+                        data: formData,
+                        method:"POST",
+                        contentType: false,
+                        processData: false,
+                        dataType: "JSON",
+                        success: function (data) {
+                            loadingSwalClose();
+                            showToast({ title: data.message });
+                            closeEditKaryawan();
+                            refreshTable();
+                        },
+                        error: function (jqXHR, textStatus, errorThrown) {
+                            loadingSwalClose();
+                            showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                        },
+                    })
+                }
+            });
+        } else {
+            loadingSwalShow();
+            let idKaryawan = $('#id_karyawanEdit').val();
+            let url = base_url + '/master-data/karyawan/update/' + idKaryawan;
+
+            var formData = new FormData($('#form-edit-karyawan')[0]);
+            $.ajax({
+                url: url,
+                data: formData,
+                method:"POST",
+                contentType: false,
+                processData: false,
+                dataType: "JSON",
+                success: function (data) {
+                    loadingSwalClose();
+                    showToast({ title: data.message });
+                    closeEditKaryawan();
+                    refreshTable();
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    loadingSwalClose();
+                    showToast({ icon: "error", title: jqXHR.responseJSON.message });
+                },
+            })
+        }
     });
 
     //DELETE KARYAWAN

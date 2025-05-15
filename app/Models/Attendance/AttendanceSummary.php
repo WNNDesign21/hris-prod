@@ -191,7 +191,6 @@ class AttendanceSummary extends Model
 
     private static function _query($dataFilter)
     {
-
         $data = self::select(
             'attendance_summaries.*',
             'karyawans.nama as karyawan',

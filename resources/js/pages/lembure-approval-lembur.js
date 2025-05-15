@@ -899,6 +899,8 @@ $(function () {
         loadingSwalShow();
         let idLembur = $(this).data('id-lembur');
         let isPlanned = $(this).data('is-planned');
+        let canApproved = $(this).data('can-approved');
+        let canChecked = $(this).data('can-checked');
         let url = base_url + '/lembure/pengajuan-lembur/get-data-lembur/' + idLembur;
         $('#id_lemburAktual').val(idLembur);
 
@@ -988,6 +990,13 @@ $(function () {
                             <td id="nominal-aktual-${i}">
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N' ? val.nominal : '-'}
                             </td>
+                            <td>
+                                `+ ((canApproved || canChecked) && isPlanned && val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N' ?
+                                `
+                                    <input type="checkbox" name="is_aktual_approved" data-urutan="${i}" id="is_aktual_approved_${i}" class="filled-in chk-col-primary" ${val.is_aktual_approved == 'Y' ? 'checked' : ''} value="${val.id_detail_lembur}"/>
+                                    <label for="is_aktual_approved_${i}"></label>
+                                ` : '-' )+`
+                            </td>
                         </tr>
                     `)
 
@@ -999,6 +1008,22 @@ $(function () {
                         $('#aktual_mulai_lembur_aktual_' + i).val(val.aktual_mulai_lembur);
                         $('#aktual_selesai_lembur_aktual_' + i).val(val.aktual_selesai_lembur);
                     }
+
+                    $('#is_aktual_approved_' + i).on('change', function(){
+                        if ($(this).is(':checked')) {
+                            $(this).attr('checked', true);
+                            if ($(this).closest('tr').hasClass('bg-danger')) {
+                                $(this).closest('tr').removeClass('bg-danger');
+                            }
+                            $('#aktual_mulai_lembur_aktual_' + i).attr('readonly', false);
+                            $('#aktual_selesai_lembur_aktual_' + i).attr('readonly', false);
+                        } else {
+                            $(this).removeAttr('checked');
+                            $(this).closest('tr').addClass('bg-danger');
+                            $('#aktual_mulai_lembur_aktual_' + i).attr('readonly', true);
+                            $('#aktual_selesai_lembur_aktual_' + i).attr('readonly', true);
+                        }
+                    });
 
                     let minDate = moment(val.rencana_mulai_lembur).format('YYYY-MM-DDT00:00');
 
@@ -1067,6 +1092,13 @@ $(function () {
                         e.preventDefault();
                         let url = $('#form-aktual-approval-lembur').attr('action');
                         let formData = new FormData($('#form-aktual-approval-lembur')[0]);
+
+                        let approvedDetail = [];
+                        $("input:checkbox[name=is_aktual_approved]:checked").each(function() {
+                            approvedDetail.push($(this).val());
+                        });
+
+                        formData.append('approved_detail', approvedDetail);
                         formData.append('is_planned', isPlanned ? 'Y' : 'N');
 
                         Swal.fire({
@@ -1134,6 +1166,8 @@ $(function () {
         loadingSwalShow();
         let idLembur = $(this).data('id-lembur');
         let isPlanned = $(this).data('is-planned');
+        let canApproved = $(this).data('can-approved');
+        let canChecked = $(this).data('can-checked');
         let url = base_url + '/lembure/pengajuan-lembur/get-data-lembur/' + idLembur;
         $('#id_lemburAktual').val(idLembur);
 
@@ -1223,6 +1257,13 @@ $(function () {
                             <td id="nominal-aktual-${i}">
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N' ? val.nominal : '-'}
                             </td>
+                            <td>
+                                `+ ((canApproved || canChecked) && isPlanned && val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N' ?
+                                `
+                                    <input type="checkbox" name="is_aktual_approved" data-urutan="${i}" id="is_aktual_approved_${i}" class="filled-in chk-col-primary" ${val.is_aktual_approved == 'Y' ? 'checked' : ''} value="${val.id_detail_lembur}"/>
+                                    <label for="is_aktual_approved_${i}"></label>
+                                ` : '-' )+`
+                            </td>
                         </tr>
                     `)
 
@@ -1234,6 +1275,22 @@ $(function () {
                         $('#aktual_mulai_lembur_aktual_' + i).val(val.aktual_mulai_lembur);
                         $('#aktual_selesai_lembur_aktual_' + i).val(val.aktual_selesai_lembur);
                     }
+
+                    $('#is_aktual_approved_' + i).on('change', function(){
+                        if ($(this).is(':checked')) {
+                            $(this).attr('checked', true);
+                            if ($(this).closest('tr').hasClass('bg-danger')) {
+                                $(this).closest('tr').removeClass('bg-danger');
+                            }
+                            $('#aktual_mulai_lembur_aktual_' + i).attr('readonly', false);
+                            $('#aktual_selesai_lembur_aktual_' + i).attr('readonly', false);
+                        } else {
+                            $(this).removeAttr('checked');
+                            $(this).closest('tr').addClass('bg-danger');
+                            $('#aktual_mulai_lembur_aktual_' + i).attr('readonly', true);
+                            $('#aktual_selesai_lembur_aktual_' + i).attr('readonly', true);
+                        }
+                    });
 
                     let minDate = moment(val.rencana_mulai_lembur).format('YYYY-MM-DDT00:00');
 
@@ -1302,6 +1359,12 @@ $(function () {
                         e.preventDefault();
                         let url = $('#form-aktual-approval-lembur').attr('action');
                         let formData = new FormData($('#form-aktual-approval-lembur')[0]);
+                        let approvedDetail = [];
+                        $("input:checkbox[name=is_aktual_approved]:checked").each(function() {
+                            approvedDetail.push($(this).val());
+                        });
+
+                        formData.append('approved_detail', approvedDetail);
                         formData.append('is_planned', isPlanned ? 'Y' : 'N');
 
                         Swal.fire({
@@ -1467,6 +1530,13 @@ $(function () {
                             <td id="nominal-aktual-${i}">
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N' ? val.nominal : '-'}
                             </td>
+                            <td>
+                                `+ (isPlanned && val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N' ?
+                                `
+                                    <input type="checkbox" name="is_aktual_approved" data-urutan="${i}" id="is_aktual_approved_${i}" class="filled-in chk-col-primary" ${val.is_aktual_approved == 'Y' ? 'checked' : ''} value="${val.id_detail_lembur}"/>
+                                    <label for="is_aktual_approved_${i}"></label>
+                                ` : '-' )+`
+                            </td>
                         </tr>
                     `)
 
@@ -1478,6 +1548,22 @@ $(function () {
                         $('#aktual_mulai_lembur_aktual_' + i).val(val.aktual_mulai_lembur);
                         $('#aktual_selesai_lembur_aktual_' + i).val(val.aktual_selesai_lembur);
                     }
+
+                    $('#is_aktual_approved_' + i).on('change', function(){
+                        if ($(this).is(':checked')) {
+                            $(this).attr('checked', true);
+                            if ($(this).closest('tr').hasClass('bg-danger')) {
+                                $(this).closest('tr').removeClass('bg-danger');
+                            }
+                            $('#aktual_mulai_lembur_aktual_' + i).attr('readonly', false);
+                            $('#aktual_selesai_lembur_aktual_' + i).attr('readonly', false);
+                        } else {
+                            $(this).removeAttr('checked');
+                            $(this).closest('tr').addClass('bg-danger');
+                            $('#aktual_mulai_lembur_aktual_' + i).attr('readonly', true);
+                            $('#aktual_selesai_lembur_aktual_' + i).attr('readonly', true);
+                        }
+                    });
 
                     let minDate = moment(val.rencana_mulai_lembur).format('YYYY-MM-DDT00:00');
 
@@ -1553,6 +1639,12 @@ $(function () {
                         e.preventDefault();
                         let url = $('#form-aktual-approval-lembur').attr('action');
                         let formData = new FormData($('#form-aktual-approval-lembur')[0]);
+                        let approvedDetail = [];
+                        $("input:checkbox[name=is_aktual_approved]:checked").each(function() {
+                            approvedDetail.push($(this).val());
+                        });
+
+                        formData.append('approved_detail', approvedDetail);
                         formData.append('is_planned', isPlanned ? 'Y' : 'N');
 
                         Swal.fire({

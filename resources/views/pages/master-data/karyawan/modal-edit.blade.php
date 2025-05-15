@@ -14,6 +14,20 @@
                         <div class="row p-4">
                             <div class="col-lg-6 col-12">
                                 <div class="form-group">
+                                    <label for="">Organisasi <span class="text-danger">*</span></label>
+                                    <br>
+                                    <div class="input-group mb-2" style="width:100%;">
+                                        <input type="hidden" name="id_organisasiEdit" id="id_organisasiEdit">
+                                        <select name="organisasiEdit" id="organisasiEdit" class="form-control"
+                                            style="width: 100%;" required>
+                                            <option value="">Pilih Organisasi</option>
+                                            @foreach ($organisasi as $org)
+                                                <option value="{{ $org->id_organisasi }}">{{ $org->nama }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
                                     <a id="link_fotoEdit" href="{{ asset('img/no-image.png') }}"
                                         data-title="Foto Karyawan" class="image-popup-vertical-fit">
                                         <img id="image_reviewEdit" src="{{ asset('img/no-image.png') }}"

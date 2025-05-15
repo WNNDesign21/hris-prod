@@ -76,7 +76,7 @@ class LembureController extends Controller
 
     public function detail_lembur_view()
     {
-        if(auth()->user()->karyawan && auth()->user()->karyawan->posisi[0]->jabatan_id >= 5){
+        if(auth()->user()->karyawan && auth()->user()->karyawan->posisi[0]->jabatan_id >= 4){
             return redirect()->route('lembure.pengajuan-lembur');
         }
 
@@ -432,15 +432,20 @@ class LembureController extends Controller
         $is_can_checked = false;
         $is_can_approved = false;
         $is_has_department_head = false;
+        $is_can_see_nominal = false;
 
         if(auth()->user()->hasRole('personalia')){
             $dataFilter['organisasi_id'] = $organisasi_id;
             $is_can_legalized = true;
+            $is_can_see_nominal = true;
         } elseif (auth()->user()->karyawan->posisi[0]->jabatan_id == 4 || auth()->user()->karyawan->posisi[0]->jabatan_id == 3){
             $member_posisi_ids = $this->get_member_posisi($posisi);
             $dataFilter['member_posisi_ids'] = $member_posisi_ids;
             $is_can_checked = true;
             $is_has_department_head = $this->has_department_head($posisi);
+            if (auth()->user()->karyawan->posisi[0]->jabatan_id <= 3) {
+                $is_can_see_nominal = true;
+            }
         }  elseif (auth()->user()->karyawan->posisi[0]->jabatan_id == 2){
             // JIKA PLANT HEAD
             if (auth()->user()->karyawan->posisi[0]->divisi_id == 3) {
@@ -458,12 +463,14 @@ class LembureController extends Controller
                 $dataFilter['divisi_id'] = $divisis;
                 $dataFilter['organisasi_id'] = $organisasi_id;
                 $is_can_approved = true;
+                $is_can_see_nominal = true;
             // JIKA NON PLANT HEAD
             } else {
                 $member_posisi_ids = $this->get_member_posisi($posisi);
                 $dataFilter['member_posisi_ids'] = $member_posisi_ids;
                 $dataFilter['is_div_head'] = true;
                 $is_can_approved = true;
+                $is_can_see_nominal = true;
             }
         }
 
@@ -581,7 +588,7 @@ class LembureController extends Controller
 
                         //AFTER PLANNED
                         if($data->status == 'COMPLETED' && $data->actual_checked_by == null){
-                            $button_checked_actual = '<button class="btn btn-sm btn-success btnCheckedAktual" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="far fa-check-circle"></i> Checked</button>';
+                            $button_checked_actual = '<div class="btn-group"><button class="btn btn-sm btn-success btnCheckedAktual" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-can-checked="'.($is_can_checked ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="far fa-check-circle"></i> Checked</button><button type="button" class="btn btn-sm btn-danger waves-effect btnRejectLembur" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-times-circle"></i> Reject</button></div>';
                         } elseif ($data->status == 'COMPLETED' && $data->actual_checked_by !== null) {
                             $button_checked_actual = '✅<br><small class="text-bold">'.$data?->actual_checked_by.'</small><br><small class="text-fade">'.Carbon::parse($data->actual_checked_at)->diffForHumans().'</small>';
                         }
@@ -646,11 +653,11 @@ class LembureController extends Controller
                     //BUTTON APPROVED DI SISI PLANT HEAD
                     if($data->actual_approved_by == null){
                         if($data->status == 'COMPLETED' && $data->actual_checked_by !== null){
-                            $button_approved_actual = '<button class="btn btn-sm btn-success btnApprovedAktual" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-thumbs-up"></i> Approved</button>';
+                            $button_approved_actual = '<div class="btn-group"><button class="btn btn-sm btn-success btnApprovedAktual" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-can-checked="'.($is_can_checked ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-thumbs-up"></i> Approved</button><button type="button" class="btn btn-sm btn-danger waves-effect btnRejectLembur" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-times-circle"></i> Reject</button></div>';
                         }
 
                         if($data->status == 'COMPLETED' && !$this->has_department_head($data->issued->posisi) && $data->actual_checked_by == null){
-                            $button_approved_actual = '<button class="btn btn-sm btn-success btnApprovedAktual" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-thumbs-up"></i> Approved</button>';
+                            $button_approved_actual = '<div class="btn-group"><button class="btn btn-sm btn-success btnApprovedAktual" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-can-checked="'.($is_can_checked ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-thumbs-up"></i> Approved</button><button type="button" class="btn btn-sm btn-danger waves-effect btnRejectLembur" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-times-circle"></i> Reject</button></div>';
                         }
                     } else {
                         //AFTER PLANNED
@@ -711,7 +718,7 @@ class LembureController extends Controller
                     //BUTTON LEGALIZED DI SISI PERSONALIA
                     if($data->actual_legalized_by == null){
                         if($data->actual_reviewed_by !== null){
-                            $button_legalized_actual = '<button class="btn btn-sm btn-success btnLegalizedAktual" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-balance-scale"></i> Legalized</button>';
+                            $button_legalized_actual = '<div class="btn-group"><button class="btn btn-sm btn-success btnLegalizedAktual" data-id-lembur="'.$data->id_lembur.'" data-can-approved="'.($is_can_approved ? 'true' : 'false').'" data-can-checked="'.($is_can_checked ? 'true' : 'false').'" data-is-planned="'.($is_planned ? 'true' : 'false').'"><i class="fas fa-balance-scale"></i> Legalized</button><button type="button" class="btn btn-sm btn-danger waves-effect btnRejectLembur" data-id-lembur="'.$data->id_lembur.'"><i class="far fa-times-circle"></i> Reject</button></div>';
                         }
                     } else {
                         //AFTER PLANNED
@@ -726,7 +733,7 @@ class LembureController extends Controller
                 $nestedData['departemen'] = $data?->nama_departemen;
                 $nestedData['jenis_hari'] = $data->jenis_hari;
                 $nestedData['total_durasi'] = $jam . ' Jam ' . $menit . ' Menit';
-                $nestedData['total_nominal'] = 'Rp. ' . number_format($total_nominal, 0, ',', '.');
+                $nestedData['total_nominal'] = $is_can_see_nominal ? 'Rp. ' . number_format($total_nominal, 0, ',', '.') : '-';
                 $nestedData['status'] = $status;
                 $nestedData['plan_checked_by'] = !$rejected ? $button_checked_plan : '';
                 $nestedData['plan_approved_by'] = !$rejected ? $button_approved_plan : '';
@@ -1387,11 +1394,14 @@ class LembureController extends Controller
             $header->detailLembur()->createMany($data_detail_lembur);
 
             //Update Total Durasi Lagi
-            $header->update(['total_durasi' => $total_durasi]);
+            $header->update([
+                'total_durasi' => $total_durasi,
+                'total_nominal' => $total_nominal,
+            ]);
 
-            if(auth()->user()->karyawan->posisi[0]->jabatan_id <= 2){
-                $header->update(['total_nominal' => $total_nominal]);
-            }
+            // if(auth()->user()->karyawan->posisi[0]->jabatan_id <= 2){
+            //     $header->update(['total_nominal' => $total_nominal]);
+            // }
 
             DB::commit();
             return response()->json(['message' => 'Lembur Berhasil Dibuat'], 200);
@@ -1995,6 +2005,7 @@ class LembureController extends Controller
 
             $lembur = Lembure::find($id_lembur);
             $total_durasi = 0;
+            $total_nominal = 0;
 
             if($lembur){
                 $lembur->jenis_hari = $jenis_hari;
@@ -2017,6 +2028,14 @@ class LembureController extends Controller
                 if ($validator->fails()) {
                     $errors = $validator->errors()->all();
                     return response()->json(['message' => $errors], 402);
+                }
+
+                $date = Carbon::parse($rencana_mulai_lemburs[0])->format('Y-m-d');
+                foreach ($rencana_mulai_lemburs_new as $key => $start) {
+                    if (Carbon::parse($start)->format('Y-m-d') !== $date) {
+                        DB::rollback();
+                        return response()->json(['message' => 'Seluruh rencana mulai lembur harus berada pada tanggal yang sama!'], 402);
+                    }
                 }
 
                 $data_detail_lembur_new = [];
@@ -2059,7 +2078,8 @@ class LembureController extends Controller
                         'nominal' => $nominal_new
                     ];
 
-                    $total_durasi+= $durasi_new;
+                    $total_durasi += $durasi_new;
+                    $total_nominal += $nominal_new;
                 }
 
                 $lembur->detailLembur()->createMany($data_detail_lembur_new);
@@ -2106,10 +2126,14 @@ class LembureController extends Controller
                 ]);
 
                 $total_durasi += $durasi;
+                $total_nominal += $nominal;
             }
 
             //Update Total Durasi Lagi
-            $lembur->update(['total_durasi' => $total_durasi]);
+            $lembur->update([
+                'total_durasi' => $total_durasi,
+                'total_nominal' => $total_nominal,
+            ]);
 
             DB::commit();
             return response()->json(['message' => 'Lembur Berhasil Diupdate!'], 200);
@@ -2681,6 +2705,16 @@ class LembureController extends Controller
                 $hour_aktual = floor($duration_aktual / 60);
                 $minutes_aktual = $duration_aktual % 60;
 
+                //Can See Nominal
+                $is_can_see_nominal = false;
+                if (auth()->user()->hasRole('atasan')) {
+                    if (auth()->user()->karyawan->posisi[0]->jabatan_id <= 3) {
+                        $is_can_see_nominal = true;
+                    }
+                } elseif (auth()->user()->hasRole('personalia')) {
+                    $is_can_see_nominal = true;
+                }
+
                 $data_detail_lembur[] = [
                     'id_detail_lembur' => $data->id_detail_lembur,
                     'lembur_id' => $data->lembur_id,
@@ -2699,7 +2733,7 @@ class LembureController extends Controller
                     'durasi_rencana' => $hour_rencana . ' jam  ' . $minutes_rencana . ' menit',
                     'durasi_aktual' => $hour_aktual . ' jam  ' . $minutes_aktual . ' menit',
                     'keterangan' => $data->keterangan,
-                    'nominal' => 'Rp. ' . number_format($data->nominal, 0, ',', '.'),
+                    'nominal' => $is_can_see_nominal ? 'Rp. ' . number_format($data->nominal, 0, ',', '.') : '-',
                     'rencana_last_changed_by' => $data->rencana_last_changed_by,
                     'rencana_last_changed_at' => $data->rencana_last_changed_at ? Carbon::parse($data->rencana_last_changed_at)->format('Y-m-d H:i') : null,
                     'aktual_last_changed_by' => $data->aktual_last_changed_by,
@@ -2821,7 +2855,9 @@ class LembureController extends Controller
                         $detail->is_aktual_approved = 'N';
                         $detail->save();
 
-                        $lembur->total_durasi -= $detail->durasi;
+                        // $total_durasi = $total_durasi - $detail->durasi;
+                        // $total_nominal = $total_nominal - $detail->nominal;
+                        // $lembur->total_durasi -= $detail->durasi;
                     } else {
                         if($detail && $detail->is_rencana_approved == 'Y'){
                             $is_changed = false;
@@ -2885,56 +2921,75 @@ class LembureController extends Controller
                     return response()->json(['message' => 'Aktual Lembur sudah di Checked !'], 403);
                 }
 
+                if(!$checked_detail){
+                    DB::rollback();
+                    return response()->json(['message' => 'Minimal ada 1 orang yang di Checked!'], 403);
+                } else {
+                    $checked_detail = explode(',', $checked_detail);
+                }
+
                 $total_durasi = 0;
                 $total_nominal = 0;
                 foreach ($id_detail_lemburs as $key => $id_detail_lembur) {
                     $detail = DetailLembur::find($id_detail_lembur);
-                    if($detail && $detail->is_aktual_approved == 'Y'){
-                        $is_changed = false;
-                        $karyawan = $detail->karyawan;
-                        $gaji_lembur = $karyawan->settingLembur->gaji;
-                        $jenis_hari = $detail->lembur->jenis_hari == 'WEEKDAY' ? 'WD' : 'WE';
-                        $pembagi_upah_lembur = SettingLembur::where('setting_name', 'pembagi_upah_lembur_harian')->where('organisasi_id', $detail->organisasi_id)->first()->value;
-                        $datetime_aktual_mulai_lembur = $this->pembulatan_menit_ke_bawah($mulai_lemburs[$key]);
-                        $datetime_aktual_selesai_lembur = $this->pembulatan_menit_ke_bawah($selesai_lemburs[$key]);
-                        $durasi_istirahat = $this->overtime_resttime_per_minutes($datetime_aktual_mulai_lembur, $datetime_aktual_selesai_lembur, $detail->organisasi_id);
-                        $durasi = $this->calculate_overtime_per_minutes($datetime_aktual_mulai_lembur, $datetime_aktual_selesai_lembur, $detail->organisasi_id);
-                        $durasi_konversi_lembur = $this->calculate_durasi_konversi_lembur($jenis_hari, $durasi, $detail->karyawan_id);
-                        $uang_makan = $this->calculate_overtime_uang_makan($jenis_hari, $durasi, $detail->karyawan_id);
+                    if (!in_array($detail->id_detail_lembur, $checked_detail)) {
+                        $detail->rencana_last_changed_by = $changed_by;
+                        $detail->rencana_last_changed_at = now();
+                        $detail->is_rencana_approved = 'N';
+                        $detail->is_aktual_approved = 'N';
+                        $detail->save();
 
-                        if($durasi < 60){
-                            DB::rollback();
-                            return response()->json(['message' => 'Durasi lembur '.$detail->karyawan->nama.' kurang dari 1 jam, tidak perlu dimasukkan ke SPL'], 402);
+                        // $total_durasi = $total_durasi - $detail->durasi;
+                        // $total_nominal = $total_nominal - $detail->nominal;
+                        // $lembur->total_durasi -= $detail->durasi;
+                    } else {
+                        if($detail && $detail->is_aktual_approved == 'Y'){
+                            $is_changed = false;
+                            $karyawan = $detail->karyawan;
+                            $gaji_lembur = $karyawan->settingLembur->gaji;
+                            $jenis_hari = $detail->lembur->jenis_hari == 'WEEKDAY' ? 'WD' : 'WE';
+                            $pembagi_upah_lembur = SettingLembur::where('setting_name', 'pembagi_upah_lembur_harian')->where('organisasi_id', $detail->organisasi_id)->first()->value;
+                            $datetime_aktual_mulai_lembur = $this->pembulatan_menit_ke_bawah($mulai_lemburs[$key]);
+                            $datetime_aktual_selesai_lembur = $this->pembulatan_menit_ke_bawah($selesai_lemburs[$key]);
+                            $durasi_istirahat = $this->overtime_resttime_per_minutes($datetime_aktual_mulai_lembur, $datetime_aktual_selesai_lembur, $detail->organisasi_id);
+                            $durasi = $this->calculate_overtime_per_minutes($datetime_aktual_mulai_lembur, $datetime_aktual_selesai_lembur, $detail->organisasi_id);
+                            $durasi_konversi_lembur = $this->calculate_durasi_konversi_lembur($jenis_hari, $durasi, $detail->karyawan_id);
+                            $uang_makan = $this->calculate_overtime_uang_makan($jenis_hari, $durasi, $detail->karyawan_id);
+
+                            if($durasi < 60){
+                                DB::rollback();
+                                return response()->json(['message' => 'Durasi lembur '.$detail->karyawan->nama.' kurang dari 1 jam, tidak perlu dimasukkan ke SPL'], 402);
+                            }
+
+                            if($detail->aktual_mulai_lembur != $datetime_aktual_mulai_lembur){
+                                $is_changed = true;
+                            } elseif ($detail->aktual_selesai_lembur != $datetime_aktual_selesai_lembur) {
+                                $is_changed = true;
+                            }
+
+                            $nominal = $this->calculate_overtime_nominal($jenis_hari, $durasi, $detail->karyawan_id);
+                            $detail->aktual_mulai_lembur = $datetime_aktual_mulai_lembur;
+                            $detail->aktual_selesai_lembur = $datetime_aktual_selesai_lembur;
+                            $detail->durasi_istirahat = $durasi_istirahat;
+                            $detail->durasi_konversi_lembur = $durasi_konversi_lembur;
+                            $detail->uang_makan = $uang_makan;
+                            $detail->gaji_lembur = $gaji_lembur;
+                            $detail->pembagi_upah_lembur = $pembagi_upah_lembur;
+                            $detail->durasi = $durasi;
+                            $detail->nominal = $nominal;
+
+                            if($is_changed){
+                                $detail->aktual_last_changed_by = $changed_by;
+                                $detail->aktual_last_changed_at = now();
+                            }
+
+                            // Hitung durasi dan nominal Aktual
+                            $total_durasi += $durasi;
+                            $total_nominal += $nominal;
                         }
-
-                        if($detail->aktual_mulai_lembur != $datetime_aktual_mulai_lembur){
-                            $is_changed = true;
-                        } elseif ($detail->aktual_selesai_lembur != $datetime_aktual_selesai_lembur) {
-                            $is_changed = true;
-                        }
-
-                        $nominal = $this->calculate_overtime_nominal($jenis_hari, $durasi, $detail->karyawan_id);
-                        $detail->aktual_mulai_lembur = $datetime_aktual_mulai_lembur;
-                        $detail->aktual_selesai_lembur = $datetime_aktual_selesai_lembur;
-                        $detail->durasi_istirahat = $durasi_istirahat;
-                        $detail->durasi_konversi_lembur = $durasi_konversi_lembur;
-                        $detail->uang_makan = $uang_makan;
-                        $detail->gaji_lembur = $gaji_lembur;
-                        $detail->pembagi_upah_lembur = $pembagi_upah_lembur;
-                        $detail->durasi = $durasi;
-                        $detail->nominal = $nominal;
-
-                        if($is_changed){
-                            $detail->aktual_last_changed_by = $changed_by;
-                            $detail->aktual_last_changed_at = now();
-                        }
-
-                        // Hitung durasi dan nominal Aktual
-                        $total_durasi += $durasi;
-                        $total_nominal += $nominal;
+                        $detail->keterangan = isset($keterangan[$key]) ? $keterangan[$key] : null;
+                        $detail->save();
                     }
-                    $detail->keterangan = isset($keterangan[$key]) ? $keterangan[$key] : null;
-                    $detail->save();
                 }
 
                 $lembur->update([
@@ -3025,7 +3080,9 @@ class LembureController extends Controller
                         $detail->is_aktual_approved = 'N';
                         $detail->save();
 
-                        $lembur->total_durasi -= $detail->durasi;
+                        // $total_durasi = $total_durasi - $detail->durasi;
+                        // $total_nominal = $total_nominal - $detail->nominal;
+                        // $lembur->total_durasi -= $detail->durasi;
                     } else {
                         if($detail && $detail->is_rencana_approved == 'Y'){
                             $is_changed = false;
@@ -3103,56 +3160,75 @@ class LembureController extends Controller
                     return response()->json(['message' => 'Aktual Lembur sudah di Approved !'], 403);
                 }
 
+                if(!$approved_detail){
+                    DB::commit();
+                    return response()->json(['message' => 'Minimal ada 1 orang yang di Approved!'], 403);
+                } else {
+                    $approved_detail = explode(',', $approved_detail);
+                }
+
                 $total_durasi = 0;
                 $total_nominal = 0;
                 foreach ($id_detail_lemburs as $key => $id_detail_lembur) {
                     $detail = DetailLembur::find($id_detail_lembur);
-                    if($detail && $detail->is_aktual_approved == 'Y'){
-                        $is_changed = false;
-                        $karyawan = $detail->karyawan;
-                        $gaji_lembur = $karyawan->settingLembur->gaji;
-                        $jenis_hari = $detail->lembur->jenis_hari == 'WEEKDAY' ? 'WD' : 'WE';
-                        $pembagi_upah_lembur = SettingLembur::where('setting_name', 'pembagi_upah_lembur_harian')->where('organisasi_id', $detail->organisasi_id)->first()->value;
-                        $datetime_aktual_mulai_lembur = $this->pembulatan_menit_ke_bawah($mulai_lemburs[$key]);
-                        $datetime_aktual_selesai_lembur = $this->pembulatan_menit_ke_bawah($selesai_lemburs[$key]);
-                        $durasi_istirahat = $this->overtime_resttime_per_minutes($datetime_aktual_mulai_lembur, $datetime_aktual_selesai_lembur, $detail->organisasi_id);
-                        $durasi = $this->calculate_overtime_per_minutes($datetime_aktual_mulai_lembur, $datetime_aktual_selesai_lembur, $detail->organisasi_id);
-                        $durasi_konversi_lembur = $this->calculate_durasi_konversi_lembur($jenis_hari, $durasi, $detail->karyawan_id);
-                        $uang_makan = $this->calculate_overtime_uang_makan($jenis_hari, $durasi, $detail->karyawan_id);
+                    if (!in_array($detail->id_detail_lembur, $approved_detail)) {
+                        $detail->rencana_last_changed_by = $changed_by;
+                        $detail->rencana_last_changed_at = now();
+                        $detail->is_rencana_approved = 'N';
+                        $detail->is_aktual_approved = 'N';
+                        $detail->save();
 
-                        if($durasi < 60){
-                            DB::rollback();
-                            return response()->json(['message' => 'Durasi lembur '.$detail->karyawan->nama.' kurang dari 1 jam, tidak perlu dimasukkan ke SPL'], 402);
+                        // $total_durasi = $total_durasi - $detail->durasi;
+                        // $total_nominal = $total_nominal - $detail->nominal;
+                        // $lembur->total_durasi -= $detail->durasi;
+                    } else {
+                        if($detail && $detail->is_aktual_approved == 'Y'){
+                            $is_changed = false;
+                            $karyawan = $detail->karyawan;
+                            $gaji_lembur = $karyawan->settingLembur->gaji;
+                            $jenis_hari = $detail->lembur->jenis_hari == 'WEEKDAY' ? 'WD' : 'WE';
+                            $pembagi_upah_lembur = SettingLembur::where('setting_name', 'pembagi_upah_lembur_harian')->where('organisasi_id', $detail->organisasi_id)->first()->value;
+                            $datetime_aktual_mulai_lembur = $this->pembulatan_menit_ke_bawah($mulai_lemburs[$key]);
+                            $datetime_aktual_selesai_lembur = $this->pembulatan_menit_ke_bawah($selesai_lemburs[$key]);
+                            $durasi_istirahat = $this->overtime_resttime_per_minutes($datetime_aktual_mulai_lembur, $datetime_aktual_selesai_lembur, $detail->organisasi_id);
+                            $durasi = $this->calculate_overtime_per_minutes($datetime_aktual_mulai_lembur, $datetime_aktual_selesai_lembur, $detail->organisasi_id);
+                            $durasi_konversi_lembur = $this->calculate_durasi_konversi_lembur($jenis_hari, $durasi, $detail->karyawan_id);
+                            $uang_makan = $this->calculate_overtime_uang_makan($jenis_hari, $durasi, $detail->karyawan_id);
+
+                            if($durasi < 60){
+                                DB::rollback();
+                                return response()->json(['message' => 'Durasi lembur '.$detail->karyawan->nama.' kurang dari 1 jam, tidak perlu dimasukkan ke SPL'], 402);
+                            }
+
+                            if($detail->aktual_mulai_lembur != $datetime_aktual_mulai_lembur){
+                                $is_changed = true;
+                            } elseif ($detail->aktual_selesai_lembur != $datetime_aktual_selesai_lembur) {
+                                $is_changed = true;
+                            }
+
+                            $nominal = $this->calculate_overtime_nominal($jenis_hari, $durasi, $detail->karyawan_id);
+                            $detail->aktual_mulai_lembur = $datetime_aktual_mulai_lembur;
+                            $detail->aktual_selesai_lembur = $datetime_aktual_selesai_lembur;
+                            $detail->durasi_istirahat = $durasi_istirahat;
+                            $detail->durasi_konversi_lembur = $durasi_konversi_lembur;
+                            $detail->uang_makan = $uang_makan;
+                            $detail->gaji_lembur = $gaji_lembur;
+                            $detail->pembagi_upah_lembur = $pembagi_upah_lembur;
+                            $detail->durasi = $durasi;
+                            $detail->nominal = $nominal;
+
+                            if($is_changed){
+                                $detail->aktual_last_changed_by = $changed_by;
+                                $detail->aktual_last_changed_at = now();
+                            }
+
+                            // Hitung durasi dan nominal Aktual
+                            $total_durasi += $durasi;
+                            $total_nominal += $nominal;
                         }
-
-                        if($detail->aktual_mulai_lembur != $datetime_aktual_mulai_lembur){
-                            $is_changed = true;
-                        } elseif ($detail->aktual_selesai_lembur != $datetime_aktual_selesai_lembur) {
-                            $is_changed = true;
-                        }
-
-                        $nominal = $this->calculate_overtime_nominal($jenis_hari, $durasi, $detail->karyawan_id);
-                        $detail->aktual_mulai_lembur = $datetime_aktual_mulai_lembur;
-                        $detail->aktual_selesai_lembur = $datetime_aktual_selesai_lembur;
-                        $detail->durasi_istirahat = $durasi_istirahat;
-                        $detail->durasi_konversi_lembur = $durasi_konversi_lembur;
-                        $detail->uang_makan = $uang_makan;
-                        $detail->gaji_lembur = $gaji_lembur;
-                        $detail->pembagi_upah_lembur = $pembagi_upah_lembur;
-                        $detail->durasi = $durasi;
-                        $detail->nominal = $nominal;
-
-                        if($is_changed){
-                            $detail->aktual_last_changed_by = $changed_by;
-                            $detail->aktual_last_changed_at = now();
-                        }
-
-                        // Hitung durasi dan nominal Aktual
-                        $total_durasi += $durasi;
-                        $total_nominal += $nominal;
+                        $detail->keterangan = isset($keterangan[$key]) ? $keterangan[$key] : null;
+                        $detail->save();
                     }
-                    $detail->keterangan = isset($keterangan[$key]) ? $keterangan[$key] : null;
-                    $detail->save();
                 }
 
                 //Jika yang membuat tidak memiliki dept head maka checked by = approved by
@@ -3323,7 +3399,9 @@ class LembureController extends Controller
                         $detail->is_aktual_approved = 'N';
                         $detail->save();
 
-                        $lembur->total_durasi -= $detail->durasi;
+                        // $total_durasi = $total_durasi - $detail->durasi;
+                        // $total_nominal = $total_nominal - $detail->nominal;
+                        // $lembur->total_durasi -= $detail->durasi;
                     } else {
                         if($detail && $detail->is_rencana_approved == 'Y'){
                             $is_changed = false;
@@ -3388,70 +3466,89 @@ class LembureController extends Controller
                     return response()->json(['message' => 'Aktual Lembur sudah di Legalized !'], 403);
                 }
 
+                if(!$approved_detail){
+                    DB::commit();
+                    return response()->json(['message' => 'Minimal ada 1 orang yang di Legalized!'], 403);
+                } else {
+                    $approved_detail = explode(',', $approved_detail);
+                }
+
                 $total_durasi = 0;
                 $total_nominal = 0;
                 foreach ($id_detail_lemburs as $key => $id_detail_lembur) {
                     $detail = DetailLembur::find($id_detail_lembur);
-                    if($detail && $detail->is_aktual_approved == 'Y'){
-                        $is_changed = false;
-                        $karyawan = $detail->karyawan;
-                        $gaji_lembur = $karyawan->settingLembur->gaji;
-                        $pembagi_upah_lembur = SettingLembur::where('setting_name', 'pembagi_upah_lembur_harian')->where('organisasi_id', $detail->organisasi_id)->first()->value;
-                        $datetime_aktual_mulai_lembur = $this->pembulatan_menit_ke_bawah($mulai_lemburs[$key]);
-                        $datetime_aktual_selesai_lembur = $this->pembulatan_menit_ke_bawah($selesai_lemburs[$key]);
-                        $durasi_istirahat = $this->overtime_resttime_per_minutes($datetime_aktual_mulai_lembur, $datetime_aktual_selesai_lembur, $detail->organisasi_id);
-                        $durasi = $this->calculate_overtime_per_minutes($datetime_aktual_mulai_lembur, $datetime_aktual_selesai_lembur, $detail->organisasi_id);
-                        $durasi_konversi_lembur = $this->calculate_durasi_konversi_lembur($jenis_hariAktual, $durasi, $detail->karyawan_id);
-                        $uang_makan = $this->calculate_overtime_uang_makan($jenis_hariAktual, $durasi, $detail->karyawan_id);
+                    if (!in_array($detail->id_detail_lembur, $approved_detail)) {
+                        $detail->rencana_last_changed_by = $changed_by;
+                        $detail->rencana_last_changed_at = now();
+                        $detail->is_rencana_approved = 'N';
+                        $detail->is_aktual_approved = 'N';
+                        $detail->save();
 
-                        if($durasi < 60){
-                            DB::rollback();
-                            return response()->json(['message' => 'Durasi lembur '.$detail->karyawan->nama.' kurang dari 1 jam, tidak perlu dimasukkan ke SPL'], 402);
-                        }
-
-                        if($detail->aktual_mulai_lembur != $datetime_aktual_mulai_lembur){
-                            $is_changed = true;
-                        } elseif ($detail->aktual_selesai_lembur != $datetime_aktual_selesai_lembur) {
-                            $is_changed = true;
-                        }
-
-                        $nominal = $this->calculate_overtime_nominal($jenis_hariAktual, $durasi, $detail->karyawan_id);
-                        $detail->aktual_mulai_lembur = $datetime_aktual_mulai_lembur;
-                        $detail->aktual_selesai_lembur = $datetime_aktual_selesai_lembur;
-                        $detail->durasi_istirahat = $durasi_istirahat;
-                        $detail->durasi_konversi_lembur = $durasi_konversi_lembur;
-                        $detail->uang_makan = $uang_makan;
-                        $detail->gaji_lembur = $gaji_lembur;
-                        $detail->pembagi_upah_lembur = $pembagi_upah_lembur;
-                        $detail->durasi = $durasi;
-                        $detail->nominal = $nominal;
-
-                        if($is_changed){
-                            $detail->aktual_last_changed_by = $changed_by;
-                            $detail->aktual_last_changed_at = now();
-                        }
-
-                        // Hitung durasi dan nominal Aktual
-                        $total_durasi += $durasi;
-                        $total_nominal += $nominal;
-                    }
-                    $detail->save();
-
-                    $tanggal_lembur = Carbon::parse($datetime_aktual_mulai_lembur)->format('Y-m-d');
-                    $lembur_harian = LemburHarian::whereDate('tanggal_lembur', $tanggal_lembur)->where('organisasi_id', $organisasi_id)->where('departemen_id', $departemen_id)->where('divisi_id', $divisi_id)->first();
-                    if ($lembur_harian){
-                        $lembur_harian->total_durasi_lembur = $lembur_harian->total_durasi_lembur + $durasi;
-                        $lembur_harian->total_nominal_lembur = $lembur_harian->total_nominal_lembur + $nominal;
-                        $lembur_harian->save();
+                        // $total_durasi = $total_durasi - $detail->durasi;
+                        // $total_nominal = $total_nominal - $detail->nominal;
+                        // $lembur->total_durasi -= $detail->durasi;
                     } else {
-                        $lembur_harian = LemburHarian::create([
-                            'tanggal_lembur' => $tanggal_lembur,
-                            'total_durasi_lembur' => $total_durasi,
-                            'total_nominal_lembur' => $total_nominal,
-                            'organisasi_id' => $organisasi_id,
-                            'departemen_id' => $departemen_id,
-                            'divisi_id' => $divisi_id,
-                        ]);
+                        if($detail && $detail->is_aktual_approved == 'Y'){
+                            $is_changed = false;
+                            $karyawan = $detail->karyawan;
+                            $gaji_lembur = $karyawan->settingLembur->gaji;
+                            $pembagi_upah_lembur = SettingLembur::where('setting_name', 'pembagi_upah_lembur_harian')->where('organisasi_id', $detail->organisasi_id)->first()->value;
+                            $datetime_aktual_mulai_lembur = $this->pembulatan_menit_ke_bawah($mulai_lemburs[$key]);
+                            $datetime_aktual_selesai_lembur = $this->pembulatan_menit_ke_bawah($selesai_lemburs[$key]);
+                            $durasi_istirahat = $this->overtime_resttime_per_minutes($datetime_aktual_mulai_lembur, $datetime_aktual_selesai_lembur, $detail->organisasi_id);
+                            $durasi = $this->calculate_overtime_per_minutes($datetime_aktual_mulai_lembur, $datetime_aktual_selesai_lembur, $detail->organisasi_id);
+                            $durasi_konversi_lembur = $this->calculate_durasi_konversi_lembur($jenis_hariAktual, $durasi, $detail->karyawan_id);
+                            $uang_makan = $this->calculate_overtime_uang_makan($jenis_hariAktual, $durasi, $detail->karyawan_id);
+
+                            if($durasi < 60){
+                                DB::rollback();
+                                return response()->json(['message' => 'Durasi lembur '.$detail->karyawan->nama.' kurang dari 1 jam, tidak perlu dimasukkan ke SPL'], 402);
+                            }
+
+                            if($detail->aktual_mulai_lembur != $datetime_aktual_mulai_lembur){
+                                $is_changed = true;
+                            } elseif ($detail->aktual_selesai_lembur != $datetime_aktual_selesai_lembur) {
+                                $is_changed = true;
+                            }
+
+                            $nominal = $this->calculate_overtime_nominal($jenis_hariAktual, $durasi, $detail->karyawan_id);
+                            $detail->aktual_mulai_lembur = $datetime_aktual_mulai_lembur;
+                            $detail->aktual_selesai_lembur = $datetime_aktual_selesai_lembur;
+                            $detail->durasi_istirahat = $durasi_istirahat;
+                            $detail->durasi_konversi_lembur = $durasi_konversi_lembur;
+                            $detail->uang_makan = $uang_makan;
+                            $detail->gaji_lembur = $gaji_lembur;
+                            $detail->pembagi_upah_lembur = $pembagi_upah_lembur;
+                            $detail->durasi = $durasi;
+                            $detail->nominal = $nominal;
+
+                            if($is_changed){
+                                $detail->aktual_last_changed_by = $changed_by;
+                                $detail->aktual_last_changed_at = now();
+                            }
+
+                            // Hitung durasi dan nominal Aktual
+                            $total_durasi += $durasi;
+                            $total_nominal += $nominal;
+                        }
+                        $detail->save();
+
+                        $tanggal_lembur = Carbon::parse($datetime_aktual_mulai_lembur)->format('Y-m-d');
+                        $lembur_harian = LemburHarian::whereDate('tanggal_lembur', $tanggal_lembur)->where('organisasi_id', $organisasi_id)->where('departemen_id', $departemen_id)->where('divisi_id', $divisi_id)->first();
+                        if ($lembur_harian){
+                            $lembur_harian->total_durasi_lembur = $lembur_harian->total_durasi_lembur + $durasi;
+                            $lembur_harian->total_nominal_lembur = $lembur_harian->total_nominal_lembur + $nominal;
+                            $lembur_harian->save();
+                        } else {
+                            $lembur_harian = LemburHarian::create([
+                                'tanggal_lembur' => $tanggal_lembur,
+                                'total_durasi_lembur' => $total_durasi,
+                                'total_nominal_lembur' => $total_nominal,
+                                'organisasi_id' => $organisasi_id,
+                                'departemen_id' => $departemen_id,
+                                'divisi_id' => $divisi_id,
+                            ]);
+                        }
                     }
                 }
 
@@ -4471,6 +4568,16 @@ class LembureController extends Controller
         $selesai_lembur = $request->selesai_lembur;
 
         try{
+            //Can See Nominal
+            $is_can_see_nominal = false;
+            if (auth()->user()->hasRole('atasan')) {
+                if (auth()->user()->karyawan->posisi[0]->jabatan_id <= 3) {
+                    $is_can_see_nominal = true;
+                }
+            } elseif (auth()->user()->hasRole('personalia')) {
+                $is_can_see_nominal = true;
+            }
+
             $datetime_mulai_lembur = $this->pembulatan_menit_ke_bawah($mulai_lembur);
             $datetime_selesai_lembur = $this->pembulatan_menit_ke_bawah($selesai_lembur);
             $durasi = $this->calculate_overtime_per_minutes($datetime_mulai_lembur, $datetime_selesai_lembur, $detail_lembur->karyawan->user->organisasi_id, $jenis_hari, $karyawan_id);
@@ -4480,7 +4587,7 @@ class LembureController extends Controller
             $minutes = $durasi % 60;
 
             $durasi_text = $hours . ' jam ' . $minutes . ' menit';
-            $nominal_text = 'Rp ' . number_format($nominal, 0, ',', '.');
+            $nominal_text = $is_can_see_nominal ? 'Rp ' . number_format($nominal, 0, ',', '.') : '-';
 
             $data = [
                 'durasi' => $durasi_text,
@@ -4671,7 +4778,6 @@ class LembureController extends Controller
                         'is_aktual_approved' => 'N',
                     ]);
                 }
-                dd($mustRejectLembur);
                 DB::commit();
                 return response()->json(['message' => 'Berhasil Reject Lembur yang Melewati Batas Waktu Approval', 'count' => $mustRejectLembur->count()], 200);
             } else {
