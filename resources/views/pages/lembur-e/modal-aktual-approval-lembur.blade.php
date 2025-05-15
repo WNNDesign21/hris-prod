@@ -53,8 +53,9 @@
                                                     <th style="width: 15%;">Aktual Mulai</th>
                                                     <th style="width: 15%;">Aktual Selesai</th>
                                                     <th style="width: 10%;">Durasi (Aktual)</th>
-                                                    <th style="width: 15%;">Keterangan</th>
+                                                    <th style="width: 10%;">Keterangan</th>
                                                     <th style="width: 5%;">Nominal</th>
+                                                    <th style="width: 5%;">Action</th>
                                                 </tr>
                                             </thead>
                                             <tbody id="list-aktual-approval-lembur">
