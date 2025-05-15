@@ -337,8 +337,6 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'role:atasan|member|persona
             Route::post('/kontrak/store', [KontrakController::class, 'store'])->name('master-data.kontrak.store');
             Route::delete('/kontrak/delete/{idKontrak}', [KontrakController::class, 'delete'])->name('master-data.kontrak.delete');
             Route::patch('/kontrak/update/{idKontrak}', [KontrakController::class, 'update'])->name('master-data.kontrak.update');
-            // Tidak Dipakai Lagi
-            // Route::post('/kontrak/store-or-update',[KontrakController::class, 'store_or_update'])->name('master-data.kontrak.storeUpdate');
             Route::post('/kontrak/upload-kontrak/{type}/{idKontrak}', [KontrakController::class, 'upload_kontrak'])->name('master-data.kontrak.upload');
             Route::post('/kontrak/upload-data-kontrak', [KontrakController::class, 'upload_data_kontrak'])->name('master-data.kontrak.upload-data-kontrak');
             Route::post('/kontrak/done/{idKontrak}', [KontrakController::class, 'done_kontrak'])->name('master-data.kontrak.done');

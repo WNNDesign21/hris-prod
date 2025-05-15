@@ -7,14 +7,17 @@ use Throwable;
 use Carbon\Carbon;
 use App\Models\Grup;
 use App\Models\User;
+use App\Models\Cutie;
 use App\Models\Event;
 use App\Models\Posisi;
 use App\Models\Kontrak;
+use App\Models\Lembure;
 use App\Models\Karyawan;
 use App\Models\Departemen;
 use App\Models\Organisasi;
 use App\Models\ActivityLog;
 use Illuminate\Support\Str;
+use App\Models\DetailLembur;
 use Illuminate\Http\Request;
 use App\Jobs\UploadKaryawanJob;
 use Illuminate\Support\Facades\DB;
@@ -22,10 +25,12 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
+use App\Models\SettingLemburKaryawan;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Attendance\AttendanceSummary;
 
 class KaryawanController extends Controller
 {
@@ -34,12 +39,14 @@ class KaryawanController extends Controller
      */
     public function index()
     {
-        $departemen = Departemen::all();
-        $posisi = Posisi::all();
+        $departemen = Departemen::select(['id_departemen', 'nama'])->get();
+        // $posisi = Posisi::select(['id_posisi', 'nama'])->get();
+        $organisasi = Organisasi::select(['id_organisasi', 'nama'])->get();
         $dataPage = [
             'pageTitle' => "Master Data - Karyawan",
             'page' => 'masterdata-karyawan',
             'departemen' => $departemen,
+            'organisasi' => $organisasi,
         ];
         return view('pages.master-data.karyawan.index', $dataPage);
     }
@@ -445,6 +452,7 @@ class KaryawanController extends Controller
     public function update(Request $request, string $id_karyawan)
     {
         $dataValidate = [
+            'organisasiEdit' => ['required', 'exists:organisasis,id_organisasi'],
             'namaEdit' => ['required'],
             'ni_karyawanEdit' => ['required', 'unique:karyawans,ni_karyawan,'.$request->ni_karyawanEdit.',ni_karyawan'],
             'no_kkEdit' => ['required','numeric'],
@@ -458,12 +466,12 @@ class KaryawanController extends Controller
             'kategori_keluargaEdit' => ['required','string', 'in:TK0,TK1,TK2,TK3,K0,K1,K2,K3'],
             'alamatEdit' => ['nullable','string'],
             'domisiliEdit' => ['nullable','string'],
-            'no_telpEdit' => ['required','numeric', 'unique:karyawans,no_telp,'.$request->no_telpEdit.',no_telp'],
+            'no_telpEdit' => ['required','numeric', 'unique:karyawans,no_telp,"'.$request->no_telpEdit.'",no_telp'],
             'no_telp_daruratEdit' => ['nullable','numeric'],
             'emailEdit' => ['email', 'unique:karyawans,email,'.$request->emailEdit.',email'],
-            'npwpEdit' => ['nullable', 'string', 'unique:karyawans,npwp,'.$request->npwpEdit.',npwp'],
-            'no_bpjs_ksEdit' => ['nullable', 'numeric', 'unique:karyawans,no_bpjs_ks,'.$request->no_bpjs_ksEdit.',no_bpjs_ks'],
-            'no_bpjs_ktEdit' => ['nullable', 'numeric', 'unique:karyawans,no_bpjs_kt,'.$request->no_bpjs_ktEdit.',no_bpjs_kt'],
+            'npwpEdit' => ['nullable', 'string', 'unique:karyawans,npwp,"'.$request->npwpEdit.'",npwp'],
+            'no_bpjs_ksEdit' => ['nullable', 'numeric', 'unique:karyawans,no_bpjs_ks,"'.$request->no_bpjs_ksEdit.'",no_bpjs_ks'],
+            'no_bpjs_ktEdit' => ['nullable', 'numeric', 'unique:karyawans,no_bpjs_kt,"'.$request->no_bpjs_ktEdit.'",no_bpjs_kt'],
             'no_rekeningEdit' => ['required','numeric'],
             'nama_rekeningEdit' => ['nullable', 'string'],
             'nama_bankEdit' => ['nullable', 'string','in:MANDIRI,BCA,BRI,BSI,BNI'],
@@ -521,10 +529,74 @@ class KaryawanController extends Controller
         $hutang_cuti = $request->hutang_cutiEdit;
         $expired_date_cuti_tahun_lalu = $request->expired_date_cuti_tahun_laluEdit;
         $pin = $request->pinEdit;
+        $organisasi_id = $request->organisasiEdit;
 
         DB::beginTransaction();
         try{
             $karyawan = Karyawan::find($id_karyawan);
+
+            if ($karyawan->organisasi_id !== $organisasi_id) {
+                $existingLemburDone = Lembure::where('issued_by', $id_karyawan)
+                ->where('organisasi_id', $karyawan->organisasi_id)
+                ->where('status', 'PLANNED')
+                ->exists();
+
+                if ($existingLemburDone) {
+                    DB::rollBack();
+                    return response()->json(['message' => 'Karyawan tidak bisa dipindah, karena terdapat dokumen lembur yang menunggu pengisian aktual'], 500);
+                }
+
+                $existingLembur = DetailLembur::where('karyawan_id', $id_karyawan)
+                ->where('organisasi_id', $karyawan->organisasi_id)
+                ->where('is_aktual_approved', 'Y')
+                ->whereHas('lembur', function($query) use ($karyawan){
+                    $query->whereNull('actual_legalized_by')
+                    ->whereNull('rejected_by');
+                })->exists();
+
+                if ($existingLembur) {
+                    DB::rollBack();
+                    return response()->json(['message' => 'Karyawan tidak bisa dipindah, karena terdapat dokumen lembur yang belum terlegalized'], 500);
+                }
+
+                $existingCuti = Cutie::where('karyawan_id', $id_karyawan)
+                ->where('organisasi_id', $karyawan->organisasi_id)
+                ->whereNot('status_dokumen', 'REJECTED')
+                ->where('rencana_selesai_cuti', '>=', now())
+                ->where(function ($query) {
+                    $query->whereIn('status_cuti', ['SCHEDULED', 'ON LEAVE', 'COMPLETED'])
+                    ->orWhereNull('status_cuti');
+                })->exists();
+
+                if ($existingCuti) {
+                    DB::rollBack();
+                    return response()->json(['message' => 'Karyawan tidak bisa dipindah, silahkan cancel cuti terlebih dahulu!'], 500);
+                }
+
+                $existingAttSum = AttendanceSummary::where('karyawan_id', $id_karyawan)
+                ->where('organisasi_id', $karyawan->organisasi_id)
+                ->whereMonth('periode', Carbon::now()->month)
+                ->whereYear('periode', Carbon::now()->year)
+                ->first();
+
+                if ($existingAttSum) {
+                    $existingAttSum->organisasi_id = $organisasi_id;
+                    $existingAttSum->save();
+                }
+
+                $existingSettingLembur = SettingLemburKaryawan::where('karyawan_id', $id_karyawan)
+                ->where('organisasi_id', $karyawan->organisasi_id)
+                ->first();
+
+                if ($existingSettingLembur) {
+                    $existingSettingLembur->organisasi_id = $organisasi_id;
+                    $existingSettingLembur->save();
+                }
+
+                $karyawan->user->organisasi_id = $organisasi_id;
+                $karyawan->user->save();
+            }
+
             $karyawan->nama = $nama;
             $karyawan->ni_karyawan = $ni_karyawan;
             $karyawan->no_kk = $no_kk;
@@ -556,6 +628,7 @@ class KaryawanController extends Controller
             $karyawan->hutang_cuti = $hutang_cuti;
             $karyawan->expired_date_cuti_tahun_lalu = $expired_date_cuti_tahun_lalu;
             $karyawan->pin = $pin;
+            $karyawan->organisasi_id = $organisasi_id;
             $karyawan->posisi()->detach();
 
             $user = $karyawan->user;
@@ -806,6 +879,7 @@ class KaryawanController extends Controller
                 'grup_id' => $karyawan->grup_id,
                 'is_admin' => $karyawan->user->hasRole('admin-dept'),
                 'pin' => $karyawan->pin,
+                'organisasi_id' => $karyawan->organisasi_id,
             ];
             return response()->json(['data' => $detail], 200);
         } else {
