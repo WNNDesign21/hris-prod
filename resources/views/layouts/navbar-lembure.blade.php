@@ -14,7 +14,7 @@
                             </a>
                         </li>
                     @endif
-                    @if (auth()->user()->hasRole('personalia') || auth()->user()->karyawan->posisi[0]->jabatan_id <= 3)
+                    @if (auth()->user()->hasRole('personalia') || auth()->user()->karyawan->posisi[0]->jabatan_id <= 4)
                         <li class="{{ $page == 'lembure-detail-lembur' ? 'active' : '' }}">
                             <a href="{{ route('lembure.detail-lembur') }}">
                                 <i class="icon-Stairs"><span class="path1"></span><span class="path2"></span></i>

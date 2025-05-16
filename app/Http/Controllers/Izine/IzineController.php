@@ -822,11 +822,16 @@ class IzineController extends Controller
                 $is_can_checked = true;
             }
 
-            if (!$is_can_checked) {
-                if (auth()->user()->karyawan->posisi[0]->jabatan_id <= 4){
-                    $is_can_approved = true;
-                }
+
+            if (auth()->user()->karyawan->posisi[0]->jabatan_id <= 4){
+                $is_can_approved = true;
             }
+
+            // if (!$is_can_checked) {
+            //     if (auth()->user()->karyawan->posisi[0]->jabatan_id <= 4){
+            //         $is_can_approved = true;
+            //     }
+            // }
 
              //CEK APAKAH DIA ORANG PIKET
             $today = Carbon::now()->format('Y-m-d');
@@ -943,7 +948,7 @@ class IzineController extends Controller
                         }
                     }
 
-                    if(!$has_leader && !$has_section_head && $has_department_head || !$has_leader && !$has_section_head && !$has_department_head || !$has_leader && $has_section_head && !$has_department_head){
+                    if((!$has_leader && !$has_section_head && $has_department_head) || (!$has_leader && !$has_section_head && !$has_department_head) || (!$has_leader && $has_section_head && !$has_department_head)){
                         if(!$data->checked_by){
                             $checked_by = 'Directly Approved';
                         }
