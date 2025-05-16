@@ -76,7 +76,7 @@ class LembureController extends Controller
 
     public function detail_lembur_view()
     {
-        if(auth()->user()->karyawan && auth()->user()->karyawan->posisi[0]->jabatan_id >= 4){
+        if(auth()->user()->karyawan && auth()->user()->karyawan->posisi[0]->jabatan_id >= 5){
             return redirect()->route('lembure.pengajuan-lembur');
         }
 
@@ -432,7 +432,7 @@ class LembureController extends Controller
         $is_can_checked = false;
         $is_can_approved = false;
         $is_has_department_head = false;
-        $is_can_see_nominal = false;
+        $is_can_see_nominal = true;
 
         if(auth()->user()->hasRole('personalia')){
             $dataFilter['organisasi_id'] = $organisasi_id;
@@ -2706,7 +2706,7 @@ class LembureController extends Controller
                 $minutes_aktual = $duration_aktual % 60;
 
                 //Can See Nominal
-                $is_can_see_nominal = false;
+                $is_can_see_nominal = true;
                 if (auth()->user()->hasRole('atasan')) {
                     if (auth()->user()->karyawan->posisi[0]->jabatan_id <= 3) {
                         $is_can_see_nominal = true;
@@ -4569,7 +4569,7 @@ class LembureController extends Controller
 
         try{
             //Can See Nominal
-            $is_can_see_nominal = false;
+            $is_can_see_nominal = true;
             if (auth()->user()->hasRole('atasan')) {
                 if (auth()->user()->karyawan->posisi[0]->jabatan_id <= 3) {
                     $is_can_see_nominal = true;
