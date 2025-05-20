@@ -395,8 +395,7 @@ class GrupController extends Controller
         );
 
         if (!empty($search)) {
-            $search = $search;
-            $data->where(function ($query) use ($search) {
+            $query->where(function ($query) use ($search) {
                 $query->where('nama', 'ILIKE', "%{$search}%")
                 ->orWhere('jam_masuk', 'ILIKE', "%{$search}%")
                 ->orWhere('jam_keluar', 'ILIKE', "%{$search}%");
