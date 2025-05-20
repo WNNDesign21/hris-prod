@@ -535,7 +535,7 @@ class KaryawanController extends Controller
         try{
             $karyawan = Karyawan::find($id_karyawan);
 
-            if ($karyawan->organisasi_id !== $organisasi_id) {
+            if ($karyawan->organisasi_id != $organisasi_id) {
                 $existingLemburDone = Lembure::where('issued_by', $id_karyawan)
                 ->where('organisasi_id', $karyawan->organisasi_id)
                 ->where('status', 'PLANNED')

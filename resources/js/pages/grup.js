@@ -29,7 +29,7 @@ $(function () {
             toast: true,
             position: "top-end",
             showConfirmButton: false,
-            timer: 2000, 
+            timer: 2000,
             timerProgressBar: true,
             didOpen: (toast) => {
             toast.onmouseenter = Swal.stopTimer;
@@ -489,30 +489,30 @@ $(function () {
                     page: params.page || 1,
                 };
             },
-            processResults: function (data, params) {
-                let selectedIds = [];
-                $("select[name='urutan[]']").each(function () {
-                if ($(this).val()) {
-                    selectedIds.push($(this).val());
-                }
-                });
+            // processResults: function (data, params) {
+            //     let selectedIds = [];
+            //     $("select[name='urutan[]']").each(function () {
+            //     if ($(this).val()) {
+            //         selectedIds.push($(this).val());
+            //     }
+            //     });
 
-                let filteredData = data.results.filter(function (item) {
-                return !selectedIds.includes(item.id);
-                });
+            //     let filteredData = data.results.filter(function (item) {
+            //     return !selectedIds.includes(item.id);
+            //     });
 
-                return {
-                    results: filteredData,
-                    pagination: {
-                        more: (params.page * 30) < data.total_count
-                    }
-                };
-            },
+            //     return {
+            //         results: filteredData,
+            //         pagination: {
+            //             more: (params.page * 5) < data.total_count
+            //         }
+            //     };
+            // },
             cache: true,
             },
         });
     })
-    
+
     //DELETE GRUP
     $('#shift-pattern-table').on('click', '.btnDeleteSp', function (){
         var idGrupPattern = $(this).data('id');
@@ -598,7 +598,7 @@ $(function () {
                 $('#nama_shift_patternEdit').val(nama);
                 $('#id_shift_patternEdit').val(idGrupPattern);
                 let list = $('#list-urutanEdit').empty();
-                
+
                 $.each(urutan, function (i, val){
                     list.append(`
                         <div class="form-group d-flex align-items-center">
@@ -622,7 +622,7 @@ $(function () {
                 loadingSwalClose();
                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
             },
-        }); 
+        });
     })
 
     $('.btnAddUrutanEdit').on("click", function (){
@@ -654,25 +654,25 @@ $(function () {
                     page: params.page || 1,
                 };
             },
-            processResults: function (data, params) {
-                let selectedIds = [];
-                $("select[name='urutanEdit[]']").each(function () {
-                if ($(this).val()) {
-                    selectedIds.push($(this).val());
-                }
-                });
+            // processResults: function (data, params) {
+            //     let selectedIds = [];
+            //     $("select[name='urutanEdit[]']").each(function () {
+            //     if ($(this).val()) {
+            //         selectedIds.push($(this).val());
+            //     }
+            //     });
 
-                let filteredData = data.results.filter(function (item) {
-                return !selectedIds.includes(item.id);
-                });
+            //     let filteredData = data.results.filter(function (item) {
+            //     return !selectedIds.includes(item.id);
+            //     });
 
-                return {
-                    results: filteredData,
-                    pagination: {
-                        more: (params.page * 30) < data.total_count
-                    }
-                };
-            },
+            //     return {
+            //         results: filteredData,
+            //         pagination: {
+            //             more: (params.page * 30) < data.total_count
+            //         }
+            //     };
+            // },
             cache: true,
             },
         });
@@ -703,25 +703,25 @@ $(function () {
                             page: params.page || 1,
                         };
                     },
-                    processResults: function (data, params) {
-                        let selectedIds = [];
-                        $("select[name='urutanEdit[]']").each(function () {
-                        if ($(this).val()) {
-                            selectedIds.push($(this).val());
-                        }
-                        });
-        
-                        let filteredData = data.results.filter(function (item) {
-                        return !selectedIds.includes(item.id);
-                        });
-        
-                        return {
-                            results: filteredData,
-                            pagination: {
-                                more: (params.page * 30) < data.total_count
-                            }
-                        };
-                    },
+                    // processResults: function (data, params) {
+                    //     let selectedIds = [];
+                    //     $("select[name='urutanEdit[]']").each(function () {
+                    //     if ($(this).val()) {
+                    //         selectedIds.push($(this).val());
+                    //     }
+                    //     });
+
+                    //     let filteredData = data.results.filter(function (item) {
+                    //     return !selectedIds.includes(item.id);
+                    //     });
+
+                    //     return {
+                    //         results: filteredData,
+                    //         pagination: {
+                    //             more: (params.page * 30) < data.total_count
+                    //         }
+                    //     };
+                    // },
                     cache: true,
                     },
                 });

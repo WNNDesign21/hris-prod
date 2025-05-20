@@ -122,7 +122,7 @@ class ShiftgroupController extends Controller
     public function store(Request $request)
     {
         $file = $request->file('file');
-        
+
         $validator = Validator::make($request->all(), [
             'file' => 'required|mimes:xlsx,xls'
         ]);
@@ -137,7 +137,7 @@ class ShiftgroupController extends Controller
             if($request->hasFile('file')){
                 $records = 'SG_' . time() . '.' . $file->getClientOriginalExtension();
                 $shiftgroup_file = $file->storeAs("attachment/upload-shift-group", $records);
-            } 
+            }
 
             if (file_exists(storage_path("app/public/".$shiftgroup_file))) {
                 $spreadsheet = IOFactory::load(storage_path("app/public/".$shiftgroup_file));
@@ -156,8 +156,8 @@ class ShiftgroupController extends Controller
                             } catch (Exception $e) {
                                 return response()->json(['message' => 'Format tanggal salah!'], 402);
                             }
-                        } 
-                        
+                        }
+
                         if (isset($karyawanList[$row[0]])) {
                             $karyawanList[$row[0]]->update([
                                 'grup_id' => $row[3],
@@ -170,7 +170,7 @@ class ShiftgroupController extends Controller
                                 'pin' => $karyawanList[$row[0]]->pin,
                                 'active_date' => $active_date,
                                 'organisasi_id' => $organisasi_id,
-                                'toleransi_waktu' => $grup->toleransi_waktu,
+                                'toleransi_waktu' => $grup->toleransi_waktu ?? 0,
                                 'jam_masuk' => $grup->jam_masuk,
                                 'jam_keluar' => $grup->jam_keluar,
                             ]);
@@ -219,7 +219,7 @@ class ShiftgroupController extends Controller
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
-    
+
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
             return response()->json(['message' => $errors], 402);

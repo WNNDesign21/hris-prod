@@ -191,14 +191,14 @@ class GrupController extends Controller
             'jam_keluar' => ['required', 'date_format:H:i'],
             'toleransi_waktu' => ['required', 'integer', 'regex:/^\d+$/'],
         ];
-    
+
         $validator = Validator::make(request()->all(), $dataValidate);
-    
+
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
             return response()->json(['message' => $errors], 402);
         }
-    
+
         DB::beginTransaction();
         try{
             $grup = Grup::create([
@@ -222,9 +222,9 @@ class GrupController extends Controller
             'urutan.*' => ['required', 'integer'],
             'urutan' => ['required', 'array'],
         ];
-    
+
         $validator = Validator::make(request()->all(), $dataValidate);
-    
+
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
             return response()->json(['message' => $errors], 402);
@@ -233,7 +233,7 @@ class GrupController extends Controller
         $organisasi_id = auth()->user()->organisasi_id;
         $nama = $request->nama_shift_pattern;
         $urutan = json_encode($request->urutan);
-    
+
         DB::beginTransaction();
         try{
 
@@ -278,14 +278,14 @@ class GrupController extends Controller
             'jam_keluar_edit' => ['required', 'date_format:H:i'],
             'toleransi_waktu_edit' => ['required', 'integer', 'regex:/^\d+$/'],
         ];
-    
+
         $validator = Validator::make(request()->all(), $dataValidate);
-    
+
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
             return response()->json(['message' => $errors], 402);
         }
-        
+
         DB::beginTransaction();
         try{
             $grup = Grup::find($id);
@@ -309,9 +309,9 @@ class GrupController extends Controller
             'urutanEdit.*' => ['required', 'integer'],
             'urutanEdit' => ['required', 'array'],
         ];
-    
+
         $validator = Validator::make(request()->all(), $dataValidate);
-    
+
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
             return response()->json(['message' => $errors], 402);
@@ -319,7 +319,7 @@ class GrupController extends Controller
 
         $nama_shift_pattern = $request->nama_shift_patternEdit;
         $urutan = json_encode($request->urutanEdit);
-        
+
         DB::beginTransaction();
         try{
             $grup_pattern = GrupPattern::find($id);
@@ -339,7 +339,7 @@ class GrupController extends Controller
      */
     public function destroy(string $id)
     {
-        
+
     }
 
     /**
@@ -349,7 +349,7 @@ class GrupController extends Controller
     {
         DB::beginTransaction();
         try {
-            $grup = Grup::findOrFail($id); 
+            $grup = Grup::findOrFail($id);
             $grup->delete();
             DB::commit();
             return response()->json(['message' => 'Grup deleted!', 'id_grup' => $id], 200);
@@ -367,7 +367,7 @@ class GrupController extends Controller
     {
         DB::beginTransaction();
         try {
-            $grup_pattern = GrupPattern::findOrFail($id); 
+            $grup_pattern = GrupPattern::findOrFail($id);
             $grup_pattern->delete();
             DB::commit();
             return response()->json(['message' => 'Shift Pattern deleted!'], 200);
@@ -394,10 +394,12 @@ class GrupController extends Controller
             'jam_keluar'
         );
 
-        if (isset($dataFilter['search'])) {
-            $search = $dataFilter['search'];
+        if (!empty($search)) {
+            $search = $search;
             $data->where(function ($query) use ($search) {
-                $query->where('nama', 'ILIKE', "%{$search}%");
+                $query->where('nama', 'ILIKE', "%{$search}%")
+                ->orWhere('jam_masuk', 'ILIKE', "%{$search}%")
+                ->orWhere('jam_keluar', 'ILIKE', "%{$search}%");
             });
         }
 
@@ -409,23 +411,18 @@ class GrupController extends Controller
             $morePages = false;
         }
 
-        $dataGrup = [];
-
-        if(!$data->isEmpty()){
-            foreach ($data->items() as $grup) {
-                $dataGrup[] = [
-                    'id' => $grup->id_grup,
-                    'text' => $grup->nama.' ('.Carbon::parse($grup->jam_masuk)->format('H:i').'-'.Carbon::parse($grup->jam_keluar)->format('H:i').')'
-                ];
-            }
-
+        foreach ($data->items() as $grup) {
+            $dataGrup[] = [
+                'id' => $grup->id_grup,
+                'text' => $grup->nama.' ('.Carbon::parse($grup->jam_masuk)->format('H:i').'-'.Carbon::parse($grup->jam_keluar)->format('H:i').')'
+            ];
         }
 
         $results = array(
             "results" => $dataGrup,
             "pagination" => array(
                 "more" => $morePages
-            )
+            ),
         );
 
         return response()->json($results);
