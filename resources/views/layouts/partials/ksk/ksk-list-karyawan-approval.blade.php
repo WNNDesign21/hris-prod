@@ -133,7 +133,7 @@
                         <div class="col-12 col-lg-12">
                             <div class="form-group">
                                 <small class="text-muted">History Perubahan</small><br>
-                                <div class="row">
+                                <div class="row" id="change_history_ksk_{{ $i }}">
                                     @if ($item->changeHistoryKSK->isNotEmpty())
                                         @foreach ($item->changeHistoryKSK->sortBy('created_at') as $history)
                                             <div class="col-6 col-lg-3">

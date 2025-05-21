@@ -21,6 +21,9 @@ class AuthController extends Controller
 
         if (Auth::attempt(['username' => $request->username, 'password' => $request->password])) {
             $user = Auth::user();
+            $karyawan = null;
+            $posisi = null;
+            $currentShift = null;
 
             $at_expired = 60;
             $access_token = $user->createToken('access_token', ['access-api'], Carbon::now()->addMinutes($at_expired))->plainTextToken;
@@ -28,37 +31,40 @@ class AuthController extends Controller
             $rt_expired = 30 * 24 * 60;
             $refresh_token = $user->createToken('refresh_token', ['issue-access-token'], Carbon::now()->addMinutes($rt_expired))->plainTextToken;
 
-            if (!$user->hasRole(['atasan', 'member'])) {
+            if ($user->hasRole(['atasan', 'member'])) {
+                $karyawan = $user->karyawan;
+                $posisi = $karyawan->posisi[0];
+
+                if (!$posisi) {
+                    Auth::logout();
+                    return ResponseFormat::error(null, 'Karyawan tidak memiliki posisi.', 403);
+                }
+
+                $currentShift = DB::table('attendance_karyawan_grup')->where('karyawan_id', $karyawan->id_karyawan)->orderByDesc('active_date')->first();
+
+                // if (!$currentShift) {
+                //     Auth::logout();
+                //     return ResponseFormat::error(null, 'Karyawan tidak memiliki shift aktif.', 403);
+                // }
+                // Auth::logout();
+                // return ResponseFormat::error(null, 'Akses ditolak. Silahkan login menggunakan akun karyawan.', 403);
+            } elseif (!$user->hasRole('personalia')) {
                 Auth::logout();
-                return ResponseFormat::error(null, 'Akses ditolak. Silahkan login menggunakan akun karyawan.', 403);
-            }
-
-            $karyawan = $user->karyawan;
-            $posisi = $karyawan->posisi[0];
-
-            if (!$posisi) {
-                Auth::logout();
-                return ResponseFormat::error(null, 'Karyawan tidak memiliki posisi.', 403);
-            }
-
-            $currentShift = DB::table('attendance_karyawan_grup')->where('karyawan_id', $karyawan->id_karyawan)->orderByDesc('active_date')->first();
-
-            if (!$currentShift) {
-                Auth::logout();
-                return ResponseFormat::error(null, 'Karyawan tidak memiliki shift aktif.', 403);
+                return ResponseFormat::error(null, 'Akses ditolak. Silahkan login menggunakan akun karyawan / HRD.', 403);
             }
 
             $data = [
                 'username' => $user->username,
                 'email' => $user->email,
                 'organisasi_id' => $user->organisasi_id,
+                'roles' => $user->getRoleNames()->toArray(),
                 'karyawan_id' => $karyawan?->id_karyawan,
-                'nama' => $karyawan?->nama,
-                'jabatan' => $posisi?->jabatan,
-                'departemen' => $posisi?->departemen,
-                'divisi' => $posisi?->divisi,
-                'posisi' => $posisi,
-                'shift' => $currentShift,
+                'nama' => $karyawan ?? $karyawan?->nama,
+                'jabatan' => $posisi ?? $posisi?->jabatan,
+                'departemen' => $posisi ?? $posisi?->departemen,
+                'divisi' => $posisi ?? $posisi?->divisi,
+                'posisi' => $posisi ?? $posisi,
+                'shift' => $currentShift ?? $currentShift,
                 'token' => $access_token,
                 'refresh_token' => $refresh_token,
                 'token_type' => 'Bearer',
@@ -98,30 +104,37 @@ class AuthController extends Controller
     {
         try {
             $user = Auth::user();
-            $karyawan = $user->karyawan;
-            $posisi = $karyawan->posisi[0];
+            $karyawan = null;
+            $posisi = null;
+            $currentShift = null;
 
-            if (!$posisi) {
-                return ResponseFormat::error(null, 'Karyawan tidak memiliki posisi.', 403);
-            }
+            if ($user->hasRole(['atasan', 'member'])) {
+                $karyawan = $user->karyawan;
+                $posisi = $karyawan->posisi[0];
 
-            $currentShift = DB::table('attendance_karyawan_grup')->where('karyawan_id', $karyawan->id_karyawan)->orderByDesc('active_date')->first();
+                if (!$posisi) {
+                    return ResponseFormat::error(null, 'Karyawan tidak memiliki posisi.', 403);
+                }
 
-            if (!$currentShift) {
-                return ResponseFormat::error(null, 'Karyawan tidak memiliki shift aktif.', 403);
+                $currentShift = DB::table('attendance_karyawan_grup')->where('karyawan_id', $karyawan->id_karyawan)->orderByDesc('active_date')->first();
+
+                // if (!$currentShift) {
+                //     return ResponseFormat::error(null, 'Karyawan tidak memiliki shift aktif.', 403);
+                // }
             }
 
             $data = [
                 'username' => $user->username,
                 'email' => $user->email,
                 'organisasi_id' => $user->organisasi_id,
+                'roles' => $user->getRoleNames()->toArray(),
                 'karyawan_id' => $karyawan?->id_karyawan,
-                'nama' => $karyawan?->nama,
-                'jabatan' => $posisi?->jabatan,
-                'departemen' => $posisi?->departemen,
-                'divisi' => $posisi?->divisi,
-                'posisi' => $posisi,
-                'shift' => $currentShift,
+                'nama' => $karyawan ?? $karyawan?->nama,
+                'jabatan' => $posisi ?? $posisi?->jabatan,
+                'departemen' => $posisi ?? $posisi?->departemen,
+                'divisi' => $posisi ?? $posisi?->divisi,
+                'posisi' => $posisi ?? $posisi,
+                'shift' => $currentShift ?? $currentShift,
             ];
 
             return ResponseFormat::success($data, 'Profile retrieved successfully');

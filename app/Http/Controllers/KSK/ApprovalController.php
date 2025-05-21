@@ -367,7 +367,14 @@ class ApprovalController extends Controller
             $detail_ksk->save();
 
             DB::commit();
-            return response()->json(['message' => 'Detail KSK '.$detail_ksk->nama_karyawan.' berhasil diperbaharui.'], 200);
+
+            $changeHistoryUpdated = ChangeHistoryKSK::where('ksk_detail_id', $id)->get();
+            $html = view('layouts.partials.ksk.ksk-change-history-ksk', ['datas' => $changeHistoryUpdated])->render();
+
+            return response()->json([
+                'html' => $html,
+                'message' => 'Detail KSK '.$detail_ksk->nama_karyawan.' berhasil diperbaharui.'
+            ], 200);
         } catch (Throwable $e) {
             DB::rollback();
             return response()->json(['message' => $e->getMessage()], 500);
