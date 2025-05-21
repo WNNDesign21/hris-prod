@@ -328,6 +328,7 @@ $(function () {
                 success: function (data){
                     loadingSwalClose();
                     showToast({ title: data.message });
+                    $('#change_history_ksk_'+id).empty().html(data.html);
                 },
                 error: function (jqXHR, textStatus, errorThrown){
                     loadingSwalClose();
