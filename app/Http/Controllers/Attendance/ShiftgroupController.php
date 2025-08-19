@@ -55,13 +55,13 @@ class ShiftgroupController extends Controller
             $dataFilter['search'] = $search;
         }
 
-        if(auth()->user()->hasRole('admin-dept')){
+        if (auth()->user()->hasRole('admin-dept')) {
             $departemen = auth()->user()->karyawan->posisi[0]->departemen_id;
             $dataFilter['departemen'] = $departemen;
         }
 
         $filterGrup = $request->grup;
-        if (isset($filterGrup)){
+        if (isset($filterGrup)) {
             $dataFilter['grup'] = $filterGrup;
         }
 
@@ -75,7 +75,7 @@ class ShiftgroupController extends Controller
         if (!empty($grup)) {
             foreach ($grup as $data) {
                 if ($data->jam_masuk && $data->jam_keluar) {
-                    $current_shift = $data->grup.' ('.Carbon::parse($data->jam_masuk)->format('H:i').' - '.Carbon::parse($data->jam_keluar)->format('H:i').')';
+                    $current_shift = $data->grup . ' (' . Carbon::parse($data->jam_masuk)->format('H:i') . ' - ' . Carbon::parse($data->jam_keluar)->format('H:i') . ')';
                 } else {
                     $current_shift = '';
                 }
@@ -87,7 +87,7 @@ class ShiftgroupController extends Controller
                 $nestedData['pola_shift'] = $data->grup_pattern;
                 $nestedData['aksi'] = '
                 <div class="btn-group">
-                    <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" data-id-karyawan="'.$data->id_karyawan.'" data-id-grup="'.$data->grup_id.'" data-pin="'.$data->pin.'" data-id-grup-pattern="'.$data->grup_pattern_id.'"><i class="fas fa-edit"></i></button>
+                    <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" data-id-karyawan="' . $data->id_karyawan . '" data-id-grup="' . $data->grup_id . '" data-pin="' . $data->pin . '" data-id-grup-pattern="' . $data->grup_pattern_id . '"><i class="fas fa-edit"></i></button>
                 </div>
                 ';
 
@@ -134,23 +134,23 @@ class ShiftgroupController extends Controller
         DB::beginTransaction();
         try {
 
-            if($request->hasFile('file')){
+            if ($request->hasFile('file')) {
                 $records = 'SG_' . time() . '.' . $file->getClientOriginalExtension();
                 $shiftgroup_file = $file->storeAs("attachment/upload-shift-group", $records);
             }
 
-            if (file_exists(storage_path("app/public/".$shiftgroup_file))) {
-                $spreadsheet = IOFactory::load(storage_path("app/public/".$shiftgroup_file));
+            if (file_exists(storage_path("app/public/" . $shiftgroup_file))) {
+                $spreadsheet = IOFactory::load(storage_path("app/public/" . $shiftgroup_file));
                 $worksheet = $spreadsheet->getActiveSheet();
                 $data = $worksheet->toArray();
                 unset($data[0]);
-                if(!empty($data)){
+                if (!empty($data)) {
                     $niKaryawanList = array_column($data, 0);
                     $organisasi_id = auth()->user()->organisasi_id;
                     $karyawanList = Karyawan::whereIn('ni_karyawan', $niKaryawanList)->get()->keyBy('ni_karyawan');
 
                     foreach ($data as $key => $row) {
-                        if($row[6] !== null){
+                        if ($row[6] !== null) {
                             try {
                                 $active_date = Carbon::createFromFormat('d/m/Y', $row[6])->subDay()->format('Y-m-d') . ' 23:45';
                             } catch (Exception $e) {
@@ -261,11 +261,11 @@ class ShiftgroupController extends Controller
 
     public function get_data_grup_pattern(string $id)
     {
-        try{
+        try {
             $grup_pattern = GrupPattern::find($id);
             $grup_ids = json_decode($grup_pattern->urutan);
             $grups = Grup::whereIn('id_grup', $grup_ids)->get();
-            return response()->json(['message' => 'Data Grup Berhasil Ditemukan!','data' => $grups], 200);
+            return response()->json(['message' => 'Data Grup Berhasil Ditemukan!', 'data' => $grups], 200);
         } catch (Throwable $e) {
             return response()->json(['message' => $e->getMessage()], 500);
         }

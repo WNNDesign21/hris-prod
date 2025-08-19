@@ -163,6 +163,28 @@ class Approval
         return null;
     }
 
+    public static function GetSectionHead($posisiCollection): ?\App\Models\Karyawan
+    {
+        if (!$posisiCollection instanceof \Illuminate\Support\Collection) {
+            return null;
+        }
+
+        foreach ($posisiCollection as $pos) {
+            $parentIds = self::GetParentPosisi($pos);
+            foreach ($parentIds as $pid) {
+                if ($pid === 0)
+                    continue;
+
+                $parent = \App\Models\Posisi::with('karyawan')->find($pid);
+                if ($parent && (int) $parent->jabatan_id === self::JABATAN_SECTION_HEAD) {
+                    // ✅ return SATU karyawan saja
+                    return $parent->karyawan()->first();
+                }
+            }
+        }
+        return null;
+    }
+
     // ===== Versi untuk cuti (samakan mapping!) =====
     public static function HasDirectorCuti($posisi)
     {

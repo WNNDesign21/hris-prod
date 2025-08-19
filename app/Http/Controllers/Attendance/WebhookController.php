@@ -42,7 +42,7 @@ class WebhookController extends Controller
         $date = Carbon::createFromFormat('Y-m-d H:i', $data['scan'])->format('Y-m-d');
         $scanDate = Carbon::createFromFormat('Y-m-d H:i', $data['scan'])->format('Y-m-d H:i:s');
         $verify = $data['verify'];
-        $scanStatus = $data['status_scan']; 
+        $scanStatus = $data['status_scan'];
 
         DB::beginTransaction();
         try {
@@ -71,7 +71,8 @@ class WebhookController extends Controller
         }
     }
 
-    public function test(){
+    public function test()
+    {
         try {
             LiveAttendanceEvent::dispatch(true, 2);
             return response()->json(['message' => 'OK'], 200);

@@ -4343,7 +4343,8 @@ class LembureController extends Controller
                 ? optional($leaderRaw->first())->nama
                 : optional($leaderRaw)->nama;
 
-            $secNama = $getAtasanNamaByJabatan($creatorPos, 4); // Section Head
+            $secRaw = \App\Helpers\Approval::GetSectionHead($creatorPos);
+            $secNama = $secRaw?->nama ?: $getAtasanNamaByJabatan($creatorPos, 4);
             $now = now();
 
             $maker = 'unknown';
@@ -4396,6 +4397,10 @@ class LembureController extends Controller
                         $setApproved($creatorNama);
                     } elseif (!$hasSecHead && $hasDeptHead) {
                         $setChecked($creatorNama);
+                    } elseif ($hasSecHead && !$hasDeptHead) {
+                        // ✅ Leader ada Section Head, tapi tidak ada DeptHead
+                        $setChecked($secNama ?: $creatorNama);
+                        $setApproved($secNama ?: $creatorNama); // otomatis approve juga
                     } elseif ($hasSecHead && $hasDeptHead) {
                         $setChecked($secNama ?: $creatorNama);
                     } else {
@@ -4663,8 +4668,8 @@ class LembureController extends Controller
                         'fill' => [
                             'fillType' => Fill::FILL_SOLID,
                             'startColor' => [
-                                'argb' => 'FFFFFF00',
-                            ],
+                                    'argb' => 'FFFFFF00',
+                                ],
                         ],
                         'alignment' => [
                             'horizontal' => Alignment::HORIZONTAL_CENTER,
@@ -4752,8 +4757,8 @@ class LembureController extends Controller
                         'fill' => [
                             'fillType' => Fill::FILL_SOLID,
                             'startColor' => [
-                                'argb' => 'FFFFFF00',
-                            ],
+                                    'argb' => 'FFFFFF00',
+                                ],
                         ],
                         'alignment' => [
                             'horizontal' => Alignment::HORIZONTAL_CENTER,
@@ -4812,8 +4817,8 @@ class LembureController extends Controller
                 'fill' => [
                     'fillType' => Fill::FILL_SOLID,
                     'startColor' => [
-                        'argb' => 'FFFFFF00',
-                    ],
+                            'argb' => 'FFFFFF00',
+                        ],
                 ],
                 'alignment' => [
                     'horizontal' => Alignment::HORIZONTAL_CENTER,
@@ -4902,8 +4907,8 @@ class LembureController extends Controller
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
                 'startColor' => [
-                    'argb' => 'FFFFFF00',
-                ],
+                        'argb' => 'FFFFFF00',
+                    ],
             ],
             'font' => [
                 'bold' => true,

@@ -115,6 +115,6 @@ class LiveAttendanceController extends Controller
         } catch (Throwable $th) {
             return response()->json(['message' => $th->getMessage()], 500);
         }
-        
+
     }
 }

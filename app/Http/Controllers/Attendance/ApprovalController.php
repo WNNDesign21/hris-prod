@@ -84,9 +84,9 @@ class ApprovalController extends Controller
                 }
 
                 if ($data->attachment) {
-                    $formattedAttachment = '<a id="linkFoto'.$data->id_att_gps.'" href="' . asset('storage/'.$data->attachment) . '"
-                                    class="image-popup-vertical-fit" data-title="'.$data->id_att_gps.'">
-                                    <img id="imageReview'.$data->id_att_gps.'" src="' . asset('storage/'.$data->attachment) . '" alt="Image Foto"
+                    $formattedAttachment = '<a id="linkFoto' . $data->id_att_gps . '" href="' . asset('storage/' . $data->attachment) . '"
+                                    class="image-popup-vertical-fit" data-title="' . $data->id_att_gps . '">
+                                    <img id="imageReview' . $data->id_att_gps . '" src="' . asset('storage/' . $data->attachment) . '" alt="Image Foto"
                                         style="width: 80px;height: 80px;" class="img-fluid">
                                 </a>';
                 } else {
@@ -100,15 +100,15 @@ class ApprovalController extends Controller
                 }
 
                 if ($data->scanlog_id) {
-                    $formattedIsLegalized = '✅<br><small class="text-bold">HRD & GA</small><br><small class="text-fade">'.Carbon::parse($data->updated_at)->diffForHumans().'</small>';
+                    $formattedIsLegalized = '✅<br><small class="text-bold">HRD & GA</small><br><small class="text-fade">' . Carbon::parse($data->updated_at)->diffForHumans() . '</small>';
                 } else {
-                    $formattedIsLegalized = '<div class="btn-group"><button class="btn btn-sm btn-success btnLegalized" data-id="'.$data->id_att_gps.'"><i class="fas fa-balance-scale"></i> Legalized</button></div>';
+                    $formattedIsLegalized = '<div class="btn-group"><button class="btn btn-sm btn-success btnLegalized" data-id="' . $data->id_att_gps . '"><i class="fas fa-balance-scale"></i> Legalized</button></div>';
                 }
 
 
                 $nestedData['nama'] = $data->karyawan;
                 $nestedData['departemen'] = $data->departemen ? $data->departemen : ($data->divisi ? $data->divisi : '-');
-                $nestedData['tanggal'] = Carbon::parse($data->attendance_time)->format('Y-m-d H:i'). ' WIB';
+                $nestedData['tanggal'] = Carbon::parse($data->attendance_time)->format('Y-m-d H:i') . ' WIB';
                 $nestedData['tipe'] = $formattedType;
                 $nestedData['lokasi'] = $formattedLocation;
                 $nestedData['attachment'] = $formattedAttachment;
@@ -137,7 +137,7 @@ class ApprovalController extends Controller
         $att_gps = AttendanceGps::find($id_att_gps);
 
         DB::beginTransaction();
-        try{
+        try {
             if ($att_gps->scanlog_id) {
                 return response()->json(['message' => 'Attendance sudah di legalized, silahkan refresh halaman!'], 403);
             } elseif ($att_gps->rejected_by) {

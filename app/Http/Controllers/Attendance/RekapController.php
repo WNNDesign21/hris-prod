@@ -22,11 +22,11 @@ class RekapController extends Controller
      */
     public function index()
     {
-        if(auth()->user()->hasRole('personalia')){
+        if (auth()->user()->hasRole('personalia')) {
             $departemens = Departemen::all();
         } else {
             $departemen = auth()->user()->karyawan->posisi[0]->departemen_id;
-            $departemens = Departemen::where('id_departemen', $departemen)->pluck('nama','id_departemen');
+            $departemens = Departemen::where('id_departemen', $departemen)->pluck('nama', 'id_departemen');
         }
 
         $dataPage = [
@@ -34,7 +34,7 @@ class RekapController extends Controller
             'page' => 'attendance-rekap',
             'departemens' => $departemens
         ];
-        
+
         return view('pages.attendance-e.rekap.index', $dataPage);
     }
 
@@ -46,7 +46,7 @@ class RekapController extends Controller
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
-    
+
         if ($validator->fails()) {
             $errors = $validator->errors()->all();
             return response()->json(['message' => $errors], 402);
@@ -64,7 +64,7 @@ class RekapController extends Controller
         if (!empty($departemen)) {
             $dataFilter['departemens'] = $departemen;
         } else {
-            if(auth()->user()->hasRole('admin-dept')){
+            if (auth()->user()->hasRole('admin-dept')) {
                 $departemen = auth()->user()->karyawan->posisi[0]->departemen_id;
                 $dataFilter['departemens'] = [$departemen];
             }
@@ -120,13 +120,13 @@ class RekapController extends Controller
         }
         $sheet->setAutoFilter('A1:K1');
         $hari_kerja = 21;
-        
+
         try {
 
             $datas = ScanlogDetail::rekapSummary($dataFilter);
             $row = 2;
-            if($datas){
-                foreach ($datas as $index => $data){
+            if ($datas) {
+                foreach ($datas as $index => $data) {
                     $jumlah_tanpa_keterangan = ($hari_kerja - $data->jumlah_cuti_bersama) - ($data->jumlah_hadir + $data->jumlah_cuti + $data->jumlah_izin + $data->jumlah_sakit);
                     $sheet->setCellValue('A' . $row, $data->ni_karyawan);
                     $sheet->setCellValue('B' . $row, $data->nama);
@@ -148,7 +148,7 @@ class RekapController extends Controller
             $writer = new Xlsx($spreadsheet);
 
             header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            header('Content-Disposition: attachment;filename="Rekap Presensi -'.Carbon::parse($start)->format('d-m-Y').' s/d '.Carbon::parse($end)->format('d-m-Y').'.xlsx"');
+            header('Content-Disposition: attachment;filename="Rekap Presensi -' . Carbon::parse($start)->format('d-m-Y') . ' s/d ' . Carbon::parse($end)->format('d-m-Y') . '.xlsx"');
             header('Cache-Control: max-age=0');
 
             $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');

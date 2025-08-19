@@ -80,7 +80,7 @@ class AttendanceGpsController extends Controller
 
             if ($dupeExists) {
                 DB::rollBack();
-                return response()->json(['message' => 'Anda sudah melakukan presensi '.$status.' untuk hari ini'], 400);
+                return response()->json(['message' => 'Anda sudah melakukan presensi ' . $status . ' untuk hari ini'], 400);
             }
 
             $data = AttendanceGps::create([
@@ -127,8 +127,8 @@ class AttendanceGpsController extends Controller
                     'latitude' => $item->latitude,
                     'longitude' => $item->longitude,
                     'att_date' => Carbon::parse($item->attendance_date)->format('d M Y'),
-                    'att_time' => Carbon::parse($item->attendance_time)->format('H:i:s').' WIB',
-                    'attachment' => asset('storage/'.$item->attachment),
+                    'att_time' => Carbon::parse($item->attendance_time)->format('H:i:s') . ' WIB',
+                    'attachment' => asset('storage/' . $item->attachment),
                     'type' => $item->type == 'VS' ? 'VENDOR STAY' : 'TUGAS LUAR',
                 ];
             }

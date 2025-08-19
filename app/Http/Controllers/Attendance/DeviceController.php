@@ -70,8 +70,8 @@ class DeviceController extends Controller
                 $nestedData['server_port'] = $data->server_port;
                 $nestedData['aksi'] = '
                 <div class="btn-group">
-                    <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" data-id="'.$data->id_device.'" data-cloud-id="'.$data->cloud_id.'" data-device-sn="'.$data->device_sn.'" data-device-name="'.$data->device_name.'" data-server-ip="'.$data->server_ip.'"  data-server-port="'.$data->server_port.'"><i class="fas fa-edit"></i></button>
-                    <button type="button" class="waves-effect waves-light btn btn-danger btnDelete" data-id="'.$data->id_device.'"><i class="fas fa-trash-alt"></i></button>
+                    <button type="button" class="waves-effect waves-light btn btn-warning btnEdit" data-id="' . $data->id_device . '" data-cloud-id="' . $data->cloud_id . '" data-device-sn="' . $data->device_sn . '" data-device-name="' . $data->device_name . '" data-server-ip="' . $data->server_ip . '"  data-server-port="' . $data->server_port . '"><i class="fas fa-edit"></i></button>
+                    <button type="button" class="waves-effect waves-light btn btn-danger btnDelete" data-id="' . $data->id_device . '"><i class="fas fa-trash-alt"></i></button>
                 </div>
                 ';
 
@@ -121,7 +121,7 @@ class DeviceController extends Controller
         }
 
         DB::beginTransaction();
-        try{
+        try {
             Device::create([
                 'organisasi_id' => auth()->user()->organisasi_id,
                 'cloud_id' => $request->cloud_id,
@@ -133,7 +133,7 @@ class DeviceController extends Controller
 
             DB::commit();
             return response()->json(['message' => 'Data Device Attendance Berhasil Ditambahkan!'], 200);
-        } catch(Throwable $error){
+        } catch (Throwable $error) {
             return response()->json(['message' => $error->getMessage()], 500);
         }
     }
@@ -141,10 +141,10 @@ class DeviceController extends Controller
     public function get_all_device()
     {
         $organisasi_id = auth()->user()->organisasi_id;
-        try{
+        try {
             $devices = Device::where('organisasi_id', $organisasi_id)->get();
             return response()->json(['message' => 'Device berhasil ditemukan', 'data' => $devices], 200);
-        } catch(Throwable $error){
+        } catch (Throwable $error) {
             return response()->json(['message' => $error->getMessage()], 500);
         }
     }
@@ -171,8 +171,8 @@ class DeviceController extends Controller
     public function update(Request $request, string $id_device)
     {
         $dataValidate = [
-            'cloud_idEdit' => ['required', 'unique:attendance_devices,cloud_id,'.$id_device.',id_device'],
-            'device_snEdit' => ['required', 'unique:attendance_devices,device_sn,'.$id_device.',id_device'],
+            'cloud_idEdit' => ['required', 'unique:attendance_devices,cloud_id,' . $id_device . ',id_device'],
+            'device_snEdit' => ['required', 'unique:attendance_devices,device_sn,' . $id_device . ',id_device'],
             'device_nameEdit' => ['required'],
             'server_ipEdit' => ['required'],
             'server_portEdit' => ['required']
@@ -186,7 +186,7 @@ class DeviceController extends Controller
         }
 
         DB::beginTransaction();
-        try{
+        try {
 
             $device = Device::find($id_device);
             $device->update([
@@ -198,7 +198,7 @@ class DeviceController extends Controller
             ]);
             DB::commit();
             return response()->json(['message' => 'Data Device Attendance Berhasil Diubah!'], 200);
-        } catch(Throwable $error){
+        } catch (Throwable $error) {
             return response()->json(['message' => $error->getMessage()], 500);
         }
 
@@ -215,17 +215,17 @@ class DeviceController extends Controller
     public function delete(int $id_device)
     {
         DB::beginTransaction();
-        try{
+        try {
             $device = Device::find($id_device);
 
-            if(!$device){
+            if (!$device) {
                 return response()->json(['message' => 'Data tidak ditemukan!'], 404);
             }
 
             $device->delete();
             DB::commit();
-            return response()->json(['message' => 'Data Device Berhasil dihapus!'],200);
-        } catch(Throwable $error){
+            return response()->json(['message' => 'Data Device Berhasil dihapus!'], 200);
+        } catch (Throwable $error) {
             DB::rollBack();
             return response()->json(['message' => $error->getMessage()], 500);
         }

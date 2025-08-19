@@ -157,16 +157,16 @@ class ScanlogController extends Controller
             // 3️⃣ Transform ke format siap insert
             $dataToInsert = $rawData->map(function ($item) use ($device_id, $organisasi_id, $startDate, $endDate) {
                 return [
-                    'pin'             => $item->BADGENUMBER,
-                    'scan_date'       => $item->CHECKTIME,
-                    'scan_status'     => $item->CHECKTYPE === 'I' ? 0 : 1,
-                    'verify'          => $item->VERIFYCODE,
-                    'device_id'       => $device_id,
-                    'organisasi_id'   => $organisasi_id,
+                    'pin' => $item->BADGENUMBER,
+                    'scan_date' => $item->CHECKTIME,
+                    'scan_status' => $item->CHECKTYPE === 'I' ? 0 : 1,
+                    'verify' => $item->VERIFYCODE,
+                    'device_id' => $device_id,
+                    'organisasi_id' => $organisasi_id,
                     'start_date_scan' => $startDate,
-                    'end_date_scan'   => $endDate,
-                    'created_at'      => now(),
-                    'updated_at'      => now(),
+                    'end_date_scan' => $endDate,
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ];
             })->toArray();
 
@@ -181,7 +181,7 @@ class ScanlogController extends Controller
                 ->whereBetween('scan_date', [$startDate, $endDate])
                 ->pluck('pin')
                 ->toArray();
- 
+
             if ($startDate === $endDate) {
                 SummarizeAttendanceJob::dispatch($newScanlog, $organisasi_id, auth()->user(), $startDate);
             } else {
@@ -227,13 +227,10 @@ class ScanlogController extends Controller
             $cloudId = $device->cloud_id;
             $startDate = $request->start_date;
             $endDate = $request->end_date;
-            $diff_date = Carbon::parse($startDate)->diffInDays(Carbon::parse($endDate)); 
-            if($diff_date <= 1) {
-                $success = $this->get_att_scanlog($organisasi_id, $request->device_id, $cloudId, "$request->start_date 00:00:00", "$request->end_date 23:59:59");
-                if (!$success) {
-                    return response()->json(['message' => 'Tidak ada data scanlog yang ditemukan di mesin absensi untuk rentang tanggal yang dipilih. Silakan coba tanggal lain.'], 404);
-                }
-
+            $diff_date = Carbon::parse($startDate)->diffInDays(Carbon::parse($endDate));
+            if ($diff_date <= 1) {
+                // dd($request->start_date, $request->end_date);
+                $this->get_att_scanlog($organisasi_id, $request->device_id, $cloudId, "$request->start_date 00:00:00", "$request->end_date 23:59:59");
                 // DB::beginTransaction();
                 // //CEK APAKAH SCANLOG SUDAH ADA DI TANGGAL TERSEBUT
                 // $scanlog = Scanlog::where('device_id', $request->device_id)->where(function($query) use ($startDate, $endDate){
@@ -296,12 +293,12 @@ class ScanlogController extends Controller
                 //     Scanlog::insert($datas);
                 //     DB::commit();
 
-                    // $newScanlog = Scanlog::where('device_id', $request->device_id)->where(function($query) use ($startDate, $endDate){
-                    //     $query->where(function($query) use ($startDate, $endDate){
-                    //         $query->whereDate('scan_date', $startDate)
-                    //             ->orWhereDate('scan_date', $endDate);
-                    //     });
-                    // })->pluck('pin')->toArray();
+                // $newScanlog = Scanlog::where('device_id', $request->device_id)->where(function($query) use ($startDate, $endDate){
+                //     $query->where(function($query) use ($startDate, $endDate){
+                //         $query->whereDate('scan_date', $startDate)
+                //             ->orWhereDate('scan_date', $endDate);
+                //     });
+                // })->pluck('pin')->toArray();
 
                 //     //Execute Job
                 //     if ($startDate == $endDate) {
@@ -319,7 +316,7 @@ class ScanlogController extends Controller
                     ->whereYear('periode', Carbon::parse($startDate)->year)
                     ->exists();
 
-                if (!$summarizeExists) { 
+                if (!$summarizeExists) {
                     $this->get_att_scanlog($organisasi_id, $request->device_id, $cloudId, $startDate, $startDate);
                 }
 
@@ -334,12 +331,11 @@ class ScanlogController extends Controller
                     ];
                 }
 
-                foreach ($dateRanges as $dr){
+                foreach ($dateRanges as $dr) {
                     DownloadScanlogJob::dispatch($organisasi_id, $cloudId, $dr['start_date'], $dr['end_date'], $device->id_device, auth()->user());
                 }
             }
 
-            // Jika kode mencapai sini, berarti proses berhasil atau telah dikirim ke antrian (job).
             return response()->json(['message' => 'Data Scanlog Berhasil Diunduh!'], 200);
         } catch (Throwable $e) {
             return response()->json(['message' => $e->getMessage()], 500);
@@ -418,7 +414,8 @@ class ScanlogController extends Controller
         return response()->json($json_data, 200);
     }
 
-    public function export_scanlog(Request $request){
+    public function export_scanlog(Request $request)
+    {
 
         $dataValidate = [
             'start_date' => ['required', 'date', 'date_format:Y-m-d', 'before_or_equal:end_date'],
@@ -437,7 +434,7 @@ class ScanlogController extends Controller
             $device = Device::find($request->device_id);
             $organisasi_id = auth()->user()->organisasi_id;
 
-            if ($request->input('format') == 'V') {
+            if ($request->format == 'V') {
                 $scanlogs = Scanlog::select(
                     'karyawans.nama as karyawan',
                     'karyawans.ni_karyawan as ni_karyawan',
@@ -446,8 +443,8 @@ class ScanlogController extends Controller
                     'attendance_scanlogs.verify',
                 );
 
-                $scanlogs->leftJoin('karyawans', 'karyawans.pin','attendance_scanlogs.pin')->where('karyawans.organisasi_id', $organisasi_id);
-                $scanlogs->leftJoin('users', 'users.id','karyawans.user_id')->where('users.organisasi_id', $organisasi_id);
+                $scanlogs->leftJoin('karyawans', 'karyawans.pin', 'attendance_scanlogs.pin')->where('karyawans.organisasi_id', $organisasi_id);
+                $scanlogs->leftJoin('users', 'users.id', 'karyawans.user_id')->where('users.organisasi_id', $organisasi_id);
 
                 $scanlogs->where('attendance_scanlogs.organisasi_id', $organisasi_id);
                 $scanlogs->where('attendance_scanlogs.device_id', $request->device_id);
@@ -496,9 +493,9 @@ class ScanlogController extends Controller
                 ];
 
 
-                if($scanlogs->count() > 0){
+                if ($scanlogs->count() > 0) {
                     $sheet = $spreadsheet->getActiveSheet();
-                    $sheet->setTitle($request->start_date.' - '.$request->end_date);
+                    $sheet->setTitle($request->start_date . ' - ' . $request->end_date);
 
                     $row = 1;
                     $col = 'A';
@@ -618,9 +615,9 @@ class ScanlogController extends Controller
                     'SCAN 6'
                 ];
 
-                if(count($scanlogs) > 0){
+                if (count($scanlogs) > 0) {
                     $sheet = $spreadsheet->getActiveSheet();
-                    $sheet->setTitle($request->start_date.' - '.$request->end_date);
+                    $sheet->setTitle($request->start_date . ' - ' . $request->end_date);
 
                     $row = 1;
                     $col = 'A';
@@ -658,7 +655,7 @@ class ScanlogController extends Controller
             $writer = new Xlsx($spreadsheet);
 
             header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            header('Content-Disposition: attachment;filename=Scanlog-'.$device->device_name.'-'.$request->start_date.'-'.$request->end_date.'.xlsx');
+            header('Content-Disposition: attachment;filename=Scanlog-' . $device->device_name . '-' . $request->start_date . '-' . $request->end_date . '.xlsx');
             header('Cache-Control: max-age=0');
 
             $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
