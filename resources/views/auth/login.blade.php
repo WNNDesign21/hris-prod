@@ -5,7 +5,7 @@
         <img src="{{ file_exists(public_path('storage/system/setting/app_logo.jpg')) ? asset('storage/system/setting/app_logo.jpg') : asset('img/tcf/exist-logo-compress.jpg') }}"
             alt="TCF Logo" class=" mb-3" style="max-width: 90%;">
         <h3>WELCOME TO SUPERAPPS</h5>
-            <h5 class="text-fade">PT TRI CENTRUM FORTUNA</h5>
+            <h5 class="text-fade">PT ADYAWINSA STAMPING INDUSTRIES</h5>
     </div>
     <div class="p-40 pt-0">
         <form method="POST" action="{{ route('login') }}">

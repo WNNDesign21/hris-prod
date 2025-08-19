@@ -154,6 +154,8 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/update-status-cuti-all-karyawan', [TestController::class, 'update_status_cuti_all_karyawan']);
     Route::get('/test-summary-presensi', [TestController::class, 'test_summary_presensi']);
 
+    Route::get('/test-fingerprint', [TestController::class, 'testFingerprintConnection'])->name('test.fingerprint');
+
     //WHATSAPP API
     Route::get('/send-whatsapp', [TestController::class, 'send_whatsapp_message_v2']);
     Route::get('/add-whatsapp-user', [TestController::class, 'add_whatsapp_user']);
@@ -430,7 +432,7 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'role:atasan|member|persona
             Route::post('/detail-lembur/get-leaderboard-user-monthly', [LembureController::class, 'get_leaderboard_user_monthly']);
         });
 
-        Route::group(['middleware' => ['role:atasan|member']], function () {
+        Route::group(['middleware' => ['role:atasan|member|admin-dept']], function () {
             // PENGAJUAN LEMBUR (LEADER)
             Route::get('/pengajuan-lembur', [LembureController::class, 'pengajuan_lembur_view'])->name('lembure.pengajuan-lembur');
             Route::post('/pengajuan-lembur-datatable', [LembureController::class, 'pengajuan_lembur_datatable']);

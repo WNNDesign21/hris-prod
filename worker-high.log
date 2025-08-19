@@ -1,0 +1,1553 @@
+  2025-05-27 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-05-27 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-05-27 00:00:04 App\Jobs\ResetCutiJob ..................... 37.71ms DONE
+  2025-05-27 00:00:04 App\Jobs\ResetCutiJob ..................... 30.21ms DONE
+  2025-05-27 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-05-27 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-05-27 00:00:04 App\Jobs\ResetCutiJob ...................... 4.82ms DONE
+  2025-05-27 00:00:04 App\Jobs\ResetCutiJob ...................... 6.21ms DONE
+  2025-05-27 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-05-27 00:00:04 App\Jobs\ResetCutiJob ...................... 5.60ms DONE
+  2025-05-27 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-05-27 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-05-27 00:00:04 App\Jobs\ResetCutiJob ...................... 5.03ms DONE
+  2025-05-27 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-05-27 00:00:04 App\Jobs\ResetCutiJob ...................... 4.80ms DONE
+  2025-05-27 00:00:04 App\Jobs\ResetCutiJob ..................... 12.47ms DONE
+  2025-05-27 10:00:04 App\Jobs\UpdateCutiJob  2025-05-27 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+ ......................... RUNNING
+  2025-05-27 10:00:04 App\Jobs\UpdateCutiJob .................... 19.89ms DONE
+  2025-05-27 10:00:04 App\Jobs\UpdateCutiJob .................... 20.72ms DONE
+  2025-05-27 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-05-27 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-05-27 10:00:04 App\Jobs\UpdateCutiJob ..................... 8.91ms DONE
+  2025-05-27 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-05-27 10:00:04 App\Jobs\UpdateCutiJob .................... 12.71ms DONE
+  2025-05-27 10:00:04 App\Jobs\UpdateCutiJob ..................... 8.48ms DONE
+  2025-05-27 10:00:04 App\Jobs\UpdateCutiJob .........................  2025-05-27 10:00:04 App\Jobs\UpdateCutiJob RUNNING
+ ......................... RUNNING
+  2025-05-27 10:00:04 App\Jobs\UpdateCutiJob ..................... 8.52ms DONE
+  2025-05-27 10:00:04 App\Jobs\UpdateCutiJob .................... 12.19ms DONE
+  2025-05-27 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-05-27 10:00:04 App\Jobs\UpdateCutiJob .................... 15.71ms DONE
+  2025-05-28 00:00:04 App\Jobs\ResetCutiJob  2025-05-28 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+ .......................... RUNNING
+  2025-05-28 00:00:04 App\Jobs\ResetCutiJob .....................  2025-05-28 00:00:04 App\Jobs\ResetCutiJob ..................... 13.37ms DONE
+ 11.74ms DONE
+  2025-05-28 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-05-28 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-05-28 00:00:04 App\Jobs\ResetCutiJob ......................  2025-05-28 00:00:04 App\Jobs\ResetCutiJob ...................... 5.46ms DONE
+ 5.22ms DONE
+  2025-05-28 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-05-28 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-05-28 00:00:04 App\Jobs\ResetCutiJob ...................... 5.08ms DONE
+  2025-05-28 00:00:04 App\Jobs\ResetCutiJob ...................... 5.48ms DONE
+  2025-05-28 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-05-28 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-05-28 00:00:04 App\Jobs\ResetCutiJob ...................... 5.55ms DONE
+  2025-05-28 00:00:04 App\Jobs\ResetCutiJob ...................... 5.41ms DONE
+  2025-05-28 10:00:04 App\Jobs\UpdateCutiJob  2025-05-28 10:00:04 App\Jobs\UpdateCutiJob ......................... ......................... RUNNING
+ RUNNING
+  2025-05-28 10:00:04 App\Jobs\UpdateCutiJob .................... 22.43ms DONE
+  2025-05-28 10:00:04 App\Jobs\UpdateCutiJob .................... 22.56ms DONE
+  2025-05-28 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-05-28 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-05-28 10:00:04 App\Jobs\UpdateCutiJob ..................... 8.79ms DONE
+  2025-05-28 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-05-28 10:00:04 App\Jobs\UpdateCutiJob .................... 14.01ms DONE
+  2025-05-28 10:00:04 App\Jobs\UpdateCutiJob .................... 11.73ms DONE
+  2025-05-28 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-05-28 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-05-28 10:00:04 App\Jobs\UpdateCutiJob ..................... 9.71ms DONE
+  2025-05-28 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-05-28 10:00:04 App\Jobs\UpdateCutiJob .................... 11.92ms DONE
+  2025-05-28 10:00:04 App\Jobs\UpdateCutiJob ..................... 8.71ms DONE
+  2025-05-29 00:00:04 App\Jobs\ResetCutiJob ..........................  2025-05-29 00:00:04 App\Jobs\ResetCutiJob RUNNING
+ .......................... RUNNING
+  2025-05-29 00:00:04 App\Jobs\ResetCutiJob ..................... 12.28ms DONE
+  2025-05-29 00:00:04 App\Jobs\ResetCutiJob ..................... 12.42ms DONE
+  2025-05-29 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-05-29 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-05-29 00:00:04 App\Jobs\ResetCutiJob ...................... 5.35ms DONE
+  2025-05-29 00:00:04 App\Jobs\ResetCutiJob ...................... 4.88ms DONE
+  2025-05-29 00:00:04 App\Jobs\ResetCutiJob  2025-05-29 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+ .......................... RUNNING
+  2025-05-29 00:00:04 App\Jobs\ResetCutiJob ...................... 5.93ms DONE
+  2025-05-29 00:00:04 App\Jobs\ResetCutiJob ...................... 7.22ms DONE
+  2025-05-29 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-05-29 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-05-29 00:00:04 App\Jobs\ResetCutiJob ...................... 4.98ms DONE
+  2025-05-29 00:00:04 App\Jobs\ResetCutiJob ...................... 5.11ms DONE
+  2025-05-29 10:00:03 App\Jobs\UpdateCutiJob .........................  2025-05-29 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+ RUNNING
+  2025-05-29 10:00:03 App\Jobs\UpdateCutiJob .................... 13.67ms DONE
+  2025-05-29 10:00:03 App\Jobs\UpdateCutiJob .................... 15.37ms DONE
+  2025-05-29 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-05-29 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-05-29 10:00:03 App\Jobs\UpdateCutiJob ..................... 7.90ms DONE
+  2025-05-29 10:00:03 App\Jobs\UpdateCutiJob ..................... 8.45ms DONE
+  2025-05-29 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-05-29 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-05-29 10:00:03 App\Jobs\UpdateCutiJob ..................... 7.86ms DONE
+  2025-05-29 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-05-29 10:00:03 App\Jobs\UpdateCutiJob ..................... 8.49ms DONE
+  2025-05-29 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-05-29 10:00:03 App\Jobs\UpdateCutiJob ..................... 7.77ms DONE
+  2025-05-29 10:00:03 App\Jobs\UpdateCutiJob ..................... 8.26ms DONE
+  2025-05-30 00:00:03 App\Jobs\ResetCutiJob ..........................  2025-05-30 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+ RUNNING
+  2025-05-30 00:00:03 App\Jobs\ResetCutiJob ..................... 13.92ms DONE
+  2025-05-30 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-05-30 00:00:03 App\Jobs\ResetCutiJob ..................... 19.02ms DONE
+  2025-05-30 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-05-30 00:00:03 App\Jobs\ResetCutiJob ...................... 5.55ms DONE
+  2025-05-30 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-05-30 00:00:03 App\Jobs\ResetCutiJob ...................... 6.49ms DONE
+  2025-05-30 00:00:03 App\Jobs\ResetCutiJob ...................... 5.69ms DONE
+  2025-05-30 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-05-30 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-05-30 00:00:03 App\Jobs\ResetCutiJob ...................... 6.29ms DONE
+  2025-05-30 00:00:03 App\Jobs\ResetCutiJob ..................... 10.14ms DONE
+  2025-05-30 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-05-30 00:00:03 App\Jobs\ResetCutiJob ...................... 4.95ms DONE
+  2025-05-30 10:00:03 App\Jobs\UpdateCutiJob  2025-05-30 10:00:03 App\Jobs\UpdateCutiJob ......................... ......................... RUNNING
+ RUNNING
+  2025-05-30 10:00:03 App\Jobs\UpdateCutiJob .................... 15.71ms DONE
+  2025-05-30 10:00:03 App\Jobs\UpdateCutiJob .................... 17.98ms DONE
+  2025-05-30 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-05-30 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-05-30 10:00:03 App\Jobs\UpdateCutiJob ..................... 9.38ms DONE
+  2025-05-30 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-05-30 10:00:03 App\Jobs\UpdateCutiJob .................... 10.54ms DONE
+  2025-05-30 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-05-30 10:00:03 App\Jobs\UpdateCutiJob ..................... 9.64ms DONE
+  2025-05-30 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-05-30 10:00:03 App\Jobs\UpdateCutiJob .................... 10.26ms DONE
+  2025-05-30 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-05-30 10:00:03 App\Jobs\UpdateCutiJob ..................... 9.63ms DONE
+  2025-05-30 10:00:03 App\Jobs\UpdateCutiJob ..................... 9.91ms DONE
+  2025-05-31 00:00:03 App\Jobs\ResetCutiJob  2025-05-31 00:00:03 App\Jobs\ResetCutiJob .......................... .......................... RUNNING
+ RUNNING
+  2025-05-31 00:00:03 App\Jobs\ResetCutiJob  2025-05-31 00:00:03 App\Jobs\ResetCutiJob ..................... 18.42ms DONE
+ ..................... 16.28ms DONE
+  2025-05-31 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-05-31 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-05-31 00:00:03 App\Jobs\ResetCutiJob ...................... 5.65ms DONE
+  2025-05-31 00:00:03 App\Jobs\ResetCutiJob ...................... 6.08ms DONE
+  2025-05-31 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-05-31 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-05-31 00:00:03 App\Jobs\ResetCutiJob ...................... 5.68ms DONE
+  2025-05-31 00:00:03 App\Jobs\ResetCutiJob ...................... 6.08ms DONE
+  2025-05-31 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-05-31 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-05-31 00:00:03 App\Jobs\ResetCutiJob ...................... 5.44ms DONE
+  2025-05-31 00:00:03 App\Jobs\ResetCutiJob ...................... 6.14ms DONE
+  2025-05-31 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-05-31 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-05-31 10:00:05 App\Jobs\UpdateCutiJob .................... 15.17ms DONE
+  2025-05-31 10:00:05 App\Jobs\UpdateCutiJob .........................  2025-05-31 10:00:05 App\Jobs\UpdateCutiJob RUNNING
+ .................... 18.04ms DONE
+  2025-05-31 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-05-31 10:00:05 App\Jobs\UpdateCutiJob .................... 10.82ms DONE
+  2025-05-31 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-05-31 10:00:05 App\Jobs\UpdateCutiJob .................... 14.58ms DONE
+  2025-05-31 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-05-31 10:00:05 App\Jobs\UpdateCutiJob .................... 10.43ms DONE
+  2025-05-31 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-05-31 10:00:05 App\Jobs\UpdateCutiJob .................... 13.13ms DONE
+  2025-05-31 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-05-31 10:00:05 App\Jobs\UpdateCutiJob .................... 17.46ms DONE
+  2025-05-31 10:00:05 App\Jobs\UpdateCutiJob .................... 10.25ms DONE
+  2025-06-01 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-01 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-01 00:00:04 App\Jobs\ResetCutiJob ..................... 15.17ms DONE
+  2025-06-01 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-01 00:00:04 App\Jobs\ResetCutiJob ..................... 14.82ms DONE
+  2025-06-01 00:00:04 App\Jobs\ResetCutiJob ...................... 7.29ms DONE
+  2025-06-01 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-01 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-01 00:00:04 App\Jobs\ResetCutiJob ...................... 6.78ms DONE
+  2025-06-01 00:00:04 App\Jobs\ResetCutiJob ...................... 6.97ms DONE
+  2025-06-01 00:00:04 App\Jobs\ResetCutiJob ..........................  2025-06-01 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+ RUNNING
+  2025-06-01 00:00:04 App\Jobs\ResetCutiJob ...................... 7.17ms DONE
+  2025-06-01 00:00:04 App\Jobs\ResetCutiJob ...................... 8.25ms DONE
+  2025-06-01 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-01 00:00:04 App\Jobs\ResetCutiJob ..................... 10.72ms DONE
+  2025-06-01 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-01 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-01 10:00:03 App\Jobs\UpdateCutiJob  2025-06-01 10:00:03 App\Jobs\UpdateCutiJob .................... 15.50ms DONE
+ .................... 17.89ms DONE
+  2025-06-01 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-01 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-01 10:00:03 App\Jobs\UpdateCutiJob .................... 16.92ms DONE
+  2025-06-01 10:00:03 App\Jobs\UpdateCutiJob  2025-06-01 10:00:03 App\Jobs\UpdateCutiJob ......................... .................... RUNNING
+ 17.78ms DONE
+  2025-06-01 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-01 10:00:03 App\Jobs\UpdateCutiJob .................... 14.00ms DONE
+  2025-06-01 10:00:03 App\Jobs\UpdateCutiJob .................... 22.24ms DONE
+  2025-06-01 10:00:03 App\Jobs\UpdateCutiJob  2025-06-01 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+ ......................... RUNNING
+  2025-06-01 10:00:03 App\Jobs\UpdateCutiJob .................... 12.17ms DONE
+  2025-06-01 10:00:03 App\Jobs\UpdateCutiJob .................... 17.59ms DONE
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .................. RUNNING
+ .................. RUNNING
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob ............. 31.07ms FAIL
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob ............. 53.17ms FAIL
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob ............. 12.08ms FAIL
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob ............. 15.11ms FAIL
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob ............. 16.47ms FAIL
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob ............. 28.98ms FAIL
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .............. 8.70ms FAIL
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .............. 4.76ms FAIL
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .............. 5.07ms FAIL
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .............. 4.97ms FAIL
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .............. 5.21ms FAIL
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .............. 4.16ms FAIL
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .............. 4.96ms FAIL
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .............. 5.95ms FAIL
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob ............. 17.03ms FAIL
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .............. 4.73ms FAIL
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .............. 4.67ms FAIL
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .............. 4.59ms FAIL
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .............. 4.44ms FAIL
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .............. 4.43ms FAIL
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .............. 4.12ms FAIL
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .............. 4.43ms FAIL
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .............. 3.90ms FAIL
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-01 21:00:02 App\Jobs\RollingShiftGroupJob .............. 7.46ms FAIL
+  2025-06-02 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-02 00:00:02 App\Jobs\ResetCutiJob ..................... 16.46ms DONE
+  2025-06-02 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-02 00:00:02 App\Jobs\ResetCutiJob ...................... 7.47ms DONE
+  2025-06-02 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-02 00:00:02 App\Jobs\ResetCutiJob ...................... 9.07ms DONE
+  2025-06-02 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-02 00:00:02 App\Jobs\ResetCutiJob ...................... 8.39ms DONE
+  2025-06-02 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-02 00:00:02 App\Jobs\ResetCutiJob ...................... 8.31ms DONE
+  2025-06-02 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-02 00:00:02 App\Jobs\ResetCutiJob ...................... 8.40ms DONE
+  2025-06-02 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-02 00:00:03 App\Jobs\ResetCutiJob ...................... 8.40ms DONE
+  2025-06-02 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-02 00:00:03 App\Jobs\ResetCutiJob ...................... 8.46ms DONE
+
+   Illuminate\Database\QueryException 
+
+  SQLSTATE[57P01]: Admin shutdown: 7 FATAL:  terminating connection due to administrator command
+server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request. (Connection: pgsql, SQL: select * from "cache" where "key" in (illuminate:queue:restart))
+
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:825
+    821▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    822▕                 );
+    823▕             }
+    824▕ 
+  ➜ 825▕             throw new QueryException(
+    826▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    827▕             );
+    828▕         }
+    829▕     }
+
+      [2m+31 vendor frames [22m
+
+  32  artisan:13
+      Illuminate\Foundation\Application::handleCommand()
+
+
+   Illuminate\Database\QueryException 
+
+  SQLSTATE[57P01]: Admin shutdown: 7 FATAL:  terminating connection due to administrator command
+server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request. (Connection: pgsql, SQL: select * from "cache" where "key" in (illuminate:queue:restart))
+
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:825
+    821▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    822▕                 );
+    823▕             }
+    824▕ 
+  ➜ 825▕             throw new QueryException(
+    826▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    827▕             );
+    828▕         }
+    829▕     }
+
+      [2m+31 vendor frames [22m
+
+  32  artisan:13
+      Illuminate\Foundation\Application::handleCommand()
+
+  2025-06-03 10:54:34 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-03 10:54:34 App\Jobs\RollingShiftGroupJob ............. 39.57ms FAIL
+  2025-06-03 10:54:34 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-03 10:54:34 App\Jobs\RollingShiftGroupJob .............. 4.78ms FAIL
+  2025-06-03 10:54:34 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-03 10:54:34 App\Jobs\RollingShiftGroupJob .............. 4.60ms FAIL
+  2025-06-03 10:54:34 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-03 10:54:34 App\Jobs\RollingShiftGroupJob .............. 4.56ms FAIL
+  2025-06-03 10:54:34 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-03 10:54:34 App\Jobs\RollingShiftGroupJob .............. 4.50ms FAIL
+  2025-06-03 10:54:34 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-03 10:54:34 App\Jobs\RollingShiftGroupJob .............. 4.46ms FAIL
+  2025-06-03 10:54:34 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-03 10:54:34 App\Jobs\RollingShiftGroupJob .............. 4.48ms FAIL
+  2025-06-03 10:54:34 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-03 10:54:34 App\Jobs\RollingShiftGroupJob .............. 4.48ms FAIL
+  2025-06-03 10:54:34 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-03 10:54:34 App\Jobs\ResetCutiJob ..................... 36.11ms DONE
+  2025-06-03 10:54:34 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-03 10:54:34 App\Jobs\ResetCutiJob ...................... 6.49ms DONE
+  2025-06-03 10:54:34 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-03 10:54:34 App\Jobs\ResetCutiJob ...................... 6.36ms DONE
+  2025-06-03 10:54:34 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-03 10:54:34 App\Jobs\ResetCutiJob ...................... 6.53ms DONE
+  2025-06-03 10:54:34 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-03 10:54:34 App\Jobs\ResetCutiJob ...................... 6.12ms DONE
+  2025-06-03 10:54:34 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-03 10:54:34 App\Jobs\ResetCutiJob ...................... 6.28ms DONE
+  2025-06-03 10:54:34 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-03 10:54:34 App\Jobs\ResetCutiJob ...................... 6.30ms DONE
+  2025-06-03 10:54:34 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-03 10:54:34 App\Jobs\ResetCutiJob ...................... 6.53ms DONE
+  2025-06-03 10:54:34 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-03 10:54:35 App\Jobs\UpdateCutiJob .................... 28.04ms DONE
+  2025-06-03 10:54:35 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-03 10:54:35 App\Jobs\UpdateCutiJob .................... 33.02ms DONE
+  2025-06-03 10:54:35 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-03 10:54:35 App\Jobs\UpdateCutiJob ..................... 8.21ms DONE
+  2025-06-03 10:54:35 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-03 10:54:35 App\Jobs\UpdateCutiJob .................... 20.04ms DONE
+  2025-06-03 10:54:35 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-03 10:54:35 App\Jobs\UpdateCutiJob .................... 14.54ms DONE
+  2025-06-03 10:54:35 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-03 10:54:35 App\Jobs\UpdateCutiJob .................... 11.78ms DONE
+  2025-06-03 10:54:35 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-03 10:54:35 App\Jobs\UpdateCutiJob .................... 11.19ms DONE
+  2025-06-03 10:54:35 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-03 10:54:35 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-03 10:54:35 App\Jobs\RollingShiftGroupJob .............. 6.68ms FAIL
+  2025-06-03 10:54:35 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-03 10:54:35 App\Jobs\RollingShiftGroupJob .............. 5.90ms FAIL
+  2025-06-03 10:54:35 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-03 10:54:35 App\Jobs\UpdateCutiJob .................... 28.17ms DONE
+  2025-06-03 10:54:35 App\Jobs\RollingShiftGroupJob .............. 6.77ms FAIL
+  2025-06-03 10:54:35 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-03 10:54:35 App\Jobs\RollingShiftGroupJob ............. 14.50ms FAIL
+  2025-06-03 10:54:35 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-03 10:54:35 App\Jobs\RollingShiftGroupJob .............. 5.69ms FAIL
+  2025-06-03 10:54:35 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-03 10:54:35 App\Jobs\RollingShiftGroupJob .............. 5.58ms FAIL
+  2025-06-03 10:54:35 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-03 10:54:35 App\Jobs\RollingShiftGroupJob .............. 6.44ms FAIL
+  2025-06-03 10:54:35 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-03 10:54:35 App\Jobs\RollingShiftGroupJob .............. 7.48ms FAIL
+  2025-06-03 10:54:35 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-03 10:54:35 App\Jobs\RollingShiftGroupJob .............. 5.30ms FAIL
+  2025-06-03 10:54:35 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-03 10:54:35 App\Jobs\RollingShiftGroupJob .............. 3.90ms FAIL
+  2025-06-03 10:54:35 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-03 10:54:35 App\Jobs\RollingShiftGroupJob .............. 4.90ms FAIL
+  2025-06-03 10:54:35 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-03 10:54:35 App\Jobs\RollingShiftGroupJob .............. 5.11ms FAIL
+  2025-06-03 10:54:35 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-03 10:54:35 App\Jobs\RollingShiftGroupJob .............. 6.17ms FAIL
+  2025-06-03 10:54:35 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-03 10:54:35 App\Jobs\RollingShiftGroupJob .............. 5.97ms FAIL
+
+   Illuminate\Database\QueryException 
+
+  SQLSTATE[08006] [7] FATAL:  the database system is shutting down
+FATAL:  the database system is shutting down (Connection: pgsql, SQL: select * from "cache" where "key" in (illuminate:queue:restart))
+
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:825
+    821▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    822▕                 );
+    823▕             }
+    824▕ 
+  ➜ 825▕             throw new QueryException(
+    826▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    827▕             );
+    828▕         }
+    829▕     }
+
+      [2m+41 vendor frames [22m
+
+  42  artisan:13
+      Illuminate\Foundation\Application::handleCommand()
+
+
+   Illuminate\Database\QueryException 
+
+  SQLSTATE[57P01]: Admin shutdown: 7 FATAL:  terminating connection due to administrator command
+server closed the connection unexpectedly
+	This probably means the server terminated abnormally
+	before or while processing the request. (Connection: pgsql, SQL: select * from "cache" where "key" in (illuminate:queue:restart))
+
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:825
+    821▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    822▕                 );
+    823▕             }
+    824▕ 
+  ➜ 825▕             throw new QueryException(
+    826▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    827▕             );
+    828▕         }
+    829▕     }
+
+      [2m+31 vendor frames [22m
+
+  32  artisan:13
+      Illuminate\Foundation\Application::handleCommand()
+
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob ............. 27.80ms FAIL
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob .............. 5.06ms FAIL
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob .............. 4.42ms FAIL
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob .............. 4.68ms FAIL
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob .............. 4.22ms FAIL
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob .............. 4.36ms FAIL
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob .............. 4.65ms FAIL
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob .............. 4.43ms FAIL
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob ...................... 8.97ms DONE
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob ...................... 6.20ms DONE
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob ...................... 6.22ms DONE
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob ...................... 6.30ms DONE
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob ...................... 6.05ms DONE
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob ...................... 6.12ms DONE
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob ...................... 6.15ms DONE
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob ...................... 6.09ms DONE
+  2025-06-04 09:32:13 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-04 09:32:13 App\Jobs\UpdateCutiJob ..................... 9.62ms DONE
+  2025-06-04 09:32:13 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-04 09:32:13 App\Jobs\UpdateCutiJob ..................... 8.54ms DONE
+  2025-06-04 09:32:13 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-04 09:32:13 App\Jobs\UpdateCutiJob .................... 11.30ms DONE
+  2025-06-04 09:32:13 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-04 09:32:13 App\Jobs\UpdateCutiJob ..................... 8.46ms DONE
+  2025-06-04 09:32:13 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-04 09:32:13 App\Jobs\UpdateCutiJob ..................... 7.74ms DONE
+  2025-06-04 09:32:13 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-04 09:32:13 App\Jobs\UpdateCutiJob ..................... 7.85ms DONE
+  2025-06-04 09:32:13 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-04 09:32:13 App\Jobs\UpdateCutiJob ..................... 8.10ms DONE
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob ...................... 5.43ms DONE
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob ...................... 5.29ms DONE
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob ...................... 4.69ms DONE
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob ...................... 5.49ms DONE
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob ...................... 5.49ms DONE
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob ...................... 5.24ms DONE
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob ...................... 5.53ms DONE
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob ............. 31.37ms FAIL
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob .............. 7.43ms FAIL
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob ............. 17.25ms FAIL
+  2025-06-04 09:32:13 App\Jobs\ResetCutiJob ..................... 57.31ms DONE
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob .............. 4.27ms FAIL
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob .............. 3.91ms FAIL
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob .............. 4.03ms FAIL
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob .............. 5.46ms FAIL
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob .............. 9.43ms FAIL
+  2025-06-04 09:32:13 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-04 09:32:14 App\Jobs\RollingShiftGroupJob .............. 8.37ms FAIL
+  2025-06-04 09:32:14 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-04 09:32:14 App\Jobs\RollingShiftGroupJob .............. 5.84ms FAIL
+  2025-06-04 09:32:14 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-04 09:32:14 App\Jobs\RollingShiftGroupJob .............. 4.52ms FAIL
+  2025-06-04 09:32:14 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-04 09:32:14 App\Jobs\RollingShiftGroupJob .............. 5.79ms FAIL
+  2025-06-04 09:32:14 App\Jobs\RollingShiftGroupJob .................. RUNNING
+  2025-06-04 09:32:14 App\Jobs\RollingShiftGroupJob .............. 7.33ms FAIL
+  2025-06-04 09:41:38 App\Jobs\UploadKaryawanJob ..................... RUNNING
+  2025-06-04 09:41:38 App\Jobs\UploadKaryawanJob ................ 53.53ms DONE
+  2025-06-04 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-04 10:00:04 App\Jobs\UpdateCutiJob .................... 12.31ms DONE
+  2025-06-04 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-04 10:00:04 App\Jobs\UpdateCutiJob ..................... 8.13ms DONE
+  2025-06-04 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-04 10:00:04 App\Jobs\UpdateCutiJob ..................... 9.95ms DONE
+  2025-06-04 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-04 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-04 10:00:04 App\Jobs\UpdateCutiJob ..................... 7.72ms DONE
+  2025-06-04 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-04 10:00:04 App\Jobs\UpdateCutiJob ..................... 7.96ms DONE
+  2025-06-04 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-04 10:00:04 App\Jobs\UpdateCutiJob ..................... 7.99ms DONE
+  2025-06-04 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-04 10:00:04 App\Jobs\UpdateCutiJob ..................... 7.95ms DONE
+  2025-06-04 10:01:35 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-04 10:01:35 App\Jobs\UpdateCutiJob .................... 16.51ms DONE
+  2025-06-05 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-05 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-05 00:00:04 App\Jobs\ResetCutiJob ..................... 42.79ms DONE
+  2025-06-05 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-05 00:00:04 App\Jobs\ResetCutiJob ...................... 5.80ms DONE
+  2025-06-05 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-05 00:00:04 App\Jobs\ResetCutiJob ...................... 5.43ms DONE
+  2025-06-05 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-05 00:00:04 App\Jobs\ResetCutiJob  2025-06-05 00:00:04 App\Jobs\ResetCutiJob ...................... 8.91ms DONE
+ ..................... 40.93ms DONE
+  2025-06-05 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-05 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-05 00:00:04 App\Jobs\ResetCutiJob ...................... 7.09ms DONE
+  2025-06-05 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-05 00:00:04 App\Jobs\ResetCutiJob ...................... 8.77ms DONE
+  2025-06-05 00:00:04 App\Jobs\ResetCutiJob ...................... 8.61ms DONE
+  2025-06-05 10:00:02 App\Jobs\UpdateCutiJob  2025-06-05 10:00:02 App\Jobs\UpdateCutiJob ......................... ......................... RUNNING
+ RUNNING
+  2025-06-05 10:00:02 App\Jobs\UpdateCutiJob ....................  2025-06-05 10:00:02 App\Jobs\UpdateCutiJob .................... 19.30ms DONE
+ 18.79ms DONE
+  2025-06-05 10:00:02 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-05 10:00:02 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-05 10:00:02 App\Jobs\UpdateCutiJob ..................... 8.14ms DONE
+  2025-06-05 10:00:02 App\Jobs\UpdateCutiJob ..................... 8.97ms DONE
+  2025-06-05 10:00:02 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-05 10:00:02 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-05 10:00:02 App\Jobs\UpdateCutiJob ..................... 8.33ms DONE
+  2025-06-05 10:00:02 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-05 10:00:02 App\Jobs\UpdateCutiJob ..................... 9.59ms DONE
+  2025-06-05 10:00:02 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-05 10:00:02 App\Jobs\UpdateCutiJob ..................... 8.35ms DONE
+  2025-06-05 10:00:02 App\Jobs\UpdateCutiJob ..................... 9.10ms DONE
+  2025-06-06 00:00:04 App\Jobs\ResetCutiJob ..........................  2025-06-06 00:00:04 App\Jobs\ResetCutiJob RUNNING
+ .......................... RUNNING
+  2025-06-06 00:00:04 App\Jobs\ResetCutiJob  2025-06-06 00:00:04 App\Jobs\ResetCutiJob ..................... 15.37ms DONE
+ ..................... 17.24ms DONE
+  2025-06-06 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-06 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-06 00:00:04 App\Jobs\ResetCutiJob ..................... 16.44ms DONE
+  2025-06-06 00:00:04 App\Jobs\ResetCutiJob ...................... 8.82ms DONE
+  2025-06-06 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-06 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-06 00:00:04 App\Jobs\ResetCutiJob ......................  2025-06-06 00:00:04 App\Jobs\ResetCutiJob ...................... 8.31ms 6.13ms DONE
+ DONE
+  2025-06-06 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-06 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-06 00:00:04 App\Jobs\ResetCutiJob ...................... 5.00ms DONE
+  2025-06-06 00:00:04 App\Jobs\ResetCutiJob ...................... 6.50ms DONE
+  2025-06-06 10:00:02 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-06 10:00:02 App\Jobs\UpdateCutiJob .................... 32.07ms DONE
+  2025-06-06 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-06 10:00:05 App\Jobs\UpdateCutiJob .................... 13.60ms DONE
+  2025-06-06 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-06 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-06 10:00:05 App\Jobs\UpdateCutiJob .................... 23.81ms DONE
+  2025-06-06 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-06 10:00:05 App\Jobs\UpdateCutiJob .................... 18.37ms DONE
+  2025-06-06 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-06 10:00:05 App\Jobs\UpdateCutiJob .................... 17.18ms DONE
+  2025-06-06 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-06 10:00:05 App\Jobs\UpdateCutiJob .................... 18.55ms DONE
+  2025-06-06 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-06 10:00:05 App\Jobs\UpdateCutiJob .................... 17.01ms DONE
+  2025-06-06 10:00:05 App\Jobs\UpdateCutiJob .................... 13.24ms DONE
+  2025-06-07 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-07 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-07 00:00:03 App\Jobs\ResetCutiJob ..................... 10.34ms DONE
+  2025-06-07 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-07 00:00:03 App\Jobs\ResetCutiJob ..................... 15.20ms DONE
+  2025-06-07 00:00:03 App\Jobs\ResetCutiJob ...................... 4.94ms DONE
+  2025-06-07 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-07 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-07 00:00:03 App\Jobs\ResetCutiJob ...................... 7.23ms DONE
+  2025-06-07 00:00:03 App\Jobs\ResetCutiJob ...................... 8.28ms DONE
+  2025-06-07 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-07 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-07 00:00:03 App\Jobs\ResetCutiJob ...................... 6.07ms DONE
+  2025-06-07 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-07 00:00:03 App\Jobs\ResetCutiJob ...................... 8.57ms DONE
+  2025-06-07 00:00:03 App\Jobs\ResetCutiJob ...................... 5.91ms DONE
+  2025-06-07 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-07 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-07 10:00:04 App\Jobs\UpdateCutiJob .................... 15.51ms DONE
+  2025-06-07 10:00:04 App\Jobs\UpdateCutiJob .................... 14.23ms DONE
+  2025-06-07 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-07 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-07 10:00:04 App\Jobs\UpdateCutiJob  2025-06-07 10:00:04 App\Jobs\UpdateCutiJob .................... 10.60ms DONE
+ ..................... 8.92ms DONE
+  2025-06-07 10:00:04 App\Jobs\UpdateCutiJob .........................  2025-06-07 10:00:04 App\Jobs\UpdateCutiJob RUNNING
+ ......................... RUNNING
+  2025-06-07 10:00:04 App\Jobs\UpdateCutiJob ..................... 8.78ms DONE
+  2025-06-07 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-07 10:00:04 App\Jobs\UpdateCutiJob .................... 12.18ms DONE
+  2025-06-07 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-07 10:00:04 App\Jobs\UpdateCutiJob ..................... 8.08ms DONE
+  2025-06-07 10:00:04 App\Jobs\UpdateCutiJob .................... 11.80ms DONE
+  2025-06-08 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-08 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-08 00:00:02 App\Jobs\ResetCutiJob ..................... 13.37ms DONE
+  2025-06-08 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-08 00:00:03 App\Jobs\ResetCutiJob ..................... 12.72ms DONE
+  2025-06-08 00:00:03 App\Jobs\ResetCutiJob  2025-06-08 00:00:03 App\Jobs\ResetCutiJob ...................... .......................... 7.18ms DONE
+ RUNNING
+  2025-06-08 00:00:03 App\Jobs\ResetCutiJob ...................... 8.89ms DONE
+  2025-06-08 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-08 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-08 00:00:03 App\Jobs\ResetCutiJob ...................... 5.84ms DONE
+  2025-06-08 00:00:03 App\Jobs\ResetCutiJob ...................... 5.68ms DONE
+  2025-06-08 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-08 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-08 00:00:03 App\Jobs\ResetCutiJob ...................... 4.85ms DONE
+  2025-06-08 00:00:03 App\Jobs\ResetCutiJob ...................... 7.25ms DONE
+  2025-06-08 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-08 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-08 10:00:04 App\Jobs\UpdateCutiJob .................... 11.88ms DONE
+  2025-06-08 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-08 10:00:04 App\Jobs\UpdateCutiJob .................... 25.36ms DONE
+  2025-06-08 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-08 10:00:04 App\Jobs\UpdateCutiJob ..................... 9.52ms DONE
+  2025-06-08 10:00:04 App\Jobs\UpdateCutiJob ..................... 7.79ms DONE
+  2025-06-08 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-08 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-08 10:00:04 App\Jobs\UpdateCutiJob ..................... 8.72ms DONE
+  2025-06-08 10:00:04 App\Jobs\UpdateCutiJob ..................... 8.17ms DONE
+  2025-06-08 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-08 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-08 10:00:04 App\Jobs\UpdateCutiJob  2025-06-08 10:00:04 App\Jobs\UpdateCutiJob ..................... 8.58ms DONE
+ ..................... 9.17ms DONE
+  2025-06-09 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-09 00:00:03 App\Jobs\ResetCutiJob ..........................  2025-06-09 00:00:03 App\Jobs\ResetCutiJob ..................... 15.69ms RUNNING
+ DONE
+  2025-06-09 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-09 00:00:03 App\Jobs\ResetCutiJob ..................... 11.73ms DONE
+  2025-06-09 00:00:03 App\Jobs\ResetCutiJob ...................... 7.83ms DONE
+  2025-06-09 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-09 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-09 00:00:03 App\Jobs\ResetCutiJob ...................... 4.87ms DONE
+  2025-06-09 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-09 00:00:03 App\Jobs\ResetCutiJob ...................... 8.50ms DONE
+  2025-06-09 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-09 00:00:03 App\Jobs\ResetCutiJob ..................... 10.48ms DONE
+  2025-06-09 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-09 00:00:03 App\Jobs\ResetCutiJob ...................... 9.05ms DONE
+  2025-06-09 00:00:03 App\Jobs\ResetCutiJob ...................... 6.47ms DONE
+  2025-06-09 10:00:04 App\Jobs\UpdateCutiJob  2025-06-09 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+ ......................... RUNNING
+  2025-06-09 10:00:04 App\Jobs\UpdateCutiJob .................... 14.41ms DONE
+  2025-06-09 10:00:04 App\Jobs\UpdateCutiJob .................... 16.63ms DONE
+  2025-06-09 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-09 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-09 10:00:04 App\Jobs\UpdateCutiJob ..................... 7.91ms DONE
+  2025-06-09 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-09 10:00:04 App\Jobs\UpdateCutiJob ..................... 9.19ms DONE
+  2025-06-09 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-09 10:00:04 App\Jobs\UpdateCutiJob ..................... 7.90ms DONE
+  2025-06-09 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-09 10:00:04 App\Jobs\UpdateCutiJob ..................... 8.63ms DONE
+  2025-06-09 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-09 10:00:04 App\Jobs\UpdateCutiJob ..................... 8.21ms DONE
+  2025-06-09 10:00:04 App\Jobs\UpdateCutiJob ..................... 8.84ms DONE
+  2025-06-10 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-10 00:00:02 App\Jobs\ResetCutiJob ..................... 27.37ms DONE
+  2025-06-10 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-10 00:00:02 App\Jobs\ResetCutiJob ..................... 19.26ms DONE
+  2025-06-10 00:00:05 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-10 00:00:05 App\Jobs\ResetCutiJob ..................... 14.52ms DONE
+  2025-06-10 00:00:05 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-10 00:00:05 App\Jobs\ResetCutiJob ...................... 5.34ms DONE
+  2025-06-10 00:00:05 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-10 00:00:05 App\Jobs\ResetCutiJob ...................... 5.29ms DONE
+  2025-06-10 00:00:05 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-10 00:00:05 App\Jobs\ResetCutiJob ...................... 5.29ms DONE
+  2025-06-10 00:00:05 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-10 00:00:05 App\Jobs\ResetCutiJob ...................... 5.04ms DONE
+  2025-06-10 00:00:05 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-10 00:00:05 App\Jobs\ResetCutiJob ...................... 5.07ms DONE
+  2025-06-10 10:00:02 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-10 10:00:02 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-10 10:00:02 App\Jobs\UpdateCutiJob .................... 13.74ms DONE
+  2025-06-10 10:00:02 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-10 10:00:02 App\Jobs\UpdateCutiJob .................... 13.66ms DONE
+  2025-06-10 10:00:02 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-10 10:00:02 App\Jobs\UpdateCutiJob ..................... 9.85ms DONE
+  2025-06-10 10:00:02 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-10 10:00:02 App\Jobs\UpdateCutiJob ..................... 9.58ms DONE
+  2025-06-10 10:00:02 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-10 10:00:02 App\Jobs\UpdateCutiJob  2025-06-10 10:00:02 App\Jobs\UpdateCutiJob .................... .................... 16.09ms 10.58ms DONE
+ DONE
+  2025-06-10 10:00:02 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-10 10:00:02 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-10 10:00:02 App\Jobs\UpdateCutiJob ..................... 8.62ms DONE
+  2025-06-10 10:00:02 App\Jobs\UpdateCutiJob .................... 13.41ms DONE
+  2025-06-11 00:00:04 App\Jobs\ResetCutiJob  2025-06-11 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+ .......................... RUNNING
+  2025-06-11 00:00:04 App\Jobs\ResetCutiJob ..................... 17.87ms DONE
+  2025-06-11 00:00:04 App\Jobs\ResetCutiJob ..................... 18.43ms DONE
+  2025-06-11 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-11 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-11 00:00:04 App\Jobs\ResetCutiJob ...................... 5.13ms DONE
+  2025-06-11 00:00:04 App\Jobs\ResetCutiJob ...................... 5.54ms DONE
+  2025-06-11 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-11 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-11 00:00:04 App\Jobs\ResetCutiJob ...................... 5.84ms DONE
+  2025-06-11 00:00:04 App\Jobs\ResetCutiJob ...................... 5.19ms DONE
+  2025-06-11 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-11 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-11 00:00:04 App\Jobs\ResetCutiJob ...................... 5.98ms DONE
+  2025-06-11 00:00:04 App\Jobs\ResetCutiJob ...................... 8.00ms DONE
+  2025-06-11 04:47:45 App\Jobs\UploadKaryawanJob ..................... RUNNING
+  2025-06-11 04:47:46 App\Jobs\UploadKaryawanJob ..................... 1s DONE
+  2025-06-11 05:07:08 App\Jobs\UploadKaryawanJob ..................... RUNNING
+  2025-06-11 05:07:10 App\Jobs\UploadKaryawanJob ..................... 1s DONE
+  2025-06-11 05:09:12 App\Jobs\UploadKaryawanJob ..................... RUNNING
+  2025-06-11 05:09:12 App\Jobs\UploadKaryawanJob ................ 43.71ms DONE
+  2025-06-11 05:12:07 App\Jobs\UploadKaryawanJob ..................... RUNNING
+  2025-06-11 05:12:07 App\Jobs\UploadKaryawanJob ............... 568.98ms DONE
+  2025-06-11 10:00:04 App\Jobs\UpdateCutiJob  2025-06-11 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+ ......................... RUNNING
+  2025-06-11 10:00:04 App\Jobs\UpdateCutiJob .................... 13.47ms DONE
+  2025-06-11 10:00:04 App\Jobs\UpdateCutiJob .................... 14.44ms DONE
+  2025-06-11 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-11 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-11 10:00:04 App\Jobs\UpdateCutiJob  2025-06-11 10:00:04 App\Jobs\UpdateCutiJob ..................... 7.84ms DONE
+ ..................... 8.83ms DONE
+  2025-06-11 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-11 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-11 10:00:04 App\Jobs\UpdateCutiJob ..................... 8.11ms DONE
+  2025-06-11 10:00:04 App\Jobs\UpdateCutiJob .....................  2025-06-11 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+ 9.78ms DONE
+  2025-06-11 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-11 10:00:04 App\Jobs\UpdateCutiJob ..................... 7.96ms DONE
+  2025-06-11 10:00:04 App\Jobs\UpdateCutiJob .................... 11.02ms DONE
+  2025-06-12 00:00:03 App\Jobs\ResetCutiJob  2025-06-12 00:00:03 App\Jobs\ResetCutiJob .......................... .......................... RUNNING
+ RUNNING
+  2025-06-12 00:00:03 App\Jobs\ResetCutiJob ..................... 12.29ms DONE
+  2025-06-12 00:00:03 App\Jobs\ResetCutiJob ..................... 13.74ms DONE
+  2025-06-12 00:00:03 App\Jobs\ResetCutiJob ..........................  2025-06-12 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+ RUNNING
+  2025-06-12 00:00:03 App\Jobs\ResetCutiJob ...................... 5.52ms DONE
+  2025-06-12 00:00:03 App\Jobs\ResetCutiJob ......................  2025-06-12 00:00:03 App\Jobs\ResetCutiJob 8.40ms DONE
+ .......................... RUNNING
+  2025-06-12 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-12 00:00:03 App\Jobs\ResetCutiJob ...................... 6.76ms DONE
+  2025-06-12 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-12 00:00:03 App\Jobs\ResetCutiJob ..................... 10.24ms DONE
+  2025-06-12 00:00:03 App\Jobs\ResetCutiJob ...................... 9.64ms DONE
+  2025-06-12 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-12 00:00:03 App\Jobs\ResetCutiJob ...................... 8.92ms DONE
+  2025-06-12 10:00:04 App\Jobs\UpdateCutiJob  2025-06-12 10:00:04 App\Jobs\UpdateCutiJob ......................... ......................... RUNNING
+ RUNNING
+  2025-06-12 10:00:04 App\Jobs\UpdateCutiJob .................... 14.83ms DONE
+  2025-06-12 10:00:04 App\Jobs\UpdateCutiJob .................... 16.30ms DONE
+  2025-06-12 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-12 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-12 10:00:04 App\Jobs\UpdateCutiJob ..................... 8.52ms DONE
+  2025-06-12 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-12 10:00:04 App\Jobs\UpdateCutiJob ..................... 9.64ms DONE
+  2025-06-12 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-12 10:00:04 App\Jobs\UpdateCutiJob ..................... 7.76ms DONE
+  2025-06-12 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-12 10:00:04 App\Jobs\UpdateCutiJob .................... 10.45ms DONE
+  2025-06-12 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-12 10:00:04 App\Jobs\UpdateCutiJob .................... 12.27ms DONE
+  2025-06-12 10:00:04 App\Jobs\UpdateCutiJob .................... 11.90ms DONE
+  2025-06-13 00:00:03 App\Jobs\ResetCutiJob  2025-06-13 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+ .......................... RUNNING
+  2025-06-13 00:00:03 App\Jobs\ResetCutiJob  2025-06-13 00:00:03 App\Jobs\ResetCutiJob ..................... 14.54ms DONE
+ ..................... 15.02ms DONE
+  2025-06-13 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-13 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-13 00:00:03 App\Jobs\ResetCutiJob ...................... 6.97ms DONE
+  2025-06-13 00:00:03 App\Jobs\ResetCutiJob ...................... 7.90ms DONE
+  2025-06-13 00:00:03 App\Jobs\ResetCutiJob  2025-06-13 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+ .......................... RUNNING
+  2025-06-13 00:00:03 App\Jobs\ResetCutiJob ...................... 5.63ms  2025-06-13 00:00:03 App\Jobs\ResetCutiJob DONE
+ ...................... 5.96ms DONE
+  2025-06-13 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-13 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-13 00:00:03 App\Jobs\ResetCutiJob  2025-06-13 00:00:03 App\Jobs\ResetCutiJob ...................... ...................... 6.74ms 6.37ms DONE
+ DONE
+  2025-06-13 10:00:04 App\Jobs\UpdateCutiJob  2025-06-13 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+ ......................... RUNNING
+  2025-06-13 10:00:04 App\Jobs\UpdateCutiJob .................... 15.14ms DONE
+  2025-06-13 10:00:04 App\Jobs\UpdateCutiJob .................... 14.99ms DONE
+  2025-06-13 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-13 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-13 10:00:04 App\Jobs\UpdateCutiJob ..................... 8.25ms DONE
+  2025-06-13 10:00:04 App\Jobs\UpdateCutiJob ..................... 9.14ms DONE
+  2025-06-13 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-13 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-13 10:00:04 App\Jobs\UpdateCutiJob  2025-06-13 10:00:04 App\Jobs\UpdateCutiJob .................... 12.48ms DONE
+ ..................... 9.85ms DONE
+  2025-06-13 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-13 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-13 10:00:04 App\Jobs\UpdateCutiJob ..................... 9.39ms DONE
+  2025-06-13 10:00:04 App\Jobs\UpdateCutiJob .................... 11.41ms DONE
+  2025-06-14 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-14 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-14 00:00:02 App\Jobs\ResetCutiJob ..................... 13.24ms DONE
+  2025-06-14 00:00:02 App\Jobs\ResetCutiJob ..................... 12.81ms  2025-06-14 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+ DONE
+  2025-06-14 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-14 00:00:02 App\Jobs\ResetCutiJob ...................... 5.40ms DONE
+  2025-06-14 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-14 00:00:02 App\Jobs\ResetCutiJob ...................... 7.87ms DONE
+  2025-06-14 00:00:02 App\Jobs\ResetCutiJob  2025-06-14 00:00:02 App\Jobs\ResetCutiJob ...................... 8.10ms DONE
+ .......................... RUNNING
+  2025-06-14 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-14 00:00:02 App\Jobs\ResetCutiJob ..................... 13.91ms DONE
+  2025-06-14 00:00:02 App\Jobs\ResetCutiJob ..................... 18.80ms DONE
+  2025-06-14 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-14 00:00:02 App\Jobs\ResetCutiJob ...................... 7.77ms DONE
+  2025-06-14 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-14 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-14 10:00:03 App\Jobs\UpdateCutiJob .................... 24.41ms DONE
+  2025-06-14 10:00:03 App\Jobs\UpdateCutiJob .................... 16.86ms DONE
+  2025-06-14 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-14 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-14 10:00:03 App\Jobs\UpdateCutiJob ..................... 8.14ms DONE
+  2025-06-14 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-14 10:00:04 App\Jobs\UpdateCutiJob .................... 13.87ms DONE
+  2025-06-14 10:00:04 App\Jobs\UpdateCutiJob .........................  2025-06-14 10:00:04 App\Jobs\UpdateCutiJob ..................... 9.07ms DONE
+ RUNNING
+  2025-06-14 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-14 10:00:04 App\Jobs\UpdateCutiJob ..................... 7.88ms DONE
+  2025-06-14 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-14 10:00:04 App\Jobs\UpdateCutiJob .................... 16.83ms DONE
+  2025-06-14 10:00:04 App\Jobs\UpdateCutiJob .................... 12.77ms DONE
+  2025-06-15 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-15 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-15 00:00:03 App\Jobs\ResetCutiJob ..................... 12.85ms DONE
+  2025-06-15 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-15 00:00:03 App\Jobs\ResetCutiJob ..................... 16.09ms DONE
+  2025-06-15 00:00:03 App\Jobs\ResetCutiJob ...................... 6.29ms DONE
+  2025-06-15 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-15 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-15 00:00:03 App\Jobs\ResetCutiJob ...................... 5.61ms DONE
+  2025-06-15 00:00:03 App\Jobs\ResetCutiJob ...................... 9.67ms DONE
+  2025-06-15 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-15 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-15 00:00:03 App\Jobs\ResetCutiJob ...................... 6.58ms DONE
+  2025-06-15 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-15 00:00:03 App\Jobs\ResetCutiJob ...................... 9.45ms DONE
+  2025-06-15 00:00:03 App\Jobs\ResetCutiJob ...................... 6.92ms DONE
+  2025-06-15 10:00:04 App\Jobs\UpdateCutiJob  2025-06-15 10:00:04 App\Jobs\UpdateCutiJob ......................... ......................... RUNNING
+ RUNNING
+  2025-06-15 10:00:04 App\Jobs\UpdateCutiJob  2025-06-15 10:00:04 App\Jobs\UpdateCutiJob .................... .................... 16.16ms 16.03ms DONE
+ DONE
+  2025-06-15 10:00:04 App\Jobs\UpdateCutiJob  2025-06-15 10:00:04 App\Jobs\UpdateCutiJob ......................... ......................... RUNNING
+ RUNNING
+  2025-06-15 10:00:04 App\Jobs\UpdateCutiJob  2025-06-15 10:00:04 App\Jobs\UpdateCutiJob .................... .................... 18.22ms 18.23ms DONE
+ DONE
+  2025-06-15 10:00:04 App\Jobs\UpdateCutiJob  2025-06-15 10:00:04 App\Jobs\UpdateCutiJob ......................... ......................... RUNNING
+ RUNNING
+  2025-06-15 10:00:04 App\Jobs\UpdateCutiJob .................... 15.48ms DONE
+  2025-06-15 10:00:04 App\Jobs\UpdateCutiJob .................... 16.76ms DONE
+  2025-06-15 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-15 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-15 10:00:04 App\Jobs\UpdateCutiJob .................... 12.58ms DONE
+  2025-06-15 10:00:04 App\Jobs\UpdateCutiJob .................... 12.80ms DONE
+  2025-06-16 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-16 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-16 00:00:03 App\Jobs\ResetCutiJob ..................... 12.55ms DONE
+  2025-06-16 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-16 00:00:03 App\Jobs\ResetCutiJob ..................... 11.46ms DONE
+  2025-06-16 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-16 00:00:03 App\Jobs\ResetCutiJob ...................... 9.38ms DONE
+  2025-06-16 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-16 00:00:03 App\Jobs\ResetCutiJob ...................... 9.87ms DONE
+  2025-06-16 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-16 00:00:03 App\Jobs\ResetCutiJob ...................... 7.76ms DONE
+  2025-06-16 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-16 00:00:03 App\Jobs\ResetCutiJob ...................... 9.16ms DONE
+  2025-06-16 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-16 00:00:03 App\Jobs\ResetCutiJob ...................... 9.57ms DONE
+  2025-06-16 00:00:03 App\Jobs\ResetCutiJob ...................... 5.63ms DONE
+  2025-06-16 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-16 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-16 10:00:04 App\Jobs\UpdateCutiJob .................... 13.46ms DONE
+  2025-06-16 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-16 10:00:04 App\Jobs\UpdateCutiJob .................... 14.32ms DONE
+  2025-06-16 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-16 10:00:04 App\Jobs\UpdateCutiJob ..................... 9.65ms DONE
+  2025-06-16 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-16 10:00:04 App\Jobs\UpdateCutiJob ..................... 9.47ms DONE
+  2025-06-16 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-16 10:00:04 App\Jobs\UpdateCutiJob .................... 10.36ms DONE
+  2025-06-16 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-16 10:00:04 App\Jobs\UpdateCutiJob .................... 10.04ms DONE
+  2025-06-16 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-16 10:00:04 App\Jobs\UpdateCutiJob .................... 12.62ms DONE
+  2025-06-16 10:00:04 App\Jobs\UpdateCutiJob .................... 10.34ms DONE
+  2025-06-17 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-17 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-17 00:00:03 App\Jobs\ResetCutiJob ..................... 12.54ms DONE
+  2025-06-17 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-17 00:00:03 App\Jobs\ResetCutiJob ..................... 13.76ms DONE
+  2025-06-17 00:00:03 App\Jobs\ResetCutiJob ..........................  2025-06-17 00:00:03 App\Jobs\ResetCutiJob RUNNING
+ ...................... 6.96ms DONE
+  2025-06-17 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-17 00:00:03 App\Jobs\ResetCutiJob ...................... 7.38ms DONE
+  2025-06-17 00:00:03 App\Jobs\ResetCutiJob ...................... 6.05ms DONE
+  2025-06-17 00:00:03 App\Jobs\ResetCutiJob  2025-06-17 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+ .......................... RUNNING
+  2025-06-17 00:00:03 App\Jobs\ResetCutiJob ...................... 5.23ms DONE
+  2025-06-17 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-17 00:00:03 App\Jobs\ResetCutiJob ..................... 10.65ms DONE
+  2025-06-17 00:00:03 App\Jobs\ResetCutiJob ...................... 5.80ms DONE
+  2025-06-17 09:07:38 App\Jobs\UploadKaryawanJob ..................... RUNNING
+  2025-06-17 09:09:08 App\Jobs\UploadKaryawanJob ..................... RUNNING
+  2025-06-17 09:09:08 App\Jobs\UploadKaryawanJob ................ 63.88ms FAIL
+  2025-06-17 09:10:09 App\Jobs\UploadKaryawanJob ................. 2m 31s DONE
+  2025-06-17 09:11:36 App\Jobs\UploadKaryawanJob ..................... RUNNING
+  2025-06-17 09:13:07 App\Jobs\UploadKaryawanJob ..................... RUNNING
+  2025-06-17 09:13:07 App\Jobs\UploadKaryawanJob ................ 44.87ms FAIL
+  2025-06-17 09:14:06 App\Jobs\UploadKaryawanJob ................. 2m 30s DONE
+  2025-06-17 09:24:34 App\Jobs\UploadKaryawanJob ..................... RUNNING
+  2025-06-17 09:26:05 App\Jobs\UploadKaryawanJob ..................... RUNNING
+  2025-06-17 09:26:05 App\Jobs\UploadKaryawanJob ................ 46.08ms FAIL
+  2025-06-17 09:27:04 App\Jobs\UploadKaryawanJob ................. 2m 30s DONE
+  2025-06-17 09:33:23 App\Jobs\UploadKaryawanJob ..................... RUNNING
+  2025-06-17 09:34:54 App\Jobs\UploadKaryawanJob ..................... RUNNING
+  2025-06-17 09:34:54 App\Jobs\UploadKaryawanJob ................ 44.41ms FAIL
+  2025-06-17 09:35:52 App\Jobs\UploadKaryawanJob ................. 2m 29s DONE
+  2025-06-17 09:39:12 App\Jobs\UploadKaryawanJob ..................... RUNNING
+  2025-06-17 09:40:44 App\Jobs\UploadKaryawanJob ..................... RUNNING
+  2025-06-17 09:40:44 App\Jobs\UploadKaryawanJob ................ 45.88ms FAIL
+  2025-06-17 09:41:43 App\Jobs\UploadKaryawanJob ................. 2m 30s DONE
+  2025-06-17 10:00:02 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-17 10:00:02 App\Jobs\UpdateCutiJob .................... 19.75ms DONE
+  2025-06-17 10:00:02 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-17 10:00:02 App\Jobs\UpdateCutiJob .................... 18.14ms DONE
+  2025-06-17 10:00:02 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-17 10:00:02 App\Jobs\UpdateCutiJob .................... 13.60ms DONE
+  2025-06-17 10:00:02 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-17 10:00:02 App\Jobs\UpdateCutiJob .................... 13.71ms DONE
+  2025-06-17 10:00:02 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-17 10:00:02 App\Jobs\UpdateCutiJob .................... 12.63ms DONE
+  2025-06-17 10:00:02 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-17 10:00:03 App\Jobs\UpdateCutiJob .................... 21.66ms DONE
+  2025-06-17 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-17 10:00:03 App\Jobs\UpdateCutiJob .................... 18.63ms DONE
+  2025-06-17 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-17 10:00:03 App\Jobs\UpdateCutiJob .................... 14.15ms DONE
+  2025-06-17 13:59:01 App\Jobs\UploadKaryawanJob ..................... RUNNING
+  2025-06-17 14:00:31 App\Jobs\UploadKaryawanJob ..................... RUNNING
+  2025-06-17 14:00:32 App\Jobs\UploadKaryawanJob ................ 45.15ms FAIL
+  2025-06-17 14:01:34 App\Jobs\UploadKaryawanJob ................. 2m 33s DONE
+  2025-06-17 15:09:19 App\Jobs\UploadKaryawanJob ..................... RUNNING
+  2025-06-17 15:09:22 App\Jobs\UploadKaryawanJob ..................... 2s DONE
+  2025-06-17 20:15:14 App\Jobs\UploadKaryawanJob ..................... RUNNING
+  2025-06-17 20:16:02 App\Jobs\UploadKaryawanJob .................... 48s DONE
+  2025-06-17 20:20:21 App\Jobs\UploadKaryawanJob ..................... RUNNING
+  2025-06-17 20:21:10 App\Jobs\UploadKaryawanJob .................... 49s DONE
+  2025-06-17 20:38:23 App\Jobs\UploadKaryawanJob ..................... RUNNING
+  2025-06-17 20:38:24 App\Jobs\UploadKaryawanJob ..................... 1s DONE
+  2025-06-17 20:41:45 App\Jobs\UploadKaryawanJob ..................... RUNNING
+  2025-06-17 20:41:46 App\Jobs\UploadKaryawanJob ............... 877.04ms DONE
+  2025-06-17 20:53:32 App\Jobs\UploadKaryawanJob ..................... RUNNING
+  2025-06-17 20:53:36 App\Jobs\UploadKaryawanJob ..................... 3s DONE
+  2025-06-17 20:54:52 App\Jobs\UploadKaryawanJob ..................... RUNNING
+  2025-06-17 20:54:53 App\Jobs\UploadKaryawanJob ............... 299.08ms DONE
+  2025-06-18 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-18 00:00:02 App\Jobs\ResetCutiJob ..................... 18.23ms DONE
+  2025-06-18 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-18 00:00:02 App\Jobs\ResetCutiJob ...................... 7.01ms DONE
+  2025-06-18 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-18 00:00:02 App\Jobs\ResetCutiJob ...................... 6.85ms DONE
+  2025-06-18 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-18 00:00:02 App\Jobs\ResetCutiJob ...................... 8.78ms DONE
+  2025-06-18 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-18 00:00:02 App\Jobs\ResetCutiJob ...................... 6.42ms DONE
+  2025-06-18 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-18 00:00:02 App\Jobs\ResetCutiJob ...................... 8.31ms DONE
+  2025-06-18 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-18 00:00:02 App\Jobs\ResetCutiJob ...................... 7.09ms DONE
+  2025-06-18 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-18 00:00:02 App\Jobs\ResetCutiJob ...................... 5.92ms DONE
+  2025-06-18 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-18 10:00:03 App\Jobs\UpdateCutiJob .................... 13.62ms DONE
+  2025-06-18 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-18 10:00:03 App\Jobs\UpdateCutiJob .................... 11.66ms DONE
+  2025-06-18 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-18 10:00:03 App\Jobs\UpdateCutiJob .................... 11.31ms DONE
+  2025-06-18 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-18 10:00:03 App\Jobs\UpdateCutiJob .................... 11.28ms DONE
+  2025-06-18 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-18 10:00:03 App\Jobs\UpdateCutiJob .................... 11.09ms DONE
+  2025-06-18 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-18 10:00:03 App\Jobs\UpdateCutiJob ..................... 8.07ms DONE
+  2025-06-18 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-18 10:00:03 App\Jobs\UpdateCutiJob .................... 10.64ms DONE
+  2025-06-18 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-18 10:00:03 App\Jobs\UpdateCutiJob .................... 10.39ms DONE
+  2025-06-19 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-19 00:00:04 App\Jobs\ResetCutiJob ..................... 14.64ms DONE
+  2025-06-19 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-19 00:00:04 App\Jobs\ResetCutiJob ...................... 6.31ms DONE
+  2025-06-19 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-19 00:00:04 App\Jobs\ResetCutiJob ...................... 6.26ms DONE
+  2025-06-19 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-19 00:00:04 App\Jobs\ResetCutiJob ...................... 6.40ms DONE
+  2025-06-19 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-19 00:00:04 App\Jobs\ResetCutiJob ...................... 7.22ms DONE
+  2025-06-19 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-19 00:00:04 App\Jobs\ResetCutiJob ...................... 7.00ms DONE
+  2025-06-19 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-19 00:00:04 App\Jobs\ResetCutiJob ...................... 5.97ms DONE
+  2025-06-19 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-19 00:00:04 App\Jobs\ResetCutiJob ...................... 6.89ms DONE
+  2025-06-19 10:00:03 App\Jobs\UpdateCutiJob  2025-06-19 10:00:03 App\Jobs\UpdateCutiJob ......................... ......................... RUNNING
+ RUNNING
+  2025-06-19 10:00:03 App\Jobs\UpdateCutiJob  2025-06-19 10:00:03 App\Jobs\UpdateCutiJob .................... 14.42ms DONE
+ .................... 14.32ms DONE
+  2025-06-19 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-19 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-19 10:00:03 App\Jobs\UpdateCutiJob ..................... 8.65ms DONE
+  2025-06-19 10:00:03 App\Jobs\UpdateCutiJob ..................... 9.21ms DONE
+  2025-06-19 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-19 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-19 10:00:03 App\Jobs\UpdateCutiJob ..................... 9.65ms DONE
+  2025-06-19 10:00:03 App\Jobs\UpdateCutiJob ..................... 9.88ms DONE
+  2025-06-19 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-19 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-19 10:00:03 App\Jobs\UpdateCutiJob ..................... 9.43ms  2025-06-19 10:00:03 App\Jobs\UpdateCutiJob DONE
+ .................... 12.74ms DONE
+  2025-06-20 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-20 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-20 00:00:02 App\Jobs\ResetCutiJob ..................... 48.19ms DONE
+  2025-06-20 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-20 00:00:02 App\Jobs\ResetCutiJob ..................... 22.63ms DONE
+  2025-06-20 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-20 00:00:02 App\Jobs\ResetCutiJob ..................... 11.03ms DONE
+  2025-06-20 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-20 00:00:02 App\Jobs\ResetCutiJob ...................... 8.56ms DONE
+  2025-06-20 00:00:02 App\Jobs\ResetCutiJob ...................... 6.30ms DONE
+  2025-06-20 00:00:02 App\Jobs\ResetCutiJob  2025-06-20 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+ .......................... RUNNING
+  2025-06-20 00:00:02 App\Jobs\ResetCutiJob ...................... 8.61ms DONE
+  2025-06-20 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-20 00:00:02 App\Jobs\ResetCutiJob ...................... 6.11ms DONE
+  2025-06-20 00:00:02 App\Jobs\ResetCutiJob ..................... 20.09ms DONE
+  2025-06-20 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-20 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-20 10:00:03 App\Jobs\UpdateCutiJob .................... 17.32ms DONE
+  2025-06-20 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-20 10:00:03 App\Jobs\UpdateCutiJob .................... 14.48ms DONE
+  2025-06-20 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-20 10:00:03 App\Jobs\UpdateCutiJob .................... 11.19ms DONE
+  2025-06-20 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-20 10:00:03 App\Jobs\UpdateCutiJob ..................... 9.58ms DONE
+  2025-06-20 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-20 10:00:03 App\Jobs\UpdateCutiJob .................... 11.36ms DONE
+  2025-06-20 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-20 10:00:03 App\Jobs\UpdateCutiJob ..................... 9.78ms DONE
+  2025-06-20 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-20 10:00:03 App\Jobs\UpdateCutiJob ..................... 9.65ms DONE
+  2025-06-20 10:00:03 App\Jobs\UpdateCutiJob .................... 17.16ms DONE
+  2025-06-21 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-21 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-21 00:00:04 App\Jobs\ResetCutiJob  2025-06-21 00:00:04 App\Jobs\ResetCutiJob ..................... 14.12ms DONE
+ ..................... 12.95ms DONE
+  2025-06-21 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-21 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-21 00:00:04 App\Jobs\ResetCutiJob ...................... 5.43ms DONE
+  2025-06-21 00:00:04 App\Jobs\ResetCutiJob ...................... 6.13ms  2025-06-21 00:00:04 App\Jobs\ResetCutiJob .......................... DONE
+ RUNNING
+  2025-06-21 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-21 00:00:04 App\Jobs\ResetCutiJob ...................... 5.33ms DONE
+  2025-06-21 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-21 00:00:04 App\Jobs\ResetCutiJob ...................... 6.68ms DONE
+  2025-06-21 00:00:04 App\Jobs\ResetCutiJob  2025-06-21 00:00:04 App\Jobs\ResetCutiJob ...................... 5.29ms DONE
+ .......................... RUNNING
+  2025-06-21 00:00:04 App\Jobs\ResetCutiJob ...................... 7.01ms DONE
+  2025-06-21 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-21 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-21 10:00:03 App\Jobs\UpdateCutiJob .................... 17.45ms DONE
+  2025-06-21 10:00:03 App\Jobs\UpdateCutiJob .................... 13.69ms DONE
+  2025-06-21 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-21 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-21 10:00:03 App\Jobs\UpdateCutiJob  2025-06-21 10:00:03 App\Jobs\UpdateCutiJob .................... 13.73ms DONE
+ .................... 13.07ms DONE
+  2025-06-21 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-21 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-21 10:00:03 App\Jobs\UpdateCutiJob .................... 11.29ms DONE
+  2025-06-21 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-21 10:00:03 App\Jobs\UpdateCutiJob  2025-06-21 10:00:03 App\Jobs\UpdateCutiJob .................... 12.19ms DONE
+ .................... 22.71ms DONE
+  2025-06-21 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-21 10:00:03 App\Jobs\UpdateCutiJob ..................... 9.92ms DONE
+  2025-06-22 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-22 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-22 00:00:03 App\Jobs\ResetCutiJob ..................... 14.19ms DONE
+  2025-06-22 00:00:03 App\Jobs\ResetCutiJob ..................... 14.69ms  2025-06-22 00:00:03 App\Jobs\ResetCutiJob DONE
+ .......................... RUNNING
+  2025-06-22 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-22 00:00:03 App\Jobs\ResetCutiJob ...................... 5.50ms DONE
+  2025-06-22 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-22 00:00:03 App\Jobs\ResetCutiJob ...................... 8.66ms DONE
+  2025-06-22 00:00:03 App\Jobs\ResetCutiJob ...................... 6.82ms DONE
+  2025-06-22 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-22 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-22 00:00:03 App\Jobs\ResetCutiJob ...................... 7.31ms DONE
+  2025-06-22 00:00:03 App\Jobs\ResetCutiJob ...................... 6.90ms DONE
+  2025-06-22 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-22 00:00:03 App\Jobs\ResetCutiJob ...................... 7.97ms DONE
+  2025-06-22 10:00:02 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-22 10:00:02 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-22 10:00:02 App\Jobs\UpdateCutiJob .................... 13.69ms DONE
+  2025-06-22 10:00:02 App\Jobs\UpdateCutiJob .................... 13.15ms DONE
+  2025-06-22 10:00:02 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-22 10:00:02 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-22 10:00:02 App\Jobs\UpdateCutiJob .................... 12.72ms DONE
+  2025-06-22 10:00:02 App\Jobs\UpdateCutiJob .................... 12.78ms DONE
+  2025-06-22 10:00:02 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-22 10:00:02 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-22 10:00:02 App\Jobs\UpdateCutiJob .................... 12.00ms DONE
+  2025-06-22 10:00:02 App\Jobs\UpdateCutiJob ..................... 9.71ms DONE
+  2025-06-22 10:00:02 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-22 10:00:02 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-22 10:00:02 App\Jobs\UpdateCutiJob ..................... 8.15ms DONE
+  2025-06-22 10:00:02 App\Jobs\UpdateCutiJob ..................... 8.82ms DONE
+  2025-06-23 00:00:02 App\Jobs\ResetCutiJob ..........................  2025-06-23 00:00:02 App\Jobs\ResetCutiJob RUNNING
+ .......................... RUNNING
+  2025-06-23 00:00:02 App\Jobs\ResetCutiJob ..................... 13.67ms DONE
+  2025-06-23 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-23 00:00:02 App\Jobs\ResetCutiJob ..................... 16.33ms DONE
+  2025-06-23 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-23 00:00:02 App\Jobs\ResetCutiJob ...................... 5.67ms DONE
+  2025-06-23 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-23 00:00:02 App\Jobs\ResetCutiJob ...................... 6.67ms DONE
+  2025-06-23 00:00:02 App\Jobs\ResetCutiJob ...................... 5.30ms DONE
+  2025-06-23 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-23 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-23 00:00:02 App\Jobs\ResetCutiJob ...................... 6.10ms DONE
+  2025-06-23 00:00:02 App\Jobs\ResetCutiJob ...................... 5.25ms DONE
+  2025-06-23 00:00:02 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-23 00:00:02 App\Jobs\ResetCutiJob ...................... 5.37ms DONE
+  2025-06-23 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-23 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-23 10:00:03 App\Jobs\UpdateCutiJob .................... 19.91ms DONE
+  2025-06-23 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-23 10:00:03 App\Jobs\UpdateCutiJob .................... 25.59ms DONE
+  2025-06-23 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-23 10:00:03 App\Jobs\UpdateCutiJob .................... 14.47ms DONE
+  2025-06-23 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-23 10:00:03 App\Jobs\UpdateCutiJob .................... 14.08ms DONE
+  2025-06-23 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-23 10:00:03 App\Jobs\UpdateCutiJob .................... 11.08ms DONE
+  2025-06-23 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-23 10:00:03 App\Jobs\UpdateCutiJob .................... 12.42ms DONE
+  2025-06-23 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-23 10:00:03 App\Jobs\UpdateCutiJob .................... 12.01ms DONE
+  2025-06-23 10:00:03 App\Jobs\UpdateCutiJob .................... 10.38ms DONE
+  2025-06-24 00:00:03 App\Jobs\ResetCutiJob ..........................  2025-06-24 00:00:03 App\Jobs\ResetCutiJob RUNNING
+ .......................... RUNNING
+  2025-06-24 00:00:03 App\Jobs\ResetCutiJob ..................... 14.95ms DONE
+  2025-06-24 00:00:03 App\Jobs\ResetCutiJob ..................... 16.75ms DONE
+  2025-06-24 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-24 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-24 00:00:03 App\Jobs\ResetCutiJob ...................... 5.47ms DONE
+  2025-06-24 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-24 00:00:03 App\Jobs\ResetCutiJob ...................... 8.18ms DONE
+  2025-06-24 00:00:03 App\Jobs\ResetCutiJob ...................... 5.94ms DONE
+  2025-06-24 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-24 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-24 00:00:03 App\Jobs\ResetCutiJob ...................... 6.72ms DONE
+  2025-06-24 00:00:03 App\Jobs\ResetCutiJob ...................... 5.66ms DONE
+  2025-06-24 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-24 00:00:03 App\Jobs\ResetCutiJob ...................... 6.13ms DONE
+  2025-06-24 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-24 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-24 10:00:04 App\Jobs\UpdateCutiJob .................... 17.76ms DONE
+  2025-06-24 10:00:04 App\Jobs\UpdateCutiJob .................... 19.61ms DONE
+  2025-06-24 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-24 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-24 10:00:04 App\Jobs\UpdateCutiJob .................... 11.26ms DONE
+  2025-06-24 10:00:04 App\Jobs\UpdateCutiJob .................... 10.20ms DONE
+  2025-06-24 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-24 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-24 10:00:04 App\Jobs\UpdateCutiJob .................... 10.68ms DONE
+  2025-06-24 10:00:04 App\Jobs\UpdateCutiJob .................... 11.43ms DONE
+  2025-06-24 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-24 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-24 10:00:04 App\Jobs\UpdateCutiJob .................... 12.53ms DONE
+  2025-06-24 10:00:04 App\Jobs\UpdateCutiJob .................... 11.58ms DONE
+  2025-06-25 00:00:04 App\Jobs\ResetCutiJob  2025-06-25 00:00:04 App\Jobs\ResetCutiJob .......................... .......................... RUNNING
+ RUNNING
+  2025-06-25 00:00:04 App\Jobs\ResetCutiJob  2025-06-25 00:00:04 App\Jobs\ResetCutiJob ..................... ..................... 14.34ms DONE
+ 13.81ms DONE
+  2025-06-25 00:00:04 App\Jobs\ResetCutiJob  2025-06-25 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+ .......................... RUNNING
+  2025-06-25 00:00:04 App\Jobs\ResetCutiJob ...................... 6.64ms DONE
+  2025-06-25 00:00:04 App\Jobs\ResetCutiJob ...................... 9.95ms DONE
+  2025-06-25 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-25 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-25 00:00:04 App\Jobs\ResetCutiJob .....................  2025-06-25 00:00:04 App\Jobs\ResetCutiJob ...................... 6.98ms DONE
+ 10.70ms DONE
+  2025-06-25 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-25 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-25 00:00:04 App\Jobs\ResetCutiJob ...................... 5.43ms DONE
+  2025-06-25 00:00:04 App\Jobs\ResetCutiJob ...................... 6.21ms DONE
+  2025-06-25 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-25 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-25 10:00:04 App\Jobs\UpdateCutiJob .................... 19.00ms DONE
+  2025-06-25 10:00:04 App\Jobs\UpdateCutiJob .................... 17.66ms DONE
+  2025-06-25 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-25 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-25 10:00:04 App\Jobs\UpdateCutiJob .................... 13.49ms DONE
+  2025-06-25 10:00:04 App\Jobs\UpdateCutiJob .................... 12.33ms DONE
+  2025-06-25 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-25 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-25 10:00:04 App\Jobs\UpdateCutiJob  2025-06-25 10:00:04 App\Jobs\UpdateCutiJob .................... 11.80ms DONE
+ .................... 13.55ms DONE
+  2025-06-25 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-25 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-25 10:00:04 App\Jobs\UpdateCutiJob .................... 14.38ms DONE
+  2025-06-25 10:00:04 App\Jobs\UpdateCutiJob .................... 13.40ms DONE
+  2025-06-26 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-26 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-26 00:00:03 App\Jobs\ResetCutiJob  2025-06-26 00:00:03 App\Jobs\ResetCutiJob ..................... 18.73ms DONE
+ ..................... 16.43ms DONE
+  2025-06-26 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-26 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-26 00:00:03 App\Jobs\ResetCutiJob ...................... 7.85ms DONE
+  2025-06-26 00:00:03 App\Jobs\ResetCutiJob ...................... 9.23ms  2025-06-26 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+ DONE
+  2025-06-26 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-26 00:00:03 App\Jobs\ResetCutiJob ...................... 7.68ms DONE
+  2025-06-26 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-26 00:00:03 App\Jobs\ResetCutiJob  2025-06-26 00:00:03 App\Jobs\ResetCutiJob ..................... 11.51ms DONE
+ ..................... 19.45ms DONE
+  2025-06-26 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-26 00:00:03 App\Jobs\ResetCutiJob ...................... 7.38ms DONE
+  2025-06-26 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-26 10:00:05 App\Jobs\UpdateCutiJob .................... 16.55ms DONE
+  2025-06-26 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-26 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-26 10:00:05 App\Jobs\UpdateCutiJob .................... 10.46ms DONE
+  2025-06-26 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-26 10:00:05 App\Jobs\UpdateCutiJob .................... 17.12ms DONE
+  2025-06-26 10:00:05 App\Jobs\UpdateCutiJob .................... 10.37ms DONE
+  2025-06-26 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-26 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-26 10:00:05 App\Jobs\UpdateCutiJob .................... 10.74ms DONE
+  2025-06-26 10:00:05 App\Jobs\UpdateCutiJob .................... 12.81ms DONE
+  2025-06-26 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-26 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-26 10:00:05 App\Jobs\UpdateCutiJob .................... 10.84ms DONE
+  2025-06-26 10:00:05 App\Jobs\UpdateCutiJob .................... 20.29ms DONE
+  2025-06-27 00:00:04 App\Jobs\ResetCutiJob  2025-06-27 00:00:04 App\Jobs\ResetCutiJob .......................... .......................... RUNNING
+ RUNNING
+  2025-06-27 00:00:04 App\Jobs\ResetCutiJob ..................... 19.37ms DONE
+  2025-06-27 00:00:04 App\Jobs\ResetCutiJob  2025-06-27 00:00:04 App\Jobs\ResetCutiJob ..................... 22.80ms .......................... DONE
+ RUNNING
+  2025-06-27 00:00:04 App\Jobs\ResetCutiJob ...................... 6.53ms  2025-06-27 00:00:04 App\Jobs\ResetCutiJob DONE
+ .......................... RUNNING
+  2025-06-27 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-27 00:00:04 App\Jobs\ResetCutiJob  2025-06-27 00:00:04 App\Jobs\ResetCutiJob ...................... 9.12ms DONE
+ ...................... 6.13ms DONE
+  2025-06-27 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-27 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-27 00:00:04 App\Jobs\ResetCutiJob ...................... 5.72ms DONE
+  2025-06-27 00:00:04 App\Jobs\ResetCutiJob ...................... 6.86ms DONE
+  2025-06-27 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-27 00:00:04 App\Jobs\ResetCutiJob ...................... 6.10ms DONE
+  2025-06-27 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-27 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-27 10:00:05 App\Jobs\UpdateCutiJob .................... 16.79ms DONE
+  2025-06-27 10:00:05 App\Jobs\UpdateCutiJob .................... 16.10ms DONE
+  2025-06-27 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-27 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-27 10:00:05 App\Jobs\UpdateCutiJob ..................... 8.76ms DONE
+  2025-06-27 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-27 10:00:05 App\Jobs\UpdateCutiJob .................... 12.61ms DONE
+  2025-06-27 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-27 10:00:05 App\Jobs\UpdateCutiJob .................... 10.61ms DONE
+  2025-06-27 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-27 10:00:05 App\Jobs\UpdateCutiJob .................... 13.82ms DONE
+  2025-06-27 10:00:05 App\Jobs\UpdateCutiJob ..................... 8.68ms DONE
+  2025-06-27 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-27 10:00:05 App\Jobs\UpdateCutiJob .................... 10.93ms DONE
+  2025-06-28 00:00:04 App\Jobs\ResetCutiJob  2025-06-28 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+ .......................... RUNNING
+  2025-06-28 00:00:04 App\Jobs\ResetCutiJob ..................... 19.79ms DONE
+  2025-06-28 00:00:04 App\Jobs\ResetCutiJob ..................... 20.84ms DONE
+  2025-06-28 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-28 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-28 00:00:04 App\Jobs\ResetCutiJob ...................... 5.68ms DONE
+  2025-06-28 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-28 00:00:04 App\Jobs\ResetCutiJob ...................... 7.21ms DONE
+  2025-06-28 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-28 00:00:04 App\Jobs\ResetCutiJob ...................... 5.56ms DONE
+  2025-06-28 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-28 00:00:04 App\Jobs\ResetCutiJob ...................... 6.49ms DONE
+  2025-06-28 00:00:04 App\Jobs\ResetCutiJob ...................... 5.39ms DONE
+  2025-06-28 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-28 00:00:04 App\Jobs\ResetCutiJob ...................... 6.18ms DONE
+  2025-06-28 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-28 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-28 10:00:03 App\Jobs\UpdateCutiJob .................... 12.95ms DONE
+  2025-06-28 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-28 10:00:03 App\Jobs\UpdateCutiJob .................... 14.30ms DONE
+  2025-06-28 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-28 10:00:03 App\Jobs\UpdateCutiJob ..................... 7.89ms DONE
+  2025-06-28 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-28 10:00:03 App\Jobs\UpdateCutiJob ..................... 9.68ms DONE
+  2025-06-28 10:00:03 App\Jobs\UpdateCutiJob .................... 16.27ms DONE
+  2025-06-28 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-28 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-28 10:00:03 App\Jobs\UpdateCutiJob ..................... 9.09ms DONE
+  2025-06-28 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-28 10:00:03 App\Jobs\UpdateCutiJob  2025-06-28 10:00:03 App\Jobs\UpdateCutiJob ..................... 9.00ms DONE
+ .................... 16.29ms DONE
+  2025-06-29 00:00:05 App\Jobs\ResetCutiJob ..........................  2025-06-29 00:00:05 App\Jobs\ResetCutiJob .......................... RUNNING
+ RUNNING
+  2025-06-29 00:00:05 App\Jobs\ResetCutiJob ..................... 13.82ms DONE
+  2025-06-29 00:00:05 App\Jobs\ResetCutiJob ..................... 16.75ms DONE
+  2025-06-29 00:00:05 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-29 00:00:05 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-29 00:00:05 App\Jobs\ResetCutiJob  2025-06-29 00:00:05 App\Jobs\ResetCutiJob ...................... 5.25ms DONE
+ ...................... 6.44ms DONE
+  2025-06-29 00:00:05 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-29 00:00:05 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-29 00:00:05 App\Jobs\ResetCutiJob ...................... 5.85ms DONE
+  2025-06-29 00:00:05 App\Jobs\ResetCutiJob ...................... 6.35ms DONE
+  2025-06-29 00:00:05 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-29 00:00:05 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-29 00:00:05 App\Jobs\ResetCutiJob ...................... 5.56ms DONE
+  2025-06-29 00:00:05 App\Jobs\ResetCutiJob ...................... 9.77ms DONE
+  2025-06-29 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-29 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-29 10:00:05 App\Jobs\UpdateCutiJob .................... 16.86ms DONE
+  2025-06-29 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-29 10:00:05 App\Jobs\UpdateCutiJob .................... 16.26ms DONE
+  2025-06-29 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-29 10:00:05 App\Jobs\UpdateCutiJob .................... 11.59ms DONE
+  2025-06-29 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-29 10:00:05 App\Jobs\UpdateCutiJob .................... 10.10ms DONE
+  2025-06-29 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-29 10:00:05 App\Jobs\UpdateCutiJob .................... 15.72ms DONE
+  2025-06-29 10:00:05 App\Jobs\UpdateCutiJob ..................... 9.67ms DONE
+  2025-06-29 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-29 10:00:05 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-29 10:00:05 App\Jobs\UpdateCutiJob ..................... 8.97ms DONE
+  2025-06-29 10:00:05 App\Jobs\UpdateCutiJob ..................... 9.84ms DONE
+  2025-06-30 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-30 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-30 00:00:04 App\Jobs\ResetCutiJob ..................... 16.46ms DONE
+  2025-06-30 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-30 00:00:04 App\Jobs\ResetCutiJob ..................... 18.54ms DONE
+  2025-06-30 00:00:04 App\Jobs\ResetCutiJob  2025-06-30 00:00:04 App\Jobs\ResetCutiJob .......................... ...................... 6.90ms DONE
+ RUNNING
+  2025-06-30 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-30 00:00:04 App\Jobs\ResetCutiJob ..................... 11.73ms DONE
+  2025-06-30 00:00:04 App\Jobs\ResetCutiJob ...................... 8.82ms DONE
+  2025-06-30 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-30 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-30 00:00:04 App\Jobs\ResetCutiJob ...................... 5.98ms DONE
+  2025-06-30 00:00:04 App\Jobs\ResetCutiJob ...................... 6.37ms DONE
+  2025-06-30 00:00:04 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-06-30 00:00:04 App\Jobs\ResetCutiJob ...................... 5.34ms DONE
+  2025-06-30 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-30 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-30 10:00:03 App\Jobs\UpdateCutiJob .................... 13.63ms DONE
+  2025-06-30 10:00:03 App\Jobs\UpdateCutiJob  2025-06-30 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+ .................... 13.75ms DONE
+  2025-06-30 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-30 10:00:03 App\Jobs\UpdateCutiJob ..................... 8.10ms DONE
+  2025-06-30 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-30 10:00:03 App\Jobs\UpdateCutiJob ..................... 9.38ms DONE
+  2025-06-30 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-30 10:00:03 App\Jobs\UpdateCutiJob ..................... 8.06ms DONE
+  2025-06-30 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-30 10:00:03 App\Jobs\UpdateCutiJob ..................... 9.33ms DONE
+  2025-06-30 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-06-30 10:00:03 App\Jobs\UpdateCutiJob ..................... 8.20ms DONE
+  2025-06-30 10:00:03 App\Jobs\UpdateCutiJob ..................... 9.41ms DONE
+  2025-07-01 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-07-01 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-07-01 00:00:03 App\Jobs\ResetCutiJob ..................... 15.37ms DONE
+  2025-07-01 00:00:03 App\Jobs\ResetCutiJob ..................... 15.61ms DONE
+  2025-07-01 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-07-01 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-07-01 00:00:03 App\Jobs\ResetCutiJob ...................... 6.14ms DONE
+  2025-07-01 00:00:03 App\Jobs\ResetCutiJob ...................... 5.90ms DONE
+  2025-07-01 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-07-01 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-07-01 00:00:03 App\Jobs\ResetCutiJob ...................... 6.25ms DONE
+  2025-07-01 00:00:03 App\Jobs\ResetCutiJob ...................... 5.96ms DONE
+  2025-07-01 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-07-01 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-07-01 00:00:03 App\Jobs\ResetCutiJob ...................... 6.49ms DONE
+  2025-07-01 00:00:03 App\Jobs\ResetCutiJob ...................... 5.54ms DONE
+  2025-07-01 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-07-01 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-07-01 10:00:04 App\Jobs\UpdateCutiJob .................... 23.71ms DONE
+  2025-07-01 10:00:04 App\Jobs\UpdateCutiJob .................... 13.55ms DONE
+  2025-07-01 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-07-01 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-07-01 10:00:04 App\Jobs\UpdateCutiJob ..................... 9.18ms DONE
+  2025-07-01 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-07-01 10:00:04 App\Jobs\UpdateCutiJob .................... 10.11ms DONE
+  2025-07-01 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-07-01 10:00:04 App\Jobs\UpdateCutiJob ..................... 7.77ms DONE
+  2025-07-01 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-07-01 10:00:04 App\Jobs\UpdateCutiJob ..................... 9.29ms DONE
+  2025-07-01 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-07-01 10:00:04 App\Jobs\UpdateCutiJob ..................... 8.03ms DONE
+  2025-07-01 10:00:04 App\Jobs\UpdateCutiJob ..................... 9.29ms DONE
+  2025-07-02 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-07-02 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-07-02 00:00:03 App\Jobs\ResetCutiJob ..................... 20.53ms DONE
+  2025-07-02 00:00:03 App\Jobs\ResetCutiJob ...................... 9.01ms DONE
+  2025-07-02 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-07-02 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-07-02 00:00:03 App\Jobs\ResetCutiJob ......................  2025-07-02 00:00:03 App\Jobs\ResetCutiJob ...................... 6.74ms DONE
+ 5.65ms DONE
+  2025-07-02 00:00:03 App\Jobs\ResetCutiJob ..........................  2025-07-02 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+ RUNNING
+  2025-07-02 00:00:03 App\Jobs\ResetCutiJob  2025-07-02 00:00:03 App\Jobs\ResetCutiJob ...................... 6.04ms DONE
+ ...................... 6.26ms DONE
+  2025-07-02 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-07-02 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-07-02 00:00:03 App\Jobs\ResetCutiJob ...................... 6.18ms DONE
+  2025-07-02 00:00:03 App\Jobs\ResetCutiJob ...................... 6.18ms DONE
+  2025-07-02 10:00:03 App\Jobs\UpdateCutiJob .........................  2025-07-02 10:00:03 App\Jobs\UpdateCutiJob RUNNING
+ ......................... RUNNING
+  2025-07-02 10:00:03 App\Jobs\UpdateCutiJob  2025-07-02 10:00:03 App\Jobs\UpdateCutiJob .................... .................... 14.47ms DONE
+ 12.92ms DONE
+  2025-07-02 10:00:03 App\Jobs\UpdateCutiJob .........................  2025-07-02 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+ RUNNING
+  2025-07-02 10:00:03 App\Jobs\UpdateCutiJob  2025-07-02 10:00:03 App\Jobs\UpdateCutiJob ..................... 8.74ms DONE
+ ..................... 9.32ms DONE
+  2025-07-02 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-07-02 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-07-02 10:00:03 App\Jobs\UpdateCutiJob  2025-07-02 10:00:03 App\Jobs\UpdateCutiJob ..................... ..................... 9.16ms DONE
+ 8.57ms DONE
+  2025-07-02 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-07-02 10:00:03 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-07-02 10:00:03 App\Jobs\UpdateCutiJob ..................... 8.61ms DONE
+  2025-07-02 10:00:03 App\Jobs\UpdateCutiJob ..................... 8.31ms DONE
+  2025-07-03 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-07-03 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-07-03 00:00:03 App\Jobs\ResetCutiJob .....................  2025-07-03 00:00:03 App\Jobs\ResetCutiJob ..................... 12.19ms DONE
+ 15.98ms DONE
+  2025-07-03 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-07-03 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-07-03 00:00:03 App\Jobs\ResetCutiJob ...................... 6.96ms DONE
+  2025-07-03 00:00:03 App\Jobs\ResetCutiJob ......................  2025-07-03 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+ 8.88ms DONE
+  2025-07-03 00:00:03 App\Jobs\ResetCutiJob ..........................  2025-07-03 00:00:03 App\Jobs\ResetCutiJob ...................... 6.84ms DONE
+ RUNNING
+  2025-07-03 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+  2025-07-03 00:00:03 App\Jobs\ResetCutiJob ...................... 7.72ms DONE
+  2025-07-03 00:00:03 App\Jobs\ResetCutiJob  2025-07-03 00:00:03 App\Jobs\ResetCutiJob .......................... RUNNING
+ ..................... 16.77ms DONE
+  2025-07-03 00:00:03 App\Jobs\ResetCutiJob ..................... 13.43ms DONE
+  2025-07-03 10:00:04 App\Jobs\UpdateCutiJob  2025-07-03 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+ ......................... RUNNING
+  2025-07-03 10:00:04 App\Jobs\UpdateCutiJob  2025-07-03 10:00:04 App\Jobs\UpdateCutiJob .................... 14.63ms DONE
+ .................... 14.97ms DONE
+  2025-07-03 10:00:04 App\Jobs\UpdateCutiJob  2025-07-03 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+ ......................... RUNNING
+  2025-07-03 10:00:04 App\Jobs\UpdateCutiJob ..................... 9.09ms DONE
+  2025-07-03 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-07-03 10:00:04 App\Jobs\UpdateCutiJob .................... 17.66ms DONE
+  2025-07-03 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-07-03 10:00:04 App\Jobs\UpdateCutiJob .................... 10.06ms DONE
+  2025-07-03 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-07-03 10:00:04 App\Jobs\UpdateCutiJob .................... 10.93ms DONE
+  2025-07-03 10:00:04 App\Jobs\UpdateCutiJob ..................... 9.18ms DONE
+  2025-07-03 10:00:04 App\Jobs\UpdateCutiJob ......................... RUNNING
+  2025-07-03 10:00:04 App\Jobs\UpdateCutiJob .................... 10.64ms DONE
+
+   Illuminate\Database\QueryException 
+
+  SQLSTATE[08006] [7] could not connect to server: Connection refused
+	Is the server running on host "127.0.0.1" and accepting
+	TCP/IP connections on port 5432? (Connection: pgsql, SQL: select * from "cache" where "key" in (illuminate:queue:restart))
+
+
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:825
+   Illuminate\Database\QueryException 
+
+  SQLSTATE[08006] [7] could not connect to server: Connection refused
+	Is the server running on host "127.0.0.1" and accepting
+	TCP/IP connections on port 5432? (Connection: pgsql, SQL: select * from "cache" where "key" in (illuminate:queue:restart))
+
+  at vendor/laravel/framework/src/Illuminate/Database/Connection.php:825
+    821▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    822▕                 );
+    823▕             }
+    824▕ 
+  ➜ 825▕             throw new QueryException(
+    826▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    827▕             );
+    828▕         }
+    829▕     }
+
+      [2m+41 vendor frames [22m
+
+  42  artisan:13
+      Illuminate\Foundation\Application::handleCommand()
+
+    821▕                     $this->getName(), $query, $this->prepareBindings($bindings), $e
+    822▕                 );
+    823▕             }
+    824▕ 
+  ➜ 825▕             throw new QueryException(
+    826▕                 $this->getName(), $query, $this->prepareBindings($bindings), $e
+    827▕             );
+    828▕         }
+    829▕     }
+
+      [2m+41 vendor frames [22m
+
+  42  artisan:13
+      Illuminate\Foundation\Application::handleCommand()
+

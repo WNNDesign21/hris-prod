@@ -22,7 +22,7 @@
                             </a>
                         </li>
                     @endif
-                    @if (auth()->user()->karyawan && ($lembure['is_leader'] || !$lembure['has_leader']))
+                    @if (auth()->user()->karyawan && ($lembure['is_leader'] || !$lembure['has_leader']) || auth()->user()->hasRole('admin-dept'))
                         <li
                             class="{{ $page == 'lembure-pengajuan-lembur' ? 'active' : '' }} notification-planned-pengajuan-lembur">
                             <a href="{{ route('lembure.pengajuan-lembur') }}">

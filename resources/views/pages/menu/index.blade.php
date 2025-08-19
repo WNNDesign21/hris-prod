@@ -85,7 +85,7 @@
                     </div>
 
                     {{-- CARD LEMBUR SYSTEM --}}
-                    @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('atasan') || !$lembure['has_leader'])
+                    @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('atasan') || auth()->user()->hasRole('admin-dept') || !$lembure['has_leader'])
                         {{-- CARD LEMBUR SYSTEM --}}
                         <div class="col-lg-6 col-12">
                             <a href="{{ auth()->user()->hasRole('personalia') || (auth()->user()->karyawan && auth()->user()->karyawan->posisi[0]->jabatan_id <= 3) ? route('lembure.dashboard') : route('lembure.pengajuan-lembur') }}"

@@ -236,7 +236,7 @@ class HomeController extends Controller
             $posisi = auth()->user()->karyawan->posisi;
             $has_leader = $this->has_leader_head($posisi);
             if(!$has_leader || auth()->user()->karyawan->posisi[0]->jabatan_id == 5){
-                $pengajuan_lembur = Lembure::where('issued_by', $user->karyawan->id_karyawan)->where('status', 'PLANNED')->count();
+                $pengajuan_lembur = Lembure::where('issued_by', auth()->user()->karyawan->id_karyawan)->where('status', 'PLANNED')->count();
             }
         }
 

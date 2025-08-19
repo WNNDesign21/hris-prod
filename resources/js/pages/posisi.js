@@ -5,8 +5,8 @@ $(function () {
         },
     });
 
-    $.fn.modal.Constructor.prototype._enforceFocus = function () {};
-    
+    $.fn.modal.Constructor.prototype._enforceFocus = function () { };
+
     //ALL ABOUT SELECT2
     //SELECT2 GET SELECT OPTION JABATAN DARI POSISI YANG DIPILIH
     function getDataJabatanByPosisi(idPosisi) {
@@ -16,13 +16,13 @@ $(function () {
             method: 'GET',
             dataType: 'JSON',
             success: function (data) {
-                if(data !== null){
+                if (data !== null) {
                     $('#input-jabatan').append('<label for="id_jabatan">Jabatan</label>');
                     let div = $('<div class="input-group mb-2" style="width:100%;"></div>');
                     let select = $('<select id="id_jabatan" name="id_jabatan" class="form-control select2"></select>');
                     select.append('<option value="">Pilih Jabatan</option>');
-                    $.each(data, function (i, val){
-                        select.append('<option value="'+val.id_jabatan+'">'+val.nama+'</option>');
+                    $.each(data, function (i, val) {
+                        select.append('<option value="' + val.id_jabatan + '">' + val.nama + '</option>');
                     });
                     div.append(select)
                     $('#input-jabatan').append(div);
@@ -37,19 +37,19 @@ $(function () {
         })
     }
 
-     //SELECT2 GET SELECT OPTION JABATAN DARI POSISI YANG DIPILIH EDIT
-     function getDataJabatanByPosisiEdit(idPosisi, myPosisi) {
+    //SELECT2 GET SELECT OPTION JABATAN DARI POSISI YANG DIPILIH EDIT
+    function getDataJabatanByPosisiEdit(idPosisi, myPosisi) {
         $.ajax({
             url: base_url + '/master-data/posisi/get-data-jabatan-by-posisi-edit/' + idPosisi + '/' + myPosisi,
             method: 'GET',
             dataType: 'JSON',
             success: function (data) {
-                if(data.jabatan !== null){
+                if (data.jabatan !== null) {
                     $('#edit-jabatan').append('<label for="id_jabatan_edit">Jabatan</label>');
                     let div = $('<div class="input-group mb-2" style="width:100%;"></div>');
                     let select = $('<select id="id_jabatan_edit" name="id_jabatan_edit" class="form-control select2"></select>');
-                    $.each(data.jabatan, function (i, val){
-                        select.append('<option value="'+val.id_jabatan+'">'+val.nama+'</option>');
+                    $.each(data.jabatan, function (i, val) {
+                        select.append('<option value="' + val.id_jabatan + '">' + val.nama + '</option>');
                     });
                     div.append(select)
                     $('#edit-jabatan').append(div);
@@ -57,7 +57,7 @@ $(function () {
                         theme: "bootstrap-5",
                         dropdownParent: $('#modal-edit-posisi')
                     });
-                    jabatanSelectEdit(data.jabatan_id,data.divisi_id, data.departemen_id, data.seksi_id, data.organisasi_id);
+                    jabatanSelectEdit(data.jabatan_id, data.divisi_id, data.departemen_id, data.seksi_id, data.organisasi_id);
                 }
             }
         })
@@ -71,13 +71,13 @@ $(function () {
             method: 'GET',
             dataType: 'JSON',
             success: function (data) {
-                if(data.organisasi !== null){
+                if (data.organisasi !== null) {
                     $('#input-tambahan').append('<label for="id_organisasi">Organisasi</label>');
                     let div = $('<div class="input-group mb-2" style="width:100%;"></div>');
                     let select = $('<select id="id_organisasi" name="id_organisasi" class="form-control select2"></select>');
                     select.append('<option value="">CORPORATE / ALL PLANT</option>');
-                    $.each(data.organisasi, function (i, val){
-                        select.append('<option value="'+val.id_organisasi+'">'+val.nama+'</option>');
+                    $.each(data.organisasi, function (i, val) {
+                        select.append('<option value="' + val.id_organisasi + '">' + val.nama + '</option>');
                     });
                     div.append(select)
                     $('#input-tambahan').append(div);
@@ -87,13 +87,13 @@ $(function () {
                     });
                 }
 
-                if(data.divisi !== null){
+                if (data.divisi !== null) {
                     $('#input-tambahan').append('<label for="id_divisi">Divisi</label>');
                     let div = $('<div class="input-group mb-2" style="width:100%;"></div>');
                     let select = $('<select id="id_divisi" name="id_divisi" class="form-control select2" required></select>');
                     select.append('<option value="">Pilih Divisi</option>');
-                    $.each(data.divisi, function (i, val){
-                        select.append('<option value="'+val.id_divisi+'">'+val.nama+'</option>');
+                    $.each(data.divisi, function (i, val) {
+                        select.append('<option value="' + val.id_divisi + '">' + val.nama + '</option>');
                     });
                     div.append(select)
                     $('#input-tambahan').append(div);
@@ -103,13 +103,13 @@ $(function () {
                     });
                 }
 
-                if(data.departemen !== null){
+                if (data.departemen !== null) {
                     $('#input-tambahan').append('<label for="id_departemen">Departemen</label>');
                     let div = $('<div class="input-group mb-2" style="width:100%;"></div>');
                     let select = $('<select id="id_departemen" name="id_departemen" class="form-control select2" required></select>');
                     select.append('<option value="">Pilih Departemen</option>');
-                    $.each(data.departemen, function (i, val){
-                        select.append('<option value="'+val.id_departemen+'">'+val.nama+'</option>');
+                    $.each(data.departemen, function (i, val) {
+                        select.append('<option value="' + val.id_departemen + '">' + val.nama + '</option>');
                     });
                     div.append(select)
                     $('#input-tambahan').append(div);
@@ -119,13 +119,13 @@ $(function () {
                     });
                 }
 
-                if(data.seksi !== null){
+                if (data.seksi !== null) {
                     $('#input-tambahan').append('<label for="id_seksi">Seksi</label>');
                     let div = $('<div class="input-group mb-2" style="width:100%;"></div>');
                     let select = $('<select id="id_seksi" name="id_seksi" class="form-control select2" required></select>');
                     select.append('<option value="">Pilih Seksi</option>');
-                    $.each(data.seksi, function (i, val){
-                        select.append('<option value="'+val.id_seksi+'">'+val.nama+'</option>');
+                    $.each(data.seksi, function (i, val) {
+                        select.append('<option value="' + val.id_seksi + '">' + val.nama + '</option>');
                     });
                     div.append(select)
                     $('#input-tambahan').append(div);
@@ -146,13 +146,13 @@ $(function () {
             method: 'GET',
             dataType: 'JSON',
             success: function (data) {
-                if(data.organisasi !== null){
+                if (data.organisasi !== null) {
                     $('#edit-tambahan').append('<label for="id_organisasi_edit">Organisasi</label>');
                     let div = $('<div class="input-group mb-2" style="width:100%;"></div>');
                     let select = $('<select id="id_organisasi_edit" name="id_organisasi_edit" class="form-control select2"></select>');
                     select.append('<option value="">CORPORATE / ALL PLANT</option>');
-                    $.each(data.organisasi, function (i, val){
-                        select.append('<option value="'+val.id_organisasi+'">'+val.nama+'</option>');
+                    $.each(data.organisasi, function (i, val) {
+                        select.append('<option value="' + val.id_organisasi + '">' + val.nama + '</option>');
                     });
                     div.append(select)
                     $('#edit-tambahan').append(div);
@@ -163,13 +163,13 @@ $(function () {
                     $('#id_organisasi_edit').val(myOrganisasi).trigger('change');
                 }
 
-                if(data.divisi !== null){
+                if (data.divisi !== null) {
                     $('#edit-tambahan').append('<label for="id_divisi">Divisi</label>');
                     let div = $('<div class="input-group mb-2" style="width:100%;"></div>');
                     let select = $('<select id="id_divisi_edit" name="id_divisi_edit" class="form-control select2" required></select>');
                     select.append('<option value="">Pilih Divisi</option>');
-                    $.each(data.divisi, function (i, val){
-                        select.append('<option value="'+val.id_divisi+'">'+val.nama+'</option>');
+                    $.each(data.divisi, function (i, val) {
+                        select.append('<option value="' + val.id_divisi + '">' + val.nama + '</option>');
                     });
                     div.append(select)
                     $('#edit-tambahan').append(div);
@@ -180,13 +180,13 @@ $(function () {
                     $('#id_divisi_edit').val(myDivisi).trigger('change');
                 }
 
-                if(data.departemen !== null){
+                if (data.departemen !== null) {
                     $('#edit-tambahan').append('<label for="id_departemen">Departemen</label>');
                     let div = $('<div class="input-group mb-2" style="width:100%;"></div>');
                     let select = $('<select id="id_departemen_edit" name="id_departemen_edit" class="form-control select2" required></select>');
                     select.append('<option value="">Pilih Departemen</option>');
-                    $.each(data.departemen, function (i, val){
-                        select.append('<option value="'+val.id_departemen+'">'+val.nama+'</option>');
+                    $.each(data.departemen, function (i, val) {
+                        select.append('<option value="' + val.id_departemen + '">' + val.nama + '</option>');
                     });
                     div.append(select)
                     $('#edit-tambahan').append(div);
@@ -197,13 +197,13 @@ $(function () {
                     $('#id_departemen_edit').val(myDepartemen).trigger('change');
                 }
 
-                if(data.seksi !== null){
+                if (data.seksi !== null) {
                     $('#edit-tambahan').append('<label for="id_seksi">Seksi</label>');
                     let div = $('<div class="input-group mb-2" style="width:100%;"></div>');
                     let select = $('<select id="id_seksi_edit" name="id_seksi_edit" class="form-control select2" required></select>');
                     select.append('<option value="">Pilih Seksi</option>');
-                    $.each(data.seksi, function (i, val){
-                        select.append('<option value="'+val.id_seksi+'">'+val.nama+'</option>');
+                    $.each(data.seksi, function (i, val) {
+                        select.append('<option value="' + val.id_seksi + '">' + val.nama + '</option>');
                     });
                     div.append(select)
                     $('#edit-tambahan').append(div);
@@ -240,13 +240,13 @@ $(function () {
         var idPosisi = selected.params.data.id;
         $('#input-jabatan').empty();
         $('#input-tambahan').empty();
-        if(idPosisi !== '0'){
+        if (idPosisi !== '0') {
             getDataJabatanByPosisi(idPosisi);
         }
     });
 
     //SELECT2 JABATAN
-    function jabatanSelect(){
+    function jabatanSelect() {
         $('#id_jabatan').select2({
             theme: "bootstrap-5",
             dropdownParent: $('#modal-input-posisi'),
@@ -258,7 +258,7 @@ $(function () {
     }
 
     //SELECT2 EDIT JABATAN
-    function jabatanSelectEdit(myJabatan, myDivisi, myDepartemen, mySeksi, myOrganisasi){
+    function jabatanSelectEdit(myJabatan, myDivisi, myDepartemen, mySeksi, myOrganisasi) {
         $('#id_jabatan_edit').select2({
             theme: "bootstrap-5",
             dropdownParent: $('#modal-edit-posisi'),
@@ -282,7 +282,7 @@ $(function () {
             title: '<i class="fas fa-sync-alt fa-spin fs-80"></i>',
             allowOutsideClick: false,
             background: 'rgba(0, 0, 0, 0)'
-          });
+        });
     }
 
     function loadingSwalClose() {
@@ -295,11 +295,11 @@ $(function () {
             toast: true,
             position: "top-end",
             showConfirmButton: false,
-            timer: 2000, 
+            timer: 2000,
             timerProgressBar: true,
             didOpen: (toast) => {
-            toast.onmouseenter = Swal.stopTimer;
-            toast.onmouseleave = Swal.resumeTimer;
+                toast.onmouseenter = Swal.stopTimer;
+                toast.onmouseleave = Swal.resumeTimer;
             }
         });
 
@@ -412,17 +412,17 @@ $(function () {
     }
 
     //RELOAD TABLE
-    $('.btnReload').on("click", function (){
+    $('.btnReload').on("click", function () {
         refreshTable();
     })
 
     //OPEN MODAL TAMBAH POSISI
-    $('.btnAdd').on("click", function (){
+    $('.btnAdd').on("click", function () {
         openPosisi();
     })
 
     //CLOSE MODAL TAMBAH POSISI
-    $('.btnClose').on("click", function (){
+    $('.btnClose').on("click", function () {
         closePosisi();
     })
 
@@ -450,7 +450,7 @@ $(function () {
     }
 
     //SUBMIT TAMBAH DEPARTEMEN
-    $('#form-tambah-posisi').on('submit', function (e){
+    $('#form-tambah-posisi').on('submit', function (e) {
         e.preventDefault();
         loadingSwalShow();
         let url = $('#form-tambah-posisi').attr('action');
@@ -459,7 +459,7 @@ $(function () {
         $.ajax({
             url: url,
             data: formData,
-            method:"POST",
+            method: "POST",
             contentType: false,
             processData: false,
             dataType: "JSON",
@@ -501,12 +501,12 @@ $(function () {
         modalEditPosisi.hide();
     }
 
-    $('.btnCloseEdit').on("click", function (){
+    $('.btnCloseEdit').on("click", function () {
         closeEditPosisi();
     })
 
     //PARENT ID EDIT SELECT2
-    function parentSelect(idParent, idPosisi){
+    function parentSelect(idParent, idPosisi) {
         loadingSwalShow();
         $.ajax({
             url: base_url + '/master-data/posisi/get-data-parent-edit/' + idPosisi,
@@ -514,8 +514,8 @@ $(function () {
             success: function (data) {
                 var selectParent = $("#parent_id_edit");
                 selectParent.empty();
-                $.each(data.posisi, function (i, val){
-                    selectParent.append('<option value="'+val.id+'">'+val.text+'</option>');
+                $.each(data.posisi, function (i, val) {
+                    selectParent.append('<option value="' + val.id + '">' + val.text + '</option>');
                 });
 
                 $('#parent_id_edit').val(idParent).trigger('change');
@@ -532,7 +532,7 @@ $(function () {
     }
 
     //EDIT POSISI
-    $('.dd-handle').on('click', function (){
+    $('.dd-handle').on('click', function () {
         var idPosisi = $(this).data('id');
         var nama = $(this).data('posisi-nama');
         var idParent = $(this).data('parent-id');
@@ -542,7 +542,7 @@ $(function () {
         // openEditPosisi();
     });
 
-    $('#posisi-table').on('click', '.btnEdit', function (){
+    $('#posisi-table').on('click', '.btnEdit', function () {
         var idPosisi = $(this).data('id');
         var nama = $(this).data('posisi-nama');
         var idParent = $(this).data('parent-id');
@@ -552,7 +552,7 @@ $(function () {
         // openEditPosisi();
     });
 
-    $('#parent_id_edit').on('change', function (e){
+    $('#parent_id_edit').on('change', function (e) {
         var idParent = $(this).val();
         var myPosisi = $('#id_posisi_edit').val();
         $('#edit-jabatan').empty();
@@ -561,7 +561,7 @@ $(function () {
         // JIKA INGIN BISA MENGUBAH ORGANISASI, DIVISI, DEPARTEMEN, SEKSI MAKA UNCOMMENT INI
         // KARENA KEBUTUHAN HNYA MENGUBAH PARENT NYA SAJA MAKA COMMENT INI
 
-        if(idParent !== '0'){
+        if (idParent !== '0') {
             getDataJabatanByPosisiEdit(idParent, myPosisi);
         } else {
             openEditPosisi();
@@ -570,7 +570,7 @@ $(function () {
     })
 
     //SUBMIT EDIT POSISI
-    $('#form-edit-posisi').on('submit', function (e){
+    $('#form-edit-posisi').on('submit', function (e) {
         e.preventDefault();
         loadingSwalShow();
         let idPosisi = $('#id_posisi_edit').val();
@@ -580,7 +580,7 @@ $(function () {
         $.ajax({
             url: url,
             data: formData,
-            method:"POST",
+            method: "POST",
             contentType: false,
             processData: false,
             dataType: "JSON",
@@ -599,7 +599,7 @@ $(function () {
     });
 
     //DELETE POSISI
-    $('#posisi-table').on('click', '.btnDelete', function (){
+    $('#posisi-table').on('click', '.btnDelete', function () {
         var idPosisi = $(this).data('id');
         Swal.fire({
             title: "Delete Posisi",
@@ -631,5 +631,5 @@ $(function () {
             }
         });
     })
-    
+
 });

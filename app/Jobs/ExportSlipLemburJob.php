@@ -98,6 +98,10 @@ class ExportSlipLemburJob implements ShouldQueue
             ->where('detail_lemburs.organisasi_id', $this->organisasi_id)
             ->whereMonth('detail_lemburs.aktual_mulai_lembur', $month)
             ->whereYear('detail_lemburs.aktual_mulai_lembur', $year)
+            ->whereHas('lembur', function ($query) {
+                $query->where('status', 'COMPLETED')
+                      ->whereNotNull('actual_legalized_by');
+            })
             ->groupBy('karyawans.id_karyawan', 'karyawans.nama', 'karyawans.ni_karyawan')
             ->get();
             

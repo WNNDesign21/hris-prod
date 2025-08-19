@@ -14,7 +14,7 @@
             <div class="col-6 d-flex justify-content-end align-items-center">
                 <div class="text-end">
                     <h3>{{ \Carbon\Carbon::now()->locale('id')->isoFormat('D MMMM YYYY') }}</h3>
-                    <p>PT TRI CENTRUM FORTUNA</p>
+                    <p>PT ADYAWINSA STAMPING INDUSTRIES</p>
                 </div>
             </div>
         </div>

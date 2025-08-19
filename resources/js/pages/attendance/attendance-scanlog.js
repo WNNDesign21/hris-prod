@@ -101,7 +101,7 @@ $(function () {
     $('.btnGetScanlog').on("click", function () {
         loadingSwalShow();
         let formData = new FormData($('#form-export-scanlog')[0]);
-        let url = base_url + '/attendance/scanlog/download-scanlog';
+        let url = "{{ route('attendance.scanlog.download-scanlog') }}";
         loadingSwalShow();
         $.ajax({
             url: url,
