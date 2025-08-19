@@ -3181,19 +3181,17 @@ class LembureController extends Controller
 
                 // === CASE: Sec.Head tapi tidak ada Dept.Head → auto approve/review/legalize
                 if ($expected === 'SEC_HEAD' && !$hasDepartmentHead) {
-                    // Cari BOD asli
-                    $bod = \App\Models\Karyawan::whereHas('posisi', function ($q) use ($organisasi_id) {
-                        $q->where('jabatan_id', 1) // asumsikan 1 = BOD
-                            ->where('organisasi_id', $organisasi_id);
-                    })->first();
-                    $bodName = $bod ? $bod->nama : 'AUTO-SYSTEM-BOD';
+                    // ambil nama BOD asli
+                    $bod_name = \App\Helpers\Approval::GetDirector($creatorPos)
+                        ?? $this->getDefaultBODName($lembur->departemen_id, $lembur->divisi_id, $lembur->organisasi_id)
+                        ?? 'AUTO-SYSTEM-BOD';
 
                     $lembur->update([
                         'plan_checked_by' => $planCheckedBy,
                         'plan_checked_at' => now(),
                         'plan_approved_by' => $planCheckedBy,
                         'plan_approved_at' => now(),
-                        'plan_reviewed_by' => $bodName,
+                        'plan_reviewed_by' => $bod_name,
                         'plan_reviewed_at' => now(),
                         'plan_legalized_by' => 'HR & GA',
                         'plan_legalized_at' => now(),
@@ -3291,7 +3289,7 @@ class LembureController extends Controller
     public function approved(Request $request, string $id_lembur)
     {
         $dataValidate = [
-            'is_planned' => ['required', 'in:Y,N'], // N = Plan, Y = Actual
+            'is_planned' => ['required', 'in:Y,N'],
             'mulai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'before:selesai_lembur.*'],
             'selesai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'after:mulai_lembur.*'],
         ];
