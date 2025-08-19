@@ -14,26 +14,24 @@
         <div class="col-lg-8 col-12">
             <div class="row d-flex justify-content-start p-5">
                 {{-- CARD MANAJEMEN MASTER DATA --}}
-                @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('admin-dept'))
-                    @if (auth()->user()->hasRole('personalia'))
-                        <div class="col-lg-6 col-12">
-                            <a href="{{ route('master-data.dashboard') }}" class="box pull-up">
-                                <div class="box-body">
-                                    <div class="d-flex align-items-center">
-                                        <div class="icon bg-primary-light rounded-circle w-60 h-60 text-center l-h-80">
-                                            <span class="fs-30 icon-Bulb1"><span class="path1"></span><span
-                                                    class="path2"></span><span class="path3"></span><span
-                                                    class="path4"></span></span>
-                                        </div>
-                                        <div class="ms-15">
-                                            <h5 class="mb-0">Master Data Management</h5>
-                                            <p class="text-fade fs-12 mb-0">Sistem Manajemen Data Master</p>
-                                        </div>
+                @if (auth()->user()->hasRole('personalia'))
+                    <div class="col-lg-6 col-12">
+                        <a href="{{ route('master-data.dashboard') }}" class="box pull-up">
+                            <div class="box-body">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon bg-primary-light rounded-circle w-60 h-60 text-center l-h-80">
+                                        <span class="fs-30 icon-Bulb1"><span class="path1"></span><span
+                                                class="path2"></span><span class="path3"></span><span
+                                                class="path4"></span></span>
+                                    </div>
+                                    <div class="ms-15">
+                                        <h5 class="mb-0">Master Data Management</h5>
+                                        <p class="text-fade fs-12 mb-0">Sistem Manajemen Data Master</p>
                                     </div>
                                 </div>
-                            </a>
-                        </div>
-                    @endif
+                            </div>
+                        </a>
+                    </div>
                 @endif
 
                 {{-- CARD ATTENDANCE SYSTEM --}}
@@ -85,10 +83,10 @@
                     </div>
 
                     {{-- CARD LEMBUR SYSTEM --}}
-                    @if (auth()->user()->hasRole('personalia') || auth()->user()->hasRole('atasan') || auth()->user()->hasRole('admin-dept') || !$lembure['has_leader'])
+                    @if (auth()->user()->hasAnyRole(['personalia', 'personalia-lembur', 'atasan', 'admin-dept']) || !$lembure['has_leader'])
                         {{-- CARD LEMBUR SYSTEM --}}
                         <div class="col-lg-6 col-12">
-                            <a href="{{ auth()->user()->hasRole('personalia') || (auth()->user()->karyawan && auth()->user()->karyawan->posisi[0]->jabatan_id <= 3) ? route('lembure.dashboard') : route('lembure.pengajuan-lembur') }}"
+                            <a href="{{ auth()->user()->hasAnyRole(['personalia', 'personalia-lembur']) || (auth()->user()->karyawan && auth()->user()->karyawan->posisi[0]->jabatan_id <= 3) ? route('lembure.dashboard') : route('lembure.pengajuan-lembur') }}"
                                 class="box pull-up">
                                 <div class="box-body position-relative">
                                     @if ($lembure['approval_lembur'] + $lembure['pengajuan_lembur'] + $lembure['review_lembur'] > 0)

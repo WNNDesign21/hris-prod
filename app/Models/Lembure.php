@@ -136,7 +136,7 @@ class Lembure extends Model
 
         if(isset($dataFilter['organisasi_id'])){
             $data->where('detail_lemburs.organisasi_id', $dataFilter['organisasi_id']);
-            if(auth()->user()->hasRole('personalia')){
+            if(auth()->user()->hasAnyRole(['personalia', 'personalia-lembur'])){
                 if(isset($dataFilter['status'])){
                     $data->whereIn('lemburs.status', $dataFilter['status']);
                 }
@@ -293,7 +293,7 @@ class Lembure extends Model
 
         if(isset($dataFilter['organisasi_id'])){
             $data->where('detail_lemburs.organisasi_id', $dataFilter['organisasi_id']);
-            if(auth()->user()->hasRole('personalia')){
+            if(auth()->user()->hasAnyRole(['personalia', 'personalia-lembur'])){
                 if(isset($dataFilter['status'])){
                     $data->whereIn('lemburs.status', $dataFilter['status']);
                 }

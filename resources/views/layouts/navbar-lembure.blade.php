@@ -6,7 +6,7 @@
                 <!-- sidebar menu-->
                 <ul class="sidebar-menu" data-widget="tree">
                     <li class="header">Lembur-E Menu</li>
-                    @if (auth()->user()->hasRole('personalia') || auth()->user()->karyawan->posisi[0]->jabatan_id <= 4)
+                    @if (auth()->user()->hasAnyRole(['personalia', 'personalia-lembur']) || auth()->user()->karyawan->posisi[0]->jabatan_id <= 4)
                         <li class="{{ $page == 'lembure-dashboard' ? 'active' : '' }}">
                             <a href="{{ route('lembure.dashboard') }}">
                                 <i class="icon-Chart-bar2"><span class="path1"></span><span class="path2"></span></i>
@@ -14,7 +14,7 @@
                             </a>
                         </li>
                     @endif
-                    @if (auth()->user()->hasRole('personalia') || auth()->user()->karyawan->posisi[0]->jabatan_id <= 4)
+                    @if (auth()->user()->hasAnyRole(['personalia', 'personalia-lembur']) || auth()->user()->karyawan->posisi[0]->jabatan_id <= 4)
                         <li class="{{ $page == 'lembure-detail-lembur' ? 'active' : '' }}">
                             <a href="{{ route('lembure.detail-lembur') }}">
                                 <i class="icon-Stairs"><span class="path1"></span><span class="path2"></span></i>
@@ -66,7 +66,7 @@
                             </a>
                         </li>
                     @endif --}}
-                    @if (auth()->user()->hasRole('personalia') ||
+                    @if (auth()->user()->hasAnyRole(['personalia', 'personalia-lembur']) ||
                             (auth()->user()->karyawan &&
                                 (auth()->user()->karyawan->posisi[0]->jabatan_id == 4 ||
                                     auth()->user()->karyawan->posisi[0]->jabatan_id == 3 ||
@@ -107,7 +107,7 @@
                             </a>
                         </li>
                     @endif
-                    @if (auth()->user()->hasRole('personalia'))
+                    @if (auth()->user()->hasAnyRole(['personalia', 'personalia-lembur']))
                         <li class="{{ $page == 'lembure-bypass-lembur' ? 'active' : '' }}">
                             <a href="{{ route('lembure.bypass-lembur') }}">
                                 <i class="icon-Thunder1"><span class="path1"></span><span class="path2"></span></i>

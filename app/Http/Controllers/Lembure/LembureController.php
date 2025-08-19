@@ -41,7 +41,7 @@ class LembureController extends Controller
      */
     public function index()
     {
-        if (auth()->user()->hasRole('personalia') || (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->organisasi_id !== null)) {
+        if (auth()->user()->hasAnyRole(['personalia', 'personalia-lembur']) || (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->organisasi_id !== null)) {
             $departemens = Departemen::all();
         } else {
             $posisis = auth()->user()->karyawan->posisi;
@@ -81,7 +81,7 @@ class LembureController extends Controller
             return redirect()->route('lembure.pengajuan-lembur');
         }
 
-        if (auth()->user()->hasRole('personalia') || (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->organisasi_id !== null)) {
+        if (auth()->user()->hasAnyRole(['personalia', 'personalia-lembur']) || (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->organisasi_id !== null)) {
             $departemens = Departemen::all();
         } else {
             $posisis = auth()->user()->karyawan->posisi;
@@ -163,7 +163,7 @@ class LembureController extends Controller
 
     public function bypass_lembur_view()
     {
-        if (auth()->user()->hasRole('personalia')) {
+        if (auth()->user()->hasAnyRole(['personalia', 'personalia-lembur'])) {
             $karyawans = Karyawan::aktif()->organisasi(auth()->user()->organisasi_id)->pluck('nama', 'id_karyawan');
         } else {
             $posisi = auth()->user()->karyawan->posisi;
@@ -434,7 +434,7 @@ class LembureController extends Controller
         $is_can_approved = false;
         $is_has_department_head = false;
 
-        if (auth()->user()->hasRole('personalia')) {
+        if (auth()->user()->hasAnyRole(['personalia', 'personalia-lembur'])) {
             $dataFilter['organisasi_id'] = $organisasi_id;
             $is_can_legalized = true;
         } elseif (auth()->user()->karyawan->posisi[0]->jabatan_id == 4 || auth()->user()->karyawan->posisi[0]->jabatan_id == 3) {
@@ -1702,7 +1702,7 @@ class LembureController extends Controller
                         'actual_approved_at' => now(),
                     ]);
                 }
-            } elseif (auth()->user()->hasRole('personalia')) {
+            } elseif (auth()->user()->hasAnyRole(['personalia', 'personalia-lembur'])) {
                 $prefix = 'BYPASS-';
                 $header->update([
                     'status' => 'COMPLETED',
@@ -2904,7 +2904,7 @@ class LembureController extends Controller
                     if (auth()->user()->karyawan->posisi[0]->jabatan_id <= 3) {
                         $is_can_see_nominal = true;
                     }
-                } elseif (auth()->user()->hasRole('personalia')) {
+                } elseif (auth()->user()->hasAnyRole(['personalia', 'personalia-lembur'])) {
                     $is_can_see_nominal = true;
                 }
 
@@ -3664,7 +3664,7 @@ class LembureController extends Controller
         }
 
         // Role guard: hanya personalia
-        if (!auth()->user()->hasRole('personalia')) {
+        if (!auth()->user()->hasAnyRole(['personalia', 'personalia-lembur'])) {
             return response()->json(['message' => 'Hanya role Personalia yang dapat melakukan Legalisasi Lembur.'], 403);
         }
 
@@ -4140,7 +4140,7 @@ class LembureController extends Controller
         DB::beginTransaction();
         try {
             $lembur = Lembure::find($id_lembur);
-            if (auth()->user()->hasRole('personalia')) {
+            if (auth()->user()->hasAnyRole(['personalia', 'personalia-lembur'])) {
                 $rejected_by = 'HRD & GA';
             } else {
                 $rejected_by = auth()->user()->karyawan->nama;
@@ -4467,7 +4467,7 @@ class LembureController extends Controller
                 $dataFilter['tahun'] = $filterTahun;
             }
 
-            if (auth()->user()->hasRole('personalia')) {
+            if (auth()->user()->hasAnyRole(['personalia', 'personalia-lembur'])) {
                 $dataFilter['organisasi_id'] = auth()->user()->organisasi_id;
             } elseif (auth()->user()->karyawan->posisi[0]->jabatan_id == 4 || auth()->user()->karyawan->posisi[0]->jabatan_id == 3) {
                 $dataFilter['departemen_id'] = auth()->user()->karyawan->posisi->pluck('departemen_id')->toArray();
@@ -4668,8 +4668,8 @@ class LembureController extends Controller
                         'fill' => [
                             'fillType' => Fill::FILL_SOLID,
                             'startColor' => [
-                                    'argb' => 'FFFFFF00',
-                                ],
+                                'argb' => 'FFFFFF00',
+                            ],
                         ],
                         'alignment' => [
                             'horizontal' => Alignment::HORIZONTAL_CENTER,
@@ -4757,8 +4757,8 @@ class LembureController extends Controller
                         'fill' => [
                             'fillType' => Fill::FILL_SOLID,
                             'startColor' => [
-                                    'argb' => 'FFFFFF00',
-                                ],
+                                'argb' => 'FFFFFF00',
+                            ],
                         ],
                         'alignment' => [
                             'horizontal' => Alignment::HORIZONTAL_CENTER,
@@ -4817,8 +4817,8 @@ class LembureController extends Controller
                 'fill' => [
                     'fillType' => Fill::FILL_SOLID,
                     'startColor' => [
-                            'argb' => 'FFFFFF00',
-                        ],
+                        'argb' => 'FFFFFF00',
+                    ],
                 ],
                 'alignment' => [
                     'horizontal' => Alignment::HORIZONTAL_CENTER,
@@ -4907,8 +4907,8 @@ class LembureController extends Controller
             'fill' => [
                 'fillType' => Fill::FILL_SOLID,
                 'startColor' => [
-                        'argb' => 'FFFFFF00',
-                    ],
+                    'argb' => 'FFFFFF00',
+                ],
             ],
             'font' => [
                 'bold' => true,
@@ -5139,7 +5139,7 @@ class LembureController extends Controller
                 if (auth()->user()->karyawan->posisi[0]->jabatan_id <= 3) {
                     $is_can_see_nominal = true;
                 }
-            } elseif (auth()->user()->hasRole('personalia')) {
+            } elseif (auth()->user()->hasAnyRole(['personalia', 'personalia-lembur'])) {
                 $is_can_see_nominal = true;
             }
 
@@ -5296,7 +5296,7 @@ class LembureController extends Controller
             $organisasi_id = auth()->user()->organisasi_id;
             $posisi = auth()->user()?->karyawan?->posisi;
             $mustRejectLembur = [];
-            if (!auth()->user()->hasRole('personalia')) {
+            if (!auth()->user()->hasAnyRole(['personalia', 'personalia-lembur'])) {
                 if (auth()->user()->karyawan->posisi[0]->jabatan_id == 4 || auth()->user()->karyawan->posisi[0]->jabatan_id == 3) {
                     $member_posisi_ids = $this->get_member_posisi($posisi);
                     $dataFilter['member_posisi_ids'] = $member_posisi_ids;

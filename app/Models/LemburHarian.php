@@ -60,7 +60,7 @@ class LemburHarian extends Model
         )
         ->leftJoin('departemens', 'lembur_harians.departemen_id', 'departemens.id_departemen');
 
-        if(auth()->user()->hasRole('personalia') || (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->organisasi_id) || auth()->user()->karyawan->posisi[0]->jabatan_id == 5)){
+        if(auth()->user()->hasAnyRole(['personalia', 'personalia-lembur']) || (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->organisasi_id) || auth()->user()->karyawan->posisi[0]->jabatan_id == 5)){
             $data->where('lembur_harians.organisasi_id', $organisasi_id);
         }
 
@@ -105,7 +105,7 @@ class LemburHarian extends Model
             SUM(CASE WHEN EXTRACT(DAY FROM lembur_harians.tanggal_lembur) BETWEEN 24 AND 31 THEN lembur_harians.total_nominal_lembur ELSE 0 END) as minggu_4'
         )
         ->leftJoin('departemens', 'lembur_harians.departemen_id', 'departemens.id_departemen');
-        if(auth()->user()->hasRole('personalia') || (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->organisasi_id) || auth()->user()->karyawan->posisi[0]->jabatan_id == 5)){
+        if(auth()->user()->hasAnyRole(['personalia', 'personalia-lembur']) || (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->organisasi_id) || auth()->user()->karyawan->posisi[0]->jabatan_id == 5)){
             $data->where('lembur_harians.organisasi_id', $organisasi_id);
         }
 
@@ -154,7 +154,7 @@ class LemburHarian extends Model
             SUM(lembur_harians.total_durasi_lembur) as total_durasi'
         )
         ->leftJoin('departemens', 'lembur_harians.departemen_id', 'departemens.id_departemen');
-        if(auth()->user()->hasRole('personalia') || (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->organisasi_id) || auth()->user()->karyawan->posisi[0]->jabatan_id == 5)){
+        if(auth()->user()->hasAnyRole(['personalia', 'personalia-lembur']) || (auth()->user()->karyawan && (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->organisasi_id) || auth()->user()->karyawan->posisi[0]->jabatan_id == 5)){
             $data->where('lembur_harians.organisasi_id', $organisasi_id);
         }
 

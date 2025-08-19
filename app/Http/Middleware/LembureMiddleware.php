@@ -39,7 +39,7 @@ class LembureMiddleware
         }
 
         //APPROVAL LEMBUR
-        if($user->hasRole('personalia')){
+        if($user->hasAnyRole(['personalia', 'personalia-lembur'])){
             $approval_lembur = Lembure::where(function($query) {
                 $query->where(function($query) {
                     $query->where('status', 'WAITING')

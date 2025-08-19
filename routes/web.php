@@ -240,7 +240,7 @@ Route::group(['middleware' => ['auth']], function () {
 });
 
 
-Route::group(['middleware' => ['auth', 'notifikasi', 'role:atasan|member|personalia|security']], function () {
+Route::group(['middleware' => ['auth', 'notifikasi', 'role:atasan|member|personalia|security|personalia-lembur']], function () {
     // MENU UTAMA
     //HOME CONTROLLER
     Route::get('/home', [HomeController::class, 'index'])->name('root')->middleware(['lembure', 'izine', 'tugasluare', 'ksk']);
@@ -423,10 +423,10 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'role:atasan|member|persona
     Route::group(['prefix' => 'lembure', 'middleware' => ['lembure']], function () {
 
         // DASHBOARD
-        Route::get('/dashboard', [LembureController::class, 'index'])->name('lembure.dashboard')->middleware('role:personalia|atasan');
+        Route::get('/dashboard', [LembureController::class, 'index'])->name('lembure.dashboard')->middleware('role:personalia|atasan|personalia-lembur');
 
         // LEADERBOARD LEMBUR
-        Route::group(['middleware' => ['role:atasan|personalia']], function () {
+        Route::group(['middleware' => ['role:atasan|personalia|personalia-lembur']], function () {
             Route::get('/detail-lembur', [LembureController::class, 'detail_lembur_view'])->name('lembure.detail-lembur');
             Route::post('/detail-lembur-datatable', [LembureController::class, 'detail_lembur_datatable']);
             Route::post('/detail-lembur/get-leaderboard-user-monthly', [LembureController::class, 'get_leaderboard_user_monthly']);
@@ -443,7 +443,7 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'role:atasan|member|persona
             Route::post('/pengajuan-lembur/store-lkh', [LembureController::class, 'store_lkh'])->name('lembure.pengajuan-lembur.store-lkh');
         });
 
-        Route::group(['middleware' => ['role:atasan|personalia']], function () {
+        Route::group(['middleware' => ['role:atasan|personalia|personalia-lembur']], function () {
             // APPROVAL LEMBUR (CHECK)
             Route::get('/approval-lembur', [LembureController::class, 'approval_lembur_view'])->name('lembure.approval-lembur');
             Route::post('/approval-lembur-datatable', [LembureController::class, 'approval_lembur_datatable']);
@@ -465,7 +465,7 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'role:atasan|member|persona
             Route::patch('/review-lembur/rejected/{idDetailLembur}', [LembureController::class, 'review_lembur_rejected'])->name('lembure.review-lembur.rejected');
         });
 
-        Route::group(['middleware' => ['role:personalia']], function () {
+        Route::group(['middleware' => ['role:personalia|personalia-lembur']], function () {
             // Setting Upah Lembur
             Route::get('/setting-upah-lembur', [LembureController::class, 'setting_upah_lembur_view'])->name('lembure.setting-upah-lembur');
             Route::post('/setting-upah-lembur-datatable', [LembureController::class, 'setting_upah_lembur_datatable']);
@@ -489,7 +489,7 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'role:atasan|member|persona
             Route::post('/export-report-lembur/slip-lembur-perbulan', [LembureController::class, 'export_slip_lembur_perbulan'])->name('lembure.export-report-lembur.export-slip-lembur-perbulan');
         });
 
-        Route::group(['middleware' => ['role:personalia']], function (){
+        Route::group(['middleware' => ['role:personalia|personalia-lembur']], function (){
             // Bypass Lembur
             Route::get('/bypass-lembur', [LembureController::class, 'bypass_lembur_view'])->name('lembure.bypass-lembur');
             Route::post('/bypass-lembur/store', [LembureController::class, 'bypass_lembur_store'])->name('lembure.bypass-lembur.store');

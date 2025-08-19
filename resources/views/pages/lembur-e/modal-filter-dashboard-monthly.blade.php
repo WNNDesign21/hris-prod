@@ -21,7 +21,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                            @if (auth()->user()->hasRole('personalia'))
+                            @if (auth()->user()->hasAnyRole(['personalia', 'personalia-lembur']))
                                 <div class="form-group">
                                     <label for="filterDepartemenMonthly">DEPARTEMEN</label>
                                     <select name="filterDepartemenMonthly" id="filterDepartemenMonthly"

@@ -11,7 +11,7 @@
                 <div class="form-group">
                     <div class="row">
                         <div class="col-12">
-                            @if (auth()->user()->hasRole('personalia'))
+                            @if (auth()->user()->hasAnyRole(['personalia', 'personalia-lembur']))
                                 <div class="form-group">
                                     <label for="filterDepartemenCurrent">DEPARTEMEN</label>
                                     <select name="filterDepartemenCurrent" id="filterDepartemenCurrent"
