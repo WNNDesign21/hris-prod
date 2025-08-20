@@ -3524,9 +3524,9 @@ class LembureController extends Controller
                 DB::rollBack();
                 return response()->json(['message' => 'Pengajuan Lembur (Plan) belum di-Legalized oleh HR & GA.'], 403);
             }
-            if (!$lembur->attachmentLembur()->exists()) {
-                DB::rollBack();
-                return response()->json(['message' => 'LKH belum diupload. Harap upload LKH terlebih dahulu.'], 403);
+            if (empty($lembur->attachmentLembur)) {
+                \Log::warning('Lembur done tanpa LKH', ['id_lembur' => $lembur->id_lembur]);
+                // tidak return, tetap lanjut proses
             }
 
             // Cek keberadaan Dept.Head pada departemen pembuat
@@ -3803,11 +3803,10 @@ class LembureController extends Controller
                 DB::rollBack();
                 return response()->json(['message' => 'Actual belum lengkap (Checked/Approved/Reviewed).'], 409);
             }
-            if (!$lembur->attachmentLembur()->exists()) {
-                DB::rollBack();
-                return response()->json(['message' => 'LKH belum diupload. Harap unggah LKH terlebih dahulu.'], 409);
+            if (empty($lembur->attachmentLembur)) {
+                \Log::warning('Lembur done tanpa LKH', ['id_lembur' => $lembur->id_lembur]);
+                // tidak return, tetap lanjut proses
             }
-
             // Jika user tidak mengirim daftar, gunakan semua ACTUAL yang sudah Y
             if (empty($approvedDetailIds)) {
                 $approvedDetailIds = $lembur->detailLembur
@@ -4216,11 +4215,11 @@ class LembureController extends Controller
                 DB::rollBack();
                 return response()->json(['message' => 'Minimal ada 1 orang yang di-Approved untuk aktual!'], 403);
             }
-            // Wajib LKH sudah diupload
             if (empty($lembur->attachmentLembur)) {
-                DB::rollBack();
-                return response()->json(['message' => 'LKH belum diupload. Silakan upload via menu LKH terlebih dahulu.'], 403);
+                \Log::warning('Lembur done tanpa LKH', ['id_lembur' => $lembur->id_lembur]);
+                // tidak return, tetap lanjut proses
             }
+
             // Rencana harus sudah dilegalisir
             if (is_null($lembur->plan_legalized_by)) {
                 DB::rollBack();
