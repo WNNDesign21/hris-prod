@@ -62,10 +62,10 @@ class UploadKaryawanJob implements ShouldQueue
             foreach ($this->data as $data) {
                 $row++;
                 if (
-                    $data[0] == null || $data[1] == null || $data[3] == null || $data[4] == null || $data[9] == null || $data[10] == null ||
-                    $data[12] == null || $data[13] == null || $data[17] == null || $data[18] == null || $data[24] == null || $data[25] == null ||
-                     $data[26] == null || $data[27] == null || $data[28] == null || $data[29] == null || $data[31] == null || $data[32] == null ||
-                      $data[33] == null || $data[34] == null || $data[35] == null
+                    $data[0] === null || $data[1] === null || $data[3] === null || $data[4] === null || $data[9] === null || $data[10] === null ||
+                    $data[12] === null || $data[13] === null || $data[17] === null || $data[18] === null || $data[24] === null || $data[25] === null ||
+                     $data[26] === null || $data[27] === null || $data[28] === null || $data[29] === null || $data[31] === null || $data[32] === null ||
+                      $data[33] === null || $data[34] === null || $data[35] === null
                 ) {
                     $failedData[] = [
                         'row' => $row,

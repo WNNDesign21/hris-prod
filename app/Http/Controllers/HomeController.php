@@ -12,6 +12,8 @@ use App\Models\KSK\KSK;
 use App\Models\Lembure;
 use App\Models\Karyawan;
 use App\Helpers\Approval;
+use App\Models\Posisi;
+use App\Models\Divisi;
 use App\Models\ApprovalCuti;
 use App\Models\DetailLembur;
 use Illuminate\Http\Request;
@@ -26,6 +28,7 @@ use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
+
 
 class HomeController extends Controller
 {
