@@ -24,7 +24,7 @@
                         <div class="btn-group">
                             <button type="button" class="btn btn-info waves-effect btnReload"><i
                                     class="fas fa-sync-alt"></i></button>
-                            @if (auth()->user()->hasAnyRole(['personalia', 'personalia-lembur']))
+                            @if (auth()->user()->hasAnyRole(['personalia', 'personalia-lembur', 'super-personalia']))
                                 <button type="button" class="btn btn-warning waves-effect btnFilter"><i
                                         class="fas fa-filter"></i></button>
                             @endif

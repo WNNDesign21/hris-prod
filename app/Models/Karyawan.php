@@ -198,106 +198,106 @@ class Karyawan extends Model
             $data->where('karyawans.organisasi_id', $organisasi_id);
         }
 
-        if(isset($dataFilter['departemen'])) {
+        if (isset($dataFilter['departemen'])) {
             $data->where('departemens.id_departemen', $dataFilter['departemen']);
         }
 
-        if(isset($dataFilter['departemens'])) {
+        if (isset($dataFilter['departemens'])) {
             $data->whereIn('departemens.id_departemen', $dataFilter['departemens']);
         }
 
-        if(isset($dataFilter['grup'])) {
+        if (isset($dataFilter['grup'])) {
             $data->where('grups.id_grup', $dataFilter['grup']);
         }
 
-        if(isset($dataFilter['jenisKontrak'])) {
+        if (isset($dataFilter['jenisKontrak'])) {
             $data->where('karyawans.jenis_kontrak', $dataFilter['jenisKontrak']);
         }
 
-        if(isset($dataFilter['statusKaryawan'])) {
+        if (isset($dataFilter['statusKaryawan'])) {
             $data->where('karyawans.status_karyawan', $dataFilter['statusKaryawan']);
         }
 
-        if(isset($dataFilter['jenisKelamin'])) {
+        if (isset($dataFilter['jenisKelamin'])) {
             $data->where('karyawans.jenis_kelamin', $dataFilter['jenisKelamin']);
         }
 
-        if(isset($dataFilter['agama'])) {
+        if (isset($dataFilter['agama'])) {
             $data->where('karyawans.agama', $dataFilter['agama']);
         }
 
-        if(isset($dataFilter['golonganDarah'])) {
+        if (isset($dataFilter['golonganDarah'])) {
             $data->where('karyawans.gol_darah', $dataFilter['golonganDarah']);
         }
 
-        if(isset($dataFilter['statusKeluarga'])) {
+        if (isset($dataFilter['statusKeluarga'])) {
             $data->where('karyawans.status_keluarga', $dataFilter['statusKeluarga']);
         }
 
-        if(isset($dataFilter['kategoriKeluarga'])) {
+        if (isset($dataFilter['kategoriKeluarga'])) {
             $data->where('karyawans.kategori_keluarga', $dataFilter['kategoriKeluarga']);
         }
 
-        if(isset($dataFilter['namaBank'])) {
+        if (isset($dataFilter['namaBank'])) {
             $data->where('karyawans.nama_bank', $dataFilter['namaBank']);
         }
 
-        if(isset($dataFilter['nama'])) {
-            $data->where('karyawans.nama', 'ILIKE', '%'.$dataFilter['nama'].'%');
+        if (isset($dataFilter['nama'])) {
+            $data->where('karyawans.nama', 'ILIKE', '%' . $dataFilter['nama'] . '%');
         }
 
-        if(isset($dataFilter['nik'])) {
+        if (isset($dataFilter['nik'])) {
             $data->where('karyawans.ni_karyawan', $dataFilter['nik']);
         }
 
         $data->leftJoin('users', 'karyawans.user_id', 'users.id')
-        ->leftJoin('grups', 'karyawans.grup_id', 'grups.id_grup')
-        ->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
-        ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
-        ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
-        ->groupBy(
-            'karyawans.id_karyawan',
-            'karyawans.ni_karyawan',
-            'karyawans.nama',
-            'karyawans.email',
-            'karyawans.no_telp',
-            'karyawans.jenis_kontrak',
-            'karyawans.status_karyawan',
-            'grups.nama',
-            'users.username',
-            'karyawans.tanggal_mulai',
-            'karyawans.tanggal_selesai',
-            'karyawans.grup_id',
-            'karyawans.user_id',
-            'karyawans.ni_karyawan',
-            'karyawans.tanggal_lahir',
-            'karyawans.alamat',
-            'karyawans.domisili',
-            'karyawans.no_kk',
-            'karyawans.nik',
-            'karyawans.tempat_lahir',
-            'karyawans.agama',
-            'karyawans.gol_darah',
-            'karyawans.jenis_kelamin',
-            'karyawans.status_keluarga',
-            'karyawans.kategori_keluarga',
-            'karyawans.npwp',
-            'karyawans.no_bpjs_ks',
-            'karyawans.no_bpjs_kt',
-            'karyawans.sisa_cuti_pribadi',
-            'karyawans.sisa_cuti_bersama',
-            'karyawans.sisa_cuti_tahun_lalu',
-            'karyawans.expired_date_cuti_tahun_lalu',
-            'karyawans.hutang_cuti',
-            'karyawans.no_rekening',
-            'karyawans.nama_rekening',
-            'karyawans.nama_bank',
-            'karyawans.nama_ibu_kandung',
-            'karyawans.jenjang_pendidikan',
-            'karyawans.jurusan_pendidikan',
-            'karyawans.no_telp_darurat',
-            'departemens.nama'
-        );
+            ->leftJoin('grups', 'karyawans.grup_id', 'grups.id_grup')
+            ->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
+            ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+            ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
+            ->groupBy(
+                'karyawans.id_karyawan',
+                'karyawans.ni_karyawan',
+                'karyawans.nama',
+                'karyawans.email',
+                'karyawans.no_telp',
+                'karyawans.jenis_kontrak',
+                'karyawans.status_karyawan',
+                'grups.nama',
+                'users.username',
+                'karyawans.tanggal_mulai',
+                'karyawans.tanggal_selesai',
+                'karyawans.grup_id',
+                'karyawans.user_id',
+                'karyawans.ni_karyawan',
+                'karyawans.tanggal_lahir',
+                'karyawans.alamat',
+                'karyawans.domisili',
+                'karyawans.no_kk',
+                'karyawans.nik',
+                'karyawans.tempat_lahir',
+                'karyawans.agama',
+                'karyawans.gol_darah',
+                'karyawans.jenis_kelamin',
+                'karyawans.status_keluarga',
+                'karyawans.kategori_keluarga',
+                'karyawans.npwp',
+                'karyawans.no_bpjs_ks',
+                'karyawans.no_bpjs_kt',
+                'karyawans.sisa_cuti_pribadi',
+                'karyawans.sisa_cuti_bersama',
+                'karyawans.sisa_cuti_tahun_lalu',
+                'karyawans.expired_date_cuti_tahun_lalu',
+                'karyawans.hutang_cuti',
+                'karyawans.no_rekening',
+                'karyawans.nama_rekening',
+                'karyawans.nama_bank',
+                'karyawans.nama_ibu_kandung',
+                'karyawans.jenjang_pendidikan',
+                'karyawans.jurusan_pendidikan',
+                'karyawans.no_telp_darurat',
+                'departemens.nama'
+            );
 
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
@@ -382,22 +382,22 @@ class Karyawan extends Model
         );
 
         $data->leftJoin('grups', 'karyawans.grup_id', 'grups.id_grup')
-        ->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
-        ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
-        ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
-        ->leftJoin('grup_patterns', 'karyawans.grup_pattern_id', 'grup_patterns.id_grup_pattern')
-        ->leftJoin('divisis', 'departemens.divisi_id', 'divisis.id_divisi');
+            ->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
+            ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+            ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
+            ->leftJoin('grup_patterns', 'karyawans.grup_pattern_id', 'grup_patterns.id_grup_pattern')
+            ->leftJoin('divisis', 'departemens.divisi_id', 'divisis.id_divisi');
 
         $organisasi_id = auth()->user()->organisasi_id;
         if ($organisasi_id) {
             $data->where('karyawans.organisasi_id', $organisasi_id);
         }
 
-        if(isset($dataFilter['departemen'])) {
+        if (isset($dataFilter['departemen'])) {
             $data->where('departemens.id_departemen', $dataFilter['departemen']);
         }
 
-        if(isset($dataFilter['grup'])) {
+        if (isset($dataFilter['grup'])) {
             $data->where('grups.id_grup', $dataFilter['grup']);
         }
 
@@ -460,20 +460,20 @@ class Karyawan extends Model
                         ) THEN 'Y'
                         ELSE NULL
                     END) as is_released"),
-                    'karyawans.tanggal_selesai'
+            'karyawans.tanggal_selesai'
         )
-        ->joinSub($subQuery, 'distinct_karyawan_posisi', function ($join) {
-            $join->on('karyawans.id_karyawan', 'distinct_karyawan_posisi.karyawan_id');
-        })
-        ->leftJoin('posisis', 'distinct_karyawan_posisi.posisi_id', 'posisis.id_posisi')
-        ->leftJoin('jabatans', 'posisis.jabatan_id', 'jabatans.id_jabatan')
-        ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
-        ->leftJoin('divisis', 'posisis.divisi_id', 'divisis.id_divisi')
+            ->joinSub($subQuery, 'distinct_karyawan_posisi', function ($join) {
+                $join->on('karyawans.id_karyawan', 'distinct_karyawan_posisi.karyawan_id');
+            })
+            ->leftJoin('posisis', 'distinct_karyawan_posisi.posisi_id', 'posisis.id_posisi')
+            ->leftJoin('jabatans', 'posisis.jabatan_id', 'jabatans.id_jabatan')
+            ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
+            ->leftJoin('divisis', 'posisis.divisi_id', 'divisis.id_divisi')
 
-        ->whereMonth('tanggal_selesai', now()->addMonth()->month)
-        ->where('karyawans.status_karyawan', 'AT')
-        ->where('karyawans.organisasi_id', auth()->user()->organisasi_id)
-        ->where('posisis.parent_id', '!=', 0);
+            ->whereMonth('tanggal_selesai', now()->addMonth()->month)
+            ->where('karyawans.status_karyawan', 'AT')
+            ->where('karyawans.organisasi_id', auth()->user()->organisasi_id)
+            ->where('posisis.parent_id', '!=', 0);
 
         if (isset($dataFilter['search'])) {
             $search = $dataFilter['search'];
@@ -547,17 +547,17 @@ class Karyawan extends Model
             DB::raw('(SELECT COUNT(*) FROM sakits WHERE sakits.karyawan_id = karyawans.id_karyawan AND sakits.tanggal_selesai BETWEEN kontraks.tanggal_mulai AND kontraks.tanggal_selesai) as total_sakit'),
             DB::raw('(SELECT COUNT(*) FROM izins WHERE izins.karyawan_id = karyawans.id_karyawan AND izins.jenis_izin = \'TM\' AND DATE(izins.rencana_selesai_or_keluar) BETWEEN kontraks.tanggal_mulai AND kontraks.tanggal_selesai) as total_izin'),
         )
-        ->joinSub($subQuery, 'distinct_karyawan_posisi', function ($join) {
-            $join->on('karyawans.id_karyawan', 'distinct_karyawan_posisi.karyawan_id');
-        })
-        ->leftJoin('posisis', 'distinct_karyawan_posisi.posisi_id', 'posisis.id_posisi')
-        ->leftJoin('jabatans', 'posisis.jabatan_id', 'jabatans.id_jabatan')
-        ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
-        ->leftJoin('divisis', 'departemens.divisi_id', 'divisis.id_divisi')
-        ->leftJoin('kontraks', function ($join) {
-            $join->on('karyawans.id_karyawan', '=', 'kontraks.karyawan_id')
-                ->whereRaw('kontraks.tanggal_selesai = (select max(tanggal_selesai) from kontraks where kontraks.karyawan_id = karyawans.id_karyawan)');
-        });
+            ->joinSub($subQuery, 'distinct_karyawan_posisi', function ($join) {
+                $join->on('karyawans.id_karyawan', 'distinct_karyawan_posisi.karyawan_id');
+            })
+            ->leftJoin('posisis', 'distinct_karyawan_posisi.posisi_id', 'posisis.id_posisi')
+            ->leftJoin('jabatans', 'posisis.jabatan_id', 'jabatans.id_jabatan')
+            ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
+            ->leftJoin('divisis', 'departemens.divisi_id', 'divisis.id_divisi')
+            ->leftJoin('kontraks', function ($join) {
+                $join->on('karyawans.id_karyawan', '=', 'kontraks.karyawan_id')
+                    ->whereRaw('kontraks.tanggal_selesai = (select max(tanggal_selesai) from kontraks where kontraks.karyawan_id = karyawans.id_karyawan)');
+            });
 
         $data->where('karyawans.status_karyawan', 'AT')
             ->where('karyawans.organisasi_id', auth()->user()->organisasi_id)

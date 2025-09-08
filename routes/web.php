@@ -240,7 +240,7 @@ Route::group(['middleware' => ['auth']], function () {
 });
 
 
-Route::group(['middleware' => ['auth', 'notifikasi', 'role:atasan|member|personalia|security|personalia-lembur']], function () {
+Route::group(['middleware' => ['auth', 'notifikasi', 'role:atasan|member|personalia|security']], function () {
     // MENU UTAMA
     //HOME CONTROLLER
     Route::get('/home', [HomeController::class, 'index'])->name('root')->middleware(['lembure', 'izine', 'tugasluare', 'ksk']);
@@ -423,10 +423,10 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'role:atasan|member|persona
     Route::group(['prefix' => 'lembure', 'middleware' => ['lembure']], function () {
 
         // DASHBOARD
-        Route::get('/dashboard', [LembureController::class, 'index'])->name('lembure.dashboard')->middleware('role:personalia|atasan|personalia-lembur');
+        Route::get('/dashboard', [LembureController::class, 'index'])->name('lembure.dashboard')->middleware('role:personalia|atasan|personalia-lembur|super-personalia');
 
         // LEADERBOARD LEMBUR
-        Route::group(['middleware' => ['role:atasan|personalia|personalia-lembur']], function () {
+        Route::group(['middleware' => ['role:atasan|personalia|personalia-lembur|super-personalia']], function () {
             Route::get('/detail-lembur', [LembureController::class, 'detail_lembur_view'])->name('lembure.detail-lembur');
             Route::post('/detail-lembur-datatable', [LembureController::class, 'detail_lembur_datatable']);
             Route::post('/detail-lembur/get-leaderboard-user-monthly', [LembureController::class, 'get_leaderboard_user_monthly']);
@@ -465,7 +465,7 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'role:atasan|member|persona
             Route::patch('/review-lembur/rejected/{idDetailLembur}', [LembureController::class, 'review_lembur_rejected'])->name('lembure.review-lembur.rejected');
         });
 
-        Route::group(['middleware' => ['role:personalia|personalia-lembur']], function () {
+        Route::group(['middleware' => ['role:personalia|super-personalia']], function () {
             // Setting Upah Lembur
             Route::get('/setting-upah-lembur', [LembureController::class, 'setting_upah_lembur_view'])->name('lembure.setting-upah-lembur');
             Route::post('/setting-upah-lembur-datatable', [LembureController::class, 'setting_upah_lembur_datatable']);

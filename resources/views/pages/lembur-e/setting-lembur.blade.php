@@ -84,6 +84,17 @@
                             </div>
                         </div>
 
+                        {{-- PAJAK PPH --}}
+                        <div class="row">
+                            <div class="col-lg-3 col-12 p-4">
+                                <h4>Pajak PPH (%) <span class="text-danger">*</span></h4>
+                                <input type="number" min="0" max="100" step="0.01"
+                                    class="form-control" name="pajak_pph" id="pajak_pph"
+                                    value="{{ $setting_lembur['pajak_pph'] }}">
+                                <small class="text-muted">Isi dengan persentase, misal 11 untuk 11%</small>
+                            </div>
+                        </div>
+
                         {{-- JAM ISTIRAHAT --}}
                         <div class="row">
                             <div class="col-lg-6 col-12 p-4">

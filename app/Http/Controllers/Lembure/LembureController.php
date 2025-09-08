@@ -41,7 +41,7 @@ class LembureController extends Controller
      */
     public function index()
     {
-        if (auth()->user()->hasAnyRole(['personalia', 'personalia-lembur']) || (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->organisasi_id !== null)) {
+        if (auth()->user()->hasAnyRole(['personalia', 'personalia-lembur', 'super-personalia']) || (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->organisasi_id !== null)) {
             $departemens = Departemen::all();
         } else {
             $posisis = auth()->user()->karyawan->posisi;
@@ -81,7 +81,7 @@ class LembureController extends Controller
             return redirect()->route('lembure.pengajuan-lembur');
         }
 
-        if (auth()->user()->hasAnyRole(['personalia', 'personalia-lembur']) || (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->organisasi_id !== null)) {
+        if (auth()->user()->hasAnyRole(['personalia', 'personalia-lembur', 'super-personalia']) || (auth()->user()->karyawan->posisi[0]->jabatan_id == 2 && auth()->user()->karyawan->posisi[0]->organisasi_id !== null)) {
             $departemens = Departemen::all();
         } else {
             $posisis = auth()->user()->karyawan->posisi;
@@ -434,7 +434,7 @@ class LembureController extends Controller
         $is_can_approved = false;
         $is_has_department_head = false;
 
-        if (auth()->user()->hasAnyRole(['personalia', 'personalia-lembur'])) {
+        if (auth()->user()->hasAnyRole(['personalia', 'personalia-lembur',])) {
             $dataFilter['organisasi_id'] = $organisasi_id;
             $is_can_legalized = true;
         } elseif (auth()->user()->karyawan->posisi[0]->jabatan_id == 4 || auth()->user()->karyawan->posisi[0]->jabatan_id == 3) {
@@ -2112,6 +2112,15 @@ class LembureController extends Controller
             }
         }
 
+        \Log::info('DEBUG LEMBUR', [
+            'gaji' => $gaji_lembur_karyawan,
+            'pembagi' => $setting_lembur->where('setting_name', 'pembagi_upah_lembur_harian')->first()->value,
+            'upah_sejam' => $upah_sejam,
+            'durasi' => $durasi,
+            'convert_duration' => $convert_duration,
+            'nominal_lembur' => $nominal_lembur,
+        ]);
+
         return intval($nominal_lembur);
 
     }
@@ -2393,6 +2402,7 @@ class LembureController extends Controller
             'jam_istirahat_selesai_3' => ['required', 'date_format:H:i', 'after:jam_istirahat_mulai_3'],
             'jam_istirahat_mulai_jumat' => ['required', 'date_format:H:i'],
             'jam_istirahat_selesai_jumat' => ['required', 'date_format:H:i', 'after:jam_istirahat_mulai_jumat'],
+            'pajak_pph' => ['required', 'numeric', 'min:0', 'max:100'],
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -2422,6 +2432,8 @@ class LembureController extends Controller
         $jam_istirahat_selesai_jumat = $request->jam_istirahat_selesai_jumat;
         $onoff_batas_approval_lembur = 'N';
         $onoff_batas_pengajuan_lembur = 'N';
+        $pajak_pph = $request->pajak_pph;
+
 
         if (isset($request->onoff_batas_approval_lembur)) {
             $onoff_batas_approval_lembur = 'Y';
@@ -2465,6 +2477,7 @@ class LembureController extends Controller
                     'durasi_istirahat_jumat' => $durasi_istirahat_jumat,
                     'onoff_batas_approval_lembur' => $onoff_batas_approval_lembur,
                     'onoff_batas_pengajuan_lembur' => $onoff_batas_pengajuan_lembur,
+                    'pajak_pph' => $pajak_pph,
                 ];
 
                 foreach ($settings as $key => $value) {
@@ -2904,7 +2917,7 @@ class LembureController extends Controller
                     if (auth()->user()->karyawan->posisi[0]->jabatan_id <= 3) {
                         $is_can_see_nominal = true;
                     }
-                } elseif (auth()->user()->hasAnyRole(['personalia', 'personalia-lembur'])) {
+                } elseif (auth()->user()->hasAnyRole(['personalia', 'personalia-lembur', 'super-personalia'])) {
                     $is_can_see_nominal = true;
                 }
 
@@ -4613,6 +4626,65 @@ class LembureController extends Controller
         ];
 
         $rekapLembur = DetailLembur::getReportMonthlyPerDepartemen($month, $year);
+
+        // Simpan/update data ke tabel rekap_lembur (per karyawan) dan hitung PPH
+        $pph_persen_setting = \DB::table('setting_lemburs')
+            ->where('organisasi_id', $organisasi_id)
+            ->where('setting_name', 'pajak_pph')
+            ->value('value');
+        $pph_persen = $pph_persen_setting ? floatval($pph_persen_setting) : 0;
+
+        $rekap_per_karyawan = [];
+        if ($rekapLembur) {
+            foreach ($rekapLembur as $data) {
+                $karyawan_id = (string) ($data->karyawan_id ?? '');
+                if ($data->jabatan_id >= 5 && !empty($karyawan_id)) {
+                    $total_gaji = (int) $data->total_gaji_lembur;
+                    $total_pph = round($total_gaji * $pph_persen / 100);
+                    $total_diterima = $total_gaji - $total_pph;
+                    // Simpan ke array untuk summary
+                    $rekap_per_karyawan[] = [
+                        'departemen' => $data->departemen,
+                        'pph_persen' => $pph_persen,
+                        'total_pph' => $total_pph,
+                        'total_diterima' => $total_diterima,
+                        'total_gaji_lembur' => $total_gaji,
+                        'karyawan_id' => $karyawan_id,
+                        'nama' => $data->nama,
+                        'posisi' => $data->posisi,
+                        'gaji' => $data->gaji,
+                        'upah_lembur_per_jam' => $data->upah_lembur_per_jam,
+                        'total_jam_lembur' => $data->total_jam_lembur,
+                        'konversi_jam_lembur' => $data->konversi_jam_lembur,
+                        'gaji_lembur' => $data->gaji_lembur,
+                        'uang_makan' => $data->uang_makan,
+                    ];
+                    // Simpan ke DB, pastikan tipe data sesuai
+                    \DB::table('rekap_lembur')->updateOrInsert([
+                        'karyawan_id' => $karyawan_id,
+                        'periode' => $year . '-' . $month,
+                    ], [
+                        'organisasi_id' => (string) $organisasi_id,
+                        'departemen' => $data->departemen,
+                        'jabatan' => $data->posisi,
+                        'gaji_pokok' => (int) $data->gaji,
+                        'upah_lembur_per_jam' => (int) round($data->upah_lembur_per_jam),
+                        'total_jam_lembur' => (float) $data->total_jam_lembur,
+                        'konversi_jam_lembur' => (float) $data->konversi_jam_lembur,
+                        'gaji_lembur' => (int) $data->gaji_lembur,
+                        'uang_makan' => (int) $data->uang_makan,
+                        'total_gaji_lembur' => $total_gaji,
+                        'pph_persen' => $pph_persen,
+                        'total_pph' => $total_pph,
+                        'total_diterima' => $total_diterima,
+                        'is_locked' => true,
+                        'periode' => $year . '-' . $month,
+                        'updated_at' => now(),
+                        'created_at' => now(),
+                    ]);
+                }
+            }
+        }
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('REKAP LEMBUR');
         $row = 1;
@@ -4629,7 +4701,10 @@ class LembureController extends Controller
             'KONVERSI JAM LEMBUR',
             'GAJI LEMBUR',
             'UANG MAKAN',
-            'TOTAL GAJI LEMBUR'
+            'TOTAL GAJI LEMBUR',
+            'PPH (%)',
+            'TOTAL PPH',
+            'TOTAL DITERIMA',
         ];
 
         foreach ($headers as $header) {
@@ -4641,11 +4716,14 @@ class LembureController extends Controller
 
         $row = 3;
 
-        $columns = range('A', 'N');
+        $columns = range('A', 'O');
         foreach ($columns as $column) {
             $sheet->getColumnDimension($column)->setAutoSize(true);
         }
-        $sheet->setAutoFilter('A1:L1');
+        $sheet->setAutoFilter('A1:O2');
+
+        // Wrap text untuk kolom nama agar tidak terpotong
+        $sheet->getStyle('B')->getAlignment()->setWrapText(true);
 
         $no = 1;
         $is_first = true;
@@ -4658,6 +4736,8 @@ class LembureController extends Controller
         $konversi_jam_lembur = 0;
         $uang_makan = 0;
         $gaji_lembur = 0;
+        $total_pph_dept = 0;
+        $total_diterima_dept = 0;
         if ($rekapLembur) {
             foreach ($rekapLembur as $index => $data) {
                 if ($is_first) {
@@ -4682,6 +4762,9 @@ class LembureController extends Controller
                     $departemen_first_data_row = $row + 1;
                     $is_first = false;
                     $row++;
+                    // Reset total per departemen
+                    $total_pph_dept = 0;
+                    $total_diterima_dept = 0;
                 }
 
                 $sheet->setCellValue('A' . $row, $no);
@@ -4696,18 +4779,32 @@ class LembureController extends Controller
                 $sheet->setCellValue('J' . $row, $data->jabatan_id >= 5 ? $data->gaji_lembur : '-');
                 $sheet->setCellValue('K' . $row, $data->jabatan_id >= 5 ? $data->uang_makan : '-');
                 $sheet->setCellValue('L' . $row, $data->total_gaji_lembur);
+                // Tambahan kolom PPH dan diterima
+                if ($data->jabatan_id >= 5) {
+                    $pph_val = round($data->total_gaji_lembur * $pph_persen / 100);
+                    $diterima_val = $data->total_gaji_lembur - $pph_val;
+                    $sheet->setCellValue('M' . $row, $pph_persen);
+                    $sheet->setCellValue('N' . $row, $pph_val);
+                    $sheet->setCellValue('O' . $row, $diterima_val);
+                    $total_pph_dept += $pph_val;
+                    $total_diterima_dept += $diterima_val;
+                } else {
+                    $sheet->setCellValue('M' . $row, '-');
+                    $sheet->setCellValue('N' . $row, '-');
+                    $sheet->setCellValue('O' . $row, '-');
+                }
 
+                $sheet->getStyle('F' . $row)->getNumberFormat()->setFormatCode('#,##0');
+                $sheet->getStyle('L' . $row)->getNumberFormat()->setFormatCode('#,##0');
+                $sheet->getStyle('N' . $row)->getNumberFormat()->setFormatCode('#,##0');
+                $sheet->getStyle('O' . $row)->getNumberFormat()->setFormatCode('#,##0');
                 if ($data->jabatan_id >= 5) {
                     $sheet->getStyle('G' . $row)->getNumberFormat()->setFormatCode('#,##0');
                     $sheet->getStyle('J' . $row)->getNumberFormat()->setFormatCode('#,##0');
                     $sheet->getStyle('K' . $row)->getNumberFormat()->setFormatCode('#,##0');
                 }
-
-                $sheet->getStyle('F' . $row)->getNumberFormat()->setFormatCode('#,##0');
-                $sheet->getStyle('L' . $row)->getNumberFormat()->setFormatCode('#,##0');
-
                 //ALIGN CENTER
-                $sheet->getStyle('A' . $row . ':L' . $row)->applyFromArray([
+                $sheet->getStyle('A' . $row . ':O' . $row)->applyFromArray([
                     'alignment' => [
                         'horizontal' => Alignment::HORIZONTAL_CENTER,
                         'vertical' => Alignment::VERTICAL_CENTER,
@@ -4718,11 +4815,9 @@ class LembureController extends Controller
                 $konversi_jam_lembur += $data->konversi_jam_lembur;
                 $uang_makan += $data->uang_makan;
                 $data->jabatan_id >= 5 ? $gaji_lembur += $data->gaji_lembur : $gaji_lembur += 0;
-
                 if (!in_array($data->nama, $man_powers)) {
                     $man_powers[] = $data->nama;
                 }
-
                 $no++;
                 $row++;
 
@@ -4752,7 +4847,7 @@ class LembureController extends Controller
                     $sheet->setCellValue('E' . $row, '-');
                     $sheet->setCellValue('F' . $row, '-');
                     $sheet->setCellValue('G' . $row, '-');
-                    $sheet->getStyle('A' . $row . ':N' . $row)->applyFromArray([
+                    $sheet->getStyle('A' . $row . ':O' . $row)->applyFromArray([
                         'fill' => [
                             'fillType' => Fill::FILL_SOLID,
                             'startColor' => [
@@ -4773,10 +4868,13 @@ class LembureController extends Controller
                     $sheet->setCellValue('J' . $row, '=SUM(J' . $departemen_first_data_row . ':J' . ($row - 1) . ')');
                     $sheet->setCellValue('K' . $row, '=SUM(K' . $departemen_first_data_row . ':K' . ($row - 1) . ')');
                     $sheet->setCellValue('L' . $row, '=SUM(L' . $departemen_first_data_row . ':L' . ($row - 1) . ')');
-
+                    $sheet->setCellValue('N' . $row, $total_pph_dept);
+                    $sheet->setCellValue('O' . $row, $total_diterima_dept);
                     $sheet->getStyle('J' . $row)->getNumberFormat()->setFormatCode('#,##0');
                     $sheet->getStyle('K' . $row)->getNumberFormat()->setFormatCode('#,##0');
                     $sheet->getStyle('L' . $row)->getNumberFormat()->setFormatCode('#,##0');
+                    $sheet->getStyle('N' . $row)->getNumberFormat()->setFormatCode('#,##0');
+                    $sheet->getStyle('O' . $row)->getNumberFormat()->setFormatCode('#,##0');
                     $is_last = false;
                     $gaji_departemen = 0;
                     $jam_lembur = 0;
@@ -4784,7 +4882,8 @@ class LembureController extends Controller
                     $uang_makan = 0;
                     $gaji_lembur = 0;
                     $man_powers = [];
-
+                    $total_pph_dept = 0;
+                    $total_diterima_dept = 0;
                     if (isset($rekapLembur[$index + 1])) {
                         $no = 1;
                         $row++;
@@ -4807,7 +4906,10 @@ class LembureController extends Controller
             'KONVERSI JAM LEMBUR',
             'GAJI LEMBUR',
             'UANG MAKAN',
-            'TOTAL GAJI LEMBUR'
+            'TOTAL GAJI LEMBUR',
+            'PPH (%)',
+            'TOTAL PPH',
+            'TOTAL DITERIMA',
         ];
 
         foreach ($headers as $header) {
@@ -4846,6 +4948,15 @@ class LembureController extends Controller
         $total_man_power = 0;
         if (!empty($departemens_data)) {
             foreach ($departemens_data as $index => $data) {
+                // Hitung summary PPH dan diterima per departemen
+                $dept = $data['nama_departemen'];
+                $dept_karyawans = array_filter($rekap_per_karyawan, function ($r) use ($dept) {
+                    return $r['departemen'] === $dept;
+                });
+                $total_pph_dept = array_sum(array_column($dept_karyawans, 'total_pph'));
+                $total_diterima_dept = array_sum(array_column($dept_karyawans, 'total_diterima'));
+                $pph_persen_dept = $pph_persen; // asumsikan sama untuk semua
+
                 $summarySheet->setCellValue('A' . $rowSummary, $index + 1);
                 $summarySheet->setCellValue('B' . $rowSummary, $data['nama_departemen']);
                 $summarySheet->setCellValue('C' . $rowSummary, $data['total_man_power']);
@@ -4855,16 +4966,36 @@ class LembureController extends Controller
                 $summarySheet->setCellValue('G' . $rowSummary, $data['total_gaji_lembur']);
                 $summarySheet->setCellValue('H' . $rowSummary, $data['total_uang_makan']);
                 $summarySheet->setCellValue('I' . $rowSummary, $data['total_gaji_departemen']);
-                $total_gaji_departemen += $data['total_gaji_departemen'];
-                $total_gaji_lembur += $data['total_gaji_lembur'];
-                $total_jam_lembur += $data['total_jam_lembur'];
-                $total_konversi_jam_lembur += $data['total_konversi_jam_lembur'];
-                $total_uang_makan += $data['total_uang_makan'];
-                $total_man_power += $data['total_man_power'];
+                $summarySheet->setCellValue('J' . $rowSummary, $pph_persen_dept);
+                $summarySheet->setCellValue('K' . $rowSummary, $total_pph_dept);
+                $summarySheet->setCellValue('L' . $rowSummary, $total_diterima_dept);
+
+                // Simpan/update ke rekap_lembur_summary (per departemen)
+                \DB::table('rekap_lembur_summary')->updateOrInsert([
+                    'organisasi_id' => (string) $organisasi_id,
+                    'departemen' => $data['nama_departemen'],
+                    'periode' => $year . '-' . $month,
+                ], [
+                    'jumlah_karyawan' => $data['total_man_power'],
+                    'total_jam_lembur' => $data['total_jam_lembur'],
+                    'konversi_jam_lembur' => $data['total_konversi_jam_lembur'],
+                    'gaji_lembur' => $data['total_gaji_lembur'],
+                    'uang_makan' => $data['total_uang_makan'],
+                    'total_gaji_lembur' => $data['total_gaji_departemen'],
+                    'pph_persen' => $pph_persen_dept,
+                    'total_pph' => $total_pph_dept,
+                    'total_gaji_lembur_diterima' => $total_diterima_dept,
+                    'is_locked' => true,
+                    'periode' => $year . '-' . $month,
+                    'updated_at' => now(),
+                    'created_at' => now(),
+                ]);
 
                 $summarySheet->getStyle('G' . $rowSummary)->getNumberFormat()->setFormatCode('#,##0');
                 $summarySheet->getStyle('H' . $rowSummary)->getNumberFormat()->setFormatCode('#,##0');
                 $summarySheet->getStyle('I' . $rowSummary)->getNumberFormat()->setFormatCode('#,##0');
+                $summarySheet->getStyle('K' . $rowSummary)->getNumberFormat()->setFormatCode('#,##0');
+                $summarySheet->getStyle('L' . $rowSummary)->getNumberFormat()->setFormatCode('#,##0');
                 $rowSummary++;
             }
         }
@@ -4881,11 +5012,13 @@ class LembureController extends Controller
         $summarySheet->getStyle('H' . $rowSummary)->getNumberFormat()->setFormatCode('#,##0');
         $summarySheet->getStyle('I' . $rowSummary)->getNumberFormat()->setFormatCode('#,##0');
 
-        //STYLE ALL CELLS
-        $sheet->getStyle('A1:L' . $row)->applyFromArray([
+        // Hitung baris terakhir yang terisi (termasuk baris total)
+        $lastRow = $row - 1;
+        $borderEndRow = $lastRow + 2; // tambah 2 baris agar area bawah tetap terborder
+        $sheet->getStyle('A1:O' . $borderEndRow)->applyFromArray([
             'borders' => [
                 'allBorders' => [
-                    'borderStyle' => Border::BORDER_THIN,
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
                     'color' => ['argb' => 'FF000000'],
                 ],
             ],
@@ -5138,7 +5271,7 @@ class LembureController extends Controller
                 if (auth()->user()->karyawan->posisi[0]->jabatan_id <= 3) {
                     $is_can_see_nominal = true;
                 }
-            } elseif (auth()->user()->hasAnyRole(['personalia', 'personalia-lembur'])) {
+            } elseif (auth()->user()->hasAnyRole(['personalia', 'personalia-lembur', 'super-personalia'])) {
                 $is_can_see_nominal = true;
             }
 
