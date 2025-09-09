@@ -128,13 +128,23 @@ class ScanlogController extends Controller
         DB::beginTransaction();
 
         try {
+            // 0️⃣ Get Device SN from local DB
+            $device = Device::find($device_id);
+            if (!$device || !$device->device_sn) {
+                // If device or its SN is not found, rollback and return error.
+                DB::rollBack();
+                // Optionally log an error message here.
+                return false;
+            }
+            $device_sn = $device->device_sn;
+
             // 1️⃣ Bersihkan data scanlog sebelumnya
             Scanlog::where('device_id', $device_id)
                 ->whereBetween('scan_date', [$startDate, $endDate])
                 ->whereIn('verify', [0, 1, 2, 3, 4, 5, 6])
                 ->delete();
 
-            // 2️⃣ Ambil data dari SQL Server (mesin fingerprint)
+            // 2️⃣ Ambil data dari SQL Server (mesin fingerprint) using SN
             $rawData = DB::connection('sqlsrv')
                 ->table('USERINFO')
                 ->join('CHECKINOUT', 'USERINFO.USERID', '=', 'CHECKINOUT.USERID')
@@ -143,9 +153,10 @@ class ScanlogController extends Controller
                     'USERINFO.BADGENUMBER',
                     'CHECKINOUT.CHECKTIME',
                     'CHECKINOUT.VERIFYCODE',
-                    'CHECKINOUT.SENSORID',
+                    'CHECKINOUT.sn',
                     'CHECKINOUT.CHECKTYPE'
                 )
+                ->where('CHECKINOUT.sn', $device_sn) // Filter by device SN
                 ->whereBetween('CHECKINOUT.CHECKTIME', [$startDate, $endDate])
                 ->get();
 
