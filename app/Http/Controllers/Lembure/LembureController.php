@@ -5331,6 +5331,9 @@ class LembureController extends Controller
 
     public function get_list_data_cross_check(Request $request)
     {
+        $request->merge([
+            'date' => Carbon::parse($request->date)->format('Y-m-d'),
+        ]);
         $dataValidate = [
             'date' => ['required', 'date_format:Y-m-d'],
             'id_karyawan' => ['required', 'exists:karyawans,id_karyawan'],

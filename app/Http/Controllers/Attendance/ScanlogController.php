@@ -131,7 +131,7 @@ class ScanlogController extends Controller
             // 1️⃣ Bersihkan data scanlog sebelumnya
             Scanlog::where('device_id', $device_id)
                 ->whereBetween('scan_date', [$startDate, $endDate])
-                ->whereIn('verify', [1, 2, 3, 4, 6])
+                ->whereIn('verify', [0, 1, 2, 3, 4, 5, 6])
                 ->delete();
 
             // 2️⃣ Ambil data dari SQL Server (mesin fingerprint)
@@ -347,8 +347,8 @@ class ScanlogController extends Controller
         $columns = array(
             0 => 'karyawans.nama',
             1 => 'attendance_scanlogs.pin',
-            2 => 'attendance_scanlogs.scan_date',
-            3 => 'attendance_scanlogs.verify',
+            2 =>  'attendance_scanlogs.verify',// pastikan sorting by date
+            3 => DB::raw('attendance_scanlogs.scan_date'),
         );
 
         $totalData = Scanlog::count();
@@ -357,6 +357,10 @@ class ScanlogController extends Controller
         $limit = $request->input('length');
         $start = $request->input('start');
         $order = $columns[$request->input('order.0.column')];
+        // Jika order by scan_date, pastikan benar-benar order by attendance_scanlogs.scan_date (datetime)
+        if ($request->input('order.0.column') == 2) {
+            $order = DB::raw('attendance_scanlogs.scan_date');
+        }
         $dir = $request->input('order.0.dir');
 
         $settings['start'] = $start;
@@ -515,6 +519,15 @@ class ScanlogController extends Controller
                     $sheet->setAutoFilter('A1:G1');
 
                     foreach ($scanlogs as $data) {
+                        // Filter: skip if both NIK and Nama are empty/null/whitespace
+                        $nik = isset($data->ni_karyawan) ? trim($data->ni_karyawan) : '';
+                        $nama = isset($data->karyawan) ? trim($data->karyawan) : '';
+                        // Filter: skip if both NIK and Nama are NULL, empty, whitespace, or string 'NULL' (case-insensitive)
+                        $nik_invalid = (is_null($data->ni_karyawan) || $nik === '' || strtoupper($nik) === 'NULL' || preg_match('/^\s*$/', $nik));
+                        $nama_invalid = (is_null($data->karyawan) || $nama === '' || strtoupper($nama) === 'NULL' || preg_match('/^\s*$/', $nama));
+                        if ($nik_invalid && $nama_invalid) {
+                            continue;
+                        }
                         if ($data->verify == '1') {
                             $verify = 'Finger';
                         } elseif ($data->verify == '2') {
@@ -637,6 +650,15 @@ class ScanlogController extends Controller
                     $sheet->setAutoFilter('A1:D1');
 
                     foreach ($scanlogs as $data) {
+                        // Filter: skip if both NIK and Nama are empty/null/whitespace
+                        $nik = isset($data->nik) ? trim($data->nik) : '';
+                        $nama = isset($data->karyawan) ? trim($data->karyawan) : '';
+                        // Filter: skip if both NIK and Nama are NULL, empty, whitespace, or string 'NULL' (case-insensitive)
+                        $nik_invalid = (is_null($data->nik) || $nik === '' || strtoupper($nik) === 'NULL' || preg_match('/^\s*$/', $nik));
+                        $nama_invalid = (is_null($data->karyawan) || $nama === '' || strtoupper($nama) === 'NULL' || preg_match('/^\s*$/', $nama));
+                        if ($nik_invalid && $nama_invalid) {
+                            continue;
+                        }
                         $sheet->setCellValue('A' . $row, $data->nik);
                         $sheet->setCellValue('B' . $row, $data->karyawan);
                         $sheet->setCellValue('C' . $row, $data->pin);

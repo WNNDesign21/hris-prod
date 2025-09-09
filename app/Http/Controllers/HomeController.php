@@ -652,19 +652,19 @@ class HomeController extends Controller
             $departemen_ids = array_filter(array_unique($departemen_ids));
             sort($departemen_ids);
 
-            $review_lembur = DetailLembur::selectRaw('
-                detail_lemburs.organisasi_id,
-                detail_lemburs.departemen_id,
-                departemens.nama as departemen,
-                divisis.nama as divisi,
-                organisasis.nama as organisasi,
-                detail_lemburs.divisi_id,
-                CASE WHEN (lemburs.status = ' . "'WAITING'" . ' AND lemburs.plan_approved_by IS NOT NULL) THEN ' . "'PLANNING'" . ' ELSE ' . "'ACTUAL'" . ' END AS status,
-                DATE(detail_lemburs.rencana_mulai_lembur) AS tanggal_lembur,
-                SUM(detail_lemburs.nominal) as total_nominal_lembur,
-                SUM(detail_lemburs.durasi) as total_durasi_lembur,
-                COUNT(detail_lemburs.karyawan_id) as total_karyawan,
-                COUNT(DISTINCT detail_lemburs.lembur_id) as total_dokumen
+            $review_lembur = DetailLembur::selectRaw(
+                'detail_lemburs.organisasi_id',
+                'detail_lemburs.departemen_id',
+                'departemens.nama as departemen',
+                'divisis.nama as divisi',
+                'organisasis.nama as organisasi',
+                'detail_lemburs.divisi_id',
+                'CASE WHEN (lemburs.status = ' . "'WAITING'" . ' AND lemburs.plan_approved_by IS NOT NULL) THEN ' . "'PLANNING'" . ' ELSE ' . "'ACTUAL'" . ' END AS status',
+                'DATE(detail_lemburs.rencana_mulai_lembur) AS tanggal_lembur',
+                'SUM(detail_lemburs.nominal) as total_nominal_lembur',
+                'SUM(detail_lemburs.durasi) as total_durasi_lembur',
+                'COUNT(detail_lemburs.karyawan_id) as total_karyawan',
+                'COUNT(DISTINCT detail_lemburs.lembur_id) as total_dokumen
             ')
                 ->leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
                 ->leftJoin('departemens', 'departemens.id_departemen', 'detail_lemburs.departemen_id')
@@ -1032,7 +1032,7 @@ class HomeController extends Controller
         $pph_setting = \App\Models\SettingLembur::where('organisasi_id', $organisasi_id)
             ->where('setting_name', 'pajak_pph')
             ->first();
-        $pph_persen = $is_locked ? ($slip->pph_persen ?? 11) : ($pph_setting ? (int)$pph_setting->value : 11);
+        $pph_persen = $is_locked ? ($slip->pph_persen ?? 11) : ($pph_setting ? (int) $pph_setting->value : 11);
 
         // Ambil posisi karyawan menggunakan relasi
         $posisi = $karyawan->posisi()->first();
@@ -1053,6 +1053,17 @@ class HomeController extends Controller
 
         // Ambil nama departemen
         $nama_departemen = $departemen->nama;
+
+        // Gaji Karyawan untuk Lembur
+        $setting_lembur_karyawan = \App\Models\SettingLemburKaryawan::where('karyawan_id', $id_karyawan)->first();
+        $gaji = $setting_lembur_karyawan ? $setting_lembur_karyawan->gaji : 0;
+
+        $pembagi_upah_lembur_harian_setting = \App\Models\SettingLembur::where('organisasi_id', $organisasi_id)
+            ->where('setting_name', 'pembagi_upah_lembur_harian')
+            ->first();
+        $pembagi_upah_lembur_harian = $pembagi_upah_lembur_harian_setting ? $pembagi_upah_lembur_harian_setting->value : 0;
+
+        $lembur_perjam = $pembagi_upah_lembur_harian > 0 ? $gaji / $pembagi_upah_lembur_harian : 0;
 
 
         //CREATE EXCEL FILE
@@ -1078,25 +1089,13 @@ class HomeController extends Controller
         $sheet = $spreadsheet->getActiveSheet();
         $sheet->setTitle('SLIP LEMBUR');
         $row = 1;
-        $headers = [
-            'NO',
-            'HARI',
-            'TANGGAL',
-            'JAM MASUK',
-            'JAM KELUAR',
-            'JAM ISTIRAHAT',
-            'JAM KELUAR SETELAH ISTIRAHAT',
-            'TOTAL JAM',
-            'KONVERSI JAM',
-            'UANG MAKAN',
-            'JUMLAH'
-        ];
+        
         $start = Carbon::createFromFormat('Y-m', $periode)->startOfMonth()->toDateString();
         $end = Carbon::createFromFormat('Y-m', $periode)->endOfMonth()->toDateString();
         $month = Carbon::createFromFormat('Y-m', $periode)->format('m');
         $year = Carbon::createFromFormat('Y-m', $periode)->format('Y');
 
-        $columns = range('A', 'L');
+        $columns = range('A', 'Q');
         foreach ($columns as $column) {
             $sheet->getColumnDimension($column)->setAutoSize(true);
         }
@@ -1166,7 +1165,7 @@ class HomeController extends Controller
 
         $sheet->getStyle('D' . $row . ':D' . ($row + 2))->applyFromArray([
             'alignment' => [
-                'horizontal' => Alignment::HORIZONTAL_LEFT,
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
                 'vertical' => Alignment::VERTICAL_CENTER,
             ],
             'font' => [
@@ -1178,30 +1177,63 @@ class HomeController extends Controller
         $row += 3; // Move row for headers
 
         // Menambahkan header untuk slip lembur
-        $col = 'A';
-        foreach ($headers as $header) {
-            $sheet->setCellValue($col . $row, $header);
-            $sheet->mergeCells($col . $row . ':' . $col . ($row + 1));
-            $sheet->getStyle($col . $row . ':' . $col . ($row + 1))->applyFromArray($fillStyle);
-            $col++;
-        }
+        $row_header1 = $row;
+        $row_header2 = $row + 1;
+
+        $sheet->setCellValue('A' . $row_header1, 'NO')->mergeCells('A' . $row_header1 . ':A' . $row_header2);
+        $sheet->setCellValue('B' . $row_header1, 'HARI')->mergeCells('B' . $row_header1 . ':B' . $row_header2);
+        $sheet->setCellValue('C' . $row_header1, 'TANGGAL')->mergeCells('C' . $row_header1 . ':C' . $row_header2);
+        $sheet->setCellValue('D' . $row_header1, 'LEMBUR PERJAM')->mergeCells('D' . $row_header1 . ':D' . $row_header2);
+        $sheet->setCellValue('E' . $row_header1, 'Absensi')->mergeCells('E' . $row_header1 . ':F' . $row_header1);
+        $sheet->setCellValue('E' . $row_header2, 'Awal');
+        $sheet->setCellValue('F' . $row_header2, 'Akhir');
+        $sheet->setCellValue('G' . $row_header1, 'Over Time')->mergeCells('G' . $row_header1 . ':H' . $row_header1);
+        $sheet->setCellValue('G' . $row_header2, 'Awal');
+        $sheet->setCellValue('H' . $row_header2, 'Akhir');
+        $sheet->setCellValue('I' . $row_header1, 'JAM ISTIRAHAT')->mergeCells('I' . $row_header1 . ':I' . $row_header2);
+        $sheet->setCellValue('J' . $row_header1, 'JAM KELUAR SETELAH ISTIRAHAT')->mergeCells('J' . $row_header1 . ':J' . $row_header2);
+        $sheet->setCellValue('K' . $row_header1, 'TOTAL JAM')->mergeCells('K' . $row_header1 . ':K' . $row_header2);
+        $sheet->setCellValue('L' . $row_header1, 'KONVERSI JAM')->mergeCells('L' . $row_header1 . ':L' . $row_header2);
+        $sheet->setCellValue('M' . $row_header1, 'UPAH LEMBUR')->mergeCells('M' . $row_header1 . ':M' . $row_header2);
+        $sheet->setCellValue('N' . $row_header1, 'UANG MAKAN')->mergeCells('N' . $row_header1 . ':N' . $row_header2);
+        $sheet->setCellValue('O' . $row_header1, 'INSENTIF SHIFT')->mergeCells('O' . $row_header1 . ':O' . $row_header2);
+        $sheet->setCellValue('P' . $row_header1, 'INSENTIF LEMBUR')->mergeCells('P' . $row_header1 . ':P' . $row_header2);
+        $sheet->setCellValue('Q' . $row_header1, 'JUMLAH')->mergeCells('Q' . $row_header1 . ':Q' . $row_header2);
+        $sheet->getStyle('A' . $row_header1 . ':Q' . $row_header2)->applyFromArray($fillStyle);
 
         $row += 2;
         //LOOPING AWAL SAMPAI AKHIR BULAN
-    $total_jam = 0;
-    $total_konversi_jam = 0;
-    $total_uang_makan = 0;
-    $total_spl = 0;
-    for ($i = 0; $i <= Carbon::parse($start)->diffInDays(Carbon::parse($end)); $i++) {
+        $total_jam = 0;
+        $total_konversi_jam = 0;
+        $total_uang_makan = 0;
+        $total_insentif_shift = 0;
+        $total_insentif_lembur = 0;
+        $total_spl = 0;
+        $total_upah_lembur = 0;
+        $total_jumlah = 0;
+        for ($i = 0; $i <= Carbon::parse($start)->diffInDays(Carbon::parse($end)); $i++) {
             $date = Carbon::parse($start)->addDays($i)->toDateString();
+            
+            // Assuming \App\Models\Attendance\Attendance model and 'scan_date' column
+            $scans = \App\Models\Attendance\Scanlog::where('pin', $karyawan->pin)->whereDate('scan_date', $date)->orderBy('scan_date', 'asc')->get();
+            $absensi_awal = $scans->count() > 0 ? Carbon::parse($scans->first()->scan_date)->format('H:i') : '-';
+            $absensi_akhir = $scans->count() > 1 ? Carbon::parse($scans->last()->scan_date)->format('H:i') : '-';
+
             $slipLemburs = DetailLembur::getSlipLemburPerDepartemen($id_karyawan, $date, $organisasi_id);
             if ($slipLemburs->count() > 0) {
                 foreach ($slipLemburs as $index => $slipLembur) {
                     $upah_lembur_per_jam = $slipLembur ? $slipLembur->gaji_lembur / $slipLembur->pembagi_upah_lembur : $upah_lembur_per_jam_setting;
+                    $upah_lembur = $slipLembur->durasi_konversi_lembur / 60 * $upah_lembur_per_jam;
+                    $insentif_shift = $slipLembur->insentif_shift ?? 0;
+                    $insentif_lembur = $slipLembur->insentif_lembur ?? 0;
+                    $jumlah = $upah_lembur + $slipLembur->uang_makan + $insentif_shift + $insentif_lembur;
                     $total_jam += $slipLembur->durasi;
                     $total_konversi_jam += $slipLembur->durasi_konversi_lembur;
                     $total_uang_makan += $slipLembur->uang_makan;
-                    $total_spl += $slipLembur->nominal;
+                    $total_insentif_shift += $insentif_shift;
+                    $total_insentif_lembur += $insentif_lembur;
+                    $total_upah_lembur += $upah_lembur;
+                    $total_jumlah += $jumlah;
                     $sheet->setCellValue('A' . $row, $i + 1);
                     $sheet->setCellValue('B' . $row, Carbon::parse($date)->locale('id')->translatedFormat('l'));
 
@@ -1233,15 +1265,47 @@ class HomeController extends Controller
                     }
 
                     $sheet->setCellValue('C' . $row, Carbon::parse($date)->format('d-m-Y'));
-                    $sheet->setCellValue('D' . $row, Carbon::parse($slipLembur->aktual_mulai_lembur)->format('H:i'));
-                    $sheet->setCellValue('E' . $row, Carbon::parse($slipLembur->aktual_selesai_lembur)->format('H:i'));
-                    $sheet->setCellValue('F' . $row, number_format($slipLembur->durasi_istirahat / 100, 2));
-                    $sheet->setCellValue('G' . $row, Carbon::parse($slipLembur->aktual_selesai_lembur)->subMinutes($slipLembur->durasi_istirahat)->format('H:i'));
-                    $sheet->setCellValue('H' . $row, number_format($slipLembur->durasi / 60, 2));
-                    $sheet->setCellValue('I' . $row, number_format($slipLembur->durasi_konversi_lembur / 60, 2));
-                    $sheet->setCellValue('J' . $row, $slipLembur->uang_makan);
-                    $sheet->setCellValue('K' . $row, 'Rp ' . number_format($slipLembur->nominal, 0, ',', '.'));
-                    $sheet->setCellValue('L' . $row, $keterangan);
+                    $sheet->setCellValue('D' . $row, 'Rp ' . number_format($lembur_perjam, 0, ',', '.'));
+                    $sheet->setCellValue('E' . $row, $absensi_awal);
+                    $sheet->setCellValue('F' . $row, $absensi_akhir);
+                    $sheet->setCellValue('G' . $row, Carbon::parse($slipLembur->aktual_mulai_lembur)->format('H:i'));
+                    $sheet->setCellValue('H' . $row, Carbon::parse($slipLembur->aktual_selesai_lembur)->format('H:i'));
+                    $sheet->setCellValue('I' . $row, number_format($slipLembur->durasi_istirahat / 100, 2));
+                    $sheet->setCellValue('J' . $row, Carbon::parse($slipLembur->aktual_selesai_lembur)->subMinutes($slipLembur->durasi_istirahat)->format('H:i'));
+                    $sheet->setCellValue('K' . $row, number_format($slipLembur->durasi / 60, 2));
+                    $sheet->setCellValue('L' . $row, number_format($slipLembur->durasi_konversi_lembur / 60, 2));
+                    
+                    if ($upah_lembur > 0) {
+                        $sheet->setCellValue('M' . $row, 'Rp ' . number_format($upah_lembur, 0, ',', '.'));
+                    } else {
+                        $sheet->setCellValue('M' . $row, 'Rp');
+                    }
+                    
+                    $sheet->setCellValue('N' . $row, $slipLembur->uang_makan > 0 ? 'Rp ' . number_format($slipLembur->uang_makan, 0, ',', '.') : 'Rp');
+                    $sheet->setCellValue('O' . $row, $insentif_shift > 0 ? 'Rp ' . number_format($insentif_shift, 0, ',', '.') : 'Rp');
+                    $sheet->setCellValue('P' . $row, $insentif_lembur > 0 ? 'Rp ' . number_format($insentif_lembur, 0, ',', '.') : 'Rp');
+                    
+                    if ($jumlah > 0) {
+                        $sheet->setCellValue('Q' . $row, 'Rp ' . number_format($jumlah, 0, ',', '.'));
+                    } else {
+                        $sheet->setCellValue('Q' . $row, 'Rp');
+                    }
+                    
+                    $sheet->getStyle('M' . $row)->applyFromArray([
+                        'font' => [
+                            'color' => ['argb' => 'FF000000'],
+                        ],
+                        'alignment' => [
+                            'horizontal' => Alignment::HORIZONTAL_LEFT,
+                            'vertical' => Alignment::VERTICAL_CENTER,
+                        ],
+                        'borders' => [
+                            'allBorders' => [
+                                'borderStyle' => Border::BORDER_THIN,
+                                'color' => ['argb' => 'FF000000'],
+                            ],
+                        ],
+                    ]);
 
                     //STYLE CELL
                     $sheet->getStyle('C' . $row)->applyFromArray([
@@ -1250,14 +1314,7 @@ class HomeController extends Controller
                             'vertical' => Alignment::VERTICAL_CENTER,
                         ],
                     ]);
-                    $sheet->getStyle('J' . $row . ':J' . $row)->applyFromArray([
-                        'font' => [
-                            'color' => [
-                                'argb' => 'FFFF0000',
-                            ],
-                        ],
-                    ]);
-                    $sheet->getStyle('A' . $row . ':K' . $row)->applyFromArray([
+                    $sheet->getStyle('A' . $row . ':P' . $row)->applyFromArray([
                         'borders' => [
                             'allBorders' => [
                                 'borderStyle' => Border::BORDER_THIN,
@@ -1274,14 +1331,30 @@ class HomeController extends Controller
                                 'vertical' => Alignment::VERTICAL_CENTER,
                             ],
                         ]);
-                        $sheet->getStyle('J' . $row . ':K' . $row)->applyFromArray([
+                        $sheet->getStyle('M' . $row . ':P' . $row)->applyFromArray([
                             'font' => [
                                 'color' => [
-                                    'argb' => 'FFFF0000',
+                                    'argb' => 'FF000000',
                                 ],
                             ],
                         ]);
-                        $sheet->getStyle('A' . $row . ':K' . $row)->applyFromArray([
+                        $sheet->getStyle('A' . $row . ':P' . $row)->applyFromArray([
+                            'borders' => [
+                                'allBorders' => [
+                                    'borderStyle' => Border::BORDER_THIN,
+                                    'color' => ['argb' => 'FF000000'],
+                                ],
+                            ],
+                        ]);
+
+                        $sheet->getStyle('N' . $row)->applyFromArray([
+                            'font' => [
+                                'color' => ['argb' => 'FF000000'],
+                            ],
+                            'alignment' => [
+                                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                                'vertical' => Alignment::VERTICAL_CENTER,
+                            ],
                             'borders' => [
                                 'allBorders' => [
                                     'borderStyle' => Border::BORDER_THIN,
@@ -1297,7 +1370,6 @@ class HomeController extends Controller
                 $sheet->setCellValue('A' . $row, $i + 1);
                 $sheet->setCellValue('B' . $row, Carbon::parse($date)->locale('id')->translatedFormat('l'));
 
-                //JIKA WEEKEND UBAH STYLE CELL
                 if (Carbon::parse($date)->isWeekend()) {
                     $sheet->getStyle('B' . $row)->applyFromArray([
                         'fill' => [
@@ -1315,14 +1387,20 @@ class HomeController extends Controller
                 }
 
                 $sheet->setCellValue('C' . $row, Carbon::parse($date)->format('d-m-Y'));
-                $sheet->setCellValue('D' . $row, '-');
-                $sheet->setCellValue('E' . $row, '-');
-                $sheet->setCellValue('F' . $row, '-');
+                $sheet->setCellValue('D' . $row, 'Rp ' . number_format($lembur_perjam, 0, ',', '.'));
+                $sheet->setCellValue('E' . $row, $absensi_awal);
+                $sheet->setCellValue('F' . $row, $absensi_akhir);
                 $sheet->setCellValue('G' . $row, '-');
                 $sheet->setCellValue('H' . $row, '-');
                 $sheet->setCellValue('I' . $row, '-');
-                $sheet->setCellValue('J' . $row, 0);
-                $sheet->setCellValue('K' . $row, 'Rp');
+                $sheet->setCellValue('J' . $row, '-');
+                $sheet->setCellValue('K' . $row, '-');
+                $sheet->setCellValue('L' . $row, '-');
+                $sheet->setCellValue('M' . $row, 'Rp');
+                $sheet->setCellValue('N' . $row, 'Rp');
+                $sheet->setCellValue('O' . $row, 'Rp');
+                $sheet->setCellValue('P' . $row, 'Rp');
+                $sheet->setCellValue('Q' . $row, 'Rp');
             }
 
             //STYLE CELL
@@ -1332,14 +1410,23 @@ class HomeController extends Controller
                     'vertical' => Alignment::VERTICAL_CENTER,
                 ],
             ]);
-            $sheet->getStyle('J' . $row . ':K' . $row)->applyFromArray([
-                'font' => [
-                    'color' => [
-                        'argb' => 'FFFF0000',
+            
+            $sheet->getStyle('A' . $row . ':Q' . $row)->applyFromArray([
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_THIN,
+                        'color' => ['argb' => 'FF000000'],
                     ],
                 ],
             ]);
-            $sheet->getStyle('A' . $row . ':K' . $row)->applyFromArray([
+            $sheet->getStyle('Q' . $row)->applyFromArray([
+                'font' => [
+                    'color' => ['argb' => 'FFFF0000'],
+                ],
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_LEFT,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
                 'borders' => [
                     'allBorders' => [
                         'borderStyle' => Border::BORDER_THIN,
@@ -1351,24 +1438,95 @@ class HomeController extends Controller
             $row++;
         }
 
-        $sheet->setCellValue('H' . $row, number_format($total_jam / 60, 2));
-        $sheet->setCellValue('I' . $row, number_format($total_konversi_jam / 60, 2));
-        $sheet->setCellValue('J' . $row, 'Rp ' . number_format($total_uang_makan, 0, ',', '.'));
-        $sheet->setCellValue('K' . $row, 'Rp ' . number_format($total_spl, 0, ',', '.'));
-        $sheet->setCellValue('J' . ($row + 1), 'SESUAI SPL');
-        $sheet->setCellValue('K' . ($row + 1), 'Rp ' . number_format($total_spl, 0, ',', '.'));
+        $sheet->setCellValue('K' . $row, number_format($total_jam / 60, 2));
+        $sheet->setCellValue('L' . $row, number_format($total_konversi_jam / 60, 2));
+        $sheet->setCellValue('M' . $row, 'Rp ' . number_format($total_upah_lembur, 0, ',', '.'));
+        $sheet->setCellValue('N' . $row, 'Rp ' . number_format($total_uang_makan, 0, ',', '.'));
+        $sheet->setCellValue('O' . $row, 'Rp ' . number_format($total_insentif_shift, 0, ',', '.'));
+        $sheet->setCellValue('P' . $row, 'Rp ' . number_format($total_insentif_lembur, 0, ',', '.'));
+        $sheet->setCellValue('Q' . $row, 'Rp ' . number_format($total_jumlah, 0, ',', '.'));
+        
+        $sheet->getStyle('M' . $row . ':P' . $row)->applyFromArray([
+            'font' => [
+                'color' => [
+                    'argb' => 'FF000000',
+                ],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['argb' => 'FF000000'],
+                ],
+            ],
+        ]);
+        
+        $sheet->getStyle('Q' . $row)->applyFromArray([
+            'font' => [
+                'color' => [
+                    'argb' => 'FFFF0000',
+                ],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['argb' => 'FF000000'],
+                ],
+            ],
+        ]);
 
         // Hitung potongan pajak sesuai setting (atau slip jika sudah lock)
-        $potongan_pajak = $is_locked ? $slip->total_pph : ($total_spl * ($pph_persen / 100));
-        $total_setelah_pajak = $is_locked ? $slip->total_diterima : ($total_spl - $potongan_pajak);
+        $potongan_pajak = $is_locked ? $slip->total_pph : ($total_jumlah * ($pph_persen / 100));
+        $total_setelah_pajak = $is_locked ? $slip->total_diterima : ($total_jumlah - $potongan_pajak);
 
-        // Tambahkan potongan pajak dan total setelah pajak ke sheet Excel
-        $sheet->setCellValue('J' . ($row + 2), 'POTONGAN PPH');
-        $sheet->setCellValue('K' . ($row + 2), 'Rp ' . number_format($potongan_pajak, 0, ',', '.'));
-        $sheet->setCellValue('J' . ($row + 3), 'TOTAL DITERIMA');
-        $sheet->setCellValue('K' . ($row + 3), 'Rp ' . number_format($total_setelah_pajak, 0, ',', '.'));
+        $summaryRow = $row + 1;
+        $sheet->setCellValue('P' . $summaryRow, 'POTONGAN PPH');
+        $sheet->setCellValue('Q' . $summaryRow, 'Rp ' . number_format($potongan_pajak, 0, ',', '.'));
+        $sheet->getStyle('P' . $summaryRow . ':Q' . $summaryRow)->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'size' => 12,
+                'color' => ['argb' => 'FF000000'],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['argb' => 'FF000000'],
+                ],
+            ],
+        ]);
+        $summaryRow++;
+        $sheet->setCellValue('P' . $summaryRow, 'TOTAL DITERIMA');
+        $sheet->setCellValue('Q' . $summaryRow, 'Rp ' . number_format($total_setelah_pajak, 0, ',', '.'));
+        $sheet->getStyle('P' . $summaryRow . ':Q' . $summaryRow)->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'size' => 12,
+                'color' => ['argb' => 'FF000000'],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['argb' => 'FF000000'],
+                ],
+            ],
+        ]);
 
-        // Simpan/update ke tabel slip_lembur_karyawans jika belum lock
         if (!$is_locked) {
             \DB::table('slip_lembur_karyawans')->updateOrInsert([
                 'karyawan_id' => $id_karyawan,
@@ -1388,8 +1546,7 @@ class HomeController extends Controller
             ]);
         }
 
-        // Styling untuk kolom Total Jam, Konversi Jam, Uang Makan, Jumlah
-        $sheet->getStyle('H' . $row . ':K' . $row)->applyFromArray([
+        $sheet->getStyle('K' . $row . ':P' . $row)->applyFromArray([
             'borders' => [
                 'allBorders' => [
                     'borderStyle' => Border::BORDER_THIN,
@@ -1400,47 +1557,6 @@ class HomeController extends Controller
                 'bold' => true,
                 'size' => 12,
             ]
-        ]);
-
-        // Styling untuk baris "SESUAI SPL"
-        $sheet->getStyle('J' . ($row + 1) . ':K' . ($row + 1))
-            ->applyFromArray([
-                'borders' => [
-                    'allBorders' => [
-                        'borderStyle' => Border::BORDER_THIN,
-                        'color' => ['argb' => 'FF000000'],
-                    ],
-                ],
-                'font' => [
-                    'bold' => true,
-                    'size' => 12,
-                ],
-                'alignment' => [
-                    'horizontal' => Alignment::HORIZONTAL_LEFT,
-                    'vertical' => Alignment::VERTICAL_CENTER,
-                ],
-            ]);
-
-        // Styling untuk kolom Potongan Pajak dan Total Setelah Pajak
-        $sheet->getStyle('J' . ($row + 2) . ':K' . ($row + 3))->applyFromArray([
-            'borders' => [
-                'allBorders' => [
-                    'borderStyle' => Border::BORDER_THIN,
-                    'color' => ['argb' => 'FF000000'],
-                ],
-            ],
-            'font' => [
-                'bold' => true,
-                'size' => 12,
-            ],
-        ]);
-
-        // Styling untuk kolom Potongan Pajak dan Total Setelah Pajak
-        $sheet->getStyle('J' . ($row + 2) . ':K' . ($row + 3))->applyFromArray([
-            'alignment' => [
-                'horizontal' => Alignment::HORIZONTAL_LEFT,
-                'vertical' => Alignment::VERTICAL_CENTER,
-            ],
         ]);
 
         $writer = new Xlsx($spreadsheet);
