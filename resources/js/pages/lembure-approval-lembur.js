@@ -1,6 +1,6 @@
 import { TempusDominus } from "@eonasdan/tempus-dominus";
-import { faFiveIcons } from '@eonasdan/tempus-dominus/dist/plugins/fa-five';
 import '@eonasdan/tempus-dominus/dist/css/tempus-dominus.min.css';
+import { faFiveIcons } from '@eonasdan/tempus-dominus/dist/plugins/fa-five';
 import '@popperjs/core';
 
 $(function () {
@@ -381,7 +381,7 @@ $(function () {
                     $('.btnUpdateStatusDetailLembur').removeClass('btn-warning').addClass('btn-success').text('Approved');
                     $('#form-approval-lembur').attr('action', base_url + '/lembure/approval-lembur/checked/' + idLembur);
 
-                    $('.btnUpdateStatusDetailLembur').on("click", function (e) {
+                    $('.btnUpdateStatusDetailLembur').off('click').on("click", function (e) {
                         loadingSwalShow();
                         e.preventDefault();
                         let url = $('#form-approval-lembur').attr('action');
@@ -425,6 +425,8 @@ $(function () {
                                         showToast({ icon: "error", title: jqXHR.responseJSON.message });
                                     },
                                 });
+                            } else {
+                                loadingSwalClose();
                             }
                         });
                     });
@@ -592,7 +594,7 @@ $(function () {
                     $('.btnUpdateStatusDetailLembur').removeClass('btn-warning').addClass('btn-success').text('Approved');
                     $('#form-approval-lembur').attr('action', base_url + '/lembure/approval-lembur/approved/' + idLembur);
 
-                    $('.btnUpdateStatusDetailLembur').on("click", function (e) {
+                    $('.btnUpdateStatusDetailLembur').off('click').on("click", function (e) {
                         loadingSwalShow();
                         e.preventDefault();
                         let url = $('#form-approval-lembur').attr('action');
@@ -636,6 +638,8 @@ $(function () {
                                         showToast({ icon: "error", title: jqXHR.responseJSON.message });
                                     },
                                 });
+                            } else {
+                                loadingSwalClose();
                             }
                         });
                     });
@@ -800,7 +804,7 @@ $(function () {
                     $('.btnUpdateStatusDetailLembur').removeClass('btn-warning').addClass('btn-success').text('Legalized');
                     $('#form-approval-lembur').attr('action', base_url + '/lembure/approval-lembur/legalized/' + idLembur);
 
-                    $('.btnUpdateStatusDetailLembur').on("click", function (e) {
+                    $('.btnUpdateStatusDetailLembur').off('click').on("click", function (e) {
                         loadingSwalShow();
                         e.preventDefault();
                         let url = $('#form-approval-lembur').attr('action');
@@ -844,6 +848,8 @@ $(function () {
                                         showToast({ icon: "error", title: jqXHR.responseJSON.message });
                                     },
                                 });
+                            } else {
+                                loadingSwalClose();
                             }
                         });
                     });
@@ -967,6 +973,9 @@ $(function () {
                             <td>
                                 <span id="rencana_selesai_lembur_aktual_${i}"></span>
                             </td>
+                            <td id="checkin-aktual-${i}">-</td>
+                            <td id="checkout-aktual-${i}">-</td>
+                            <td id="match_status-aktual-${i}">-</td>
                             <td>
                                 `+ (val.durasi_rencana) + `
                             </td>
@@ -1082,12 +1091,20 @@ $(function () {
                     let jobDescriptions = val.deskripsi_pekerjaan.split(',').map(desc => `<li>${desc.trim()}</li>`).join('');
                     $('#job_description_aktual_' + i).html(`<ul>${jobDescriptions}</ul>`);
 
+                    // Panggil fetch data presensi
+                    const idKaryawan = val.karyawan_id;
+                    const isoDate = getIsoDate(val, header, textTanggal);
+                    const overtimeData = { jenis_hari: header.jenis_hari, jenis_lembur: header.jenis_lembur, aktual_mulai: val.aktual_mulai_lembur, aktual_selesai: val.aktual_selesai_lembur };
+                    if (idKaryawan && isoDate) {
+                        fillCheckInOutForRow(i, idKaryawan, isoDate, overtimeData);
+                    }
+
                     $('#karyawan_id_aktual_' + i).text(val.nama);
 
                     $('.btnUpdateAktualLembur').removeClass('btn-warning').addClass('btn-success').text('Approved');
                     $('#form-aktual-approval-lembur').attr('action', base_url + '/lembure/approval-lembur/checked/' + idLembur);
 
-                    $('.btnUpdateAktualLembur').on("click", function (e) {
+                    $('.btnUpdateAktualLembur').off('click').on("click", function (e) {
                         loadingSwalShow();
                         e.preventDefault();
                         let url = $('#form-aktual-approval-lembur').attr('action');
@@ -1132,6 +1149,8 @@ $(function () {
                                         showToast({ icon: "error", title: jqXHR.responseJSON.message });
                                     },
                                 });
+                            } else {
+                                loadingSwalClose();
                             }
                         });
                     });
@@ -1180,6 +1199,7 @@ $(function () {
                 let textTanggal = response.data.text_tanggal
                 let jenisHari = header.jenis_hari == 'WEEKEND' ? 'WE' : 'WD';
                 let status = header.status;
+                let jenisLembur = header.jenis_lembur;
                 let detail = response.data.detail_lembur;
                 let tbody = $('#list-aktual-approval-lembur').empty();
 
@@ -1235,7 +1255,7 @@ $(function () {
                                 <span id="rencana_selesai_lembur_aktual_${i}"></span>
                             </td>
                             <td>
-                                `+ (val.durasi_rencana) + `
+                                ${val.durasi_rencana ? val.durasi_rencana : '-'}
                             </td>
                             <td>
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N' ? `<input id="aktual_mulai_lembur_aktual_${i}" name="mulai_lembur[]" type="datetime-local" class="form-control mulaiLembur ${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N' ? 'bg-danger' : ''}""
@@ -1245,6 +1265,9 @@ $(function () {
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N' ? `<input id="aktual_selesai_lembur_aktual_${i}" name="selesai_lembur[]" type="datetime-local" class="form-control selesaiLembur ${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N' ? 'bg-danger' : ''}""
                                         data-td-target="#datetimepicker_selesai_aktual_${i}" data-urutan="${i}" data-selesai="${val.aktual_selesai_lembur}" required>` : `-`}
                             </td>
+                            <td id="checkin-aktual-${i}">-</td>
+                            <td id="checkout-aktual-${i}">-</td>
+                            <td id="match_status-aktual-${i}">-</td>
                             <td id="durasi-aktual-${i}">
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N' ? val.durasi_aktual : '-'}
                             </td>
@@ -1337,7 +1360,7 @@ $(function () {
                                 let durasi = response.data.durasi;
                                 let nominal = response.data.nominal;
                                 $('#durasi-aktual-' + i).text(durasi);
-                                $('#nominal-aktual-' + i).text(nominal);
+                                $('#nominal-' + i).text(nominal);
                             },
                             error: function (jqXHR, textStatus, errorThrown) {
                                 showToast({ icon: "error", title: jqXHR.responseJSON.message });
@@ -1349,12 +1372,20 @@ $(function () {
                     let jobDescriptions = val.deskripsi_pekerjaan.split(',').map(desc => `<li>${desc.trim()}</li>`).join('');
                     $('#job_description_aktual_' + i).html(`<ul>${jobDescriptions}</ul>`);
 
+                    // Panggil fetch data presensi
+                    const idKaryawan = val.karyawan_id;
+                    const isoDate = getIsoDate(val, header, textTanggal);
+                    const overtimeData = { jenis_hari: header.jenis_hari, jenis_lembur: header.jenis_lembur, aktual_mulai: val.aktual_mulai_lembur, aktual_selesai: val.aktual_selesai_lembur };
+                    if (idKaryawan && isoDate) {
+                        fillCheckInOutForRow(i, idKaryawan, isoDate, overtimeData);
+                    }
+
                     $('#karyawan_id_aktual_' + i).text(val.nama);
 
                     $('.btnUpdateAktualLembur').removeClass('btn-warning').addClass('btn-success').text('Approved');
                     $('#form-aktual-approval-lembur').attr('action', base_url + '/lembure/approval-lembur/approved/' + idLembur);
 
-                    $('.btnUpdateAktualLembur').on("click", function (e) {
+                    $('.btnUpdateAktualLembur').off('click').on("click", function (e) {
                         loadingSwalShow();
                         e.preventDefault();
                         let url = $('#form-aktual-approval-lembur').attr('action');
@@ -1398,6 +1429,8 @@ $(function () {
                                         showToast({ icon: "error", title: jqXHR.responseJSON.message });
                                     },
                                 });
+                            } else {
+                                loadingSwalClose();
                             }
                         });
                     });
@@ -1407,6 +1440,7 @@ $(function () {
                     disabled: true
                 });
                 $('#text_tanggalAktual').text(textTanggal);
+                $('#jenis_lemburAktual').text(jenisLembur ? jenisLembur : '-');
 
                 //STATUS
                 if (status == 'WAITING') {
@@ -1504,19 +1538,22 @@ $(function () {
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N' ? `<div class="input-group">
                                     <input id="aktual_mulai_lembur_aktual_${i}" name="mulai_lembur[]" type="datetime-local" class="form-control mulaiLembur ${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N' ? 'bg-danger' : ''}""
                                         data-td-target="#datetimepicker_mulai_aktual_${i}" data-urutan="${i}" data-mulai="${val.aktual_mulai_lembur}" required>
-                                    <div class="input-group-append ml-2">
-                                        <button class="btn btn-info btnCrossCheck" type="button" data-id-karyawan="${val.karyawan_id}" data-date="${val.aktual_mulai_lembur.split('T')[0]}"><i class="fas fa-eye"></i></button>
-                                    </div>
                                 </div>` : `-`}
                             </td>
                             <td>
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N' ? `<div class="input-group">
                                     <input id="aktual_selesai_lembur_aktual_${i}" name="selesai_lembur[]" type="datetime-local" class="form-control selesaiLembur ${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N' ? 'bg-danger' : ''}""
                                         data-td-target="#datetimepicker_selesai_aktual_${i}" data-urutan="${i}" data-selesai="${val.aktual_selesai_lembur}" required>
-                                    <div class="input-group-append ml-2">
-                                        <button class="btn btn-info btnCrossCheck" type="button" data-id-karyawan="${val.karyawan_id}" data-date="${val.aktual_mulai_lembur.split('T')[0]}"><i class="fas fa-eye"></i></button>
-                                    </div>
                                 </div>` : `-`}
+                            </td>
+                            <td id="checkin-aktual-${i}">
+                                ${val.check_in ? val.check_in : '-'}
+                            </td>
+                            <td id="checkout-aktual-${i}">
+                                ${val.check_out ? val.check_out : '-'}
+                            </td>
+                            <td id="match_status-aktual-${i}">
+                                ${val.match_status ? val.match_status : '-'}
                             </td>
                             <td id="durasi-aktual-${i}">
                                 ${val.is_rencana_approved !== 'N' && val.is_aktual_approved !== 'N' ? val.durasi_aktual : '-'}
@@ -1596,13 +1633,6 @@ $(function () {
                         }
                     });
 
-                    // DEFINE MODAL CROSS CHECK
-                    $('.btnCrossCheck').on('click', function () {
-                        let idKaryawan = $(this).data('id-karyawan');
-                        let date = $(this).data('date');
-                        getDataCrossCheck(idKaryawan, date);
-                    });
-
                     $('#aktual_selesai_lembur_aktual_' + i).on('change', function () {
                         if ($(this).val() < $('#aktual_mulai_lembur_aktual_' + i).val()) {
                             $(this).val($(this).data('selesai'));
@@ -1630,11 +1660,22 @@ $(function () {
                     $('#job_description_aktual_' + i).html(`<ul>${jobDescriptions}</ul>`);
 
                     $('#karyawan_id_aktual_' + i).text(val.nama);
+                    const idKaryawan = val.karyawan_id;
+                    const isoDate = getIsoDate(val, header, textTanggal);
+
+                    // Debug jika kosong
+                    if (!idKaryawan) console.warn('idKaryawan kosong di row', i, val);
+                    if (!isoDate) console.warn('Tanggal referensi tidak valid di row', i, val, header, textTanggal);
+
+                    // Panggil fetch checkin/checkout jika keduanya ada
+                    if (val.karyawan_id && isoDate) {
+                        fillCheckInOutForRow(i, val.karyawan_id, isoDate, { jenis_hari: header.jenis_hari, jenis_lembur: header.jenis_lembur, aktual_mulai: val.aktual_mulai_lembur, aktual_selesai: val.aktual_selesai_lembur });
+                    }
 
                     $('.btnUpdateAktualLembur').removeClass('btn-warning').addClass('btn-success').text('Legalized');
                     $('#form-aktual-approval-lembur').attr('action', base_url + '/lembure/approval-lembur/legalized/' + idLembur);
 
-                    $('.btnUpdateAktualLembur').on("click", function (e) {
+                    $('.btnUpdateAktualLembur').off('click').on("click", function (e) {
                         loadingSwalShow();
                         e.preventDefault();
                         let url = $('#form-aktual-approval-lembur').attr('action');
@@ -1678,6 +1719,8 @@ $(function () {
                                         showToast({ icon: "error", title: jqXHR.responseJSON.message });
                                     },
                                 });
+                            } else {
+                                loadingSwalClose();
                             }
                         });
                     });
@@ -1743,6 +1786,7 @@ $(function () {
                 let header = response.data.header;
                 let textTanggal = response.data.text_tanggal
                 let jenisHari = header.jenis_hari == 'WEEKEND' ? 'WE' : 'WD';
+                let jenisLembur = header.jenis_lembur; // This was already correct
                 let status = header.status;
                 let detail = response.data.detail_lembur;
                 let tbody = $('#list-detail-approval-lembur').empty();
@@ -1782,6 +1826,13 @@ $(function () {
                     });
                 }
 
+                // Show/Hide Check In/Out columns based on status
+                if (status === 'COMPLETED' || status === 'REJECTED') { // Show if actuals are relevant
+                    $('#th-check-in, #th-check-out, #th-match-status').show();
+                } else { // Hide for WAITING, PLANNED
+                    $('#th-check-in, #th-check-out, #th-match-status').hide();
+                }
+
                 $.each(detail, function (i, val) {
                     tbody.append(`
                          <tr class="${val.is_rencana_approved == 'N' || val.is_aktual_approved == 'N' ? 'bg-danger' : ''}">
@@ -1806,6 +1857,10 @@ $(function () {
                             <td>
                                 <span id="aktual_selesai_lembur_detail_${i}"></span>
                             </td>
+                            <td id="checkin-aktual-${i}" class="col-check-in" style="display: none;">-</td>
+                            <td id="checkout-aktual-${i}" class="col-check-out" style="display: none;">-</td>
+                            <td id="match_status-aktual-${i}" class="col-match-status" style="display: none;">-</td>
+                            </td>
                             <td>
                                 ${val.durasi_aktual} ${val.aktual_last_changed_by ? `<br><p>Last Changed : <br><small>${val.aktual_last_changed_by} <br>(${val.aktual_last_changed_at})</small></p>` : ''}
                             </td>
@@ -1816,8 +1871,7 @@ $(function () {
                                 ${val.nominal}
                             </td>
                         </tr>
-                    `)
-
+                    `);
                     $('#karyawan_id_detail_' + i).text(val.nama);
 
                     //JOB DESCRIPTION
@@ -1830,8 +1884,28 @@ $(function () {
                     $('#aktual_mulai_lembur_detail_' + i).text(val.aktual_mulai_lembur ? val.aktual_mulai_lembur.replace('T', ' ').replace(':', '.') : '-');
                     $('#aktual_selesai_lembur_detail_' + i).text(val.aktual_selesai_lembur ? val.aktual_selesai_lembur.replace('T', ' ').replace(':', '.') : '-');
                 });
+
+                // Show/Hide Check In/Out columns based on status
+                if (status === 'COMPLETED' || status === 'REJECTED') { // Show if actuals are relevant
+                    $('#th-check-in, #th-check-out, #th-match-status').show();
+                    $('.col-check-in, .col-check-out, .col-match-status').show();
+
+                    // Panggil fetch data presensi setelah kolom ditampilkan
+                    $.each(detail, function (i, val) {
+                        const idKaryawan = val.karyawan_id;
+                        const isoDate = getIsoDate(val, header, textTanggal);
+                        const overtimeData = { jenis_hari: header.jenis_hari, jenis_lembur: header.jenis_lembur, aktual_mulai: val.aktual_mulai_lembur, aktual_selesai: val.aktual_selesai_lembur };
+                        if (idKaryawan && isoDate) {
+                            fillCheckInOutForRow(i, idKaryawan, isoDate, overtimeData);
+                        }
+                    });
+                } else { // Hide for WAITING, PLANNED
+                    $('#th-check-in, #th-check-out, #th-match-status').hide();
+                    $('.col-check-in, .col-check-out, .col-match-status').hide();
+                }
                 $('#jenis_hariDetail').text(jenisHari == 'WE' ? 'Weekend' : 'Weekday');
                 $('#text_tanggalDetail').text(textTanggal);
+                $('#jenis_lemburDetail').text(jenisLembur ? jenisLembur : '-');
 
                 //STATUS
                 if (status == 'WAITING') {
@@ -2066,6 +2140,113 @@ $(function () {
             }
         })
     }
+
+    // pakai ini untuk cari YYYY-MM-DD dari berbagai sumber
+    function getIsoDate(val, header, textTanggal) {
+        // urutkan kandidat dari yang paling andal
+        const candidates = [
+            val?.rencana_mulai_lembur,        // ex: 2025-08-29 16:00 atau 2025-08-29T16:00
+            header?.tanggal_iso,              // kirim ini dari backend
+            header?.tanggal,                  // kalau sudah ISO
+        ];
+
+        // kalau benar-benar terpaksa baru coba textTanggal + locale id
+        if (textTanggal) candidates.push(textTanggal);
+
+        // daftar format yang dicoba
+        const fmts = [
+            'YYYY-MM-DDTHH:mm',
+            'YYYY-MM-DD HH:mm:ss',
+            'YYYY-MM-DD HH:mm',
+            'YYYY-MM-DD',
+            'MM/DD/YYYY hh:mm A',
+            'DD/MM/YYYY HH:mm',
+            'DD-MM-YYYY HH:mm',
+            'DD-MM-YYYY',
+            'D MMMM YYYY',            // fallback umum
+            'dddd, D MMMM YYYY',      // “Jumat, 29 Agustus 2025”
+        ];
+
+        // coba parse berurutan
+        if (typeof moment?.locale === 'function') moment.locale('id');
+        for (const c of candidates) {
+            if (!c) continue;
+            for (const f of fmts) {
+                const m = moment(c, f, true);
+                if (m.isValid()) return m.format('YYYY-MM-DD');
+            }
+            // coba parse bebas
+            const m2 = moment(c);
+            if (m2.isValid()) return m2.format('YYYY-MM-DD');
+        }
+        return null;
+    }
+
+    function fillCheckInOutForRow(i, idKaryawan, anyDatetimeStr, overtimeData) {
+        // Ambil tanggal referensi dari rencana_mulai (atau header) -> YYYY-MM-DD
+        const date = moment(anyDatetimeStr).format('YYYY-MM-DD');
+
+        $.ajax({
+            url: base_url + '/lembure/approval-lembur/get-list-data-cross-check',
+            method: 'POST',
+            dataType: 'JSON',
+            data: { id_karyawan: idKaryawan, date },
+            success: function (res) {
+                const d = res.data || {};
+                const checkIn = d.check_in ? moment(d.check_in) : null;
+                const checkOut = d.check_out ? moment(d.check_out) : null;
+                const aktualMulai = overtimeData.aktual_mulai ? moment(overtimeData.aktual_mulai) : null;
+                const aktualSelesai = overtimeData.aktual_selesai ? moment(overtimeData.aktual_selesai) : null;
+
+                $('#checkin-aktual-' + i).text(checkIn ? checkIn.format('YYYY-MM-DD hh:mm A') : '-');
+                $('#checkout-aktual-' + i).text(checkOut ? checkOut.format('YYYY-MM-DD hh:mm A') : '-');
+
+                let matchStatus = '-';
+                let match = false;
+
+                if (overtimeData.jenis_hari === 'WEEKEND') {
+                    if (checkIn && aktualMulai && checkOut && aktualSelesai) {
+                        // Toleransi 0 menit, checkin harus <= aktual mulai, checkout harus >= aktual selesai
+                        if (checkIn.isSameOrBefore(aktualMulai) && checkOut.isSameOrAfter(aktualSelesai)) {
+                            match = true;
+                        }
+                    }
+                } else { // WEEKDAY
+                    if (overtimeData.jenis_lembur === 'AWAL') {
+                        if (checkIn && aktualMulai) {
+                            // Toleransi 0 menit, checkin harus <= aktual mulai
+                            if (checkIn.isSameOrBefore(aktualMulai)) {
+                                match = true;
+                            }
+                        }
+                    } else if (overtimeData.jenis_lembur === 'AKHIR') {
+                        if (checkOut && aktualSelesai) {
+                            // Toleransi 0 menit, checkout harus >= aktual selesai
+                            if (checkOut.isSameOrAfter(aktualSelesai)) {
+                                match = true;
+                            }
+                        }
+                    }
+                }
+
+                if (match) {
+                    matchStatus = '<span class="badge badge-success">MATCH</span>';
+                } else if (aktualMulai || aktualSelesai) { // Hanya tampilkan UNMATCH jika ada data aktual
+                    matchStatus = '<span class="badge badge-danger">UNMATCH</span>';
+                }
+
+                $('#match_status-aktual-' + i).html(matchStatus);
+
+            },
+            error: function (xhr) {
+                // 404 = tidak ada data presensi
+                $('#checkin-aktual-' + i).text('-');
+                $('#checkout-aktual-' + i).text('-');
+                $('#match_status-aktual-' + i).text('-');
+            }
+        });
+    }
+
 
     var modalExportOptions = {
         backdrop: true,

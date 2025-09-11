@@ -26,7 +26,7 @@ class Lembure extends Model
         'id_lembur','organisasi_id','departemen_id','divisi_id','plan_checked_by','plan_checked_at','plan_approved_by',
         'plan_approved_at','plan_legalized_by','plan_legalized_at','actual_checked_by','actual_checked_at',
         'actual_approved_by','actual_approved_at','actual_legalized_by','actual_legalized_at','total_durasi', 'total_nominal',
-        'status','attachment','issued_date','issued_by', 'jenis_hari', 'rejected_by', 'rejected_at', 'rejected_note',
+        'status','attachment','issued_date','issued_by', 'jenis_hari', 'jenis_lembur', 'rejected_by', 'rejected_at', 'rejected_note',
         'plan_reviewed_at', 'plan_reviewed_by', 'actual_reviewed_at', 'actual_reviewed_by'
     ];
 

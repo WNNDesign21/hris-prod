@@ -1207,7 +1207,6 @@ class LembureController extends Controller
      */
     public function create()
     {
-        //
     }
 
     /**
@@ -1215,6 +1214,7 @@ class LembureController extends Controller
      */
     public function store(Request $request)
     {
+        // Tambahkan validasi untuk jenis_lembur jika jenis_hari adalah 'WD'
         $dataValidate = [
             'jenis_hari' => ['required', 'in:WD,WE'],
             'karyawan_id.*' => ['required', 'distinct'],
@@ -1222,6 +1222,9 @@ class LembureController extends Controller
             'rencana_mulai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'before:rencana_selesai_lembur.*', 'after_or_equal:today'],
             'rencana_selesai_lembur.*' => ['required', 'date_format:Y-m-d\TH:i', 'after:rencana_mulai_lembur.*'],
         ];
+        if ($request->jenis_hari === 'WD') {
+            $dataValidate['jenis_lembur'] = ['required', 'in:AWAL,AKHIR'];
+        }
 
         $validator = Validator::make($request->all(), $dataValidate);
         if ($validator->fails()) {
@@ -1229,6 +1232,7 @@ class LembureController extends Controller
         }
 
         $jenis_hari = $request->jenis_hari;
+        $jenis_lembur = $request->jenis_lembur;
         $karyawan_ids = $request->karyawan_id;
         $job_descriptions = $request->job_description;
         $rencana_mulai_lemburs = $request->rencana_mulai_lembur;
@@ -1274,6 +1278,7 @@ class LembureController extends Controller
                 'departemen_id' => $departemen_id,
                 'divisi_id' => $divisi_id,
                 'jenis_hari' => $jenis_hari,
+                'jenis_lembur' => $jenis_lembur,
                 'status' => 'WAITING',
             ]);
 
@@ -2951,7 +2956,7 @@ class LembureController extends Controller
                 'header' => $lembur,
                 'attachment' => $lembur->attachmentLembur,
                 'detail_lembur' => $data_detail_lembur,
-                'text_tanggal' => Carbon::parse($data->rencana_mulai_lembur)->locale('id')->translatedFormat('l, d F Y'),
+                'text_tanggal' => Carbon::parse($lembur->detailLembur->first()->rencana_mulai_lembur)->locale('id')->translatedFormat('l, d F Y'),
             ];
             return response()->json(['message' => 'Berhasil mendapatkan data lembur', 'data' => $data], 200);
         } catch (Throwable $e) {
@@ -5334,32 +5339,71 @@ class LembureController extends Controller
         $request->merge([
             'date' => Carbon::parse($request->date)->format('Y-m-d'),
         ]);
-        $dataValidate = [
+
+        $validator = Validator::make($request->all(), [
             'date' => ['required', 'date_format:Y-m-d'],
             'id_karyawan' => ['required', 'exists:karyawans,id_karyawan'],
-        ];
-
-        $validator = Validator::make(request()->all(), $dataValidate);
+        ]);
 
         if ($validator->fails()) {
-            $errors = $validator->errors()->all();
-            return response()->json(['message' => $errors], 402);
+            return response()->json(['message' => $validator->errors()->all()], 402);
         }
 
         $date = $request->date;
-        $id_karyawan = $request->id_karyawan;
+        $idKaryawan = $request->id_karyawan;
         $organisasi_id = auth()->user()->organisasi_id;
 
+        // Cutoff checkout setelah tengah malam
+        $overnightCutoff = '06:00:00';
+        $tz = 'Asia/Jakarta';
+
         try {
-            $karyawan = Karyawan::find($id_karyawan);
+            $karyawan = Karyawan::select('pin')->findOrFail($idKaryawan);
             $pin = $karyawan->pin;
-            $scanlog = Scanlog::where('pin', $pin)->where('organisasi_id', $organisasi_id)->whereDate('scan_date', $date)->get();
-            if ($scanlog->isNotEmpty()) {
-                return response()->json(['message' => 'Data Presensi Berhasil Ditemukan', 'data' => $scanlog], 200);
-            } else {
+
+            // Window: 00:00 hari H s/d 06:00 hari H+1 (pakai lokal)
+            $startLocal = Carbon::parse("$date 00:00:00", $tz);
+            $endLocal = Carbon::parse("$date $overnightCutoff", $tz)->addDay();
+
+            // Ambil hanya kolom yang pasti ada; jangan select io_mode/verify_mode
+            $logs = Scanlog::query()
+                ->where('pin', $pin)
+                ->where('organisasi_id', $organisasi_id)
+                // kirim Carbon agar dibind sebagai parameter timestamp
+                ->whereBetween('scan_date', [$startLocal, $endLocal])
+                ->orderBy('scan_date')
+                ->get(['scan_date']); // aman
+
+            if ($logs->isEmpty()) {
                 return response()->json(['message' => 'Data Presensi Tidak Ditemukan'], 404);
             }
-        } catch (Throwable $e) {
+
+            // Kalau tidak punya kolom IO, pakai paling awal & paling akhir
+            $first = $logs->first();
+            $last = $logs->count() > 1 ? $logs->last() : null;
+
+            $checkIn = $first ? Carbon::parse($first->scan_date)->timezone($tz) : null;
+            $checkOut = $last ? Carbon::parse($last->scan_date)->timezone($tz) : null;
+
+            return response()->json([
+                'message' => 'Data Presensi Berhasil Ditemukan',
+                'data' => [
+                    'date' => $date,
+                    'overnight_until' => $overnightCutoff,
+                    'window_start' => $startLocal->format('Y-m-d H:i:s'),
+                    'window_end' => $endLocal->format('Y-m-d H:i:s'),
+                    'check_in' => optional($checkIn)->format('Y-m-d H:i:s'),
+                    'check_out' => optional($checkOut)->format('Y-m-d H:i:s'),
+                    'check_in_input' => optional($checkIn)->format('Y-m-d\TH:i'),
+                    'check_out_input' => optional($checkOut)->format('Y-m-d\TH:i'),
+                    // kirim list untuk cross-check di UI
+                    'logs' => $logs->map(fn($l) => [
+                        'scan_date' => Carbon::parse($l->scan_date)->timezone($tz)->format('Y-m-d H:i:s'),
+                    ])->values(),
+                ],
+            ], 200);
+
+        } catch (\Throwable $e) {
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }

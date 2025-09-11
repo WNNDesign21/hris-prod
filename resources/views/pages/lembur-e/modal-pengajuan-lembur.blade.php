@@ -7,8 +7,8 @@
                 <button type="button" class="btn-close btnClose" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form action="{{ route('lembure.pengajuan-lembur.store') }}" method="POST"
-                    enctype="multipart/form-data" id="form-pengajuan-lembur">
+                <form action="{{ route('lembure.pengajuan-lembur.store') }}" method="POST" enctype="multipart/form-data"
+                    id="form-pengajuan-lembur">
                     @csrf
                     <div class="form-group">
                         <div class="col-12">
@@ -16,19 +16,31 @@
                                 <div class="box-body">
                                     <h4 class="box-title">Surat Perintah Lembur</h4>
                                     <div class="box-controls pull-right">
-                                        <button type="button"
-                                            class="btn btn-success waves-effect btnAddDetailLembur"><i
+                                        <button type="button" class="btn btn-success waves-effect btnAddDetailLembur"><i
                                                 class="fas fa-plus"></i></button>
                                     </div>
                                     <div class="row">
-                                        <div class="col-lg-4 col-8 p-0">
+                                        <div class="col-lg-4 col-12">
                                             <div class="form-group">
-                                                <label for="jenis_hari">Jenis Hari</label>
+                                                <label for="jenis_hari">JENSI HARI</label>
                                                 <select name="jenis_hari" id="jenis_hari" class="form-control"
                                                     style="width:100%;" required>
                                                     <option value="">PILIH JENIS HARI LEMBUR</option>
                                                     <option value="WE">WEEKEND</option>
                                                     <option value="WD">WEEKDAY</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row" id="jenis_lembur_group" style="display: none;"> {{-- This will be shown by JS --}}
+                                        <div class="col-lg-4 col-12">
+                                            <div class="form-group">
+                                                <label for="jenis_lembur">PILIH JENIS LEMBUR</label>
+                                                <select name="jenis_lembur" id="jenis_lembur" class="form-control"
+                                                    style="width:100%;">
+                                                    <option value="">PILIH JENIS LEMBUR</option>
+                                                    <option value="AWAL">AWAL</option>
+                                                    <option value="AKHIR">AKHIR</option>
                                                 </select>
                                             </div>
                                         </div>

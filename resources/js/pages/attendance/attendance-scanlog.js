@@ -101,7 +101,7 @@ $(function () {
     $('.btnGetScanlog').on("click", function () {
         loadingSwalShow();
         let formData = new FormData($('#form-export-scanlog')[0]);
-        let url = "{{ route('attendance.scanlog.download-scanlog') }}";
+        let url = base_url + "/attendance/scanlog/download-scanlog";
         loadingSwalShow();
         $.ajax({
             url: url,
@@ -122,25 +122,30 @@ $(function () {
     })
 
     $('.btnExport').on("click", function () {
+        loadingSwalShow();
         let startDate = $('#start_date').val();
         let endDate = $('#end_date').val();
 
         if (startDate == '' || endDate == '') {
+            loadingSwalClose();
             showToast({title: 'Please fill start date and end date', icon: 'error'});
             return;
         }
 
         if (startDate > endDate) {
+            loadingSwalClose();
             showToast({title: 'Start date must be less than end date', icon: 'error'});
             return;
         }
 
         if(startDate > new Date().toISOString().split('T')[0]) {
+            loadingSwalClose();
             showToast({title: 'Please choose start date less than today', icon: 'error'});
             return;
         }
-
-        $('#form-export-scanlog').submit();
+        
+        // Submit the form using ajax to show loading and handle errors
+        $('#form-export-scanlog').trigger('submit');
     });
 
     //DATATABLE

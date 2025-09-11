@@ -45,15 +45,18 @@
                                         <table class="table mb-0" id="table-aktual-approval-lembur">
                                             <thead class="table-primary">
                                                 <tr>
-                                                    <th style="width: 10%;">Karyawan</th>
-                                                    <th style="width: 10%;">Job Description</th>
+                                                    <th style="width: 8%;">Karyawan</th>
+                                                    <th style="width: 8%;">Job Description</th>
                                                     <th style="width: 5%;">Rencana Mulai</th>
                                                     <th style="width: 5%;">Rencana Selesai </th>
-                                                    <th style="width: 10%;">Durasi (Rencana)</th>
-                                                    <th style="width: 15%;">Aktual Mulai</th>
-                                                    <th style="width: 15%;">Aktual Selesai</th>
-                                                    <th style="width: 10%;">Durasi (Aktual)</th>
-                                                    <th style="width: 10%;">Keterangan</th>
+                                                    <th style="width: 8%;">Durasi (Rencana)</th>
+                                                    <th style="width: 8%;">Aktual Mulai</th>
+                                                    <th style="width: 8%;">Aktual Selesai</th>
+                                                    <th style="width: 8%;">Check In</th>
+                                                    <th style="width: 8%;">Check Out</th>
+                                                    <th style="width: 8%;">Match Status</th>
+                                                    <th style="width: 8%;">Durasi (Aktual)</th>
+                                                    <th style="width: 8%;">Keterangan</th>
                                                     <th style="width: 5%;">Nominal</th>
                                                     <th style="width: 5%;">Action</th>
                                                 </tr>

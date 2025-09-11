@@ -19,6 +19,7 @@
                                     <p>Status : <span id="statusDetail"></span></p>
                                     <p>Tanggal : <span id="text_tanggalDetail"></span></p>
                                     <p>Jenis Hari : <span id="jenis_hariDetail"></span></p>
+                                    <p>Jenis Lembur : <span id="jenis_lemburDetail"></span></p>
                                     <div class="col-12">
                                         <p class="fw-bold">Lampiran LKH</p>
                                         <div class="row d-inline-block previewAttachmentLembur">
@@ -32,16 +33,19 @@
                                     <table class="table table-bordered mb-0" id="table-detail-approval-lembur">
                                         <thead class="table-primary">
                                             <tr>
-                                                <th style="width: 10%;">Karyawan</th>
-                                                <th style="width: 20%;">Job Description</th>
+                                                <th style="width: 8%;">Karyawan</th>
+                                                <th style="width: 15%;">Job Description</th>
                                                 <th style="width: 5%;">Rencana Mulai</th>
                                                 <th style="width: 5%;">Rencana Selesai </th>
-                                                <th style="width: 10%;">Durasi (Rencana)</th>
-                                                <th style="width: 5%;">Aktual Mulai</th>
-                                                <th style="width: 5%;">Aktual Selesai</th>
-                                                <th style="width: 10%;">Durasi (Aktual)</th>
-                                                <th style="width: 15%;">Keterangan</th>
-                                                <th style="width: 15%;">Nominal</th>
+                                                <th style="width: 7%;">Durasi (Rencana)</th>
+                                                <th style="width: 7%;">Aktual Mulai</th>
+                                                <th style="width: 7%;">Aktual Selesai</th>
+                                                <th style="width: 7%;" id="th-check-in">Check In</th>
+                                                <th style="width: 7%;" id="th-check-out">Check Out</th>
+                                                <th style="width: 7%;" id="th-match-status">Match Status</th>
+                                                <th style="width: 7%;">Durasi (Aktual)</th>
+                                                <th style="width: 8%;">Keterangan</th>
+                                                <th style="width: 7%;">Nominal</th>
                                             </tr>
                                         </thead>
                                         <tbody id="list-detail-approval-lembur">
