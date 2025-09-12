@@ -199,6 +199,11 @@ $(function () {
                 targets: [2, 7, -1],
             },
             {
+                // Sembunyikan kolom Plan Reviewed, Plan Legalized, dan Actual Checked
+                targets: [11, 12, 13], // Indeks yang benar adalah 11, 12, dan 13
+                visible: false,
+            },
+            {
                 targets: [-1],
                 createdCell: function (td, cellData, rowData, row, col) {
                     // $(td).addClass("text-center");

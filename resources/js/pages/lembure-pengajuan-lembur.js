@@ -197,6 +197,11 @@ $(function () {
                 targets: [2, -1],
             },
             {
+                // Sembunyikan kolom Plan Reviewed, Plan Legalized, dan Actual Checked
+                targets: [9, 10, 11],
+                visible: false,
+            },
+            {
                 targets: [-1],
                 createdCell: function (td, cellData, rowData, row, col) {
                     // $(td).addClass("text-center");
