@@ -24,6 +24,7 @@
                                         <p>Status : <span id="statusDone"></span></p>
                                         <p>Tanggal : <span id="text_tanggalDone"></span></p>
                                         <p>Jenis Hari : <span id="jenis_hariDone"></span></p>
+                                        <p>Jenis Lembur : <span id="jenis_lemburDetail"></span></p>
                                         <div class="col-12 mb-4">
                                             <p class="fw-bold">Lampiran LKH</p>
                                             <div class="row d-inline-block previewAttachmentLembur">

@@ -4,7 +4,8 @@
         <div class="modal-content">
             <div class="modal-header">
                 {{-- <h4 class="modal-title">Pengajuan Lembur</h4> --}}
-                <button type="button" class="btn-close btnCloseEdit" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close btnCloseEdit" data-bs-dismiss="modal"
+                    aria-label="Close"></button>
             </div>
             <div class="modal-body">
                 <form action="#" method="POST" enctype="multipart/form-data" id="form-pengajuan-lembur-edit">
@@ -22,14 +23,28 @@
                                                 class="fas fa-plus"></i></button>
                                     </div>
                                     <div class="row">
-                                        <div class="col-lg-4 col-8 p-0">
+                                        <div class="col-lg-4 col-12">
                                             <div class="form-group">
-                                                <label for="jenis_hariEdit">Jenis Hari</label>
-                                                <select name="jenis_hariEdit" id="jenis_hariEdit" class="form-control"
+                                                <label for="jenis_hari">JENSI HARI</label>
+                                                <select name="jenis_hari" id="jenis_hari" class="form-control"
                                                     style="width:100%;" required>
                                                     <option value="">PILIH JENIS HARI LEMBUR</option>
                                                     <option value="WE">WEEKEND</option>
                                                     <option value="WD">WEEKDAY</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row" id="jenis_lembur_group" style="display: none;"> {{-- This will be
+                                        shown by JS --}}
+                                        <div class="col-lg-4 col-12">
+                                            <div class="form-group">
+                                                <label for="jenis_lembur">PILIH JENIS LEMBUR</label>
+                                                <select name="jenis_lembur" id="jenis_lembur" class="form-control"
+                                                    style="width:100%;">
+                                                    <option value="">PILIH JENIS LEMBUR</option>
+                                                    <option value="AWAL">AWAL</option>
+                                                    <option value="AKHIR">AKHIR</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -50,8 +65,7 @@
             <div class="modal-footer">
                 <div class="col">
                     <div class="d-flex justify-content-end">
-                        <button type="button"
-                            class="btn btn-warning waves-effect btnUpdateDetailLembur">Update</button>
+                        <button type="button" class="btn btn-warning waves-effect btnUpdateDetailLembur">Update</button>
                     </div>
                 </div>
             </div>
