@@ -104,13 +104,13 @@ $(function () {
     // DATATABLE
     var columnsTable = [
         { data: "id_lembur" },
-        { data: "issued_date" },
+        { data: "issued_date", name: "issued_date" },
         { data: "rencana_mulai_lembur" },
-        { data: "issued_by" },
-        { data: "departemen" },
-        { data: "jenis_hari" },
-        { data: "total_durasi" },
-        { data: "total_nominal" },
+        { data: "issued_by", name: "issued_by" },
+        { data: "departemen", name: "departemen" },
+        { data: "jenis_hari", name: "jenis_hari" },
+        { data: "total_durasi", name: "total_durasi" },
+        { data: "total_nominal", name: "total_nominal" },
         { data: "status" },
         { data: "plan_checked_by" },
         { data: "plan_approved_by" },
@@ -191,17 +191,18 @@ $(function () {
             },
         },
         // responsive: true,
-        columns: columnsTable,
         scrollX: true,
+        columns: columnsTable,
         columnDefs: [
             {
                 orderable: false,
-                targets: [2, 7, -1],
+                targets: [2, -1],
             },
             {
                 // Sembunyikan kolom Plan Reviewed, Plan Legalized, dan Actual Checked
-                targets: [11, 12, 13], // Indeks yang benar adalah 11, 12, dan 13
                 visible: false,
+                targets: [11, 12, 13],
+                className: "d-none"
             },
             {
                 targets: [-1],
