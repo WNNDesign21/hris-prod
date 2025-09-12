@@ -102,7 +102,6 @@ $(function () {
         loadingSwalShow();
         let formData = new FormData($('#form-export-scanlog')[0]);
         let url = base_url + "/attendance/scanlog/download-scanlog";
-        loadingSwalShow();
         $.ajax({
             url: url,
             type: 'POST',
@@ -123,29 +122,39 @@ $(function () {
 
     $('.btnExport').on("click", function () {
         loadingSwalShow();
-        let startDate = $('#start_date').val();
-        let endDate = $('#end_date').val();
+        let formData = new FormData($('#form-export-scanlog')[0]);
+        let url = base_url + "/attendance/scanlog/export-scanlog";
 
-        if (startDate == '' || endDate == '') {
-            loadingSwalClose();
-            showToast({title: 'Please fill start date and end date', icon: 'error'});
-            return;
-        }
-
-        if (startDate > endDate) {
-            loadingSwalClose();
-            showToast({title: 'Start date must be less than end date', icon: 'error'});
-            return;
-        }
-
-        if(startDate > new Date().toISOString().split('T')[0]) {
-            loadingSwalClose();
-            showToast({title: 'Please choose start date less than today', icon: 'error'});
-            return;
-        }
-        
-        // Submit the form using ajax to show loading and handle errors
-        $('#form-export-scanlog').trigger('submit');
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function (response){
+                loadingSwalClose();
+                if(response.download_url) {
+                    showToast({title: response.message, icon: 'success'});
+                    window.location.href = response.download_url;
+                    closeDownload();
+                } else {
+                    showToast({title: 'Failed to generate file.', icon: 'error'});
+                }
+            },
+            error: function (xhr, status, error){
+                loadingSwalClose();
+                let message = 'An error occurred.';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    // If the message is an array, join it for better display.
+                    if(Array.isArray(xhr.responseJSON.message)) {
+                        message = xhr.responseJSON.message.join('<br>');
+                    } else {
+                        message = xhr.responseJSON.message;
+                    }
+                }
+                showToast({title: message, icon: 'error'});
+            }
+        });
     });
 
     //DATATABLE

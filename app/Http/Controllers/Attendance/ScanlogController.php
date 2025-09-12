@@ -686,16 +686,21 @@ class ScanlogController extends Controller
             }
 
             $writer = new Xlsx($spreadsheet);
+            $fileName = 'Scanlog-' . $device->device_name . '-' . $request->start_date . '-' . $request->end_date . '.xlsx';
+            $temp_path = storage_path('app/public/temp_files/' . $fileName);
 
-            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            header('Content-Disposition: attachment;filename=Scanlog-' . $device->device_name . '-' . $request->start_date . '-' . $request->end_date . '.xlsx');
-            header('Cache-Control: max-age=0');
+            // Ensure the directory exists
+            if (!file_exists(dirname($temp_path))) {
+                mkdir(dirname($temp_path), 0755, true);
+            }
 
-            $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
-            $writer->save('php://output');
+            $writer->save($temp_path);
             $spreadsheet->disconnectWorksheets();
             unset($spreadsheet);
-            exit();
+
+            $download_url = secure_asset('storage/temp_files/' . $fileName);
+
+            return response()->json(['download_url' => $download_url, 'message' => 'File siap diunduh.']);
         } catch (Throwable $e) {
             return response()->json(['message' => $e->getMessage()], 500);
         }
