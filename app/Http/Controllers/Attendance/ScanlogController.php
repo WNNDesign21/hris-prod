@@ -11,7 +11,6 @@ use App\Jobs\DownloadScanlogJob;
 use App\Models\Attendance\Device;
 use App\Models\Attendance\Scanlog;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Jobs\SummarizeAttendanceJob;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -132,9 +131,8 @@ class ScanlogController extends Controller
             // 0️⃣ Get Device SN from local DB
             $device = Device::find($device_id);
             if (!$device || !$device->device_sn) {
-                // If device or its SN is not found, rollback and return error.
                 DB::rollBack();
-                // Optionally log an error message here.
+                error_log("GAGAL MENCARI DEVICE (get_att_scanlog): Device ID " . $device_id . " tidak ditemukan atau tidak memiliki SN.");
                 return false;
             }
             $device_sn = $device->device_sn;
@@ -163,6 +161,7 @@ class ScanlogController extends Controller
 
             if ($rawData->isEmpty()) {
                 DB::rollBack();
+                error_log("TIDAK ADA DATA SCANLOG (get_att_scanlog): Tidak ada data ditemukan di mesin fingerprint untuk Device SN " . $device_sn . " antara " . $startDate . " dan " . $endDate);
                 return false;
             }
 
@@ -205,7 +204,7 @@ class ScanlogController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error("Gagal get_att_scanlog: " . $e->getMessage());
+            error_log("GAGAL KONEKSI FINGERPRINT (get_att_scanlog): " . $e->getMessage() . " | File: " . $e->getFile() . " | Line: " . $e->getLine());
             return false;
         }
     }
@@ -223,25 +222,25 @@ class ScanlogController extends Controller
 
     if ($validator->fails()) {
         $errors = $validator->errors()->all();
-        Log::warning("Download scanlog gagal validasi", $errors);
+        error_log('Download scanlog gagal validasi: ' . json_encode($errors));
         return response()->json(['message' => $errors], 402);
     }
 
     $startDate = Carbon::parse($request->start_date);
     $endDate = Carbon::parse($request->end_date);
 
-    Log::info("Mulai download_scanlog", [
+    error_log('Mulai download_scanlog: ' . json_encode([
         'start_date' => $startDate->toDateString(),
         'end_date'   => $endDate->toDateString(),
         'device_id'  => $request->device_id,
         'user_id'    => auth()->id(),
-    ]);
+    ]));
 
     if ($startDate->year !== $endDate->year || $startDate->month !== $endDate->month) {
-        Log::warning("Validasi bulan/tahun tidak sama", [
+        error_log('Validasi bulan/tahun tidak sama: ' . json_encode([
             'start_date' => $startDate->toDateString(),
             'end_date'   => $endDate->toDateString(),
-        ]);
+        ]));
         return response()->json(['message' => 'Tanggal mulai dan tanggal akhir harus berada di bulan dan tahun yang sama.'], 402);
     }
 
@@ -250,17 +249,17 @@ class ScanlogController extends Controller
         $organisasi_id = auth()->user()->organisasi_id;
         $cloudId = $device->cloud_id;
 
-        Log::info("Device ditemukan", [
+        error_log('Device ditemukan: ' . json_encode([
             'id_device' => $device->id_device,
             'cloud_id'  => $cloudId,
-        ]);
+        ]));
 
         $diff_date = $startDate->diffInDays($endDate);
 
         if ($diff_date <= 1) {
-            Log::info("Download mode 1 hari", [
+            error_log('Download mode 1 hari: ' . json_encode([
                 'range' => [$request->start_date, $request->end_date],
-            ]);
+            ]));
 
             $this->get_att_scanlog(
                 $organisasi_id,
@@ -271,19 +270,19 @@ class ScanlogController extends Controller
             );
 
         } else {
-            Log::info("Download mode rentang panjang", [
+            error_log('Download mode rentang panjang: ' . json_encode([
                 'range' => [$request->start_date, $request->end_date],
-            ]);
+            ]));
 
             $summarizeExists = AttendanceSummary::whereMonth('periode', $startDate->month)
                 ->whereYear('periode', $startDate->year)
                 ->exists();
 
-            Log::info("Cek summarizeExists", ['exists' => $summarizeExists]);
+            error_log('Cek summarizeExists: ' . json_encode(['exists' => $summarizeExists]));
 
             if (!$summarizeExists) {
-                Log::info("Summarize belum ada, ambil scanlog pertama");
-                $this->get_att_scanlog($organisasi_id, $request->device_id, $cloudId, $startDate, $startDate);
+                error_log('Summarize belum ada, ambil scanlog pertama');
+                $this->get_att_scanlog($organisasi_id, $request->device_id, $cloudId, $startDate->format('Y-m-d'), $startDate->format('Y-m-d'));
             }
 
             $dateRanges = [];
@@ -298,22 +297,20 @@ class ScanlogController extends Controller
                 ];
             }
 
-            Log::info("Date ranges terbuat", $dateRanges);
+            error_log('Date ranges terbuat: ' . json_encode($dateRanges));
 
             foreach ($dateRanges as $dr) {
-                Log::info("Dispatch DownloadScanlogJob", $dr);
+                error_log('Dispatch DownloadScanlogJob: ' . json_encode($dr));
                 DownloadScanlogJob::dispatch($organisasi_id, $cloudId, $dr['start_date'], $dr['end_date'], $device->id_device, auth()->user());
             }
         }
 
-        Log::info("Download scanlog selesai sukses");
+        error_log('Download scanlog selesai sukses');
         return response()->json(['message' => 'Data Scanlog Berhasil Diunduh!'], 200);
 
     } catch (Throwable $e) {
         DB::rollBack();
-        Log::error("Gagal download_scanlog: " . $e->getMessage(), [
-            'trace' => $e->getTraceAsString()
-        ]);
+        error_log("Gagal download_scanlog: " . $e->getMessage() . ' Trace: ' . $e->getTraceAsString());
         return response()->json(['message' => $e->getMessage()], 500);
     }
 }
