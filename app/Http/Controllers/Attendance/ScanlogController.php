@@ -653,15 +653,17 @@ class ScanlogController extends Controller
 
             $writer = new Xlsx($spreadsheet);
 
-            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            header('Content-Disposition: attachment;filename=Scanlog-' . $device->device_name . '-' . $request->start_date . '-' . $request->end_date . '.xlsx');
-            header('Cache-Control: max-age=0');
+            $fileName = 'Scanlog-' . $device->device_name . '-' . $request->start_date . '-' . $request->end_date . '.xlsx';
 
-            $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
-            $writer->save('php://output');
-            $spreadsheet->disconnectWorksheets();
-            unset($spreadsheet);
-            exit();
+            return response()->streamDownload(function () use ($spreadsheet) {
+                $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+                $writer->save('php://output');
+                $spreadsheet->disconnectWorksheets();
+            }, $fileName, [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'Cache-Control' => 'max-age=0',
+            ]);
+
         } catch (Throwable $e) {
             return response()->json(['message' => $e->getMessage()], 500);
         }
