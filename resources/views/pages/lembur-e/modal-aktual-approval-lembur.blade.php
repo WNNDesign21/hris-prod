@@ -32,7 +32,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <p>Jenis Lembur : <span id="jenis_lemburDetail"></span></p>
+                                        <p>Jenis Lembur : <span id="jenis_lemburAktual"></span></p>
                                         <div class="col-12">
                                             <p class="fw-bold">Lampiran LKH</p>
                                             <div class="row d-inline-block previewAttachmentLembur">

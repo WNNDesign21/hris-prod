@@ -32,7 +32,7 @@
                                                 </select>
                                             </div>
                                         </div>
-                                        <p>Jenis Lembur : <span id="jenis_lemburDetail"></span></p>
+                                        <p>Jenis Lembur : <span id="jenis_lemburApproval"></span></p>
                                     </div>
                                 </div>
                                 <!-- /.box-header -->
