@@ -136,12 +136,14 @@ class ScanlogController extends Controller
                 return false;
             }
             $device_sn = $device->device_sn;
+            error_log("DEBUG (get_att_scanlog): Device SN: " . $device_sn . ", Start Date: " . $startDate . ", End Date: " . $endDate);
 
             // 1️⃣ Bersihkan data scanlog sebelumnya
             Scanlog::where('device_id', $device_id)
                 ->whereBetween('scan_date', [$startDate, $endDate])
                 ->whereIn('verify', [0, 1, 2, 3, 4, 5, 6])
                 ->delete();
+            error_log("DEBUG (get_att_scanlog): Scanlog lama dihapus untuk device ID " . $device_id . " antara " . $startDate . " dan " . $endDate);
 
             // 2️⃣ Ambil data dari SQL Server (mesin fingerprint) using SN
             $rawData = DB::connection('sqlsrv')
@@ -158,6 +160,8 @@ class ScanlogController extends Controller
                 ->where('CHECKINOUT.sn', $device_sn) // Filter by device SN
                 ->whereBetween('CHECKINOUT.CHECKTIME', [$startDate, $endDate])
                 ->get();
+
+            error_log("DEBUG (get_att_scanlog): Jumlah data mentah dari SQL Server: " . $rawData->count());
 
             if ($rawData->isEmpty()) {
                 DB::rollBack();
