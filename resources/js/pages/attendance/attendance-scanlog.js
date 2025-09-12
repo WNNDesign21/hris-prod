@@ -101,7 +101,7 @@ $(function () {
     $('.btnGetScanlog').on("click", function () {
         loadingSwalShow();
         let formData = new FormData($('#form-export-scanlog')[0]);
-        let url = base_url + "/attendance/scanlog/download-scanlog";
+        let url = base_url + '/attendance/scanlog/download-scanlog';
         loadingSwalShow();
         $.ajax({
             url: url,
@@ -122,94 +122,25 @@ $(function () {
     })
 
     $('.btnExport').on("click", function () {
-        loadingSwalShow();
         let startDate = $('#start_date').val();
         let endDate = $('#end_date').val();
 
         if (startDate == '' || endDate == '') {
-            loadingSwalClose();
             showToast({title: 'Please fill start date and end date', icon: 'error'});
             return;
         }
 
         if (startDate > endDate) {
-            loadingSwalClose();
             showToast({title: 'Start date must be less than end date', icon: 'error'});
             return;
         }
 
         if(startDate > new Date().toISOString().split('T')[0]) {
-            loadingSwalClose();
             showToast({title: 'Please choose start date less than today', icon: 'error'});
             return;
         }
-        
-        let form = $('#form-export-scanlog');
-        let url = form.attr('action');
-        let formData = new FormData(form[0]);
 
-        $.ajax({
-            url: url,
-            type: 'POST',
-            data: formData,
-            contentType: false,
-            processData: false,
-            xhrFields: {
-                responseType: 'blob'
-            },
-            success: function (blob, status, xhr) {
-                loadingSwalClose();
-                let filename = "";
-                let disposition = xhr.getResponseHeader('Content-Disposition');
-                if (disposition && disposition.indexOf('attachment') !== -1) {
-                    let filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-                    let matches = filenameRegex.exec(disposition);
-                    if (matches != null && matches[1]) { 
-                        filename = matches[1].replace(/['"]/g, '');
-                    }
-                }
-
-                if (typeof window.navigator.msSaveBlob !== 'undefined') {
-                    // IE workaround for "HTML7007: One or more blob URLs were revoked by closing the blob for which they were created. These URLs will no longer resolve as the error implies."
-                    window.navigator.msSaveBlob(blob, filename);
-                } else {
-                    let URL = window.URL || window.webkitURL;
-                    let downloadUrl = URL.createObjectURL(blob);
-
-                    if (filename) {
-                        // use HTML5 a[download] attribute to specify filename
-                        let a = document.createElement("a");
-                        // safari doesn't support this yet
-                        if (typeof a.download === 'undefined') {
-                            window.location = downloadUrl;
-                        } else {
-                            a.href = downloadUrl;
-                            a.download = filename;
-                            document.body.appendChild(a);
-                            a.click();
-                        }
-                    } else {
-                        window.location = downloadUrl;
-                    }
-
-                    setTimeout(function () { URL.revokeObjectURL(downloadUrl); }, 100); // cleanup
-                }
-                showToast({title: 'Export success!', icon: 'success'});
-            },
-            error: function (xhr, status, error) {
-                loadingSwalClose();
-                const reader = new FileReader();
-                reader.onload = function() {
-                    try {
-                        const errorResponse = JSON.parse(this.result);
-                        showToast({title: errorResponse.message || 'Export failed!', icon: 'error'});
-                    } catch (e) {
-                        showToast({title: 'Export failed!', icon: 'error'});
-                    }
-                }
-                reader.readAsText(xhr.response);
-            }
-        });
+        $('#form-export-scanlog').submit();
     });
 
     //DATATABLE
