@@ -11,6 +11,7 @@ use App\Jobs\DownloadScanlogJob;
 use App\Models\Attendance\Device;
 use App\Models\Attendance\Scanlog;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Jobs\SummarizeAttendanceJob;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -204,154 +205,118 @@ class ScanlogController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            // Log::error("Gagal get_att_scanlog: " . $e->getMessage());
+            Log::error("Gagal get_att_scanlog: " . $e->getMessage());
             return false;
         }
     }
 
 
     public function download_scanlog(Request $request)
-    {
-        $dataValidate = [
-            'start_date' => ['required', 'date', 'date_format:Y-m-d', 'before_or_equal:end_date'],
-            'end_date' => ['required', 'date', 'date_format:Y-m-d', 'after_or_equal:start_date'],
-            'device_id' => ['required', 'integer', 'exists:attendance_devices,id_device']
-        ];
+{
+    $dataValidate = [
+        'start_date' => ['required', 'date', 'date_format:Y-m-d', 'before_or_equal:end_date'],
+        'end_date' => ['required', 'date', 'date_format:Y-m-d', 'after_or_equal:start_date'],
+        'device_id' => ['required', 'integer', 'exists:attendance_devices,id_device']
+    ];
 
-        $validator = Validator::make(request()->all(), $dataValidate);
+    $validator = Validator::make(request()->all(), $dataValidate);
 
-        if ($validator->fails()) {
-            $errors = $validator->errors()->all();
-            return response()->json(['message' => $errors], 402);
-        }
+    if ($validator->fails()) {
+        $errors = $validator->errors()->all();
+        Log::warning("Download scanlog gagal validasi", $errors);
+        return response()->json(['message' => $errors], 402);
+    }
 
-        $startDate = Carbon::parse($request->start_date);
-        $endDate = Carbon::parse($request->end_date);
+    $startDate = Carbon::parse($request->start_date);
+    $endDate = Carbon::parse($request->end_date);
 
-        if ($startDate->year !== $endDate->year || $startDate->month !== $endDate->month) {
-            return response()->json(['message' => 'Tanggal mulai dan tanggal akhir harus berada di bulan dan tahun yang sama.'], 402);
-        }
+    Log::info("Mulai download_scanlog", [
+        'start_date' => $startDate->toDateString(),
+        'end_date'   => $endDate->toDateString(),
+        'device_id'  => $request->device_id,
+        'user_id'    => auth()->id(),
+    ]);
 
-        try {
-            $device = Device::find($request->device_id);
-            $organisasi_id = auth()->user()->organisasi_id;
-            $cloudId = $device->cloud_id;
-            $startDate = $request->start_date;
-            $endDate = $request->end_date;
-            $diff_date = Carbon::parse($startDate)->diffInDays(Carbon::parse($endDate));
-            if ($diff_date <= 1) {
-                // dd($request->start_date, $request->end_date);
-                $this->get_att_scanlog($organisasi_id, $request->device_id, $cloudId, "$request->start_date 00:00:00", "$request->end_date 23:59:59");
-                // DB::beginTransaction();
-                // //CEK APAKAH SCANLOG SUDAH ADA DI TANGGAL TERSEBUT
-                // $scanlog = Scanlog::where('device_id', $request->device_id)->where(function($query) use ($startDate, $endDate){
-                //     $query->where(function($query) use ($startDate, $endDate){
-                //         $query->whereDate('scan_date', $startDate)
-                //             ->orWhereDate('scan_date', $endDate);
-                //     });
-                // })->whereIn('verify', [1, 2, 3, 4, 6]);
+    if ($startDate->year !== $endDate->year || $startDate->month !== $endDate->month) {
+        Log::warning("Validasi bulan/tahun tidak sama", [
+            'start_date' => $startDate->toDateString(),
+            'end_date'   => $endDate->toDateString(),
+        ]);
+        return response()->json(['message' => 'Tanggal mulai dan tanggal akhir harus berada di bulan dan tahun yang sama.'], 402);
+    }
 
-                // if($scanlog->exists()){
-                //     $scanlog->delete();
-                // }
+    try {
+        $device = Device::find($request->device_id);
+        $organisasi_id = auth()->user()->organisasi_id;
+        $cloudId = $device->cloud_id;
 
-                // //GET DATA FROM FINGERSPOT API
-                // $client = new Client();
-                // $url = 'https://developer.fingerspot.io/api/get_attlog';
+        Log::info("Device ditemukan", [
+            'id_device' => $device->id_device,
+            'cloud_id'  => $cloudId,
+        ]);
 
-                // $body = [
-                //     'trans_id' => '1',
-                //     'cloud_id' => $cloudId,
-                //     'start_date' => $startDate,
-                //     'end_date' => $endDate,
-                // ];
+        $diff_date = $startDate->diffInDays($endDate);
 
-                // $headers = [
-                //     'Content-Type' => 'application/json',
-                //     'Authorization' => "Bearer ". env('API_TOKEN_FINGERSPOT'),
-                // ];
+        if ($diff_date <= 1) {
+            Log::info("Download mode 1 hari", [
+                'range' => [$request->start_date, $request->end_date],
+            ]);
 
-                // $response = $client->post($url, [
-                //     'headers' => $headers,
-                //     'json' => $body,
-                // ]);
-                // $responseBody = $response->getBody();
-                // $response = json_decode($responseBody, true);
-                // $datas = [];
-                // $pins = [];
-                // $scanlog_datas = [];
+            $this->get_att_scanlog(
+                $organisasi_id,
+                $request->device_id,
+                $cloudId,
+                "$request->start_date 00:00:00",
+                "$request->end_date 23:59:59"
+            );
 
-                // if(!empty($response)){
-                //     foreach($response['data'] as $data){
-                //         if(!in_array($data['pin'], $pins)){
-                //             $pins[] = $data['pin'];
-                //         }
+        } else {
+            Log::info("Download mode rentang panjang", [
+                'range' => [$request->start_date, $request->end_date],
+            ]);
 
-                //         $datas[] = [
-                //             'pin' => $data['pin'],
-                //             'scan_date' => $data['scan_date'],
-                //             'scan_status' => $data['status_scan'],
-                //             'verify' => $data['verify'],
-                //             'device_id' => $request->device_id,
-                //             'organisasi_id' => $organisasi_id,
-                //             'start_date_scan' => $startDate,
-                //             'end_date_scan' => $endDate,
-                //             'created_at' => now(),
-                //             'updated_at' => now()
-                //         ];
-                //     }
+            $summarizeExists = AttendanceSummary::whereMonth('periode', $startDate->month)
+                ->whereYear('periode', $startDate->year)
+                ->exists();
 
-                //     Scanlog::insert($datas);
-                //     DB::commit();
+            Log::info("Cek summarizeExists", ['exists' => $summarizeExists]);
 
-                // $newScanlog = Scanlog::where('device_id', $request->device_id)->where(function($query) use ($startDate, $endDate){
-                //     $query->where(function($query) use ($startDate, $endDate){
-                //         $query->whereDate('scan_date', $startDate)
-                //             ->orWhereDate('scan_date', $endDate);
-                //     });
-                // })->pluck('pin')->toArray();
-
-                //     //Execute Job
-                //     if ($startDate == $endDate) {
-                //         SummarizeAttendanceJob::dispatch($newScanlog, $organisasi_id, auth()->user(), $startDate);
-                //     } else {
-                //         SummarizeAttendanceJob::dispatch($newScanlog, $organisasi_id, auth()->user(), $startDate);
-                //         SummarizeAttendanceJob::dispatch($newScanlog, $organisasi_id, auth()->user(), $endDate);
-                //     }
-                // } else {
-                //     DB::rollBack();
-                //     return response()->json(['message' => 'Data Scanlog tidak tersedia'], 400);
-                // }
-            } else {
-                $summarizeExists = AttendanceSummary::whereMonth('periode', Carbon::parse($startDate)->month)
-                    ->whereYear('periode', Carbon::parse($startDate)->year)
-                    ->exists();
-
-                if (!$summarizeExists) {
-                    $this->get_att_scanlog($organisasi_id, $request->device_id, $cloudId, $startDate, $startDate);
-                }
-
-                for ($currentStartDate = Carbon::parse($startDate); $currentStartDate->lte(Carbon::parse($endDate)); $currentStartDate->addDays(2)) {
-                    $currentEndDate = $currentStartDate->copy()->addDay();
-                    if ($currentEndDate->gt(Carbon::parse($endDate))) {
-                        $currentEndDate = Carbon::parse($endDate);
-                    }
-                    $dateRanges[] = [
-                        'start_date' => $currentStartDate->format('Y-m-d'),
-                        'end_date' => $currentEndDate->format('Y-m-d'),
-                    ];
-                }
-
-                foreach ($dateRanges as $dr) {
-                    DownloadScanlogJob::dispatch($organisasi_id, $cloudId, $dr['start_date'], $dr['end_date'], $device->id_device, auth()->user());
-                }
+            if (!$summarizeExists) {
+                Log::info("Summarize belum ada, ambil scanlog pertama");
+                $this->get_att_scanlog($organisasi_id, $request->device_id, $cloudId, $startDate, $startDate);
             }
 
-            return response()->json(['message' => 'Data Scanlog Berhasil Diunduh!'], 200);
-        } catch (Throwable $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
+            $dateRanges = [];
+            for ($currentStartDate = $startDate->copy(); $currentStartDate->lte($endDate); $currentStartDate->addDays(2)) {
+                $currentEndDate = $currentStartDate->copy()->addDay();
+                if ($currentEndDate->gt($endDate)) {
+                    $currentEndDate = $endDate;
+                }
+                $dateRanges[] = [
+                    'start_date' => $currentStartDate->format('Y-m-d'),
+                    'end_date'   => $currentEndDate->format('Y-m-d'),
+                ];
+            }
+
+            Log::info("Date ranges terbuat", $dateRanges);
+
+            foreach ($dateRanges as $dr) {
+                Log::info("Dispatch DownloadScanlogJob", $dr);
+                DownloadScanlogJob::dispatch($organisasi_id, $cloudId, $dr['start_date'], $dr['end_date'], $device->id_device, auth()->user());
+            }
         }
+
+        Log::info("Download scanlog selesai sukses");
+        return response()->json(['message' => 'Data Scanlog Berhasil Diunduh!'], 200);
+
+    } catch (Throwable $e) {
+        DB::rollBack();
+        Log::error("Gagal download_scanlog: " . $e->getMessage(), [
+            'trace' => $e->getTraceAsString()
+        ]);
+        return response()->json(['message' => $e->getMessage()], 500);
     }
+}
 
     public function datatable(Request $request)
     {
