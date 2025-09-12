@@ -263,6 +263,7 @@ $(function () {
                 let header = response.data.header;
                 let textTanggal = response.data.text_tanggal
                 let jenisHari = header.jenis_hari == 'WEEKEND' ? 'WE' : 'WD';
+                let jenisLembur = header.jenis_lembur;
                 let status = header.status;
                 let detail = response.data.detail_lembur;
                 let tbody = $('#list-approval-lembur').empty();
@@ -435,6 +436,7 @@ $(function () {
                     dropdownParent: $('#modal-approval-lembur'),
                     disabled: true
                 });
+                $('#jenis_lemburApproval').text(jenisLembur ? jenisLembur : '-');
                 $('#text_tanggalApproval').text(textTanggal);
 
                 //STATUS
@@ -475,6 +477,7 @@ $(function () {
                 let header = response.data.header;
                 let textTanggal = response.data.text_tanggal
                 let jenisHari = header.jenis_hari == 'WEEKEND' ? 'WE' : 'WD';
+                let jenisLembur = header.jenis_lembur;
                 let status = header.status;
                 let detail = response.data.detail_lembur;
                 let tbody = $('#list-approval-lembur').empty();
@@ -648,6 +651,7 @@ $(function () {
                     dropdownParent: $('#modal-approval-lembur'),
                     disabled: true
                 });
+                $('#jenis_lemburApproval').text(jenisLembur ? jenisLembur : '-');
                 $('#text_tanggalApproval').text(textTanggal);
 
                 //STATUS
@@ -685,6 +689,7 @@ $(function () {
                 let header = response.data.header;
                 let textTanggal = response.data.text_tanggal
                 let jenisHari = header.jenis_hari == 'WEEKEND' ? 'WE' : 'WD';
+                let jenisLembur = header.jenis_lembur;
                 let status = header.status;
                 let detail = response.data.detail_lembur;
                 let tbody = $('#list-approval-lembur').empty();
@@ -857,6 +862,7 @@ $(function () {
                 $('#jenis_hariApproval').val(jenisHari).select2({
                     dropdownParent: $('#modal-approval-lembur')
                 });
+                $('#jenis_lemburApproval').text(jenisLembur ? jenisLembur : '-');
                 $('#text_tanggalApproval').text(textTanggal);
 
                 //STATUS
@@ -918,6 +924,7 @@ $(function () {
                 let header = response.data.header;
                 let textTanggal = response.data.text_tanggal
                 let jenisHari = header.jenis_hari == 'WEEKEND' ? 'WE' : 'WD';
+                let jenisLembur = header.jenis_lembur;
                 let status = header.status;
                 let detail = response.data.detail_lembur;
                 let tbody = $('#list-aktual-approval-lembur').empty();
@@ -1159,6 +1166,7 @@ $(function () {
                     dropdownParent: $('#modal-aktual-approval-lembur'),
                     disabled: true
                 });
+                $('#jenis_lemburAktual').text(jenisLembur ? jenisLembur : '-');
                 $('#text_tanggalAktual').text(textTanggal);
 
                 //STATUS
@@ -1476,6 +1484,7 @@ $(function () {
                 let header = response.data.header;
                 let textTanggal = response.data.text_tanggal
                 let jenisHari = header.jenis_hari == 'WEEKEND' ? 'WE' : 'WD';
+                let jenisLembur = header.jenis_lembur;
                 let status = header.status;
                 let detail = response.data.detail_lembur;
                 let tbody = $('#list-aktual-approval-lembur').empty();
@@ -1729,6 +1738,7 @@ $(function () {
                     dropdownParent: $('#modal-aktual-approval-lembur'),
                 });
                 $('#text_tanggalAktual').text(textTanggal);
+                $('#jenis_lemburAktual').text(jenisLembur ? jenisLembur : '-');
 
                 //STATUS
                 if (status == 'WAITING') {

@@ -869,6 +869,7 @@ $(function () {
                 let header = response.data.header;
                 let textTanggal = response.data.text_tanggal
                 let jenisHari = header.jenis_hari == 'WEEKEND' ? 'WE' : 'WD';
+                let jenisLembur = header.jenis_lembur;
                 let status = header.status;
                 let detail = response.data.detail_lembur;
                 let tbody = $('#list-detail-lembur-done').empty();
@@ -1055,6 +1056,7 @@ $(function () {
                 });
                 $('#jenis_hariDone').text(jenisHari == 'WE' ? 'Weekend' : 'Weekday');
                 $('#text_tanggalDone').text(textTanggal);
+                $('#jenis_lemburDone').text(jenisLembur ? jenisLembur : '-');
 
                 //STATUS
                 if (status == 'WAITING') {
