@@ -698,7 +698,7 @@ class ScanlogController extends Controller
             $spreadsheet->disconnectWorksheets();
             unset($spreadsheet);
 
-            $download_url = secure_asset('storage/temp_files/' . $fileName);
+            $download_url = asset('storage/temp_files/' . $fileName);
 
             return response()->json(['download_url' => $download_url, 'message' => 'File siap diunduh.']);
         } catch (Throwable $e) {
