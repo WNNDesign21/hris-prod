@@ -34,8 +34,8 @@
                                     <label for="">Tempat</label>
                                     <select name="tempat_administrasi" id="tempat_administrasi" class="form-control"
                                         style="width: 100%;">
-                                        <option value="Karawang">Karawang</option>
-                                        <option value="Purwakarta">Purwakarta</option>
+                                        <option value="ASI PLANT-1">ASI PLANT-1</option>
+                                        <option value="ASI PLANT-2">ASI PLANT-2</option>
                                     </select>
                                 </div>
                                 <div class="form-group">

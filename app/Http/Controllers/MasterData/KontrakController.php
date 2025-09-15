@@ -239,7 +239,7 @@ class KontrakController extends Controller
                     //No Surat Text
                     $kry->jenis_kontrak = $jenis;
                     $bulan_romawi = $this->angka_to_romawi(Carbon::parse($tanggal_mulai)->month);
-                    $hrd = $tempat_administrasi == 'Karawang' ? 'HRD-TCF3' : 'HRD-TCF2';
+                    $hrd = $tempat_administrasi == 'ASI PLANT-1' ? 'HRGA' : 'HRGAASI2';
                     $jenis_on_surat = ($jenis == 'MAGANG' ? 'MG' : $jenis).($jenis == 'PKWT' || $jenis == 'MAGANG' ? '-'.$this->angka_to_romawi($kontrak_karyawan) : '');
                     $tahun = Carbon::parse($tanggal_mulai)->format('Y');
                     $no_surat_text = 'No. ' . str_pad($no_surat_int, 3, '0', STR_PAD_LEFT) . '/' . $jenis_on_surat . '/' . $hrd . '/'.$bulan_romawi.'/' . $tahun;
@@ -277,7 +277,7 @@ class KontrakController extends Controller
                     //No Surat Text
                     $kry->jenis_kontrak = $jenis;
                     $bulan_romawi = $this->angka_to_romawi(Carbon::parse($tanggal_mulai)->month);
-                    $hrd = 'TCF';
+                    $hrd = 'ASI';
                     $jenis_on_surat = 'SKP';
                     $tahun = Carbon::parse($tanggal_mulai)->format('Y');
                     $no_surat_text = 'No. ' . str_pad($no_surat_int, 3, '0', STR_PAD_LEFT) . '/' . $jenis_on_surat . '/' . $hrd . '/'.$bulan_romawi.'/' . $tahun;
@@ -411,7 +411,7 @@ class KontrakController extends Controller
 
             //No Surat Text
             $bulan_romawi = $this->angka_to_romawi(Carbon::parse($tanggal_mulai)->month);
-            $hrd = $tempat_administrasi == 'Karawang' ? 'HRD-TCF3' : 'HRD-TCF2';
+            $hrd = $tempat_administrasi == 'ASI PLANT-1' ? 'HRGA' : 'HRGAASI2';
             $jenis_on_surat = ($jenis == 'MAGANG' ? 'MG' : $jenis).($jenis == 'PKWT' || $jenis == 'MAGANG' ? '-'.$this->angka_to_romawi($kontrak_karyawan) : '');
             $tahun = Carbon::parse($tanggal_mulai)->format('Y');
             $no_surat_text = 'No. ' . str_pad($no_surat, 3, '0', STR_PAD_LEFT) . '/' . $jenis_on_surat . '/' . $hrd . '/'.$bulan_romawi.'/' . $tahun;
