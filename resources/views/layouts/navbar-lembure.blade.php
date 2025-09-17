@@ -149,6 +149,14 @@
                                 </a>
                             </li>
                         @endif
+                        @if (auth()->user()->hasAnyRole(['personalia', 'super-personalia']))
+                            <li class="{{ $page == 'lembure-input-pajak-lembur' ? 'active' : '' }}">
+                                <a href="{{ route('lembure.input-pajak-lembur') }}">
+                                    <i class="icon-Thunder1"><span class="path1"></span><span class="path2"></span></i>
+                                    <span>Input Pajak Lembur</span>
+                                </a>
+                            </li>
+                        @endif
                 </ul>
             </div>
         </div>

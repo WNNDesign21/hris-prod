@@ -192,32 +192,22 @@
                                 <h4>Insentif Section Head <span class="text-danger">*</span></h4>
                                 <hr>
                                 <div class="form-group">
-                                    <label for="">Jam Ke-1</label>
-                                    <input type="number" min="0" name="insentif_section_head_1"
-                                        id="insentif_section_head_1" class="form-control" style="width: 100%;"
-                                        value="{{ $setting_lembur['insentif_section_head_1'] }}">
-
-                                </div>
-                                <div class="form-group">
-                                    <label for="">Jam Ke-2</label>
-                                    <input type="number" min="0" name="insentif_section_head_2"
-                                        id="insentif_section_head_2" class="form-control" style="width: 100%;"
-                                        value="{{ $setting_lembur['insentif_section_head_2'] }}">
-
-                                </div>
-                                <div class="form-group">
-                                    <label for="">Jam Ke-3</label>
+                                    <label for="">3 Jam</label>
                                     <input type="number" min="0" name="insentif_section_head_3"
                                         id="insentif_section_head_3" class="form-control" style="width: 100%;"
                                         value="{{ $setting_lembur['insentif_section_head_3'] }}">
-
                                 </div>
                                 <div class="form-group">
-                                    <label for="">Jam Ke-4 (Weekend)</label>
+                                    <label for="">4 Jam - 7 Jam</label>
                                     <input type="number" min="0" name="insentif_section_head_4"
                                         id="insentif_section_head_4" class="form-control" style="width: 100%;"
                                         value="{{ $setting_lembur['insentif_section_head_4'] }}">
-
+                                </div>
+                                <div class="form-group">
+                                    <label for=""> > 7 Jam</label>
+                                    <input type="number" min="0" name="insentif_section_head_gt_7"
+                                        id="insentif_section_head_gt_7" class="form-control" style="width: 100%;"
+                                        value="{{ $setting_lembur['insentif_section_head_gt_7'] ?? 0 }}">
                                 </div>
                             </div>
                             <hr>
@@ -227,11 +217,23 @@
                             <div class="col-lg-6 col-12 p-4">
                                 <h4>Insentif Departemen Head <span class="text-danger">*</span></h4>
                                 <div class="form-group">
-                                    <label for="">Jam Ke-4 (Weekend)</label>
+                                    <label for="">3 Jam</label>
+                                    <input type="number" min="0" name="insentif_department_head_3"
+                                        id="insentif_department_head_3" class="form-control" style="width: 100%;"
+                                        value="{{ $setting_lembur['insentif_department_head_3'] ?? 0 }}">
+                                </div>
+                                <div class="form-group">
+                                    <label for="">4 Jam - 7 Jam</label>
                                     <input type="number" min="0" name="insentif_department_head_4"
                                         id="insentif_department_head_4" class="form-control" style="width: 100%;"
                                         value="{{ $setting_lembur['insentif_department_head_4'] }}">
-
+                                </div>
+                                <div class="form-group">
+                                    <label for=""> > 7 Jam</label>
+                                    <input type="number" min="0" name="insentif_department_head_gt_7"
+                                        id="insentif_department_head_gt_7" class="form-control"
+                                        style="width: 100%;"
+                                        value="{{ $setting_lembur['insentif_department_head_gt_7'] ?? 0 }}">
                                 </div>
                             </div>
                         </div>

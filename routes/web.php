@@ -487,6 +487,14 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'role:atasan|member|persona
             Route::post('/export-report-lembur/datatable', [LembureController::class, 'export_slip_lembur_datatable']);
             Route::post('/export-report-lembur/rekap-lembur-perbulan', [LembureController::class, 'export_rekap_lembur_perbulan'])->name('lembure.export-report-lembur.rekap-lembur-perbulan');
             Route::post('/export-report-lembur/slip-lembur-perbulan', [LembureController::class, 'export_slip_lembur_perbulan'])->name('lembure.export-report-lembur.export-slip-lembur-perbulan');
+
+            // Input Slip Lembur
+            Route::get('/input-pajak-lembur', [LembureController::class, 'input_pajak_lembur_view'])->name('lembure.input-pajak-lembur');
+            Route::post('/input-pajak-lembur/upload', [LembureController::class, 'upload_pajak_lembur'])->name('lembure.input-pajak-lembur.upload');
+            Route::get('/input-pajak-lembur/download-template', [LembureController::class, 'download_template_pajak'])->name('lembure.input-pajak-lembur.download-template');
+            Route::post('/input-pajak-lembur/datatable', [LembureController::class, 'datatable_pajak_lembur'])->name('lembure.input-pajak-lembur.datatable');
+            Route::post('/input-pajak-lembur/update/{id}', [LembureController::class, 'update_pajak_lembur'])->name('lembure.input-pajak-lembur.update');
+            Route::delete('/input-pajak-lembur/destroy/{id}', [LembureController::class, 'destroy_pajak_lembur'])->name('lembure.input-pajak-lembur.destroy');
         });
 
         Route::group(['middleware' => ['role:personalia|personalia-lembur']], function (){

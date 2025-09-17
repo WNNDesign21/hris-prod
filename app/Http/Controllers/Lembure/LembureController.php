@@ -33,6 +33,7 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use App\Helpers\Approval;
+use App\Models\PajakLembur;
 
 class LembureController extends Controller
 {
@@ -279,6 +280,195 @@ class LembureController extends Controller
             'departments' => $departments
         ];
         return view('pages.lembur-e.export-report-lembur', $dataPage);
+    }
+
+    public function input_pajak_lembur_view()
+    {
+        $dataPage = [
+            'pageTitle' => "Lembur-E - Input Pajak",
+            'page' => 'lembure-input-pajak-lembur',
+        ];
+        return view('pages.lembur-e.input-pajak', $dataPage);
+    }
+
+    public function download_template_pajak()
+    {
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Header
+        $sheet->setCellValue('A1', 'NI Karyawan');
+        $sheet->setCellValue('B1', 'Nama Karyawan (Opsional, untuk referensi)');
+        $sheet->setCellValue('C1', 'Potongan PPH');
+
+        // Styling Header
+        $headerStyle = [
+            'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
+            'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '4F81BD']],
+            'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+        ];
+        $sheet->getStyle('A1:C1')->applyFromArray($headerStyle);
+
+        // Data Karyawan
+        $karyawans = Karyawan::aktif()->get(['ni_karyawan', 'nama']);
+        $row = 2;
+        foreach ($karyawans as $karyawan) {
+            $sheet->setCellValue('A' . $row, $karyawan->ni_karyawan);
+            $sheet->setCellValue('B' . $row, $karyawan->nama);
+            $sheet->setCellValue('C' . $row, ''); // Potongan PPH kosong
+            $row++;
+        }
+
+        // Auto-size columns
+        foreach (range('A', 'C') as $columnID) {
+            $sheet->getColumnDimension($columnID)->setAutoSize(true);
+        }
+
+        $writer = new Xlsx($spreadsheet);
+        $fileName = 'template_pph_lembur.xlsx';
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $fileName . '"');
+        header('Cache-Control: max-age=0');
+
+        $writer->save('php://output');
+        exit();
+    }
+
+    public function upload_pajak_lembur(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'periode' => 'required|date_format:Y-m',
+            'upload_mode' => 'required|in:insert,update',
+            'file_pph' => 'required|mimes:xlsx,xls'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()->all()], 422);
+        }
+
+        $periode = Carbon::createFromFormat('Y-m', $request->periode)->startOfMonth();
+        $mode = $request->upload_mode;
+        $file = $request->file('file_pph');
+
+        DB::beginTransaction();
+        try {
+            $spreadsheet = IOFactory::load($file->getRealPath());
+            $sheet = $spreadsheet->getActiveSheet();
+            $rows = $sheet->toArray();
+
+            // Remove header row
+            unset($rows[0]);
+
+            if ($mode === 'insert') {
+                // Check if data for this period already exists
+                $exists = PajakLembur::where('periode', $periode)->exists();
+                if ($exists) {
+                    DB::rollBack();
+                    return response()->json(['message' => 'Data untuk periode ini sudah ada. Silakan gunakan mode "Update".'], 409);
+                }
+            }
+
+            foreach ($rows as $row) {
+                // Assuming format: A=NI Karyawan, B=Nama, C=Potongan PPH
+                if (empty($row[0])) {
+                    continue; // Skip rows where the employee ID is empty
+                }
+                
+                $ni_karyawan = $row[0];
+                $potongan_pph = (int) ($row[2] ?? 0);
+
+
+                // Find karyawan to ensure they exist
+                $karyawan = Karyawan::where('ni_karyawan', $ni_karyawan)->first();
+                if (!$karyawan) {
+                    Log::warning("Upload Pajak Lembur: Karyawan dengan NI {$ni_karyawan} tidak ditemukan.");
+                    continue; // Skip if employee not found
+                }
+
+                PajakLembur::updateOrCreate(
+                    [
+                        'karyawan_id' => $karyawan->id_karyawan,
+                        'periode' => $periode,
+                    ],
+                    [
+                        'potongan_pph' => $potongan_pph,
+                    ]
+                );
+            }
+
+            DB::commit();
+            return response()->json(['message' => 'Data PPH lembur berhasil di-upload.'], 200);
+
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            Log::error('Error uploading pajak lembur: ' . $e->getMessage());
+            return response()->json(['message' => 'Terjadi kesalahan saat memproses file. ' . $e->getMessage()], 500);
+        }
+    }
+
+    public function datatable_pajak_lembur(Request $request)
+    {
+        try {
+            $periode = $request->input('periode');
+
+            if (!$periode) {
+                return response()->json(['data' => []]);
+            }
+
+            $date = Carbon::createFromFormat('Y-m', $periode);
+
+            $query = PajakLembur::with('karyawan')
+                ->whereYear('periode', $date->year)
+                ->whereMonth('periode', $date->month)
+                ->get();
+
+            $dataTableData = $query->map(function ($row) {
+                return [
+                    'id' => $row->id,
+                    'ni_karyawan' => $row->karyawan ? $row->karyawan->ni_karyawan : 'N/A',
+                    'nama' => $row->karyawan ? $row->karyawan->nama : 'N/A',
+                    'potongan_pph' => $row->potongan_pph,
+                ];
+            });
+
+            return response()->json(['data' => $dataTableData]);
+        } catch (\Exception $e) {
+            Log::error('datatable_pajak_lembur error: ' . $e->getMessage());
+            return response()->json(['error' => 'Server error while fetching data.'], 500);
+        }
+    }
+
+    public function update_pajak_lembur(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'potongan_pph' => 'required|numeric|min:0',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()->all()], 422);
+        }
+
+        try {
+            $pajak = PajakLembur::findOrFail($id);
+            $pajak->update([
+                'potongan_pph' => $request->potongan_pph,
+            ]);
+            return response()->json(['message' => 'Data berhasil diperbarui.'], 200);
+        } catch (\Throwable $e) {
+            return response()->json(['message' => 'Gagal memperbarui data.'], 500);
+        }
+    }
+
+    public function destroy_pajak_lembur($id)
+    {
+        try {
+            $pajak = PajakLembur::findOrFail($id);
+            $pajak->delete();
+            return response()->json(['message' => 'Data berhasil dihapus.'], 200);
+        } catch (\Throwable $e) {
+            return response()->json(['message' => 'Gagal menghapus data.'], 500);
+        }
     }
 
     public function pengajuan_lembur_datatable(Request $request)
@@ -815,8 +1005,13 @@ class LembureController extends Controller
         $filterDepartemen = $request->departemen;
         if ($filterDepartemen) {
             $dataFilter['departemen'] = $filterDepartemen;
-        } else {
+        } elseif (!empty($departemen_ids)) {
+            // Hanya terapkan filter departemen default jika user memiliki scope departemen
             $dataFilter['departemen'] = $departemen_ids;
+        } else {
+            // Jika user tidak punya scope departemen (misal, BOD global),
+            // jangan filter berdasarkan departemen sama sekali agar semua data bisa muncul.
+            // Query di dalam model akan menangani ini.
         }
 
         $totalData = DetailLembur::getDataReviewLembur($dataFilter, $settings)->count();
@@ -2043,7 +2238,10 @@ class LembureController extends Controller
         $insentif_section_head_2 = $setting_lembur->where('setting_name', 'insentif_section_head_2')->first()->value;
         $insentif_section_head_3 = $setting_lembur->where('setting_name', 'insentif_section_head_3')->first()->value;
         $insentif_section_head_4 = $setting_lembur->where('setting_name', 'insentif_section_head_4')->first()->value;
+        $insentif_section_head_gt_7 = $setting_lembur->where('setting_name', 'insentif_section_head_gt_7')->first()->value;
+        $insentif_department_head_3 = $setting_lembur->where('setting_name', 'insentif_department_head_3')->first()->value;
         $insentif_department_head_4 = $setting_lembur->where('setting_name', 'insentif_department_head_4')->first()->value;
+        $insentif_department_head_gt_7 = $setting_lembur->where('setting_name', 'insentif_department_head_gt_7')->first()->value;
 
         //PERHITUNGAN SESUAI JENIS HARI
         if ($jenis_hari == 'WD') {
@@ -2060,20 +2258,28 @@ class LembureController extends Controller
 
                 //PERHITUNGAN UNTUK JABATAN LAINNYA
             } elseif ($jabatan_id == 4) {
-                if ($convert_duration >= 3) {
+                if ($convert_duration > 7) {
+                    $nominal_lembur = $insentif_section_head_gt_7;
+                } elseif ($convert_duration >= 4) {
+                    $nominal_lembur = $insentif_section_head_4;
+                } elseif ($convert_duration >= 3) {
                     $nominal_lembur = $insentif_section_head_3;
-                } elseif ($convert_duration >= 2) {
-                    $nominal_lembur = $insentif_section_head_2;
-                } elseif ($convert_duration >= 1) {
-                    $nominal_lembur = $insentif_section_head_1;
+                } else {
+                    $nominal_lembur = 0;
+                }
+            } elseif ($jabatan_id == 3) {
+                if ($convert_duration > 7) {
+                    $nominal_lembur = $insentif_department_head_gt_7;
+                } elseif ($convert_duration >= 4) {
+                    $nominal_lembur = $insentif_department_head_4;
+                } elseif ($convert_duration >= 3) {
+                    $nominal_lembur = $insentif_department_head_3;
                 } else {
                     $nominal_lembur = 0;
                 }
             } else {
                 $nominal_lembur = 0;
             }
-
-            //WEEKDAY SECTION HEAD HANYA JAM KE 1,2,3 SEDANGKAN DEPT HEAD TIDAK ADA / 0 rupiah
 
         } else {
             //PERHITUNGAN UNTUK LEADER DAN STAFF
@@ -2091,22 +2297,24 @@ class LembureController extends Controller
 
                 //PERHITUNGAN UNTUK SECTION HEAD
             } elseif ($jabatan_id == 4) {
-                if ($convert_duration >= 4) {
+                if ($convert_duration > 7) {
+                    $nominal_lembur = $insentif_section_head_gt_7;
+                } elseif ($convert_duration >= 4) {
                     $nominal_lembur = $insentif_section_head_4;
                 } elseif ($convert_duration >= 3) {
                     $nominal_lembur = $insentif_section_head_3;
-                } elseif ($convert_duration >= 2) {
-                    $nominal_lembur = $insentif_section_head_2;
-                } elseif ($convert_duration >= 1) {
-                    $nominal_lembur = $insentif_section_head_1;
                 } else {
                     $nominal_lembur = 0;
                 }
 
                 //PERHITUNGAN UNTUK DEPARTEMEN HEAD
             } elseif ($jabatan_id == 3) {
-                if ($convert_duration >= 4) {
+                if ($convert_duration > 7) {
+                    $nominal_lembur = $insentif_department_head_gt_7;
+                } elseif ($convert_duration >= 4) {
                     $nominal_lembur = $insentif_department_head_4;
+                } elseif ($convert_duration >= 3) {
+                    $nominal_lembur = $insentif_department_head_3;
                 } else {
                     $nominal_lembur = 0;
                 }
@@ -2394,11 +2602,12 @@ class LembureController extends Controller
             'batas_pengajuan_lembur' => ['required', 'date_format:H:i'],
             'pembagi_upah_lembur_harian' => ['required', 'numeric', 'min:1'],
             'uang_makan' => ['required', 'numeric', 'min:0'],
-            'insentif_section_head_1' => ['required', 'numeric', 'min:0'],
-            'insentif_section_head_2' => ['required', 'numeric', 'min:0'],
             'insentif_section_head_3' => ['required', 'numeric', 'min:0'],
             'insentif_section_head_4' => ['required', 'numeric', 'min:0'],
+            'insentif_section_head_gt_7' => ['required', 'numeric', 'min:0'],
+            'insentif_department_head_3' => ['required', 'numeric', 'min:0'],
             'insentif_department_head_4' => ['required', 'numeric', 'min:0'],
+            'insentif_department_head_gt_7' => ['required', 'numeric', 'min:0'],
             'jam_istirahat_mulai_1' => ['required', 'date_format:H:i'],
             'jam_istirahat_selesai_1' => ['required', 'date_format:H:i', 'after:jam_istirahat_mulai_1'],
             'jam_istirahat_mulai_2' => ['required', 'date_format:H:i'],
@@ -2422,11 +2631,12 @@ class LembureController extends Controller
         $batas_pengajuan_lembur = $request->batas_pengajuan_lembur;
         $pembagi_upah_lembur_harian = $request->pembagi_upah_lembur_harian;
         $uang_makan = $request->uang_makan;
-        $insentif_section_head_1 = $request->insentif_section_head_1;
-        $insentif_section_head_2 = $request->insentif_section_head_2;
         $insentif_section_head_3 = $request->insentif_section_head_3;
         $insentif_section_head_4 = $request->insentif_section_head_4;
+        $insentif_section_head_gt_7 = $request->insentif_section_head_gt_7;
+        $insentif_department_head_3 = $request->insentif_department_head_3;
         $insentif_department_head_4 = $request->insentif_department_head_4;
+        $insentif_department_head_gt_7 = $request->insentif_department_head_gt_7;
         $jam_istirahat_mulai_1 = $request->jam_istirahat_mulai_1;
         $jam_istirahat_selesai_1 = $request->jam_istirahat_selesai_1;
         $jam_istirahat_mulai_2 = $request->jam_istirahat_mulai_2;
@@ -2463,11 +2673,12 @@ class LembureController extends Controller
                     'batas_pengajuan_lembur' => $batas_pengajuan_lembur,
                     'pembagi_upah_lembur_harian' => $pembagi_upah_lembur_harian,
                     'uang_makan' => $uang_makan,
-                    'insentif_section_head_1' => $insentif_section_head_1,
-                    'insentif_section_head_2' => $insentif_section_head_2,
                     'insentif_section_head_3' => $insentif_section_head_3,
                     'insentif_section_head_4' => $insentif_section_head_4,
+                    'insentif_section_head_gt_7' => $insentif_section_head_gt_7,
+                    'insentif_department_head_3' => $insentif_department_head_3,
                     'insentif_department_head_4' => $insentif_department_head_4,
+                    'insentif_department_head_gt_7' => $insentif_department_head_gt_7,
                     'jam_istirahat_mulai_1' => $jam_istirahat_mulai_1,
                     'jam_istirahat_selesai_1' => $jam_istirahat_selesai_1,
                     'jam_istirahat_mulai_2' => $jam_istirahat_mulai_2,
