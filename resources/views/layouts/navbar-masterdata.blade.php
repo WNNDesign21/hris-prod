@@ -25,6 +25,12 @@
                             <span>Kontrak</span>
                         </a>
                     </li>
+                    <li class="{{ $page == 'masterdata-kontrak-detail' ? 'active' : '' }}">
+                        <a href="{{ route('master-data.kontrak-detail.index') }}">
+                            <i class="icon-Clipboard-list"><span class="path1"></span><span class="path2"></span></i>
+                            <span>Detail Kontrak</span>
+                        </a>
+                    </li>
                     <li class="{{ $page == 'masterdata-turnover' ? 'active' : '' }}">
                         <a href="{{ route('master-data.turnover') }}">
                             <i class="icon-Outgoing-box"><span class="path1"></span><span class="path2"></span></i>

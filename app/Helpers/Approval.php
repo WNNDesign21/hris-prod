@@ -378,4 +378,63 @@ class Approval
         }
         return self::$atasan;
     }
+
+    /**
+     * Smart Approval Hierarchy - Auto-approve berdasarkan hierarchy posisi
+     * Jika level tertentu tidak ada di hierarchy, auto-approve dengan SYSTEM
+     */
+    public static function SmartApprovalHierarchy($parent_id, $organisasi_id)
+    {
+        $hierarchy = [
+            'leader' => null,
+            'section_head' => null,
+            'department_head' => null,
+            'division_head' => null,
+            'plant_head' => null,
+            'director' => null
+        ];
+
+        // Get posisi berdasarkan parent_id
+        $posisi = Posisi::where('parent_id', $parent_id)->first();
+
+        if (!$posisi) {
+            return $hierarchy; // Return empty jika tidak ada posisi
+        }
+
+        // Get semua parent posisi dari hierarchy
+        $parent_ids = self::GetParentPosisi($posisi);
+
+        foreach ($parent_ids as $pid) {
+            if ($pid !== 0) {
+                $parent_pos = Posisi::find($pid);
+                if (!$parent_pos) continue;
+
+                $jabatan_id = (int) $parent_pos->jabatan_id;
+
+                switch ($jabatan_id) {
+                    case self::JABATAN_LEADER:
+                        $hierarchy['leader'] = $pid;
+                        break;
+                    case self::JABATAN_SECTION_HEAD:
+                        $hierarchy['section_head'] = $pid;
+                        break;
+                    case self::JABATAN_DEPT_HEAD:
+                        // Check if it's Plant Head (bernama PLANT)
+                        if (str_contains(strtoupper($parent_pos->nama), 'PLANT')) {
+                            $hierarchy['plant_head'] = $pid;
+                        } else {
+                            $hierarchy['department_head'] = $pid;
+                        }
+                        break;
+                    case self::JABATAN_BOD:
+                        $hierarchy['director'] = $pid;
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        return $hierarchy;
+    }
 }

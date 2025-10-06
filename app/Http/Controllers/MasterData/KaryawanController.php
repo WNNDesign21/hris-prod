@@ -28,9 +28,14 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\SettingLemburKaryawan;
 use Illuminate\Support\Facades\Storage;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Spatie\Permission\Models\Permission;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Attendance\AttendanceSummary;
+use App\Models\Divisi;
+use App\Models\KeluargaKaryawan;
+use App\Models\RekapManpowerHistory;
 
 class KaryawanController extends Controller
 {
@@ -177,7 +182,7 @@ class KaryawanController extends Controller
                 } else {
                     $status_karyawan_text = '-';
                 }
-                $kontrak = Kontrak::where('karyawan_id', $data->id_karyawan)->orderBy('tanggal_mulai', 'DESC')->pluck('jenis')->first();
+                $kontrak = Kontrak::where('karyawan_id', $data->id_karyawan)->orderBy('tanggal_mulai', 'DESC')->pluck('jenis_kontrak_id')->first();
                 $posisis = $data->posisi()->pluck('posisis.nama')->toArray();
                 $nestedData['ni_karyawan'] = $data->ni_karyawan;
                 $nestedData['nama'] = $data->nama;
@@ -265,10 +270,11 @@ class KaryawanController extends Controller
             'tempat_lahir' => ['nullable', 'string'],
             'tanggal_lahir' => ['nullable', 'date_format:Y-m-d'],
             'jenis_kelamin' => ['required','in:L,P'],
+            'status_kawin' => ['required', 'string'],
             'agama' => ['nullable', 'string','in:ISLAM,KATOLIK,KRISTEN,HINDU,BUDHA,KONGHUCU,LAINNYA,PROTESTAN'],
             'gol_darah' => ['string', 'in:A,B,AB,O'],
             'status_keluarga' => ['string', 'in:MENIKAH,BELUM MENIKAH,CERAI'],
-            'kategori_keluarga' => ['string','in:TK0,TK1,TK2,TK3,K0,K1,K2,K3'],
+            'kategori_keluarga' => ['string','in:TK/0,TK/1,TK/2,TK/3,K/0,K/1,K/2,K/3'],
             'alamat' => ['nullable', 'string'],
             'domisili' => ['nullable', 'string'],
             'no_telp' => ['required','numeric', 'unique:karyawans,no_telp'],
@@ -288,6 +294,8 @@ class KaryawanController extends Controller
             'foto' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
             'isAdmin' => ['in:Y'],
             'pin' => ['nullable', 'string'],
+            'status_kawin' => ['required', 'string'],
+            'tipe_karyawan' => ['required', 'string', 'in:D,I'],
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -304,6 +312,7 @@ class KaryawanController extends Controller
         $tempat_lahir = $request->tempat_lahir;
         $tanggal_lahir = $request->tanggal_lahir;
         $jenis_kelamin = $request->jenis_kelamin;
+        $status_kawin = $request->status_kawin;
         $agama = $request->agama;
         $gol_darah = $request->gol_darah;
         $status_keluarga = $request->status_keluarga;
@@ -331,6 +340,10 @@ class KaryawanController extends Controller
         $foto = $request->file('foto');
         $organisasi_id = auth()->user()->organisasi_id;
         $pin = $request->pin;
+        $tipe_karyawan = $request->tipe_karyawan;
+
+        $direct = ($tipe_karyawan == 'D') ? 1 : null;
+        $indirect = ($tipe_karyawan == 'I') ? 1 : null;
 
         DB::beginTransaction();
         try{
@@ -379,6 +392,7 @@ class KaryawanController extends Controller
                 'tempat_lahir' => $tempat_lahir,
                 'tanggal_lahir' => $tanggal_lahir,
                 'jenis_kelamin' => $jenis_kelamin,
+                'status_kawin' => $status_kawin,
                 'agama' => $agama,
                 'gol_darah' => $gol_darah,
                 'status_keluarga' => $status_keluarga,
@@ -398,8 +412,58 @@ class KaryawanController extends Controller
                 'jenjang_pendidikan' => $jenjang_pendidikan,
                 'jurusan_pendidikan' => $jurusan_pendidikan,
                 'tanggal_mulai' => $tanggal_mulai,
-                'pin' => $pin
+                'pin' => $pin,
+                'direct' => $direct,
+                'indirect' => $indirect
             ]);
+
+            // Simpan data keluarga dari request
+            if ($request->has('keluarga') && is_array($request->keluarga)) {
+                foreach ($request->keluarga as $anggota) {
+                    if (!empty($anggota['nama'])) {
+                        KeluargaKaryawan::create([
+                            'karyawan_id' => $id_karyawan,
+                            'hubungan' => $anggota['hubungan'],
+                            'nama' => $anggota['nama'],
+                            'tempat_lahir' => $anggota['tempat_lahir'],
+                            'tanggal_lahir' => $anggota['tanggal_lahir'],
+                        ]);
+                    }
+                }
+            }
+
+            // Otomatis tambahkan Istri/Suami jika belum ada di request
+            $isPasanganAda = false;
+            if ($request->has('keluarga') && is_array($request->keluarga)) {
+                foreach ($request->keluarga as $anggota) {
+                    if (
+                        ($request->jenis_kelamin == 'L' && strtolower($anggota['hubungan']) == 'istri') ||
+                        ($request->jenis_kelamin == 'P' && strtolower($anggota['hubungan']) == 'suami')
+                    ) {
+                        $isPasanganAda = true;
+                        break;
+                    }
+                }
+            }
+            if (!$isPasanganAda) {
+                if ($request->jenis_kelamin == 'L' && !empty($request->nama_istri)) {
+                    KeluargaKaryawan::create([
+                        'karyawan_id' => $id_karyawan,
+                        'hubungan' => 'Istri',
+                        'nama' => $request->nama_istri,
+                        'tempat_lahir' => $request->tempat_lahir_istri ?? null,
+                        'tanggal_lahir' => $request->tanggal_lahir_istri ?? null,
+                    ]);
+                } elseif ($request->jenis_kelamin == 'P' && !empty($request->nama_suami)) {
+                    KeluargaKaryawan::create([
+                        'karyawan_id' => $id_karyawan,
+                        'hubungan' => 'Suami',
+                        'nama' => $request->nama_suami,
+                        'tempat_lahir' => $request->tempat_lahir_suami ?? null,
+                        'tanggal_lahir' => $request->tanggal_lahir_suami ?? null,
+                    ]);
+                }
+            }
 
             $jabatan = null;
             foreach($posisi as $posisi_id){
@@ -454,24 +518,25 @@ class KaryawanController extends Controller
         $dataValidate = [
             'organisasiEdit' => ['required', 'exists:organisasis,id_organisasi'],
             'namaEdit' => ['required'],
-            'ni_karyawanEdit' => ['required', 'unique:karyawans,ni_karyawan,'.$request->ni_karyawanEdit.',ni_karyawan'],
-            'no_kkEdit' => ['required','numeric'],
-            'nikEdit' => ['required','numeric', 'unique:karyawans,nik,'.$request->nikEdit.',nik'],
+            'ni_karyawanEdit' => ['required', 'unique:karyawans,ni_karyawan,'.$id_karyawan.',id_karyawan'],
+            'no_kkEdit' => ['required','string'],
+            'nikEdit' => ['required','string', 'unique:karyawans,nik,'.$id_karyawan.',id_karyawan'],
             'tempat_lahirEdit' => ['nullable', 'string'],
             'tanggal_lahirEdit' => ['nullable', 'date_format:Y-m-d'],
             'jenis_kelaminEdit' => ['required', 'in:L,P'],
+            'status_kawinEdit' => ['required', 'string'],
             'agamaEdit' => ['nullable', 'string', 'in:ISLAM,KRISTEN,KATOLIK,HINDU,BUDHA,KONGHUCU,LAINNYA,PROTESTAN'],
             'gol_darahEdit' => ['required','string', 'in:A,B,AB,O'],
             'status_keluargaEdit' => ['required','string', 'in:MENIKAH,BELUM MENIKAH,CERAI'],
-            'kategori_keluargaEdit' => ['required','string', 'in:TK0,TK1,TK2,TK3,K0,K1,K2,K3'],
+            'kategori_keluargaEdit' => ['required','string', 'in:TK/0,TK/1,TK/2,TK/3,K/0,K/1,K/2,K/3'],
             'alamatEdit' => ['nullable','string'],
             'domisiliEdit' => ['nullable','string'],
-            'no_telpEdit' => ['required','numeric', 'unique:karyawans,no_telp,"'.$request->no_telpEdit.'",no_telp'],
+            'no_telpEdit' => ['required','numeric', 'unique:karyawans,no_telp,'.$id_karyawan.',id_karyawan'],
             'no_telp_daruratEdit' => ['nullable','numeric'],
-            'emailEdit' => ['email', 'unique:karyawans,email,'.$request->emailEdit.',email'],
-            'npwpEdit' => ['nullable', 'string', 'unique:karyawans,npwp,"'.$request->npwpEdit.'",npwp'],
-            'no_bpjs_ksEdit' => ['nullable', 'numeric', 'unique:karyawans,no_bpjs_ks,"'.$request->no_bpjs_ksEdit.'",no_bpjs_ks'],
-            'no_bpjs_ktEdit' => ['nullable', 'numeric', 'unique:karyawans,no_bpjs_kt,"'.$request->no_bpjs_ktEdit.'",no_bpjs_kt'],
+            'emailEdit' => ['email', 'unique:karyawans,email,'.$id_karyawan.',id_karyawan'],
+            'npwpEdit' => ['nullable', 'string', 'unique:karyawans,npwp,'.$id_karyawan.',id_karyawan'],
+            'no_bpjs_ksEdit' => ['nullable', 'string', 'unique:karyawans,no_bpjs_ks,'.$id_karyawan.',id_karyawan'],
+            'no_bpjs_ktEdit' => ['nullable', 'string', 'unique:karyawans,no_bpjs_kt,'.$id_karyawan.',id_karyawan'],
             'no_rekeningEdit' => ['required','numeric'],
             'nama_rekeningEdit' => ['nullable', 'string'],
             'nama_bankEdit' => ['nullable', 'string','in:MANDIRI,BCA,BRI,BSI,BNI'],
@@ -485,7 +550,8 @@ class KaryawanController extends Controller
             'sisa_cuti_bersamaEdit' => ['required','numeric'],
             'sisa_cuti_tahun_laluEdit' => ['required','numeric'],
             'isAdminEdit' => ['in:Y'],
-            'pinEdit' => ['nullable', 'string']
+            'pinEdit' => ['nullable', 'string'],
+            'tipe_karyawanEdit' => ['required', 'string', 'in:D,I'],
         ];
 
 
@@ -503,6 +569,7 @@ class KaryawanController extends Controller
         $tempat_lahir = $request->tempat_lahirEdit;
         $tanggal_lahir = $request->tanggal_lahirEdit;
         $jenis_kelamin = $request->jenis_kelaminEdit;
+        $status_kawin = $request->status_kawinEdit;
         $agama = $request->agamaEdit;
         $gol_darah = $request->gol_darahEdit;
         $status_keluarga = $request->status_keluargaEdit;
@@ -530,9 +597,14 @@ class KaryawanController extends Controller
         $expired_date_cuti_tahun_lalu = $request->expired_date_cuti_tahun_laluEdit;
         $pin = $request->pinEdit;
         $organisasi_id = $request->organisasiEdit;
+        $tipe_karyawan = $request->tipe_karyawanEdit;
+
+        $direct = ($tipe_karyawan == 'D') ? 1 : null;
+        $indirect = ($tipe_karyawan == 'I') ? 1 : null;
 
         DB::beginTransaction();
         try{
+            Log::info('Keluarga Edit Request:', $request->input('keluargaEdit', []));
             $karyawan = Karyawan::find($id_karyawan);
 
             if ($karyawan->organisasi_id != $organisasi_id) {
@@ -604,6 +676,7 @@ class KaryawanController extends Controller
             $karyawan->tempat_lahir = $tempat_lahir;
             $karyawan->tanggal_lahir = $tanggal_lahir;
             $karyawan->jenis_kelamin = $jenis_kelamin;
+            $karyawan->status_kawin = $status_kawin;
             $karyawan->agama = $agama;
             $karyawan->gol_darah = $gol_darah;
             $karyawan->status_keluarga = $status_keluarga;
@@ -629,7 +702,47 @@ class KaryawanController extends Controller
             $karyawan->expired_date_cuti_tahun_lalu = $expired_date_cuti_tahun_lalu;
             $karyawan->pin = $pin;
             $karyawan->organisasi_id = $organisasi_id;
+            $karyawan->direct = $direct;
+            $karyawan->indirect = $indirect;
             $karyawan->posisi()->detach();
+
+            // Sync family members
+            $keluargaIds = [];
+            if ($request->has('keluargaEdit') && is_array($request->keluargaEdit)) {
+                $anakCount = 1;
+                foreach ($request->keluargaEdit as $anggota) {
+                    if (!empty($anggota['nama']) && !empty($anggota['hubungan'])) {
+                        $hubungan = $anggota['hubungan'];
+                        if (strtolower($anggota['hubungan']) == 'anak') {
+                            $hubungan = 'Anak ' . $anakCount++;
+                        }
+
+                        $data = [
+                            'karyawan_id' => $id_karyawan,
+                            'hubungan' => $hubungan,
+                            'nama' => $anggota['nama'],
+                            'tempat_lahir' => $anggota['tempat_lahir'],
+                            'tanggal_lahir' => $anggota['tanggal_lahir'],
+                        ];
+
+                        if (!empty($anggota['id'])) {
+                            // Update existing family member
+                            $keluarga = KeluargaKaryawan::find($anggota['id']);
+                            if ($keluarga) {
+                                $keluarga->update($data);
+                                $keluargaIds[] = $keluarga->id;
+                            }
+                        } else {
+                            // Create new family member
+                            $keluarga = KeluargaKaryawan::create($data);
+                            $keluargaIds[] = $keluarga->id;
+                        }
+                    }
+                }
+            }
+
+            // Remove family members that were not in the request
+            $karyawan->keluarga()->whereNotIn('id', $keluargaIds)->delete();
 
             $user = $karyawan->user;
             $jabatan_cek = Posisi::find($posisi[0]);
@@ -821,7 +934,7 @@ class KaryawanController extends Controller
 
     public function get_data_detail_karyawan(string $id_karyawan)
     {
-        $karyawan = Karyawan::find($id_karyawan);
+        $karyawan = Karyawan::with('keluarga')->find($id_karyawan);
         $detail = [];
         if($karyawan){
             if($karyawan->status_karyawan == 'AT'){
@@ -838,6 +951,13 @@ class KaryawanController extends Controller
                 $status_karyawan_text = '-';
             }
 
+            $tipe_karyawan = null;
+            if ($karyawan->direct == 1) {
+                $tipe_karyawan = 'D';
+            } elseif ($karyawan->indirect == 1) {
+                $tipe_karyawan = 'I';
+            }
+
             $detail = [
                 'id_karyawan' => $karyawan->id_karyawan,
                 'ni_karyawan' => $karyawan->ni_karyawan,
@@ -851,6 +971,8 @@ class KaryawanController extends Controller
                 'agama' => $karyawan->agama,
                 'gol_darah' => $karyawan->gol_darah,
                 'status_keluarga' => $karyawan->status_keluarga,
+                'status_kawin' => $karyawan->status_kawin,
+                'keluarga' => $karyawan->keluarga,
                 'kategori_keluarga' => $karyawan->kategori_keluarga,
                 'alamat' => $karyawan->alamat,
                 'domisili' => $karyawan->domisili,
@@ -880,6 +1002,7 @@ class KaryawanController extends Controller
                 'is_admin' => $karyawan->user->hasRole('admin-dept'),
                 'pin' => $karyawan->pin,
                 'organisasi_id' => $karyawan->organisasi_id,
+                'tipe_karyawan' => $tipe_karyawan,
             ];
             return response()->json(['data' => $detail], 200);
         } else {
@@ -937,8 +1060,8 @@ class KaryawanController extends Controller
                 $karyawan_file = $file->storeAs("attachment/upload-karyawan", $karyawan_records);
             }
 
-           if (file_exists(storage_path("app/public/".$karyawan_file))) {
-                $spreadsheet = IOFactory::load(storage_path("app/public/".$karyawan_file));
+           if (file_exists(storage_path("app/public/" . $karyawan_file))) {
+                $spreadsheet = IOFactory::load(storage_path("app/public/" . $karyawan_file));
                 $worksheet = $spreadsheet->getActiveSheet();
                 $data = $worksheet->toArray();
                 $dataWithoutHeader = array_slice($data, 1);
@@ -1023,5 +1146,1088 @@ class KaryawanController extends Controller
         );
 
         return response()->json($json_data, 200);
+    }
+
+    public function downloadRekapManpower(Request $request)
+    {
+        $periode = $request->input('periode');
+        $organisasi_filter = $request->input('organisasi');
+        $selectedPeriod = null;
+
+        if ($periode) {
+            try {
+                $selectedPeriod = Carbon::createFromFormat('Y-m', $periode)->startOfMonth();
+            } catch (Exception $e) {
+                return response()->json(['message' => 'Format periode tidak valid. Gunakan format YYYY-MM.'], 400);
+            }
+        }
+
+        $now = Carbon::now()->startOfMonth();
+        $processDate = $selectedPeriod ?: $now;
+
+        $spreadsheet = new Spreadsheet();
+        $spreadsheet->removeSheetByIndex(0);
+        $spreadsheet->getDefaultStyle()->getFont()->setName('MS Gothic');
+        $sheetIndex = 0;
+
+        if ($selectedPeriod && $selectedPeriod->lt($now)) {
+            $history = RekapManpowerHistory::where('period', $processDate->format('Y-m-d'))->first();
+
+            if ($history && !empty($history->data)) {
+                $allHistoryData = $history->data;
+
+                $orgs_to_process = [];
+                if ($organisasi_filter && $organisasi_filter !== 'all') {
+                    $orgs_to_process = [$organisasi_filter];
+                } else {
+                    $orgs_to_process = array_keys($allHistoryData);
+                }
+
+                foreach ($orgs_to_process as $org_id) {
+                    if (!isset($allHistoryData[$org_id])) {
+                        continue;
+                    }
+
+                    $organisasi = Organisasi::find($org_id);
+                    $organisasi_nama = $organisasi ? $organisasi->nama : 'ASI Plant ' . $org_id;
+                    $allData = $allHistoryData[$org_id];
+
+                    // --- Rekap Manpower Sheet from History ---
+                    $rekapData = $allData['rekap_manpower'];
+                    $rekapSheet = $spreadsheet->createSheet($sheetIndex++);
+                    $rekapSheet->setTitle('Rekap Manpower ' . $organisasi_nama);
+
+                    $rekapSheet->mergeCells('A1:U1')->setCellValue('A1', 'REKAP MANPOWER ' . strtoupper($organisasi_nama ?? 'PT. ADYAWINSA STAMPING INDUSTRIES'))->getStyle('A1')->getFont()->setBold(true)->setSize(16);
+                    $rekapSheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                    $rekapSheet->mergeCells('A2:U2')->setCellValue('A2', 'Period : ' . strtoupper($processDate->format('F Y')))->getStyle('A2')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT);
+                    $rekapSheet->mergeCells('A3:U3')->setCellValue('A3', 'Update : ' . Carbon::parse($history->created_at)->format('d F Y'))->getStyle('A3')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT);
+
+                    $rekapSheet->fromArray($rekapData['headers'], null, 'A5');
+                    $headerRange = 'A5:U6';
+                    $headerStyle = $rekapSheet->getStyle($headerRange);
+                    $headerStyle->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('FF00B050');
+                    $headerStyle->getFont()->setBold(true);
+                    $headerStyle->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+                    $headerStyle->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER)->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+
+                    $rekapSheet->fromArray($rekapData['rows'], null, 'A7');
+                    $lastRow = 6 + count($rekapData['rows']);
+                    if ($lastRow >= 7) {
+                        $style = $rekapSheet->getStyle('A7:U' . $lastRow);
+                        $style->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER)->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                        $style->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+                    }
+
+                    $totalRow = $lastRow + 1;
+                    $rekapSheet->fromArray($rekapData['totals'], null, 'A' . $totalRow);
+                    $rekapSheet->mergeCells('A' . $totalRow . ':D' . $totalRow);
+                    $totalStyle = $rekapSheet->getStyle('A' . $totalRow . ':U' . $totalRow);
+                    $totalStyle->getFont()->setBold(true);
+                    $totalStyle->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+                    $totalStyle->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER)->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+
+                    $percentageRow = $totalRow + 1;
+                    $rekapSheet->fromArray($rekapData['percentages'], null, 'P' . $percentageRow);
+                    $percentageStyle = $rekapSheet->getStyle('P' . $percentageRow . ':U' . $percentageRow);
+                    $percentageStyle->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+                    foreach (range('P', 'U') as $col) {
+                        $rekapSheet->getStyle($col . $percentageRow)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_PERCENTAGE_00);
+                    }
+
+                    $domisiliData = $allData['rekap_domisili'];
+                    $startRow = $percentageRow + 2;
+                    $rekapSheet->setCellValue('A' . $startRow, 'REKAP BERDASARKAN DOMISILI')->mergeCells('A' . $startRow . ':D' . $startRow)->getStyle('A' . $startRow)->getFont()->setBold(true);
+                    $startRow++;
+                    $rekapSheet->fromArray($domisiliData, null, 'A' . $startRow);
+
+
+                    foreach (range('A', 'U') as $columnID) {
+                        $rekapSheet->getColumnDimension($columnID)->setAutoSize(true);
+                    }
+
+                    // --- Data Karyawan Sheet from History ---
+                    $karyawanData = $allData['data_karyawan'];
+                    $dataSheet = $spreadsheet->createSheet($sheetIndex++);
+                    $dataSheet->setTitle('Data Karyawan ' . $organisasi_nama);
+
+                    $dataSheet->mergeCells('A1:DR1')->setCellValue('A1', 'REKAP MANPOWER ' . strtoupper($organisasi_nama ?? 'PT. ADYAWINSA STAMPING INDUSTRIES'))->getStyle('A1')->getFont()->setBold(true)->setSize(16);
+                    $dataSheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT);
+                    $dataSheet->setCellValue('A3', 'Period : ' . strtoupper($processDate->format('F Y')));
+                    $dataSheet->setCellValue('A5', 'Update : ' . Carbon::parse($history->created_at)->format('d F Y'));
+
+                    $headerRow = 7;
+                    $subHeaderRow = 8;
+                    $colIndex = 1;
+                    $writeMergedHeader = function ($title, $mergeCount, $subtitles) use ($dataSheet, $headerRow, $subHeaderRow, &$colIndex) {
+                        $startCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex);
+                        if ($mergeCount > 1) {
+                            $endCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + $mergeCount - 1);
+                            $dataSheet->mergeCells($startCol . $headerRow . ':' . $endCol . ($subtitles ? $headerRow : $subHeaderRow));
+                        } else {
+                            $dataSheet->mergeCells($startCol . $headerRow . ':' . $startCol . $subHeaderRow);
+                        }
+                        $dataSheet->setCellValue($startCol . $headerRow, $title);
+                        if ($subtitles) {
+                            $dataSheet->fromArray($subtitles, null, $startCol . $subHeaderRow);
+                        }
+                        $colIndex += $mergeCount;
+                    };
+
+                    $writeMergedHeader('', 1, null);
+                    $colString = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex);
+                    $dataSheet->setCellValue($colString . $headerRow, 'NO');
+                    $dataSheet->setCellValue($colString . $subHeaderRow, 'ALL');
+                    $colIndex++;
+                    $writeMergedHeader('NO', 1, null);
+                    $writeMergedHeader('NAMA LENGKAP', 1, null);
+                    $writeMergedHeader('NIK', 1, null);
+                    $writeMergedHeader('TANGGAL MASUK', 1, null);
+                    $writeMergedHeader('DEPT', 1, null);
+                    $writeMergedHeader('JABATAN', 1, null);
+                    $writeMergedHeader('SECTION', 1, null);
+                    $writeMergedHeader('Group', 1, null);
+                    $writeMergedHeader('ATASAN LANGSUNG', 1, null);
+                    $writeMergedHeader('TGL PENETAPAN', 1, null);
+                    $writeMergedHeader('TGL PENGANGKATAN', 1, null);
+                    $writeMergedHeader('DIRECT', 1, null);
+                    $writeMergedHeader('INDIRECT', 1, null);
+                    $writeMergedHeader('JABATAN', 9, ['DIR', 'ADV', 'ASS DIR', 'GNRL MANAGER', 'MANAGER', 'ASTMANAGER', 'SECT HEAD', 'LEADER', 'PELAKSANA']);
+                    $writeMergedHeader('STATUS', 3, ['PKWTT', 'PKWT', 'PK']);
+                    $kontrakHeaders = [];
+                    for ($i = 1; $i <= 10; $i++) {
+                        $kontrakHeaders[] = 'K' . $i;
+                    }
+                    $kontrakHeaders[] = 'PK';
+                    $writeMergedHeader('JUMLAH KONTRAK', 11, $kontrakHeaders);
+                    $writeMergedHeader('TANGGAL BERAKHIR', 1, null);
+                    for ($i = 1; $i <= 10; $i++) {
+                        $writeMergedHeader('KONTRAK ' . $i, 2, ['START', 'END']);
+                    }
+                    $writeMergedHeader('TEMPAT LAHIR', 1, null);
+                    $writeMergedHeader('TANGGAL LAHIR', 1, null);
+                    $writeMergedHeader('USIA', 3, ['TAHUN', 'BULAN', 'HARI']);
+                    $writeMergedHeader('JK', 2, ['L', 'P']);
+                    $writeMergedHeader('STATUS KAWINAN', 8, ['BK', 'K', 'KA 1', 'KA 2', 'KA 3', 'KA 4', 'KA 5', 'KA 6']);
+                    $writeMergedHeader('AGAMA', 6, ['I', 'KRIS', 'KATH', 'H', 'B', '']);
+                    $writeMergedHeader('TINGKAT PENDIDIKAN', 8, ['TS', 'SD', 'SLTP', 'SLTA/STM', 'DIP', 'SI', 'S2', '']);
+                    $writeMergedHeader('NAMA ISTRI/SUAMI', 1, null);
+                    $writeMergedHeader('TTL ISTRI/SUAMI', 1, null);
+                    $anakHeaders = [];
+                    for ($i = 1; $i <= 5; $i++) {
+                        $anakHeaders[] = 'ANAK ' . $i;
+                        $anakHeaders[] = 'TTL ANAK ' . $i;
+                    }
+                    $writeMergedHeader('NAMA & TGL LAHIR ANAK', 10, $anakHeaders);
+                    $writeMergedHeader('NAMA IBU KANDUNG', 1, null);
+                    $writeMergedHeader('ALAMAT KTP', 1, null);
+                    $writeMergedHeader('DOMISILI', 1, null);
+                    $writeMergedHeader('NO. KTP / SIM', 1, null);
+                    $writeMergedHeader('NO. TELPON', 1, null);
+                    $writeMergedHeader('EMAIL', 1, null);
+                    $writeMergedHeader('PERIODE', 1, null);
+                    $writeMergedHeader('MASA KERJA', 3, ['TAHUN', 'BULAN', 'HARI']);
+                    $writeMergedHeader('KETERANGAN', 1, null);
+                    $writeMergedHeader('TANGGAL HARI INI', 1, null);
+                    $writeMergedHeader('SINAS', 1, null);
+
+                    $lastCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex - 1);
+                    $headerStyle = $dataSheet->getStyle('B' . $headerRow . ':' . $lastCol . $subHeaderRow);
+                    $headerStyle->getFont()->setBold(true);
+                    $headerStyle->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER)->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                    $headerStyle->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+                    $headerStyle->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('FF00B050');
+                    $dataSheet->getColumnDimension('A')->setWidth(5);
+                    for ($i = 2; $i < $colIndex; $i++) {
+                        $colString = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($i);
+                        $dataSheet->getColumnDimension($colString)->setAutoSize(true);
+                    }
+                    $dataSheet->freezePane('I9');
+
+                    $dataRow = $subHeaderRow + 1;
+                    foreach ($karyawanData['grouped_data'] as $deptData) {
+                        foreach ($deptData['contracts'] as $contractData) {
+                            $dataSheet->setCellValue('B' . $dataRow, $contractData['contract_name']);
+                            $dataSheet->getStyle('B' . $dataRow)->getFont()->setBold(true);
+                            $dataSheet->mergeCells('B' . $dataRow . ':I' . $dataRow);
+                            $dataSheet->getStyle('B' . $dataRow)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT)->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                            $dataRow++;
+
+                            if (!empty($contractData['rows'])) {
+                                $dataSheet->fromArray($contractData['rows'], null, 'A' . $dataRow);
+                                $dataRow += count($contractData['rows']);
+                            }
+
+                            $dataSheet->fromArray($contractData['subtotal'], null, 'A' . $dataRow);
+                            $dataSheet->mergeCells('B' . $dataRow . ':K' . $dataRow);
+                            $subtotalStyle = $dataSheet->getStyle('B' . $dataRow . ':' . $lastCol . $dataRow);
+                            $subtotalStyle->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('FFCCFFCC');
+                            $subtotalStyle->getFont()->setBold(true);
+                            $subtotalStyle->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT)->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                            $subtotalStyle->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+                            $dataRow++;
+                            $dataRow++;
+                        }
+                    }
+
+                    $sinasData = $allData['rekap_sinas'];
+                    $summaryStartRow = $dataRow;
+                    $dataSheet->setCellValue('DH' . $summaryStartRow, 'REKAP SINAS');
+                    $dataSheet->getStyle('DH' . $summaryStartRow)->getFont()->setBold(true);
+                    $summaryStartRow++;
+                    $totalSinas = 0;
+                    foreach ($sinasData as $category => $count) {
+                        $dataSheet->setCellValue('DH' . $summaryStartRow, $category)->setCellValue('DI' . $summaryStartRow, $count);
+                        $totalSinas += $count;
+                        $summaryStartRow++;
+                    }
+                    $dataSheet->setCellValue('DH' . $summaryStartRow, 'TOTAL');
+                    $dataSheet->getStyle('DH' . $summaryStartRow)->getFont()->setBold(true);
+                    $dataSheet->setCellValue('DI' . $summaryStartRow, $totalSinas);
+                    $dataSheet->getStyle('DI' . $summaryStartRow)->getFont()->setBold(true);
+                }
+
+                $spreadsheet->setActiveSheetIndex(0);
+                $fileName = 'Rekap Manpower (History) ' . $processDate->format('F Y') . '.xlsx';
+                $writer = new Xlsx($spreadsheet);
+
+                header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                header('Content-Disposition: attachment;filename="' . $fileName . '"');
+                header('Cache-Control: max-age=0');
+
+                $writer->save('php://output');
+                exit;
+            }
+        }
+
+        // --- LIVE CALCULATION & SAVING ---
+        $allRekapData = [];
+        $orgs_to_process = [];
+        if ($organisasi_filter && $organisasi_filter !== 'all') {
+            $orgs_to_process = [$organisasi_filter];
+        } else {
+            $orgs_to_process = [1, 2]; // Process both organizations for 'all'
+        }
+
+        foreach ($orgs_to_process as $organisasi_id) {
+            if (!$organisasi_id) {
+                continue;
+            }
+
+            $organisasi = Organisasi::find($organisasi_id);
+            $organisasi_nama = $organisasi ? $organisasi->nama : 'ASI Plant ' . $organisasi_id;
+
+            // --- Rekap Manpower Sheet ---
+            $rekapSheet = $spreadsheet->createSheet($sheetIndex++);
+            $rekapSheet->setTitle('Rekap Manpower ' . $organisasi_nama);
+
+            $rekapSheet->mergeCells('A1:U1')->setCellValue('A1', 'REKAP MANPOWER ' . strtoupper($organisasi_nama ?? 'PT. ADYAWINSA STAMPING INDUSTRIES'))->getStyle('A1')->getFont()->setBold(true)->setSize(16);
+            $rekapSheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+            $rekapSheet->mergeCells('A2:U2')->setCellValue('A2', 'Period : ' . strtoupper($processDate->format('F Y')))->getStyle('A2')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT);
+            $rekapSheet->mergeCells('A3:U3')->setCellValue('A3', 'Update : ' . Carbon::now()->format('d F Y'))->getStyle('A3')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT);
+
+            $rekapHeaders = [
+                ['NO', 'DIVISION', 'DEPARTMENT', 'AREA', 'DIRECT', 'INDIRECT', 'POSITION', '', '', '', '', '', '', '', '', 'STATUS', '', '', 'JK', '', 'TOTAL MAN POWER'],
+                ['', '', '', '', '', '', 'DIR', 'ADVISOR', 'ASS DIR', 'GNRL MANAGER', 'MANAGER', 'ASTMANAGER', 'SECT HEAD', 'LEADER', 'STAFF/OPERATOR', 'PKWTT', 'PKWT', 'PENGKARYAAN', 'L', 'P', '']
+            ];
+            $rekapSheet->fromArray($rekapHeaders, null, 'A5');
+            $headerRange = 'A5:U6';
+            $headerStyle = $rekapSheet->getStyle($headerRange);
+            $headerStyle->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('FF00B050');
+            $headerStyle->getFont()->setBold(true);
+            $headerStyle->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+            $headerStyle->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER)->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+            $rekapSheet->mergeCells('A5:A6')->mergeCells('B5:B6')->mergeCells('C5:C6')->mergeCells('D5:D6')->mergeCells('E5:E6')->mergeCells('F5:F6');
+            $rekapSheet->mergeCells('G5:O5');
+            $rekapSheet->mergeCells('P5:R5');
+            $rekapSheet->mergeCells('S5:T5');
+            $rekapSheet->mergeCells('U5:U6');
+
+            $baseManpowerQuery = function ($jabatan_id = null) use ($processDate, $organisasi_id) {
+                $query = Karyawan::query()
+                    ->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
+                    ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                    ->leftJoin('jabatans', 'posisis.jabatan_id', 'jabatans.id_jabatan')
+                    ->where('karyawans.tanggal_mulai', '<=', $processDate->endOfMonth())
+                    ->where(function ($q) use ($processDate) {
+                        $q->whereNull('karyawans.tanggal_selesai')
+                            ->orWhere('karyawans.tanggal_selesai', '>=', $processDate->startOfMonth());
+                    });
+                if ($organisasi_id) $query->where('karyawans.organisasi_id', $organisasi_id);
+                if ($jabatan_id) $query->where('jabatans.id_jabatan', $jabatan_id);
+                return $query;
+            };
+
+            $selectAggregates = [
+                DB::raw('COUNT(karyawans.id_karyawan) as total_karyawan'),
+                DB::raw('COALESCE(SUM(CASE WHEN karyawans.direct = 1 THEN 1 ELSE 0 END), 0) as total_direct'),
+                DB::raw('COALESCE(SUM(CASE WHEN karyawans.indirect = 1 THEN 1 ELSE 0 END), 0) as total_indirect'),
+                DB::raw('COALESCE(SUM(CASE WHEN jabatans.id_jabatan = 1 THEN 1 ELSE 0 END), 0) as total_dir'),
+                DB::raw('COALESCE(SUM(CASE WHEN jabatans.id_jabatan = 3 THEN 1 ELSE 0 END), 0) as total_advisor'),
+                DB::raw('COALESCE(SUM(CASE WHEN jabatans.nama = \'ASSISTANT DIRECTOR\' THEN 1 ELSE 0 END), 0) as total_ass_dir'),
+                DB::raw('COALESCE(SUM(CASE WHEN jabatans.nama = \'GENERAL MANAGER\' THEN 1 ELSE 0 END), 0) as total_gnrl_manager'),
+                DB::raw('COALESCE(SUM(CASE WHEN jabatans.id_jabatan = 2 AND posisis.nama NOT LIKE \'%AST.%\' THEN 1 ELSE 0 END), 0) as total_manager'),
+                DB::raw('COALESCE(SUM(CASE WHEN jabatans.id_jabatan = 2 AND posisis.nama LIKE \'%AST.%\' THEN 1 ELSE 0 END), 0) as total_ast_manager'),
+                DB::raw('COALESCE(SUM(CASE WHEN jabatans.nama = \'SECTION HEAD\' THEN 1 ELSE 0 END), 0) as total_sect_head'),
+                DB::raw('COALESCE(SUM(CASE WHEN jabatans.nama = \'LEADER\' THEN 1 ELSE 0 END), 0) as total_leader'),
+                DB::raw('COALESCE(SUM(CASE WHEN jabatans.nama = \'STAFF/OPERATOR\' THEN 1 ELSE 0 END), 0) as total_pelaksana'),
+                DB::raw('COUNT(CASE WHEN karyawans.jenis_kontrak = \'PKWTT\' THEN 1 END) as total_pkwtt'),
+                DB::raw('COUNT(CASE WHEN karyawans.jenis_kontrak = \'PKWT\' THEN 1 END) as total_pkwt'),
+                DB::raw('COUNT(CASE WHEN karyawans.jenis_kontrak = \'PENGKARYAAN\' THEN 1 END) as total_pk'),
+                DB::raw('COUNT(CASE WHEN karyawans.jenis_kelamin = \'L\' THEN 1 END) as total_l'),
+                DB::raw('COUNT(CASE WHEN karyawans.jenis_kelamin = \'P\' THEN 1 END) as total_p'),
+            ];
+
+            $deptHeadData = $baseManpowerQuery()->addSelect('divisis.nama as nama_divisi', 'departemens.nama as nama_departemen', ...$selectAggregates)->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')->leftJoin('divisis', 'departemens.divisi_id', 'divisis.id_divisi')->where('jabatans.id_jabatan', 2)->whereNull('posisis.seksi_id')->groupBy('divisis.nama', 'departemens.nama')->get()->keyBy(fn($item) => $item->nama_divisi . '|' . $item->nama_departemen);
+            $seksiData = $baseManpowerQuery()->addSelect('divisis.nama as nama_divisi', 'departemens.nama as nama_departemen', 'seksis.nama as nama_seksi', ...$selectAggregates)->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')->leftJoin('divisis', 'departemens.divisi_id', 'divisis.id_divisi')->leftJoin('seksis', 'posisis.seksi_id', 'seksis.id_seksi')->where(fn($q) => $q->where('jabatans.id_jabatan', '!=', 2)->orWhereNotNull('posisis.seksi_id'))->whereNotIn('jabatans.id_jabatan', [1, 3])->groupBy('divisis.nama', 'departemens.nama', 'seksis.nama')->get()->keyBy(fn($item) => $item->nama_divisi . '|' . $item->nama_departemen . '|' . $item->nama_seksi);
+            $advisorData = $baseManpowerQuery(3)->select($selectAggregates)->first();
+            $bodData = $baseManpowerQuery(1)->select($selectAggregates)->first();
+            $divisis = Divisi::with('departemen.seksis')->orderBy('nama')->get();
+
+            $historyData = ['headers' => $rekapHeaders, 'rows' => [], 'totals' => [], 'percentages' => []];
+            $row = 7;
+            $no = 1;
+            foreach ($divisis as $divisi) {
+                $divisiStartRow = $row;
+                $divisiNameRendered = false;
+                foreach ($divisi->departemen as $department) {
+                    $deptStartRow = $row;
+                    $deptHeadKey = $divisi->nama . '|' . $department->nama;
+                    $deptHeadInfo = $deptHeadData->get($deptHeadKey);
+                    $isFirstRow = true;
+                    $seksisToRender = $department->seksis->isEmpty() ? [null] : $department->seksis;
+
+                    foreach ($seksisToRender as $seksi) {
+                        $seksiKey = $divisi->nama . '|' . $department->nama . '|' . ($seksi->nama ?? '');
+                        $seksiInfo = $seksiData->get($seksiKey);
+                        $rowData = [
+                            $no++,
+                            !$divisiNameRendered ? $divisi->nama : '',
+                            $isFirstRow ? $department->nama : '',
+                            $seksi->nama ?? '',
+                            ($seksiInfo->total_direct ?? 0) + ($isFirstRow ? ($deptHeadInfo->total_direct ?? 0) : 0),
+                            ($seksiInfo->total_indirect ?? 0) + ($isFirstRow ? ($deptHeadInfo->total_indirect ?? 0) : 0),
+                            ($seksiInfo->total_dir ?? 0) + ($isFirstRow ? ($deptHeadInfo->total_dir ?? 0) : 0),
+                            ($seksiInfo->total_advisor ?? 0) + ($isFirstRow ? ($deptHeadInfo->total_advisor ?? 0) : 0),
+                            ($seksiInfo->total_ass_dir ?? 0) + ($isFirstRow ? ($deptHeadInfo->total_ass_dir ?? 0) : 0),
+                            ($seksiInfo->total_gnrl_manager ?? 0) + ($isFirstRow ? ($deptHeadInfo->total_gnrl_manager ?? 0) : 0),
+                            ($seksiInfo->total_manager ?? 0) + ($isFirstRow ? ($deptHeadInfo->total_manager ?? 0) : 0),
+                            ($seksiInfo->total_ast_manager ?? 0) + ($isFirstRow ? ($deptHeadInfo->total_ast_manager ?? 0) : 0),
+                            ($seksiInfo->total_sect_head ?? 0) + ($isFirstRow ? ($deptHeadInfo->total_sect_head ?? 0) : 0),
+                            ($seksiInfo->total_leader ?? 0) + ($isFirstRow ? ($deptHeadInfo->total_leader ?? 0) : 0),
+                            ($seksiInfo->total_pelaksana ?? 0) + ($isFirstRow ? ($deptHeadInfo->total_pelaksana ?? 0) : 0),
+                            ($seksiInfo->total_pkwtt ?? 0) + ($isFirstRow ? ($deptHeadInfo->total_pkwtt ?? 0) : 0),
+                            ($seksiInfo->total_pkwt ?? 0) + ($isFirstRow ? ($deptHeadInfo->total_pkwt ?? 0) : 0),
+                            ($seksiInfo->total_pk ?? 0) + ($isFirstRow ? ($deptHeadInfo->total_pk ?? 0) : 0),
+                            ($seksiInfo->total_l ?? 0) + ($isFirstRow ? ($deptHeadInfo->total_l ?? 0) : 0),
+                            ($seksiInfo->total_p ?? 0) + ($isFirstRow ? ($deptHeadInfo->total_p ?? 0) : 0),
+                            ($seksiInfo->total_karyawan ?? 0) + ($isFirstRow ? ($deptHeadInfo->total_karyawan ?? 0) : 0),
+                        ];
+                        $rekapSheet->fromArray($rowData, null, 'A' . $row++);
+                        $historyData['rows'][] = $rowData;
+                        $isFirstRow = false;
+                        if (!$divisiNameRendered) {
+                            $divisiNameRendered = true;
+                        }
+                    }
+                    if (count($seksisToRender) > 1) {
+                        $rekapSheet->mergeCells('C' . $deptStartRow . ':C' . ($row - 1))->getStyle('C' . $deptStartRow)->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                        $rekapSheet->mergeCells('K' . $deptStartRow . ':K' . ($row - 1))->getStyle('K' . $deptStartRow)->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                        $rekapSheet->mergeCells('L' . $deptStartRow . ':L' . ($row - 1))->getStyle('L' . $deptStartRow)->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                    }
+                }
+                if (($row - $divisiStartRow) > 1) {
+                    $rekapSheet->mergeCells('B' . $divisiStartRow . ':B' . ($row - 1))->getStyle('B' . $divisiStartRow)->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                }
+            }
+
+            if ($advisorData && $advisorData->total_karyawan > 0) {
+                $advisorRowData = [$no++, 'ADVISOR', '', '', $advisorData->total_direct ?? 0, $advisorData->total_indirect ?? 0, $advisorData->total_dir ?? 0, $advisorData->total_advisor ?? 0, $advisorData->total_ass_dir ?? 0, $advisorData->total_gnrl_manager ?? 0, $advisorData->total_manager ?? 0, $advisorData->total_ast_manager ?? 0, $advisorData->total_sect_head ?? 0, $advisorData->total_leader ?? 0, $advisorData->total_pelaksana ?? 0, $advisorData->total_pkwtt ?? 0, $advisorData->total_pkwt ?? 0, $advisorData->total_pk ?? 0, $advisorData->total_l ?? 0, $advisorData->total_p ?? 0, $advisorData->total_karyawan ?? 0];
+                $rekapSheet->fromArray($advisorRowData, null, 'A' . $row);
+                $historyData['rows'][] = $advisorRowData;
+                $rekapSheet->mergeCells('B' . $row . ':D' . $row++);
+            }
+
+            if ($bodData && $bodData->total_karyawan > 0) {
+                $bodRowData = [$no++, 'DIRECTOR', '', '', $bodData->total_direct ?? 0, $bodData->total_indirect ?? 0, $bodData->total_dir ?? 0, $bodData->total_advisor ?? 0, $bodData->total_ass_dir ?? 0, $bodData->total_gnrl_manager ?? 0, $bodData->total_manager ?? 0, $bodData->total_ast_manager ?? 0, $bodData->total_sect_head ?? 0, $bodData->total_leader ?? 0, $bodData->total_pelaksana ?? 0, $bodData->total_pkwtt ?? 0, $bodData->total_pkwt ?? 0, $bodData->total_pk ?? 0, $bodData->total_l ?? 0, $bodData->total_p ?? 0, $bodData->total_karyawan ?? 0];
+                $rekapSheet->fromArray($bodRowData, null, 'A' . $row);
+                $historyData['rows'][] = $bodRowData;
+                $rekapSheet->mergeCells('B' . $row . ':D' . $row++);
+            }
+
+            $lastRow = $row - 1;
+            if ($lastRow >= 7) {
+                $style = $rekapSheet->getStyle('A7:U' . $lastRow);
+                $style->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER)->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                $style->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+            }
+
+            $totalRow = $row;
+            $rekapSheet->setCellValue('A' . $totalRow, 'TOTAL')->mergeCells('A' . $totalRow . ':D' . $totalRow);
+            $seksiValues = $seksiData->values();
+            $deptHeadValues = $deptHeadData->values();
+            $total_direct = $seksiValues->sum('total_direct') + $deptHeadValues->sum('total_direct') + ($advisorData->total_direct ?? 0) + ($bodData->total_direct ?? 0);
+            $total_indirect = $seksiValues->sum('total_indirect') + $deptHeadValues->sum('total_indirect') + ($advisorData->total_indirect ?? 0) + ($bodData->total_indirect ?? 0);
+            $total_dir = $seksiValues->sum('total_dir') + $deptHeadValues->sum('total_dir') + ($bodData->total_dir ?? 0);
+            $total_advisor = $seksiValues->sum('total_advisor') + $deptHeadValues->sum('total_advisor') + ($advisorData->total_advisor ?? 0);
+            $total_ass_dir = $seksiValues->sum('total_ass_dir') + $deptHeadValues->sum('total_ass_dir');
+            $total_gnrl_manager = $seksiValues->sum('total_gnrl_manager') + $deptHeadValues->sum('total_gnrl_manager');
+            $total_manager = $seksiValues->sum('total_manager') + $deptHeadValues->sum('total_manager');
+            $total_ast_manager = $seksiValues->sum('total_ast_manager') + $deptHeadValues->sum('total_ast_manager');
+            $total_sect_head = $seksiValues->sum('total_sect_head') + $deptHeadValues->sum('total_sect_head');
+            $total_leader = $seksiValues->sum('total_leader') + $deptHeadValues->sum('total_leader');
+            $total_pelaksana = $seksiValues->sum('total_pelaksana') + $deptHeadValues->sum('total_pelaksana');
+            $total_pkwtt = $seksiValues->sum('total_pkwtt') + $deptHeadValues->sum('total_pkwtt') + ($advisorData->total_pkwtt ?? 0) + ($bodData->total_pkwtt ?? 0);
+            $total_pkwt = $seksiValues->sum('total_pkwt') + $deptHeadValues->sum('total_pkwt') + ($advisorData->total_pkwt ?? 0) + ($bodData->total_pkwt ?? 0);
+            $total_pk = $seksiValues->sum('total_pk') + $deptHeadValues->sum('total_pk') + ($advisorData->total_pk ?? 0) + ($bodData->total_pk ?? 0);
+            $total_l = $seksiValues->sum('total_l') + $deptHeadValues->sum('total_l') + ($advisorData->total_l ?? 0) + ($bodData->total_l ?? 0);
+            $total_p = $seksiValues->sum('total_p') + $deptHeadValues->sum('total_p') + ($advisorData->total_p ?? 0) + ($bodData->total_p ?? 0);
+            $total_karyawan = $seksiValues->sum('total_karyawan') + $deptHeadValues->sum('total_karyawan') + ($advisorData->total_karyawan ?? 0) + ($bodData->total_karyawan ?? 0);
+
+            $totals = [$total_direct, $total_indirect, $total_dir, $total_advisor, $total_ass_dir, $total_gnrl_manager, $total_manager, $total_ast_manager, $total_sect_head, $total_leader, $total_pelaksana, $total_pkwtt, $total_pkwt, $total_pk, $total_l, $total_p, $total_karyawan];
+            $rekapSheet->fromArray($totals, null, 'E' . $totalRow);
+            $historyData['totals'] = array_merge(array_fill(0, 4, ''), $totals);
+
+            $allRekapData[$organisasi_id] = [
+                'nama' => $organisasi_nama,
+                'rows' => $historyData['rows'],
+                'totals' => $totals,
+            ];
+
+            $totalStyle = $rekapSheet->getStyle('A' . $totalRow . ':U' . $totalRow);
+            $totalStyle->getFont()->setBold(true);
+            $totalStyle->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+            $totalStyle->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER)->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+
+            $percentageRow = $totalRow + 1;
+            if ($total_karyawan > 0) {
+                $percentages = [
+                    $total_pkwtt / $total_karyawan, $total_pkwt / $total_karyawan, $total_pk / $total_karyawan,
+                    $total_l / $total_karyawan, $total_p / $total_karyawan, 1
+                ];
+                $rekapSheet->fromArray($percentages, null, 'P' . $percentageRow);
+                $historyData['percentages'] = $percentages;
+                foreach (range('P', 'U') as $col) {
+                    $rekapSheet->getStyle($col . $percentageRow)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_PERCENTAGE_00);
+                }
+                $rekapSheet->getStyle('P' . $percentageRow . ':U' . $percentageRow)->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+            }
+
+            $allKaryawan = Karyawan::query()->where('tanggal_mulai', '<=', $processDate->endOfMonth())->where(fn($q) => $q->whereNull('tanggal_selesai')->orWhere('tanggal_selesai', '>=', $processDate->startOfMonth()))->when($organisasi_id, fn($q) => $q->where('organisasi_id', $organisasi_id))->get(['domisili', 'alamat']);
+            $total_karyawan_all = $allKaryawan->count();
+            $karawangKaryawan = $allKaryawan->filter(fn($k) => stripos($k->domisili, 'KARAWANG') !== false || stripos($k->alamat, 'KARAWANG') !== false);
+            $total_karawang = $karawangKaryawan->count();
+            $total_luar_karawang = $total_karyawan_all - $total_karawang;
+            $rekapDomisiliForSheet = [
+                ['K', $total_karawang, ($total_karyawan_all > 0 ? ($total_karawang / $total_karyawan_all) : 0)],
+                ['LK', $total_luar_karawang, ($total_karyawan_all > 0 ? ($total_luar_karawang / $total_karyawan_all) : 0)],
+                ['TOTAL', $total_karyawan_all, ($total_karyawan_all > 0 ? 1 : 0)]
+            ];
+            $rekapDomisiliForDb = $rekapDomisiliForSheet;
+
+            $startRow = $rekapSheet->getHighestRow() + 2;
+            $rekapSheet->setCellValue('A' . $startRow, 'REKAP BERDASARKAN DOMISILI')->mergeCells('A' . $startRow . ':D' . $startRow)->getStyle('A' . $startRow)->getFont()->setBold(true);
+            $startRow++;
+            $rekapSheet->fromArray($rekapDomisiliForSheet, null, 'A' . $startRow);
+            $rekapSheet->getStyle('C' . $startRow . ':C' . ($startRow + 2))->getNumberFormat()->setFormatCode('0.00%');
+            $rekapSheet->getStyle('A' . ($startRow + 2) . ':C' . ($startRow + 2))->getFont()->setBold(true);
+            $startRow += 4;
+
+            // New section for Karawang sub-districts
+            $karawangBarat = $karawangKaryawan->filter(fn($k) => stripos($k->domisili, 'KARAWANG BARAT') !== false || stripos($k->alamat, 'KARAWANG BARAT') !== false)->count();
+            $karawangKulon = $karawangKaryawan->filter(fn($k) => stripos($k->domisili, 'KARAWANG KULON') !== false || stripos($k->alamat, 'KARAWANG KULON') !== false)->count();
+            $karawangTimur = $karawangKaryawan->filter(fn($k) => stripos($k->domisili, 'KARAWANG TIMUR') !== false || stripos($k->alamat, 'KARAWANG TIMUR') !== false)->count();
+            $kecLain = $total_karawang - $karawangBarat - $karawangKulon - $karawangTimur;
+
+            $rekapKecamatan = [
+                ['KARAWANG BARAT', $karawangBarat, $total_karawang > 0 ? $karawangBarat / $total_karawang : 0],
+                ['KARAWANG KULON', $karawangKulon, $total_karawang > 0 ? $karawangKulon / $total_karawang : 0],
+                ['KARAWANG TIMUR', $karawangTimur, $total_karawang > 0 ? $karawangTimur / $total_karawang : 0],
+                ['KEC. LAIN ( KARAWANG )', $kecLain, $total_karawang > 0 ? $kecLain / $total_karawang : 0],
+                ['TOTAL', $total_karawang, $total_karawang > 0 ? 1 : 0]
+            ];
+
+            $rekapSheet->fromArray($rekapKecamatan, null, 'A' . $startRow);
+            $rekapSheet->getStyle('C' . $startRow . ':C' . ($startRow + 4))->getNumberFormat()->setFormatCode('0%');
+            $rekapSheet->getStyle('A' . ($startRow + 4) . ':C' . ($startRow + 4))->getFont()->setBold(true);
+            $startRow += 6;
+
+            // New section for Warung Bambu
+            $warungBambuKaryawan = $karawangKaryawan->filter(fn($k) => stripos($k->domisili, 'WARUNG BAMBU') !== false || stripos($k->alamat, 'WARUNG BAMBU') !== false);
+            $totalWarungBambu = $warungBambuKaryawan->count();
+
+            $rekapSheet->setCellValue('A' . $startRow, 'TOTAL KELURAHAN WARUNG BAMBU')->setCellValue('C' . $startRow, $totalWarungBambu);
+            $startRow++;
+            $rekapSheet->setCellValue('B' . $startRow, 'DUSUN');
+            
+            $dusunKrajan1 = $warungBambuKaryawan->filter(fn($k) => stripos($k->domisili, 'KRAJAN I') !== false || stripos($k->alamat, 'KRAJAN I') !== false)->count();
+            $dusunKrajan2 = $warungBambuKaryawan->filter(fn($k) => stripos($k->domisili, 'KRAJAN II') !== false || stripos($k->alamat, 'KRAJAN II') !== false)->count();
+            $dusunSukamaju = $warungBambuKaryawan->filter(fn($k) => stripos($k->domisili, 'SUKAMAJU') !== false || stripos($k->alamat, 'SUKAMAJU') !== false)->count();
+            $dusunSukamulya = $warungBambuKaryawan->filter(fn($k) => stripos($k->domisili, 'SUKAMULYA') !== false || stripos($k->alamat, 'SUKAMULYA') !== false)->count();
+            $dusunWarnajaya = $warungBambuKaryawan->filter(fn($k) => stripos($k->domisili, 'WARNAJAYA') !== false || stripos($k->alamat, 'WARNAJAYA') !== false)->count();
+            $dusunBukaper = $warungBambuKaryawan->filter(fn($k) => stripos($k->domisili, 'BUKAPER') !== false || stripos($k->alamat, 'BUKAPER') !== false)->count();
+            $dusunPerum = $warungBambuKaryawan->filter(fn($k) => stripos($k->domisili, 'PERUM GADING ELOK') !== false || stripos($k->alamat, 'PERUM GADING ELOK') !== false)->count();
+            
+            $totalDusun = $dusunKrajan1 + $dusunKrajan2 + $dusunSukamaju + $dusunSukamulya + $dusunWarnajaya + $dusunBukaper + $dusunPerum;
+
+            $rekapDusun = [
+                ['KRAJAN I', $dusunKrajan1, $totalDusun > 0 ? $dusunKrajan1 / $totalDusun : 0],
+                ['KRAJAN II', $dusunKrajan2, $totalDusun > 0 ? $dusunKrajan2 / $totalDusun : 0],
+                ['SUKAMAJU', $dusunSukamaju, $totalDusun > 0 ? $dusunSukamaju / $totalDusun : 0],
+                ['SUKAMULYA', $dusunSukamulya, $totalDusun > 0 ? $dusunSukamulya / $totalDusun : 0],
+                ['WARNAJAYA', $dusunWarnajaya, $totalDusun > 0 ? $dusunWarnajaya / $totalDusun : 0],
+                ['BUKAPER', $dusunBukaper, $totalDusun > 0 ? $dusunBukaper / $totalDusun : 0],
+                ['PERUM GADING ELOK', $dusunPerum, $totalDusun > 0 ? $dusunPerum / $totalDusun : 0],
+                ['TOTAL', $totalDusun, $totalDusun > 0 ? 1 : 0]
+            ];
+
+            $rekapSheet->fromArray($rekapDusun, null, 'B' . $startRow);
+            $rekapSheet->getStyle('D' . $startRow . ':D' . ($startRow + 7))->getNumberFormat()->setFormatCode('0%');
+            $rekapSheet->getStyle('B' . ($startRow + 7) . ':D' . ($startRow + 7))->getFont()->setBold(true);
+            $startRow += 9;
+
+            // Luar Warung Bambu
+            $luarWarungBambu = $karawangTimur - $totalWarungBambu;
+            $rekapSheet->setCellValue('A' . $startRow, 'LUAR KELURAHAN WARUNGBAMBU')->setCellValue('C' . $startRow, $luarWarungBambu);
+            $startRow++;
+            $rekapSheet->setCellValue('B' . $startRow, 'KARAWANG TIMUR')->setCellValue('C' . $startRow, $karawangTimur);
+
+            foreach (range('A', 'U') as $columnID) $rekapSheet->getColumnDimension($columnID)->setAutoSize(true);
+
+            // --- Data Karyawan Sheet ---
+            $dataSheet = $spreadsheet->createSheet($sheetIndex++);
+            $dataSheet->setTitle('Data Karyawan ' . $organisasi_nama);
+            $karyawanSheetData = ['grouped_data' => []];
+
+            $dataSheet->mergeCells('A1:DR1')->setCellValue('A1', 'REKAP MANPOWER ' . strtoupper($organisasi_nama ?? 'PT. ADYAWINSA STAMPING INDUSTRIES'))->getStyle('A1')->getFont()->setBold(true)->setSize(16);
+            $dataSheet->getStyle('A1')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT);
+            $dataSheet->setCellValue('A3', 'Period : ' . strtoupper($processDate->format('F Y')));
+            $dataSheet->setCellValue('A5', 'Update : ' . Carbon::now()->format('d F Y'));
+
+            $headerRow = 7;
+            $subHeaderRow = 8;
+            $colIndex = 1;
+            $writeMergedHeader = function ($title, $mergeCount, $subtitles) use ($dataSheet, $headerRow, $subHeaderRow, &$colIndex) {
+                $startCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex);
+                if ($mergeCount > 1) {
+                    $endCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex + $mergeCount - 1);
+                    $dataSheet->mergeCells($startCol . $headerRow . ':' . $endCol . ($subtitles ? $headerRow : $subHeaderRow));
+                } else {
+                    $dataSheet->mergeCells($startCol . $headerRow . ':' . $startCol . $subHeaderRow);
+                }
+                $dataSheet->setCellValue($startCol . $headerRow, $title);
+                if ($subtitles) $dataSheet->fromArray($subtitles, null, $startCol . $subHeaderRow);
+                $colIndex += $mergeCount;
+            };
+
+            $writeMergedHeader('', 1, null);
+            $colString = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex);
+            $dataSheet->setCellValue($colString . $headerRow, 'NO');
+            $dataSheet->setCellValue($colString . $subHeaderRow, 'ALL');
+            $colIndex++;
+            $writeMergedHeader('NO', 1, null);
+            $writeMergedHeader('NAMA LENGKAP', 1, null);
+            $writeMergedHeader('NIK', 1, null);
+            $writeMergedHeader('TANGGAL MASUK', 1, null);
+            $writeMergedHeader('DEPT', 1, null);
+            $writeMergedHeader('JABATAN', 1, null);
+            $writeMergedHeader('SECTION', 1, null);
+            $writeMergedHeader('Group', 1, null);
+            $writeMergedHeader('ATASAN LANGSUNG', 1, null);
+            $writeMergedHeader('TGL PENETAPAN', 1, null);
+            $writeMergedHeader('TGL PENGANGKATAN', 1, null);
+            $writeMergedHeader('DIRECT', 1, null);
+            $writeMergedHeader('INDIRECT', 1, null);
+            $writeMergedHeader('JABATAN', 9, ['DIR', 'ADV', 'ASS DIR', 'GNRL MANAGER', 'MANAGER', 'ASTMANAGER', 'SECT HEAD', 'LEADER', 'PELAKSANA']);
+            $writeMergedHeader('STATUS', 3, ['PKWTT', 'PKWT', 'PK']);
+            $kontrakHeaders = array_map(fn($i) => 'K' . $i, range(1, 10));
+            $kontrakHeaders[] = 'PK';
+            $writeMergedHeader('JUMLAH KONTRAK', 11, $kontrakHeaders);
+            $writeMergedHeader('TANGGAL BERAKHIR', 1, null);
+            for ($i = 1; $i <= 10; $i++) $writeMergedHeader('KONTRAK ' . $i, 2, ['START', 'END']);
+            $writeMergedHeader('TEMPAT LAHIR', 1, null);
+            $writeMergedHeader('TANGGAL LAHIR', 1, null);
+            $writeMergedHeader('USIA', 3, ['TAHUN', 'BULAN', 'HARI']);
+            $writeMergedHeader('JK', 2, ['L', 'P']);
+            $writeMergedHeader('STATUS KAWINAN', 8, ['BK', 'K', 'KA 1', 'KA 2', 'KA 3', 'KA 4', 'KA 5', 'KA 6']);
+            $writeMergedHeader('AGAMA', 6, ['I', 'KRIS', 'KATH', 'H', 'B', '']);
+            $writeMergedHeader('TINGKAT PENDIDIKAN', 8, ['TS', 'SD', 'SLTP', 'SLTA/STM', 'DIP', 'SI', 'S2', '']);
+            $writeMergedHeader('NAMA ISTRI/SUAMI', 1, null);
+            $writeMergedHeader('TTL ISTRI/SUAMI', 1, null);
+            $anakHeaders = [];
+            for ($i = 1; $i <= 5; $i++) {
+                $anakHeaders[] = 'ANAK ' . $i;
+                $anakHeaders[] = 'TTL ANAK ' . $i;
+            }
+            $writeMergedHeader('NAMA & TGL LAHIR ANAK', 10, $anakHeaders);
+            $writeMergedHeader('NAMA IBU KANDUNG', 1, null);
+            $writeMergedHeader('ALAMAT KTP', 1, null);
+            $writeMergedHeader('DOMISILI', 1, null);
+            $writeMergedHeader('NO. KTP / SIM', 1, null);
+            $writeMergedHeader('NO. TELPON', 1, null);
+            $writeMergedHeader('EMAIL', 1, null);
+            $writeMergedHeader('PERIODE', 1, null);
+            $writeMergedHeader('MASA KERJA', 3, ['TAHUN', 'BULAN', 'HARI']);
+            $writeMergedHeader('KETERANGAN', 1, null);
+            $writeMergedHeader('TANGGAL HARI INI', 1, null);
+            $writeMergedHeader('SINAS', 1, null);
+
+            $lastCol = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex - 1);
+            $headerStyle = $dataSheet->getStyle('B' . $headerRow . ':' . $lastCol . $subHeaderRow);
+            $headerStyle->getFont()->setBold(true);
+            $headerStyle->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER)->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+            $headerStyle->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+            $headerStyle->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('FF00B050');
+            $dataSheet->getColumnDimension('A')->setWidth(5);
+            for ($i = 2; $i < $colIndex; $i++) $dataSheet->getColumnDimension(\PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($i))->setAutoSize(true);
+            $dataSheet->freezePane('I9');
+
+            $dataKaryawan = Karyawan::query()->where('tanggal_mulai', '<=', $processDate->endOfMonth())->where(fn($q) => $q->whereNull('tanggal_selesai')->orWhere('tanggal_selesai', '>=', $processDate->startOfMonth()))->when($organisasi_id, fn($q) => $q->where('organisasi_id', $organisasi_id))->with(['posisi' => fn($q) => $q->with(['departemen.divisi', 'seksi', 'jabatan', 'parent']), 'kontrak' => fn($q) => $q->orderBy('tanggal_mulai', 'asc'), 'keluarga', 'grup'])->get();
+            $sinasCounts = $dataKaryawan->whereNotNull('sinas')->groupBy('sinas')->map(fn ($group) => $group->count())->toArray();
+
+            $dataRow = $subHeaderRow + 1;
+            $globalNo = 1;
+            $groupedByDept = $dataKaryawan->groupBy(fn($item) => $item->posisi->first()->departemen->nama ?? 'UNKNOWN');
+
+            foreach ($groupedByDept as $deptName => $karyawansInDept) {
+                $deptGroup = ['dept_name' => $deptName, 'contracts' => []];
+                $no = 1;
+                $groupedByContract = $karyawansInDept->groupBy('jenis_kontrak');
+                foreach ($groupedByContract as $contractName => $karyawans) {
+                    $contractDisplayName = !empty($contractName) ? strtoupper($contractName) : 'LAINNYA';
+                    $contractGroup = ['contract_name' => $contractDisplayName, 'rows' => [], 'subtotal' => []];
+                    $dataRow++;
+                    $dataSheet->setCellValue('B' . $dataRow, $contractDisplayName)->getStyle('B' . $dataRow)->getFont()->setBold(true);
+                    $dataSheet->mergeCells('B' . $dataRow . ':I' . $dataRow)->getStyle('B' . $dataRow)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT)->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                    $dataRow++;
+
+                    $contractSubtotalCounts = array_fill(0, $colIndex - 1, 0);
+                    foreach ($karyawans as $karyawan) {
+                        $posisi = $karyawan->posisi->first();
+                        $jabatanName = $posisi->jabatan->nama ?? null;
+                        $isKarawang = stripos(strtoupper($karyawan->domisili), 'KARAWANG') !== false;
+                        $rowData = [$isKarawang ? 'K' : 'LK', $globalNo++, $no++, $karyawan->nama, $karyawan->ni_karyawan, $karyawan->tanggal_mulai, $deptName, $jabatanName, $posisi->seksi->nama ?? '', $karyawan->grup->nama ?? 'NON SHIFT', $posisi->parent->nama ?? '', null, null, $karyawan->direct ? 1 : '', $karyawan->indirect ? 1 : ''];
+                        $jabatanMap = ['DIR', 'ADV', 'ASS DIR', 'GNRL MANAGER', 'MANAGER', 'ASTMANAGER', 'SECT HEAD', 'LEADER', 'PELAKSANA'];
+                        foreach ($jabatanMap as $j) $rowData[] = (strtoupper($jabatanName) == $j) ? 1 : '';
+                        $statusMap = ['PKWTT', 'PKWT', 'PK'];
+                        foreach ($statusMap as $s) $rowData[] = (strtoupper($karyawan->jenis_kontrak) == $s) ? 1 : '';
+                        $kontrakCount = $karyawan->kontrak->count();
+                        for ($i = 1; $i <= 10; $i++) $rowData[] = ($kontrakCount == $i) ? 1 : '';
+                        $rowData[] = '';
+                        $rowData[] = $karyawan->kontrak->last()->tanggal_selesai ?? null;
+                        $kontrakData = [];
+                        $kontrakOnSheet = 0;
+                        foreach ($karyawan->kontrak as $kontrak) {
+                            if ($kontrakOnSheet < 10) {
+                                $kontrakData[] = $kontrak->tanggal_mulai;
+                                $kontrakData[] = $kontrak->tanggal_selesai;
+                                $kontrakOnSheet++;
+                            }
+                        }
+                        $kontrakData = array_pad($kontrakData, 20, null);
+                        $rowData = array_merge($rowData, $kontrakData);
+                        $rowData[] = $karyawan->tempat_lahir;
+                        $rowData[] = $karyawan->tanggal_lahir;
+                        $usia = $karyawan->tanggal_lahir ? Carbon::parse($karyawan->tanggal_lahir)->diff(Carbon::now()) : null;
+                        $rowData = array_merge($rowData, [$usia->y ?? null, $usia->m ?? null, $usia->d ?? null]);
+                        $rowData[] = ($karyawan->jenis_kelamin == 'L') ? 1 : '';
+                        $rowData[] = ($karyawan->jenis_kelamin == 'P') ? 1 : '';
+                        $statusKawinData = array_fill(0, 8, '');
+                        if (strtoupper($karyawan->status_keluarga) == 'BELUM MENIKAH') {
+                            $statusKawinData[0] = 1;
+                        } else if (strtoupper($karyawan->status_keluarga) == 'MENIKAH') {
+                            if (strtoupper($karyawan->kategori_keluarga) == 'K0') {
+                                $statusKawinData[1] = 1;
+                            } else if (strtoupper($karyawan->kategori_keluarga) == 'K1') {
+                                $statusKawinData[2] = 1;
+                            } else if (strtoupper($karyawan->kategori_keluarga) == 'K2') {
+                                $statusKawinData[3] = 1;
+                            } else if (strtoupper($karyawan->kategori_keluarga) == 'K3') {
+                                $statusKawinData[4] = 1;
+                            }
+                        }
+                        $rowData = array_merge($rowData, $statusKawinData);
+                        $agamaMap = ['I' => 'ISLAM', 'KRIS' => 'KRISTEN', 'KATH' => 'KATOLIK', 'H' => 'HINDU', 'B' => 'BUDHA'];
+                        foreach ($agamaMap as $key => $value) $rowData[] = (strtoupper($karyawan->agama) == $value) ? 1 : '';
+                        $rowData[] = '';
+                        $pendidikanData = array_fill(0, 8, '');
+                        $jenjang = strtoupper($karyawan->jenjang_pendidikan);
+                        if ($jenjang == 'SD') {
+                            $pendidikanData[1] = 1;
+                        } else if ($jenjang == 'SMP' || $jenjang == 'SLTP') {
+                            $pendidikanData[2] = 1;
+                        } else if ($jenjang == 'SMA' || $jenjang == 'SLTA' || $jenjang == 'STM' || $jenjang == 'SLTA/STM') {
+                            $pendidikanData[3] = 1;
+                        } else if (in_array($jenjang, ['D1', 'D2', 'D3', 'D4', 'DIP'])) {
+                            $pendidikanData[4] = 1;
+                        } else if ($jenjang == 'S1' || $jenjang == 'SI') {
+                            $pendidikanData[5] = 1;
+                        } else if ($jenjang == 'S2') {
+                            $pendidikanData[6] = 1;
+                        } else if ($jenjang == 'S3') {
+                            $pendidikanData[7] = 1;
+                        } else if ($jenjang == 'TS') {
+                            $pendidikanData[0] = 1;
+                        } else if (!empty($jenjang)) {
+                            $pendidikanData[7] = 1; // Other
+                        }
+                        $rowData = array_merge($rowData, $pendidikanData);
+                        $pasangan = $karyawan->keluarga->whereIn('hubungan', ['Istri', 'Suami'])->first();
+                        $anak = $karyawan->keluarga->where('hubungan', 'Anak');
+                        $rowData[] = $pasangan->nama ?? null;
+                        $rowData[] = $pasangan ? ($pasangan->tempat_lahir . ', ' . $pasangan->tanggal_lahir) : null;
+                        $anakData = [];
+                        foreach ($anak as $a) {
+                            if (count($anakData) < 10) {
+                                $anakData[] = $a->nama;
+                                $anakData[] = $a->tempat_lahir . ', ' . $a->tanggal_lahir;
+                            }
+                        }
+                        $anakData = array_pad($anakData, 10, null);
+                        $rowData = array_merge($rowData, $anakData);
+                        $rowData[] = $karyawan->nama_ibu_kandung;
+                        $rowData[] = $karyawan->alamat;
+                        $rowData[] = ($karyawan->alamat !== $karyawan->domisili) ? $karyawan->domisili : '';
+                        $rowData[] = "'" . $karyawan->nik;
+                        $rowData[] = "'" . $karyawan->no_telp;
+                        $rowData[] = $karyawan->email;
+                        $rowData[] = null;
+                        $masaKerja = $karyawan->tanggal_mulai ? Carbon::parse($karyawan->tanggal_mulai)->diff(Carbon::now()) : null;
+                        $rowData = array_merge($rowData, [$masaKerja->y ?? null, $masaKerja->m ?? null, $masaKerja->d ?? null]);
+                        $rowData[] = null;
+                        $rowData[] = Carbon::now()->format('Y-m-d');
+                        $rowData[] = $karyawan->sinas;
+                        
+                        $dataSheet->fromArray($rowData, null, 'A' . $dataRow);
+                        $dataSheet->getStyle('B' . $dataRow . ':' . $lastCol . $dataRow)->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+                        $contractGroup['rows'][] = $rowData;
+                        $dataRow++;
+                    }
+
+                    if (!empty($contractGroup['rows'])) {
+                        $subtotalRow = array_fill(0, count($contractGroup['rows'][0]), '');
+                        $subtotalRow[1] = 'SUB TOTAL ' . $contractDisplayName;
+                        $subtotalSums = array_fill(0, count($contractGroup['rows'][0]), 0);
+                        foreach($contractGroup['rows'] as $r) {
+                            for($i = 13; $i < count($r); $i++) {
+                                if(is_numeric($r[$i])) $subtotalSums[$i] += $r[$i];
+                            }
+                        }
+                        for($i = 13; $i < count($subtotalRow); $i++) {
+                            if($subtotalSums[$i] > 0) $subtotalRow[$i] = $subtotalSums[$i];
+                        }
+
+                        $dataSheet->fromArray($subtotalRow, null, 'A' . $dataRow);
+                        $dataSheet->mergeCells('B' . $dataRow . ':K' . $dataRow);
+                        $subtotalStyle = $dataSheet->getStyle('B' . $dataRow . ':' . $lastCol . $dataRow);
+                        $subtotalStyle->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('FFCCFFCC');
+                        $subtotalStyle->getFont()->setBold(true);
+                        $subtotalStyle->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT)->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                        $subtotalStyle->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+                        $contractGroup['subtotal'] = $subtotalRow;
+                        $dataRow++;
+                    }
+
+                    $deptGroup['contracts'][] = $contractGroup;
+                }
+
+                $deptTotals = array_fill(0, $colIndex - 1, 0);
+                $hasDataForDeptTotal = false;
+                foreach($deptGroup['contracts'] as $contract) {
+                    if(isset($contract['subtotal']) && !empty($contract['subtotal'])) {
+                        $hasDataForDeptTotal = true;
+                        for($i=13; $i < count($contract['subtotal']); $i++) {
+                            if(is_numeric($contract['subtotal'][$i])) {
+                                $deptTotals[$i] += $contract['subtotal'][$i];
+                            }
+                        }
+                    }
+                }
+
+                if($hasDataForDeptTotal) {
+                    $deptTotalRow = array_fill(0, $colIndex - 1, '');
+                    $deptTotalRow[1] = 'TOTAL ' . $deptName;
+                    for($i=13; $i < count($deptTotalRow); $i++) {
+                        if($deptTotals[$i] > 0) $deptTotalRow[$i] = $deptTotals[$i];
+                    }
+                    $dataSheet->fromArray($deptTotalRow, null, 'A' . $dataRow);
+                    $dataSheet->mergeCells('B' . $dataRow . ':K' . $dataRow);
+                    $totalStyle = $dataSheet->getStyle('B' . $dataRow . ':' . $lastCol . $dataRow);
+                    $totalStyle->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('FFFFFF00');
+                    $totalStyle->getFont()->setBold(true);
+                    $totalStyle->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT)->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                    $totalStyle->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+                    $dataRow++;
+
+                    $totalKaryawanInDept = count($karyawansInDept);
+                    if($totalKaryawanInDept > 0) {
+                        $percentageRow = array_fill(0, $colIndex - 1, '');
+                        $percentageRow[1] = 'PRESENTASE';
+                        
+                        $indicesToCalculate = array_merge(
+                            [13, 14], // DIRECT, INDIRECT
+                            range(15, 23), // JABATAN
+                            range(24, 26), // STATUS
+                            [64, 65] // JK
+                        );
+
+                        foreach($indicesToCalculate as $idx) {
+                            if(isset($deptTotals[$idx]) && $deptTotals[$idx] > 0) {
+                                $percentageRow[$idx] = $deptTotals[$idx] / $totalKaryawanInDept;
+                            }
+                        }
+                        
+                        $dataSheet->fromArray($percentageRow, null, 'A' . $dataRow);
+                        $dataSheet->mergeCells('B' . $dataRow . ':K' . $dataRow);
+                        
+                        foreach($indicesToCalculate as $idx) {
+                            if(isset($percentageRow[$idx]) && $percentageRow[$idx] !== '') {
+                                $colLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($idx + 1);
+                                $dataSheet->getStyle($colLetter . $dataRow)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_PERCENTAGE_00);
+                            }
+                        }
+
+                        $percentageStyle = $dataSheet->getStyle('B' . $dataRow . ':' . $lastCol . $dataRow);
+                        $percentageStyle->getFont()->setBold(true);
+                        $percentageStyle->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+                        $percentageStyle->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('FFD9EAD3');
+                        $percentageStyle->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT)->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                        $dataSheet->getStyle('N' . $dataRow . ':' . $lastCol . $dataRow)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+
+                        $dataRow++;
+                    }
+                }
+
+                $karyawanSheetData['grouped_data'][] = $deptGroup;
+            }
+
+            $summaryStartRow = $dataRow;
+            $dataSheet->setCellValue('DH' . $summaryStartRow, 'REKAP SINAS')->getStyle('DH' . $summaryStartRow)->getFont()->setBold(true);
+            $summaryStartRow++;
+            $totalSinas = 0;
+            foreach ($sinasCounts as $category => $count) {
+                $dataSheet->setCellValue('DH' . $summaryStartRow, $category)->setCellValue('DI' . $summaryStartRow, $count);
+                $totalSinas += $count;
+                $summaryStartRow++;
+            }
+            $dataSheet->setCellValue('DH' . $summaryStartRow, 'TOTAL')->getStyle('DH' . $summaryStartRow)->getFont()->setBold(true);
+            $dataSheet->setCellValue('DI' . $summaryStartRow, $totalSinas)->getStyle('DI' . $summaryStartRow)->getFont()->setBold(true);
+
+            // --- Save to History ---
+            $fullHistoryData = [
+                'rekap_manpower' => $historyData,
+                'data_karyawan' => $karyawanSheetData,
+                'rekap_domisili' => $rekapDomisiliForDb,
+                'rekap_sinas' => $sinasCounts,
+            ];
+
+            DB::transaction(function () use ($processDate, $organisasi_id, $fullHistoryData) {
+                $history = RekapManpowerHistory::lockForUpdate()->firstOrNew([
+                    'period' => $processDate->format('Y-m-d'),
+                ]);
+                $data = $history->data ?? [];
+                $data[$organisasi_id] = $fullHistoryData;
+                $history->data = $data;
+                $history->save();
+            });
+        }
+
+        if (($organisasi_filter === 'all' || !$organisasi_filter) && count($orgs_to_process) > 1) {
+            $allRekapSheet = $spreadsheet->createSheet($sheetIndex++);
+            $allRekapSheet->setTitle('Rekap Manpower ASI (ALL)');
+            $allRekapSheet->getDefaultRowDimension()->setRowHeight(25);
+
+            $newHeaders = [
+                ['NO', 'DIVISION', 'DEPARTMENT', 'AREA', 'STATUS', '', '', 'JK', '', 'TOTAL MAN POWER', '% TETAP', '% KONTRAK', 'TOTAL PKWT,PKWTT dan PK', '20%'],
+                ['', '', '', '', 'PKWTT', 'PKWT', 'PENGKARYAAN', 'L', 'P', '', '', '', '', '']
+            ];
+
+            $current_row = 1;
+
+            foreach ($allRekapData as $org_id => $orgData) {
+                // Title for the plant
+                $allRekapSheet->mergeCells('A'.$current_row.':N'.$current_row)->setCellValue('A'.$current_row, 'REKAP MANPOWER ' . strtoupper($orgData['nama']));
+                $allRekapSheet->getStyle('A'.$current_row)->getFont()->setBold(true)->setSize(14);
+                $allRekapSheet->getStyle('A'.$current_row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                $current_row += 2;
+
+                // Headers
+                $header_start_row = $current_row;
+                $allRekapSheet->fromArray($newHeaders, null, 'A' . $header_start_row);
+                $allRekapSheet->mergeCells('E'.$header_start_row.':G'.$header_start_row); // STATUS
+                $allRekapSheet->mergeCells('H'.$header_start_row.':I'.$header_start_row); // JK
+                $allRekapSheet->mergeCells('A'.$header_start_row.':A'.($header_start_row+1));
+                $allRekapSheet->mergeCells('B'.$header_start_row.':B'.($header_start_row+1));
+                $allRekapSheet->mergeCells('C'.$header_start_row.':C'.($header_start_row+1));
+                $allRekapSheet->mergeCells('D'.$header_start_row.':D'.($header_start_row+1));
+                $allRekapSheet->mergeCells('J'.$header_start_row.':J'.($header_start_row+1));
+                $allRekapSheet->mergeCells('K'.$header_start_row.':K'.($header_start_row+1));
+                $allRekapSheet->mergeCells('L'.$header_start_row.':L'.($header_start_row+1));
+                $allRekapSheet->mergeCells('M'.$header_start_row.':M'.($header_start_row+1));
+                $allRekapSheet->mergeCells('N'.$header_start_row.':N'.($header_start_row+1));
+                
+                $headerRange = 'A'.$header_start_row.':N'.($header_start_row + 1);
+                $headerStyle = $allRekapSheet->getStyle($headerRange);
+                $headerStyle->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('FF00B050');
+                $headerStyle->getFont()->setBold(true);
+                $headerStyle->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+                $headerStyle->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER)->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+
+                $current_row += 2;
+
+                // Data rows
+                $data_start_row = $current_row;
+                if (!empty($orgData['rows'])) {
+                    $b_merge_start_row = $current_row;
+                    $c_merge_start_row = $current_row;
+                    $rowCount = count($orgData['rows']);
+                    for ($i = 0; $i < $rowCount; $i++) {
+                        $rowData = $orgData['rows'][$i];
+
+                        // Before writing, check if we need to finalize a previous merge
+                        if ($i > 0 && $rowData[1] !== '') { // New division
+                            if (($current_row - 1) > $b_merge_start_row) {
+                                $allRekapSheet->mergeCells('B' . $b_merge_start_row . ':B' . ($current_row - 1));
+                                $allRekapSheet->getStyle('B' . $b_merge_start_row)->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                            }
+                            $b_merge_start_row = $current_row;
+                        }
+                        if ($i > 0 && $rowData[2] !== '') { // New department
+                            if (($current_row - 1) > $c_merge_start_row) {
+                                $allRekapSheet->mergeCells('C' . $c_merge_start_row . ':C' . ($current_row - 1));
+                                $allRekapSheet->getStyle('C' . $c_merge_start_row)->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                            }
+                            $c_merge_start_row = $current_row;
+                        }
+
+                        $totalManPower = $rowData[20] ?? 0;
+                        $pkwtt = $rowData[15] ?? 0;
+                        $pkwt = $rowData[16] ?? 0;
+                        $pk = $rowData[17] ?? 0;
+                        $totalPk = $pkwtt + $pkwt + $pk;
+
+                        $newRowData = [
+                            $rowData[0], // NO
+                            $rowData[1], // DIVISION
+                            $rowData[2], // DEPARTMENT
+                            $rowData[3], // AREA
+                            $pkwtt,
+                            $pkwt,
+                            $pk,
+                            $rowData[18] ?? 0, // L
+                            $rowData[19] ?? 0, // P
+                            $totalManPower,
+                            $totalManPower > 0 ? $pkwtt / $totalManPower : 0,
+                            $totalManPower > 0 ? ($pkwt + $pk) / $totalManPower : 0,
+                            $totalPk,
+                            round($totalPk * 0.2)
+                        ];
+                        $allRekapSheet->fromArray($newRowData, null, 'A' . $current_row);
+
+                        if ($rowData[1] === 'ADVISOR' || $rowData[1] === 'DIRECTOR') {
+                            $allRekapSheet->mergeCells('B' . $current_row . ':D' . $current_row);
+                        }
+
+                        $allRekapSheet->getStyle('K' . $current_row)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_PERCENTAGE_00);
+                        $allRekapSheet->getStyle('L' . $current_row)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_PERCENTAGE_00);
+                        
+                        $current_row++;
+                    }
+
+                    // After loop, merge the last blocks
+                    $last_data_row = $current_row - 1;
+                    if ($last_data_row > $b_merge_start_row) {
+                        $allRekapSheet->mergeCells('B' . $b_merge_start_row . ':B' . $last_data_row);
+                        $allRekapSheet->getStyle('B' . $b_merge_start_row)->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                    }
+                    if ($last_data_row > $c_merge_start_row) {
+                        $allRekapSheet->mergeCells('C' . $c_merge_start_row . ':C' . $last_data_row);
+                        $allRekapSheet->getStyle('C' . $c_merge_start_row)->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                    }
+                }
+                
+                $last_data_row = $current_row - 1;
+                if ($last_data_row >= $data_start_row) {
+                    $style = $allRekapSheet->getStyle('A'.$data_start_row.':N'.$last_data_row);
+                    $style->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER)->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+                    $style->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+                }
+
+                // Total row
+                $totalRowData = $orgData['totals'];
+                $totalManPower = $totalRowData[16] ?? 0;
+                $pkwtt = $totalRowData[11] ?? 0;
+                $pkwt = $totalRowData[12] ?? 0;
+                $pk = $totalRowData[13] ?? 0;
+                $totalPk = $pkwtt + $pkwt + $pk;
+                $newTotalRowData = [
+                    'TOTAL',
+                    '',
+                    '',
+                    '',
+                    $pkwtt,
+                    $pkwt,
+                    $pk,
+                    $totalRowData[14] ?? 0,
+                    $totalRowData[15] ?? 0,
+                    $totalManPower,
+                    $totalManPower > 0 ? $pkwtt / $totalManPower : 0,
+                    $totalManPower > 0 ? ($pkwt + $pk) / $totalManPower : 0,
+                    $totalPk,
+                    round($totalPk * 0.2)
+                ];
+                $allRekapSheet->fromArray($newTotalRowData, null, 'A' . $current_row);
+                $allRekapSheet->getStyle('K' . $current_row)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_PERCENTAGE_00);
+                $allRekapSheet->getStyle('L' . $current_row)->getNumberFormat()->setFormatCode(\PhpOffice\PhpSpreadsheet\Style\NumberFormat::FORMAT_PERCENTAGE_00);
+                $allRekapSheet->mergeCells('A'.$current_row.':D'.$current_row);
+                
+                $totalStyle = $allRekapSheet->getStyle('A' . $current_row . ':N' . $current_row);
+                $totalStyle->getFont()->setBold(true);
+                $totalStyle->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+                $totalStyle->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER)->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+
+                $current_row++;
+                $totalStatus = ($totalRowData[11] ?? 0) + ($totalRowData[12] ?? 0) + ($totalRowData[13] ?? 0);
+                $totalAsiRowData = [
+                    'TOTAL ' . $orgData['nama'],
+                    '',
+                    '',
+                    '',
+                    $totalStatus,
+                    '',
+                    '',
+                    $totalRowData[14] ?? 0,
+                    $totalRowData[15] ?? 0,
+                    $totalRowData[16] ?? 0,
+                    '',
+                    '',
+                    '',
+                    ''
+                ];
+                $allRekapSheet->fromArray($totalAsiRowData, null, 'A' . $current_row);
+                $allRekapSheet->mergeCells('A' . $current_row . ':D' . $current_row);
+                $allRekapSheet->mergeCells('E' . $current_row . ':G' . $current_row);
+                $totalAsiStyle = $allRekapSheet->getStyle('A' . $current_row . ':N' . $current_row);
+                $totalAsiStyle->getFont()->setBold(true);
+                $totalAsiStyle->getBorders()->getAllBorders()->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+                $totalAsiStyle->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER)->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
+
+                $current_row += 2; // Add some space before the next table
+            }
+            
+            foreach (range('A', 'N') as $columnID) {
+                $allRekapSheet->getColumnDimension($columnID)->setAutoSize(true);
+            }
+        }
+
+        $spreadsheet->setActiveSheetIndex(0);
+        $fileName = 'Rekap Manpower ASI Plant 1 & 2 ' . $processDate->format('F Y') . '.xlsx';
+        $writer = new Xlsx($spreadsheet);
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="' . $fileName . '"');
+        header('Cache-Control: max-age=0');
+
+        $writer->save('php://output');
+        exit;
     }
 }

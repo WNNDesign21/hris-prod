@@ -46,6 +46,7 @@
                                         <option value="PKWT">PKWT</option>
                                         <option value="PKWTT">PKWTT</option>
                                         <option value="MAGANG">MAGANG</option>
+                                        <option value="PENGKARYAAN">PENGKARYAAN</option>
                                     </select>
                                 </div>
                                 <div class="form-group mb-0">
@@ -78,7 +79,7 @@
                                 <div class="form-group">
                                     <label for="">Durasi (Dalam Bulan)</label>
                                     <input type="number" name="durasi" id="durasi" class="form-control"
-                                        placeholder="Note : Abaikan jika memilih PKWTT">
+                                        placeholder="Note : Abaikan jika memilih PKWTT/PENGKARYAAN">
                                 </div>
                                 <div class="form-group">
                                     <label for="">Salary</label>

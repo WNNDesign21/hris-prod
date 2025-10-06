@@ -59,6 +59,7 @@
                             <thead>
                                 <tr>
                                     <th>No</th>
+                                    <th>ID Posisi</th>
                                     <th>Nama</th>
                                     <th>Jabatan</th>
                                     <th>Organisasi</th>

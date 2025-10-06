@@ -184,8 +184,13 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/master-data/akun/get-data-detail-akun/{idAkun}', [AkunController::class, 'get_data_detail_akun']);
 
     Route::get('/master-data/kontrak/get-data-list-kontrak/{idKaryawan}', [KontrakController::class, 'get_data_list_kontrak']);
+    Route::get('/master-data/kontrak/get-jenis-kontrak', [KontrakController::class, 'get_jenis_kontrak']);
     Route::get('/master-data/kontrak/download-kontrak-kerja/{idKontrak}', [KontrakController::class, 'download_kontrak_kerja']);
     Route::get('/master-data/kontrak/get-data-detail-kontrak/{idKontrak}', [KontrakController::class, 'get_data_detail_kontrak']);
+
+    // Ringkasan kontrak karyawan (summary table)
+    Route::get('/master-data/kontrak/ringkasan', [KontrakController::class, 'datatableRingkasanKontrak'])->name('masterdata.kontrak.ringkasan');
+    Route::get('/master-data/kontrak/detail/{id}', [KontrakController::class, 'detailKontrak'])->name('masterdata.kontrak.detail');
 
     Route::post('/cutie/ajax/get-karyawan-cuti', [CutieAjaxController::class, 'get_karyawan_cuti']);
     Route::get('/cutie/ajax/get-data-jenis-cuti-khusus', [CutieAjaxController::class, 'get_data_jenis_cuti_khusus']);
@@ -330,6 +335,7 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'role:atasan|member|persona
             Route::post('/karyawan/upload-karyawan', [KaryawanController::class, 'upload_karyawan'])->name('master-data.karyawan.upload-karyawan');
             Route::delete('/karyawan/delete/{idKaryawan}', [KaryawanController::class, 'delete'])->name('master-data.karyawan.delete');
             Route::patch('/karyawan/update/{idKaryawan}', [KaryawanController::class, 'update'])->name('master-data.karyawan.update');
+            Route::post('/karyawan/download-rekap-manpower', [KaryawanController::class, 'downloadRekapManpower'])->name('master-data.karyawan.download-rekap-manpower');
             Route::post('/akun/store-or-update', [AkunController::class, 'store_or_update'])->name('master-data.akun.storeUpdate');
 
             /** MASTER DATA - KONTRAK */
@@ -342,6 +348,11 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'role:atasan|member|persona
             Route::post('/kontrak/upload-kontrak/{type}/{idKontrak}', [KontrakController::class, 'upload_kontrak'])->name('master-data.kontrak.upload');
             Route::post('/kontrak/upload-data-kontrak', [KontrakController::class, 'upload_data_kontrak'])->name('master-data.kontrak.upload-data-kontrak');
             Route::post('/kontrak/done/{idKontrak}', [KontrakController::class, 'done_kontrak'])->name('master-data.kontrak.done');
+            Route::post('/kontrak/end-kontrak/{idKontrak}', [KontrakController::class, 'endKontrak'])->name('master-data.kontrak.end-kontrak');
+            Route::get('/kontrak/edit/{idKontrak}', [KontrakController::class, 'editKontrakForm'])->name('master-data.kontrak.edit');
+
+            /** MASTER DATA - DETAIL KONTRAK */
+            Route::get('/kontrak-detail', [KontrakController::class, 'ringkasanKontrak'])->name('master-data.kontrak-detail.index');
 
             /** MASTER DATA - EXPORT */
             Route::get('/export', [ExportController::class, 'index'])->name('master-data.export');

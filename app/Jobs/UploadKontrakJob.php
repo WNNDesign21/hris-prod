@@ -17,6 +17,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use App\Models\JenisKontrak;
 
 class UploadKontrakJob implements ShouldQueue
 {
@@ -52,14 +53,23 @@ class UploadKontrakJob implements ShouldQueue
                 $row++;
 
                 if ($item[0] == null || $item[2] == null || $item[4] == null || $item[5] == null
-                    || $item[6] == null || $item[7] == null || $item[8] == null || $item[9] == null
-                    || $item[10] == null
+                    || $item[7] == null || $item[8] == null || $item[10] == null
                 ) {
                     $failedDatas[] = [
                         'row' => $row,
                         'error' => 'Terdapat data yang kosong atau tidak valid pada baris ' . $row
                     ];
                     continue;
+                }
+
+                if (trim($item[5]) !== 'PKWTT') {
+                    if($item[6] == null || $item[9] == null) {
+                        $failedDatas[] = [
+                            'row' => $row,
+                            'error' => 'Durasi dan Tanggal Selesai wajib diisi untuk kontrak selain PKWTT pada baris ' . $row
+                        ];
+                        continue;
+                    }
                 }
 
                 // //Validasi Nomor Induk Karyawan
@@ -101,22 +111,28 @@ class UploadKontrakJob implements ShouldQueue
                     continue;
                 }
 
-                $tanggal_mulai = Carbon::createFromFormat('d/m/Y', $item[8])->format('Y-m-d');
-                if($item[5] !== 'PKWTT'){
-                    $tanggal_selesai = Carbon::createFromFormat('d/m/Y', $item[9])->format('Y-m-d');
-                    if($karyawan->tanggal_selesai < $tanggal_selesai || $karyawan->tanggal_selesai == null){
-                        $tanggal_selesai = Carbon::createFromFormat('d/m/Y', $item[9])->format('Y-m-d');
+                // Konversi tanggal dari format Excel (bisa berupa string atau angka serial)
+                if (is_numeric($item[8])) {
+                    $tanggal_mulai = Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($item[8]))->format('Y-m-d');
+                } else {
+                    $tanggal_mulai = Carbon::createFromFormat('d/m/Y', $item[8])->format('Y-m-d');
+                }
+
+                if(trim($item[5]) !== 'PKWTT'){
+                    // Konversi tanggal dari format Excel (bisa berupa string atau angka serial)
+                    if (is_numeric($item[9])) {
+                        $tanggal_selesai = Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($item[9]))->format('Y-m-d');
                     } else {
-                        $tanggal_selesai = $karyawan->tanggal_selesai;
+                        $tanggal_selesai = Carbon::createFromFormat('d/m/Y', $item[9])->format('Y-m-d');
                     }
                 } else {
                     $tanggal_selesai = null;
                 }
 
-                if ($item[5] !== 'PKWTT') {
+                if (trim($item[5]) !== 'PKWTT') {
                     $existingKontrak = Kontrak::where('karyawan_id', $karyawan->id_karyawan)
                         ->where('status', 'DONE')
-                        ->where('jenis', '!=', 'PKWTT')
+                        ->where('jenis_kontrak_id', '!=', JenisKontrak::where('nama', 'PKWTT')->first()->id)
                         ->whereDate('tanggal_mulai', $tanggal_mulai)
                         ->whereDate('tanggal_selesai', $tanggal_selesai)
                         ->exists();
@@ -130,7 +146,9 @@ class UploadKontrakJob implements ShouldQueue
                     }
                 }
 
-                $karyawan->jenis_kontrak = $item[5];
+                $jenisKontrak = JenisKontrak::where('nama', trim($item[5]))->first();
+
+                $karyawan->jenis_kontrak = $jenisKontrak ? $jenisKontrak->nama : null;
                 $karyawan->status_karyawan = 'AT';
                 $karyawan->tanggal_selesai = $tanggal_selesai;
                 $karyawan->save();
@@ -141,13 +159,13 @@ class UploadKontrakJob implements ShouldQueue
                     'karyawan_id' =>  $karyawan->id_karyawan,
                     'posisi_id' => $posisi->id_posisi,
                     'nama_posisi' => $posisi->nama,
-                    'jenis' => trim($item[5]),
+                    'jenis_kontrak_id' => $jenisKontrak ? $jenisKontrak->id : null,
                     'status' => 'DONE',
                     'durasi' => trim($item[5]) !== 'PKWTT' ? trim($item[6]) : null,
                     'salary' => trim($item[7]),
                     'deskripsi' => 'History Kontrak Karyawan',
                     'tanggal_mulai' => $tanggal_mulai,
-                    'tanggal_selesai' => trim($item[5]) !== 'PKWTT' ? Carbon::createFromFormat('d/m/Y', $item[9])->format('Y-m-d') : null,
+                    'tanggal_selesai' => $tanggal_selesai,
                     'tempat_administrasi' => $item[10],
                     'isReactive' => 'N',
                     'organisasi_id' => $this->organisasi_id,

@@ -313,6 +313,7 @@ $(function () {
     //DATATABLE POSISI
     var columnsTable = [
         { data: "no" },
+        { data: "id_posisi" },
         { data: "nama_posisi" },
         { data: "nama_jabatan" },
         { data: "nama_organisasi" },

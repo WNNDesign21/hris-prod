@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Posisi;
 use App\Models\Karyawan;
 use App\Models\Organisasi;
+use App\Models\KeluargaKaryawan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Queue\SerializesModels;
@@ -59,13 +60,15 @@ class UploadKaryawanJob implements ShouldQueue
             $memberIds = [];
             $posisiSync = [];
             $failedData = [];
+            $keluargaKaryawans = [];
+
             foreach ($this->data as $data) {
                 $row++;
                 if (
-                    $data[0] === null || $data[1] === null || $data[3] === null || $data[4] === null || $data[9] === null || $data[10] === null ||
-                    $data[12] === null || $data[13] === null || $data[17] === null || $data[18] === null || $data[24] === null || $data[25] === null ||
-                     $data[26] === null || $data[27] === null || $data[28] === null || $data[29] === null || $data[31] === null || $data[32] === null ||
-                      $data[33] === null || $data[34] === null || $data[35] === null
+                    empty($data[0]) || empty($data[1]) || empty($data[3]) || empty($data[4]) || empty($data[9]) ||
+                    empty($data[13]) || empty($data[18]) || empty($data[25]) || empty($data[27]) || empty($data[28]) ||
+                    empty($data[29]) || !isset($data[31]) || !isset($data[32]) || !isset($data[33]) || empty($data[34]) ||
+                    !isset($data[35]) || empty($data[36]) || empty($data[37]) || empty($data[38])
                 ) {
                     $failedData[] = [
                         'row' => $row,
@@ -74,15 +77,15 @@ class UploadKaryawanJob implements ShouldQueue
                     continue;
                 }
 
-                if (!filter_var($data[25], FILTER_VALIDATE_EMAIL)) {
+                if (!filter_var(trim($data[25]), FILTER_VALIDATE_EMAIL)) {
                     $failedData[] = [
                         'row' => $row,
-                        'error' => 'Email tidak valid pada baris ' . $row
+                        'error' => 'Email pribadi tidak valid pada baris ' . $row
                     ];
                     continue;
                 }
 
-                if (!filter_var($data[27], FILTER_VALIDATE_EMAIL)) {
+                if (!filter_var(trim($data[27]), FILTER_VALIDATE_EMAIL)) {
                     $failedData[] = [
                         'row' => $row,
                         'error' => 'Email perusahaan tidak valid pada baris ' . $row
@@ -90,7 +93,7 @@ class UploadKaryawanJob implements ShouldQueue
                     continue;
                 }
 
-                $posisi = Posisi::where('id_posisi', $data[1])->get()->toArray();
+                $posisi = Posisi::where('id_posisi', trim($data[1]))->get()->toArray();
                 if (empty($posisi)) {
                     $failedData[] = [
                         'row' => $row,
@@ -101,41 +104,45 @@ class UploadKaryawanJob implements ShouldQueue
 
                 $ni_karyawan = trim($data[0]);
                 $organisasi_id = $this->organisasi_id;
-                $nama = $data[3] ?? null;
+                $nama = trim($data[3]) ?? null;
                 $id_karyawan = $this->generateIdKaryawan($nama, $organisasi_id);
-                $jenis_kelamin = $data[4] ? strtoupper(trim($data[4])) : null;
-                $alamat = $data[5] ?? null;
-                $domisili = $data[6] ?? null;
-                $tempat_lahir = $data[7] ?? null;
-                $tanggal_lahir = $data[8] ? Carbon::createFromFormat('d/m/Y', trim($data[8]))->format('Y-m-d') : null;
-                $status_keluarga = $data[9] ? trim($data[9]) : null;
-                $kategori_keluarga = $data[10] ? trim($data[10]) : null;
-                $agama = $data[11] ? trim($data[11]) : null;
-                $no_kk = $data[12] ? trim($data[12]) : null;
-                $nik = $data[13] ? trim($data[13]) : null;
-                $npwp = $data[14] ? trim($data[14]) : null;
-                $no_bpjs_kt = $data[15] ? trim($data[15]) : null;
-                $no_bpjs_ks = $data[16] ? trim($data[16]) : null;
-                $no_telp = $data[17] ? trim($data[17]) : null;
-                $tanggal_mulai = $data[18] ? Carbon::createFromFormat('d/m/Y', trim($data[18]))->format('Y-m-d') : null;
-                $jenjang_pendidikan = $data[19] ? preg_replace('/[^A-Za-z0-9]/', '', strtoupper(trim($data[19]))) : null;
-                $jurusan_pendidikan = $data[20] ?? null;
-                $nama_ibu_kandung = $data[21] ?? null;
-                $nama_bank = $data[22] ?? null;
-                $nama_rekening = $data[23] ?? null;
-                $no_rekening = $data[24] ? trim($data[24]) : null;
-                $email = $data[25] ? trim($data[25]) : null;
-                $gol_darah = $data[26] ? strtoupper(trim($data[26])) : null;
-                $email_perusahaan = $data[27] ? trim($data[27]) : null;
-                $username = $data[28] ? trim($data[28]) : null;
-                $password = $data[29] ? Hash::make(trim($data[29])) : null;
-                $no_telp_darurat = $data[30] ? trim($data[30]) : null;
-                $sisa_cuti_pribadi = $data[31] ? trim($data[31]) : 0;
-                $sisa_cuti_bersama = $data[32] ? trim($data[32]) : 0;
-                $sisa_cuti_tahun_lalu = $data[33] ? trim($data[33]) : 0;
-                $expired_date_cuti_tahun_lalu = $data[34] ? Carbon::createFromFormat('d/m/Y', trim($data[34]))->format('Y-m-d') : null;
-                $hutang_cuti = $data[35] ? trim($data[35]) : 0;
-                $pin = $data[36] ? trim($data[36]) : null;
+                $jenis_kelamin = !empty($data[4]) ? strtoupper(trim($data[4])) : null;
+                $alamat = !empty($data[5]) ? trim($data[5]) : null;
+                $domisili = !empty($data[6]) ? trim($data[6]) : null;
+                $tempat_lahir = !empty($data[7]) ? trim($data[7]) : null;
+                $tanggal_lahir = !empty($data[8]) ? Carbon::createFromFormat('d/m/Y', trim($data[8]))->format('Y-m-d') : null;
+                $status_keluarga = !empty($data[9]) ? trim($data[9]) : null;
+                $kategori_keluarga = !empty($data[10]) ? trim($data[10]) : null;
+                $agama = !empty($data[11]) ? trim($data[11]) : null;
+                $no_kk = !empty($data[12]) ? trim($data[12]) : null;
+                $nik = !empty($data[13]) ? trim($data[13]) : null;
+                $npwp = !empty($data[14]) ? trim($data[14]) : null;
+                $no_bpjs_kt = !empty($data[15]) ? trim($data[15]) : null;
+                $no_bpjs_ks = !empty($data[16]) ? trim($data[16]) : null;
+                $no_telp = !empty($data[17]) ? trim($data[17]) : null;
+                $tanggal_mulai = !empty($data[18]) ? Carbon::createFromFormat('d/m/Y', trim($data[18]))->format('Y-m-d') : null;
+                $jenjang_pendidikan = !empty($data[19]) ? preg_replace('/[^A-Za-z0-9]/', '', strtoupper(trim($data[19]))) : null;
+                $jurusan_pendidikan = !empty($data[20]) ? trim($data[20]) : null;
+                $nama_ibu_kandung = !empty($data[21]) ? trim($data[21]) : null;
+                $nama_bank = !empty($data[22]) ? trim($data[22]) : null;
+                $nama_rekening = !empty($data[23]) ? trim($data[23]) : null;
+                $no_rekening = !empty($data[24]) ? trim($data[24]) : null;
+                $email = !empty($data[25]) ? trim($data[25]) : null;
+                $gol_darah = !empty($data[26]) ? strtoupper(trim($data[26])) : null;
+                $email_perusahaan = !empty($data[27]) ? trim($data[27]) : null;
+                $username = !empty($data[28]) ? trim($data[28]) : null;
+                $password = !empty($data[29]) ? Hash::make(trim($data[29])) : null;
+                $no_telp_darurat = !empty($data[30]) ? trim($data[30]) : null;
+                $sisa_cuti_pribadi = isset($data[31]) ? trim($data[31]) : 0;
+                $sisa_cuti_bersama = isset($data[32]) ? trim($data[32]) : 0;
+                $sisa_cuti_tahun_lalu = isset($data[33]) ? trim($data[33]) : 0;
+                $expired_date_cuti_tahun_lalu = !empty($data[34]) ? Carbon::createFromFormat('d/m/Y', trim($data[34]))->format('Y-m-d') : null;
+                $hutang_cuti = isset($data[35]) ? trim($data[35]) : 0;
+                $pin = !empty($data[36]) ? trim($data[36]) : null;
+                $tipe_karyawan = !empty($data[37]) ? trim($data[37]) : null;
+                $direct = ($tipe_karyawan == 'D') ? 1 : null;
+                $indirect = ($tipe_karyawan == 'I') ? 1 : null;
+                $status_kawin = !empty($data[38]) ? trim($data[38]) : null;
 
                 $users[] = [
                     'email' => $email_perusahaan,
@@ -179,7 +186,42 @@ class UploadKaryawanJob implements ShouldQueue
                     'expired_date_cuti_tahun_lalu' => $expired_date_cuti_tahun_lalu,
                     'hutang_cuti' => $hutang_cuti,
                     'pin' => $pin,
+                    'direct' => $direct,
+                    'indirect' => $indirect,
+                    'status_kawin' => $status_kawin,
                 ];
+
+                if (str_starts_with(strtoupper($status_kawin), 'K')) {
+                    // Process spouse data
+                    if (!empty($data[39]) && !empty($data[40]) && !empty($data[41]) && !empty($data[42])) {
+                        $keluargaKaryawans[] = [
+                            'karyawan_id' => $id_karyawan,
+                            'hubungan' => trim($data[39]),
+                            'nama' => trim($data[40]),
+                            'tempat_lahir' => trim($data[41]),
+                            'tanggal_lahir' => Carbon::createFromFormat('d/m/Y', trim($data[42]))->format('Y-m-d'),
+                        ];
+                    }
+
+                    // Process children data
+                    if (str_starts_with(strtoupper($status_kawin), 'KA')) {
+                        $anakCount = (int) substr(strtoupper($status_kawin), 2);
+                        if ($anakCount > 0) {
+                            for ($j = 0; $j < $anakCount; $j++) {
+                                $i = 43 + ($j * 4);
+                                if (!empty($data[$i]) && !empty($data[$i+1]) && !empty($data[$i+2]) && !empty($data[$i+3])) {
+                                    $keluargaKaryawans[] = [
+                                        'karyawan_id' => $id_karyawan,
+                                        'hubungan' => trim($data[$i]),
+                                        'nama' => trim($data[$i + 1]),
+                                        'tempat_lahir' => trim($data[$i + 2]),
+                                        'tanggal_lahir' => Carbon::createFromFormat('d/m/Y', trim($data[$i + 3]))->format('Y-m-d'),
+                                    ];
+                                }
+                            }
+                        }
+                    }
+                }
 
                 if (!empty($posisi)) {
                     $posisiSync[] = [
@@ -194,7 +236,7 @@ class UploadKaryawanJob implements ShouldQueue
                 }
             }
 
-            if(!empty($users)) {
+            if (!empty($users)) {
                 User::insert($users);
                 $newUserIds = User::whereIn('email', collect($users)->pluck('email'))->pluck('id')->toArray();
                 foreach ($karyawans as $index => $karyawan) {
@@ -208,6 +250,10 @@ class UploadKaryawanJob implements ShouldQueue
                         $karyawan = Karyawan::find($karyawans[$syncData['karyawan_index']]['id_karyawan']);
                         $karyawan->posisi()->sync($syncData['posisi'][0]['id_posisi']);
                     }
+                }
+
+                if (!empty($keluargaKaryawans)) {
+                    KeluargaKaryawan::insert($keluargaKaryawans);
                 }
 
                 $newUsers = User::whereIn('id', $newUserIds)->get();
@@ -282,45 +328,79 @@ class UploadKaryawanJob implements ShouldQueue
                         ];
                         continue;
                     }
-                }
-                if (isset($data[3])) $karyawan->nama = trim($data[3]);
-                if (isset($data[4])) $karyawan->jenis_kelamin = strtoupper(trim($data[4]));
-                if (isset($data[5])) $karyawan->alamat = trim($data[5]);
-                if (isset($data[6])) $karyawan->domisili = trim($data[6]);
-                if (isset($data[7])) $karyawan->tempat_lahir = trim($data[7]);
-                if (isset($data[8])) $karyawan->tanggal_lahir = trim($data[8]) ? Carbon::createFromFormat('d/m/Y', trim($data[8]))->format('Y-m-d') : null;
-                if (isset($data[9])) $karyawan->status_keluarga = trim($data[9]);
-                if (isset($data[10])) $karyawan->kategori_keluarga = trim($data[10]);
-                if (isset($data[11])) $karyawan->agama = trim($data[11]);
-                if (isset($data[12])) $karyawan->no_kk = trim($data[12]);
-                if (isset($data[13])) $karyawan->nik = trim($data[13]);
-                if (isset($data[14])) $karyawan->npwp = trim($data[14]);
-                if (isset($data[15])) $karyawan->no_bpjs_kt = trim($data[15]);
-                if (isset($data[16])) $karyawan->no_bpjs_ks = trim($data[16]);
-                if (isset($data[17])) $karyawan->no_telp = trim($data[17]);
-                if (isset($data[19])) $karyawan->jenjang_pendidikan = preg_replace('/[^A-Za-z0-9]/', '', strtoupper(trim($data[19])));
-                if (isset($data[20])) $karyawan->jurusan_pendidikan = trim($data[20]);
-                if (isset($data[21])) $karyawan->nama_ibu_kandung = trim($data[21]);
-                if (isset($data[22])) $karyawan->nama_bank = trim($data[22]);
-                if (isset($data[23])) $karyawan->nama_rekening = trim($data[23]);
-                if (isset($data[24])) $karyawan->no_rekening = trim($data[24]);
-                if (isset($data[25])) $karyawan->email = trim($data[25]);
-                if (isset($data[26])) $karyawan->gol_darah = strtoupper(trim($data[26]));
-                if (isset($data[30])) $karyawan->no_telp_darurat = trim($data[30]);
+                }                
+                if (!empty($data[3])) $karyawan->nama = trim($data[3]);
+                if (!empty($data[4])) $karyawan->jenis_kelamin = strtoupper(trim($data[4]));
+                if (!empty($data[5])) $karyawan->alamat = trim($data[5]);
+                if (!empty($data[6])) $karyawan->domisili = trim($data[6]);
+                if (!empty($data[7])) $karyawan->tempat_lahir = trim($data[7]);
+                if (!empty($data[8])) $karyawan->tanggal_lahir = trim($data[8]) ? Carbon::createFromFormat('d/m/Y', trim($data[8]))->format('Y-m-d') : null;
+                if (!empty($data[9])) $karyawan->status_keluarga = trim($data[9]);
+                if (!empty($data[10])) $karyawan->kategori_keluarga = trim($data[10]);
+                if (!empty($data[11])) $karyawan->agama = trim($data[11]);
+                if (!empty($data[12])) $karyawan->no_kk = trim($data[12]);
+                if (!empty($data[13])) $karyawan->nik = trim($data[13]);
+                if (!empty($data[14])) $karyawan->npwp = trim($data[14]);
+                if (!empty($data[15])) $karyawan->no_bpjs_kt = trim($data[15]);
+                if (!empty($data[16])) $karyawan->no_bpjs_ks = trim($data[16]);
+                if (!empty($data[17])) $karyawan->no_telp = trim($data[17]);
+                if (!empty($data[19])) $karyawan->jenjang_pendidikan = preg_replace('/[^A-Za-z0-9]/', '', strtoupper(trim($data[19])));
+                if (!empty($data[20])) $karyawan->jurusan_pendidikan = trim($data[20]);
+                if (!empty($data[21])) $karyawan->nama_ibu_kandung = trim($data[21]);
+                if (!empty($data[22])) $karyawan->nama_bank = trim($data[22]);
+                if (!empty($data[23])) $karyawan->nama_rekening = trim($data[23]);
+                if (!empty($data[24])) $karyawan->no_rekening = trim($data[24]);
+                if (!empty($data[25])) $karyawan->email = trim($data[25]);
+                if (!empty($data[26])) $karyawan->gol_darah = strtoupper(trim($data[26]));
+                if (!empty($data[30])) $karyawan->no_telp_darurat = trim($data[30]);
                 if (isset($data[31])) $karyawan->sisa_cuti_pribadi = trim($data[31]);
                 if (isset($data[32])) $karyawan->sisa_cuti_bersama = trim($data[32]);
                 if (isset($data[33])) $karyawan->sisa_cuti_tahun_lalu = trim($data[33]);
-                if (isset($data[34])) $karyawan->expired_date_cuti_tahun_lalu = $data[34] ? Carbon::createFromFormat('d/m/Y', trim($data[34]))->format('Y-m-d') : null;
+                if (!empty($data[34])) $karyawan->expired_date_cuti_tahun_lalu = $data[34] ? Carbon::createFromFormat('d/m/Y', trim($data[34]))->format('Y-m-d') : null;
                 if (isset($data[35])) $karyawan->hutang_cuti = trim($data[35]);
-                if (isset($data[36])) $karyawan->pin = trim($data[36]);
+                if (!empty($data[36])) $karyawan->pin = trim($data[36]);
+                if (!empty($data[37])) {
+                    $tipe_karyawan = trim($data[37]);
+                    $karyawan->direct = ($tipe_karyawan == 'D') ? 1 : null;
+                    $karyawan->indirect = ($tipe_karyawan == 'I') ? 1 : null;
+                }
+                if (!empty($data[38])) $karyawan->status_kawin = trim($data[38]);
 
-                // if (isset($data[27])) $user->email = trim($data[27]);
-                // if (isset($data[28])) $user->username = trim($data[28]);
-                // if (isset($data[29])) $user->password = Hash::make(trim($data[29]));
+                if ($karyawan->status_kawin) {
+                    if (str_starts_with(strtoupper($karyawan->status_kawin), 'K')) {
+                        // Process spouse data
+                        if (!empty($data[39]) && !empty($data[40]) && !empty($data[41]) && !empty($data[42])) {
+                            KeluargaKaryawan::updateOrCreate(
+                                ['karyawan_id' => $karyawan->id_karyawan, 'hubungan' => trim($data[39])],
+                                [
+                                    'nama' => trim($data[40]),
+                                    'tempat_lahir' => trim($data[41]),
+                                    'tanggal_lahir' => Carbon::createFromFormat('d/m/Y', trim($data[42]))->format('Y-m-d'),
+                                ]
+                            );
+                        }
 
-                // if ($user->isDirty()) {
-                //     $user->save();
-                // }
+                        // Process children data
+                        if (str_starts_with(strtoupper($karyawan->status_kawin), 'KA')) {
+                            $anakCount = (int) substr(strtoupper($karyawan->status_kawin), 2);
+                            if ($anakCount > 0) {
+                                for ($j = 0; $j < $anakCount; $j++) {
+                                    $i = 43 + ($j * 4);
+                                    if (!empty($data[$i]) && !empty($data[$i+1]) && !empty($data[$i+2]) && !empty($data[$i+3])) {
+                                        KeluargaKaryawan::updateOrCreate(
+                                            ['karyawan_id' => $karyawan->id_karyawan, 'nama' => trim($data[$i + 1])],
+                                            [
+                                                'hubungan' => trim($data[$i]),
+                                                'tempat_lahir' => trim($data[$i + 2]),
+                                                'tanggal_lahir' => Carbon::createFromFormat('d/m/Y', trim($data[$i + 3]))->format('Y-m-d'),
+                                            ]
+                                        );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 
                 if ($karyawan->isDirty()) {
                     $karyawan->save();

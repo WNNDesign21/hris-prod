@@ -226,6 +226,10 @@ class ApprovalController extends Controller
                 return response()->json(['message' => 'Silahkan klik save change pada setiap data KSK terlebih dahulu sebelum melakukan Konfirmasi!'], 402);
             }
 
+            // Get smart approval hierarchy berdasarkan parent_id
+            $approval_hierarchy = \App\Helpers\Approval::SmartApprovalHierarchy($ksk->parent_id, auth()->user()->organisasi_id);
+
+            // Cek dan approve berdasarkan posisi user saat ini
             if (in_array($ksk->released_by_id, $posisis)) {
                 $ksk->released_by = auth()->user()->karyawan->nama;
                 $ksk->released_at = Carbon::now();
@@ -253,6 +257,37 @@ class ApprovalController extends Controller
 
             if (in_array($ksk->reviewed_dir_by_id, $posisis)) {
                 $ksk->reviewed_dir_by = auth()->user()->karyawan->nama;
+                $ksk->reviewed_dir_at = Carbon::now();
+            }
+
+            // Smart Auto-Approve: Jika level tertentu tidak ada di hierarchy, auto-approve dengan SYSTEM
+            if ($ksk->released_by_id === null) {
+                $ksk->released_by = 'SYSTEM';
+                $ksk->released_at = Carbon::now();
+            }
+
+            if ($ksk->checked_by_id === null) {
+                $ksk->checked_by = 'SYSTEM';
+                $ksk->checked_at = Carbon::now();
+            }
+
+            if ($ksk->approved_by_id === null) {
+                $ksk->approved_by = 'SYSTEM';
+                $ksk->approved_at = Carbon::now();
+            }
+
+            if ($ksk->reviewed_div_by_id === null) {
+                $ksk->reviewed_div_by = 'SYSTEM';
+                $ksk->reviewed_div_at = Carbon::now();
+            }
+
+            if ($ksk->reviewed_ph_by_id === null) {
+                $ksk->reviewed_ph_by = 'SYSTEM';
+                $ksk->reviewed_ph_at = Carbon::now();
+            }
+
+            if ($ksk->reviewed_dir_by_id === null) {
+                $ksk->reviewed_dir_by = 'SYSTEM';
                 $ksk->reviewed_dir_at = Carbon::now();
             }
 

@@ -76,6 +76,7 @@ class PosisiController extends Controller
                 $parent = Posisi::find($data->parent_id);
                 $no++;
                 $nestedData['no'] = $no;
+                $nestedData['id_posisi'] = $data->id_posisi;
                 $nestedData['nama_posisi'] = $data->nama_posisi;
                 $nestedData['nama_jabatan'] = $data->nama_jabatan;
                 $nestedData['nama_organisasi'] = $data->nama_organisasi !== null ? $data->nama_organisasi : 'CORPORATE/ALL PLANT';
@@ -146,27 +147,16 @@ class PosisiController extends Controller
                     'nama' =>  $nama_posisi,
                     'parent_id' => $parent_id,
                 ]);
-            //CEK DIVISION/PLANT HEAD
-            } elseif($id_jabatan == 2){
-                //CEK PLANT HEAD
-                if(isset($request->id_organisasi)){
-                    $posisi = Posisi::create([
-                        'jabatan_id' => $id_jabatan,
-                        'nama' =>  $nama_posisi,
-                        'parent_id' => $parent_id,
-                        'organisasi_id' => $id_organisasi,
-                        'divisi_id' => $id_divisi
-                    ]);
-                //CEK DIVISION HEAD
-                } else{
-                    $posisi = Posisi::create([
-                        'jabatan_id' => $id_jabatan,
-                        'nama' =>  $nama_posisi,
-                        'parent_id' => $parent_id,
-                        'divisi_id' => $id_divisi
-                    ]);
-                }
+            //CEK ADVISOR
             } elseif($id_jabatan == 3){
+                //CEK ADVISOR
+                $posisi = Posisi::create([
+                    'jabatan_id' => $id_jabatan,
+                    'nama' =>  $nama_posisi,
+                    'parent_id' => $parent_id,
+                ]);
+            //CEK DEPT HEAD
+            } elseif($id_jabatan == 2){
                 $departemen = Departemen::find($id_departemen);
                 $posisi = Posisi::create([
                     'jabatan_id' => $id_jabatan,
@@ -259,27 +249,19 @@ class PosisiController extends Controller
                 $posisi->divisi_id = null;
                 $posisi->departemen_id = null;
                 $posisi->seksi_id = null;
-            //CEK DIVISION/PLANT HEAD
+            //CEK DEPT HEAD
             } elseif ($id_jabatan_edit == 2){
-                //CEK PLANT HEAD
-                if(isset($request->id_organisasi_edit)){
-                    $posisi->jabatan_id = $id_jabatan_edit;
-                    $posisi->nama = $nama_posisi_edit;
-                    $posisi->parent_id = $parent_id_edit;
-                    $posisi->organisasi_id = $id_organisasi_edit;
-                    $posisi->divisi_id = $id_divisi_edit;
-                    $posisi->departemen_id = null;
-                    $posisi->seksi_id = null;
-                //CEK DIVISION HEAD
-                } else{
-                    $posisi->jabatan_id = $id_jabatan_edit;
-                    $posisi->nama = $nama_posisi_edit;
-                    $posisi->parent_id = $parent_id_edit;
-                    $posisi->divisi_id = $id_divisi_edit;
-                    $posisi->departemen_id = null;
-                    $posisi->seksi_id = null;
-                    $posisi->organisasi_id = null;
+                $departemen = Departemen::find($id_departemen_edit);
+                if(!$departemen) {
+                    throw new Exception("Departemen tidak ditemukan.");
                 }
+                $posisi->jabatan_id = $id_jabatan_edit;
+                $posisi->nama = $nama_posisi_edit;
+                $posisi->parent_id = $parent_id_edit;
+                $posisi->organisasi_id = $id_organisasi_edit;
+                $posisi->divisi_id = $departemen->divisi_id;
+                $posisi->departemen_id = $id_departemen_edit;
+                $posisi->seksi_id = null;
             } elseif($id_jabatan_edit == 3){
                 $departemen = Departemen::find($id_departemen_edit);
                 if(isset($request->id_organisasi_edit)){
@@ -558,8 +540,8 @@ class PosisiController extends Controller
          } elseif ($id_jabatan == 2){
              $data = [
                  'organisasi' => Organisasi::all(),
-                 'divisi' => Divisi::all(),
-                 'departemen' => null,
+                 'divisi' => null,
+                 'departemen' => Departemen::all(),
                  'seksi' => null,
              ];
          } elseif ($id_jabatan == 3){

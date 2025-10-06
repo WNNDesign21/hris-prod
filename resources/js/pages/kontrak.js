@@ -403,7 +403,7 @@ $(function () {
 
     $('#jenis').on('change', function (){
         let jenisKontrak = $(this).val();
-        if(jenisKontrak == 'PKWTT'){
+        if(jenisKontrak == 'PKWTT' || jenisKontrak == 'PENGKARYAAN'){
             $('#durasi').val('').prop('readonly', true);
             $('#tanggal_selesai').val('').prop('readonly', true);
         } else {
@@ -504,7 +504,7 @@ $(function () {
 
     $('#jenis_kontrakEdit').on('change', function (){
         let jenisKontrak = $(this).val();
-        if(jenisKontrak == 'PKWTT'){
+        if(jenisKontrak == 'PKWTT' || jenisKontrak == 'PENGKARYAAN'){
             $('#durasi_kontrakEdit').val('').prop('readonly', true);
             $('#tanggal_selesai_kontrakEdit').val('').prop('readonly', true);
         } else {

@@ -25,6 +25,7 @@ use PhpOffice\PhpWord\TemplateProcessor;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use PhpOffice\PhpSpreadsheet\IOFactory as PhpSpreadsheetIOFactory;
+use App\Models\JenisKontrak;
 
 class KontrakController extends Controller
 {
@@ -60,8 +61,7 @@ class KontrakController extends Controller
             11 => 'kontraks.tanggal_selesai',
         );
 
-        $totalData = Kontrak::count();
-        $totalFiltered = $totalData;
+        $totalData = Karyawan::where('status_karyawan', '=', 'AT')->count();
 
         $limit = $request->input('length');
         $start = $request->input('start');
@@ -198,7 +198,7 @@ class KontrakController extends Controller
         }
 
         $karyawan_id = $request->karyawan_id;
-        $jenis = $request->jenis;
+        $jenisNama = $request->jenis;
         $posisi_id = $request->posisi;
         $nama_posisi = $request->nama_posisi;
         $durasi = $request->durasi;
@@ -224,7 +224,26 @@ class KontrakController extends Controller
                 }
             }
 
-            if($jenis !== 'PKWTT'){
+            $jenisKontrak = JenisKontrak::where('nama', $jenisNama)->first();
+
+            // Automatically end the previous active contract
+            foreach ($karyawan_id as $karyawan) {
+                $active_kontrak = Kontrak::where('karyawan_id', $karyawan)
+                    ->where('status', 'DONE')
+                    ->where(function ($query) {
+                        $query->where('tanggal_selesai', '>=', Carbon::now()->format('Y-m-d'))
+                              ->orWhereNull('tanggal_selesai');
+                    })
+                    ->orderBy('tanggal_mulai', 'desc')
+                    ->first();
+
+                if ($active_kontrak) {
+                    $active_kontrak->tanggal_selesai = Carbon::parse($tanggal_mulai)->subDay()->format('Y-m-d');
+                    $active_kontrak->save();
+                }
+            }
+
+            if($jenisNama !== 'PKWTT' && $jenisNama !== 'PENGKARYAAN'){
 
                 if ($durasi == 0) {
                     DB::commit();
@@ -237,10 +256,10 @@ class KontrakController extends Controller
                     $kontrak_karyawan = $kry->kontrak()->where('status', 'DONE')->count() + 1;
 
                     //No Surat Text
-                    $kry->jenis_kontrak = $jenis;
+                    $kry->jenis_kontrak = $jenisNama;
                     $bulan_romawi = $this->angka_to_romawi(Carbon::parse($tanggal_mulai)->month);
                     $hrd = $tempat_administrasi == 'ASI PLANT-1' ? 'HRGA' : 'HRGAASI2';
-                    $jenis_on_surat = ($jenis == 'MAGANG' ? 'MG' : $jenis).($jenis == 'PKWT' || $jenis == 'MAGANG' ? '-'.$this->angka_to_romawi($kontrak_karyawan) : '');
+                    $jenis_on_surat = ($jenisNama == 'MAGANG' ? 'MG' : $jenisNama).($jenisNama == 'PKWT' || $jenisNama == 'MAGANG' ? '-'.$this->angka_to_romawi($kontrak_karyawan) : '');
                     $tahun = Carbon::parse($tanggal_mulai)->format('Y');
                     $no_surat_text = 'No. ' . str_pad($no_surat_int, 3, '0', STR_PAD_LEFT) . '/' . $jenis_on_surat . '/' . $hrd . '/'.$bulan_romawi.'/' . $tahun;
 
@@ -251,7 +270,7 @@ class KontrakController extends Controller
                         'organisasi_id' => $organisasi_id,
                         'posisi_id' => $posisi_id,
                         'nama_posisi' => $nama_posisi ? $nama_posisi : Posisi::find($posisi_id)?->nama,
-                        'jenis' => $jenis,
+                        'jenis_kontrak_id' => $jenisKontrak ? $jenisKontrak->id : null,
                         'durasi' => $durasi,
                         'salary' => $salary,
                         'issued_date' => $issued_date,
@@ -275,7 +294,7 @@ class KontrakController extends Controller
                     $kontrak_karyawan = $kry->kontrak()->where('status', 'DONE')->count() + 1;
 
                     //No Surat Text
-                    $kry->jenis_kontrak = $jenis;
+                    $kry->jenis_kontrak = $jenisNama;
                     $bulan_romawi = $this->angka_to_romawi(Carbon::parse($tanggal_mulai)->month);
                     $hrd = 'ASI';
                     $jenis_on_surat = 'SKP';
@@ -288,7 +307,7 @@ class KontrakController extends Controller
                         'organisasi_id' => $organisasi_id,
                         'posisi_id' => $posisi_id,
                         'nama_posisi' => $nama_posisi ? $nama_posisi : Posisi::find($posisi_id)->nama,
-                        'jenis' => $jenis,
+                        'jenis_kontrak_id' => $jenisKontrak ? $jenisKontrak->id : null,
                         'durasi' => null,
                         'salary' => $salary,
                         'issued_date' => $issued_date,
@@ -308,12 +327,6 @@ class KontrakController extends Controller
         } catch(Throwable $error){
             DB::rollBack();
             return response()->json(['message' => $error->getMessage()], 500);
-        } catch (QueryException $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Database error: ' . $e->getMessage()], 500);
-        } catch (ModelNotFoundException $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Model not found: ' . $e->getMessage()], 404);
         }
     }
 
@@ -367,85 +380,112 @@ class KontrakController extends Controller
     public function update(Request $request, string $id_kontrak)
     {
         $dataValidate = [
-            'no_surat_kontrakEdit' => ['required','digits:3'],
-            'issued_date_kontrakEdit' => ['required','date'],
-            'tempat_administrasi_kontrakEdit' => ['required'],
-            'durasi_kontrakEdit' => ['numeric','nullable'],
-            'salary_kontrakEdit' => ['numeric','required'],
-            'tanggal_mulai_kontrakEdit' => ['required','date'],
-            'tanggal_selesai_kontrakEdit' => ['nullable','date'],
-            'jenis_kontrakEdit' => ['required'],
-            'posisi_kontrakEdit' => ['required'],
+            'jenis_kontrak_id' => ['required'],
+            'tanggal_mulai' => ['required', 'date'],
+            'tanggal_selesai' => ['nullable', 'date'],
+            'posisi_id' => ['required'],
+            'salary' => ['numeric', 'required'],
+            // Add other validations if they are part of the form
         ];
 
-        $validator = Validator::make(request()->all(), $dataValidate);
+        $validator = Validator::make($request->all(), $dataValidate);
 
         if ($validator->fails()) {
-            return response()->json(['message' => 'Fill your input correctly!'], 402);
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        $no_surat = $request->no_surat_kontrakEdit;
-        $issued_date = $request->issued_date_kontrakEdit;
-        $tempat_administrasi = $request->tempat_administrasi_kontrakEdit;
-        $durasi = $request->durasi_kontrakEdit;
-        $salary = $request->salary_kontrakEdit;
-        $tanggal_mulai = $request->tanggal_mulai_kontrakEdit;
-        $tanggal_selesai = $request->tanggal_selesai_kontrakEdit;
-        $jenis = $request->jenis_kontrakEdit;
-        $posisi = $request->posisi_kontrakEdit;
-        $nama_posisi = $request->nama_posisi_kontrakEdit;
-        $deskripsi = $request->deskripsi_kontrakEdit;
-        $organisasi_id = auth()->user()->organisasi_id;
-
         DB::beginTransaction();
-        try{
+        try {
+            $kontrak = Kontrak::with(['karyawan', 'jenisKontrak', 'posisi'])->find($id_kontrak);
 
-            if ($jenis !== 'PKWTT' && $durasi == 0){
-                DB::commit();
-                return response()->json(['message' => 'Durasi tidak boleh kosong!'], 402);
+            if (!$kontrak) {
+                DB::rollBack();
+                return redirect()->back()->with('error', 'Kontrak tidak ditemukan!');
             }
 
+            $old_posisi_id = $kontrak->posisi_id;
+            $old_jenis_kontrak_id = $kontrak->jenis_kontrak_id;
 
-            $kontrak = Kontrak::find($id_kontrak);
-            $kontrak_karyawan = Kontrak::where('karyawan_id',$kontrak->karyawan_id)->where('status', 'DONE')->count() + 1;
+            $new_jenis_kontrak_id = $request->jenis_kontrak_id;
+            $new_posisi_id = $request->posisi_id;
+            $new_tanggal_mulai = $request->tanggal_mulai;
+            $new_tanggal_selesai = $request->tanggal_selesai;
+            $new_salary = $request->salary;
 
-            //No Surat Text
-            $bulan_romawi = $this->angka_to_romawi(Carbon::parse($tanggal_mulai)->month);
-            $hrd = $tempat_administrasi == 'ASI PLANT-1' ? 'HRGA' : 'HRGAASI2';
-            $jenis_on_surat = ($jenis == 'MAGANG' ? 'MG' : $jenis).($jenis == 'PKWT' || $jenis == 'MAGANG' ? '-'.$this->angka_to_romawi($kontrak_karyawan) : '');
-            $tahun = Carbon::parse($tanggal_mulai)->format('Y');
-            $no_surat_text = 'No. ' . str_pad($no_surat, 3, '0', STR_PAD_LEFT) . '/' . $jenis_on_surat . '/' . $hrd . '/'.$bulan_romawi.'/' . $tahun;
+            $jenisKontrakBaru = JenisKontrak::find($new_jenis_kontrak_id);
+            $posisiBaru = Posisi::find($new_posisi_id);
 
-            $kontrak->no_surat = $no_surat_text;
-            $kontrak->issued_date = $issued_date;
-            $kontrak->tempat_administrasi = $tempat_administrasi;
+            // Handle PKWTT/PENGKARYAAN contract position change
+            if (($kontrak->jenisKontrak->nama === 'PKWTT' || $kontrak->jenisKontrak->nama === 'PENGKARYAAN') && $old_posisi_id !== $new_posisi_id) {
+                // End the old contract
+                $kontrak->tanggal_selesai = Carbon::now()->format('Y-m-d');
+                $kontrak->status = 'DONE';
+                $kontrak->save();
 
-            $kry = Karyawan::find($kontrak->karyawan_id);
-            $kry->jenis_kontrak = $jenis;
-            $kry->save();
+                // Create a new contract
+                $new_kontrak = Kontrak::create([
+                    'id_kontrak' => 'KONTRAK-' . Str::random(4) . '-' . now()->timestamp,
+                    'karyawan_id' => $kontrak->karyawan_id,
+                    'organisasi_id' => $kontrak->organisasi_id,
+                    'posisi_id' => $new_posisi_id,
+                    'nama_posisi' => $posisiBaru->nama,
+                    'jenis_kontrak_id' => $new_jenis_kontrak_id,
+                    'durasi' => null, // PKWTT/PENGKARYAAN has no duration
+                    'salary' => $new_salary,
+                    'issued_date' => Carbon::now()->format('Y-m-d'),
+                    'no_surat' => 'AUTO-GENERATED', // This needs to be properly generated
+                    'tempat_administrasi' => $kontrak->tempat_administrasi,
+                    'deskripsi' => 'Perubahan Posisi',
+                    'tanggal_mulai' => Carbon::now()->format('Y-m-d'),
+                    'tanggal_selesai' => null, // PKWTT/PENGKARYAAN has no end date
+                    'isReactive' => 'N',
+                    'tanggal_mulai_before' => null,
+                    'tanggal_selesai_before' => null,
+                ]);
 
-            if($jenis == 'PKWTT'){
-                $durasi = null;
-                $tanggal_selesai = null;
+                // Update karyawan's current position
+                $kontrak->karyawan->posisi_id = $new_posisi_id;
+                $kontrak->karyawan->jenis_kontrak = $jenisKontrakBaru->nama;
+                $kontrak->karyawan->save();
+
+                // Update karyawan_posisi pivot table
+                DB::table('karyawan_posisi')->where('karyawan_id', $kontrak->karyawan_id)->update(['posisi_id' => $new_posisi_id]);
+
+            } else {
+                // Regular update for other contract types or no position change
+                $kontrak->jenis_kontrak_id = $new_jenis_kontrak_id;
+                $kontrak->tanggal_mulai = $new_tanggal_mulai;
+                $kontrak->tanggal_selesai = $new_tanggal_selesai;
+                $kontrak->posisi_id = $new_posisi_id;
+                $kontrak->nama_posisi = $posisiBaru->nama;
+                $kontrak->salary = $new_salary;
+
+                // Update durasi if not PKWTT/PENGKARYAAN
+                if ($jenisKontrakBaru->nama !== 'PKWTT' && $jenisKontrakBaru->nama !== 'PENGKARYAAN') {
+                    $kontrak->durasi = $request->durasi; // Assuming 'durasi' is passed in the request for non-PKWTT/PENGKARYAAN
+                } else {
+                    $kontrak->durasi = null;
+                    $kontrak->tanggal_selesai = null;
+                }
+
+                $kontrak->save();
+
+                // Update karyawan's current position and contract type
+                $kontrak->karyawan->jenis_kontrak = $jenisKontrakBaru->nama;
+                $kontrak->karyawan->save();
+
+                // Update karyawan_posisi pivot table if position changed
+                if ($old_posisi_id !== $new_posisi_id) {
+                    DB::table('karyawan_posisi')->where('karyawan_id', $kontrak->karyawan_id)->update(['posisi_id' => $new_posisi_id]);
+                }
             }
-
-            $kontrak->organisasi_id = $organisasi_id;
-            $kontrak->durasi = $durasi;
-            $kontrak->salary = $salary;
-            $kontrak->tanggal_mulai = $tanggal_mulai;
-            $kontrak->tanggal_selesai = $tanggal_selesai;
-            $kontrak->jenis = $jenis;
-            $kontrak->posisi_id = $posisi;
-            $kontrak->nama_posisi = $nama_posisi !== Posisi::find($posisi)->nama ? $nama_posisi : Posisi::find($posisi)->nama;
-            $kontrak->deskripsi = $deskripsi;
-
-            $kontrak->save();
 
             DB::commit();
-            return response()->json(['message' => 'Kontrak Diupdate!'],200);
-        } catch(Throwable $error){
+            return redirect()->route('master-data.kontrak-detail.index')->with('success', 'Kontrak berhasil diperbarui!');
+        } catch (Throwable $error) {
             DB::rollBack();
-            return response()->json(['message' => $error->getMessage()], 500);
+            Log::error("Error updating kontrak: " . $error->getMessage() . " Stack: " . $error->getTraceAsString());
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat memperbarui kontrak: ' . $error->getMessage());
         }
     }
 
@@ -468,12 +508,6 @@ class KontrakController extends Controller
         } catch(Throwable $error){
             DB::rollBack();
             return response()->json(['message' => $error->getMessage()], 500);
-        } catch (QueryException $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Database error: ' . $e->getMessage()], 500);
-        } catch (ModelNotFoundException $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Model not found: ' . $e->getMessage()], 404);
         }
     }
 
@@ -524,7 +558,7 @@ class KontrakController extends Controller
                 'nama_karyawan' => $kontrak->karyawan->nama,
                 'posisi_id' => $kontrak->posisi_id,
                 'nama_posisi' => $kontrak->nama_posisi == $kontrak->posisi->nama ? '' : $kontrak->nama_posisi ,
-                'jenis' => $kontrak->jenis,
+                'jenis_kontrak_id' => $kontrak->jenis_kontrak_id,
                 'status' => $kontrak->status,
                 'issued_date' => $kontrak->issued_date,
                 'tempat_administrasi' => $kontrak->tempat_administrasi,
@@ -542,11 +576,21 @@ class KontrakController extends Controller
         }
     }
 
+    public function get_jenis_kontrak()
+    {
+        try {
+            $jenisKontrak = JenisKontrak::all();
+            return response()->json(['data' => $jenisKontrak], 200);
+        } catch (Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
     public function download_kontrak_kerja(string $idKontrak)
     {
         $organisasi_id = auth()->user()->organisasi_id;
         $kontrak = Kontrak::find($idKontrak);
-        $template = Template::active()->organisasi($organisasi_id)->where('type', $kontrak->jenis)->first();
+        $template = Template::active()->organisasi($organisasi_id)->where('type', $kontrak->jenisKontrak->nama)->first();
 
         if($template){
             $templatePath = public_path('storage/'.$template->template_path);
@@ -567,7 +611,7 @@ class KontrakController extends Controller
         $tanggal_mulai = Carbon::parse($kontrak->tanggal_mulai)->format('d/m/Y');
         $tanggal_mulai_text = $this->tanggal_to_kalimat($kontrak->tanggal_mulai);
 
-        if($kontrak->jenis !== 'PKWTT'){
+        if($kontrak->jenisKontrak->nama !== 'PKWTT'){
             $tanggal_selesai = Carbon::parse($kontrak->tanggal_selesai)->format('d/m/Y');
             $tanggal_selesai_text = $this->tanggal_to_kalimat($kontrak->tanggal_selesai);
         } else {
@@ -834,12 +878,6 @@ class KontrakController extends Controller
         } catch(Throwable $error){
             DB::rollBack();
             return response()->json(['message' => $error->getMessage()], 500);
-        } catch (QueryException $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Database error: ' . $e->getMessage()], 500);
-        } catch (ModelNotFoundException $e) {
-            DB::rollBack();
-            return response()->json(['message' => 'Model not found: ' . $e->getMessage()], 404);
         }
     }
 
@@ -864,60 +902,76 @@ class KontrakController extends Controller
                 $karyawan->tanggal_mulai = $kontrak->tanggal_mulai;
                 $karyawan->tanggal_selesai = $kontrak->tanggal_selesai;
             } else {
-                // $kontrak_exist = Kontrak::where('karyawan_id', $karyawan->id)->where('status', 'DONE')->orderBy('tanggal_mulai', 'DESC')->exists();
-                $new_data = $karyawan->whereNotNull('tanggal_mulai')->whereNull('tanggal_selesai')->whereNull('jenis_kontrak')->exists();
+                // Fix: Gunakan query builder yang benar untuk mengecek kondisi karyawan baru
+                $new_data = Karyawan::where('id_karyawan', $karyawan->id_karyawan)
+                    ->whereNotNull('tanggal_mulai')
+                    ->whereNull('tanggal_selesai')
+                    ->whereNull('jenis_kontrak')
+                    ->exists();
 
                 if($new_data){
-                    if($kontrak->jenis !== 'PKWTT'){
-                        //KONDISI JIKA KARYAWAN BARU DAN KONTRAK
+                    // KONDISI JIKA KARYAWAN BARU DAN KONTRAK
+                    if($kontrak->jenisKontrak->nama !== 'PKWTT' && $kontrak->jenisKontrak->nama !== 'PENGKARYAAN'){
                         $existingCB = Event::whereDate('tanggal_mulai', '<=', $kontrak->tanggal_selesai)->where('jenis_event', 'CB');
                     } else {
-                        //KONDISI JIKA KARYAWAN BARU DAN KARTAP
                         $existingCB = Event::whereDate('tanggal_mulai', '>=', $kontrak->tanggal_mulai)->where('jenis_event', 'CB');
                     }
 
                     if($existingCB->exists()){
-                        foreach($existingCB->get() as $cutiBersama){
-                            $jatah_cuti_bersama = $karyawan->sisa_cuti_bersama - $cutiBersama->durasi;
-                            if($jatah_cuti_bersama >= 0){
-                                $karyawan->sisa_cuti_bersama = $jatah_cuti_bersama;
-                                $karyawan->save();
-                            } else {
-                                $karyawan->sisa_cuti_bersama = 0;
-                                $karyawan->hutang_cuti = abs($jatah_cuti_bersama);
-                                $karyawan->save();
+                        try {
+                            foreach($existingCB->get() as $cutiBersama){
+                                $jatah_cuti_bersama = $karyawan->sisa_cuti_bersama - $cutiBersama->durasi;
+                                if($jatah_cuti_bersama >= 0){
+                                    $karyawan->sisa_cuti_bersama = $jatah_cuti_bersama;
+                                } else {
+                                    $karyawan->sisa_cuti_bersama = 0;
+                                    $karyawan->hutang_cuti = abs($jatah_cuti_bersama);
+                                }
                             }
+                            $karyawan->save();
+                        } catch (Throwable $e) {
+                            // Log error tapi tetap lanjutkan update tanggal_selesai
+                            Log::warning('Error updating cuti bersama: ' . $e->getMessage());
                         }
                     }
                 } else {
-                    if($kontrak->jenis !== 'PKWTT'){
+                    // KONDISI KARYAWAN SUDAH ADA KONTRAK SEBELUMNYA
+                    if($kontrak->jenisKontrak->nama !== 'PKWTT' && $kontrak->jenisKontrak->nama !== 'PENGKARYAAN'){
                         $existingCutiBersama = Event::whereDate('tanggal_mulai', '<=', $kontrak->tanggal_selesai)->where('jenis_event', 'CB');
                     } else {
                         $existingCutiBersama = Event::whereDate('tanggal_mulai', '>=', $kontrak->tanggal_mulai)->where('jenis_event', 'CB');
                     }
 
                     if($existingCutiBersama->exists()){
-                        //JIKA ADA
-                        foreach($existingCutiBersama->get() as $cutiBersama){
-                            //CEK APAKAH ADA KONTRAK YANG MEMILIKI TANGGAL SELESAI LEBIH DARI CUTI BERSAMA (KONTRAK SELESAI SETELAH CUTI BERSAMA)
-                            $existingKontrak = Kontrak::where('karyawan_id', $karyawan->id_karyawan)->where('status', 'DONE')->where('tanggal_selesai', '>=', $cutiBersama->tanggal_mulai)->exists();
-                            //JIKA SUDAH ADA, MAKA TIDAK PERLU DIKURANGI SISA CUTI BERSAMA (KARENA SUDAH DIKURANGIN SEBELUMNYA)
-                            if(!$existingKontrak){
-                                $jatah_cuti_bersama = $karyawan->sisa_cuti_bersama - $cutiBersama->durasi;
-                                if($jatah_cuti_bersama >= 0){
-                                    $karyawan->sisa_cuti_bersama = $jatah_cuti_bersama;
-                                    $karyawan->save();
-                                } else {
-                                    $karyawan->sisa_cuti_bersama = 0;
-                                    $karyawan->hutang_cuti = abs($jatah_cuti_bersama);
-                                    $karyawan->save();
+                        try {
+                            foreach($existingCutiBersama->get() as $cutiBersama){
+                                // CEK APAKAH ADA KONTRAK YANG MEMILIKI TANGGAL SELESAI LEBIH DARI CUTI BERSAMA
+                                $existingKontrak = Kontrak::where('karyawan_id', $karyawan->id_karyawan)
+                                    ->where('status', 'DONE')
+                                    ->where('tanggal_selesai', '>=', $cutiBersama->tanggal_mulai)
+                                    ->exists();
+
+                                // JIKA BELUM ADA KONTRAK SEBELUMNYA, KURANGI SISA CUTI BERSAMA
+                                if(!$existingKontrak){
+                                    $jatah_cuti_bersama = $karyawan->sisa_cuti_bersama - $cutiBersama->durasi;
+                                    if($jatah_cuti_bersama >= 0){
+                                        $karyawan->sisa_cuti_bersama = $jatah_cuti_bersama;
+                                    } else {
+                                        $karyawan->sisa_cuti_bersama = 0;
+                                        $karyawan->hutang_cuti = abs($jatah_cuti_bersama);
+                                    }
                                 }
                             }
+                            $karyawan->save();
+                        } catch (Throwable $e) {
+                            // Log error tapi tetap lanjutkan update tanggal_selesai
+                            Log::warning('Error updating cuti bersama existing kontrak: ' . $e->getMessage());
                         }
                     }
                 }
 
-                if($kontrak->jenis == 'PKWTT'){
+                // PASTIKAN TANGGAL SELESAI SELALU TER-UPDATE TERLEPAS DARI ERROR CUTI BERSAMA
+                if($kontrak->jenisKontrak->nama == 'PKWTT' || $kontrak->jenisKontrak->nama == 'PENGKARYAAN'){
                     $karyawan->tanggal_selesai = null;
                 } else {
                     $karyawan->tanggal_selesai = $kontrak->tanggal_selesai;
@@ -928,7 +982,8 @@ class KontrakController extends Controller
             $kontrak->status = 'DONE';
             $kontrak->save();
 
-            $karyawan->jenis_kontrak = $kontrak->jenis;
+            $kontrak->load('jenisKontrak'); // Eager load the relationship
+            $karyawan->jenis_kontrak = $kontrak->jenisKontrak->nama ?? null; // Use the name from the relationship
             $karyawan->status_karyawan = 'AT';
             $karyawan->save();
 
@@ -1095,7 +1150,8 @@ class KontrakController extends Controller
     //                 if($row[7] !== null){
     //                     try {
     //                         $tanggal_mulai = Carbon::createFromFormat('d/m/Y', $row[7])->format('Y-m-d');
-    //                     } catch (Exception $e) {
+    //                     }
+    //                     catch (Exception $e) {
     //                         return response()->json(['message' => 'Format tanggal mulai salah!'], 402);
     //                     }
     //                 }
@@ -1104,10 +1160,13 @@ class KontrakController extends Controller
     //                     if($row[8] !== null){
     //                         try {
     //                             $tanggal_selesai = Carbon::createFromFormat('d/m/Y', $row[8])->format('Y-m-d');
-    //                         } catch (Exception $e) {
+    //                         }
+    //                         catch (Exception $e) {
     //                             return response()->json(['message' => 'Format tanggal selesai salah!'], 402);
     //                         }
     //                     }
+    //                 } else {
+    //                     $tanggal_selesai = null;
     //                 }
 
     //                 //Validasi Kolom Numeric
@@ -1222,4 +1281,272 @@ class KontrakController extends Controller
     //         return response()->json(['message' => 'Error processing the file: ' . $e->getMessage()], 500);
     //     }
     // }
+
+    public function ringkasanKontrak()
+    {
+        $dataPage = [
+            'pageTitle' => "Master Data - Detail Kontrak",
+            'page' => 'masterdata-kontrak-detail',
+        ];
+        return view('pages.master-data.kontrak.ringkasan', $dataPage);
+    }
+
+    public function datatableRingkasanKontrak(Request $request)
+    {
+        try { // Wrap the entire method in a try-catch block
+            $columns = array(
+                0 => 'karyawans.ni_karyawan',
+                1 => 'karyawans.nama',
+                2 => 'karyawans.tanggal_mulai',
+                3 => 'departemens.nama',
+                4 => 'karyawans.jenis_kontrak',
+                5 => 'jumlah_kontrak', // This is an alias, might need special handling for orderBy
+                6 => 'karyawans.tanggal_selesai',
+            );
+
+        $totalData = Karyawan::where('status_karyawan', '=', 'AT')->count();
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+        $order = (!empty($request->input('order.0.column'))) ? $columns[$request->input('order.0.column')] : $columns[0];
+        $dir = (!empty($request->input('order.0.dir'))) ? $request->input('order.0.dir') : "DESC";
+
+        $karyawanQuery = Karyawan::select(
+            'karyawans.id_karyawan',
+            'karyawans.ni_karyawan',
+            'karyawans.nama',
+            'karyawans.tanggal_mulai',
+            'departemens.nama as nama_departemen',
+            'karyawans.jenis_kontrak',
+            DB::raw('(SELECT COUNT(*) FROM kontraks WHERE kontraks.karyawan_id = karyawans.id_karyawan) as jumlah_kontrak'),
+            DB::raw('(SELECT id_kontrak FROM kontraks WHERE kontraks.karyawan_id = karyawans.id_karyawan ORDER BY tanggal_mulai DESC LIMIT 1) as id_kontrak'),
+            'karyawans.tanggal_selesai'
+        )
+        ->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', '=', 'karyawan_posisi.karyawan_id')
+        ->leftJoin('posisis', 'karyawan_posisi.posisi_id', '=', 'posisis.id_posisi')
+        ->leftJoin('departemens', 'posisis.departemen_id', '=', 'departemens.id_departemen')
+        ->where('karyawans.status_karyawan', '=', 'AT')
+        ->groupBy('karyawans.id_karyawan', 'departemens.nama');
+
+        $search = $request->input('search.value');
+        if (!empty($search)) {
+            $karyawanQuery->where(function($q) use ($search){
+                $q->where('karyawans.ni_karyawan','LIKE',"%{$search}%"
+                )->orWhere('karyawans.nama','LIKE',"%{$search}%"
+                )->orWhere('departemens.nama','LIKE',"%{$search}%"
+                )->orWhere('karyawans.jenis_kontrak','LIKE',"%{$search}%"
+                );
+            });
+        }
+
+        $totalFiltered = $karyawanQuery->get()->count();
+
+        // Special handling for ordering by 'jumlah_kontrak' if it's an alias
+            if ($order === 'jumlah_kontrak') {
+                $karyawans = $karyawanQuery->offset($start)
+                    ->limit($limit)
+                    ->orderBy(DB::raw('jumlah_kontrak'), $dir) // Order by the raw alias
+                    ->get();
+            } else {
+                $karyawans = $karyawanQuery->offset($start)
+                    ->limit($limit)
+                    ->orderBy($order, $dir)
+                    ->get();
+            }
+
+        $dataTable = [];
+        if (!empty($karyawans)) {
+            foreach ($karyawans as $data) {
+                try { // Add try-catch block here
+                    $lama_kerja = '-';
+                    if ($data->tanggal_mulai) {
+                        $tanggal_mulai = \Carbon\Carbon::parse($data->tanggal_mulai);
+                        $lama_kerja = $tanggal_mulai->diff(\Carbon\Carbon::now())->format('%y tahun %m bulan %d hari');
+                    }
+
+                    $currentPosisi = DB::table('karyawan_posisi')
+                        ->where('karyawan_id', $data->id_karyawan)
+                        ->orderBy('created_at', 'desc')
+                        ->first();
+
+                    $penetapanJabatan = null;
+                    if ($currentPosisi) {
+                        $penetapanJabatan = Kontrak::where('karyawan_id', $data->id_karyawan)
+                            ->where('posisi_id', $currentPosisi->posisi_id)
+                            ->where('status', 'DONE')
+                            ->orderBy('tanggal_mulai', 'desc')
+                            ->first();
+                    }
+
+                    $penetapanKartap = Kontrak::where('kontraks.karyawan_id', $data->id_karyawan)
+                        ->join('jenis_kontraks', 'kontraks.jenis_kontrak_id', '=', 'jenis_kontraks.id')
+                        ->where('jenis_kontraks.nama', 'PKWTT')
+                        ->where('kontraks.status', 'DONE')
+                        ->orderBy('kontraks.tanggal_mulai', 'asc')
+                        ->select('kontraks.*') // Avoid ambiguity
+                        ->first();
+
+                    $nestedData['ni_karyawan'] = $data->ni_karyawan;
+                    $nestedData['nama_karyawan'] = $data->nama;
+                    $nestedData['tanggal_masuk'] = Carbon::parse($data->tanggal_mulai)->format('d M Y');
+                    $nestedData['dept'] = $data->nama_departemen ?? '-'; // Handle null departemen
+                    $nestedData['tanggal_penetapan_jabatan'] = $penetapanJabatan ? Carbon::parse($penetapanJabatan->tanggal_mulai)->format('d M Y') : '-';
+                    $nestedData['tanggal_penetapan_kartap'] = $penetapanKartap ? Carbon::parse($penetapanKartap->tanggal_mulai)->format('d M Y') : '-';
+                    $nestedData['lama_kerja'] = $lama_kerja;
+                    $nestedData['jenis_kontrak'] = $data->jenis_kontrak;
+                    $nestedData['jumlah_kontrak'] = 'K'.$data->jumlah_kontrak;
+                    $nestedData['tanggal_berakhir'] = $data->tanggal_selesai ? Carbon::parse($data->tanggal_selesai)->format('d M Y') : '-'; // Handle null tanggal_selesai
+                    $actionButtons = '<a href="'.route('masterdata.kontrak.detail', $data->id_karyawan).'" class="btn btn-sm btn-info">Detail</a>';
+
+                    $nestedData['action'] = $actionButtons;
+                    $dataTable[] = $nestedData;
+                } catch (\Exception $e) {
+                    Log::error("Error processing Karyawan data for DataTables: " . $e->getMessage(), ['karyawan_id' => $data->id_karyawan ?? 'unknown']);
+                    // Optionally, add a placeholder row or skip this row
+                    $nestedData['ni_karyawan'] = $data->ni_karyawan ?? 'Error';
+                    $nestedData['nama_karyawan'] = $data->nama ?? 'Error';
+                    $nestedData['tanggal_masuk'] = 'Error';
+                    $nestedData['dept'] = 'Error';
+                    $nestedData['tanggal_penetapan_jabatan'] = 'Error';
+                    $nestedData['tanggal_penetapan_kartap'] = 'Error';
+                    $nestedData['lama_kerja'] = 'Error';
+                    $nestedData['jenis_kontrak'] = 'Error';
+                    $nestedData['jumlah_kontrak'] = 'Error';
+                    $nestedData['tanggal_berakhir'] = 'Error';
+                    $nestedData['action'] = '<span class="text-danger">Data Error</span>';
+                    $dataTable[] = $nestedData;
+                }
+            }
+        }
+
+        $json_data = array(
+            "draw" => intval($request->input('draw')),
+            "recordsTotal" => intval($totalData),
+            "recordsFiltered" => intval($totalFiltered),
+            "data" => $dataTable
+        );
+
+        return response()->json($json_data, 200);
+
+        } catch (\Throwable $e) {
+            Log::error("Fatal error in datatableRingkasanKontrak: " . $e->getMessage() . " Stack: " . $e->getTraceAsString());
+            return response()->json([
+                "draw" => intval($request->input('draw')),
+                "recordsTotal" => 0,
+                "recordsFiltered" => 0,
+                "data" => [],
+                "error" => "An internal server error occurred. Please check logs for details."
+            ], 500);
+        }
+    }
+
+    public function detailKontrak($id)
+    {
+        $karyawan = Karyawan::find($id);
+
+        if (!$karyawan) {
+            Log::warning("Karyawan with ID {$id} not found for detailKontrak.");
+            return redirect()->route('master-data.kontrak-detail.index')->with('error', 'Karyawan tidak ditemukan.');
+        }
+
+        $kontraks = Kontrak::where('karyawan_id', $id)->orderBy('tanggal_mulai', 'asc')->get();
+
+        // Add recommendation logic
+        foreach ($kontraks as $index => $kontrak) {
+            $recommendation = '';
+            if ($kontrak->status == 'DONE') {
+                if (isset($kontraks[$index + 1])) {
+                    $nextKontrak = $kontraks[$index + 1];
+                    if ($nextKontrak->status == 'DONE') {
+
+                        $isCurrentPkwtt = ($kontrak->jenisKontrak->nama === 'PKWTT' || $kontrak->jenisKontrak->nama === 'PENGKARYAAN');
+                        $isNextPkwtt = ($nextKontrak->jenisKontrak->nama === 'PKWTT' || $nextKontrak->jenisKontrak->nama === 'PENGKARYAAN');
+                        $isPositionChanged = ($kontrak->posisi_id !== $nextKontrak->posisi_id);
+
+                        if ($isCurrentPkwtt && $isNextPkwtt && $isPositionChanged) {
+                            $recommendation = 'naik jabatan';
+                        } else if ($nextKontrak->jenisKontrak->nama !== 'PKWTT' && $nextKontrak->jenisKontrak->nama !== 'PENGKARYAAN') {
+                            $recommendation = 'di perpanjang';
+                        } else {
+                            if (!$isCurrentPkwtt) {
+                                $recommendation = 'diangkat';
+                            }
+                        }
+                    }
+                } else {
+                    // Last contract
+                    if ($kontrak->tanggal_selesai && \Carbon\Carbon::parse($kontrak->tanggal_selesai)->isPast()) {
+                        $recommendation = 'habis kontrak';
+                    }
+                }
+            }
+            $kontrak->status_rekomendasi = $recommendation;
+        }
+
+        Log::info("Detail Kontrak for Karyawan ID: {$id}", ['karyawan' => $karyawan->toArray(), 'kontraks_count' => $kontraks->count()]);
+
+        $dataPage = [
+            'pageTitle' => "Master Data - Detail Kontrak",
+            'page' => 'masterdata-kontrak-detail',
+            'karyawan' => $karyawan,
+            'kontraks' => $kontraks
+        ];
+
+        return view('pages.master-data.kontrak.detail', $dataPage);
+    }
+
+    public function endKontrak(Request $request, string $id_kontrak)
+    {
+        DB::beginTransaction();
+        try {
+            $kontrak = Kontrak::find($id_kontrak);
+
+            if (!$kontrak) {
+                return response()->json(['message' => 'Kontrak tidak ditemukan!'], 404);
+            }
+
+            // Set tanggal_selesai to today if not already set or if it's in the future
+            if (!$kontrak->tanggal_selesai || Carbon::parse($kontrak->tanggal_selesai)->isFuture()) {
+                $kontrak->tanggal_selesai = Carbon::now()->format('Y-m-d');
+            }
+            $kontrak->status = 'DONE'; // Mark as done
+            $kontrak->save();
+
+            // Update karyawan's overall tanggal_selesai if this was their latest contract
+            $karyawan = Karyawan::find($kontrak->karyawan_id);
+            if ($karyawan && $karyawan->tanggal_selesai == $kontrak->tanggal_selesai) {
+                // This logic might need refinement based on how 'latest contract' is determined for Karyawan
+                // For now, we assume if the dates match, it's the latest.
+                $karyawan->tanggal_selesai = $kontrak->tanggal_selesai;
+                $karyawan->save();
+            }
+
+            DB::commit();
+            return response()->json(['message' => 'Kontrak berhasil diakhiri!'], 200);
+        } catch (Throwable $e) {
+            DB::rollBack();
+            Log::error("Error ending kontrak: " . $e->getMessage() . " Stack: " . $e->getTraceAsString());
+            return response()->json(['message' => 'Terjadi kesalahan saat mengakhiri kontrak.'], 500);
+        }
+    }
+
+    public function editKontrakForm(string $id_kontrak)
+    {
+        $kontrak = Kontrak::with(['karyawan', 'jenisKontrak', 'posisi'])->find($id_kontrak);
+        if (!$kontrak) {
+            return redirect()->route('master-data.kontrak-detail.index')->with('error', 'Kontrak tidak ditemukan!');
+        }
+        $posisi = Posisi::all();
+        $jenisKontrak = JenisKontrak::all();
+
+    $dataPage = [
+        'pageTitle' => "Edit Kontrak",
+        'page' => 'masterdata-kontrak',
+        'kontrak' => $kontrak,
+        'posisi' => $posisi,
+        'jenisKontrak' => $jenisKontrak
+    ];
+
+        return view('pages.master-data.kontrak.edit', $dataPage);
+    }
 }

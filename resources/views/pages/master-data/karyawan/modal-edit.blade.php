@@ -151,21 +151,73 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label for="">Kategori Keluarga <span class="text-danger">*</span></label>
-                                    <br>
-                                    <select name="kategori_keluargaEdit" id="kategori_keluargaEdit"
-                                        class="form-control" style="width: 100%;" required>
-                                        <option value="">Pilih Kategori Keluarga</option>
-                                        <option value="TK0">TK0</option>
-                                        <option value="TK1">TK1</option>
-                                        <option value="TK2">TK2</option>
-                                        <option value="TK3">TK3</option>
-                                        <option value="K0">K0</option>
-                                        <option value="K1">K1</option>
-                                        <option value="K2">K2</option>
-                                        <option value="K3">K3</option>
+                                    <label for="kategori_keluargaEdit">Kategori Keluarga</label>
+                                    <select class="form-control" id="kategori_keluargaEdit"
+                                        name="kategori_keluargaEdit">
+                                        <option value="">-- Pilih Kategori --</option>
+                                        <option value="TK/0">TK/0</option>
+                                        <option value="TK/1">TK/1</option>
+                                        <option value="TK/2">TK/2</option>
+                                        <option value="TK/3">TK/3</option>
+                                        <option value="K/0">K/0</option>
+                                        <option value="K/1">K/1</option>
+                                        <option value="K/2">K/2</option>
+                                        <option value="K/3">K/3</option>
                                     </select>
                                 </div>
+                                {{-- AWAL BLOK DATA KELUARGA --}}
+                                <div class="form-group">
+                                    <label for="status_kawinEdit">Status Kawin <span
+                                            class="text-danger">*</span></label>
+                                    <select class="form-control" id="status_kawinEdit" name="status_kawinEdit"
+                                        required>
+                                        <option value="">Pilih Status</option>
+                                        <option value="BK">Belum Kawin (BK)</option>
+                                        <option value="K">Kawin (K)</option>
+                                        <option value="KA1">Kawin Anak 1 (KA1)</option>
+                                        <option value="KA2">Kawin Anak 2 (KA2)</option>
+                                        <option value="KA3">Kawin Anak 3 (KA3)</option>
+                                        {{-- Tambahkan opsi lain jika perlu, misal: KA4, KA5 --}}
+                                    </select>
+                                </div>
+
+                                <hr>
+                                <h5>Data Anggota Keluarga</h5>
+                                <div id="keluarga-wrapperEdit">
+                                    {{-- Baris untuk Istri/Suami akan muncul di sini --}}
+                                    <div id="pasangan-containerEdit"></div>
+                                    {{-- Baris untuk Anak-anak akan muncul di sini --}}
+                                    <div id="anak-containerEdit"></div>
+                                </div>
+
+                                {{-- Template untuk baris input (disembunyikan) --}}
+                                <div id="keluarga-templateEdit" style="display: none;">
+                                    <div class="row align-items-center keluarga-row mb-2">
+                                        <input type="hidden" name="keluargaEdit[0][id]">
+                                        <div class="col-md-3">
+                                            <label>Hubungan</label>
+                                            <input type="text" name="keluargaEdit[0][hubungan]"
+                                                class="form-control" readonly>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label>Nama</label>
+                                            <input type="text" name="keluargaEdit[0][nama]" class="form-control"
+                                                placeholder="Nama">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label>Tempat Lahir</label>
+                                            <input type="text" name="keluargaEdit[0][tempat_lahir]"
+                                                class="form-control" placeholder="Tempat Lahir">
+                                        </div>
+                                        <div class="col-md-3">
+                                            <label>Tanggal Lahir</label>
+                                            <input type="date" name="keluargaEdit[0][tanggal_lahir]"
+                                                class="form-control">
+                                        </div>
+                                    </div>
+                                </div>
+                                <hr>
+                                {{-- AKHIR BLOK DATA KELUARGA --}}
                                 <div class="form-group">
                                     <label for="">Alamat KTP</label>
                                     <br>
@@ -298,6 +350,17 @@
                                     <div class="input-group mb-2" style="width:100%;">
                                         <input type="text" name="pinEdit" id="pinEdit" class="form-control">
                                     </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="tipe_karyawanEdit">Tipe Karyawan <span
+                                            class="text-danger">*</span></label>
+                                    <select name="tipe_karyawanEdit" id="tipe_karyawanEdit"
+                                        class="form-control select2" data-placeholder="Pilih Tipe Karyawan"
+                                        style="width: 100%;" required>
+                                        <option value="">Pilih Tipe Karyawan</option>
+                                        <option value="D">DIRECT</option>
+                                        <option value="I">INDIRECT</option>
+                                    </select>
                                 </div>
                                 <div class="form-group mb-0">
                                     <input type="checkbox" id="isAdminEdit" name="isAdminEdit" value="Y"

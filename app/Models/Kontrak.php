@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\Posisi;
 use App\Models\Karyawan;
+use App\Models\JenisKontrak;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -28,7 +29,7 @@ class Kontrak extends Model
         'no_surat',
         'tempat_administrasi',
         'issued_date',
-        'jenis',
+        'jenis_kontrak_id',
         'status',
         'durasi',
         'salary',
@@ -38,17 +39,15 @@ class Kontrak extends Model
         'tanggal_mulai_before',
         'tanggal_selesai_before',
         'isReactive',
-        // 'status_change_by',
-        // 'status_change_date',
         'attachment',
-        'evidence'
+        'evidence',
+        'rekomendasi'
     ];
 
     protected $dates = [
         'tanggal_mulai',
         'tanggal_selesai',
         'issued_date',
-        // 'status_change_date'
     ];
 
     public function scopeOrganisasi($query, $organisasi)
@@ -64,6 +63,11 @@ class Kontrak extends Model
     public function posisi()
     {
         return $this->belongsTo(Posisi::class, 'posisi_id', 'id_posisi');
+    }
+
+    public function jenisKontrak()
+    {
+        return $this->belongsTo(JenisKontrak::class, 'jenis_kontrak_id');
     }
 
     private static function _query($dataFilter)
@@ -82,7 +86,7 @@ class Kontrak extends Model
             'kontraks.deskripsi',
             'kontraks.tanggal_mulai as tanggal_mulai_kontrak',
             'kontraks.tanggal_selesai as tanggal_selesai_kontrak',
-            'kontraks.jenis',
+            'jenis_kontraks.nama as jenis',
             'kontraks.status',
             'kontraks.attachment',
             'kontraks.evidence',
@@ -95,6 +99,7 @@ class Kontrak extends Model
         ->leftJoin('karyawan_posisi', 'karyawans.id_karyawan', 'karyawan_posisi.karyawan_id')
         ->leftJoin('posisis', 'kontraks.posisi_id', 'posisis.id_posisi')
         ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
+        ->leftJoin('jenis_kontraks', 'kontraks.jenis_kontrak_id', 'jenis_kontraks.id')
         ->groupBy(
             'kontraks.id_kontrak',
             'kontraks.karyawan_id',
@@ -108,7 +113,7 @@ class Kontrak extends Model
             'kontraks.deskripsi',
             'kontraks.tanggal_mulai',
             'kontraks.tanggal_selesai',
-            'kontraks.jenis',
+            'jenis_kontraks.nama',
             'kontraks.status',
             'kontraks.attachment',
             'kontraks.evidence',
@@ -136,7 +141,7 @@ class Kontrak extends Model
         }
 
         if(isset($dataFilter['jenisKontrak'])) {
-            $data->where('kontraks.jenis', $dataFilter['jenisKontrak']);
+            $data->where('jenis_kontraks.nama', $dataFilter['jenisKontrak']);
         }
 
         if(isset($dataFilter['statusKontrak'])) {

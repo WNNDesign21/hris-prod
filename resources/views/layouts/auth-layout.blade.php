@@ -125,6 +125,10 @@
         @vite(['resources/js/pages/kontrak.js'])
     @endif
 
+    @if ($page == 'masterdata-kontrak-detail')
+        @vite(['resources/js/pages/kontrak-detail.js'])
+    @endif
+
     @if ($page == 'masterdata-turnover')
         @vite(['resources/js/pages/turnover.js'])
     @endif

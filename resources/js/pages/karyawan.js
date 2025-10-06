@@ -181,19 +181,6 @@ $(function () {
 
     //REFRESH TABLE
     function refreshTable() {
-        // $('#filterDepartemen').val('').trigger('change');
-        // $('#filterGrup').val('').trigger('change');
-        // $('#filterJeniskontrak').val('').trigger('change');
-        // $('#filterStatuskaryawan').val('').trigger('change');
-        // $('#filterJeniskelamin').val('').trigger('change');
-        // $('#filterAgama').val('').trigger('change');
-        // $('#filterGolongandarah').val('').trigger('change');
-        // $('#filterStatuskeluarga').val('').trigger('change');
-        // $('#filterKategorikeluarga').val('').trigger('change');
-        // $('#filterNamabank').val('').trigger('change');
-        // $('#filterNama').val('');
-        // $('#filterNik').val('');
-        // karyawanTable.search("").draw();
         var searchValue = karyawanTable.search();
         if (searchValue) {
             karyawanTable.search(searchValue).draw();
@@ -267,7 +254,6 @@ $(function () {
         $("#no_telp_darurat").val("");
         $('#status_karyawan').val("");
         $('#pin').val("");
-        // $('#grup').val("");
         $('#posisi').val("");
     }
 
@@ -289,6 +275,10 @@ $(function () {
         });
 
         $('#kategori_keluarga').select2({
+            dropdownParent: $('#modal-input-karyawan'),
+        });
+
+        $('#status_kawin').select2({
             dropdownParent: $('#modal-input-karyawan'),
         });
 
@@ -317,23 +307,6 @@ $(function () {
             },
         });
 
-        // $('#grup').select2({
-        //     dropdownParent: $('#modal-input-karyawan'),
-        //     ajax: {
-        //         url: base_url + "/master-data/grup/get-data-grup",
-        //         type: "post",
-        //         dataType: "json",
-        //         delay: 250,
-        //         data: function (params) {
-        //             return {
-        //                 search: params.term || "",
-        //                 page: params.page || 1,
-        //             };
-        //         },
-        //         cache: true,
-        //     },
-        // });
-
         $('#posisi').select2({
             dropdownParent: $('#modal-input-karyawan'),
             ajax: {
@@ -347,10 +320,164 @@ $(function () {
                         page: params.page || 1,
                     };
                 },
+                processResults: function (data) {
+                    return {
+                        results: $.map(data.results, function (item) {
+                            return {
+                                id: item.id,
+                                text: item.id + ' - ' + item.text
+                            }
+                        })
+                    };
+                },
                 cache: true,
             },
         });
     };
+
+    function handleStatusKawinChange(statusKawinValue, formType) {
+        const toOrdinal = (num) => {
+            const ordinals = ['Pertama', 'Kedua', 'Ketiga', 'Keempat', 'Kelima', 'Keenam', 'Ketujuh', 'Kedelapan', 'Kesembilan', 'Kesepuluh'];
+            return ordinals[num - 1] || num;
+        };
+
+        const wrapperId = '#keluarga-wrapper' + (formType === 'edit' ? 'Edit' : '');
+        const templateId = '#' + (formType === 'edit' ? 'keluarga-templateEdit' : 'keluarga-template');
+        const jenisKelaminId = '#' + (formType === 'edit' ? 'jenis_kelaminEdit' : 'jenis_kelamin');
+        const keluargaContainer = $(wrapperId);
+
+        // Store existing data before clearing.
+        const existingData = {
+            pasangan: null,
+            anak: []
+        };
+        keluargaContainer.find('.keluarga-row').each(function() {
+            const row = $(this);
+            const hubungan = row.find('input[name*="[hubungan]"]').val();
+            const data = {
+                id: row.find('input[name*="[id]"]').val(),
+                hubungan: hubungan,
+                nama: row.find('input[name*="[nama]"]').val(),
+                tempat_lahir: row.find('input[name*="[tempat_lahir]"]').val(),
+                tanggal_lahir: row.find('input[name*="[tanggal_lahir]"]').val(),
+            };
+            if (hubungan === 'Istri' || hubungan === 'Suami') {
+                existingData.pasangan = data;
+            } else if (hubungan && hubungan.startsWith('Anak')) {
+                existingData.anak.push(data);
+            }
+        });
+    
+        keluargaContainer.empty();
+    
+        let index = 0;
+    
+        const addKeluargaRow = (hubungan, placeholder, dataToFill) => {
+            const template = $(templateId).find('.keluarga-row').clone();
+            
+            template.find('input, select').each(function() {
+                let name = $(this).attr('name');
+                if (name) {
+                    name = name.replace(/\[\d+\]/g, '[' + index + ']');
+                    $(this).attr('name', name);
+                    const id = $(this).attr('id');
+                    if (id) {
+                        $(this).attr('id', id.replace(/\d+$/, '') + index);
+                    }
+                }
+            });
+    
+            template.find('input[name*="[hubungan]"]').val(hubungan);
+            template.find('input[name*="[nama]"]').attr('placeholder', placeholder);
+
+            // Repopulate with stored data if it exists.
+            if (dataToFill) {
+                template.find('input[name*="[id]"]').val(dataToFill.id);
+                template.find('input[name*="[nama]"]').val(dataToFill.nama);
+                template.find('input[name*="[tempat_lahir]"]').val(dataToFill.tempat_lahir);
+                template.find('input[name*="[tanggal_lahir]"]').val(dataToFill.tanggal_lahir);
+            }
+            
+            keluargaContainer.append(template);
+            index++;
+        };
+    
+        // Rebuild rows and pass existing data.
+        if (statusKawinValue && statusKawinValue !== 'BK') {
+            const jenisKelamin = $(jenisKelaminId).val();
+            const hubunganPasangan = jenisKelamin === 'L' ? 'Istri' : 'Suami';
+            if (existingData.pasangan) {
+                existingData.pasangan.hubungan = hubunganPasangan;
+            }
+            addKeluargaRow(hubunganPasangan, 'Nama ' + hubunganPasangan, existingData.pasangan);
+        }
+    
+        if (statusKawinValue && statusKawinValue.startsWith('KA')) {
+            const jumlahAnak = parseInt(statusKawinValue.replace('KA', ''), 10) || 0;
+            for (let i = 0; i < jumlahAnak; i++) {
+                const anakData = existingData.anak[i] || null;
+                const hubunganAnak = 'Anak ' + toOrdinal(i + 1);
+                addKeluargaRow(hubunganAnak, 'Nama ' + hubunganAnak, anakData);
+            }
+        }
+    }
+
+    // --- Event Listeners ---
+    $(document).on('change', '#status_kawin', function() {
+        handleStatusKawinChange($(this).val(), 'create');
+    });
+
+    $(document).on('change', '#status_kawinEdit', function() {
+        handleStatusKawinChange($(this).val(), 'edit');
+    });
+
+    $(document).on('change', '#jenis_kelamin', function() {
+        const statusKawin = $('#status_kawin').val();
+        if (statusKawin && statusKawin !== 'BK') {
+            handleStatusKawinChange(statusKawin, 'create');
+        }
+    });
+
+    $(document).on('change', '#jenis_kelaminEdit', function() {
+        const statusKawin = $('#status_kawinEdit').val();
+        if (statusKawin && statusKawin !== 'BK') {
+            handleStatusKawinChange(statusKawin, 'edit');
+        }
+    });
+
+    function populateKeluargaForm(keluargaData, statusKawin) {
+        handleStatusKawinChange(statusKawin, 'edit');
+        const keluargaContainer = $('#keluarga-wrapperEdit');
+    
+        const pasanganData = keluargaData.find(a => a.hubungan === 'Istri' || a.hubungan === 'Suami');
+        const anakData = keluargaData.filter(a => a.hubungan && a.hubungan.startsWith('Anak'));
+    
+        let anakIndex = 0;
+    
+        keluargaContainer.find('.keluarga-row').each(function() {
+            const row = $(this);
+            const hubunganInput = row.find('input[name*="[hubungan]"]');
+            const hubunganValue = hubunganInput.val();
+    
+            let dataToPopulate = null;
+    
+            if (hubunganValue === 'Istri' || hubunganValue === 'Suami') {
+                dataToPopulate = pasanganData;
+            } else if (hubunganValue && hubunganValue.startsWith('Anak')) {
+                if (anakIndex < anakData.length) {
+                    dataToPopulate = anakData[anakIndex];
+                    anakIndex++;
+                }
+            }
+    
+            if (dataToPopulate) {
+                row.find('input[name*="[id]"]').val(dataToPopulate.id);
+                row.find('input[name*="[nama]"]').val(dataToPopulate.nama);
+                row.find('input[name*="[tempat_lahir]"]').val(dataToPopulate.tempat_lahir);
+                row.find('input[name*="[tanggal_lahir]"]').val(dataToPopulate.tanggal_lahir);
+            }
+        });
+    }
 
     //SUBMIT TAMBAH KARYAWAN
     $('#form-tambah-karyawan').on('submit', function (e){
@@ -408,11 +535,18 @@ $(function () {
             dropdownParent: $('#modal-edit-karyawan'),
         });
 
+        $('#status_kawinEdit').select2({
+            dropdownParent: $('#modal-edit-karyawan'),
+        });
+
         $('#jenjang_pendidikanEdit').select2({
             dropdownParent: $('#modal-edit-karyawan'),
         });
 
-        // selectGrupEdit(grupId);
+        $('#tipe_karyawanEdit').select2({
+            dropdownParent: $('#modal-edit-karyawan'),
+        });
+
         selectPosisiEdit(posisi);
     };
 
@@ -493,7 +627,16 @@ $(function () {
                 $('#tanggal_mulaiEdit').val(detailKaryawan.tanggal_mulai);
                 $('#tanggal_selesaiEdit').val(detailKaryawan.tanggal_selesai);
                 $('#pinEdit').val(detailKaryawan.pin);
+                $('#tipe_karyawanEdit').val(detailKaryawan.tipe_karyawan).trigger('change');
                 $('#isAdminEdit').prop('checked', detailKaryawan.is_admin);
+                
+                // Mengisi status kawin dan memicu pembuatan form
+                $('#status_kawinEdit').val(detailKaryawan.status_kawin).trigger('change');
+                
+                // Mengisi data keluarga ke form yang sudah dibuat
+                if(detailKaryawan.keluarga && detailKaryawan.keluarga.length > 0) {
+                    populateKeluargaForm(detailKaryawan.keluarga, detailKaryawan.status_kawin);
+                }
                 initializeSelect2Edit(detailKaryawan.grup_id, detailKaryawan.posisi);
                 openEditKaryawan();
             },
@@ -504,11 +647,72 @@ $(function () {
     }
 
     //SUBMIT EDIT KARYAWAN
-    $('#form-edit-karyawan').on('submit', function (e){
+    $('#form-edit-karyawan').on('submit', function(e) {
         e.preventDefault();
+    
+        var formData = new FormData($('#form-edit-karyawan')[0]);
+    
+        // Manually collect family data because FormData may not reliably pick up cloned fields.
+        var keluargaRows = $('#keluarga-wrapperEdit .keluarga-row');
+        
+        // Clear any potentially incorrect 'keluargaEdit' data from FormData that might have been partially picked up.
+        for (var key of formData.keys()) {
+            if (key.startsWith('keluargaEdit')) {
+                formData.delete(key);
+            }
+        }
+    
+        keluargaRows.each(function(index, row) {
+            var id = $(row).find('input[name*="[id]"]').val();
+            var hubungan = $(row).find('input[name*="[hubungan]"]').val();
+            var nama = $(row).find('input[name*="[nama]"]').val();
+            var tempat_lahir = $(row).find('input[name*="[tempat_lahir]"]').val();
+            var tanggal_lahir = $(row).find('input[name*="[tanggal_lahir]"]').val();
+    
+            // Append data in the format PHP expects for arrays.
+            // This ensures that even if a row is empty, we don't send null data unless intended.
+            if (nama || hubungan) { // Only add if there's some data
+                formData.append('keluargaEdit[' + index + '][id]', id || '');
+                formData.append('keluargaEdit[' + index + '][hubungan]', hubungan || '');
+                formData.append('keluargaEdit[' + index + '][nama]', nama || '');
+                formData.append('keluargaEdit[' + index + '][tempat_lahir]', tempat_lahir || '');
+                formData.append('keluargaEdit[' + index + '][tanggal_lahir]', tanggal_lahir || '');
+            }
+        });
+    
         let currentOrg = $('#id_organisasiEdit').val();
         let newOrg = $('#organisasiEdit').val();
-
+    
+        const submitUpdate = () => {
+            loadingSwalShow();
+            let idKaryawan = $('#id_karyawanEdit').val();
+            let url = base_url + '/master-data/karyawan/update/' + idKaryawan;
+    
+            $.ajax({
+                url: url,
+                data: formData, // formData is now correctly populated
+                method: "POST",
+                contentType: false,
+                processData: false,
+                dataType: "JSON",
+                success: function(data) {
+                    loadingSwalClose();
+                    showToast({
+                        title: data.message
+                    });
+                    closeEditKaryawan();
+                    refreshTable();
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    loadingSwalClose();
+                    showToast({
+                        icon: "error",
+                        title: jqXHR.responseJSON.message
+                    });
+                },
+            });
+        };
+    
         if (currentOrg !== newOrg) {
             Swal.fire({
                 title: "Pemindahan Organisasi Karyawan",
@@ -521,55 +725,11 @@ $(function () {
                 allowOutsideClick: false,
             }).then((result) => {
                 if (result.value) {
-                    loadingSwalShow();
-                    let idKaryawan = $('#id_karyawanEdit').val();
-                    let url = base_url + '/master-data/karyawan/update/' + idKaryawan;
-
-                    var formData = new FormData($('#form-edit-karyawan')[0]);
-                    $.ajax({
-                        url: url,
-                        data: formData,
-                        method:"POST",
-                        contentType: false,
-                        processData: false,
-                        dataType: "JSON",
-                        success: function (data) {
-                            loadingSwalClose();
-                            showToast({ title: data.message });
-                            closeEditKaryawan();
-                            refreshTable();
-                        },
-                        error: function (jqXHR, textStatus, errorThrown) {
-                            loadingSwalClose();
-                            showToast({ icon: "error", title: jqXHR.responseJSON.message });
-                        },
-                    })
+                    submitUpdate();
                 }
             });
         } else {
-            loadingSwalShow();
-            let idKaryawan = $('#id_karyawanEdit').val();
-            let url = base_url + '/master-data/karyawan/update/' + idKaryawan;
-
-            var formData = new FormData($('#form-edit-karyawan')[0]);
-            $.ajax({
-                url: url,
-                data: formData,
-                method:"POST",
-                contentType: false,
-                processData: false,
-                dataType: "JSON",
-                success: function (data) {
-                    loadingSwalClose();
-                    showToast({ title: data.message });
-                    closeEditKaryawan();
-                    refreshTable();
-                },
-                error: function (jqXHR, textStatus, errorThrown) {
-                    loadingSwalClose();
-                    showToast({ icon: "error", title: jqXHR.responseJSON.message });
-                },
-            })
+            submitUpdate();
         }
     });
 
@@ -617,7 +777,7 @@ $(function () {
                 var selectGrup = $("#grupEdit");
                 selectGrup.empty();
                 $.each(data, function (i, val){
-                    selectGrup.append('<option value="'+val.id+'">'+val.text+'</option>');
+                    selectGrup.append('<option value="'+val.id+'">'+val.id+' - '+val.text+'</option>');
                 });
                 $('#grupEdit').val(grupId).trigger('change');
                 $('#grupEdit').select2({
@@ -640,7 +800,7 @@ $(function () {
                 var selectGrup = $("#posisiEdit");
                 selectGrup.empty();
                 $.each(data, function (i, val){
-                    selectGrup.append('<option value="'+val.id+'">'+val.text+'</option>');
+                    selectGrup.append('<option value="'+val.id+'">'+val.id+' - '+val.text+'</option>');
                 });
                 $('#posisiEdit').val(posisiId).trigger('change');
                 $('#posisiEdit').select2({
@@ -886,91 +1046,6 @@ $(function () {
         });
     }
 
-    // $('#form-kontrak').on('submit', function (e){
-    //     loadingSwalShow();
-    //     e.preventDefault();
-    //     let url = $('#form-kontrak').attr('action');
-
-    //     var formData = new FormData($('#form-kontrak')[0]);
-    //     $.ajax({
-    //         url: url,
-    //         data: formData,
-    //         method:"POST",
-    //         contentType: false,
-    //         processData: false,
-    //         dataType: "JSON",
-    //         success: function (data) {
-    //             let dataKontrak = data.data;
-    //             showToast({ title: data.message });
-    //             getListKontrak(dataKontrak.karyawan_id);
-    //             refreshTable();
-    //             loadingSwalClose();
-    //         },
-    //         error: function (jqXHR, textStatus, errorThrown) {
-    //             loadingSwalClose();
-    //             showToast({ icon: "error", title: jqXHR.responseJSON.message });
-    //         },
-    //     })
-    // });
-
-    // $('#jenis_kontrakEdit').on('change', function (){
-    //     let jenisKontrak = $(this).val();
-    //     if(jenisKontrak == 'PKWTT'){
-    //         $('#durasi_kontrakEdit').val('').prop('readonly', true);
-    //         $('#tanggal_selesai_kontrakEdit').val('').prop('readonly', true);
-    //     } else {
-    //         $('#durasi_kontrakEdit').val('').prop('readonly', false);
-    //         $('#tanggal_selesai_kontrakEdit').val('').prop('readonly', false);
-    //     }
-    // })
-
-    // $('.btnUpload').on('click', function (){
-    //     let input = $('#upload-karyawan');
-    //     input.click();
-
-    //     input.off('change').on('change', function () {
-    //         Swal.fire({
-    //             title: "Upload Record Karyawan",
-    //             text: "Karyawan dengan ID yang sudah terdaftar akan terupdate sesuai dengan ID Karyawan",
-    //             icon: "warning",
-    //             showCancelButton: true,
-    //             confirmButtonColor: "#3085d6",
-    //             cancelButtonColor: "#d33",
-    //             confirmButtonText: "Yes, Upload it!",
-    //             allowOutsideClick: false,
-    //         }).then((result) => {
-    //             if (result.value) {
-    //                 loadingSwalShow();
-    //                 const url = base_url + "/master-data/karyawan/upload-karyawan";
-    //                 let formData = new FormData();
-    //                 formData.append('karyawan_file', input[0].files[0]);
-
-    //                 $.ajax({
-    //                     url: url,
-    //                     method: "POST",
-    //                     data: formData,
-    //                     contentType: false,
-    //                     processData: false,
-    //                     success: function (data) {
-    //                         showToast({ title: data.message });
-    //                         input.val('');
-    //                         loadingSwalClose();
-    //                         refreshTable();
-    //                     },
-    //                     error: function (jqXHR, textStatus, errorThrown) {
-    //                         loadingSwalClose();
-    //                         showToast({ icon: "error", title: jqXHR.responseJSON.message });
-    //                     },
-    //                 })
-    //             }
-    //         });
-    //     });
-    // });
-
-    // $('.btnTemplate').on('click', function () {
-    //     window.location.href = base_url + '/template/template_upload_karyawan.xlsx';
-    // });
-
     //FILTER KARYAWAN
     $('.btnFilter').on("click", function (){
         openFilter();
@@ -1122,6 +1197,70 @@ $(function () {
     $('.btnUpload').on("click", function (){
         openUpload();
         setInterval(refreshUploadTable, 30000);
+    });
+
+    $('.btnDownloadRekap').on('click', function (e) {
+        e.preventDefault();
+        $('#modal-download-rekap').modal('show');
+    });
+
+    $('#btnConfirmDownloadRekap').on('click', function () {
+        let selectedPeriod = $('#rekap-period').val(); // YYYY-MM format
+        let selectedOrganisasi = $('#organisasi-rekap').val();
+
+        if (!selectedPeriod) {
+            showToast({ icon: "error", title: "Pilih periode terlebih dahulu!" });
+            return;
+        }
+
+        // Close the modal
+        $('#modal-download-rekap').modal('hide');
+
+        // Create a form to submit the period
+        var form = $('<form>', {
+            method: 'POST',
+            action: base_url + '/master-data/karyawan/download-rekap-manpower'
+        }).append($('<input>', {
+            type: 'hidden',
+            name: '_token',
+            value: $('meta[name="csrf-token"]').attr("content")
+        })).append($('<input>', {
+            type: 'hidden',
+            name: 'periode',
+            value: selectedPeriod
+        })).append($('<input>', {
+            type: 'hidden',
+            name: 'organisasi',
+            value: selectedOrganisasi
+        }));
+
+        // Append existing filter data if any
+        var filterData = {
+            departemen: $('#filterDepartemen').val(),
+            grup: $('#filterGrup').val(),
+            jenisKontrak: $('#filterJeniskontrak').val(),
+            statusKaryawan: $('#filterStatuskaryawan').val(),
+            jenisKelamin: $('#filterJeniskelamin').val(),
+            agama: $('#filterAgama').val(),
+            golonganDarah: $('#filterGolongandarah').val(),
+            statusKeluarga: $('#filterStatuskeluarga').val(),
+            kategoriKeluarga: $('#filterKategorikeluarga').val(),
+            namaBank: $('#filterNamabank').val(),
+            nama: $('#filterNama').val(),
+            nik: $('#filterNik').val()
+        };
+
+        $.each(filterData, function(key, value) {
+            if (value) {
+                form.append($('<input>', {
+                    type: 'hidden',
+                    name: key,
+                    value: value
+                }));
+            }
+        });
+
+        form.appendTo('body').submit().remove();
     });
 
     $('.btnCloseUpload').on("click", function (){

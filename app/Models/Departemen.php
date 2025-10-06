@@ -23,6 +23,11 @@ class Departemen extends Model
         return $this->belongsTo(Divisi::class, 'divisi_id', 'id_divisi');
     }
 
+    public function seksis()
+    {
+        return $this->hasMany(Seksi::class, 'departemen_id', 'id_departemen');
+    }
+
     private static function _query($dataFilter)
     {
 

@@ -269,7 +269,7 @@ class ReleaseController extends Controller
         DB::beginTransaction();
         try {
 
-            $approval = Approval::ApprovalDeptWithPlantHead($parent_id, auth()->user()->organisasi_id);
+            $approval = Approval::SmartApprovalHierarchy($parent_id, auth()->user()->organisasi_id);
 
             $released_by = '';
             $checked_by = '';

@@ -51,6 +51,7 @@ class Karyawan extends Model
         'agama',
         'gol_darah',
         'jenis_kelamin',
+        'status_kawin',
         'status_keluarga',
         'kategori_keluarga',
         'npwp',
@@ -74,7 +75,9 @@ class Karyawan extends Model
         'no_telp_darurat',
         'foto',
         'pin',
-        'grup_pattern_id'
+        'grup_pattern_id',
+        'direct',
+        'indirect'
     ];
 
     protected $dates = [
@@ -82,6 +85,40 @@ class Karyawan extends Model
         'tanggal_mulai',
         'tanggal_selesai',
     ];
+
+    protected $appends = ['sinas'];
+
+    public function getSinasAttribute()
+    {
+        $posisi = $this->posisi->first();
+        $divisiName = $posisi && $posisi->departemen && $posisi->departemen->divisi ? $posisi->departemen->divisi->nama : null;
+
+        if ($this->direct == 1) {
+            $part1 = 'PRODUKSI';
+        } elseif ($this->indirect == 1 && strtoupper($divisiName) === 'MANUFACTURE') {
+            $part1 = 'PRODUKSI';
+        } else {
+            $part1 = 'LAINNYA';
+        }
+
+        $part2 = match (strtoupper($this->jenis_kontrak)) {
+            'PKWTT' => 'TETAP',
+            'PKWT', 'PENGKARYAAN' => 'KONTRAK',
+            default => ''
+        };
+
+        $part3 = match ($this->jenis_kelamin) {
+            'L' => 'LAKI2',
+            'P' => 'PEREMPUAN',
+            default => ''
+        };
+
+        if ($part1 && $part2 && $part3) {
+            return "$part1 - $part2 - $part3";
+        }
+
+        return '';
+    }
 
     //ACCESSOR / GETTER
     // public function getFotoAttribute($value)
@@ -104,9 +141,14 @@ class Karyawan extends Model
         return $query->where('karyawans.organisasi_id', $organisasi);
     }
 
+    public function keluarga()
+    {
+        return $this->hasMany(KeluargaKaryawan::class, 'karyawan_id', 'id_karyawan');
+    }
+
     public function user()
     {
-        return $this->belongsTo(User::class, 'user_id', 'id');
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     public function grup()
@@ -447,7 +489,7 @@ class Karyawan extends Model
             'divisis.nama as divisi_nama',
             DB::raw('EXTRACT(YEAR FROM karyawans.tanggal_selesai) as tahun_selesai'),
             DB::raw('EXTRACT(MONTH FROM karyawans.tanggal_selesai) as bulan_selesai'),
-            DB::raw('COUNT(CASE WHEN EXTRACT(MONTH FROM tanggal_selesai) = EXTRACT(MONTH FROM NOW() + INTERVAL \'1 month\') AND EXTRACT(YEAR FROM tanggal_selesai) = EXTRACT(YEAR FROM NOW() + INTERVAL \'1 month\') THEN 1 END) as jumlah_karyawan_habis'),
+            DB::raw('COUNT(CASE WHEN tanggal_selesai >= NOW() AND tanggal_selesai <= NOW() + INTERVAL \'1 month\' THEN 1 END) as jumlah_karyawan_habis'),
             DB::raw("(CASE
                         WHEN EXISTS (
                             SELECT 1
@@ -455,7 +497,8 @@ class Karyawan extends Model
                             WHERE ksk.divisi_id = divisis.id_divisi
                                 AND (ksk.departemen_id = departemens.id_departemen OR ksk.departemen_id IS NULL)
                                 AND EXTRACT(YEAR FROM ksk.release_date) = EXTRACT(YEAR FROM karyawans.tanggal_selesai)
-                                AND EXTRACT(MONTH FROM ksk.release_date) = EXTRACT(MONTH FROM karyawans.tanggal_selesai) - 1
+                                AND ksk.release_date >= DATE_TRUNC('month', karyawans.tanggal_selesai - INTERVAL '1 month')
+                                AND ksk.release_date < DATE_TRUNC('month', karyawans.tanggal_selesai)
                                 AND ksk.parent_id = posisis.parent_id
                         ) THEN 'Y'
                         ELSE NULL
@@ -470,7 +513,8 @@ class Karyawan extends Model
             ->leftJoin('departemens', 'posisis.departemen_id', 'departemens.id_departemen')
             ->leftJoin('divisis', 'posisis.divisi_id', 'divisis.id_divisi')
 
-            ->whereMonth('tanggal_selesai', now()->addMonth()->month)
+            ->where('tanggal_selesai', '>=', now())
+            ->where('tanggal_selesai', '<=', now()->addMonth())
             ->where('karyawans.status_karyawan', 'AT')
             ->where('karyawans.organisasi_id', auth()->user()->organisasi_id)
             ->where('posisis.parent_id', '!=', 0);

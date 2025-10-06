@@ -60,6 +60,7 @@
                                     <option value="PKWT">PKWT</option>
                                     <option value="PKWTT">PKWTT</option>
                                     <option value="MAGANG">MAGANG</option>
+                                    <option value="PENGKARYAAN">PENGKARYAAN</option>
                                 </select>
                             </div>
                             <div class="row">

@@ -27,6 +27,7 @@
                                 class="fas fa-plus"></i></button>
                         <button type="button" class="btn btn-dark waves-effect btnUpload"><i
                                 class="fas fa-upload"></i></button>
+                        <button type="button" class="btn btn-primary waves-effect btnDownloadRekap" data-toggle="modal" data-target="#modal-download-rekap"><i class="fas fa-download"></i> Download Rekap</button>
                     </div>
                     <input type="file" id="upload-karyawan" class="d-none">
                 </div>
@@ -83,4 +84,5 @@
     @include('pages.master-data.karyawan.modal-akun')
     @include('pages.master-data.karyawan.modal-kontrak')
     @include('pages.master-data.karyawan.modal-filter')
+    @include('pages.master-data.karyawan.modal-download-rekap')
 @endsection

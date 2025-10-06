@@ -20,7 +20,7 @@ class Divisi extends Model
 
     public function departemen()
     {
-        return $this->hasMany(Departemen::class);
+        return $this->hasMany(Departemen::class, 'divisi_id', 'id_divisi');
     }
 
     private static function _query($dataFilter)
