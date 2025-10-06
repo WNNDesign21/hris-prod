@@ -211,7 +211,8 @@
                                         <option value="KA1">Kawin Anak 1 (KA1)</option>
                                         <option value="KA2">Kawin Anak 2 (KA2)</option>
                                         <option value="KA3">Kawin Anak 3 (KA3)</option>
-                                        {{-- Tambahkan opsi lain jika perlu, misal: KA4, KA5 --}}
+                                        <option value="KA4">Kawin Anak 4 (KA4)</option>
+                                        <option value="KA5">Kawin Anak 5 (KA5)</option>
                                     </select>
                                 </div>
 

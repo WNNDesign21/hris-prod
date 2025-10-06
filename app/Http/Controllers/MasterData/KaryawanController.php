@@ -270,7 +270,6 @@ class KaryawanController extends Controller
             'tempat_lahir' => ['nullable', 'string'],
             'tanggal_lahir' => ['nullable', 'date_format:Y-m-d'],
             'jenis_kelamin' => ['required','in:L,P'],
-            'status_kawin' => ['required', 'string'],
             'agama' => ['nullable', 'string','in:ISLAM,KATOLIK,KRISTEN,HINDU,BUDHA,KONGHUCU,LAINNYA,PROTESTAN'],
             'gol_darah' => ['string', 'in:A,B,AB,O'],
             'status_keluarga' => ['string', 'in:MENIKAH,BELUM MENIKAH,CERAI'],
@@ -294,7 +293,7 @@ class KaryawanController extends Controller
             'foto' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
             'isAdmin' => ['in:Y'],
             'pin' => ['nullable', 'string'],
-            'status_kawin' => ['required', 'string'],
+            'status_kawin' => ['required', 'string', 'in:BK,K,KA1,KA2,KA3,KA4,KA5'],
             'tipe_karyawan' => ['required', 'string', 'in:D,I'],
         ];
 
@@ -524,7 +523,7 @@ class KaryawanController extends Controller
             'tempat_lahirEdit' => ['nullable', 'string'],
             'tanggal_lahirEdit' => ['nullable', 'date_format:Y-m-d'],
             'jenis_kelaminEdit' => ['required', 'in:L,P'],
-            'status_kawinEdit' => ['required', 'string'],
+            'status_kawinEdit' => ['required', 'string', 'in:BK,K,KA1,KA2,KA3,KA4,KA5'],
             'agamaEdit' => ['nullable', 'string', 'in:ISLAM,KRISTEN,KATOLIK,HINDU,BUDHA,KONGHUCU,LAINNYA,PROTESTAN'],
             'gol_darahEdit' => ['required','string', 'in:A,B,AB,O'],
             'status_keluargaEdit' => ['required','string', 'in:MENIKAH,BELUM MENIKAH,CERAI'],
