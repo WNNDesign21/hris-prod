@@ -5,7 +5,7 @@
 -- Dumped from database version 16.9
 -- Dumped by pg_dump version 17.5
 
--- Started on 2025-10-07 09:07:25
+-- Started on 2025-10-07 09:55:30
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -62,7 +62,7 @@ CREATE SEQUENCE public.activity_log_id_seq
 ALTER SEQUENCE public.activity_log_id_seq OWNER TO ict;
 
 --
--- TOC entry 5716 (class 0 OID 0)
+-- TOC entry 5740 (class 0 OID 0)
 -- Dependencies: 216
 -- Name: activity_log_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -112,7 +112,7 @@ CREATE SEQUENCE public.approval_cutis_id_approval_cuti_seq
 ALTER SEQUENCE public.approval_cutis_id_approval_cuti_seq OWNER TO ict;
 
 --
--- TOC entry 5717 (class 0 OID 0)
+-- TOC entry 5741 (class 0 OID 0)
 -- Dependencies: 218
 -- Name: approval_cutis_id_approval_cuti_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -152,7 +152,7 @@ CREATE SEQUENCE public.attachment_ksk_details_id_attachment_ksk_detail_seq
 ALTER SEQUENCE public.attachment_ksk_details_id_attachment_ksk_detail_seq OWNER TO ict;
 
 --
--- TOC entry 5718 (class 0 OID 0)
+-- TOC entry 5742 (class 0 OID 0)
 -- Dependencies: 220
 -- Name: attachment_ksk_details_id_attachment_ksk_detail_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -193,7 +193,7 @@ CREATE SEQUENCE public.attachment_lemburs_id_attachment_lembur_seq
 ALTER SEQUENCE public.attachment_lemburs_id_attachment_lembur_seq OWNER TO ict;
 
 --
--- TOC entry 5719 (class 0 OID 0)
+-- TOC entry 5743 (class 0 OID 0)
 -- Dependencies: 222
 -- Name: attachment_lemburs_id_attachment_lembur_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -239,7 +239,7 @@ CREATE SEQUENCE public.attendance_devices_id_device_seq
 ALTER SEQUENCE public.attendance_devices_id_device_seq OWNER TO ict;
 
 --
--- TOC entry 5720 (class 0 OID 0)
+-- TOC entry 5744 (class 0 OID 0)
 -- Dependencies: 224
 -- Name: attendance_devices_id_device_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -293,7 +293,7 @@ CREATE SEQUENCE public.attendance_gps_id_att_gps_seq
 ALTER SEQUENCE public.attendance_gps_id_att_gps_seq OWNER TO ict;
 
 --
--- TOC entry 5721 (class 0 OID 0)
+-- TOC entry 5745 (class 0 OID 0)
 -- Dependencies: 226
 -- Name: attendance_gps_id_att_gps_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -339,7 +339,7 @@ CREATE SEQUENCE public.attendance_karyawan_grup_id_seq
 ALTER SEQUENCE public.attendance_karyawan_grup_id_seq OWNER TO ict;
 
 --
--- TOC entry 5722 (class 0 OID 0)
+-- TOC entry 5746 (class 0 OID 0)
 -- Dependencies: 228
 -- Name: attendance_karyawan_grup_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -386,7 +386,7 @@ CREATE SEQUENCE public.attendance_scanlogs_id_scanlog_seq
 ALTER SEQUENCE public.attendance_scanlogs_id_scanlog_seq OWNER TO ict;
 
 --
--- TOC entry 5723 (class 0 OID 0)
+-- TOC entry 5747 (class 0 OID 0)
 -- Dependencies: 230
 -- Name: attendance_scanlogs_id_scanlog_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -563,7 +563,7 @@ CREATE SEQUENCE public.attendance_summaries_id_att_summary_seq
 ALTER SEQUENCE public.attendance_summaries_id_att_summary_seq OWNER TO ict;
 
 --
--- TOC entry 5724 (class 0 OID 0)
+-- TOC entry 5748 (class 0 OID 0)
 -- Dependencies: 232
 -- Name: attendance_summaries_id_att_summary_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -639,7 +639,7 @@ CREATE SEQUENCE public.cleareance_details_id_cleareance_detail_seq
 ALTER SEQUENCE public.cleareance_details_id_cleareance_detail_seq OWNER TO ict;
 
 --
--- TOC entry 5725 (class 0 OID 0)
+-- TOC entry 5749 (class 0 OID 0)
 -- Dependencies: 236
 -- Name: cleareance_details_id_cleareance_detail_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -683,7 +683,7 @@ CREATE SEQUENCE public.cleareance_settings_id_cleareance_setting_seq
 ALTER SEQUENCE public.cleareance_settings_id_cleareance_setting_seq OWNER TO ict;
 
 --
--- TOC entry 5726 (class 0 OID 0)
+-- TOC entry 5750 (class 0 OID 0)
 -- Dependencies: 238
 -- Name: cleareance_settings_id_cleareance_setting_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -778,7 +778,7 @@ CREATE SEQUENCE public.cutis_id_cuti_seq
 ALTER SEQUENCE public.cutis_id_cuti_seq OWNER TO ict;
 
 --
--- TOC entry 5727 (class 0 OID 0)
+-- TOC entry 5751 (class 0 OID 0)
 -- Dependencies: 241
 -- Name: cutis_id_cuti_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -820,7 +820,7 @@ CREATE SEQUENCE public.departemens_id_departemen_seq
 ALTER SEQUENCE public.departemens_id_departemen_seq OWNER TO ict;
 
 --
--- TOC entry 5728 (class 0 OID 0)
+-- TOC entry 5752 (class 0 OID 0)
 -- Dependencies: 336
 -- Name: departemens_id_departemen_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -886,7 +886,7 @@ CREATE SEQUENCE public.detail_lemburs_id_detail_lembur_seq
 ALTER SEQUENCE public.detail_lemburs_id_detail_lembur_seq OWNER TO ict;
 
 --
--- TOC entry 5729 (class 0 OID 0)
+-- TOC entry 5753 (class 0 OID 0)
 -- Dependencies: 244
 -- Name: detail_lemburs_id_detail_lembur_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -930,7 +930,7 @@ CREATE SEQUENCE public.detail_millages_id_detail_millage_seq
 ALTER SEQUENCE public.detail_millages_id_detail_millage_seq OWNER TO ict;
 
 --
--- TOC entry 5730 (class 0 OID 0)
+-- TOC entry 5754 (class 0 OID 0)
 -- Dependencies: 246
 -- Name: detail_millages_id_detail_millage_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -979,7 +979,7 @@ CREATE SEQUENCE public.detail_tugasluars_id_detail_tugasluar_seq
 ALTER SEQUENCE public.detail_tugasluars_id_detail_tugasluar_seq OWNER TO ict;
 
 --
--- TOC entry 5731 (class 0 OID 0)
+-- TOC entry 5755 (class 0 OID 0)
 -- Dependencies: 248
 -- Name: detail_tugasluars_id_detail_tugasluar_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -1041,7 +1041,7 @@ CREATE SEQUENCE public.events_id_event_seq
 ALTER SEQUENCE public.events_id_event_seq OWNER TO ict;
 
 --
--- TOC entry 5732 (class 0 OID 0)
+-- TOC entry 5756 (class 0 OID 0)
 -- Dependencies: 251
 -- Name: events_id_event_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -1086,7 +1086,7 @@ CREATE SEQUENCE public.export_slip_lemburs_id_export_slip_lembur_seq
 ALTER SEQUENCE public.export_slip_lemburs_id_export_slip_lembur_seq OWNER TO ict;
 
 --
--- TOC entry 5733 (class 0 OID 0)
+-- TOC entry 5757 (class 0 OID 0)
 -- Dependencies: 253
 -- Name: export_slip_lemburs_id_export_slip_lembur_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -1128,7 +1128,7 @@ CREATE SEQUENCE public.failed_jobs_id_seq
 ALTER SEQUENCE public.failed_jobs_id_seq OWNER TO ict;
 
 --
--- TOC entry 5734 (class 0 OID 0)
+-- TOC entry 5758 (class 0 OID 0)
 -- Dependencies: 255
 -- Name: failed_jobs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -1173,7 +1173,7 @@ CREATE SEQUENCE public.gaji_departemens_id_gaji_departemen_seq
 ALTER SEQUENCE public.gaji_departemens_id_gaji_departemen_seq OWNER TO ict;
 
 --
--- TOC entry 5735 (class 0 OID 0)
+-- TOC entry 5759 (class 0 OID 0)
 -- Dependencies: 257
 -- Name: gaji_departemens_id_gaji_departemen_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -1215,7 +1215,7 @@ CREATE SEQUENCE public.grup_patterns_id_grup_pattern_seq
 ALTER SEQUENCE public.grup_patterns_id_grup_pattern_seq OWNER TO ict;
 
 --
--- TOC entry 5736 (class 0 OID 0)
+-- TOC entry 5760 (class 0 OID 0)
 -- Dependencies: 259
 -- Name: grup_patterns_id_grup_pattern_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -1259,7 +1259,7 @@ CREATE SEQUENCE public.grups_id_grup_seq
 ALTER SEQUENCE public.grups_id_grup_seq OWNER TO ict;
 
 --
--- TOC entry 5737 (class 0 OID 0)
+-- TOC entry 5761 (class 0 OID 0)
 -- Dependencies: 261
 -- Name: grups_id_grup_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -1357,7 +1357,7 @@ CREATE SEQUENCE public.jenis_cutis_id_jenis_cuti_seq
 ALTER SEQUENCE public.jenis_cutis_id_jenis_cuti_seq OWNER TO ict;
 
 --
--- TOC entry 5738 (class 0 OID 0)
+-- TOC entry 5762 (class 0 OID 0)
 -- Dependencies: 265
 -- Name: jenis_cutis_id_jenis_cuti_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -1396,7 +1396,7 @@ CREATE SEQUENCE public.jenis_kontraks_id_seq
 ALTER SEQUENCE public.jenis_kontraks_id_seq OWNER TO ict;
 
 --
--- TOC entry 5739 (class 0 OID 0)
+-- TOC entry 5763 (class 0 OID 0)
 -- Dependencies: 267
 -- Name: jenis_kontraks_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -1459,7 +1459,7 @@ CREATE SEQUENCE public.jobs_id_seq
 ALTER SEQUENCE public.jobs_id_seq OWNER TO ict;
 
 --
--- TOC entry 5740 (class 0 OID 0)
+-- TOC entry 5764 (class 0 OID 0)
 -- Dependencies: 270
 -- Name: jobs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -1500,7 +1500,7 @@ CREATE SEQUENCE public.karyawan_posisi_id_seq
 ALTER SEQUENCE public.karyawan_posisi_id_seq OWNER TO ict;
 
 --
--- TOC entry 5741 (class 0 OID 0)
+-- TOC entry 5765 (class 0 OID 0)
 -- Dependencies: 272
 -- Name: karyawan_posisi_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -1560,18 +1560,63 @@ CREATE TABLE public.karyawans (
     grup_pattern_id integer,
     direct integer,
     indirect integer,
+    status_kawin character varying(255),
+    sinas character varying(255),
     CONSTRAINT karyawans_agama_check CHECK (((agama)::text = ANY (ARRAY[('ISLAM'::character varying)::text, ('KATOLIK'::character varying)::text, ('KRISTEN'::character varying)::text, ('KONGHUCU'::character varying)::text, ('HINDU'::character varying)::text, ('BUDHA'::character varying)::text, ('PROTESTAN'::character varying)::text, ('LAINNYA'::character varying)::text]))),
     CONSTRAINT karyawans_gol_darah_check CHECK (((gol_darah)::text = ANY (ARRAY[('A'::character varying)::text, ('B'::character varying)::text, ('AB'::character varying)::text, ('O'::character varying)::text]))),
     CONSTRAINT karyawans_jenis_kelamin_check CHECK (((jenis_kelamin)::text = ANY (ARRAY[('L'::character varying)::text, ('P'::character varying)::text]))),
     CONSTRAINT karyawans_jenis_kontrak_check CHECK (((jenis_kontrak)::text = ANY (ARRAY[('PKWT'::character varying)::text, ('PKWTT'::character varying)::text, ('MAGANG'::character varying)::text, ('PENGKARYAAN'::character varying)::text]))),
     CONSTRAINT karyawans_jenjang_pendidikan_check CHECK (((jenjang_pendidikan)::text = ANY (ARRAY[('SD'::character varying)::text, ('SMP'::character varying)::text, ('SMA'::character varying)::text, ('D1'::character varying)::text, ('D2'::character varying)::text, ('D3'::character varying)::text, ('D4'::character varying)::text, ('S1'::character varying)::text, ('S2'::character varying)::text, ('S3'::character varying)::text]))),
-    CONSTRAINT karyawans_kategori_keluarga_check CHECK (((kategori_keluarga)::text = ANY (ARRAY[('TK0'::character varying)::text, ('TK1'::character varying)::text, ('TK2'::character varying)::text, ('TK3'::character varying)::text, ('K0'::character varying)::text, ('K1'::character varying)::text, ('K2'::character varying)::text, ('K3'::character varying)::text]))),
+    CONSTRAINT karyawans_kategori_keluarga_check CHECK (((kategori_keluarga)::text = ANY ((ARRAY['TK/0'::character varying, 'TK/1'::character varying, 'TK/2'::character varying, 'TK/3'::character varying, 'K/0'::character varying, 'K/1'::character varying, 'K/2'::character varying, 'K/3'::character varying])::text[]))),
     CONSTRAINT karyawans_status_karyawan_check CHECK (((status_karyawan)::text = ANY (ARRAY[('AT'::character varying)::text, ('MD'::character varying)::text, ('PS'::character varying)::text, ('HK'::character varying)::text, ('TM'::character varying)::text]))),
     CONSTRAINT karyawans_status_keluarga_check CHECK (((status_keluarga)::text = ANY (ARRAY[('MENIKAH'::character varying)::text, ('BELUM MENIKAH'::character varying)::text, ('CERAI'::character varying)::text])))
 );
 
 
 ALTER TABLE public.karyawans OWNER TO ict;
+
+--
+-- TOC entry 338 (class 1259 OID 65591)
+-- Name: keluarga_karyawans; Type: TABLE; Schema: public; Owner: cybernova
+--
+
+CREATE TABLE public.keluarga_karyawans (
+    id bigint NOT NULL,
+    karyawan_id character varying(255) NOT NULL,
+    hubungan character varying(255) NOT NULL,
+    nama character varying(255) NOT NULL,
+    tempat_lahir character varying(255),
+    tanggal_lahir date,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+ALTER TABLE public.keluarga_karyawans OWNER TO cybernova;
+
+--
+-- TOC entry 337 (class 1259 OID 65590)
+-- Name: keluarga_karyawans_id_seq; Type: SEQUENCE; Schema: public; Owner: cybernova
+--
+
+CREATE SEQUENCE public.keluarga_karyawans_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.keluarga_karyawans_id_seq OWNER TO cybernova;
+
+--
+-- TOC entry 5766 (class 0 OID 0)
+-- Dependencies: 337
+-- Name: keluarga_karyawans_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: cybernova
+--
+
+ALTER SEQUENCE public.keluarga_karyawans_id_seq OWNED BY public.keluarga_karyawans.id;
+
 
 --
 -- TOC entry 274 (class 1259 OID 49202)
@@ -1696,7 +1741,7 @@ CREATE SEQUENCE public.ksk_change_histories_id_ksk_change_history_seq
 ALTER SEQUENCE public.ksk_change_histories_id_ksk_change_history_seq OWNER TO ict;
 
 --
--- TOC entry 5742 (class 0 OID 0)
+-- TOC entry 5767 (class 0 OID 0)
 -- Dependencies: 277
 -- Name: ksk_change_histories_id_ksk_change_history_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -1759,7 +1804,7 @@ CREATE SEQUENCE public.ksk_details_id_ksk_detail_seq
 ALTER SEQUENCE public.ksk_details_id_ksk_detail_seq OWNER TO ict;
 
 --
--- TOC entry 5743 (class 0 OID 0)
+-- TOC entry 5768 (class 0 OID 0)
 -- Dependencies: 279
 -- Name: ksk_details_id_ksk_detail_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -1805,7 +1850,7 @@ CREATE SEQUENCE public.lembur_harians_id_lembur_harian_seq
 ALTER SEQUENCE public.lembur_harians_id_lembur_harian_seq OWNER TO ict;
 
 --
--- TOC entry 5744 (class 0 OID 0)
+-- TOC entry 5769 (class 0 OID 0)
 -- Dependencies: 281
 -- Name: lembur_harians_id_lembur_harian_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -1891,7 +1936,7 @@ CREATE SEQUENCE public.migrations_id_seq
 ALTER SEQUENCE public.migrations_id_seq OWNER TO ict;
 
 --
--- TOC entry 5745 (class 0 OID 0)
+-- TOC entry 5770 (class 0 OID 0)
 -- Dependencies: 284
 -- Name: migrations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -2007,7 +2052,7 @@ CREATE SEQUENCE public.pajak_lemburs_id_seq
 ALTER SEQUENCE public.pajak_lemburs_id_seq OWNER TO ict;
 
 --
--- TOC entry 5746 (class 0 OID 0)
+-- TOC entry 5771 (class 0 OID 0)
 -- Dependencies: 290
 -- Name: pajak_lemburs_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -2061,7 +2106,7 @@ CREATE SEQUENCE public.permissions_id_seq
 ALTER SEQUENCE public.permissions_id_seq OWNER TO ict;
 
 --
--- TOC entry 5747 (class 0 OID 0)
+-- TOC entry 5772 (class 0 OID 0)
 -- Dependencies: 293
 -- Name: permissions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -2106,7 +2151,7 @@ CREATE SEQUENCE public.personal_access_tokens_id_seq
 ALTER SEQUENCE public.personal_access_tokens_id_seq OWNER TO ict;
 
 --
--- TOC entry 5748 (class 0 OID 0)
+-- TOC entry 5773 (class 0 OID 0)
 -- Dependencies: 295
 -- Name: personal_access_tokens_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -2149,7 +2194,7 @@ CREATE SEQUENCE public.pikets_id_piket_seq
 ALTER SEQUENCE public.pikets_id_piket_seq OWNER TO ict;
 
 --
--- TOC entry 5749 (class 0 OID 0)
+-- TOC entry 5774 (class 0 OID 0)
 -- Dependencies: 297
 -- Name: pikets_id_piket_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -2225,7 +2270,7 @@ CREATE SEQUENCE public.rekap_lembur_id_seq
 ALTER SEQUENCE public.rekap_lembur_id_seq OWNER TO ict;
 
 --
--- TOC entry 5750 (class 0 OID 0)
+-- TOC entry 5775 (class 0 OID 0)
 -- Dependencies: 300
 -- Name: rekap_lembur_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -2276,12 +2321,53 @@ CREATE SEQUENCE public.rekap_lembur_summary_id_seq
 ALTER SEQUENCE public.rekap_lembur_summary_id_seq OWNER TO ict;
 
 --
--- TOC entry 5751 (class 0 OID 0)
+-- TOC entry 5776 (class 0 OID 0)
 -- Dependencies: 302
 -- Name: rekap_lembur_summary_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
 
 ALTER SEQUENCE public.rekap_lembur_summary_id_seq OWNED BY public.rekap_lembur_summary.id;
+
+
+--
+-- TOC entry 340 (class 1259 OID 65605)
+-- Name: rekap_manpower_histories; Type: TABLE; Schema: public; Owner: cybernova
+--
+
+CREATE TABLE public.rekap_manpower_histories (
+    id bigint NOT NULL,
+    period date NOT NULL,
+    organisasi_id bigint,
+    data json NOT NULL,
+    created_at timestamp(0) without time zone,
+    updated_at timestamp(0) without time zone
+);
+
+
+ALTER TABLE public.rekap_manpower_histories OWNER TO cybernova;
+
+--
+-- TOC entry 339 (class 1259 OID 65604)
+-- Name: rekap_manpower_histories_id_seq; Type: SEQUENCE; Schema: public; Owner: cybernova
+--
+
+CREATE SEQUENCE public.rekap_manpower_histories_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.rekap_manpower_histories_id_seq OWNER TO cybernova;
+
+--
+-- TOC entry 5777 (class 0 OID 0)
+-- Dependencies: 339
+-- Name: rekap_manpower_histories_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: cybernova
+--
+
+ALTER SEQUENCE public.rekap_manpower_histories_id_seq OWNED BY public.rekap_manpower_histories.id;
 
 
 --
@@ -2316,7 +2402,7 @@ CREATE SEQUENCE public.rekap_manpower_history_id_seq
 ALTER SEQUENCE public.rekap_manpower_history_id_seq OWNER TO ict;
 
 --
--- TOC entry 5752 (class 0 OID 0)
+-- TOC entry 5778 (class 0 OID 0)
 -- Dependencies: 304
 -- Name: rekap_manpower_history_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -2358,7 +2444,7 @@ CREATE SEQUENCE public.reset_cutis_id_reset_cuti_seq
 ALTER SEQUENCE public.reset_cutis_id_reset_cuti_seq OWNER TO ict;
 
 --
--- TOC entry 5753 (class 0 OID 0)
+-- TOC entry 5779 (class 0 OID 0)
 -- Dependencies: 306
 -- Name: reset_cutis_id_reset_cuti_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -2411,7 +2497,7 @@ CREATE SEQUENCE public.roles_id_seq
 ALTER SEQUENCE public.roles_id_seq OWNER TO ict;
 
 --
--- TOC entry 5754 (class 0 OID 0)
+-- TOC entry 5780 (class 0 OID 0)
 -- Dependencies: 309
 -- Name: roles_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -2467,7 +2553,7 @@ CREATE SEQUENCE public.sakits_id_sakit_seq
 ALTER SEQUENCE public.sakits_id_sakit_seq OWNER TO ict;
 
 --
--- TOC entry 5755 (class 0 OID 0)
+-- TOC entry 5781 (class 0 OID 0)
 -- Dependencies: 311
 -- Name: sakits_id_sakit_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -2509,7 +2595,7 @@ CREATE SEQUENCE public.seksis_id_seksi_seq
 ALTER SEQUENCE public.seksis_id_seksi_seq OWNER TO ict;
 
 --
--- TOC entry 5756 (class 0 OID 0)
+-- TOC entry 5782 (class 0 OID 0)
 -- Dependencies: 312
 -- Name: seksis_id_seksi_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -2571,7 +2657,7 @@ CREATE SEQUENCE public.setting_lembur_karyawans_id_setting_lembur_karyawan_seq
 ALTER SEQUENCE public.setting_lembur_karyawans_id_setting_lembur_karyawan_seq OWNER TO ict;
 
 --
--- TOC entry 5757 (class 0 OID 0)
+-- TOC entry 5783 (class 0 OID 0)
 -- Dependencies: 315
 -- Name: setting_lembur_karyawans_id_setting_lembur_karyawan_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -2614,7 +2700,7 @@ CREATE SEQUENCE public.setting_lemburs_id_setting_lembur_seq
 ALTER SEQUENCE public.setting_lemburs_id_setting_lembur_seq OWNER TO ict;
 
 --
--- TOC entry 5758 (class 0 OID 0)
+-- TOC entry 5784 (class 0 OID 0)
 -- Dependencies: 317
 -- Name: setting_lemburs_id_setting_lembur_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -2657,7 +2743,7 @@ CREATE SEQUENCE public.setting_tugasluars_id_setting_tugasluar_seq
 ALTER SEQUENCE public.setting_tugasluars_id_setting_tugasluar_seq OWNER TO ict;
 
 --
--- TOC entry 5759 (class 0 OID 0)
+-- TOC entry 5785 (class 0 OID 0)
 -- Dependencies: 319
 -- Name: setting_tugasluars_id_setting_tugasluar_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -2706,7 +2792,7 @@ CREATE SEQUENCE public.slip_lembur_karyawans_id_seq
 ALTER SEQUENCE public.slip_lembur_karyawans_id_seq OWNER TO ict;
 
 --
--- TOC entry 5760 (class 0 OID 0)
+-- TOC entry 5786 (class 0 OID 0)
 -- Dependencies: 321
 -- Name: slip_lembur_karyawans_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -2753,7 +2839,7 @@ CREATE SEQUENCE public.sto_headers_id_sto_header_seq
 ALTER SEQUENCE public.sto_headers_id_sto_header_seq OWNER TO ict;
 
 --
--- TOC entry 5761 (class 0 OID 0)
+-- TOC entry 5787 (class 0 OID 0)
 -- Dependencies: 323
 -- Name: sto_headers_id_sto_header_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -2816,7 +2902,7 @@ CREATE SEQUENCE public.sto_lines_id_sto_line_seq
 ALTER SEQUENCE public.sto_lines_id_sto_line_seq OWNER TO ict;
 
 --
--- TOC entry 5762 (class 0 OID 0)
+-- TOC entry 5788 (class 0 OID 0)
 -- Dependencies: 325
 -- Name: sto_lines_id_sto_line_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -2871,7 +2957,7 @@ CREATE SEQUENCE public.sto_upload_id_sto_upload_seq
 ALTER SEQUENCE public.sto_upload_id_sto_upload_seq OWNER TO ict;
 
 --
--- TOC entry 5763 (class 0 OID 0)
+-- TOC entry 5789 (class 0 OID 0)
 -- Dependencies: 327
 -- Name: sto_upload_id_sto_upload_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -2917,7 +3003,7 @@ CREATE SEQUENCE public.templates_id_template_seq
 ALTER SEQUENCE public.templates_id_template_seq OWNER TO ict;
 
 --
--- TOC entry 5764 (class 0 OID 0)
+-- TOC entry 5790 (class 0 OID 0)
 -- Dependencies: 329
 -- Name: templates_id_template_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -3016,7 +3102,7 @@ CREATE SEQUENCE public.turnovers_id_turnover_seq
 ALTER SEQUENCE public.turnovers_id_turnover_seq OWNER TO ict;
 
 --
--- TOC entry 5765 (class 0 OID 0)
+-- TOC entry 5791 (class 0 OID 0)
 -- Dependencies: 332
 -- Name: turnovers_id_turnover_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -3060,7 +3146,7 @@ CREATE SEQUENCE public.users_id_seq
 ALTER SEQUENCE public.users_id_seq OWNER TO ict;
 
 --
--- TOC entry 5766 (class 0 OID 0)
+-- TOC entry 5792 (class 0 OID 0)
 -- Dependencies: 334
 -- Name: users_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: ict
 --
@@ -3069,7 +3155,7 @@ ALTER SEQUENCE public.users_id_seq OWNED BY public.users.id;
 
 
 --
--- TOC entry 4964 (class 2604 OID 49444)
+-- TOC entry 4974 (class 2604 OID 49444)
 -- Name: activity_log id; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3077,7 +3163,7 @@ ALTER TABLE ONLY public.activity_log ALTER COLUMN id SET DEFAULT nextval('public
 
 
 --
--- TOC entry 4965 (class 2604 OID 49445)
+-- TOC entry 4975 (class 2604 OID 49445)
 -- Name: approval_cutis id_approval_cuti; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3085,7 +3171,7 @@ ALTER TABLE ONLY public.approval_cutis ALTER COLUMN id_approval_cuti SET DEFAULT
 
 
 --
--- TOC entry 4966 (class 2604 OID 49446)
+-- TOC entry 4976 (class 2604 OID 49446)
 -- Name: attachment_ksk_details id_attachment_ksk_detail; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3093,7 +3179,7 @@ ALTER TABLE ONLY public.attachment_ksk_details ALTER COLUMN id_attachment_ksk_de
 
 
 --
--- TOC entry 4967 (class 2604 OID 49447)
+-- TOC entry 4977 (class 2604 OID 49447)
 -- Name: attachment_lemburs id_attachment_lembur; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3101,7 +3187,7 @@ ALTER TABLE ONLY public.attachment_lemburs ALTER COLUMN id_attachment_lembur SET
 
 
 --
--- TOC entry 4968 (class 2604 OID 49448)
+-- TOC entry 4978 (class 2604 OID 49448)
 -- Name: attendance_devices id_device; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3109,7 +3195,7 @@ ALTER TABLE ONLY public.attendance_devices ALTER COLUMN id_device SET DEFAULT ne
 
 
 --
--- TOC entry 4969 (class 2604 OID 49449)
+-- TOC entry 4979 (class 2604 OID 49449)
 -- Name: attendance_gps id_att_gps; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3117,7 +3203,7 @@ ALTER TABLE ONLY public.attendance_gps ALTER COLUMN id_att_gps SET DEFAULT nextv
 
 
 --
--- TOC entry 4970 (class 2604 OID 49450)
+-- TOC entry 4980 (class 2604 OID 49450)
 -- Name: attendance_karyawan_grup id; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3125,7 +3211,7 @@ ALTER TABLE ONLY public.attendance_karyawan_grup ALTER COLUMN id SET DEFAULT nex
 
 
 --
--- TOC entry 4974 (class 2604 OID 49451)
+-- TOC entry 4984 (class 2604 OID 49451)
 -- Name: attendance_scanlogs id_scanlog; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3133,7 +3219,7 @@ ALTER TABLE ONLY public.attendance_scanlogs ALTER COLUMN id_scanlog SET DEFAULT 
 
 
 --
--- TOC entry 4975 (class 2604 OID 49452)
+-- TOC entry 4985 (class 2604 OID 49452)
 -- Name: attendance_summaries id_att_summary; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3141,7 +3227,7 @@ ALTER TABLE ONLY public.attendance_summaries ALTER COLUMN id_att_summary SET DEF
 
 
 --
--- TOC entry 5044 (class 2604 OID 49453)
+-- TOC entry 5054 (class 2604 OID 49453)
 -- Name: cleareance_details id_cleareance_detail; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3149,7 +3235,7 @@ ALTER TABLE ONLY public.cleareance_details ALTER COLUMN id_cleareance_detail SET
 
 
 --
--- TOC entry 5046 (class 2604 OID 49454)
+-- TOC entry 5056 (class 2604 OID 49454)
 -- Name: cleareance_settings id_cleareance_setting; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3157,7 +3243,7 @@ ALTER TABLE ONLY public.cleareance_settings ALTER COLUMN id_cleareance_setting S
 
 
 --
--- TOC entry 5048 (class 2604 OID 49455)
+-- TOC entry 5058 (class 2604 OID 49455)
 -- Name: cutis id_cuti; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3165,7 +3251,7 @@ ALTER TABLE ONLY public.cutis ALTER COLUMN id_cuti SET DEFAULT nextval('public.c
 
 
 --
--- TOC entry 5052 (class 2604 OID 50076)
+-- TOC entry 5062 (class 2604 OID 50076)
 -- Name: departemens id_departemen; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3173,7 +3259,7 @@ ALTER TABLE ONLY public.departemens ALTER COLUMN id_departemen SET DEFAULT nextv
 
 
 --
--- TOC entry 5053 (class 2604 OID 49457)
+-- TOC entry 5063 (class 2604 OID 49457)
 -- Name: detail_lemburs id_detail_lembur; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3181,7 +3267,7 @@ ALTER TABLE ONLY public.detail_lemburs ALTER COLUMN id_detail_lembur SET DEFAULT
 
 
 --
--- TOC entry 5063 (class 2604 OID 49458)
+-- TOC entry 5073 (class 2604 OID 49458)
 -- Name: detail_millages id_detail_millage; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3189,7 +3275,7 @@ ALTER TABLE ONLY public.detail_millages ALTER COLUMN id_detail_millage SET DEFAU
 
 
 --
--- TOC entry 5066 (class 2604 OID 49459)
+-- TOC entry 5076 (class 2604 OID 49459)
 -- Name: detail_tugasluars id_detail_tugasluar; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3197,7 +3283,7 @@ ALTER TABLE ONLY public.detail_tugasluars ALTER COLUMN id_detail_tugasluar SET D
 
 
 --
--- TOC entry 5069 (class 2604 OID 49461)
+-- TOC entry 5079 (class 2604 OID 49461)
 -- Name: events id_event; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3205,7 +3291,7 @@ ALTER TABLE ONLY public.events ALTER COLUMN id_event SET DEFAULT nextval('public
 
 
 --
--- TOC entry 5070 (class 2604 OID 49462)
+-- TOC entry 5080 (class 2604 OID 49462)
 -- Name: export_slip_lemburs id_export_slip_lembur; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3213,7 +3299,7 @@ ALTER TABLE ONLY public.export_slip_lemburs ALTER COLUMN id_export_slip_lembur S
 
 
 --
--- TOC entry 5072 (class 2604 OID 49463)
+-- TOC entry 5082 (class 2604 OID 49463)
 -- Name: failed_jobs id; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3221,7 +3307,7 @@ ALTER TABLE ONLY public.failed_jobs ALTER COLUMN id SET DEFAULT nextval('public.
 
 
 --
--- TOC entry 5074 (class 2604 OID 49464)
+-- TOC entry 5084 (class 2604 OID 49464)
 -- Name: gaji_departemens id_gaji_departemen; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3229,7 +3315,7 @@ ALTER TABLE ONLY public.gaji_departemens ALTER COLUMN id_gaji_departemen SET DEF
 
 
 --
--- TOC entry 5078 (class 2604 OID 49465)
+-- TOC entry 5088 (class 2604 OID 49465)
 -- Name: grup_patterns id_grup_pattern; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3237,7 +3323,7 @@ ALTER TABLE ONLY public.grup_patterns ALTER COLUMN id_grup_pattern SET DEFAULT n
 
 
 --
--- TOC entry 5079 (class 2604 OID 49466)
+-- TOC entry 5089 (class 2604 OID 49466)
 -- Name: grups id_grup; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3245,7 +3331,7 @@ ALTER TABLE ONLY public.grups ALTER COLUMN id_grup SET DEFAULT nextval('public.g
 
 
 --
--- TOC entry 5084 (class 2604 OID 49468)
+-- TOC entry 5094 (class 2604 OID 49468)
 -- Name: jenis_cutis id_jenis_cuti; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3253,7 +3339,7 @@ ALTER TABLE ONLY public.jenis_cutis ALTER COLUMN id_jenis_cuti SET DEFAULT nextv
 
 
 --
--- TOC entry 5087 (class 2604 OID 49469)
+-- TOC entry 5097 (class 2604 OID 49469)
 -- Name: jenis_kontraks id; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3261,7 +3347,7 @@ ALTER TABLE ONLY public.jenis_kontraks ALTER COLUMN id SET DEFAULT nextval('publ
 
 
 --
--- TOC entry 5088 (class 2604 OID 49470)
+-- TOC entry 5098 (class 2604 OID 49470)
 -- Name: jobs id; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3269,7 +3355,7 @@ ALTER TABLE ONLY public.jobs ALTER COLUMN id SET DEFAULT nextval('public.jobs_id
 
 
 --
--- TOC entry 5089 (class 2604 OID 49471)
+-- TOC entry 5099 (class 2604 OID 49471)
 -- Name: karyawan_posisi id; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3277,7 +3363,15 @@ ALTER TABLE ONLY public.karyawan_posisi ALTER COLUMN id SET DEFAULT nextval('pub
 
 
 --
--- TOC entry 5098 (class 2604 OID 49472)
+-- TOC entry 5176 (class 2604 OID 65594)
+-- Name: keluarga_karyawans id; Type: DEFAULT; Schema: public; Owner: cybernova
+--
+
+ALTER TABLE ONLY public.keluarga_karyawans ALTER COLUMN id SET DEFAULT nextval('public.keluarga_karyawans_id_seq'::regclass);
+
+
+--
+-- TOC entry 5108 (class 2604 OID 49472)
 -- Name: ksk_change_histories id_ksk_change_history; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3285,7 +3379,7 @@ ALTER TABLE ONLY public.ksk_change_histories ALTER COLUMN id_ksk_change_history 
 
 
 --
--- TOC entry 5099 (class 2604 OID 49473)
+-- TOC entry 5109 (class 2604 OID 49473)
 -- Name: ksk_details id_ksk_detail; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3293,7 +3387,7 @@ ALTER TABLE ONLY public.ksk_details ALTER COLUMN id_ksk_detail SET DEFAULT nextv
 
 
 --
--- TOC entry 5105 (class 2604 OID 49474)
+-- TOC entry 5115 (class 2604 OID 49474)
 -- Name: lembur_harians id_lembur_harian; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3301,7 +3395,7 @@ ALTER TABLE ONLY public.lembur_harians ALTER COLUMN id_lembur_harian SET DEFAULT
 
 
 --
--- TOC entry 5112 (class 2604 OID 49475)
+-- TOC entry 5122 (class 2604 OID 49475)
 -- Name: migrations id; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3309,7 +3403,7 @@ ALTER TABLE ONLY public.migrations ALTER COLUMN id SET DEFAULT nextval('public.m
 
 
 --
--- TOC entry 5114 (class 2604 OID 49477)
+-- TOC entry 5124 (class 2604 OID 49477)
 -- Name: pajak_lemburs id; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3317,7 +3411,7 @@ ALTER TABLE ONLY public.pajak_lemburs ALTER COLUMN id SET DEFAULT nextval('publi
 
 
 --
--- TOC entry 5116 (class 2604 OID 49478)
+-- TOC entry 5126 (class 2604 OID 49478)
 -- Name: permissions id; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3325,7 +3419,7 @@ ALTER TABLE ONLY public.permissions ALTER COLUMN id SET DEFAULT nextval('public.
 
 
 --
--- TOC entry 5117 (class 2604 OID 49479)
+-- TOC entry 5127 (class 2604 OID 49479)
 -- Name: personal_access_tokens id; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3333,7 +3427,7 @@ ALTER TABLE ONLY public.personal_access_tokens ALTER COLUMN id SET DEFAULT nextv
 
 
 --
--- TOC entry 5118 (class 2604 OID 49480)
+-- TOC entry 5128 (class 2604 OID 49480)
 -- Name: pikets id_piket; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3341,7 +3435,7 @@ ALTER TABLE ONLY public.pikets ALTER COLUMN id_piket SET DEFAULT nextval('public
 
 
 --
--- TOC entry 5119 (class 2604 OID 49482)
+-- TOC entry 5129 (class 2604 OID 49482)
 -- Name: rekap_lembur id; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3349,7 +3443,7 @@ ALTER TABLE ONLY public.rekap_lembur ALTER COLUMN id SET DEFAULT nextval('public
 
 
 --
--- TOC entry 5121 (class 2604 OID 49483)
+-- TOC entry 5131 (class 2604 OID 49483)
 -- Name: rekap_lembur_summary id; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3357,7 +3451,15 @@ ALTER TABLE ONLY public.rekap_lembur_summary ALTER COLUMN id SET DEFAULT nextval
 
 
 --
--- TOC entry 5123 (class 2604 OID 49484)
+-- TOC entry 5177 (class 2604 OID 65608)
+-- Name: rekap_manpower_histories id; Type: DEFAULT; Schema: public; Owner: cybernova
+--
+
+ALTER TABLE ONLY public.rekap_manpower_histories ALTER COLUMN id SET DEFAULT nextval('public.rekap_manpower_histories_id_seq'::regclass);
+
+
+--
+-- TOC entry 5133 (class 2604 OID 49484)
 -- Name: rekap_manpower_history id; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3365,7 +3467,7 @@ ALTER TABLE ONLY public.rekap_manpower_history ALTER COLUMN id SET DEFAULT nextv
 
 
 --
--- TOC entry 5124 (class 2604 OID 49485)
+-- TOC entry 5134 (class 2604 OID 49485)
 -- Name: reset_cutis id_reset_cuti; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3373,7 +3475,7 @@ ALTER TABLE ONLY public.reset_cutis ALTER COLUMN id_reset_cuti SET DEFAULT nextv
 
 
 --
--- TOC entry 5126 (class 2604 OID 50031)
+-- TOC entry 5136 (class 2604 OID 50031)
 -- Name: roles id; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3381,7 +3483,7 @@ ALTER TABLE ONLY public.roles ALTER COLUMN id SET DEFAULT nextval('public.roles_
 
 
 --
--- TOC entry 5127 (class 2604 OID 49487)
+-- TOC entry 5137 (class 2604 OID 49487)
 -- Name: sakits id_sakit; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3389,7 +3491,7 @@ ALTER TABLE ONLY public.sakits ALTER COLUMN id_sakit SET DEFAULT nextval('public
 
 
 --
--- TOC entry 5165 (class 2604 OID 50072)
+-- TOC entry 5175 (class 2604 OID 50072)
 -- Name: seksis id_seksi; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3397,7 +3499,7 @@ ALTER TABLE ONLY public.seksis ALTER COLUMN id_seksi SET DEFAULT nextval('public
 
 
 --
--- TOC entry 5129 (class 2604 OID 49489)
+-- TOC entry 5139 (class 2604 OID 49489)
 -- Name: setting_lembur_karyawans id_setting_lembur_karyawan; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3405,7 +3507,7 @@ ALTER TABLE ONLY public.setting_lembur_karyawans ALTER COLUMN id_setting_lembur_
 
 
 --
--- TOC entry 5131 (class 2604 OID 49490)
+-- TOC entry 5141 (class 2604 OID 49490)
 -- Name: setting_lemburs id_setting_lembur; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3413,7 +3515,7 @@ ALTER TABLE ONLY public.setting_lemburs ALTER COLUMN id_setting_lembur SET DEFAU
 
 
 --
--- TOC entry 5132 (class 2604 OID 49491)
+-- TOC entry 5142 (class 2604 OID 49491)
 -- Name: setting_tugasluars id_setting_tugasluar; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3421,7 +3523,7 @@ ALTER TABLE ONLY public.setting_tugasluars ALTER COLUMN id_setting_tugasluar SET
 
 
 --
--- TOC entry 5133 (class 2604 OID 49492)
+-- TOC entry 5143 (class 2604 OID 49492)
 -- Name: slip_lembur_karyawans id; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3429,7 +3531,7 @@ ALTER TABLE ONLY public.slip_lembur_karyawans ALTER COLUMN id SET DEFAULT nextva
 
 
 --
--- TOC entry 5142 (class 2604 OID 49493)
+-- TOC entry 5152 (class 2604 OID 49493)
 -- Name: sto_headers id_sto_header; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3437,7 +3539,7 @@ ALTER TABLE ONLY public.sto_headers ALTER COLUMN id_sto_header SET DEFAULT nextv
 
 
 --
--- TOC entry 5144 (class 2604 OID 49494)
+-- TOC entry 5154 (class 2604 OID 49494)
 -- Name: sto_lines id_sto_line; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3445,7 +3547,7 @@ ALTER TABLE ONLY public.sto_lines ALTER COLUMN id_sto_line SET DEFAULT nextval('
 
 
 --
--- TOC entry 5146 (class 2604 OID 49495)
+-- TOC entry 5156 (class 2604 OID 49495)
 -- Name: sto_upload id_sto_upload; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3453,7 +3555,7 @@ ALTER TABLE ONLY public.sto_upload ALTER COLUMN id_sto_upload SET DEFAULT nextva
 
 
 --
--- TOC entry 5151 (class 2604 OID 49496)
+-- TOC entry 5161 (class 2604 OID 49496)
 -- Name: templates id_template; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3461,7 +3563,7 @@ ALTER TABLE ONLY public.templates ALTER COLUMN id_template SET DEFAULT nextval('
 
 
 --
--- TOC entry 5163 (class 2604 OID 49497)
+-- TOC entry 5173 (class 2604 OID 49497)
 -- Name: turnovers id_turnover; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3469,7 +3571,7 @@ ALTER TABLE ONLY public.turnovers ALTER COLUMN id_turnover SET DEFAULT nextval('
 
 
 --
--- TOC entry 5164 (class 2604 OID 50032)
+-- TOC entry 5174 (class 2604 OID 50032)
 -- Name: users id; Type: DEFAULT; Schema: public; Owner: ict
 --
 
@@ -3477,7 +3579,7 @@ ALTER TABLE ONLY public.users ALTER COLUMN id SET DEFAULT nextval('public.users_
 
 
 --
--- TOC entry 5589 (class 0 OID 48904)
+-- TOC entry 5609 (class 0 OID 48904)
 -- Dependencies: 215
 -- Data for Name: activity_log; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11034,11 +11136,12 @@ COPY public.activity_log (id, log_name, description, subject_type, subject_id, c
 7567	error_job_summarize_attendance	Summarize attendance - Gagal merekap data presensi - 58510 - HARI RISNAWAN - 2025-10-04 - Silahkan cek kembali settingan shift & grup karyawan ini.	\N	\N	App\\Models\\User	2	[]	2025-10-04 10:02:28	2025-10-04 10:02:28	\N	\N
 7568	job_summarize_attendance	Summarize attendance - 1 datas processed.	\N	\N	App\\Models\\User	2	[]	2025-10-04 10:02:28	2025-10-04 10:02:28	\N	\N
 7569	job_summarize_attendance	Summarize attendance - 1 datas processed.	\N	\N	App\\Models\\User	2	[]	2025-10-04 10:07:09	2025-10-04 10:07:09	\N	\N
+7570	job_summarize_attendance	Summarize attendance - 1 datas processed.	\N	\N	App\\Models\\User	2	[]	2025-10-07 09:52:02	2025-10-07 09:52:02	\N	\N
 \.
 
 
 --
--- TOC entry 5591 (class 0 OID 48910)
+-- TOC entry 5611 (class 0 OID 48910)
 -- Dependencies: 217
 -- Data for Name: approval_cutis; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11048,7 +11151,7 @@ COPY public.approval_cutis (id_approval_cuti, cuti_id, checked1_for, checked1_by
 
 
 --
--- TOC entry 5593 (class 0 OID 48916)
+-- TOC entry 5613 (class 0 OID 48916)
 -- Dependencies: 219
 -- Data for Name: attachment_ksk_details; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11058,7 +11161,7 @@ COPY public.attachment_ksk_details (id_attachment_ksk_detail, ksk_detail_id, pat
 
 
 --
--- TOC entry 5595 (class 0 OID 48920)
+-- TOC entry 5615 (class 0 OID 48920)
 -- Dependencies: 221
 -- Data for Name: attachment_lemburs; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11068,7 +11171,7 @@ COPY public.attachment_lemburs (id_attachment_lembur, lembur_id, path, created_a
 
 
 --
--- TOC entry 5597 (class 0 OID 48926)
+-- TOC entry 5617 (class 0 OID 48926)
 -- Dependencies: 223
 -- Data for Name: attendance_devices; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11083,20 +11186,21 @@ COPY public.attendance_devices (id_device, organisasi_id, cloud_id, device_sn, d
 
 
 --
--- TOC entry 5599 (class 0 OID 48932)
+-- TOC entry 5619 (class 0 OID 48932)
 -- Dependencies: 225
 -- Data for Name: attendance_gps; Type: TABLE DATA; Schema: public; Owner: ict
 --
 
 COPY public.attendance_gps (id_att_gps, karyawan_id, organisasi_id, departemen_id, divisi_id, pin, latitude, longitude, attendance_date, attendance_time, attachment, type, status, scanlog_id, created_at, updated_at, deleted_at) FROM stdin;
 6	ASIPLANT1-HR1758947651112	1	7	2	58510	-6.303524749999999	107.30565075	2025-10-04	2025-10-04 10:06:52	attachment/attendance_gps/uoUHn2.png	TL	IN	16	2025-10-04 10:06:52	2025-10-04 10:07:09	\N
+7	ASIPLANT1-HR1758947651112	1	7	2	58510	-6.30328553368925	107.30551803020212	2025-10-07	2025-10-07 09:45:36	attachment/attendance_gps/wlv9Op.png	TL	IN	18	2025-10-07 09:45:36	2025-10-07 09:52:02	\N
 3	ASIPLANT1-WN1757746669109	1	\N	\N	21126	-6.302998	107.305404	2025-10-02	2025-10-02 10:56:31	attachment/attendance_gps/XXDmva.png	TL	IN	12	2025-10-02 10:56:31	2025-10-02 10:57:37	\N
 4	ASIPLANT1-WN1757746669109	1	\N	\N	21126	-6.302998	107.305404	2025-10-02	2025-10-02 11:00:40	attachment/attendance_gps/3whrve.png	TL	OUT	13	2025-10-02 11:00:40	2025-10-02 11:01:10	\N
 \.
 
 
 --
--- TOC entry 5601 (class 0 OID 48939)
+-- TOC entry 5621 (class 0 OID 48939)
 -- Dependencies: 227
 -- Data for Name: attendance_karyawan_grup; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11109,7 +11213,7 @@ COPY public.attendance_karyawan_grup (id, karyawan_id, organisasi_id, grup_id, a
 
 
 --
--- TOC entry 5603 (class 0 OID 48948)
+-- TOC entry 5623 (class 0 OID 48948)
 -- Dependencies: 229
 -- Data for Name: attendance_scanlogs; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11118,23 +11222,24 @@ COPY public.attendance_scanlogs (id_scanlog, organisasi_id, device_id, start_dat
 12	1	1	2025-10-02	2025-10-02	2025-10-02 10:56:31	0	5	2025-10-02 10:56:31	2025-10-02 10:56:31	21126
 13	1	1	2025-10-02	2025-10-02	2025-10-02 11:00:40	1	5	2025-10-02 11:00:40	2025-10-02 11:00:40	21126
 16	1	1	2025-10-04	2025-10-04	2025-10-04 10:06:52	0	5	2025-10-04 10:06:52	2025-10-04 10:06:52	58510
+18	1	2	2025-10-07	2025-10-07	2025-10-07 09:45:36	0	5	2025-10-07 09:45:36	2025-10-07 09:47:06	58510
 \.
 
 
 --
--- TOC entry 5605 (class 0 OID 48952)
+-- TOC entry 5625 (class 0 OID 48952)
 -- Dependencies: 231
 -- Data for Name: attendance_summaries; Type: TABLE DATA; Schema: public; Owner: ict
 --
 
 COPY public.attendance_summaries (id_att_summary, karyawan_id, pin, periode, organisasi_id, divisi_id, departemen_id, seksi_id, jabatan_id, total_absen, total_sakit, total_izin, total_hadir, keterlambatan, is_cutoff, tanggal1_selisih, tanggal1_status, tanggal1_in, tanggal1_out, tanggal2_selisih, tanggal2_status, tanggal2_in, tanggal2_out, tanggal3_selisih, tanggal3_status, tanggal3_in, tanggal3_out, tanggal4_selisih, tanggal4_status, tanggal4_in, tanggal4_out, tanggal5_selisih, tanggal5_status, tanggal5_in, tanggal5_out, tanggal6_selisih, tanggal6_status, tanggal6_in, tanggal6_out, tanggal7_selisih, tanggal7_status, tanggal7_in, tanggal7_out, tanggal8_selisih, tanggal8_status, tanggal8_in, tanggal8_out, tanggal9_selisih, tanggal9_status, tanggal9_in, tanggal9_out, tanggal10_selisih, tanggal10_status, tanggal10_in, tanggal10_out, tanggal11_selisih, tanggal11_status, tanggal11_in, tanggal11_out, tanggal12_selisih, tanggal12_status, tanggal12_in, tanggal12_out, tanggal13_selisih, tanggal13_status, tanggal13_in, tanggal13_out, tanggal14_selisih, tanggal14_status, tanggal14_in, tanggal14_out, tanggal15_selisih, tanggal15_status, tanggal15_in, tanggal15_out, tanggal16_selisih, tanggal16_status, tanggal16_in, tanggal16_out, tanggal17_selisih, tanggal17_status, tanggal17_in, tanggal17_out, tanggal18_selisih, tanggal18_status, tanggal18_in, tanggal18_out, tanggal19_selisih, tanggal19_status, tanggal19_in, tanggal19_out, tanggal20_selisih, tanggal20_status, tanggal20_in, tanggal20_out, tanggal21_selisih, tanggal21_status, tanggal21_in, tanggal21_out, tanggal22_selisih, tanggal22_status, tanggal22_in, tanggal22_out, tanggal23_selisih, tanggal23_status, tanggal23_in, tanggal23_out, tanggal24_selisih, tanggal24_status, tanggal24_in, tanggal24_out, tanggal25_selisih, tanggal25_status, tanggal25_in, tanggal25_out, tanggal26_selisih, tanggal26_status, tanggal26_in, tanggal26_out, tanggal27_selisih, tanggal27_status, tanggal27_in, tanggal27_out, tanggal28_selisih, tanggal28_status, tanggal28_in, tanggal28_out, tanggal29_selisih, tanggal29_status, tanggal29_in, tanggal29_out, tanggal30_selisih, tanggal30_status, tanggal30_in, tanggal30_out, tanggal31_selisih, tanggal31_status, tanggal31_in, tanggal31_out, created_at, updated_at, deleted_at) FROM stdin;
 1	ASIPLANT1-WN1757746669109	21126	2025-10-01	1	\N	\N	\N	1	0	0	0	0	0	N	0	A	\N	\N	207	H	10:56	11:00	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	2025-10-02 10:57:37	2025-10-02 11:13:24	\N
-2	ASIPLANT1-HR1758947651112	58510	2025-10-01	1	2	7	\N	2	0	0	0	0	0	N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	157	H	10:06	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	2025-10-04 10:07:09	2025-10-04 10:08:41	\N
+2	ASIPLANT1-HR1758947651112	58510	2025-10-01	1	2	7	\N	2	0	0	0	0	0	N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	157	H	10:06	\N	0	A	\N	\N	0	A	\N	\N	136	H	09:45	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	0	A	\N	\N	2025-10-04 10:07:09	2025-10-07 09:53:33	\N
 \.
 
 
 --
--- TOC entry 5607 (class 0 OID 49026)
+-- TOC entry 5627 (class 0 OID 49026)
 -- Dependencies: 233
 -- Data for Name: cache; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11144,7 +11249,7 @@ COPY public.cache (key, value, expiration) FROM stdin;
 
 
 --
--- TOC entry 5608 (class 0 OID 49031)
+-- TOC entry 5628 (class 0 OID 49031)
 -- Dependencies: 234
 -- Data for Name: cache_locks; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11154,7 +11259,7 @@ COPY public.cache_locks (key, owner, expiration) FROM stdin;
 
 
 --
--- TOC entry 5609 (class 0 OID 49036)
+-- TOC entry 5629 (class 0 OID 49036)
 -- Dependencies: 235
 -- Data for Name: cleareance_details; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11164,7 +11269,7 @@ COPY public.cleareance_details (id_cleareance_detail, organisasi_id, cleareance_
 
 
 --
--- TOC entry 5611 (class 0 OID 49043)
+-- TOC entry 5631 (class 0 OID 49043)
 -- Dependencies: 237
 -- Data for Name: cleareance_settings; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11174,7 +11279,7 @@ COPY public.cleareance_settings (id_cleareance_setting, organisasi_id, type, kar
 
 
 --
--- TOC entry 5613 (class 0 OID 49049)
+-- TOC entry 5633 (class 0 OID 49049)
 -- Dependencies: 239
 -- Data for Name: cleareances; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11184,7 +11289,7 @@ COPY public.cleareances (id_cleareance, karyawan_id, organisasi_id, divisi_id, d
 
 
 --
--- TOC entry 5614 (class 0 OID 49055)
+-- TOC entry 5634 (class 0 OID 49055)
 -- Dependencies: 240
 -- Data for Name: cutis; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11194,7 +11299,7 @@ COPY public.cutis (id_cuti, karyawan_id, organisasi_id, penggunaan_sisa_cuti, je
 
 
 --
--- TOC entry 5616 (class 0 OID 49066)
+-- TOC entry 5636 (class 0 OID 49066)
 -- Dependencies: 242
 -- Data for Name: departemens; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11219,7 +11324,7 @@ COPY public.departemens (id_departemen, divisi_id, nama, deleted_at, created_at,
 
 
 --
--- TOC entry 5617 (class 0 OID 49070)
+-- TOC entry 5637 (class 0 OID 49070)
 -- Dependencies: 243
 -- Data for Name: detail_lemburs; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11229,7 +11334,7 @@ COPY public.detail_lemburs (id_detail_lembur, lembur_id, karyawan_id, organisasi
 
 
 --
--- TOC entry 5619 (class 0 OID 49087)
+-- TOC entry 5639 (class 0 OID 49087)
 -- Dependencies: 245
 -- Data for Name: detail_millages; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11239,7 +11344,7 @@ COPY public.detail_millages (id_detail_millage, organisasi_id, millage_id, type,
 
 
 --
--- TOC entry 5621 (class 0 OID 49095)
+-- TOC entry 5641 (class 0 OID 49095)
 -- Dependencies: 247
 -- Data for Name: detail_tugasluars; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11249,7 +11354,7 @@ COPY public.detail_tugasluars (id_detail_tugasluar, tugasluar_id, karyawan_id, o
 
 
 --
--- TOC entry 5623 (class 0 OID 49103)
+-- TOC entry 5643 (class 0 OID 49103)
 -- Dependencies: 249
 -- Data for Name: divisis; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11262,7 +11367,7 @@ COPY public.divisis (id_divisi, nama, deleted_at, created_at, updated_at) FROM s
 
 
 --
--- TOC entry 5624 (class 0 OID 49107)
+-- TOC entry 5644 (class 0 OID 49107)
 -- Dependencies: 250
 -- Data for Name: events; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11272,7 +11377,7 @@ COPY public.events (id_event, organisasi_id, jenis_event, keterangan, durasi, ta
 
 
 --
--- TOC entry 5626 (class 0 OID 49111)
+-- TOC entry 5646 (class 0 OID 49111)
 -- Dependencies: 252
 -- Data for Name: export_slip_lemburs; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11282,7 +11387,7 @@ COPY public.export_slip_lemburs (id_export_slip_lembur, organisasi_id, departeme
 
 
 --
--- TOC entry 5628 (class 0 OID 49118)
+-- TOC entry 5648 (class 0 OID 49118)
 -- Dependencies: 254
 -- Data for Name: failed_jobs; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11292,7 +11397,7 @@ COPY public.failed_jobs (id, uuid, connection, queue, payload, exception, failed
 
 
 --
--- TOC entry 5630 (class 0 OID 49125)
+-- TOC entry 5650 (class 0 OID 49125)
 -- Dependencies: 256
 -- Data for Name: gaji_departemens; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11302,7 +11407,7 @@ COPY public.gaji_departemens (id_gaji_departemen, departemen_id, periode, total_
 
 
 --
--- TOC entry 5632 (class 0 OID 49132)
+-- TOC entry 5652 (class 0 OID 49132)
 -- Dependencies: 258
 -- Data for Name: grup_patterns; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11313,7 +11418,7 @@ COPY public.grup_patterns (id_grup_pattern, organisasi_id, nama, urutan, created
 
 
 --
--- TOC entry 5634 (class 0 OID 49138)
+-- TOC entry 5654 (class 0 OID 49138)
 -- Dependencies: 260
 -- Data for Name: grups; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11324,7 +11429,7 @@ COPY public.grups (id_grup, nama, deleted_at, created_at, updated_at, toleransi_
 
 
 --
--- TOC entry 5636 (class 0 OID 49145)
+-- TOC entry 5656 (class 0 OID 49145)
 -- Dependencies: 262
 -- Data for Name: izins; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11334,7 +11439,7 @@ COPY public.izins (id_izin, karyawan_id, organisasi_id, departemen_id, divisi_id
 
 
 --
--- TOC entry 5637 (class 0 OID 49152)
+-- TOC entry 5657 (class 0 OID 49152)
 -- Dependencies: 263
 -- Data for Name: jabatans; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11350,7 +11455,7 @@ COPY public.jabatans (id_jabatan, nama, deleted_at, created_at, updated_at) FROM
 
 
 --
--- TOC entry 5638 (class 0 OID 49156)
+-- TOC entry 5658 (class 0 OID 49156)
 -- Dependencies: 264
 -- Data for Name: jenis_cutis; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11360,7 +11465,7 @@ COPY public.jenis_cutis (id_jenis_cuti, jenis, durasi, "isUrgent", deleted_at, c
 
 
 --
--- TOC entry 5640 (class 0 OID 49166)
+-- TOC entry 5660 (class 0 OID 49166)
 -- Dependencies: 266
 -- Data for Name: jenis_kontraks; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11374,7 +11479,7 @@ COPY public.jenis_kontraks (id, nama, created_at, updated_at) FROM stdin;
 
 
 --
--- TOC entry 5642 (class 0 OID 49170)
+-- TOC entry 5662 (class 0 OID 49170)
 -- Dependencies: 268
 -- Data for Name: job_batches; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11384,17 +11489,18 @@ COPY public.job_batches (id, name, total_jobs, pending_jobs, failed_jobs, failed
 
 
 --
--- TOC entry 5643 (class 0 OID 49175)
+-- TOC entry 5663 (class 0 OID 49175)
 -- Dependencies: 269
 -- Data for Name: jobs; Type: TABLE DATA; Schema: public; Owner: ict
 --
 
 COPY public.jobs (id, queue, payload, attempts, reserved_at, available_at, created_at) FROM stdin;
+96	default	{"uuid":"7f407448-a16c-448e-aa4b-55a7a02c5aee","displayName":"App\\\\Jobs\\\\SummarizeAttendanceJob","job":"Illuminate\\\\Queue\\\\CallQueuedHandler@call","maxTries":3,"maxExceptions":null,"failOnTimeout":false,"backoff":null,"timeout":1800,"retryUntil":null,"data":{"commandName":"App\\\\Jobs\\\\SummarizeAttendanceJob","command":"O:31:\\"App\\\\Jobs\\\\SummarizeAttendanceJob\\":4:{s:7:\\"\\u0000*\\u0000data\\";a:1:{i:0;s:5:\\"58510\\";}s:16:\\"\\u0000*\\u0000organisasi_id\\";i:1;s:7:\\"\\u0000*\\u0000user\\";O:45:\\"Illuminate\\\\Contracts\\\\Database\\\\ModelIdentifier\\":5:{s:5:\\"class\\";s:15:\\"App\\\\Models\\\\User\\";s:2:\\"id\\";i:2;s:9:\\"relations\\";a:1:{i:0;s:5:\\"roles\\";}s:10:\\"connection\\";s:5:\\"pgsql\\";s:15:\\"collectionClass\\";N;}s:10:\\"\\u0000*\\u0000tanggal\\";s:10:\\"2025-10-07\\";}"}}	0	\N	1759805226	1759805226
 \.
 
 
 --
--- TOC entry 5645 (class 0 OID 49181)
+-- TOC entry 5665 (class 0 OID 49181)
 -- Dependencies: 271
 -- Data for Name: karyawan_posisi; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11470,87 +11576,97 @@ COPY public.karyawan_posisi (id, karyawan_id, posisi_id, created_at, updated_at,
 
 
 --
--- TOC entry 5647 (class 0 OID 49185)
+-- TOC entry 5667 (class 0 OID 49185)
 -- Dependencies: 273
 -- Data for Name: karyawans; Type: TABLE DATA; Schema: public; Owner: ict
 --
 
-COPY public.karyawans (id_karyawan, ni_karyawan, user_id, grup_id, organisasi_id, no_kk, nik, nama, tempat_lahir, tanggal_lahir, alamat, domisili, email, no_telp, gol_darah, jenis_kelamin, agama, status_keluarga, kategori_keluarga, npwp, no_bpjs_kt, no_bpjs_ks, jenis_kontrak, status_karyawan, sisa_cuti_pribadi, sisa_cuti_bersama, sisa_cuti_tahun_lalu, expired_date_cuti_tahun_lalu, hutang_cuti, no_rekening, nama_rekening, nama_bank, nama_ibu_kandung, jenjang_pendidikan, jurusan_pendidikan, no_telp_darurat, tanggal_mulai, tanggal_selesai, foto, created_at, updated_at, deleted_at, pin, grup_pattern_id, direct, indirect) FROM stdin;
-ASIPLANT1-FN1757746669803	3214-0002	5	\N	1	3215050101040001	3215050101040001	FAJAR NUR FARRIJAL	BANDUNG	2004-01-01	JL. PURWAKARTA, RT.001 RW.001, DS. PURWAKARTA, KEC. PURWAKARTA, KAB. PURWAKARTA, JAWABARAT 41111	JL. PURWAKARTA, RT.001 RW.001, DS. PURWAKARTA, KEC. PURWAKARTA, KAB. PURWAKARTA, JAWABARAT 41111	fajarnurfarrijar@gmail.com	0895806317711	A	L	ISLAM	BELUM MENIKAH	TK0	3215050101040001	9012410101	1402610101	PKWTT	AT	12	0	0	2026-06-02	0	1730006590101	FAJR NUR FARRIJAL	MANDIRI	SUMINAH	S2	INFORMATIKA	0895806317711	2025-06-06	\N	\N	\N	\N	\N	11223	\N	\N	\N
-ASIPLANT1-SA1757746670457	3214-0003	6	\N	1	3215050202040002	3215050202040002	SALFA ALFARISY	KARAWANG	2004-02-02	JL. PURWAKARTA, RT.001 RW.002, DS. PURWAKARTA, KEC. PURWAKARTA, KAB. PURWAKARTA, JAWABARAT 41111	JL. PURWAKARTA, RT.001 RW.002, DS. PURWAKARTA, KEC. PURWAKARTA, KAB. PURWAKARTA, JAWABARAT 41111	salfaalfarisyi@gmail.com	089518976773	B	L	ISLAM	BELUM MENIKAH	TK0	3215050202040002	9012410202	1402610202	PKWTT	AT	12	0	0	2026-06-03	0	1730006590202	SALFA ALFARISYI	MANDIRI	SURATMI	S2	INFORMATIKA	089518976773	2025-06-06	\N	\N	\N	\N	\N	11224	\N	\N	\N
-ASIPLANT1-AN1757746670498	3214-0004	7	\N	1	3215051202030006	3215051202030006	ADHI NUR FAJAR	KARAWANG	2003-02-12	PERUM TERANGSARI E-6/15, RT.001 RW.005, DS. CIBALONGSARI, KEC. KLARI, KAB. KARAWANG, JAWA BARAT 41371	PERUM TERANGSARI E-6/15, RT.001 RW.005, DS. CIBALONGSARI, KEC. KLARI, KAB. KARAWANG, JAWA BARAT 41371	adhinurfajar78@gmail.com	089527897873	B	L	ISLAM	BELUM MENIKAH	TK0	3215051202030006	1234567890	1234567890	PKWTT	AT	12	0	0	2026-01-01	0	1730012020306	ADHI NUR FAJAR	MANDIRI	ELA HAYATI	S2	INFORMATIKA	081382863277	2024-01-01	\N	\N	\N	\N	\N	12023	\N	\N	\N
-ASIPLANT1-CT1757746670239	3214-0019	8	\N	1	3215050303040003	3215050303040003	CHRISTOPAN TANGGUH SANTOSA	KARAWANG	2004-03-03	JL. PURWAKARTA, RT.001 RW.003, DS. PURWAKARTA, KEC. PURWAKARTA, KAB. PURWAKARTA, JAWABARAT 41111	JL. PURWAKARTA, RT.001 RW.003, DS. PURWAKARTA, KEC. PURWAKARTA, KAB. PURWAKARTA, JAWABARAT 41111	christopantangguh@gmail.com	085885960903	O	L	ISLAM	BELUM MENIKAH	TK0	3215050303040003	9012410303	1402610303	PKWTT	AT	12	0	0	2026-01-02	0	1730006590303	CHRISTOPAN TANGGUH SANTOSA	MANDIRI	IJAH	S2	INFORMATIKA	085885960903	2025-06-06	\N	\N	\N	\N	\N	11225	\N	\N	\N
-ASIPLANT1-ML1758947651130	3214-0012	75	\N	1	3215051362664479	3215066207459613	MOCH LUCKY RAMADHAN	KOTA BAU-BAU	1997-03-06	JALAN TUPAREV, RT RT.017/RW.007/RW 00, CENGKONG, PURWASARI, KARAWANG, JAWA BARAT, 41371	JALAN TUPAREV, RT RT.017/RW.007/RW 00, CENGKONG, PURWASARI, KARAWANG, JAWA BARAT, 41371	moch.lucky.ramadhan@gmail.com	081234567890	B	L	ISLAM	BELUM MENIKAH	TK0	3215046490761872	3934402694	1493575085	\N	\N	12	0	0	2026-01-01	0	1730062995422	MOCH LUCKY RAMADHAN	MANDIRI	YULIA	S2	INFORMATIKA	081234567890	2024-12-06	\N	\N	\N	\N	\N	65015	\N	\N	\N
-ASIPLANT1-RF1758947653450	3214-0015	78	\N	1	3215054712790745	3215068224079564	ROFI FEBRIAN AJI	KOTA BEKASI	2001-03-09	JALAN RAYA KLARI, RT RT.009/RW.010/RW 00, PURWASARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	JALAN RAYA KLARI, RT RT.009/RW.010/RW 00, PURWASARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	rofi.febrian.aji@gmail.com	082145667899	AB	L	ISLAM	BELUM MENIKAH	TK0	3215019416248335	6978874158	3545864790	\N	\N	12	0	0	2026-01-04	0	1730050812164	ROFI FEBRIAN AJI	MANDIRI	CACA	S2	INFORMATIKA	082145667899	2024-11-06	\N	\N	\N	\N	\N	35940	\N	\N	\N
-ASIPLANT1-SA1758947653101	3214-0016	79	\N	1	3215096293075051	3215025675381272	SAEFUL AZHAR	TANAH DATAR	1999-06-06	JALAN KARANGSARI, RT RT.011/RW.003/RW 00, SUKASARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	JALAN KARANGSARI, RT RT.011/RW.003/RW 00, SUKASARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	saeful.azhar@gmail.com	083899911122	AB	L	ISLAM	BELUM MENIKAH	TK0	3215004509201353	5732770033	9101357201	\N	\N	12	0	0	2026-01-05	0	1730076809942	SAEFUL AZHAR	MANDIRI	FRISKA 	S2	INFORMATIKA	083899911122	2024-10-13	\N	\N	\N	\N	\N	91462	\N	\N	\N
-ASIPLANT1-KA1758947653530	3214-0017	80	\N	1	3215035745823995	3215061624475676	KHAERUL AMIN	PANGKAJENE DAN KEPULAUAN	1997-10-23	JALAN PANCAWATI INDAH, RT RT.013/RW.012/RW 00, ANGGADITA, KLARI, KARAWANG, JAWA BARAT, 41371	JALAN PANCAWATI INDAH, RT RT.013/RW.012/RW 00, ANGGADITA, KLARI, KARAWANG, JAWA BARAT, 41371	khaerul.amin@gmail.com	085611234567	O	L	ISLAM	BELUM MENIKAH	TK0	3215024454288613	5979863607	4450296854	\N	\N	12	0	0	2026-01-06	0	1730030584196	KHAERUL AMIN	MANDIRI	RATNA	S2	INFORMATIKA	085611234567	2024-12-13	\N	\N	\N	\N	\N	50321	\N	\N	\N
-ASIPLANT1-DA1758947654789	3214-0018	81	\N	1	3215019354881253	3215045292599835	DARYANA	KOTA PAYAKUMBUH	1999-11-18	JALAN PURWADANA, RT RT.020/RW.013/RW 00, PURWASARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	JALAN PURWADANA, RT RT.020/RW.013/RW 00, PURWASARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	daryana@gmail.com	089522233344	O	L	ISLAM	BELUM MENIKAH	TK0	3215012516558873	3659773661	9191684320	\N	\N	12	0	0	2026-01-07	0	1730019625226	DARYANA	MANDIRI	NINA	S2	INFORMATIKA	089522233344	2015-01-15	\N	\N	\N	\N	\N	11096	\N	\N	\N
-ASIPLANT1-RS1758947654935	3124-0101	82	\N	1	3215080480023041	3215096091267514	REZA SATRIA PANGESTU	MANGGARAI BARAT	1996-10-28	JALAN ARIF RAHMAN HAKIM, RT RT.011/RW.007/RW 00, PURWADANA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	JALAN ARIF RAHMAN HAKIM, RT RT.011/RW.007/RW 00, PURWADANA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	reza.satria.pangestu@gmail.com	082188990011	O	L	ISLAM	BELUM MENIKAH	TK0	3215081316188924	2601736073	6610852157	\N	\N	12	0	0	2026-01-09	0	1730051414826	REZA SATRIA PANGESTU	MANDIRI	NURHAYATI	D3	AKUNTANSI	082188990011	2018-04-22	\N	\N	\N	\N	\N	68874	\N	\N	\N
-ASIPLANT1-WN1757746669109	3214-0001	4	1	1	3215052112960002	3215052112960002	WENDI NUGRAHA NURRAHMANSYAH	KARAWANG	1996-12-21	CITRA SWARNA GRANDE CLUSTER KANA K14/16, RT 000 RW 000, DS. PANCAWATI, KEC. KLARI, KAB. KARAWANG, JAWA BARAT 41371	CITRA SWARNA GRANDE CLUSTER KANA K14/16, RT 000 RW 000, DS. PANCAWATI, KEC. KLARI, KAB. KARAWANG, JAWA BARAT 41371	wnnurrahmansyah21@gmail.com	08989815081	B	L	ISLAM	MENIKAH	K2	3215052112960002	9012412112	1402612112	PKWTT	AT	12	0	0	2026-06-01	0	1730006592112	WENDI NUGRAHA NURRAHMANSYAH	MANDIRI	ELA HAYATI	S3	INFORMATIKA	081295524662	2020-06-01	\N	\N	\N	2025-10-02 10:54:37	\N	21126	1	\N	\N
-ASIPLANT1-NA1758947652183	3214-0014	77	\N	1	3215066823972423	3215085441484861	NABIL ADANI ALIM	GROBOGAN	1998-01-13	PERUMAHAN GRAHA KARAWANG, RT RT.011/RW.017/RW 00, ADIARSA BARAT, KARAWANG BARAT, KARAWANG, JAWA BARAT, 41311	PERUMAHAN GRAHA KARAWANG, RT RT.011/RW.017/RW 00, ADIARSA BARAT, KARAWANG BARAT, KARAWANG, JAWA BARAT, 41311	nabil.adani.alim@gmail.com	081299887766	B	L	ISLAM	BELUM MENIKAH	TK0	3215062654745124	5971179959	7968217025	PKWT	AT	12	0	0	2026-01-03	0	1730020976672	NABIL ADANI ALIM	MANDIRI	FITRI	S2	INFORMATIKA	081299887766	2024-08-17	\N	\N	\N	2025-10-04 10:58:08	\N	69387	\N	\N	\N
-ASIPLANT1-RK1758947652191	3214-0013	76	\N	1	3215030827593481	3215037718862586	ROFIQ KHOLID	TIMOR TENGAH SELATAN	2000-07-15	JALAN TUPAREV, RT RT.005/RW.014/RW 00, CIBALONGSARI, KLARI, KARAWANG, JAWA BARAT, 41371	JALAN TUPAREV, RT RT.005/RW.014/RW 00, CIBALONGSARI, KLARI, KARAWANG, JAWA BARAT, 41371	rofiq.kholid@gmail.com	081377812345	A	L	ISLAM	BELUM MENIKAH	TK0	3215022631250086	4033320356	7936561467	PKWT	AT	12	0	0	2026-01-02	0	1730079021045	ROFIQ KHOLID	MANDIRI	HANI	S2	INFORMATIKA	081377812345	2024-03-23	\N	\N	\N	2025-10-04 11:37:53	\N	40620	\N	\N	\N
-ASIPLANT1-RS1758947655838	3214-0103	83	\N	1	3215093985224651	3215051694899910	RIVVERO SALSADILA	KONAWE UTARA	1994-01-07	JALAN INDUSTRI RAYA, RT RT.011/RW.017/RW 00, MEKARSARI, JATISARI, KARAWANG, JAWA BARAT, 41374	JALAN INDUSTRI RAYA, RT RT.011/RW.017/RW 00, MEKARSARI, JATISARI, KARAWANG, JAWA BARAT, 41374	rivvero.salsadila@gmail.com	085678912345	A	L	ISLAM	BELUM MENIKAH	TK0	3215019744523544	3864340963	2720497288	\N	\N	12	0	0	2026-01-10	0	1730057952918	RIVVERO SALSADILA	MANDIRI	DEWI LESTARI	S1	TEKNIK INFORMATIKA	085678912345	2019-05-30	\N	\N	\N	\N	\N	35211	\N	\N	\N
-ASIPLANT1-AN1758947655736	3214-0104	84	\N	1	3215082526428884	3215045817842947	ADE NASIHUL UMAM	NAGEKEO	1995-03-22	JALAN BYPASS KARAWANG, RT RT.012/RW.017/RW 00, PURWADANA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	JALAN BYPASS KARAWANG, RT RT.012/RW.017/RW 00, PURWADANA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	ade.nasihul.umam@gmail.com	089577899000	A	L	ISLAM	BELUM MENIKAH	TK0	3215052228000621	6786304524	2510252848	\N	\N	12	0	0	2026-01-11	0	1730093426405	ADE NASIHUL UMAM	MANDIRI	SRI WAHYUNI	S2	MANAJEMEN	089577899000	2020-06-25	\N	\N	\N	\N	\N	17142	\N	\N	\N
-ASIPLANT1-AA1758947656319	3214-0105	85	\N	1	3215034288393869	3215078088878339	AHMAD AGUS ABDULLAH	SUPIORI	1997-09-30	JALAN ANGGADITA, RT RT.007/RW.019/RW 00, BALONGGANDU, JATISARI, KARAWANG, JAWA BARAT, 41374	JALAN ANGGADITA, RT RT.007/RW.019/RW 00, BALONGGANDU, JATISARI, KARAWANG, JAWA BARAT, 41374	ahmad.agus.abdullah@gmail.com	081311122233	AB	L	ISLAM	MENIKAH	K1	3215067135550657	6576225239	2982644902	\N	\N	12	0	0	2026-01-12	0	1730056398514	AHMAD AGUS ABDULLAH	MANDIRI	RINA MARLINA	SMA	IPS	081311122233	2021-07-02	\N	\N	\N	\N	\N	57872	\N	\N	\N
-ASIPLANT1-BB1758947656578	3214-0106	86	\N	1	3215073267607449	3215003515242681	BUDI BAYU BAGUS	BURU SELATAN	1992-11-25	JALAN SIRNABAYA, RT RT.014/RW.005/RW 00, PURWASARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	JALAN SIRNABAYA, RT RT.014/RW.005/RW 00, PURWASARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	budi.bayu.bagus@gmail.com	083877788899	AB	L	ISLAM	BELUM MENIKAH	TK0	3215075494027381	8974971502	9016816503	\N	\N	12	0	0	2026-01-13	0	1730034500238	BUDI BAYU BAGUS	MANDIRI	TUTI HANDAYANI	SMA	IPA	083877788899	2015-08-09	\N	\N	\N	\N	\N	48507	\N	\N	\N
-ASIPLANT1-CC1758947656256	3214-0107	87	\N	1	3215087001721128	3215021817771626	CITRA CAHYA CAHYONO	KOTA TANGERANG SELATAN	1995-04-02	JALAN TELAGASARI, RT RT.002/RW.005/RW 00, ADIARSA BARAT, KARAWANG BARAT, KARAWANG, JAWA BARAT, 41311	JALAN TELAGASARI, RT RT.002/RW.005/RW 00, ADIARSA BARAT, KARAWANG BARAT, KARAWANG, JAWA BARAT, 41311	citra.cahya.cahyono@gmail.com	082211233344	A	P	ISLAM	MENIKAH	K1	3215066586230807	1219469030	1983430305	\N	\N	12	0	0	2026-01-14	0	1730093920382	CITRA CAHYA CAHYONO	MANDIRI	ANI KARTIKA	S1	HUKUM	082211233344	2016-09-14	\N	\N	\N	\N	\N	21820	\N	\N	\N
-ASIPLANT1-DD1758947657712	3214-0108	88	\N	1	3215045165160992	3215076939980089	DEWI DARMA DARMADI	BLORA	1993-06-09	PERUMAHAN KARAWANG INDAH, RT RT.020/RW.003/RW 00, JATIWANGI, JATISARI, KARAWANG, JAWA BARAT, 41374	PERUMAHAN KARAWANG INDAH, RT RT.020/RW.003/RW 00, JATIWANGI, JATISARI, KARAWANG, JAWA BARAT, 41374	dewi.darma.darmadi@gmail.com	089588899900	A	P	ISLAM	BELUM MENIKAH	TK0	3215010970871296	6351787744	9751539506	\N	\N	12	0	0	2026-01-15	0	1730013126380	DEWI DARMA DARMADI	MANDIRI	FITRIANI	D3	MANAJEMEN INFORMATIKA	089588899900	2017-10-27	\N	\N	\N	\N	\N	99459	\N	\N	\N
-ASIPLANT1-EE1758947657338	3214-0109	89	\N	1	3215068353932671	3215041978011255	EKO EDI EFFENDI	BOMBANA	1994-08-14	PERUMAHAN GRAND TARUMA, RT RT.017/RW.014/RW 00, DUREN, KLARI, KARAWANG, JAWA BARAT, 41371	PERUMAHAN GRAND TARUMA, RT RT.017/RW.014/RW 00, DUREN, KLARI, KARAWANG, JAWA BARAT, 41371	eko.edi.effendi@gmail.com	085655544433	B	L	ISLAM	MENIKAH	K2	3215030570791906	5711390872	3193556663	\N	\N	12	0	0	2026-01-16	0	1730038628309	EKO EDI EFFENDI	MANDIRI	NURLAILA	S1	SISTEM INFORMASI	085655544433	2018-11-11	\N	\N	\N	\N	\N	68967	\N	\N	\N
-ASIPLANT1-FF1758947658185	3214-0201	90	\N	1	3215012566562638	3215063114974826	FAJAR FAUZI FIRMANSYAH	SERAM BAGIAN BARAT	1996-12-27	JALAN PURWADANA, RT RT.008/RW.007/RW 00, PANCAWATI, KLARI, KARAWANG, JAWA BARAT, 41371	JALAN PURWADANA, RT RT.008/RW.007/RW 00, PANCAWATI, KLARI, KARAWANG, JAWA BARAT, 41371	fajar.fauzi.firmansyah@gmail.com	081233344455	A	L	ISLAM	BELUM MENIKAH	TK0	3215046227495390	3272616223	2159741606	\N	\N	12	0	0	2026-01-17	0	1730056027141	FAJAR FAUZI FIRMANSYAH	MANDIRI	SITI FATIMAH	SMA	IPS	081233344455	2019-12-20	\N	\N	\N	\N	\N	25473	\N	\N	\N
-ASIPLANT1-GG1758947658991	3214-0202	91	\N	1	3215097404284894	3215023828405814	GILANG GUNAWAN GUNADI	TANAH DATAR	1990-02-11	PERUMAHAN GRAHA KARAWANG, RT RT.019/RW.020/RW 00, JATISARI, JATISARI, KARAWANG, JAWA BARAT, 41374	PERUMAHAN GRAHA KARAWANG, RT RT.019/RW.020/RW 00, JATISARI, JATISARI, KARAWANG, JAWA BARAT, 41374	gilang.gunawan.gunadi@gmail.com	083822233344	B	L	ISLAM	MENIKAH	K2	3215069243081405	9769550473	6831579513	\N	\N	12	0	0	2026-01-18	0	1730070893449	GILANG GUNAWAN GUNADI	MANDIRI	YULIANA	SMA	BAHASA	083822233344	2020-01-05	\N	\N	\N	\N	\N	79721	\N	\N	\N
-ASIPLANT1-HH1758947658682	3214-0203	92	\N	1	3215031605569056	3215012031863163	HENDRA HARI HARTONO	RAJA AMPAT	1997-07-20	JALAN MEKARJAYA, RT RT.009/RW.014/RW 00, RENGASJAJAR, RENGASDENGKLOK, KARAWANG, JAWA BARAT, 41352	JALAN MEKARJAYA, RT RT.009/RW.014/RW 00, RENGASJAJAR, RENGASDENGKLOK, KARAWANG, JAWA BARAT, 41352	hendra.hari.hartono@gmail.com	081377788899	AB	L	ISLAM	MENIKAH	K1	3215062660959370	3967492552	6815002944	\N	\N	12	0	0	2026-01-19	0	1730051381543	HENDRA HARI HARTONO	MANDIRI	RIKA AMALIA	S2	TEKNIK SIPIL	081377788899	2021-02-19	\N	\N	\N	\N	\N	33878	\N	\N	\N
-ASIPLANT1-II1758947659196	3214-0204	93	\N	1	3215095564986663	3215083402721004	INDAH ISKANDAR IRAWAN	BULUKUMBA	1996-09-05	JALAN PURWADANA, RT RT.006/RW.010/RW 00, CENGKONG, PURWASARI, KARAWANG, JAWA BARAT, 41371	JALAN PURWADANA, RT RT.006/RW.010/RW 00, CENGKONG, PURWASARI, KARAWANG, JAWA BARAT, 41371	indah.iskandar.irawan@gmail.com	082266677788	AB	P	ISLAM	BELUM MENIKAH	TK0	3215065776490290	7344197215	2293434874	\N	\N	12	0	0	2026-01-20	0	1730037039310	INDAH ISKANDAR IRAWAN	MANDIRI	LILIS SURYANI	S1	AKUNTANSI	082266677788	2022-03-16	\N	\N	\N	\N	\N	95866	\N	\N	\N
-ASIPLANT1-JJ1758947659722	3214-0205	94	\N	1	3215063617502506	3215056761873896	JOKO JAYA JATMIKO	MAJENE	1992-01-19	JALAN RAYA KLARI, RT RT.006/RW.010/RW 00, ADIARSA TIMUR, KARAWANG TIMUR, KARAWANG, JAWA BARAT, 41313	JALAN RAYA KLARI, RT RT.006/RW.010/RW 00, ADIARSA TIMUR, KARAWANG TIMUR, KARAWANG, JAWA BARAT, 41313	joko.jaya.jatmiko@gmail.com	081366677799	O	L	ISLAM	BELUM MENIKAH	TK0	3215039117005887	2044884851	2130698226	\N	\N	12	0	0	2026-01-21	0	1730096763692	JOKO JAYA JATMIKO	MANDIRI	DESI ANGGRAINI	SMA	IPA	081366677799	2015-04-03	\N	\N	\N	\N	\N	65174	\N	\N	\N
-ASIPLANT1-KK1758947660501	3214-0206	95	\N	1	3215040001647745	3215059187722661	KARTIKA KARTONO KUSUMA	KOTA BATAM	1990-05-16	JALAN KERTABUMI, RT RT.009/RW.012/RW 00, PURWADANA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	JALAN KERTABUMI, RT RT.009/RW.012/RW 00, PURWADANA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	kartika.kartono.kusuma@gmail.com	081344456677	O	P	ISLAM	MENIKAH	K1	3215058415770758	6685387614	6038327439	\N	\N	12	0	0	2026-01-22	0	1730063231352	KARTIKA KARTONO KUSUMA	MANDIRI	RINI SUSANTI	D3	KEPERAWATAN	081344456677	2016-05-12	\N	\N	\N	\N	\N	95282	\N	\N	\N
-ASIPLANT1-LL1758947660320	3214-0207	96	\N	1	3215041499704088	3215078088841039	LUKMAN LESTARI LAKSONO	KOTA BANJARBARU	1995-10-03	JALAN WADAS RAYA, RT RT.001/RW.006/RW 00, MEKARJAYA, PURWASARI, KARAWANG, JAWA BARAT, 41371	JALAN WADAS RAYA, RT RT.001/RW.006/RW 00, MEKARJAYA, PURWASARI, KARAWANG, JAWA BARAT, 41371	lukman.lestari.laksono@gmail.com	082255544332	B	L	ISLAM	BELUM MENIKAH	TK0	3215055414448240	3905687159	7377569459	\N	\N	12	0	0	2026-01-23	0	1730089117294	LUKMAN LESTARI LAKSONO	MANDIRI	INDAH PERMATASARI	S1	TEKNIK MESIN	082255544332	2017-06-29	\N	\N	\N	\N	\N	72183	\N	\N	\N
-ASIPLANT1-MM1758947660339	3214-0208	97	\N	1	3215063623279446	3215073529149219	MEGA MAULANA MAHENDRA	KOTA SAWAHLUNTO	1992-11-12	PERUMAHAN PESONA KARAWANG, RT RT.008/RW.005/RW 00, SUKAMAKMUR, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	PERUMAHAN PESONA KARAWANG, RT RT.008/RW.005/RW 00, SUKAMAKMUR, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	mega.maulana.mahendra@gmail.com	089566677788	O	P	ISLAM	MENIKAH	K1	3215017108417497	2742283090	4569351059	\N	\N	12	0	0	2026-01-24	0	1730082003180	MEGA MAULANA MAHENDRA	MANDIRI	YENI KARTINI	SMA	IPS	089566677788	2018-07-07	\N	\N	\N	\N	\N	23158	\N	\N	\N
-ASIPLANT1-NN1758947661708	3214-0209	98	\N	1	3215009784559876	3215006934524475	NINA NUGROHO NUGRAHA	ENREKANG	1993-03-29	PERUMAHAN MITRA KARAWANG, RT RT.001/RW.018/RW 00, BALONGGANDU, JATISARI, KARAWANG, JAWA BARAT, 41374	PERUMAHAN MITRA KARAWANG, RT RT.001/RW.018/RW 00, BALONGGANDU, JATISARI, KARAWANG, JAWA BARAT, 41374	nina.nugroho.nugraha@gmail.com	083844455566	A	P	ISLAM	MENIKAH	K2	3215029717663554	3045842379	1160759240	\N	\N	12	0	0	2026-01-25	0	1730031561946	NINA NUGROHO NUGRAHA	MANDIRI	ROSA AMELIA	SMA	IPA	083844455566	2019-08-24	\N	\N	\N	\N	\N	89713	\N	\N	\N
-ASIPLANT1-OO1758947661935	3214-0210	99	\N	1	3215041439329347	3215052027732103	OKA OKTAVIANI OKTAVIANUS	SELUMA	1997-04-07	JALAN ANGGADITA, RT RT.001/RW.018/RW 00, SIRNABAYA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	JALAN ANGGADITA, RT RT.001/RW.018/RW 00, SIRNABAYA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	oka.oktaviani.oktavianus@gmail.com	081355566677	A	P	ISLAM	BELUM MENIKAH	TK0	3215072396339802	9304918734	7959485245	\N	\N	12	0	0	2026-01-26	0	1730047427244	OKA OKTAVIANI OKTAVIANUS	MANDIRI	YUNI ASTUTI	S2	ILMU KOMUNIKASI	081355566677	2020-09-08	\N	\N	\N	\N	\N	67027	\N	\N	\N
-ASIPLANT1-PP1758947662589	3214-0211	100	\N	1	3215037268355826	3215003160182403	PUTRI PRATAMA PURNAMA	TRENGGALEK	1991-08-24	PERUMAHAN HARMONI KARAWANG, RT RT.009/RW.010/RW 00, WADAS, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	PERUMAHAN HARMONI KARAWANG, RT RT.009/RW.010/RW 00, WADAS, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	putri.pratama.purnama@gmail.com	085688899900	AB	P	ISLAM	BELUM MENIKAH	TK0	3215085775106875	9819081378	2555648206	\N	\N	12	0	0	2026-01-27	0	1730066317397	PUTRI PRATAMA PURNAMA	MANDIRI	RATNA SARI	SMA	BAHASA	085688899900	2021-10-18	\N	\N	\N	\N	\N	61778	\N	\N	\N
-ASIPLANT1-QQ1758947662298	3214-0212	101	\N	1	3215086131891859	3215050583501358	QORI QURAISY QUDRATULLAH	PADANG PARIAMAN	1994-02-08	PERUMAHAN GRAHA KARAWANG, RT RT.013/RW.011/RW 00, PANCAWATI, KLARI, KARAWANG, JAWA BARAT, 41371	PERUMAHAN GRAHA KARAWANG, RT RT.013/RW.011/RW 00, PANCAWATI, KLARI, KARAWANG, JAWA BARAT, 41371	qori.quraisy.qudratullah@gmail.com	081322233344	AB	P	ISLAM	MENIKAH	K1	3215087360565159	6924826776	4946657566	\N	\N	12	0	0	2026-01-28	0	1730073341107	QORI QURAISY QUDRATULLAH	MANDIRI	EKA PUSPITA	D3	ADMINISTRASI BISNIS	081322233344	2022-11-27	\N	\N	\N	\N	\N	77406	\N	\N	\N
-ASIPLANT1-RR1758947662390	3214-1001	102	\N	1	3215029094946930	3215088657134102	RIZKY RAHMAN RAMADHAN	TANGGAMUS	1996-06-18	JALAN PURWADANA INDAH, RT RT.002/RW.004/RW 00, MEKARSARI, JATISARI, KARAWANG, JAWA BARAT, 41374	JALAN PURWADANA INDAH, RT RT.002/RW.004/RW 00, MEKARSARI, JATISARI, KARAWANG, JAWA BARAT, 41374	rizky.rahman.ramadhan@gmail.com	081399000111	A	L	ISLAM	BELUM MENIKAH	TK0	3215077838956645	6084498711	1945445071	\N	\N	12	0	0	2026-01-29	0	1730050419748	RIZKY RAHMAN RAMADHAN	MANDIRI	MAYA SARI	S1	TEKNIK ELEKTRO	081399000111	2015-12-14	\N	\N	\N	\N	\N	21562	\N	\N	\N
-ASIPLANT1-SS1758947663255	3214-1002	103	\N	1	3215070243749327	3215078582563376	SITI SAPUTRA SANTOSO	KOTA SUNGAI PENUH	1998-09-27	JALAN PURWADANA, RT RT.005/RW.007/RW 00, MEKARJAYA, PURWASARI, KARAWANG, JAWA BARAT, 41371	JALAN PURWADANA, RT RT.005/RW.007/RW 00, MEKARJAYA, PURWASARI, KARAWANG, JAWA BARAT, 41371	siti.saputra.santoso@gmail.com	083855566677	A	P	ISLAM	BELUM MENIKAH	TK0	3215047799382447	2298612061	9868508049	\N	\N	12	0	0	2026-01-30	0	1730088171746	SITI SAPUTRA SANTOSO	MANDIRI	DEWI SARTIKA	S2	MANAJEMEN	083855566677	2016-01-01	\N	\N	\N	\N	\N	47343	\N	\N	\N
-ASIPLANT1-TT1758947663862	3214-1003	104	\N	1	3215047132421511	3215010753816038	TAUFIK TIRTA TIRTAYASA	BONE BOLANGO	1994-12-14	PERUMAHAN RESINDA BLOK C, RT RT.002/RW.005/RW 00, PANCAWATI, KLARI, KARAWANG, JAWA BARAT, 41371	PERUMAHAN RESINDA BLOK C, RT RT.002/RW.005/RW 00, PANCAWATI, KLARI, KARAWANG, JAWA BARAT, 41371	taufik.tirta.tirtayasa@gmail.com	081244667788	B	L	ISLAM	MENIKAH	K2	3215072663175699	7891244769	9467433747	\N	\N	12	0	0	2026-01-31	0	1730064941721	TAUFIK TIRTA TIRTAYASA	MANDIRI	NOVI HANDAYANI	SMA	IPS	081244667788	2017-02-21	\N	\N	\N	\N	\N	35706	\N	\N	\N
-ASIPLANT1-UU1758947664578	3214-1004	105	\N	1	3215079644611647	3215022575825423	UMAR UTAMI UTOMO	TANAH LAUT	1992-07-01	JALAN MEKARJAYA, RT RT.016/RW.001/RW 00, KARANGSARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	JALAN MEKARJAYA, RT RT.016/RW.001/RW 00, KARANGSARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	umar.utami.utomo@gmail.com	082233344455	A	L	ISLAM	MENIKAH	K2	3215001202047394	5044344503	9669871058	\N	\N	12	0	0	2026-02-01	0	1730091744480	UMAR UTAMI UTOMO	MANDIRI	ERNI WAHYUNI	S1	AKUNTANSI	082233344455	2018-03-19	\N	\N	\N	\N	\N	90628	\N	\N	\N
-ASIPLANT1-VV1758947664114	3214-1005	106	\N	1	3215089947435115	3215013954224068	VINA VERNANDA VALENTINO	KOTA SUNGAI PENUH	1998-03-21	JALAN RAYA KLARI, RT RT.003/RW.010/RW 00, PURWASARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	JALAN RAYA KLARI, RT RT.003/RW.010/RW 00, PURWASARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	vina.vernanda.valentino@gmail.com	089511223344	B	P	ISLAM	BELUM MENIKAH	TK0	3215083504671010	3017290281	6880105243	\N	\N	12	0	0	2026-02-02	0	1730096562805	VINA VERNANDA VALENTINO	MANDIRI	TIKA ROSITA	S1	TEKNIK INFORMATIKA	089511223344	2019-04-02	\N	\N	\N	\N	\N	82147	\N	\N	\N
-ASIPLANT1-WW1758947664656	3214-1006	107	\N	1	3215072592536339	3215089769857075	WAWAN WIJAYA WIBOWO	LIMA PULUH KOTA	1995-08-19	JALAN PURWADANA, RT RT.009/RW.010/RW 00, JATISARI, JATISARI, KARAWANG, JAWA BARAT, 41374	JALAN PURWADANA, RT RT.009/RW.010/RW 00, JATISARI, JATISARI, KARAWANG, JAWA BARAT, 41374	wawan.wijaya.wibowo@gmail.com	085677788899	AB	L	ISLAM	BELUM MENIKAH	TK0	3215036683181627	3480374351	2501491324	\N	\N	12	0	0	2026-02-03	0	1730070230443	WAWAN WIJAYA WIBOWO	MANDIRI	WATI SUSANTI	D3	TEKNIK INDUSTRI	085677788899	2020-05-10	\N	\N	\N	\N	\N	41755	\N	\N	\N
-ASIPLANT1-YY1758947665440	3214-1007	108	\N	1	3215057934279880	3215061527664174	YOGA YUSUF YULIANTO	SUKABUMI	1990-05-02	JALAN RENGASDENGKLOK, RT RT.006/RW.001/RW 00, WADAS, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	JALAN RENGASDENGKLOK, RT RT.006/RW.001/RW 00, WADAS, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	yoga.yusuf.yulianto@gmail.com	081222889900	AB	L	ISLAM	MENIKAH	K1	3215070626745314	3202525321	6094758649	\N	\N	12	0	0	2026-02-04	0	1730025529870	YOGA YUSUF YULIANTO	MANDIRI	NIA RAHMAWATI	SMA	IPA	081222889900	2021-06-30	\N	\N	\N	\N	\N	83628	\N	\N	\N
-ASIPLANT1-ZZ1758947665422	3214-1008	109	\N	1	3215037982145732	3215032499854721	ZAHRA ZULKARNAIN ZAINUDDIN	MANGGARAI TIMUR	1991-11-10	JALAN TELAGASARI, RT RT.011/RW.001/RW 00, MEKARSARI, JATISARI, KARAWANG, JAWA BARAT, 41374	JALAN TELAGASARI, RT RT.011/RW.001/RW 00, MEKARSARI, JATISARI, KARAWANG, JAWA BARAT, 41374	zahra.zulkarnain.zainuddin@gmail.com	082211122233	O	P	ISLAM	MENIKAH	K1	3215052129266552	5324760655	6608308859	\N	\N	12	0	0	2026-02-05	0	1730075408722	ZAHRA ZULKARNAIN ZAINUDDIN	MANDIRI	SARI KARTIKA	S2	TEKNIK SIPIL	082211122233	2022-07-15	\N	\N	\N	\N	\N	59614	\N	\N	\N
-ASIPLANT1-AG1758947666128	3214-1009	110	\N	1	3215006695385570	3215002283391130	AHMAD GUNAWAN RAMADHAN	BUTON SELATAN	1993-01-30	JALAN DUREN RAYA, RT RT.013/RW.003/RW 00, PURWADANA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	JALAN DUREN RAYA, RT RT.013/RW.003/RW 00, PURWADANA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	ahmad.gunawan.ramadhan@gmail.com	081288223344	O	L	ISLAM	BELUM MENIKAH	TK0	3215008168730409	4905224458	1757298495	\N	\N	12	0	0	2026-02-06	0	1730087648318	AHMAD GUNAWAN RAMADHAN	MANDIRI	ANITA MARLINA	SMA	IPS	081288223344	2015-08-04	\N	\N	\N	\N	\N	67904	\N	\N	\N
-ASIPLANT1-BR1758947666103	3214-1010	111	\N	1	3215026721286639	3215075396466144	BUDI RAHMAN NUGRAHA	TEMANGGUNG	1996-06-15	PERUMAHAN HARMONI KARAWANG, RT RT.020/RW.008/RW 00, PANCAWATI, KLARI, KARAWANG, JAWA BARAT, 41371	PERUMAHAN HARMONI KARAWANG, RT RT.020/RW.008/RW 00, PANCAWATI, KLARI, KARAWANG, JAWA BARAT, 41371	budi.rahman.nugraha@gmail.com	081233778899	B	L	ISLAM	MENIKAH	K2	3215088946576252	8014068379	4270192270	\N	\N	12	0	0	2026-02-07	0	1730085745017	BUDI RAHMAN NUGRAHA	MANDIRI	PUTRI ANGGRAINI	S1	SISTEM INFORMASI	081233778899	2016-09-26	\N	\N	\N	\N	\N	35576	\N	\N	\N
-ASIPLANT1-CP1758947666714	3214-1011	112	\N	1	3215002256643722	3215053911766666	CITRA PRATAMA WIBOWO	KOTA PADANG PANJANG	1997-10-25	PERUMAHAN GRAHA KARAWANG, RT RT.001/RW.006/RW 00, ANGGADITA, KLARI, KARAWANG, JAWA BARAT, 41371	PERUMAHAN GRAHA KARAWANG, RT RT.001/RW.006/RW 00, ANGGADITA, KLARI, KARAWANG, JAWA BARAT, 41371	citra.pratama.wibowo@gmail.com	082299900011	O	P	ISLAM	BELUM MENIKAH	TK0	3215052123665617	7649548042	3303481758	\N	\N	12	0	0	2026-02-08	0	1730014030761	CITRA PRATAMA WIBOWO	MANDIRI	SINTA LESTARI	SMA	IPA	082299900011	2017-10-12	\N	\N	\N	\N	\N	39124	\N	\N	\N
-ASIPLANT1-DI1758947667100	3214-1012	113	\N	1	3215001343906154	3215030514867194	DEWI ISKANDAR KUSUMA	BUTON	1990-04-04	PERUMAHAN GRIYA ASRI, RT RT.004/RW.012/RW 00, CENGKONG, PURWASARI, KARAWANG, JAWA BARAT, 41371	PERUMAHAN GRIYA ASRI, RT RT.004/RW.012/RW 00, CENGKONG, PURWASARI, KARAWANG, JAWA BARAT, 41371	dewi.iskandar.kusuma@gmail.com	081211990011	A	P	ISLAM	MENIKAH	K2	3215056504277658	6916562172	8252866920	\N	\N	12	0	0	2026-02-09	0	1730056436357	DEWI ISKANDAR KUSUMA	MANDIRI	WULAN PURNAMASARI	SMA	IPS	081211990011	2018-11-06	\N	\N	\N	\N	\N	32997	\N	\N	\N
-ASIPLANT1-EN1758947667473	3214-1013	114	\N	1	3215019726114089	3215038924885833	EKO NUGROHO FIRMANSYAH	TANGGAMUS	1998-05-26	JALAN TELUKJAMBE RAYA, RT RT.009/RW.019/RW 00, KARANGSARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	JALAN TELUKJAMBE RAYA, RT RT.009/RW.019/RW 00, KARANGSARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	eko.nugroho.firmansyah@gmail.com	089544455566	A	L	ISLAM	BELUM MENIKAH	TK0	3215029014074892	5666881042	8677203926	\N	\N	12	0	0	2026-02-10	0	1730035093432	EKO NUGROHO FIRMANSYAH	MANDIRI	DIAH AYU	D3	MANAJEMEN PEMASARAN	089544455566	2019-12-19	\N	\N	\N	\N	\N	87389	\N	\N	\N
-ASIPLANT1-FF1758947668459	3214-1014	115	\N	1	3215065301465301	3215034553597966	FAJAR FAUZI LAKSONO	SOPPENG	1992-12-12	JALAN BYPASS KARAWANG, RT RT.001/RW.018/RW 00, CENGKONG, PURWASARI, KARAWANG, JAWA BARAT, 41371	JALAN BYPASS KARAWANG, RT RT.001/RW.018/RW 00, CENGKONG, PURWASARI, KARAWANG, JAWA BARAT, 41371	fajar.fauzi.laksono@gmail.com	083811122233	AB	L	ISLAM	MENIKAH	K2	3215093855598579	3067048668	9853813875	\N	\N	12	0	0	2026-02-11	0	1730087400069	FAJAR FAUZI LAKSONO	MANDIRI	RENI HANDAYANI	S1	TEKNIK MESIN	083811122233	2020-01-24	\N	\N	\N	\N	\N	81765	\N	\N	\N
-ASIPLANT1-HJ1758947668162	3214-1016	117	\N	1	3215093197351584	3215019021655882	HENDRA JAYA BAGUS	TANA TORAJA	1998-11-03	JALAN PURWADANA INDAH, RT RT.017/RW.015/RW 00, MEKARSARI, JATISARI, KARAWANG, JAWA BARAT, 41374	JALAN PURWADANA INDAH, RT RT.017/RW.015/RW 00, MEKARSARI, JATISARI, KARAWANG, JAWA BARAT, 41374	hendra.jaya.bagus@gmail.com	085644455566	A	L	ISLAM	MENIKAH	K1	3215096103889203	4458927538	9439112325	\N	\N	12	0	0	2026-02-13	0	1730079422470	HENDRA JAYA BAGUS	MANDIRI	KIKI KARTINI	S2	PENDIDIKAN EKONOMI	085644455566	2022-03-13	\N	\N	\N	\N	\N	71058	\N	\N	\N
-ASIPLANT1-IV1758947669172	3214-1017	118	\N	1	3215029999826788	3215086007180938	INDAH VERNANDA YULIANTO	KOTA TANGERANG	1991-04-19	JALAN ARIF RAHMAN HAKIM, RT RT.011/RW.001/RW 00, ANGGADITA, KLARI, KARAWANG, JAWA BARAT, 41371	JALAN ARIF RAHMAN HAKIM, RT RT.011/RW.001/RW 00, ANGGADITA, KLARI, KARAWANG, JAWA BARAT, 41371	indah.vernanda.yulianto@gmail.com	081301233344	A	P	ISLAM	MENIKAH	K1	3215042548396589	8439733033	6917288277	\N	\N	12	0	0	2026-02-14	0	1730033886463	INDAH VERNANDA YULIANTO	MANDIRI	YANI ASTUTI	S1	MANAJEMEN	081301233344	2015-04-09	\N	\N	\N	\N	\N	88546	\N	\N	\N
-ASIPLANT1-JT1758947669717	3214-1018	119	\N	1	3215003602273195	3215034653177436	JOKO TIRTA TIRTAYASA	MANOKWARI SELATAN	1990-02-24	PERUMAHAN GRIYA ASRI, RT RT.019/RW.010/RW 00, SIRNABAYA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	PERUMAHAN GRIYA ASRI, RT RT.019/RW.010/RW 00, SIRNABAYA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	joko.tirta.tirtayasa@gmail.com	081311344455	B	L	ISLAM	BELUM MENIKAH	TK0	3215032699340034	8672373449	2623224550	\N	\N	12	0	0	2026-02-15	0	1730074114487	JOKO TIRTA TIRTAYASA	MANDIRI	TUTI KARTIKA	SMA	IPA	081311344455	2016-05-23	\N	\N	\N	\N	\N	88205	\N	\N	\N
-ASIPLANT1-KA1758947669136	3214-1019	120	\N	1	3215022950321919	3215010116461547	KARTIKA AGUS ABDULLAH	TEGAL	1993-07-17	PERUMAHAN GRIYA ASRI, RT RT.020/RW.007/RW 00, BALONGGANDU, JATISARI, KARAWANG, JAWA BARAT, 41374	PERUMAHAN GRIYA ASRI, RT RT.020/RW.007/RW 00, BALONGGANDU, JATISARI, KARAWANG, JAWA BARAT, 41374	kartika.agus.abdullah@gmail.com	083899900011	A	P	ISLAM	BELUM MENIKAH	TK0	3215082662209449	5852690386	7207267989	\N	\N	12	0	0	2026-02-16	0	1730066992178	KARTIKA AGUS ABDULLAH	MANDIRI	LIA ROSDIANA	SMA	IPS	083899900011	2017-06-28	\N	\N	\N	\N	\N	23862	\N	\N	\N
-ASIPLANT1-LM1758947670284	3214-1020	121	\N	1	3215056253751680	3215086662648694	LUKMAN MAULANA MAHENDRA	CIREBON	1995-10-09	JALAN JATISARI RAYA, RT RT.019/RW.010/RW 00, ADIARSA BARAT, KARAWANG BARAT, KARAWANG, JAWA BARAT, 41311	JALAN JATISARI RAYA, RT RT.019/RW.010/RW 00, ADIARSA BARAT, KARAWANG BARAT, KARAWANG, JAWA BARAT, 41311	lukman.maulana.mahendra@gmail.com	081321455566	B	L	ISLAM	MENIKAH	K1	3215029246576851	6346051430	8274948652	\N	\N	12	0	0	2026-02-17	0	1730029723948	LUKMAN MAULANA MAHENDRA	MANDIRI	LUSI AMELIA	D3	TEKNIK INFORMATIKA	081321455566	2018-07-02	\N	\N	\N	\N	\N	45456	\N	\N	\N
-ASIPLANT1-MR1758947670843	3214-1021	122	\N	1	3215015061897566	3215058823927017	MEGA RAHMAN VALENTINO	KOTA DEPOK	1994-05-05	JALAN AHMAD YANI, RT RT.007/RW.020/RW 00, ANGGADITA, KLARI, KARAWANG, JAWA BARAT, 41371	JALAN AHMAD YANI, RT RT.007/RW.020/RW 00, ANGGADITA, KLARI, KARAWANG, JAWA BARAT, 41371	mega.rahman.valentino@gmail.com	082122334455	AB	P	ISLAM	BELUM MENIKAH	TK0	3215085997849454	2633359887	4737171612	\N	\N	12	0	0	2026-02-18	0	1730030923814	MEGA RAHMAN VALENTINO	MANDIRI	CICI RAHMAWATI	S2	ILMU HUKUM	082122334455	2019-08-16	\N	\N	\N	\N	\N	40373	\N	\N	\N
-ASIPLANT1-NE1758947671668	3214-1022	123	\N	1	3215050057127468	3215072275783778	NINA EDI FIRMANSYAH	KONAWE	1997-01-11	JALAN PURWASARI RAYA, RT RT.009/RW.018/RW 00, BALONGGANDU, JATISARI, KARAWANG, JAWA BARAT, 41374	JALAN PURWASARI RAYA, RT RT.009/RW.018/RW 00, BALONGGANDU, JATISARI, KARAWANG, JAWA BARAT, 41374	nina.edi.firmansyah@gmail.com	085666677788	AB	P	ISLAM	MENIKAH	K2	3215044350040698	2450416864	8597432535	\N	\N	12	0	0	2026-02-19	0	1730073819594	NINA EDI FIRMANSYAH	MANDIRI	AYU LESTARI	S1	TEKNIK SIPIL	085666677788	2020-09-22	\N	\N	\N	\N	\N	83429	\N	\N	\N
-ASIPLANT1-OS1758947671599	3214-1023	124	\N	1	3215067312751948	3215051626167302	OKA SAPUTRA PURNAMA	PASANGKAYU	1995-02-16	JALAN PURWASARI RAYA, RT RT.020/RW.013/RW 00, SIRNABAYA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	JALAN PURWASARI RAYA, RT RT.020/RW.013/RW 00, SIRNABAYA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	oka.saputra.purnama@gmail.com	089533344455	O	P	ISLAM	BELUM MENIKAH	TK0	3215016733840367	2649385854	1983368423	\N	\N	12	0	0	2026-02-20	0	1730011923750	OKA SAPUTRA PURNAMA	MANDIRI	RENI MARLINA	SMA	BAHASA	089533344455	2021-10-07	\N	\N	\N	\N	\N	94303	\N	\N	\N
-ASIPLANT1-PW1758947671862	3214-1024	125	\N	1	3215017469231993	3215093310347550	PUTRI WIJAYA NUGRAHA	KOTA PADANG	1996-08-22	JALAN TELUKJAMBE RAYA, RT RT.007/RW.020/RW 00, MEKARJAYA, PURWASARI, KARAWANG, JAWA BARAT, 41371	JALAN TELUKJAMBE RAYA, RT RT.007/RW.020/RW 00, MEKARJAYA, PURWASARI, KARAWANG, JAWA BARAT, 41371	putri.wijaya.nugraha@gmail.com	081331566677	O	P	ISLAM	MENIKAH	K1	3215084226462327	3913578548	9787402378	\N	\N	12	0	0	2026-02-21	0	1730071454402	PUTRI WIJAYA NUGRAHA	MANDIRI	NOVI KARTIKA	SMA	IPA	081331566677	2022-11-11	\N	\N	\N	\N	\N	43692	\N	\N	\N
-ASIPLANT1-QY1758947672400	3214-1025	126	\N	1	3215053112533569	3215047487576898	QORI YUSUF CAHYONO	KLATEN	1991-09-28	JALAN AHMAD YANI, RT RT.009/RW.012/RW 00, KARANGSARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	JALAN AHMAD YANI, RT RT.009/RW.012/RW 00, KARANGSARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	qori.yusuf.cahyono@gmail.com	082111223344	B	P	ISLAM	BELUM MENIKAH	TK0	3215055469351926	1450695972	7447495289	\N	\N	12	0	0	2026-02-22	0	1730091601013	QORI YUSUF CAHYONO	MANDIRI	TINA SURYANI	S1	SISTEM INFORMASI	082111223344	2015-12-25	\N	\N	\N	\N	\N	21302	\N	\N	\N
-ASIPLANT1-RD1758947672208	3214-1026	127	\N	1	3215069960798916	3215032961359625	RIZKY DARMA EFFENDI	MANGGARAI TIMUR	1993-11-08	JALAN WADAS RAYA, RT RT.017/RW.015/RW 00, SIRNABAYA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	JALAN WADAS RAYA, RT RT.017/RW.015/RW 00, SIRNABAYA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	rizky.darma.effendi@gmail.com	085699900011	O	L	ISLAM	MENIKAH	K1	3215050129687943	8429823381	4429176952	\N	\N	12	0	0	2026-02-23	0	1730072531030	RIZKY DARMA EFFENDI	MANDIRI	MIRA HANDAYANI	SMA	IPS	085699900011	2016-01-31	\N	\N	\N	\N	\N	82926	\N	\N	\N
-ASIPLANT1-SV1758947673281	3214-1027	128	\N	1	3215033682785632	3215093514629427	SITI VERNANDA LAKSONO	SIJUNJUNG	1997-04-14	PERUMAHAN BUMI KARAWANG BLOK B, RT RT.009/RW.016/RW 00, DAWUAN TENGAH, CIKAMPEK, KARAWANG, JAWA BARAT, 41373	PERUMAHAN BUMI KARAWANG BLOK B, RT RT.009/RW.016/RW 00, DAWUAN TENGAH, CIKAMPEK, KARAWANG, JAWA BARAT, 41373	siti.vernanda.laksono@gmail.com	081341677788	A	P	ISLAM	BELUM MENIKAH	TK0	3215031546554856	9287857627	2856471236	\N	\N	12	0	0	2026-02-24	0	1730060505511	SITI VERNANDA LAKSONO	MANDIRI	YULI RAHMA	S2	TEKNIK ELEKTRO	081341677788	2017-02-14	\N	\N	\N	\N	\N	60601	\N	\N	\N
-ASIPLANT1-TN1758947673739	3214-1028	129	\N	1	3215094367069684	3215069460838170	TAUFIK NUGROHO RAMADHAN	BENGKALIS	1992-06-23	PERUMAHAN CITRA KEBUN MAS, RT RT.019/RW.005/RW 00, DUREN, KLARI, KARAWANG, JAWA BARAT, 41371	PERUMAHAN CITRA KEBUN MAS, RT RT.019/RW.005/RW 00, DUREN, KLARI, KARAWANG, JAWA BARAT, 41371	taufik.nugroho.ramadhan@gmail.com	089588899911	A	L	ISLAM	BELUM MENIKAH	TK0	3215043764639430	8118546859	7648633663	\N	\N	12	0	0	2026-02-25	0	1730061428243	TAUFIK NUGROHO RAMADHAN	MANDIRI	MEGA PUSPITA	D3	KEUANGAN	089588899911	2018-03-05	\N	\N	\N	\N	\N	65549	\N	\N	\N
-ASIPLANT1-UO1758947673172	3214-1029	130	\N	1	3215002154565532	3215068357341816	UMAR OKTAVIANI KUSUMA	PENAJAM PASER UTARA	1994-12-19	PERUMAHAN GRAHA KARAWANG, RT RT.005/RW.014/RW 00, CIBALONGSARI, KLARI, KARAWANG, JAWA BARAT, 41371	PERUMAHAN GRAHA KARAWANG, RT RT.005/RW.014/RW 00, CIBALONGSARI, KLARI, KARAWANG, JAWA BARAT, 41371	umar.oktaviani.kusuma@gmail.com	081351788899	AB	L	ISLAM	MENIKAH	K1	3215055021340143	7776504408	5911385938	\N	\N	12	0	0	2026-02-26	0	1730033601488	UMAR OKTAVIANI KUSUMA	MANDIRI	RATIH AMALIA	SMA	MANAJEMEN	081351788899	2019-04-18	\N	\N	\N	\N	\N	53188	\N	\N	\N
-ASIPLANT1-VB1758947674694	3214-1030	131	\N	1	3215065240057378	3215091619615520	VINA BAYU VALENTINO	KEBUMEN	1991-01-07	JALAN PURWASARI RAYA, RT RT.011/RW.017/RW 00, CENGKONG, PURWASARI, KARAWANG, JAWA BARAT, 41371	JALAN PURWASARI RAYA, RT RT.011/RW.017/RW 00, CENGKONG, PURWASARI, KARAWANG, JAWA BARAT, 41371	vina.bayu.valentino@gmail.com	083866677788	AB	P	ISLAM	MENIKAH	K1	3215037033235823	6579873288	2719834217	\N	\N	12	0	0	2026-02-27	0	1730036107726	VINA BAYU VALENTINO	MANDIRI	WINDA KURNIAWATI	SMA	BAHASA	083866677788	2020-05-27	\N	\N	\N	\N	\N	59299	\N	\N	\N
-ASIPLANT1-WH1758947674297	3214-1031	132	\N	1	3215051979183253	3215028628132309	WAWAN HARI GUNADI	LEBAK	1998-03-20	PERUMAHAN GRIYA ASRI, RT RT.007/RW.004/RW 00, RENGASDENGKLOK SELATAN, RENGASDENGKLOK, KARAWANG, JAWA BARAT, 41352	PERUMAHAN GRIYA ASRI, RT RT.007/RW.004/RW 00, RENGASDENGKLOK SELATAN, RENGASDENGKLOK, KARAWANG, JAWA BARAT, 41352	wawan.hari.gunadi@gmail.com	085655566677	A	L	ISLAM	BELUM MENIKAH	TK0	3215040609934241	2819603281	9896467666	\N	\N	12	0	0	2026-02-28	0	1730072783072	WAWAN HARI GUNADI	MANDIRI	LINDA KARTINI	S1	IPA	085655566677	2021-06-12	\N	\N	\N	\N	\N	83315	\N	\N	\N
-ASIPLANT1-YL1758947675487	3214-1032	133	\N	1	3215011988253707	3215069893251056	YOGA LESTARI SANTOSO	HULU SUNGAI UTARA	1993-07-03	JALAN AHMAD YANI, RT RT.002/RW.005/RW 00, WALAHAR, KLARI, KARAWANG, JAWA BARAT, 41371	JALAN AHMAD YANI, RT RT.002/RW.005/RW 00, WALAHAR, KLARI, KARAWANG, JAWA BARAT, 41371	yoga.lestari.santoso@gmail.com	081361899900	A	L	ISLAM	MENIKAH	K2	3215059160846502	4962967809	7187701003	\N	\N	12	0	0	2026-03-01	0	1730051564741	YOGA LESTARI SANTOSO	MANDIRI	WENI AMELIA	S1	ILMU KOMPUTER	081361899900	2022-07-29	\N	\N	\N	\N	\N	94181	\N	\N	\N
-ASIPLANT1-ZP1758947675171	3214-1033	134	\N	1	3215072920375093	3215092904766939	ZAHRA PRATAMA WIBOWO	BOYOLALI	1992-08-27	PERUMAHAN MITRA KARAWANG, RT RT.019/RW.020/RW 00, CENGKONG, PURWASARI, KARAWANG, JAWA BARAT, 41371	PERUMAHAN MITRA KARAWANG, RT RT.019/RW.020/RW 00, CENGKONG, PURWASARI, KARAWANG, JAWA BARAT, 41371	zahra.pratama.wibowo@gmail.com	082133445566	B	P	ISLAM	BELUM MENIKAH	TK0	3215059431872750	4862919206	7655599795	\N	\N	12	0	0	2026-03-02	0	1730092417852	ZAHRA PRATAMA WIBOWO	MANDIRI	SINTA DEWI	S2	HUKUM	082133445566	2015-08-03	\N	\N	\N	\N	\N	29711	\N	\N	\N
-ASIPLANT1-AK1758947675543	3214-1034	135	\N	1	3215058030635183	3215014148891691	AHMAD KARTONO NUGRAHA	MIMIKA	1994-05-15	JALAN PURWADANA, RT RT.011/RW.003/RW 00, WADAS, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	JALAN PURWADANA, RT RT.011/RW.003/RW 00, WADAS, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	ahmad.kartono.nugraha@gmail.com	081371900011	A	L	ISLAM	BELUM MENIKAH	TK0	3215016067817164	2095305086	3343733223	\N	\N	12	0	0	2026-03-03	0	1730085890056	AHMAD KARTONO NUGRAHA	MANDIRI	AYU PERMATASARI	SMA	SISTEM INFORMASI	081371900011	2016-09-21	\N	\N	\N	\N	\N	47917	\N	\N	\N
-ASIPLANT1-BY1758947676738	3214-1035	136	\N	1	3215096946902601	3215008496806171	BUDI YUSUF ZAINUDDIN	BONDOWOSO	1997-09-29	PERUMAHAN PESONA KARAWANG, RT RT.005/RW.014/RW 00, BALONGGANDU, JATISARI, KARAWANG, JAWA BARAT, 41374	PERUMAHAN PESONA KARAWANG, RT RT.005/RW.014/RW 00, BALONGGANDU, JATISARI, KARAWANG, JAWA BARAT, 41374	budi.yusuf.zainuddin@gmail.com	083877899000	B	L	ISLAM	MENIKAH	K2	3215068104676359	4925407449	4310096860	\N	\N	12	0	0	2026-03-04	0	1730089940668	BUDI YUSUF ZAINUDDIN	MANDIRI	LINA MARLINA	D3	TEKNIK INDUSTRI	083877899000	2017-10-15	\N	\N	\N	\N	\N	35362	\N	\N	\N
-ASIPLANT1-CR1758947676679	3214-1036	137	\N	1	3215092675573069	3215068983324595	CITRA RAHMAN ABDULLAH	BUTON UTARA	1995-02-11	JALAN TUPAREV, RT RT.017/RW.015/RW 00, BALONGGANDU, JATISARI, KARAWANG, JAWA BARAT, 41374	JALAN TUPAREV, RT RT.017/RW.015/RW 00, BALONGGANDU, JATISARI, KARAWANG, JAWA BARAT, 41374	citra.rahman.abdullah@gmail.com	081381011122	AB	P	ISLAM	BELUM MENIKAH	TK0	3215013409844692	9213550229	7929000439	\N	\N	12	0	0	2026-03-05	0	1730022310815	CITRA RAHMAN ABDULLAH	MANDIRI	FITRI ROSDIANA	S1	BAHASA	081381011122	2018-11-04	\N	\N	\N	\N	\N	41163	\N	\N	\N
-ASIPLANT1-DV1758947676901	3214-1037	138	\N	1	3215051715195507	3215001205503609	DEWI VERNANDA VALENTINO	HALMAHERA TIMUR	1996-06-04	JALAN PURWADANA INDAH, RT RT.004/RW.012/RW 00, JATIWANGI, JATISARI, KARAWANG, JAWA BARAT, 41374	JALAN PURWADANA INDAH, RT RT.004/RW.012/RW 00, JATIWANGI, JATISARI, KARAWANG, JAWA BARAT, 41374	dewi.vernanda.valentino@gmail.com	082144556677	AB	P	ISLAM	MENIKAH	K1	3215047519136435	2810654550	9948075571	\N	\N	12	0	0	2026-03-06	0	1730098290435	DEWI VERNANDA VALENTINO	MANDIRI	INDAH AMELIA	SMA	IPS	082144556677	2019-12-12	\N	\N	\N	\N	\N	14385	\N	\N	\N
-ASIPLANT1-GH1758947668553	3214-1015	116	\N	1	3215093132630802	3215090916750003	GILANG HARI HARTONO	LEBONG	1995-09-06	PERUMAHAN PESONA KARAWANG, RT RT.013/RW.011/RW 00, JATISARI, JATISARI, KARAWANG, JAWA BARAT, 41374	PERUMAHAN PESONA KARAWANG, RT RT.013/RW.011/RW 00, JATISARI, JATISARI, KARAWANG, JAWA BARAT, 41374	gilang.hari.hartono@gmail.com	081201122233	AB	L	ISLAM	BELUM MENIKAH	TK0	3215072462758915	6719549460	5687879856	PKWT	HK	12	0	0	2026-02-12	0	1730079982171	GILANG HARI HARTONO	MANDIRI	MIRA SURYANI	SMA	BAHASA	081201122233	2021-02-17	2025-09-29	\N	\N	2025-10-04 12:19:38	\N	60636	\N	\N	\N
-ASIPLANT1-HR1758947651112	3214-0011	74	1	1	3215121236540006	3215121236540006	HARI RISNAWAN	PASAMAN	1995-01-01	JALAN TELAGASARI, RT RT.020/RW.013/RW 00, JATISARI, JATISARI, KARAWANG, JAWA BARAT, 41374	JALAN TELAGASARI, RT RT.020/RW.013/RW 00, JATISARI, JATISARI, KARAWANG, JAWA BARAT, 41374	hari.risnawan@gmail.com	081322349876	A	L	ISLAM	MENIKAH	K2	3215121236540006	9071733589	1384709612	PKWTT	AT	12	0	0	2025-12-31	0	1730050236176	HARI RISNAWAN	MANDIRI	RAHMI	S2	INFORMATIKA	081322349876	2024-05-05	\N	\N	\N	2025-10-04 10:02:20	\N	58510	1	\N	\N
+COPY public.karyawans (id_karyawan, ni_karyawan, user_id, grup_id, organisasi_id, no_kk, nik, nama, tempat_lahir, tanggal_lahir, alamat, domisili, email, no_telp, gol_darah, jenis_kelamin, agama, status_keluarga, kategori_keluarga, npwp, no_bpjs_kt, no_bpjs_ks, jenis_kontrak, status_karyawan, sisa_cuti_pribadi, sisa_cuti_bersama, sisa_cuti_tahun_lalu, expired_date_cuti_tahun_lalu, hutang_cuti, no_rekening, nama_rekening, nama_bank, nama_ibu_kandung, jenjang_pendidikan, jurusan_pendidikan, no_telp_darurat, tanggal_mulai, tanggal_selesai, foto, created_at, updated_at, deleted_at, pin, grup_pattern_id, direct, indirect, status_kawin, sinas) FROM stdin;
+ASIPLANT1-FN1757746669803	3214-0002	5	\N	1	3215050101040001	3215050101040001	FAJAR NUR FARRIJAL	BANDUNG	2004-01-01	JL. PURWAKARTA, RT.001 RW.001, DS. PURWAKARTA, KEC. PURWAKARTA, KAB. PURWAKARTA, JAWABARAT 41111	JL. PURWAKARTA, RT.001 RW.001, DS. PURWAKARTA, KEC. PURWAKARTA, KAB. PURWAKARTA, JAWABARAT 41111	fajarnurfarrijar@gmail.com	0895806317711	A	L	ISLAM	BELUM MENIKAH	TK/0	3215050101040001	9012410101	1402610101	PKWTT	AT	12	0	0	2026-06-02	0	1730006590101	FAJR NUR FARRIJAL	MANDIRI	SUMINAH	S2	INFORMATIKA	0895806317711	2025-06-06	\N	\N	\N	\N	\N	11223	\N	\N	\N	\N	\N
+ASIPLANT1-AG1758947666128	3214-1009	110	\N	1	3215006695385570	3215002283391130	AHMAD GUNAWAN RAMADHAN	BUTON SELATAN	1993-01-30	JALAN DUREN RAYA, RT RT.013/RW.003/RW 00, PURWADANA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	JALAN DUREN RAYA, RT RT.013/RW.003/RW 00, PURWADANA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	ahmad.gunawan.ramadhan@gmail.com	081288223344	O	L	ISLAM	BELUM MENIKAH	TK/0	3215008168730409	4905224458	1757298495	\N	\N	12	0	0	2026-02-06	0	1730087648318	AHMAD GUNAWAN RAMADHAN	MANDIRI	ANITA MARLINA	SMA	IPS	081288223344	2015-08-04	\N	\N	\N	\N	\N	67904	\N	\N	\N	\N	\N
+ASIPLANT1-SA1757746670457	3214-0003	6	\N	1	3215050202040002	3215050202040002	SALFA ALFARISY	KARAWANG	2004-02-02	JL. PURWAKARTA, RT.001 RW.002, DS. PURWAKARTA, KEC. PURWAKARTA, KAB. PURWAKARTA, JAWABARAT 41111	JL. PURWAKARTA, RT.001 RW.002, DS. PURWAKARTA, KEC. PURWAKARTA, KAB. PURWAKARTA, JAWABARAT 41111	salfaalfarisyi@gmail.com	089518976773	B	L	ISLAM	BELUM MENIKAH	TK/0	3215050202040002	9012410202	1402610202	PKWTT	AT	12	0	0	2026-06-03	0	1730006590202	SALFA ALFARISYI	MANDIRI	SURATMI	S2	INFORMATIKA	089518976773	2025-06-06	\N	\N	\N	\N	\N	11224	\N	\N	\N	\N	\N
+ASIPLANT1-AN1757746670498	3214-0004	7	\N	1	3215051202030006	3215051202030006	ADHI NUR FAJAR	KARAWANG	2003-02-12	PERUM TERANGSARI E-6/15, RT.001 RW.005, DS. CIBALONGSARI, KEC. KLARI, KAB. KARAWANG, JAWA BARAT 41371	PERUM TERANGSARI E-6/15, RT.001 RW.005, DS. CIBALONGSARI, KEC. KLARI, KAB. KARAWANG, JAWA BARAT 41371	adhinurfajar78@gmail.com	089527897873	B	L	ISLAM	BELUM MENIKAH	TK/0	3215051202030006	1234567890	1234567890	PKWTT	AT	12	0	0	2026-01-01	0	1730012020306	ADHI NUR FAJAR	MANDIRI	ELA HAYATI	S2	INFORMATIKA	081382863277	2024-01-01	\N	\N	\N	\N	\N	12023	\N	\N	\N	\N	\N
+ASIPLANT1-CT1757746670239	3214-0019	8	\N	1	3215050303040003	3215050303040003	CHRISTOPAN TANGGUH SANTOSA	KARAWANG	2004-03-03	JL. PURWAKARTA, RT.001 RW.003, DS. PURWAKARTA, KEC. PURWAKARTA, KAB. PURWAKARTA, JAWABARAT 41111	JL. PURWAKARTA, RT.001 RW.003, DS. PURWAKARTA, KEC. PURWAKARTA, KAB. PURWAKARTA, JAWABARAT 41111	christopantangguh@gmail.com	085885960903	O	L	ISLAM	BELUM MENIKAH	TK/0	3215050303040003	9012410303	1402610303	PKWTT	AT	12	0	0	2026-01-02	0	1730006590303	CHRISTOPAN TANGGUH SANTOSA	MANDIRI	IJAH	S2	INFORMATIKA	085885960903	2025-06-06	\N	\N	\N	\N	\N	11225	\N	\N	\N	\N	\N
+ASIPLANT1-ML1758947651130	3214-0012	75	\N	1	3215051362664479	3215066207459613	MOCH LUCKY RAMADHAN	KOTA BAU-BAU	1997-03-06	JALAN TUPAREV, RT RT.017/RW.007/RW 00, CENGKONG, PURWASARI, KARAWANG, JAWA BARAT, 41371	JALAN TUPAREV, RT RT.017/RW.007/RW 00, CENGKONG, PURWASARI, KARAWANG, JAWA BARAT, 41371	moch.lucky.ramadhan@gmail.com	081234567890	B	L	ISLAM	BELUM MENIKAH	TK/0	3215046490761872	3934402694	1493575085	\N	\N	12	0	0	2026-01-01	0	1730062995422	MOCH LUCKY RAMADHAN	MANDIRI	YULIA	S2	INFORMATIKA	081234567890	2024-12-06	\N	\N	\N	\N	\N	65015	\N	\N	\N	\N	\N
+ASIPLANT1-RF1758947653450	3214-0015	78	\N	1	3215054712790745	3215068224079564	ROFI FEBRIAN AJI	KOTA BEKASI	2001-03-09	JALAN RAYA KLARI, RT RT.009/RW.010/RW 00, PURWASARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	JALAN RAYA KLARI, RT RT.009/RW.010/RW 00, PURWASARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	rofi.febrian.aji@gmail.com	082145667899	AB	L	ISLAM	BELUM MENIKAH	TK/0	3215019416248335	6978874158	3545864790	\N	\N	12	0	0	2026-01-04	0	1730050812164	ROFI FEBRIAN AJI	MANDIRI	CACA	S2	INFORMATIKA	082145667899	2024-11-06	\N	\N	\N	\N	\N	35940	\N	\N	\N	\N	\N
+ASIPLANT1-CR1758947676679	3214-1036	137	\N	1	3215092675573069	3215068983324595	CITRA RAHMAN ABDULLAH	BUTON UTARA	1995-02-11	JALAN TUPAREV, RT RT.017/RW.015/RW 00, BALONGGANDU, JATISARI, KARAWANG, JAWA BARAT, 41374	JALAN TUPAREV, RT RT.017/RW.015/RW 00, BALONGGANDU, JATISARI, KARAWANG, JAWA BARAT, 41374	citra.rahman.abdullah@gmail.com	081381011122	AB	P	ISLAM	BELUM MENIKAH	TK/0	3215013409844692	9213550229	7929000439	\N	\N	12	0	0	2026-03-05	0	1730022310815	CITRA RAHMAN ABDULLAH	MANDIRI	FITRI ROSDIANA	S1	BAHASA	081381011122	2018-11-04	\N	\N	\N	\N	\N	41163	\N	\N	\N	\N	\N
+ASIPLANT1-SA1758947653101	3214-0016	79	\N	1	3215096293075051	3215025675381272	SAEFUL AZHAR	TANAH DATAR	1999-06-06	JALAN KARANGSARI, RT RT.011/RW.003/RW 00, SUKASARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	JALAN KARANGSARI, RT RT.011/RW.003/RW 00, SUKASARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	saeful.azhar@gmail.com	083899911122	AB	L	ISLAM	BELUM MENIKAH	TK/0	3215004509201353	5732770033	9101357201	\N	\N	12	0	0	2026-01-05	0	1730076809942	SAEFUL AZHAR	MANDIRI	FRISKA 	S2	INFORMATIKA	083899911122	2024-10-13	\N	\N	\N	\N	\N	91462	\N	\N	\N	\N	\N
+ASIPLANT1-KA1758947653530	3214-0017	80	\N	1	3215035745823995	3215061624475676	KHAERUL AMIN	PANGKAJENE DAN KEPULAUAN	1997-10-23	JALAN PANCAWATI INDAH, RT RT.013/RW.012/RW 00, ANGGADITA, KLARI, KARAWANG, JAWA BARAT, 41371	JALAN PANCAWATI INDAH, RT RT.013/RW.012/RW 00, ANGGADITA, KLARI, KARAWANG, JAWA BARAT, 41371	khaerul.amin@gmail.com	085611234567	O	L	ISLAM	BELUM MENIKAH	TK/0	3215024454288613	5979863607	4450296854	\N	\N	12	0	0	2026-01-06	0	1730030584196	KHAERUL AMIN	MANDIRI	RATNA	S2	INFORMATIKA	085611234567	2024-12-13	\N	\N	\N	\N	\N	50321	\N	\N	\N	\N	\N
+ASIPLANT1-DA1758947654789	3214-0018	81	\N	1	3215019354881253	3215045292599835	DARYANA	KOTA PAYAKUMBUH	1999-11-18	JALAN PURWADANA, RT RT.020/RW.013/RW 00, PURWASARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	JALAN PURWADANA, RT RT.020/RW.013/RW 00, PURWASARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	daryana@gmail.com	089522233344	O	L	ISLAM	BELUM MENIKAH	TK/0	3215012516558873	3659773661	9191684320	\N	\N	12	0	0	2026-01-07	0	1730019625226	DARYANA	MANDIRI	NINA	S2	INFORMATIKA	089522233344	2015-01-15	\N	\N	\N	\N	\N	11096	\N	\N	\N	\N	\N
+ASIPLANT1-RS1758947654935	3124-0101	82	\N	1	3215080480023041	3215096091267514	REZA SATRIA PANGESTU	MANGGARAI BARAT	1996-10-28	JALAN ARIF RAHMAN HAKIM, RT RT.011/RW.007/RW 00, PURWADANA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	JALAN ARIF RAHMAN HAKIM, RT RT.011/RW.007/RW 00, PURWADANA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	reza.satria.pangestu@gmail.com	082188990011	O	L	ISLAM	BELUM MENIKAH	TK/0	3215081316188924	2601736073	6610852157	\N	\N	12	0	0	2026-01-09	0	1730051414826	REZA SATRIA PANGESTU	MANDIRI	NURHAYATI	D3	AKUNTANSI	082188990011	2018-04-22	\N	\N	\N	\N	\N	68874	\N	\N	\N	\N	\N
+ASIPLANT1-NA1758947652183	3214-0014	77	\N	1	3215066823972423	3215085441484861	NABIL ADANI ALIM	GROBOGAN	1998-01-13	PERUMAHAN GRAHA KARAWANG, RT RT.011/RW.017/RW 00, ADIARSA BARAT, KARAWANG BARAT, KARAWANG, JAWA BARAT, 41311	PERUMAHAN GRAHA KARAWANG, RT RT.011/RW.017/RW 00, ADIARSA BARAT, KARAWANG BARAT, KARAWANG, JAWA BARAT, 41311	nabil.adani.alim@gmail.com	081299887766	B	L	ISLAM	BELUM MENIKAH	TK/0	3215062654745124	5971179959	7968217025	PKWT	AT	12	0	0	2026-01-03	0	1730020976672	NABIL ADANI ALIM	MANDIRI	FITRI	S2	INFORMATIKA	081299887766	2024-08-17	\N	\N	\N	2025-10-04 10:58:08	\N	69387	\N	\N	\N	\N	\N
+ASIPLANT1-RK1758947652191	3214-0013	76	\N	1	3215030827593481	3215037718862586	ROFIQ KHOLID	TIMOR TENGAH SELATAN	2000-07-15	JALAN TUPAREV, RT RT.005/RW.014/RW 00, CIBALONGSARI, KLARI, KARAWANG, JAWA BARAT, 41371	JALAN TUPAREV, RT RT.005/RW.014/RW 00, CIBALONGSARI, KLARI, KARAWANG, JAWA BARAT, 41371	rofiq.kholid@gmail.com	081377812345	A	L	ISLAM	BELUM MENIKAH	TK/0	3215022631250086	4033320356	7936561467	PKWT	AT	12	0	0	2026-01-02	0	1730079021045	ROFIQ KHOLID	MANDIRI	HANI	S2	INFORMATIKA	081377812345	2024-03-23	\N	\N	\N	2025-10-04 11:37:53	\N	40620	\N	\N	\N	\N	\N
+ASIPLANT1-RS1758947655838	3214-0103	83	\N	1	3215093985224651	3215051694899910	RIVVERO SALSADILA	KONAWE UTARA	1994-01-07	JALAN INDUSTRI RAYA, RT RT.011/RW.017/RW 00, MEKARSARI, JATISARI, KARAWANG, JAWA BARAT, 41374	JALAN INDUSTRI RAYA, RT RT.011/RW.017/RW 00, MEKARSARI, JATISARI, KARAWANG, JAWA BARAT, 41374	rivvero.salsadila@gmail.com	085678912345	A	L	ISLAM	BELUM MENIKAH	TK/0	3215019744523544	3864340963	2720497288	\N	\N	12	0	0	2026-01-10	0	1730057952918	RIVVERO SALSADILA	MANDIRI	DEWI LESTARI	S1	TEKNIK INFORMATIKA	085678912345	2019-05-30	\N	\N	\N	\N	\N	35211	\N	\N	\N	\N	\N
+ASIPLANT1-AN1758947655736	3214-0104	84	\N	1	3215082526428884	3215045817842947	ADE NASIHUL UMAM	NAGEKEO	1995-03-22	JALAN BYPASS KARAWANG, RT RT.012/RW.017/RW 00, PURWADANA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	JALAN BYPASS KARAWANG, RT RT.012/RW.017/RW 00, PURWADANA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	ade.nasihul.umam@gmail.com	089577899000	A	L	ISLAM	BELUM MENIKAH	TK/0	3215052228000621	6786304524	2510252848	\N	\N	12	0	0	2026-01-11	0	1730093426405	ADE NASIHUL UMAM	MANDIRI	SRI WAHYUNI	S2	MANAJEMEN	089577899000	2020-06-25	\N	\N	\N	\N	\N	17142	\N	\N	\N	\N	\N
+ASIPLANT1-BB1758947656578	3214-0106	86	\N	1	3215073267607449	3215003515242681	BUDI BAYU BAGUS	BURU SELATAN	1992-11-25	JALAN SIRNABAYA, RT RT.014/RW.005/RW 00, PURWASARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	JALAN SIRNABAYA, RT RT.014/RW.005/RW 00, PURWASARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	budi.bayu.bagus@gmail.com	083877788899	AB	L	ISLAM	BELUM MENIKAH	TK/0	3215075494027381	8974971502	9016816503	\N	\N	12	0	0	2026-01-13	0	1730034500238	BUDI BAYU BAGUS	MANDIRI	TUTI HANDAYANI	SMA	IPA	083877788899	2015-08-09	\N	\N	\N	\N	\N	48507	\N	\N	\N	\N	\N
+ASIPLANT1-DD1758947657712	3214-0108	88	\N	1	3215045165160992	3215076939980089	DEWI DARMA DARMADI	BLORA	1993-06-09	PERUMAHAN KARAWANG INDAH, RT RT.020/RW.003/RW 00, JATIWANGI, JATISARI, KARAWANG, JAWA BARAT, 41374	PERUMAHAN KARAWANG INDAH, RT RT.020/RW.003/RW 00, JATIWANGI, JATISARI, KARAWANG, JAWA BARAT, 41374	dewi.darma.darmadi@gmail.com	089588899900	A	P	ISLAM	BELUM MENIKAH	TK/0	3215010970871296	6351787744	9751539506	\N	\N	12	0	0	2026-01-15	0	1730013126380	DEWI DARMA DARMADI	MANDIRI	FITRIANI	D3	MANAJEMEN INFORMATIKA	089588899900	2017-10-27	\N	\N	\N	\N	\N	99459	\N	\N	\N	\N	\N
+ASIPLANT1-FF1758947658185	3214-0201	90	\N	1	3215012566562638	3215063114974826	FAJAR FAUZI FIRMANSYAH	SERAM BAGIAN BARAT	1996-12-27	JALAN PURWADANA, RT RT.008/RW.007/RW 00, PANCAWATI, KLARI, KARAWANG, JAWA BARAT, 41371	JALAN PURWADANA, RT RT.008/RW.007/RW 00, PANCAWATI, KLARI, KARAWANG, JAWA BARAT, 41371	fajar.fauzi.firmansyah@gmail.com	081233344455	A	L	ISLAM	BELUM MENIKAH	TK/0	3215046227495390	3272616223	2159741606	\N	\N	12	0	0	2026-01-17	0	1730056027141	FAJAR FAUZI FIRMANSYAH	MANDIRI	SITI FATIMAH	SMA	IPS	081233344455	2019-12-20	\N	\N	\N	\N	\N	25473	\N	\N	\N	\N	\N
+ASIPLANT1-II1758947659196	3214-0204	93	\N	1	3215095564986663	3215083402721004	INDAH ISKANDAR IRAWAN	BULUKUMBA	1996-09-05	JALAN PURWADANA, RT RT.006/RW.010/RW 00, CENGKONG, PURWASARI, KARAWANG, JAWA BARAT, 41371	JALAN PURWADANA, RT RT.006/RW.010/RW 00, CENGKONG, PURWASARI, KARAWANG, JAWA BARAT, 41371	indah.iskandar.irawan@gmail.com	082266677788	AB	P	ISLAM	BELUM MENIKAH	TK/0	3215065776490290	7344197215	2293434874	\N	\N	12	0	0	2026-01-20	0	1730037039310	INDAH ISKANDAR IRAWAN	MANDIRI	LILIS SURYANI	S1	AKUNTANSI	082266677788	2022-03-16	\N	\N	\N	\N	\N	95866	\N	\N	\N	\N	\N
+ASIPLANT1-JJ1758947659722	3214-0205	94	\N	1	3215063617502506	3215056761873896	JOKO JAYA JATMIKO	MAJENE	1992-01-19	JALAN RAYA KLARI, RT RT.006/RW.010/RW 00, ADIARSA TIMUR, KARAWANG TIMUR, KARAWANG, JAWA BARAT, 41313	JALAN RAYA KLARI, RT RT.006/RW.010/RW 00, ADIARSA TIMUR, KARAWANG TIMUR, KARAWANG, JAWA BARAT, 41313	joko.jaya.jatmiko@gmail.com	081366677799	O	L	ISLAM	BELUM MENIKAH	TK/0	3215039117005887	2044884851	2130698226	\N	\N	12	0	0	2026-01-21	0	1730096763692	JOKO JAYA JATMIKO	MANDIRI	DESI ANGGRAINI	SMA	IPA	081366677799	2015-04-03	\N	\N	\N	\N	\N	65174	\N	\N	\N	\N	\N
+ASIPLANT1-LL1758947660320	3214-0207	96	\N	1	3215041499704088	3215078088841039	LUKMAN LESTARI LAKSONO	KOTA BANJARBARU	1995-10-03	JALAN WADAS RAYA, RT RT.001/RW.006/RW 00, MEKARJAYA, PURWASARI, KARAWANG, JAWA BARAT, 41371	JALAN WADAS RAYA, RT RT.001/RW.006/RW 00, MEKARJAYA, PURWASARI, KARAWANG, JAWA BARAT, 41371	lukman.lestari.laksono@gmail.com	082255544332	B	L	ISLAM	BELUM MENIKAH	TK/0	3215055414448240	3905687159	7377569459	\N	\N	12	0	0	2026-01-23	0	1730089117294	LUKMAN LESTARI LAKSONO	MANDIRI	INDAH PERMATASARI	S1	TEKNIK MESIN	082255544332	2017-06-29	\N	\N	\N	\N	\N	72183	\N	\N	\N	\N	\N
+ASIPLANT1-OO1758947661935	3214-0210	99	\N	1	3215041439329347	3215052027732103	OKA OKTAVIANI OKTAVIANUS	SELUMA	1997-04-07	JALAN ANGGADITA, RT RT.001/RW.018/RW 00, SIRNABAYA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	JALAN ANGGADITA, RT RT.001/RW.018/RW 00, SIRNABAYA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	oka.oktaviani.oktavianus@gmail.com	081355566677	A	P	ISLAM	BELUM MENIKAH	TK/0	3215072396339802	9304918734	7959485245	\N	\N	12	0	0	2026-01-26	0	1730047427244	OKA OKTAVIANI OKTAVIANUS	MANDIRI	YUNI ASTUTI	S2	ILMU KOMUNIKASI	081355566677	2020-09-08	\N	\N	\N	\N	\N	67027	\N	\N	\N	\N	\N
+ASIPLANT1-PP1758947662589	3214-0211	100	\N	1	3215037268355826	3215003160182403	PUTRI PRATAMA PURNAMA	TRENGGALEK	1991-08-24	PERUMAHAN HARMONI KARAWANG, RT RT.009/RW.010/RW 00, WADAS, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	PERUMAHAN HARMONI KARAWANG, RT RT.009/RW.010/RW 00, WADAS, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	putri.pratama.purnama@gmail.com	085688899900	AB	P	ISLAM	BELUM MENIKAH	TK/0	3215085775106875	9819081378	2555648206	\N	\N	12	0	0	2026-01-27	0	1730066317397	PUTRI PRATAMA PURNAMA	MANDIRI	RATNA SARI	SMA	BAHASA	085688899900	2021-10-18	\N	\N	\N	\N	\N	61778	\N	\N	\N	\N	\N
+ASIPLANT1-RR1758947662390	3214-1001	102	\N	1	3215029094946930	3215088657134102	RIZKY RAHMAN RAMADHAN	TANGGAMUS	1996-06-18	JALAN PURWADANA INDAH, RT RT.002/RW.004/RW 00, MEKARSARI, JATISARI, KARAWANG, JAWA BARAT, 41374	JALAN PURWADANA INDAH, RT RT.002/RW.004/RW 00, MEKARSARI, JATISARI, KARAWANG, JAWA BARAT, 41374	rizky.rahman.ramadhan@gmail.com	081399000111	A	L	ISLAM	BELUM MENIKAH	TK/0	3215077838956645	6084498711	1945445071	\N	\N	12	0	0	2026-01-29	0	1730050419748	RIZKY RAHMAN RAMADHAN	MANDIRI	MAYA SARI	S1	TEKNIK ELEKTRO	081399000111	2015-12-14	\N	\N	\N	\N	\N	21562	\N	\N	\N	\N	\N
+ASIPLANT1-SS1758947663255	3214-1002	103	\N	1	3215070243749327	3215078582563376	SITI SAPUTRA SANTOSO	KOTA SUNGAI PENUH	1998-09-27	JALAN PURWADANA, RT RT.005/RW.007/RW 00, MEKARJAYA, PURWASARI, KARAWANG, JAWA BARAT, 41371	JALAN PURWADANA, RT RT.005/RW.007/RW 00, MEKARJAYA, PURWASARI, KARAWANG, JAWA BARAT, 41371	siti.saputra.santoso@gmail.com	083855566677	A	P	ISLAM	BELUM MENIKAH	TK/0	3215047799382447	2298612061	9868508049	\N	\N	12	0	0	2026-01-30	0	1730088171746	SITI SAPUTRA SANTOSO	MANDIRI	DEWI SARTIKA	S2	MANAJEMEN	083855566677	2016-01-01	\N	\N	\N	\N	\N	47343	\N	\N	\N	\N	\N
+ASIPLANT1-VV1758947664114	3214-1005	106	\N	1	3215089947435115	3215013954224068	VINA VERNANDA VALENTINO	KOTA SUNGAI PENUH	1998-03-21	JALAN RAYA KLARI, RT RT.003/RW.010/RW 00, PURWASARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	JALAN RAYA KLARI, RT RT.003/RW.010/RW 00, PURWASARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	vina.vernanda.valentino@gmail.com	089511223344	B	P	ISLAM	BELUM MENIKAH	TK/0	3215083504671010	3017290281	6880105243	\N	\N	12	0	0	2026-02-02	0	1730096562805	VINA VERNANDA VALENTINO	MANDIRI	TIKA ROSITA	S1	TEKNIK INFORMATIKA	089511223344	2019-04-02	\N	\N	\N	\N	\N	82147	\N	\N	\N	\N	\N
+ASIPLANT1-WW1758947664656	3214-1006	107	\N	1	3215072592536339	3215089769857075	WAWAN WIJAYA WIBOWO	LIMA PULUH KOTA	1995-08-19	JALAN PURWADANA, RT RT.009/RW.010/RW 00, JATISARI, JATISARI, KARAWANG, JAWA BARAT, 41374	JALAN PURWADANA, RT RT.009/RW.010/RW 00, JATISARI, JATISARI, KARAWANG, JAWA BARAT, 41374	wawan.wijaya.wibowo@gmail.com	085677788899	AB	L	ISLAM	BELUM MENIKAH	TK/0	3215036683181627	3480374351	2501491324	\N	\N	12	0	0	2026-02-03	0	1730070230443	WAWAN WIJAYA WIBOWO	MANDIRI	WATI SUSANTI	D3	TEKNIK INDUSTRI	085677788899	2020-05-10	\N	\N	\N	\N	\N	41755	\N	\N	\N	\N	\N
+ASIPLANT1-CP1758947666714	3214-1011	112	\N	1	3215002256643722	3215053911766666	CITRA PRATAMA WIBOWO	KOTA PADANG PANJANG	1997-10-25	PERUMAHAN GRAHA KARAWANG, RT RT.001/RW.006/RW 00, ANGGADITA, KLARI, KARAWANG, JAWA BARAT, 41371	PERUMAHAN GRAHA KARAWANG, RT RT.001/RW.006/RW 00, ANGGADITA, KLARI, KARAWANG, JAWA BARAT, 41371	citra.pratama.wibowo@gmail.com	082299900011	O	P	ISLAM	BELUM MENIKAH	TK/0	3215052123665617	7649548042	3303481758	\N	\N	12	0	0	2026-02-08	0	1730014030761	CITRA PRATAMA WIBOWO	MANDIRI	SINTA LESTARI	SMA	IPA	082299900011	2017-10-12	\N	\N	\N	\N	\N	39124	\N	\N	\N	\N	\N
+ASIPLANT1-EN1758947667473	3214-1013	114	\N	1	3215019726114089	3215038924885833	EKO NUGROHO FIRMANSYAH	TANGGAMUS	1998-05-26	JALAN TELUKJAMBE RAYA, RT RT.009/RW.019/RW 00, KARANGSARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	JALAN TELUKJAMBE RAYA, RT RT.009/RW.019/RW 00, KARANGSARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	eko.nugroho.firmansyah@gmail.com	089544455566	A	L	ISLAM	BELUM MENIKAH	TK/0	3215029014074892	5666881042	8677203926	\N	\N	12	0	0	2026-02-10	0	1730035093432	EKO NUGROHO FIRMANSYAH	MANDIRI	DIAH AYU	D3	MANAJEMEN PEMASARAN	089544455566	2019-12-19	\N	\N	\N	\N	\N	87389	\N	\N	\N	\N	\N
+ASIPLANT1-JT1758947669717	3214-1018	119	\N	1	3215003602273195	3215034653177436	JOKO TIRTA TIRTAYASA	MANOKWARI SELATAN	1990-02-24	PERUMAHAN GRIYA ASRI, RT RT.019/RW.010/RW 00, SIRNABAYA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	PERUMAHAN GRIYA ASRI, RT RT.019/RW.010/RW 00, SIRNABAYA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	joko.tirta.tirtayasa@gmail.com	081311344455	B	L	ISLAM	BELUM MENIKAH	TK/0	3215032699340034	8672373449	2623224550	\N	\N	12	0	0	2026-02-15	0	1730074114487	JOKO TIRTA TIRTAYASA	MANDIRI	TUTI KARTIKA	SMA	IPA	081311344455	2016-05-23	\N	\N	\N	\N	\N	88205	\N	\N	\N	\N	\N
+ASIPLANT1-KA1758947669136	3214-1019	120	\N	1	3215022950321919	3215010116461547	KARTIKA AGUS ABDULLAH	TEGAL	1993-07-17	PERUMAHAN GRIYA ASRI, RT RT.020/RW.007/RW 00, BALONGGANDU, JATISARI, KARAWANG, JAWA BARAT, 41374	PERUMAHAN GRIYA ASRI, RT RT.020/RW.007/RW 00, BALONGGANDU, JATISARI, KARAWANG, JAWA BARAT, 41374	kartika.agus.abdullah@gmail.com	083899900011	A	P	ISLAM	BELUM MENIKAH	TK/0	3215082662209449	5852690386	7207267989	\N	\N	12	0	0	2026-02-16	0	1730066992178	KARTIKA AGUS ABDULLAH	MANDIRI	LIA ROSDIANA	SMA	IPS	083899900011	2017-06-28	\N	\N	\N	\N	\N	23862	\N	\N	\N	\N	\N
+ASIPLANT1-MR1758947670843	3214-1021	122	\N	1	3215015061897566	3215058823927017	MEGA RAHMAN VALENTINO	KOTA DEPOK	1994-05-05	JALAN AHMAD YANI, RT RT.007/RW.020/RW 00, ANGGADITA, KLARI, KARAWANG, JAWA BARAT, 41371	JALAN AHMAD YANI, RT RT.007/RW.020/RW 00, ANGGADITA, KLARI, KARAWANG, JAWA BARAT, 41371	mega.rahman.valentino@gmail.com	082122334455	AB	P	ISLAM	BELUM MENIKAH	TK/0	3215085997849454	2633359887	4737171612	\N	\N	12	0	0	2026-02-18	0	1730030923814	MEGA RAHMAN VALENTINO	MANDIRI	CICI RAHMAWATI	S2	ILMU HUKUM	082122334455	2019-08-16	\N	\N	\N	\N	\N	40373	\N	\N	\N	\N	\N
+ASIPLANT1-OS1758947671599	3214-1023	124	\N	1	3215067312751948	3215051626167302	OKA SAPUTRA PURNAMA	PASANGKAYU	1995-02-16	JALAN PURWASARI RAYA, RT RT.020/RW.013/RW 00, SIRNABAYA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	JALAN PURWASARI RAYA, RT RT.020/RW.013/RW 00, SIRNABAYA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	oka.saputra.purnama@gmail.com	089533344455	O	P	ISLAM	BELUM MENIKAH	TK/0	3215016733840367	2649385854	1983368423	\N	\N	12	0	0	2026-02-20	0	1730011923750	OKA SAPUTRA PURNAMA	MANDIRI	RENI MARLINA	SMA	BAHASA	089533344455	2021-10-07	\N	\N	\N	\N	\N	94303	\N	\N	\N	\N	\N
+ASIPLANT1-QY1758947672400	3214-1025	126	\N	1	3215053112533569	3215047487576898	QORI YUSUF CAHYONO	KLATEN	1991-09-28	JALAN AHMAD YANI, RT RT.009/RW.012/RW 00, KARANGSARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	JALAN AHMAD YANI, RT RT.009/RW.012/RW 00, KARANGSARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	qori.yusuf.cahyono@gmail.com	082111223344	B	P	ISLAM	BELUM MENIKAH	TK/0	3215055469351926	1450695972	7447495289	\N	\N	12	0	0	2026-02-22	0	1730091601013	QORI YUSUF CAHYONO	MANDIRI	TINA SURYANI	S1	SISTEM INFORMASI	082111223344	2015-12-25	\N	\N	\N	\N	\N	21302	\N	\N	\N	\N	\N
+ASIPLANT1-SV1758947673281	3214-1027	128	\N	1	3215033682785632	3215093514629427	SITI VERNANDA LAKSONO	SIJUNJUNG	1997-04-14	PERUMAHAN BUMI KARAWANG BLOK B, RT RT.009/RW.016/RW 00, DAWUAN TENGAH, CIKAMPEK, KARAWANG, JAWA BARAT, 41373	PERUMAHAN BUMI KARAWANG BLOK B, RT RT.009/RW.016/RW 00, DAWUAN TENGAH, CIKAMPEK, KARAWANG, JAWA BARAT, 41373	siti.vernanda.laksono@gmail.com	081341677788	A	P	ISLAM	BELUM MENIKAH	TK/0	3215031546554856	9287857627	2856471236	\N	\N	12	0	0	2026-02-24	0	1730060505511	SITI VERNANDA LAKSONO	MANDIRI	YULI RAHMA	S2	TEKNIK ELEKTRO	081341677788	2017-02-14	\N	\N	\N	\N	\N	60601	\N	\N	\N	\N	\N
+ASIPLANT1-TN1758947673739	3214-1028	129	\N	1	3215094367069684	3215069460838170	TAUFIK NUGROHO RAMADHAN	BENGKALIS	1992-06-23	PERUMAHAN CITRA KEBUN MAS, RT RT.019/RW.005/RW 00, DUREN, KLARI, KARAWANG, JAWA BARAT, 41371	PERUMAHAN CITRA KEBUN MAS, RT RT.019/RW.005/RW 00, DUREN, KLARI, KARAWANG, JAWA BARAT, 41371	taufik.nugroho.ramadhan@gmail.com	089588899911	A	L	ISLAM	BELUM MENIKAH	TK/0	3215043764639430	8118546859	7648633663	\N	\N	12	0	0	2026-02-25	0	1730061428243	TAUFIK NUGROHO RAMADHAN	MANDIRI	MEGA PUSPITA	D3	KEUANGAN	089588899911	2018-03-05	\N	\N	\N	\N	\N	65549	\N	\N	\N	\N	\N
+ASIPLANT1-WH1758947674297	3214-1031	132	\N	1	3215051979183253	3215028628132309	WAWAN HARI GUNADI	LEBAK	1998-03-20	PERUMAHAN GRIYA ASRI, RT RT.007/RW.004/RW 00, RENGASDENGKLOK SELATAN, RENGASDENGKLOK, KARAWANG, JAWA BARAT, 41352	PERUMAHAN GRIYA ASRI, RT RT.007/RW.004/RW 00, RENGASDENGKLOK SELATAN, RENGASDENGKLOK, KARAWANG, JAWA BARAT, 41352	wawan.hari.gunadi@gmail.com	085655566677	A	L	ISLAM	BELUM MENIKAH	TK/0	3215040609934241	2819603281	9896467666	\N	\N	12	0	0	2026-02-28	0	1730072783072	WAWAN HARI GUNADI	MANDIRI	LINDA KARTINI	S1	IPA	085655566677	2021-06-12	\N	\N	\N	\N	\N	83315	\N	\N	\N	\N	\N
+ASIPLANT1-ZP1758947675171	3214-1033	134	\N	1	3215072920375093	3215092904766939	ZAHRA PRATAMA WIBOWO	BOYOLALI	1992-08-27	PERUMAHAN MITRA KARAWANG, RT RT.019/RW.020/RW 00, CENGKONG, PURWASARI, KARAWANG, JAWA BARAT, 41371	PERUMAHAN MITRA KARAWANG, RT RT.019/RW.020/RW 00, CENGKONG, PURWASARI, KARAWANG, JAWA BARAT, 41371	zahra.pratama.wibowo@gmail.com	082133445566	B	P	ISLAM	BELUM MENIKAH	TK/0	3215059431872750	4862919206	7655599795	\N	\N	12	0	0	2026-03-02	0	1730092417852	ZAHRA PRATAMA WIBOWO	MANDIRI	SINTA DEWI	S2	HUKUM	082133445566	2015-08-03	\N	\N	\N	\N	\N	29711	\N	\N	\N	\N	\N
+ASIPLANT1-AK1758947675543	3214-1034	135	\N	1	3215058030635183	3215014148891691	AHMAD KARTONO NUGRAHA	MIMIKA	1994-05-15	JALAN PURWADANA, RT RT.011/RW.003/RW 00, WADAS, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	JALAN PURWADANA, RT RT.011/RW.003/RW 00, WADAS, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	ahmad.kartono.nugraha@gmail.com	081371900011	A	L	ISLAM	BELUM MENIKAH	TK/0	3215016067817164	2095305086	3343733223	\N	\N	12	0	0	2026-03-03	0	1730085890056	AHMAD KARTONO NUGRAHA	MANDIRI	AYU PERMATASARI	SMA	SISTEM INFORMASI	081371900011	2016-09-21	\N	\N	\N	\N	\N	47917	\N	\N	\N	\N	\N
+ASIPLANT1-GH1758947668553	3214-1015	116	\N	1	3215093132630802	3215090916750003	GILANG HARI HARTONO	LEBONG	1995-09-06	PERUMAHAN PESONA KARAWANG, RT RT.013/RW.011/RW 00, JATISARI, JATISARI, KARAWANG, JAWA BARAT, 41374	PERUMAHAN PESONA KARAWANG, RT RT.013/RW.011/RW 00, JATISARI, JATISARI, KARAWANG, JAWA BARAT, 41374	gilang.hari.hartono@gmail.com	081201122233	AB	L	ISLAM	BELUM MENIKAH	TK/0	3215072462758915	6719549460	5687879856	PKWT	HK	12	0	0	2026-02-12	0	1730079982171	GILANG HARI HARTONO	MANDIRI	MIRA SURYANI	SMA	BAHASA	081201122233	2021-02-17	2025-09-29	\N	\N	2025-10-04 12:19:38	\N	60636	\N	\N	\N	\N	\N
+ASIPLANT1-AA1758947656319	3214-0105	85	\N	1	3215034288393869	3215078088878339	AHMAD AGUS ABDULLAH	SUPIORI	1997-09-30	JALAN ANGGADITA, RT RT.007/RW.019/RW 00, BALONGGANDU, JATISARI, KARAWANG, JAWA BARAT, 41374	JALAN ANGGADITA, RT RT.007/RW.019/RW 00, BALONGGANDU, JATISARI, KARAWANG, JAWA BARAT, 41374	ahmad.agus.abdullah@gmail.com	081311122233	AB	L	ISLAM	MENIKAH	K/1	3215067135550657	6576225239	2982644902	\N	\N	12	0	0	2026-01-12	0	1730056398514	AHMAD AGUS ABDULLAH	MANDIRI	RINA MARLINA	SMA	IPS	081311122233	2021-07-02	\N	\N	\N	\N	\N	57872	\N	\N	\N	\N	\N
+ASIPLANT1-CC1758947656256	3214-0107	87	\N	1	3215087001721128	3215021817771626	CITRA CAHYA CAHYONO	KOTA TANGERANG SELATAN	1995-04-02	JALAN TELAGASARI, RT RT.002/RW.005/RW 00, ADIARSA BARAT, KARAWANG BARAT, KARAWANG, JAWA BARAT, 41311	JALAN TELAGASARI, RT RT.002/RW.005/RW 00, ADIARSA BARAT, KARAWANG BARAT, KARAWANG, JAWA BARAT, 41311	citra.cahya.cahyono@gmail.com	082211233344	A	P	ISLAM	MENIKAH	K/1	3215066586230807	1219469030	1983430305	\N	\N	12	0	0	2026-01-14	0	1730093920382	CITRA CAHYA CAHYONO	MANDIRI	ANI KARTIKA	S1	HUKUM	082211233344	2016-09-14	\N	\N	\N	\N	\N	21820	\N	\N	\N	\N	\N
+ASIPLANT1-HH1758947658682	3214-0203	92	\N	1	3215031605569056	3215012031863163	HENDRA HARI HARTONO	RAJA AMPAT	1997-07-20	JALAN MEKARJAYA, RT RT.009/RW.014/RW 00, RENGASJAJAR, RENGASDENGKLOK, KARAWANG, JAWA BARAT, 41352	JALAN MEKARJAYA, RT RT.009/RW.014/RW 00, RENGASJAJAR, RENGASDENGKLOK, KARAWANG, JAWA BARAT, 41352	hendra.hari.hartono@gmail.com	081377788899	AB	L	ISLAM	MENIKAH	K/1	3215062660959370	3967492552	6815002944	\N	\N	12	0	0	2026-01-19	0	1730051381543	HENDRA HARI HARTONO	MANDIRI	RIKA AMALIA	S2	TEKNIK SIPIL	081377788899	2021-02-19	\N	\N	\N	\N	\N	33878	\N	\N	\N	\N	\N
+ASIPLANT1-KK1758947660501	3214-0206	95	\N	1	3215040001647745	3215059187722661	KARTIKA KARTONO KUSUMA	KOTA BATAM	1990-05-16	JALAN KERTABUMI, RT RT.009/RW.012/RW 00, PURWADANA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	JALAN KERTABUMI, RT RT.009/RW.012/RW 00, PURWADANA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	kartika.kartono.kusuma@gmail.com	081344456677	O	P	ISLAM	MENIKAH	K/1	3215058415770758	6685387614	6038327439	\N	\N	12	0	0	2026-01-22	0	1730063231352	KARTIKA KARTONO KUSUMA	MANDIRI	RINI SUSANTI	D3	KEPERAWATAN	081344456677	2016-05-12	\N	\N	\N	\N	\N	95282	\N	\N	\N	\N	\N
+ASIPLANT1-MM1758947660339	3214-0208	97	\N	1	3215063623279446	3215073529149219	MEGA MAULANA MAHENDRA	KOTA SAWAHLUNTO	1992-11-12	PERUMAHAN PESONA KARAWANG, RT RT.008/RW.005/RW 00, SUKAMAKMUR, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	PERUMAHAN PESONA KARAWANG, RT RT.008/RW.005/RW 00, SUKAMAKMUR, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	mega.maulana.mahendra@gmail.com	089566677788	O	P	ISLAM	MENIKAH	K/1	3215017108417497	2742283090	4569351059	\N	\N	12	0	0	2026-01-24	0	1730082003180	MEGA MAULANA MAHENDRA	MANDIRI	YENI KARTINI	SMA	IPS	089566677788	2018-07-07	\N	\N	\N	\N	\N	23158	\N	\N	\N	\N	\N
+ASIPLANT1-QQ1758947662298	3214-0212	101	\N	1	3215086131891859	3215050583501358	QORI QURAISY QUDRATULLAH	PADANG PARIAMAN	1994-02-08	PERUMAHAN GRAHA KARAWANG, RT RT.013/RW.011/RW 00, PANCAWATI, KLARI, KARAWANG, JAWA BARAT, 41371	PERUMAHAN GRAHA KARAWANG, RT RT.013/RW.011/RW 00, PANCAWATI, KLARI, KARAWANG, JAWA BARAT, 41371	qori.quraisy.qudratullah@gmail.com	081322233344	AB	P	ISLAM	MENIKAH	K/1	3215087360565159	6924826776	4946657566	\N	\N	12	0	0	2026-01-28	0	1730073341107	QORI QURAISY QUDRATULLAH	MANDIRI	EKA PUSPITA	D3	ADMINISTRASI BISNIS	081322233344	2022-11-27	\N	\N	\N	\N	\N	77406	\N	\N	\N	\N	\N
+ASIPLANT1-YY1758947665440	3214-1007	108	\N	1	3215057934279880	3215061527664174	YOGA YUSUF YULIANTO	SUKABUMI	1990-05-02	JALAN RENGASDENGKLOK, RT RT.006/RW.001/RW 00, WADAS, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	JALAN RENGASDENGKLOK, RT RT.006/RW.001/RW 00, WADAS, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	yoga.yusuf.yulianto@gmail.com	081222889900	AB	L	ISLAM	MENIKAH	K/1	3215070626745314	3202525321	6094758649	\N	\N	12	0	0	2026-02-04	0	1730025529870	YOGA YUSUF YULIANTO	MANDIRI	NIA RAHMAWATI	SMA	IPA	081222889900	2021-06-30	\N	\N	\N	\N	\N	83628	\N	\N	\N	\N	\N
+ASIPLANT1-ZZ1758947665422	3214-1008	109	\N	1	3215037982145732	3215032499854721	ZAHRA ZULKARNAIN ZAINUDDIN	MANGGARAI TIMUR	1991-11-10	JALAN TELAGASARI, RT RT.011/RW.001/RW 00, MEKARSARI, JATISARI, KARAWANG, JAWA BARAT, 41374	JALAN TELAGASARI, RT RT.011/RW.001/RW 00, MEKARSARI, JATISARI, KARAWANG, JAWA BARAT, 41374	zahra.zulkarnain.zainuddin@gmail.com	082211122233	O	P	ISLAM	MENIKAH	K/1	3215052129266552	5324760655	6608308859	\N	\N	12	0	0	2026-02-05	0	1730075408722	ZAHRA ZULKARNAIN ZAINUDDIN	MANDIRI	SARI KARTIKA	S2	TEKNIK SIPIL	082211122233	2022-07-15	\N	\N	\N	\N	\N	59614	\N	\N	\N	\N	\N
+ASIPLANT1-HJ1758947668162	3214-1016	117	\N	1	3215093197351584	3215019021655882	HENDRA JAYA BAGUS	TANA TORAJA	1998-11-03	JALAN PURWADANA INDAH, RT RT.017/RW.015/RW 00, MEKARSARI, JATISARI, KARAWANG, JAWA BARAT, 41374	JALAN PURWADANA INDAH, RT RT.017/RW.015/RW 00, MEKARSARI, JATISARI, KARAWANG, JAWA BARAT, 41374	hendra.jaya.bagus@gmail.com	085644455566	A	L	ISLAM	MENIKAH	K/1	3215096103889203	4458927538	9439112325	\N	\N	12	0	0	2026-02-13	0	1730079422470	HENDRA JAYA BAGUS	MANDIRI	KIKI KARTINI	S2	PENDIDIKAN EKONOMI	085644455566	2022-03-13	\N	\N	\N	\N	\N	71058	\N	\N	\N	\N	\N
+ASIPLANT1-IV1758947669172	3214-1017	118	\N	1	3215029999826788	3215086007180938	INDAH VERNANDA YULIANTO	KOTA TANGERANG	1991-04-19	JALAN ARIF RAHMAN HAKIM, RT RT.011/RW.001/RW 00, ANGGADITA, KLARI, KARAWANG, JAWA BARAT, 41371	JALAN ARIF RAHMAN HAKIM, RT RT.011/RW.001/RW 00, ANGGADITA, KLARI, KARAWANG, JAWA BARAT, 41371	indah.vernanda.yulianto@gmail.com	081301233344	A	P	ISLAM	MENIKAH	K/1	3215042548396589	8439733033	6917288277	\N	\N	12	0	0	2026-02-14	0	1730033886463	INDAH VERNANDA YULIANTO	MANDIRI	YANI ASTUTI	S1	MANAJEMEN	081301233344	2015-04-09	\N	\N	\N	\N	\N	88546	\N	\N	\N	\N	\N
+ASIPLANT1-LM1758947670284	3214-1020	121	\N	1	3215056253751680	3215086662648694	LUKMAN MAULANA MAHENDRA	CIREBON	1995-10-09	JALAN JATISARI RAYA, RT RT.019/RW.010/RW 00, ADIARSA BARAT, KARAWANG BARAT, KARAWANG, JAWA BARAT, 41311	JALAN JATISARI RAYA, RT RT.019/RW.010/RW 00, ADIARSA BARAT, KARAWANG BARAT, KARAWANG, JAWA BARAT, 41311	lukman.maulana.mahendra@gmail.com	081321455566	B	L	ISLAM	MENIKAH	K/1	3215029246576851	6346051430	8274948652	\N	\N	12	0	0	2026-02-17	0	1730029723948	LUKMAN MAULANA MAHENDRA	MANDIRI	LUSI AMELIA	D3	TEKNIK INFORMATIKA	081321455566	2018-07-02	\N	\N	\N	\N	\N	45456	\N	\N	\N	\N	\N
+ASIPLANT1-PW1758947671862	3214-1024	125	\N	1	3215017469231993	3215093310347550	PUTRI WIJAYA NUGRAHA	KOTA PADANG	1996-08-22	JALAN TELUKJAMBE RAYA, RT RT.007/RW.020/RW 00, MEKARJAYA, PURWASARI, KARAWANG, JAWA BARAT, 41371	JALAN TELUKJAMBE RAYA, RT RT.007/RW.020/RW 00, MEKARJAYA, PURWASARI, KARAWANG, JAWA BARAT, 41371	putri.wijaya.nugraha@gmail.com	081331566677	O	P	ISLAM	MENIKAH	K/1	3215084226462327	3913578548	9787402378	\N	\N	12	0	0	2026-02-21	0	1730071454402	PUTRI WIJAYA NUGRAHA	MANDIRI	NOVI KARTIKA	SMA	IPA	081331566677	2022-11-11	\N	\N	\N	\N	\N	43692	\N	\N	\N	\N	\N
+ASIPLANT1-RD1758947672208	3214-1026	127	\N	1	3215069960798916	3215032961359625	RIZKY DARMA EFFENDI	MANGGARAI TIMUR	1993-11-08	JALAN WADAS RAYA, RT RT.017/RW.015/RW 00, SIRNABAYA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	JALAN WADAS RAYA, RT RT.017/RW.015/RW 00, SIRNABAYA, TELUKJAMBE TIMUR, KARAWANG, JAWA BARAT, 41361	rizky.darma.effendi@gmail.com	085699900011	O	L	ISLAM	MENIKAH	K/1	3215050129687943	8429823381	4429176952	\N	\N	12	0	0	2026-02-23	0	1730072531030	RIZKY DARMA EFFENDI	MANDIRI	MIRA HANDAYANI	SMA	IPS	085699900011	2016-01-31	\N	\N	\N	\N	\N	82926	\N	\N	\N	\N	\N
+ASIPLANT1-UO1758947673172	3214-1029	130	\N	1	3215002154565532	3215068357341816	UMAR OKTAVIANI KUSUMA	PENAJAM PASER UTARA	1994-12-19	PERUMAHAN GRAHA KARAWANG, RT RT.005/RW.014/RW 00, CIBALONGSARI, KLARI, KARAWANG, JAWA BARAT, 41371	PERUMAHAN GRAHA KARAWANG, RT RT.005/RW.014/RW 00, CIBALONGSARI, KLARI, KARAWANG, JAWA BARAT, 41371	umar.oktaviani.kusuma@gmail.com	081351788899	AB	L	ISLAM	MENIKAH	K/1	3215055021340143	7776504408	5911385938	\N	\N	12	0	0	2026-02-26	0	1730033601488	UMAR OKTAVIANI KUSUMA	MANDIRI	RATIH AMALIA	SMA	MANAJEMEN	081351788899	2019-04-18	\N	\N	\N	\N	\N	53188	\N	\N	\N	\N	\N
+ASIPLANT1-VB1758947674694	3214-1030	131	\N	1	3215065240057378	3215091619615520	VINA BAYU VALENTINO	KEBUMEN	1991-01-07	JALAN PURWASARI RAYA, RT RT.011/RW.017/RW 00, CENGKONG, PURWASARI, KARAWANG, JAWA BARAT, 41371	JALAN PURWASARI RAYA, RT RT.011/RW.017/RW 00, CENGKONG, PURWASARI, KARAWANG, JAWA BARAT, 41371	vina.bayu.valentino@gmail.com	083866677788	AB	P	ISLAM	MENIKAH	K/1	3215037033235823	6579873288	2719834217	\N	\N	12	0	0	2026-02-27	0	1730036107726	VINA BAYU VALENTINO	MANDIRI	WINDA KURNIAWATI	SMA	BAHASA	083866677788	2020-05-27	\N	\N	\N	\N	\N	59299	\N	\N	\N	\N	\N
+ASIPLANT1-DV1758947676901	3214-1037	138	\N	1	3215051715195507	3215001205503609	DEWI VERNANDA VALENTINO	HALMAHERA TIMUR	1996-06-04	JALAN PURWADANA INDAH, RT RT.004/RW.012/RW 00, JATIWANGI, JATISARI, KARAWANG, JAWA BARAT, 41374	JALAN PURWADANA INDAH, RT RT.004/RW.012/RW 00, JATIWANGI, JATISARI, KARAWANG, JAWA BARAT, 41374	dewi.vernanda.valentino@gmail.com	082144556677	AB	P	ISLAM	MENIKAH	K/1	3215047519136435	2810654550	9948075571	\N	\N	12	0	0	2026-03-06	0	1730098290435	DEWI VERNANDA VALENTINO	MANDIRI	INDAH AMELIA	SMA	IPS	082144556677	2019-12-12	\N	\N	\N	\N	\N	14385	\N	\N	\N	\N	\N
+ASIPLANT1-WN1757746669109	3214-0001	4	1	1	3215052112960002	3215052112960002	WENDI NUGRAHA NURRAHMANSYAH	KARAWANG	1996-12-21	CITRA SWARNA GRANDE CLUSTER KANA K14/16, RT 000 RW 000, DS. PANCAWATI, KEC. KLARI, KAB. KARAWANG, JAWA BARAT 41371	CITRA SWARNA GRANDE CLUSTER KANA K14/16, RT 000 RW 000, DS. PANCAWATI, KEC. KLARI, KAB. KARAWANG, JAWA BARAT 41371	wnnurrahmansyah21@gmail.com	08989815081	B	L	ISLAM	MENIKAH	K/2	3215052112960002	9012412112	1402612112	PKWTT	AT	12	0	0	2026-06-01	0	1730006592112	WENDI NUGRAHA NURRAHMANSYAH	MANDIRI	ELA HAYATI	S3	INFORMATIKA	081295524662	2020-06-01	\N	\N	\N	2025-10-02 10:54:37	\N	21126	1	\N	\N	\N	\N
+ASIPLANT1-EE1758947657338	3214-0109	89	\N	1	3215068353932671	3215041978011255	EKO EDI EFFENDI	BOMBANA	1994-08-14	PERUMAHAN GRAND TARUMA, RT RT.017/RW.014/RW 00, DUREN, KLARI, KARAWANG, JAWA BARAT, 41371	PERUMAHAN GRAND TARUMA, RT RT.017/RW.014/RW 00, DUREN, KLARI, KARAWANG, JAWA BARAT, 41371	eko.edi.effendi@gmail.com	085655544433	B	L	ISLAM	MENIKAH	K/2	3215030570791906	5711390872	3193556663	\N	\N	12	0	0	2026-01-16	0	1730038628309	EKO EDI EFFENDI	MANDIRI	NURLAILA	S1	SISTEM INFORMASI	085655544433	2018-11-11	\N	\N	\N	\N	\N	68967	\N	\N	\N	\N	\N
+ASIPLANT1-GG1758947658991	3214-0202	91	\N	1	3215097404284894	3215023828405814	GILANG GUNAWAN GUNADI	TANAH DATAR	1990-02-11	PERUMAHAN GRAHA KARAWANG, RT RT.019/RW.020/RW 00, JATISARI, JATISARI, KARAWANG, JAWA BARAT, 41374	PERUMAHAN GRAHA KARAWANG, RT RT.019/RW.020/RW 00, JATISARI, JATISARI, KARAWANG, JAWA BARAT, 41374	gilang.gunawan.gunadi@gmail.com	083822233344	B	L	ISLAM	MENIKAH	K/2	3215069243081405	9769550473	6831579513	\N	\N	12	0	0	2026-01-18	0	1730070893449	GILANG GUNAWAN GUNADI	MANDIRI	YULIANA	SMA	BAHASA	083822233344	2020-01-05	\N	\N	\N	\N	\N	79721	\N	\N	\N	\N	\N
+ASIPLANT1-NN1758947661708	3214-0209	98	\N	1	3215009784559876	3215006934524475	NINA NUGROHO NUGRAHA	ENREKANG	1993-03-29	PERUMAHAN MITRA KARAWANG, RT RT.001/RW.018/RW 00, BALONGGANDU, JATISARI, KARAWANG, JAWA BARAT, 41374	PERUMAHAN MITRA KARAWANG, RT RT.001/RW.018/RW 00, BALONGGANDU, JATISARI, KARAWANG, JAWA BARAT, 41374	nina.nugroho.nugraha@gmail.com	083844455566	A	P	ISLAM	MENIKAH	K/2	3215029717663554	3045842379	1160759240	\N	\N	12	0	0	2026-01-25	0	1730031561946	NINA NUGROHO NUGRAHA	MANDIRI	ROSA AMELIA	SMA	IPA	083844455566	2019-08-24	\N	\N	\N	\N	\N	89713	\N	\N	\N	\N	\N
+ASIPLANT1-TT1758947663862	3214-1003	104	\N	1	3215047132421511	3215010753816038	TAUFIK TIRTA TIRTAYASA	BONE BOLANGO	1994-12-14	PERUMAHAN RESINDA BLOK C, RT RT.002/RW.005/RW 00, PANCAWATI, KLARI, KARAWANG, JAWA BARAT, 41371	PERUMAHAN RESINDA BLOK C, RT RT.002/RW.005/RW 00, PANCAWATI, KLARI, KARAWANG, JAWA BARAT, 41371	taufik.tirta.tirtayasa@gmail.com	081244667788	B	L	ISLAM	MENIKAH	K/2	3215072663175699	7891244769	9467433747	\N	\N	12	0	0	2026-01-31	0	1730064941721	TAUFIK TIRTA TIRTAYASA	MANDIRI	NOVI HANDAYANI	SMA	IPS	081244667788	2017-02-21	\N	\N	\N	\N	\N	35706	\N	\N	\N	\N	\N
+ASIPLANT1-UU1758947664578	3214-1004	105	\N	1	3215079644611647	3215022575825423	UMAR UTAMI UTOMO	TANAH LAUT	1992-07-01	JALAN MEKARJAYA, RT RT.016/RW.001/RW 00, KARANGSARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	JALAN MEKARJAYA, RT RT.016/RW.001/RW 00, KARANGSARI, PURWASARI, KARAWANG, JAWA BARAT, 41371	umar.utami.utomo@gmail.com	082233344455	A	L	ISLAM	MENIKAH	K/2	3215001202047394	5044344503	9669871058	\N	\N	12	0	0	2026-02-01	0	1730091744480	UMAR UTAMI UTOMO	MANDIRI	ERNI WAHYUNI	S1	AKUNTANSI	082233344455	2018-03-19	\N	\N	\N	\N	\N	90628	\N	\N	\N	\N	\N
+ASIPLANT1-BR1758947666103	3214-1010	111	\N	1	3215026721286639	3215075396466144	BUDI RAHMAN NUGRAHA	TEMANGGUNG	1996-06-15	PERUMAHAN HARMONI KARAWANG, RT RT.020/RW.008/RW 00, PANCAWATI, KLARI, KARAWANG, JAWA BARAT, 41371	PERUMAHAN HARMONI KARAWANG, RT RT.020/RW.008/RW 00, PANCAWATI, KLARI, KARAWANG, JAWA BARAT, 41371	budi.rahman.nugraha@gmail.com	081233778899	B	L	ISLAM	MENIKAH	K/2	3215088946576252	8014068379	4270192270	\N	\N	12	0	0	2026-02-07	0	1730085745017	BUDI RAHMAN NUGRAHA	MANDIRI	PUTRI ANGGRAINI	S1	SISTEM INFORMASI	081233778899	2016-09-26	\N	\N	\N	\N	\N	35576	\N	\N	\N	\N	\N
+ASIPLANT1-DI1758947667100	3214-1012	113	\N	1	3215001343906154	3215030514867194	DEWI ISKANDAR KUSUMA	BUTON	1990-04-04	PERUMAHAN GRIYA ASRI, RT RT.004/RW.012/RW 00, CENGKONG, PURWASARI, KARAWANG, JAWA BARAT, 41371	PERUMAHAN GRIYA ASRI, RT RT.004/RW.012/RW 00, CENGKONG, PURWASARI, KARAWANG, JAWA BARAT, 41371	dewi.iskandar.kusuma@gmail.com	081211990011	A	P	ISLAM	MENIKAH	K/2	3215056504277658	6916562172	8252866920	\N	\N	12	0	0	2026-02-09	0	1730056436357	DEWI ISKANDAR KUSUMA	MANDIRI	WULAN PURNAMASARI	SMA	IPS	081211990011	2018-11-06	\N	\N	\N	\N	\N	32997	\N	\N	\N	\N	\N
+ASIPLANT1-FF1758947668459	3214-1014	115	\N	1	3215065301465301	3215034553597966	FAJAR FAUZI LAKSONO	SOPPENG	1992-12-12	JALAN BYPASS KARAWANG, RT RT.001/RW.018/RW 00, CENGKONG, PURWASARI, KARAWANG, JAWA BARAT, 41371	JALAN BYPASS KARAWANG, RT RT.001/RW.018/RW 00, CENGKONG, PURWASARI, KARAWANG, JAWA BARAT, 41371	fajar.fauzi.laksono@gmail.com	083811122233	AB	L	ISLAM	MENIKAH	K/2	3215093855598579	3067048668	9853813875	\N	\N	12	0	0	2026-02-11	0	1730087400069	FAJAR FAUZI LAKSONO	MANDIRI	RENI HANDAYANI	S1	TEKNIK MESIN	083811122233	2020-01-24	\N	\N	\N	\N	\N	81765	\N	\N	\N	\N	\N
+ASIPLANT1-NE1758947671668	3214-1022	123	\N	1	3215050057127468	3215072275783778	NINA EDI FIRMANSYAH	KONAWE	1997-01-11	JALAN PURWASARI RAYA, RT RT.009/RW.018/RW 00, BALONGGANDU, JATISARI, KARAWANG, JAWA BARAT, 41374	JALAN PURWASARI RAYA, RT RT.009/RW.018/RW 00, BALONGGANDU, JATISARI, KARAWANG, JAWA BARAT, 41374	nina.edi.firmansyah@gmail.com	085666677788	AB	P	ISLAM	MENIKAH	K/2	3215044350040698	2450416864	8597432535	\N	\N	12	0	0	2026-02-19	0	1730073819594	NINA EDI FIRMANSYAH	MANDIRI	AYU LESTARI	S1	TEKNIK SIPIL	085666677788	2020-09-22	\N	\N	\N	\N	\N	83429	\N	\N	\N	\N	\N
+ASIPLANT1-YL1758947675487	3214-1032	133	\N	1	3215011988253707	3215069893251056	YOGA LESTARI SANTOSO	HULU SUNGAI UTARA	1993-07-03	JALAN AHMAD YANI, RT RT.002/RW.005/RW 00, WALAHAR, KLARI, KARAWANG, JAWA BARAT, 41371	JALAN AHMAD YANI, RT RT.002/RW.005/RW 00, WALAHAR, KLARI, KARAWANG, JAWA BARAT, 41371	yoga.lestari.santoso@gmail.com	081361899900	A	L	ISLAM	MENIKAH	K/2	3215059160846502	4962967809	7187701003	\N	\N	12	0	0	2026-03-01	0	1730051564741	YOGA LESTARI SANTOSO	MANDIRI	WENI AMELIA	S1	ILMU KOMPUTER	081361899900	2022-07-29	\N	\N	\N	\N	\N	94181	\N	\N	\N	\N	\N
+ASIPLANT1-BY1758947676738	3214-1035	136	\N	1	3215096946902601	3215008496806171	BUDI YUSUF ZAINUDDIN	BONDOWOSO	1997-09-29	PERUMAHAN PESONA KARAWANG, RT RT.005/RW.014/RW 00, BALONGGANDU, JATISARI, KARAWANG, JAWA BARAT, 41374	PERUMAHAN PESONA KARAWANG, RT RT.005/RW.014/RW 00, BALONGGANDU, JATISARI, KARAWANG, JAWA BARAT, 41374	budi.yusuf.zainuddin@gmail.com	083877899000	B	L	ISLAM	MENIKAH	K/2	3215068104676359	4925407449	4310096860	\N	\N	12	0	0	2026-03-04	0	1730089940668	BUDI YUSUF ZAINUDDIN	MANDIRI	LINA MARLINA	D3	TEKNIK INDUSTRI	083877899000	2017-10-15	\N	\N	\N	\N	\N	35362	\N	\N	\N	\N	\N
+ASIPLANT1-HR1758947651112	3214-0011	74	1	1	3215121236540006	3215121236540006	HARI RISNAWAN	PASAMAN	1995-01-01	JALAN TELAGASARI, RT RT.020/RW.013/RW 00, JATISARI, JATISARI, KARAWANG, JAWA BARAT, 41374	JALAN TELAGASARI, RT RT.020/RW.013/RW 00, JATISARI, JATISARI, KARAWANG, JAWA BARAT, 41374	hari.risnawan@gmail.com	081322349876	A	L	ISLAM	MENIKAH	K/2	3215121236540006	9071733589	1384709612	PKWTT	AT	12	0	0	2025-12-31	0	1730050236176	HARI RISNAWAN	MANDIRI	RAHMI	S2	INFORMATIKA	081322349876	2024-05-05	\N	\N	\N	2025-10-04 10:02:20	\N	58510	1	\N	\N	\N	\N
 \.
 
 
 --
--- TOC entry 5648 (class 0 OID 49202)
+-- TOC entry 5732 (class 0 OID 65591)
+-- Dependencies: 338
+-- Data for Name: keluarga_karyawans; Type: TABLE DATA; Schema: public; Owner: cybernova
+--
+
+COPY public.keluarga_karyawans (id, karyawan_id, hubungan, nama, tempat_lahir, tanggal_lahir, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- TOC entry 5668 (class 0 OID 49202)
 -- Dependencies: 274
 -- Data for Name: kontraks; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11568,7 +11684,7 @@ KONTRAK-YUAj-1759552674	ASIPLANT1-RK1758947652191	10	1	LEADER PLANT SERVICE	No. 
 
 
 --
--- TOC entry 5649 (class 0 OID 49212)
+-- TOC entry 5669 (class 0 OID 49212)
 -- Dependencies: 275
 -- Data for Name: ksk; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11578,7 +11694,7 @@ COPY public.ksk (id_ksk, organisasi_id, divisi_id, nama_divisi, departemen_id, n
 
 
 --
--- TOC entry 5650 (class 0 OID 49218)
+-- TOC entry 5670 (class 0 OID 49218)
 -- Dependencies: 276
 -- Data for Name: ksk_change_histories; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11588,7 +11704,7 @@ COPY public.ksk_change_histories (id_ksk_change_history, ksk_detail_id, changed_
 
 
 --
--- TOC entry 5652 (class 0 OID 49224)
+-- TOC entry 5672 (class 0 OID 49224)
 -- Dependencies: 278
 -- Data for Name: ksk_details; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11598,7 +11714,7 @@ COPY public.ksk_details (id_ksk_detail, ksk_id, organisasi_id, divisi_id, nama_d
 
 
 --
--- TOC entry 5654 (class 0 OID 49235)
+-- TOC entry 5674 (class 0 OID 49235)
 -- Dependencies: 280
 -- Data for Name: lembur_harians; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11608,7 +11724,7 @@ COPY public.lembur_harians (id_lembur_harian, organisasi_id, departemen_id, divi
 
 
 --
--- TOC entry 5656 (class 0 OID 49241)
+-- TOC entry 5676 (class 0 OID 49241)
 -- Dependencies: 282
 -- Data for Name: lemburs; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11618,17 +11734,22 @@ COPY public.lemburs (id_lembur, organisasi_id, departemen_id, divisi_id, plan_ch
 
 
 --
--- TOC entry 5657 (class 0 OID 49252)
+-- TOC entry 5677 (class 0 OID 49252)
 -- Dependencies: 283
 -- Data for Name: migrations; Type: TABLE DATA; Schema: public; Owner: ict
 --
 
 COPY public.migrations (id, migration, batch) FROM stdin;
+1	2025_09_29_090424_add_status_kawin_to_karyawans_table	1
+2	2025_09_29_090424_create_keluarga_karyawans_table	2
+3	2025_10_01_084022_create_rekap_manpower_histories_table	3
+4	2025_10_02_142221_add_sinas_to_karyawans_table	4
+5	2025_10_06_110520_update_kategori_keluarga_constraint_in_karyawans_table	5
 \.
 
 
 --
--- TOC entry 5659 (class 0 OID 49256)
+-- TOC entry 5679 (class 0 OID 49256)
 -- Dependencies: 285
 -- Data for Name: millages; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11638,7 +11759,7 @@ COPY public.millages (id_millage, karyawan_id, organisasi_id, departemen_id, div
 
 
 --
--- TOC entry 5660 (class 0 OID 49263)
+-- TOC entry 5680 (class 0 OID 49263)
 -- Dependencies: 286
 -- Data for Name: model_has_permissions; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11648,7 +11769,7 @@ COPY public.model_has_permissions (permission_id, model_type, model_id) FROM std
 
 
 --
--- TOC entry 5661 (class 0 OID 49266)
+-- TOC entry 5681 (class 0 OID 49266)
 -- Dependencies: 287
 -- Data for Name: model_has_roles; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11731,7 +11852,7 @@ COPY public.model_has_roles (role_id, model_type, model_id) FROM stdin;
 
 
 --
--- TOC entry 5662 (class 0 OID 49269)
+-- TOC entry 5682 (class 0 OID 49269)
 -- Dependencies: 288
 -- Data for Name: organisasis; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11744,7 +11865,7 @@ COPY public.organisasis (id_organisasi, nama, alamat, deleted_at, created_at, up
 
 
 --
--- TOC entry 5663 (class 0 OID 49275)
+-- TOC entry 5683 (class 0 OID 49275)
 -- Dependencies: 289
 -- Data for Name: pajak_lemburs; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11754,7 +11875,7 @@ COPY public.pajak_lemburs (id, karyawan_id, periode, potongan_pph, created_at, u
 
 
 --
--- TOC entry 5665 (class 0 OID 49280)
+-- TOC entry 5685 (class 0 OID 49280)
 -- Dependencies: 291
 -- Data for Name: password_reset_tokens; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11764,7 +11885,7 @@ COPY public.password_reset_tokens (email, token, created_at) FROM stdin;
 
 
 --
--- TOC entry 5666 (class 0 OID 49285)
+-- TOC entry 5686 (class 0 OID 49285)
 -- Dependencies: 292
 -- Data for Name: permissions; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11774,7 +11895,7 @@ COPY public.permissions (id, name, guard_name, created_at, updated_at) FROM stdi
 
 
 --
--- TOC entry 5668 (class 0 OID 49291)
+-- TOC entry 5688 (class 0 OID 49291)
 -- Dependencies: 294
 -- Data for Name: personal_access_tokens; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11784,7 +11905,7 @@ COPY public.personal_access_tokens (id, tokenable_type, tokenable_id, name, toke
 
 
 --
--- TOC entry 5670 (class 0 OID 49297)
+-- TOC entry 5690 (class 0 OID 49297)
 -- Dependencies: 296
 -- Data for Name: pikets; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11794,7 +11915,7 @@ COPY public.pikets (id_piket, karyawan_id, organisasi_id, departemen_id, expired
 
 
 --
--- TOC entry 5672 (class 0 OID 49301)
+-- TOC entry 5692 (class 0 OID 49301)
 -- Dependencies: 298
 -- Data for Name: posisis; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11876,7 +11997,7 @@ COPY public.posisis (id_posisi, jabatan_id, organisasi_id, divisi_id, departemen
 
 
 --
--- TOC entry 5673 (class 0 OID 49305)
+-- TOC entry 5693 (class 0 OID 49305)
 -- Dependencies: 299
 -- Data for Name: rekap_lembur; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11886,7 +12007,7 @@ COPY public.rekap_lembur (id, karyawan_id, organisasi_id, departemen, jabatan, p
 
 
 --
--- TOC entry 5675 (class 0 OID 49312)
+-- TOC entry 5695 (class 0 OID 49312)
 -- Dependencies: 301
 -- Data for Name: rekap_lembur_summary; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11896,7 +12017,17 @@ COPY public.rekap_lembur_summary (id, organisasi_id, departemen, periode, jumlah
 
 
 --
--- TOC entry 5677 (class 0 OID 49319)
+-- TOC entry 5734 (class 0 OID 65605)
+-- Dependencies: 340
+-- Data for Name: rekap_manpower_histories; Type: TABLE DATA; Schema: public; Owner: cybernova
+--
+
+COPY public.rekap_manpower_histories (id, period, organisasi_id, data, created_at, updated_at) FROM stdin;
+\.
+
+
+--
+-- TOC entry 5697 (class 0 OID 49319)
 -- Dependencies: 303
 -- Data for Name: rekap_manpower_history; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11906,7 +12037,7 @@ COPY public.rekap_manpower_history (id, period, data, created_at, updated_at) FR
 
 
 --
--- TOC entry 5679 (class 0 OID 49325)
+-- TOC entry 5699 (class 0 OID 49325)
 -- Dependencies: 305
 -- Data for Name: reset_cutis; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11916,7 +12047,7 @@ COPY public.reset_cutis (id_reset_cuti, reset_at, deleted_at, created_at, update
 
 
 --
--- TOC entry 5681 (class 0 OID 49330)
+-- TOC entry 5701 (class 0 OID 49330)
 -- Dependencies: 307
 -- Data for Name: role_has_permissions; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11926,7 +12057,7 @@ COPY public.role_has_permissions (permission_id, role_id) FROM stdin;
 
 
 --
--- TOC entry 5682 (class 0 OID 49333)
+-- TOC entry 5702 (class 0 OID 49333)
 -- Dependencies: 308
 -- Data for Name: roles; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11944,7 +12075,7 @@ COPY public.roles (id, name, guard_name, created_at, updated_at) FROM stdin;
 
 
 --
--- TOC entry 5684 (class 0 OID 49339)
+-- TOC entry 5704 (class 0 OID 49339)
 -- Dependencies: 310
 -- Data for Name: sakits; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11954,7 +12085,7 @@ COPY public.sakits (id_sakit, karyawan_id, organisasi_id, departemen_id, divisi_
 
 
 --
--- TOC entry 5709 (class 0 OID 50069)
+-- TOC entry 5729 (class 0 OID 50069)
 -- Dependencies: 335
 -- Data for Name: seksis; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -11991,22 +12122,20 @@ COPY public.seksis (id_seksi, departemen_id, nama, deleted_at, created_at, updat
 
 
 --
--- TOC entry 5687 (class 0 OID 49350)
+-- TOC entry 5707 (class 0 OID 49350)
 -- Dependencies: 313
 -- Data for Name: sessions; Type: TABLE DATA; Schema: public; Owner: ict
 --
 
 COPY public.sessions (id, user_id, ip_address, user_agent, payload, last_activity) FROM stdin;
-L4Dayr6K0rljHxjw7jIQ3itCiBJ9TSACQG7cwPvA	2	127.0.0.1	Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:143.0) Gecko/20100101 Firefox/143.0	YTo1OntzOjY6Il90b2tlbiI7czo0MDoicGtVZFZQWE5INnE4SUJDdDZhNzJhcXhscGFnTEhXN1dhTHkwMVVYYSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjY6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9ob21lIjt9czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MjtzOjQ6ImF1dGgiO2E6MTp7czoyMToicGFzc3dvcmRfY29uZmlybWVkX2F0IjtpOjE3NTk1NTAwMjQ7fX0=	1759556096
-sw2mMSoRPL3bAFBL2dRtXj2Fk09bmCD8WDmNsL17	2	127.0.0.1	Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:143.0) Gecko/20100101 Firefox/143.0	YTo1OntzOjY6Il90b2tlbiI7czo0MDoiMUhCT3FHeEhUU0tZdmlzd1A3UW4yZm9pVHdoUnRDeTJaN0ZsS01VbyI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjY6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9ob21lIjt9czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MjtzOjQ6ImF1dGgiO2E6MTp7czoyMToicGFzc3dvcmRfY29uZmlybWVkX2F0IjtpOjE3NTk4MDI3OTE7fX0=	1759802794
 YfzDmE4GknIs8VFEK7cmLnjdI2ka4vC7i7OuBgVC	\N	127.0.0.1	Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:143.0) Gecko/20100101 Firefox/143.0	YTo0OntzOjY6Il90b2tlbiI7czo0MDoialViejU1WlNlR0ZZbVZ6Y0lrT3k5Y1NYRThtVG5MNHVCQUJOcWw0SSI7czozOiJ1cmwiO2E6MTp7czo4OiJpbnRlbmRlZCI7czoyNjoiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2hvbWUiO31zOjk6Il9wcmV2aW91cyI7YToxOntzOjM6InVybCI7czoyNjoiaHR0cDovLzEyNy4wLjAuMTo4MDAwL2hvbWUiO31zOjY6Il9mbGFzaCI7YToyOntzOjM6Im9sZCI7YTowOnt9czozOiJuZXciO2E6MDp7fX19	1759802805
 35rWIZDiNKInheyuYp4ifrEFK5dSfbv0hPxeR5Jp	\N	127.0.0.1	Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:143.0) Gecko/20100101 Firefox/143.0	YTozOntzOjY6Il90b2tlbiI7czo0MDoiZ0Jpa2oyNEIzV0FnT0ZPYzRTWnZ0MGJ4NXdlS29VQnVWWXl2VnFiNyI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fX0=	1759802806
-4CuFqV7sKXXktofdLNYZha0wGyDMXBTT5E0gTVxP	74	127.0.0.1	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0	YTo1OntzOjY6Il90b2tlbiI7czo0MDoiTDNGWWtlV1VoVDBReVlUSGl0M2h3dWM3Zld0RWoyUlJrNDdoZExUUiI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjY6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9ob21lIjt9czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6NzQ7czo0OiJhdXRoIjthOjE6e3M6MjE6InBhc3N3b3JkX2NvbmZpcm1lZF9hdCI7aToxNzU5NTU1Mzg0O319	1759555936
+2yWFgCZzkXALnPzlNmCKLK7261Pu7huKUrqzw1U7	2	127.0.0.1	Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:143.0) Gecko/20100101 Firefox/143.0	YTo1OntzOjY6Il90b2tlbiI7czo0MDoiWWk4dU14bURGT005NTV3Mm4zTEJ6Nkx6a2VvQ3hSanpCcHlvakY0RSI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6NDE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9hdHRlbmRhbmNlL3ByZXNlbnNpIjt9czo1MDoibG9naW5fd2ViXzU5YmEzNmFkZGMyYjJmOTQwMTU4MGYwMTRjN2Y1OGVhNGUzMDk4OWQiO2k6MjtzOjQ6ImF1dGgiO2E6MTp7czoyMToicGFzc3dvcmRfY29uZmlybWVkX2F0IjtpOjE3NTk4MDUyMDM7fX0=	1759805614
 \.
 
 
 --
--- TOC entry 5688 (class 0 OID 49355)
+-- TOC entry 5708 (class 0 OID 49355)
 -- Dependencies: 314
 -- Data for Name: setting_lembur_karyawans; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -12018,7 +12147,7 @@ COPY public.setting_lembur_karyawans (id_setting_lembur_karyawan, karyawan_id, o
 
 
 --
--- TOC entry 5690 (class 0 OID 49360)
+-- TOC entry 5710 (class 0 OID 49360)
 -- Dependencies: 316
 -- Data for Name: setting_lemburs; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -12028,7 +12157,7 @@ COPY public.setting_lemburs (id_setting_lembur, organisasi_id, setting_name, val
 
 
 --
--- TOC entry 5692 (class 0 OID 49366)
+-- TOC entry 5712 (class 0 OID 49366)
 -- Dependencies: 318
 -- Data for Name: setting_tugasluars; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -12038,7 +12167,7 @@ COPY public.setting_tugasluars (id_setting_tugasluar, organisasi_id, name, value
 
 
 --
--- TOC entry 5694 (class 0 OID 49372)
+-- TOC entry 5714 (class 0 OID 49372)
 -- Dependencies: 320
 -- Data for Name: slip_lembur_karyawans; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -12048,7 +12177,7 @@ COPY public.slip_lembur_karyawans (id, karyawan_id, organisasi_id, periode, tota
 
 
 --
--- TOC entry 5696 (class 0 OID 49384)
+-- TOC entry 5716 (class 0 OID 49384)
 -- Dependencies: 322
 -- Data for Name: sto_headers; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -12058,7 +12187,7 @@ COPY public.sto_headers (id_sto_header, year, issued_by, issued_name, organizati
 
 
 --
--- TOC entry 5698 (class 0 OID 49391)
+-- TOC entry 5718 (class 0 OID 49391)
 -- Dependencies: 324
 -- Data for Name: sto_lines; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -12068,7 +12197,7 @@ COPY public.sto_lines (id_sto_line, inputed_by, inputed_name, updated_by, update
 
 
 --
--- TOC entry 5700 (class 0 OID 49398)
+-- TOC entry 5720 (class 0 OID 49398)
 -- Dependencies: 326
 -- Data for Name: sto_upload; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -12078,7 +12207,7 @@ COPY public.sto_upload (id_sto_upload, wh_id, wh_name, locator_id, locator_name,
 
 
 --
--- TOC entry 5702 (class 0 OID 49408)
+-- TOC entry 5722 (class 0 OID 49408)
 -- Dependencies: 328
 -- Data for Name: templates; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -12088,7 +12217,7 @@ COPY public.templates (id_template, organisasi_id, nama, type, template_path, "i
 
 
 --
--- TOC entry 5704 (class 0 OID 49416)
+-- TOC entry 5724 (class 0 OID 49416)
 -- Dependencies: 330
 -- Data for Name: tugasluars; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -12098,7 +12227,7 @@ COPY public.tugasluars (id_tugasluar, organisasi_id, karyawan_id, ni_karyawan, d
 
 
 --
--- TOC entry 5705 (class 0 OID 49431)
+-- TOC entry 5725 (class 0 OID 49431)
 -- Dependencies: 331
 -- Data for Name: turnovers; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -12109,7 +12238,7 @@ COPY public.turnovers (id_turnover, karyawan_id, organisasi_id, status_karyawan,
 
 
 --
--- TOC entry 5707 (class 0 OID 49438)
+-- TOC entry 5727 (class 0 OID 49438)
 -- Dependencies: 333
 -- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: ict
 --
@@ -12192,16 +12321,16 @@ COPY public.users (id, username, email, organisasi_id, email_verified_at, passwo
 
 
 --
--- TOC entry 5767 (class 0 OID 0)
+-- TOC entry 5793 (class 0 OID 0)
 -- Dependencies: 216
 -- Name: activity_log_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
 
-SELECT pg_catalog.setval('public.activity_log_id_seq', 7569, true);
+SELECT pg_catalog.setval('public.activity_log_id_seq', 7570, true);
 
 
 --
--- TOC entry 5768 (class 0 OID 0)
+-- TOC entry 5794 (class 0 OID 0)
 -- Dependencies: 218
 -- Name: approval_cutis_id_approval_cuti_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12210,7 +12339,7 @@ SELECT pg_catalog.setval('public.approval_cutis_id_approval_cuti_seq', 1, false)
 
 
 --
--- TOC entry 5769 (class 0 OID 0)
+-- TOC entry 5795 (class 0 OID 0)
 -- Dependencies: 220
 -- Name: attachment_ksk_details_id_attachment_ksk_detail_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12219,7 +12348,7 @@ SELECT pg_catalog.setval('public.attachment_ksk_details_id_attachment_ksk_detail
 
 
 --
--- TOC entry 5770 (class 0 OID 0)
+-- TOC entry 5796 (class 0 OID 0)
 -- Dependencies: 222
 -- Name: attachment_lemburs_id_attachment_lembur_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12228,7 +12357,7 @@ SELECT pg_catalog.setval('public.attachment_lemburs_id_attachment_lembur_seq', 1
 
 
 --
--- TOC entry 5771 (class 0 OID 0)
+-- TOC entry 5797 (class 0 OID 0)
 -- Dependencies: 224
 -- Name: attendance_devices_id_device_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12237,16 +12366,16 @@ SELECT pg_catalog.setval('public.attendance_devices_id_device_seq', 1, false);
 
 
 --
--- TOC entry 5772 (class 0 OID 0)
+-- TOC entry 5798 (class 0 OID 0)
 -- Dependencies: 226
 -- Name: attendance_gps_id_att_gps_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
 
-SELECT pg_catalog.setval('public.attendance_gps_id_att_gps_seq', 6, true);
+SELECT pg_catalog.setval('public.attendance_gps_id_att_gps_seq', 7, true);
 
 
 --
--- TOC entry 5773 (class 0 OID 0)
+-- TOC entry 5799 (class 0 OID 0)
 -- Dependencies: 228
 -- Name: attendance_karyawan_grup_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12255,16 +12384,16 @@ SELECT pg_catalog.setval('public.attendance_karyawan_grup_id_seq', 3, true);
 
 
 --
--- TOC entry 5774 (class 0 OID 0)
+-- TOC entry 5800 (class 0 OID 0)
 -- Dependencies: 230
 -- Name: attendance_scanlogs_id_scanlog_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
 
-SELECT pg_catalog.setval('public.attendance_scanlogs_id_scanlog_seq', 16, true);
+SELECT pg_catalog.setval('public.attendance_scanlogs_id_scanlog_seq', 18, true);
 
 
 --
--- TOC entry 5775 (class 0 OID 0)
+-- TOC entry 5801 (class 0 OID 0)
 -- Dependencies: 232
 -- Name: attendance_summaries_id_att_summary_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12273,7 +12402,7 @@ SELECT pg_catalog.setval('public.attendance_summaries_id_att_summary_seq', 2, tr
 
 
 --
--- TOC entry 5776 (class 0 OID 0)
+-- TOC entry 5802 (class 0 OID 0)
 -- Dependencies: 236
 -- Name: cleareance_details_id_cleareance_detail_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12282,7 +12411,7 @@ SELECT pg_catalog.setval('public.cleareance_details_id_cleareance_detail_seq', 1
 
 
 --
--- TOC entry 5777 (class 0 OID 0)
+-- TOC entry 5803 (class 0 OID 0)
 -- Dependencies: 238
 -- Name: cleareance_settings_id_cleareance_setting_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12291,7 +12420,7 @@ SELECT pg_catalog.setval('public.cleareance_settings_id_cleareance_setting_seq',
 
 
 --
--- TOC entry 5778 (class 0 OID 0)
+-- TOC entry 5804 (class 0 OID 0)
 -- Dependencies: 241
 -- Name: cutis_id_cuti_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12300,7 +12429,7 @@ SELECT pg_catalog.setval('public.cutis_id_cuti_seq', 1, false);
 
 
 --
--- TOC entry 5779 (class 0 OID 0)
+-- TOC entry 5805 (class 0 OID 0)
 -- Dependencies: 336
 -- Name: departemens_id_departemen_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12309,7 +12438,7 @@ SELECT pg_catalog.setval('public.departemens_id_departemen_seq', 15, true);
 
 
 --
--- TOC entry 5780 (class 0 OID 0)
+-- TOC entry 5806 (class 0 OID 0)
 -- Dependencies: 244
 -- Name: detail_lemburs_id_detail_lembur_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12318,7 +12447,7 @@ SELECT pg_catalog.setval('public.detail_lemburs_id_detail_lembur_seq', 1, false)
 
 
 --
--- TOC entry 5781 (class 0 OID 0)
+-- TOC entry 5807 (class 0 OID 0)
 -- Dependencies: 246
 -- Name: detail_millages_id_detail_millage_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12327,7 +12456,7 @@ SELECT pg_catalog.setval('public.detail_millages_id_detail_millage_seq', 1, fals
 
 
 --
--- TOC entry 5782 (class 0 OID 0)
+-- TOC entry 5808 (class 0 OID 0)
 -- Dependencies: 248
 -- Name: detail_tugasluars_id_detail_tugasluar_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12336,7 +12465,7 @@ SELECT pg_catalog.setval('public.detail_tugasluars_id_detail_tugasluar_seq', 1, 
 
 
 --
--- TOC entry 5783 (class 0 OID 0)
+-- TOC entry 5809 (class 0 OID 0)
 -- Dependencies: 251
 -- Name: events_id_event_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12345,7 +12474,7 @@ SELECT pg_catalog.setval('public.events_id_event_seq', 1, false);
 
 
 --
--- TOC entry 5784 (class 0 OID 0)
+-- TOC entry 5810 (class 0 OID 0)
 -- Dependencies: 253
 -- Name: export_slip_lemburs_id_export_slip_lembur_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12354,7 +12483,7 @@ SELECT pg_catalog.setval('public.export_slip_lemburs_id_export_slip_lembur_seq',
 
 
 --
--- TOC entry 5785 (class 0 OID 0)
+-- TOC entry 5811 (class 0 OID 0)
 -- Dependencies: 255
 -- Name: failed_jobs_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12363,7 +12492,7 @@ SELECT pg_catalog.setval('public.failed_jobs_id_seq', 1, false);
 
 
 --
--- TOC entry 5786 (class 0 OID 0)
+-- TOC entry 5812 (class 0 OID 0)
 -- Dependencies: 257
 -- Name: gaji_departemens_id_gaji_departemen_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12372,7 +12501,7 @@ SELECT pg_catalog.setval('public.gaji_departemens_id_gaji_departemen_seq', 1, fa
 
 
 --
--- TOC entry 5787 (class 0 OID 0)
+-- TOC entry 5813 (class 0 OID 0)
 -- Dependencies: 259
 -- Name: grup_patterns_id_grup_pattern_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12381,7 +12510,7 @@ SELECT pg_catalog.setval('public.grup_patterns_id_grup_pattern_seq', 1, true);
 
 
 --
--- TOC entry 5788 (class 0 OID 0)
+-- TOC entry 5814 (class 0 OID 0)
 -- Dependencies: 261
 -- Name: grups_id_grup_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12390,7 +12519,7 @@ SELECT pg_catalog.setval('public.grups_id_grup_seq', 1, true);
 
 
 --
--- TOC entry 5789 (class 0 OID 0)
+-- TOC entry 5815 (class 0 OID 0)
 -- Dependencies: 265
 -- Name: jenis_cutis_id_jenis_cuti_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12399,7 +12528,7 @@ SELECT pg_catalog.setval('public.jenis_cutis_id_jenis_cuti_seq', 1, false);
 
 
 --
--- TOC entry 5790 (class 0 OID 0)
+-- TOC entry 5816 (class 0 OID 0)
 -- Dependencies: 267
 -- Name: jenis_kontraks_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12408,16 +12537,16 @@ SELECT pg_catalog.setval('public.jenis_kontraks_id_seq', 4, true);
 
 
 --
--- TOC entry 5791 (class 0 OID 0)
+-- TOC entry 5817 (class 0 OID 0)
 -- Dependencies: 270
 -- Name: jobs_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
 
-SELECT pg_catalog.setval('public.jobs_id_seq', 95, true);
+SELECT pg_catalog.setval('public.jobs_id_seq', 96, true);
 
 
 --
--- TOC entry 5792 (class 0 OID 0)
+-- TOC entry 5818 (class 0 OID 0)
 -- Dependencies: 272
 -- Name: karyawan_posisi_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12426,7 +12555,16 @@ SELECT pg_catalog.setval('public.karyawan_posisi_id_seq', 67, true);
 
 
 --
--- TOC entry 5793 (class 0 OID 0)
+-- TOC entry 5819 (class 0 OID 0)
+-- Dependencies: 337
+-- Name: keluarga_karyawans_id_seq; Type: SEQUENCE SET; Schema: public; Owner: cybernova
+--
+
+SELECT pg_catalog.setval('public.keluarga_karyawans_id_seq', 1, false);
+
+
+--
+-- TOC entry 5820 (class 0 OID 0)
 -- Dependencies: 277
 -- Name: ksk_change_histories_id_ksk_change_history_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12435,7 +12573,7 @@ SELECT pg_catalog.setval('public.ksk_change_histories_id_ksk_change_history_seq'
 
 
 --
--- TOC entry 5794 (class 0 OID 0)
+-- TOC entry 5821 (class 0 OID 0)
 -- Dependencies: 279
 -- Name: ksk_details_id_ksk_detail_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12444,7 +12582,7 @@ SELECT pg_catalog.setval('public.ksk_details_id_ksk_detail_seq', 1, false);
 
 
 --
--- TOC entry 5795 (class 0 OID 0)
+-- TOC entry 5822 (class 0 OID 0)
 -- Dependencies: 281
 -- Name: lembur_harians_id_lembur_harian_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12453,16 +12591,16 @@ SELECT pg_catalog.setval('public.lembur_harians_id_lembur_harian_seq', 1, false)
 
 
 --
--- TOC entry 5796 (class 0 OID 0)
+-- TOC entry 5823 (class 0 OID 0)
 -- Dependencies: 284
 -- Name: migrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
 
-SELECT pg_catalog.setval('public.migrations_id_seq', 1, false);
+SELECT pg_catalog.setval('public.migrations_id_seq', 5, true);
 
 
 --
--- TOC entry 5797 (class 0 OID 0)
+-- TOC entry 5824 (class 0 OID 0)
 -- Dependencies: 290
 -- Name: pajak_lemburs_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12471,7 +12609,7 @@ SELECT pg_catalog.setval('public.pajak_lemburs_id_seq', 1, false);
 
 
 --
--- TOC entry 5798 (class 0 OID 0)
+-- TOC entry 5825 (class 0 OID 0)
 -- Dependencies: 293
 -- Name: permissions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12480,7 +12618,7 @@ SELECT pg_catalog.setval('public.permissions_id_seq', 1, false);
 
 
 --
--- TOC entry 5799 (class 0 OID 0)
+-- TOC entry 5826 (class 0 OID 0)
 -- Dependencies: 295
 -- Name: personal_access_tokens_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12489,7 +12627,7 @@ SELECT pg_catalog.setval('public.personal_access_tokens_id_seq', 1, false);
 
 
 --
--- TOC entry 5800 (class 0 OID 0)
+-- TOC entry 5827 (class 0 OID 0)
 -- Dependencies: 297
 -- Name: pikets_id_piket_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12498,7 +12636,7 @@ SELECT pg_catalog.setval('public.pikets_id_piket_seq', 1, false);
 
 
 --
--- TOC entry 5801 (class 0 OID 0)
+-- TOC entry 5828 (class 0 OID 0)
 -- Dependencies: 300
 -- Name: rekap_lembur_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12507,7 +12645,7 @@ SELECT pg_catalog.setval('public.rekap_lembur_id_seq', 1, false);
 
 
 --
--- TOC entry 5802 (class 0 OID 0)
+-- TOC entry 5829 (class 0 OID 0)
 -- Dependencies: 302
 -- Name: rekap_lembur_summary_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12516,7 +12654,16 @@ SELECT pg_catalog.setval('public.rekap_lembur_summary_id_seq', 1, false);
 
 
 --
--- TOC entry 5803 (class 0 OID 0)
+-- TOC entry 5830 (class 0 OID 0)
+-- Dependencies: 339
+-- Name: rekap_manpower_histories_id_seq; Type: SEQUENCE SET; Schema: public; Owner: cybernova
+--
+
+SELECT pg_catalog.setval('public.rekap_manpower_histories_id_seq', 1, false);
+
+
+--
+-- TOC entry 5831 (class 0 OID 0)
 -- Dependencies: 304
 -- Name: rekap_manpower_history_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12525,7 +12672,7 @@ SELECT pg_catalog.setval('public.rekap_manpower_history_id_seq', 1, false);
 
 
 --
--- TOC entry 5804 (class 0 OID 0)
+-- TOC entry 5832 (class 0 OID 0)
 -- Dependencies: 306
 -- Name: reset_cutis_id_reset_cuti_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12534,7 +12681,7 @@ SELECT pg_catalog.setval('public.reset_cutis_id_reset_cuti_seq', 1, false);
 
 
 --
--- TOC entry 5805 (class 0 OID 0)
+-- TOC entry 5833 (class 0 OID 0)
 -- Dependencies: 309
 -- Name: roles_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12543,7 +12690,7 @@ SELECT pg_catalog.setval('public.roles_id_seq', 8, true);
 
 
 --
--- TOC entry 5806 (class 0 OID 0)
+-- TOC entry 5834 (class 0 OID 0)
 -- Dependencies: 311
 -- Name: sakits_id_sakit_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12552,7 +12699,7 @@ SELECT pg_catalog.setval('public.sakits_id_sakit_seq', 1, false);
 
 
 --
--- TOC entry 5807 (class 0 OID 0)
+-- TOC entry 5835 (class 0 OID 0)
 -- Dependencies: 312
 -- Name: seksis_id_seksi_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12561,7 +12708,7 @@ SELECT pg_catalog.setval('public.seksis_id_seksi_seq', 27, true);
 
 
 --
--- TOC entry 5808 (class 0 OID 0)
+-- TOC entry 5836 (class 0 OID 0)
 -- Dependencies: 315
 -- Name: setting_lembur_karyawans_id_setting_lembur_karyawan_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12570,7 +12717,7 @@ SELECT pg_catalog.setval('public.setting_lembur_karyawans_id_setting_lembur_kary
 
 
 --
--- TOC entry 5809 (class 0 OID 0)
+-- TOC entry 5837 (class 0 OID 0)
 -- Dependencies: 317
 -- Name: setting_lemburs_id_setting_lembur_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12579,7 +12726,7 @@ SELECT pg_catalog.setval('public.setting_lemburs_id_setting_lembur_seq', 1, fals
 
 
 --
--- TOC entry 5810 (class 0 OID 0)
+-- TOC entry 5838 (class 0 OID 0)
 -- Dependencies: 319
 -- Name: setting_tugasluars_id_setting_tugasluar_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12588,7 +12735,7 @@ SELECT pg_catalog.setval('public.setting_tugasluars_id_setting_tugasluar_seq', 1
 
 
 --
--- TOC entry 5811 (class 0 OID 0)
+-- TOC entry 5839 (class 0 OID 0)
 -- Dependencies: 321
 -- Name: slip_lembur_karyawans_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12597,7 +12744,7 @@ SELECT pg_catalog.setval('public.slip_lembur_karyawans_id_seq', 1, false);
 
 
 --
--- TOC entry 5812 (class 0 OID 0)
+-- TOC entry 5840 (class 0 OID 0)
 -- Dependencies: 323
 -- Name: sto_headers_id_sto_header_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12606,7 +12753,7 @@ SELECT pg_catalog.setval('public.sto_headers_id_sto_header_seq', 1, false);
 
 
 --
--- TOC entry 5813 (class 0 OID 0)
+-- TOC entry 5841 (class 0 OID 0)
 -- Dependencies: 325
 -- Name: sto_lines_id_sto_line_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12615,7 +12762,7 @@ SELECT pg_catalog.setval('public.sto_lines_id_sto_line_seq', 1, false);
 
 
 --
--- TOC entry 5814 (class 0 OID 0)
+-- TOC entry 5842 (class 0 OID 0)
 -- Dependencies: 327
 -- Name: sto_upload_id_sto_upload_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12624,7 +12771,7 @@ SELECT pg_catalog.setval('public.sto_upload_id_sto_upload_seq', 1, false);
 
 
 --
--- TOC entry 5815 (class 0 OID 0)
+-- TOC entry 5843 (class 0 OID 0)
 -- Dependencies: 329
 -- Name: templates_id_template_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12633,7 +12780,7 @@ SELECT pg_catalog.setval('public.templates_id_template_seq', 1, false);
 
 
 --
--- TOC entry 5816 (class 0 OID 0)
+-- TOC entry 5844 (class 0 OID 0)
 -- Dependencies: 332
 -- Name: turnovers_id_turnover_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12642,7 +12789,7 @@ SELECT pg_catalog.setval('public.turnovers_id_turnover_seq', 1, true);
 
 
 --
--- TOC entry 5817 (class 0 OID 0)
+-- TOC entry 5845 (class 0 OID 0)
 -- Dependencies: 334
 -- Name: users_id_seq; Type: SEQUENCE SET; Schema: public; Owner: ict
 --
@@ -12651,7 +12798,7 @@ SELECT pg_catalog.setval('public.users_id_seq', 138, true);
 
 
 --
--- TOC entry 5191 (class 2606 OID 49500)
+-- TOC entry 5203 (class 2606 OID 49500)
 -- Name: activity_log activity_log_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12660,7 +12807,7 @@ ALTER TABLE ONLY public.activity_log
 
 
 --
--- TOC entry 5195 (class 2606 OID 49502)
+-- TOC entry 5207 (class 2606 OID 49502)
 -- Name: approval_cutis approval_cutis_cuti_id_unique; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12669,7 +12816,7 @@ ALTER TABLE ONLY public.approval_cutis
 
 
 --
--- TOC entry 5197 (class 2606 OID 49504)
+-- TOC entry 5209 (class 2606 OID 49504)
 -- Name: approval_cutis approval_cutis_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12678,7 +12825,7 @@ ALTER TABLE ONLY public.approval_cutis
 
 
 --
--- TOC entry 5199 (class 2606 OID 49506)
+-- TOC entry 5211 (class 2606 OID 49506)
 -- Name: attachment_ksk_details attachment_ksk_details_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12687,7 +12834,7 @@ ALTER TABLE ONLY public.attachment_ksk_details
 
 
 --
--- TOC entry 5201 (class 2606 OID 49508)
+-- TOC entry 5213 (class 2606 OID 49508)
 -- Name: attachment_lemburs attachment_lemburs_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12696,7 +12843,7 @@ ALTER TABLE ONLY public.attachment_lemburs
 
 
 --
--- TOC entry 5203 (class 2606 OID 49510)
+-- TOC entry 5215 (class 2606 OID 49510)
 -- Name: attendance_devices attendance_devices_cloud_id_unique; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12705,7 +12852,7 @@ ALTER TABLE ONLY public.attendance_devices
 
 
 --
--- TOC entry 5205 (class 2606 OID 49512)
+-- TOC entry 5217 (class 2606 OID 49512)
 -- Name: attendance_devices attendance_devices_device_sn_unique; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12714,7 +12861,7 @@ ALTER TABLE ONLY public.attendance_devices
 
 
 --
--- TOC entry 5207 (class 2606 OID 49514)
+-- TOC entry 5219 (class 2606 OID 49514)
 -- Name: attendance_devices attendance_devices_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12723,7 +12870,7 @@ ALTER TABLE ONLY public.attendance_devices
 
 
 --
--- TOC entry 5209 (class 2606 OID 49516)
+-- TOC entry 5221 (class 2606 OID 49516)
 -- Name: attendance_gps attendance_gps_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12732,7 +12879,7 @@ ALTER TABLE ONLY public.attendance_gps
 
 
 --
--- TOC entry 5211 (class 2606 OID 49518)
+-- TOC entry 5223 (class 2606 OID 49518)
 -- Name: attendance_karyawan_grup attendance_karyawan_grup_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12741,7 +12888,7 @@ ALTER TABLE ONLY public.attendance_karyawan_grup
 
 
 --
--- TOC entry 5213 (class 2606 OID 49520)
+-- TOC entry 5225 (class 2606 OID 49520)
 -- Name: attendance_scanlogs attendance_scanlogs_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12750,7 +12897,7 @@ ALTER TABLE ONLY public.attendance_scanlogs
 
 
 --
--- TOC entry 5215 (class 2606 OID 49522)
+-- TOC entry 5227 (class 2606 OID 49522)
 -- Name: attendance_summaries attendance_summaries_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12759,7 +12906,7 @@ ALTER TABLE ONLY public.attendance_summaries
 
 
 --
--- TOC entry 5219 (class 2606 OID 49524)
+-- TOC entry 5231 (class 2606 OID 49524)
 -- Name: cache_locks cache_locks_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12768,7 +12915,7 @@ ALTER TABLE ONLY public.cache_locks
 
 
 --
--- TOC entry 5217 (class 2606 OID 49526)
+-- TOC entry 5229 (class 2606 OID 49526)
 -- Name: cache cache_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12777,7 +12924,7 @@ ALTER TABLE ONLY public.cache
 
 
 --
--- TOC entry 5221 (class 2606 OID 49528)
+-- TOC entry 5233 (class 2606 OID 49528)
 -- Name: cleareance_details cleareance_details_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12786,7 +12933,7 @@ ALTER TABLE ONLY public.cleareance_details
 
 
 --
--- TOC entry 5223 (class 2606 OID 49530)
+-- TOC entry 5235 (class 2606 OID 49530)
 -- Name: cleareance_settings cleareance_settings_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12795,7 +12942,7 @@ ALTER TABLE ONLY public.cleareance_settings
 
 
 --
--- TOC entry 5225 (class 2606 OID 49532)
+-- TOC entry 5237 (class 2606 OID 49532)
 -- Name: cleareances cleareances_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12804,7 +12951,7 @@ ALTER TABLE ONLY public.cleareances
 
 
 --
--- TOC entry 5227 (class 2606 OID 49534)
+-- TOC entry 5239 (class 2606 OID 49534)
 -- Name: cutis cutis_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12813,7 +12960,7 @@ ALTER TABLE ONLY public.cutis
 
 
 --
--- TOC entry 5229 (class 2606 OID 49536)
+-- TOC entry 5241 (class 2606 OID 49536)
 -- Name: departemens departemens_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12822,7 +12969,7 @@ ALTER TABLE ONLY public.departemens
 
 
 --
--- TOC entry 5231 (class 2606 OID 49538)
+-- TOC entry 5243 (class 2606 OID 49538)
 -- Name: detail_lemburs detail_lemburs_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12831,7 +12978,7 @@ ALTER TABLE ONLY public.detail_lemburs
 
 
 --
--- TOC entry 5233 (class 2606 OID 49540)
+-- TOC entry 5245 (class 2606 OID 49540)
 -- Name: detail_millages detail_millages_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12840,7 +12987,7 @@ ALTER TABLE ONLY public.detail_millages
 
 
 --
--- TOC entry 5235 (class 2606 OID 49542)
+-- TOC entry 5247 (class 2606 OID 49542)
 -- Name: detail_tugasluars detail_tugasluars_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12849,7 +12996,7 @@ ALTER TABLE ONLY public.detail_tugasluars
 
 
 --
--- TOC entry 5237 (class 2606 OID 49544)
+-- TOC entry 5249 (class 2606 OID 49544)
 -- Name: divisis divisis_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12858,7 +13005,7 @@ ALTER TABLE ONLY public.divisis
 
 
 --
--- TOC entry 5239 (class 2606 OID 49546)
+-- TOC entry 5251 (class 2606 OID 49546)
 -- Name: events events_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12867,7 +13014,7 @@ ALTER TABLE ONLY public.events
 
 
 --
--- TOC entry 5241 (class 2606 OID 49548)
+-- TOC entry 5253 (class 2606 OID 49548)
 -- Name: export_slip_lemburs export_slip_lemburs_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12876,7 +13023,7 @@ ALTER TABLE ONLY public.export_slip_lemburs
 
 
 --
--- TOC entry 5243 (class 2606 OID 49550)
+-- TOC entry 5255 (class 2606 OID 49550)
 -- Name: failed_jobs failed_jobs_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12885,7 +13032,7 @@ ALTER TABLE ONLY public.failed_jobs
 
 
 --
--- TOC entry 5245 (class 2606 OID 49552)
+-- TOC entry 5257 (class 2606 OID 49552)
 -- Name: failed_jobs failed_jobs_uuid_unique; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12894,7 +13041,7 @@ ALTER TABLE ONLY public.failed_jobs
 
 
 --
--- TOC entry 5247 (class 2606 OID 49554)
+-- TOC entry 5259 (class 2606 OID 49554)
 -- Name: gaji_departemens gaji_departemens_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12903,7 +13050,7 @@ ALTER TABLE ONLY public.gaji_departemens
 
 
 --
--- TOC entry 5249 (class 2606 OID 49556)
+-- TOC entry 5261 (class 2606 OID 49556)
 -- Name: grup_patterns grup_patterns_nama_unique; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12912,7 +13059,7 @@ ALTER TABLE ONLY public.grup_patterns
 
 
 --
--- TOC entry 5251 (class 2606 OID 49558)
+-- TOC entry 5263 (class 2606 OID 49558)
 -- Name: grup_patterns grup_patterns_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12921,7 +13068,7 @@ ALTER TABLE ONLY public.grup_patterns
 
 
 --
--- TOC entry 5253 (class 2606 OID 49560)
+-- TOC entry 5265 (class 2606 OID 49560)
 -- Name: grups grups_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12930,7 +13077,7 @@ ALTER TABLE ONLY public.grups
 
 
 --
--- TOC entry 5255 (class 2606 OID 49562)
+-- TOC entry 5267 (class 2606 OID 49562)
 -- Name: izins izins_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12939,7 +13086,7 @@ ALTER TABLE ONLY public.izins
 
 
 --
--- TOC entry 5257 (class 2606 OID 49564)
+-- TOC entry 5269 (class 2606 OID 49564)
 -- Name: jabatans jabatans_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12948,7 +13095,7 @@ ALTER TABLE ONLY public.jabatans
 
 
 --
--- TOC entry 5259 (class 2606 OID 49566)
+-- TOC entry 5271 (class 2606 OID 49566)
 -- Name: jenis_cutis jenis_cutis_jenis_unique; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12957,7 +13104,7 @@ ALTER TABLE ONLY public.jenis_cutis
 
 
 --
--- TOC entry 5261 (class 2606 OID 49568)
+-- TOC entry 5273 (class 2606 OID 49568)
 -- Name: jenis_cutis jenis_cutis_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12966,7 +13113,7 @@ ALTER TABLE ONLY public.jenis_cutis
 
 
 --
--- TOC entry 5263 (class 2606 OID 49570)
+-- TOC entry 5275 (class 2606 OID 49570)
 -- Name: jenis_kontraks jenis_kontraks_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12975,7 +13122,7 @@ ALTER TABLE ONLY public.jenis_kontraks
 
 
 --
--- TOC entry 5265 (class 2606 OID 49572)
+-- TOC entry 5277 (class 2606 OID 49572)
 -- Name: job_batches job_batches_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12984,7 +13131,7 @@ ALTER TABLE ONLY public.job_batches
 
 
 --
--- TOC entry 5267 (class 2606 OID 49574)
+-- TOC entry 5279 (class 2606 OID 49574)
 -- Name: jobs jobs_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -12993,7 +13140,7 @@ ALTER TABLE ONLY public.jobs
 
 
 --
--- TOC entry 5270 (class 2606 OID 49576)
+-- TOC entry 5282 (class 2606 OID 49576)
 -- Name: karyawan_posisi karyawan_posisi_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13002,7 +13149,7 @@ ALTER TABLE ONLY public.karyawan_posisi
 
 
 --
--- TOC entry 5272 (class 2606 OID 49578)
+-- TOC entry 5284 (class 2606 OID 49578)
 -- Name: karyawans karyawans_email_unique; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13011,7 +13158,7 @@ ALTER TABLE ONLY public.karyawans
 
 
 --
--- TOC entry 5274 (class 2606 OID 49580)
+-- TOC entry 5286 (class 2606 OID 49580)
 -- Name: karyawans karyawans_ni_karyawan_unique; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13020,7 +13167,7 @@ ALTER TABLE ONLY public.karyawans
 
 
 --
--- TOC entry 5276 (class 2606 OID 49582)
+-- TOC entry 5288 (class 2606 OID 49582)
 -- Name: karyawans karyawans_no_telp_unique; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13029,7 +13176,7 @@ ALTER TABLE ONLY public.karyawans
 
 
 --
--- TOC entry 5278 (class 2606 OID 49584)
+-- TOC entry 5290 (class 2606 OID 49584)
 -- Name: karyawans karyawans_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13038,7 +13185,16 @@ ALTER TABLE ONLY public.karyawans
 
 
 --
--- TOC entry 5280 (class 2606 OID 49586)
+-- TOC entry 5393 (class 2606 OID 65598)
+-- Name: keluarga_karyawans keluarga_karyawans_pkey; Type: CONSTRAINT; Schema: public; Owner: cybernova
+--
+
+ALTER TABLE ONLY public.keluarga_karyawans
+    ADD CONSTRAINT keluarga_karyawans_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 5292 (class 2606 OID 49586)
 -- Name: kontraks kontraks_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13047,7 +13203,7 @@ ALTER TABLE ONLY public.kontraks
 
 
 --
--- TOC entry 5284 (class 2606 OID 49588)
+-- TOC entry 5296 (class 2606 OID 49588)
 -- Name: ksk_change_histories ksk_change_histories_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13056,7 +13212,7 @@ ALTER TABLE ONLY public.ksk_change_histories
 
 
 --
--- TOC entry 5286 (class 2606 OID 49590)
+-- TOC entry 5298 (class 2606 OID 49590)
 -- Name: ksk_details ksk_details_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13065,7 +13221,7 @@ ALTER TABLE ONLY public.ksk_details
 
 
 --
--- TOC entry 5282 (class 2606 OID 49592)
+-- TOC entry 5294 (class 2606 OID 49592)
 -- Name: ksk ksk_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13074,7 +13230,7 @@ ALTER TABLE ONLY public.ksk
 
 
 --
--- TOC entry 5288 (class 2606 OID 49594)
+-- TOC entry 5300 (class 2606 OID 49594)
 -- Name: lembur_harians lembur_harians_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13083,7 +13239,7 @@ ALTER TABLE ONLY public.lembur_harians
 
 
 --
--- TOC entry 5290 (class 2606 OID 49596)
+-- TOC entry 5302 (class 2606 OID 49596)
 -- Name: lemburs lemburs_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13092,7 +13248,7 @@ ALTER TABLE ONLY public.lemburs
 
 
 --
--- TOC entry 5292 (class 2606 OID 49598)
+-- TOC entry 5304 (class 2606 OID 49598)
 -- Name: migrations migrations_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13101,7 +13257,7 @@ ALTER TABLE ONLY public.migrations
 
 
 --
--- TOC entry 5294 (class 2606 OID 49600)
+-- TOC entry 5306 (class 2606 OID 49600)
 -- Name: millages millages_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13110,7 +13266,7 @@ ALTER TABLE ONLY public.millages
 
 
 --
--- TOC entry 5297 (class 2606 OID 49602)
+-- TOC entry 5309 (class 2606 OID 49602)
 -- Name: model_has_permissions model_has_permissions_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13119,7 +13275,7 @@ ALTER TABLE ONLY public.model_has_permissions
 
 
 --
--- TOC entry 5300 (class 2606 OID 49604)
+-- TOC entry 5312 (class 2606 OID 49604)
 -- Name: model_has_roles model_has_roles_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13128,7 +13284,7 @@ ALTER TABLE ONLY public.model_has_roles
 
 
 --
--- TOC entry 5302 (class 2606 OID 49606)
+-- TOC entry 5314 (class 2606 OID 49606)
 -- Name: organisasis organisasis_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13137,7 +13293,7 @@ ALTER TABLE ONLY public.organisasis
 
 
 --
--- TOC entry 5304 (class 2606 OID 49608)
+-- TOC entry 5316 (class 2606 OID 49608)
 -- Name: pajak_lemburs pajak_lemburs_karyawan_id_periode_unique; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13146,7 +13302,7 @@ ALTER TABLE ONLY public.pajak_lemburs
 
 
 --
--- TOC entry 5306 (class 2606 OID 49610)
+-- TOC entry 5318 (class 2606 OID 49610)
 -- Name: pajak_lemburs pajak_lemburs_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13155,7 +13311,7 @@ ALTER TABLE ONLY public.pajak_lemburs
 
 
 --
--- TOC entry 5308 (class 2606 OID 49612)
+-- TOC entry 5320 (class 2606 OID 49612)
 -- Name: password_reset_tokens password_reset_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13164,7 +13320,7 @@ ALTER TABLE ONLY public.password_reset_tokens
 
 
 --
--- TOC entry 5310 (class 2606 OID 49614)
+-- TOC entry 5322 (class 2606 OID 49614)
 -- Name: permissions permissions_name_guard_name_unique; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13173,7 +13329,7 @@ ALTER TABLE ONLY public.permissions
 
 
 --
--- TOC entry 5312 (class 2606 OID 49616)
+-- TOC entry 5324 (class 2606 OID 49616)
 -- Name: permissions permissions_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13182,7 +13338,7 @@ ALTER TABLE ONLY public.permissions
 
 
 --
--- TOC entry 5314 (class 2606 OID 49618)
+-- TOC entry 5326 (class 2606 OID 49618)
 -- Name: personal_access_tokens personal_access_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13191,7 +13347,7 @@ ALTER TABLE ONLY public.personal_access_tokens
 
 
 --
--- TOC entry 5316 (class 2606 OID 49620)
+-- TOC entry 5328 (class 2606 OID 49620)
 -- Name: personal_access_tokens personal_access_tokens_token_unique; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13200,7 +13356,7 @@ ALTER TABLE ONLY public.personal_access_tokens
 
 
 --
--- TOC entry 5319 (class 2606 OID 49622)
+-- TOC entry 5331 (class 2606 OID 49622)
 -- Name: pikets pikets_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13209,7 +13365,7 @@ ALTER TABLE ONLY public.pikets
 
 
 --
--- TOC entry 5321 (class 2606 OID 49624)
+-- TOC entry 5333 (class 2606 OID 49624)
 -- Name: posisis posisis_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13218,7 +13374,7 @@ ALTER TABLE ONLY public.posisis
 
 
 --
--- TOC entry 5323 (class 2606 OID 49626)
+-- TOC entry 5335 (class 2606 OID 49626)
 -- Name: rekap_lembur rekap_lembur_karyawan_id_periode_unique; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13227,7 +13383,7 @@ ALTER TABLE ONLY public.rekap_lembur
 
 
 --
--- TOC entry 5325 (class 2606 OID 49628)
+-- TOC entry 5337 (class 2606 OID 49628)
 -- Name: rekap_lembur rekap_lembur_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13236,7 +13392,7 @@ ALTER TABLE ONLY public.rekap_lembur
 
 
 --
--- TOC entry 5327 (class 2606 OID 49630)
+-- TOC entry 5339 (class 2606 OID 49630)
 -- Name: rekap_lembur_summary rekap_lembur_summary_departemen_periode_unique; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13245,7 +13401,7 @@ ALTER TABLE ONLY public.rekap_lembur_summary
 
 
 --
--- TOC entry 5329 (class 2606 OID 49632)
+-- TOC entry 5341 (class 2606 OID 49632)
 -- Name: rekap_lembur_summary rekap_lembur_summary_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13254,7 +13410,25 @@ ALTER TABLE ONLY public.rekap_lembur_summary
 
 
 --
--- TOC entry 5331 (class 2606 OID 49634)
+-- TOC entry 5395 (class 2606 OID 65619)
+-- Name: rekap_manpower_histories rekap_manpower_histories_period_organisasi_id_unique; Type: CONSTRAINT; Schema: public; Owner: cybernova
+--
+
+ALTER TABLE ONLY public.rekap_manpower_histories
+    ADD CONSTRAINT rekap_manpower_histories_period_organisasi_id_unique UNIQUE (period, organisasi_id);
+
+
+--
+-- TOC entry 5397 (class 2606 OID 65612)
+-- Name: rekap_manpower_histories rekap_manpower_histories_pkey; Type: CONSTRAINT; Schema: public; Owner: cybernova
+--
+
+ALTER TABLE ONLY public.rekap_manpower_histories
+    ADD CONSTRAINT rekap_manpower_histories_pkey PRIMARY KEY (id);
+
+
+--
+-- TOC entry 5343 (class 2606 OID 49634)
 -- Name: rekap_manpower_history rekap_manpower_history_period_unique; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13263,7 +13437,7 @@ ALTER TABLE ONLY public.rekap_manpower_history
 
 
 --
--- TOC entry 5333 (class 2606 OID 49636)
+-- TOC entry 5345 (class 2606 OID 49636)
 -- Name: rekap_manpower_history rekap_manpower_history_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13272,7 +13446,7 @@ ALTER TABLE ONLY public.rekap_manpower_history
 
 
 --
--- TOC entry 5335 (class 2606 OID 49638)
+-- TOC entry 5347 (class 2606 OID 49638)
 -- Name: reset_cutis reset_cutis_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13281,7 +13455,7 @@ ALTER TABLE ONLY public.reset_cutis
 
 
 --
--- TOC entry 5337 (class 2606 OID 49640)
+-- TOC entry 5349 (class 2606 OID 49640)
 -- Name: role_has_permissions role_has_permissions_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13290,7 +13464,7 @@ ALTER TABLE ONLY public.role_has_permissions
 
 
 --
--- TOC entry 5339 (class 2606 OID 49642)
+-- TOC entry 5351 (class 2606 OID 49642)
 -- Name: roles roles_name_guard_name_unique; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13299,7 +13473,7 @@ ALTER TABLE ONLY public.roles
 
 
 --
--- TOC entry 5341 (class 2606 OID 49644)
+-- TOC entry 5353 (class 2606 OID 49644)
 -- Name: roles roles_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13308,7 +13482,7 @@ ALTER TABLE ONLY public.roles
 
 
 --
--- TOC entry 5343 (class 2606 OID 49646)
+-- TOC entry 5355 (class 2606 OID 49646)
 -- Name: sakits sakits_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13317,7 +13491,7 @@ ALTER TABLE ONLY public.sakits
 
 
 --
--- TOC entry 5346 (class 2606 OID 49650)
+-- TOC entry 5358 (class 2606 OID 49650)
 -- Name: sessions sessions_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13326,7 +13500,7 @@ ALTER TABLE ONLY public.sessions
 
 
 --
--- TOC entry 5349 (class 2606 OID 49652)
+-- TOC entry 5361 (class 2606 OID 49652)
 -- Name: setting_lembur_karyawans setting_lembur_karyawans_karyawan_id_unique; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13335,7 +13509,7 @@ ALTER TABLE ONLY public.setting_lembur_karyawans
 
 
 --
--- TOC entry 5351 (class 2606 OID 49654)
+-- TOC entry 5363 (class 2606 OID 49654)
 -- Name: setting_lembur_karyawans setting_lembur_karyawans_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13344,7 +13518,7 @@ ALTER TABLE ONLY public.setting_lembur_karyawans
 
 
 --
--- TOC entry 5353 (class 2606 OID 49656)
+-- TOC entry 5365 (class 2606 OID 49656)
 -- Name: setting_lemburs setting_lemburs_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13353,7 +13527,7 @@ ALTER TABLE ONLY public.setting_lemburs
 
 
 --
--- TOC entry 5355 (class 2606 OID 49658)
+-- TOC entry 5367 (class 2606 OID 49658)
 -- Name: setting_tugasluars setting_tugasluars_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13362,7 +13536,7 @@ ALTER TABLE ONLY public.setting_tugasluars
 
 
 --
--- TOC entry 5357 (class 2606 OID 49660)
+-- TOC entry 5369 (class 2606 OID 49660)
 -- Name: slip_lembur_karyawans slip_lembur_karyawans_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13371,7 +13545,7 @@ ALTER TABLE ONLY public.slip_lembur_karyawans
 
 
 --
--- TOC entry 5361 (class 2606 OID 49662)
+-- TOC entry 5373 (class 2606 OID 49662)
 -- Name: sto_headers sto_headers_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13380,7 +13554,7 @@ ALTER TABLE ONLY public.sto_headers
 
 
 --
--- TOC entry 5363 (class 2606 OID 49664)
+-- TOC entry 5375 (class 2606 OID 49664)
 -- Name: sto_lines sto_lines_no_label_unique; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13389,7 +13563,7 @@ ALTER TABLE ONLY public.sto_lines
 
 
 --
--- TOC entry 5365 (class 2606 OID 49666)
+-- TOC entry 5377 (class 2606 OID 49666)
 -- Name: sto_lines sto_lines_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13398,7 +13572,7 @@ ALTER TABLE ONLY public.sto_lines
 
 
 --
--- TOC entry 5367 (class 2606 OID 49668)
+-- TOC entry 5379 (class 2606 OID 49668)
 -- Name: sto_upload sto_upload_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13407,7 +13581,7 @@ ALTER TABLE ONLY public.sto_upload
 
 
 --
--- TOC entry 5369 (class 2606 OID 49670)
+-- TOC entry 5381 (class 2606 OID 49670)
 -- Name: templates templates_nama_unique; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13416,7 +13590,7 @@ ALTER TABLE ONLY public.templates
 
 
 --
--- TOC entry 5371 (class 2606 OID 49672)
+-- TOC entry 5383 (class 2606 OID 49672)
 -- Name: templates templates_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13425,7 +13599,7 @@ ALTER TABLE ONLY public.templates
 
 
 --
--- TOC entry 5373 (class 2606 OID 49674)
+-- TOC entry 5385 (class 2606 OID 49674)
 -- Name: tugasluars tugasluars_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13434,7 +13608,7 @@ ALTER TABLE ONLY public.tugasluars
 
 
 --
--- TOC entry 5375 (class 2606 OID 49676)
+-- TOC entry 5387 (class 2606 OID 49676)
 -- Name: turnovers turnovers_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13443,7 +13617,7 @@ ALTER TABLE ONLY public.turnovers
 
 
 --
--- TOC entry 5359 (class 2606 OID 49678)
+-- TOC entry 5371 (class 2606 OID 49678)
 -- Name: slip_lembur_karyawans unique_slip_lembur; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13452,7 +13626,7 @@ ALTER TABLE ONLY public.slip_lembur_karyawans
 
 
 --
--- TOC entry 5377 (class 2606 OID 49680)
+-- TOC entry 5389 (class 2606 OID 49680)
 -- Name: users users_email_unique; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13461,7 +13635,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 5379 (class 2606 OID 49682)
+-- TOC entry 5391 (class 2606 OID 49682)
 -- Name: users users_pkey; Type: CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13470,7 +13644,7 @@ ALTER TABLE ONLY public.users
 
 
 --
--- TOC entry 5189 (class 1259 OID 49683)
+-- TOC entry 5201 (class 1259 OID 49683)
 -- Name: activity_log_log_name_index; Type: INDEX; Schema: public; Owner: ict
 --
 
@@ -13478,7 +13652,7 @@ CREATE INDEX activity_log_log_name_index ON public.activity_log USING btree (log
 
 
 --
--- TOC entry 5192 (class 1259 OID 49684)
+-- TOC entry 5204 (class 1259 OID 49684)
 -- Name: causer; Type: INDEX; Schema: public; Owner: ict
 --
 
@@ -13486,7 +13660,7 @@ CREATE INDEX causer ON public.activity_log USING btree (causer_type, causer_id);
 
 
 --
--- TOC entry 5268 (class 1259 OID 49685)
+-- TOC entry 5280 (class 1259 OID 49685)
 -- Name: jobs_queue_index; Type: INDEX; Schema: public; Owner: ict
 --
 
@@ -13494,7 +13668,7 @@ CREATE INDEX jobs_queue_index ON public.jobs USING btree (queue);
 
 
 --
--- TOC entry 5295 (class 1259 OID 49686)
+-- TOC entry 5307 (class 1259 OID 49686)
 -- Name: model_has_permissions_model_id_model_type_index; Type: INDEX; Schema: public; Owner: ict
 --
 
@@ -13502,7 +13676,7 @@ CREATE INDEX model_has_permissions_model_id_model_type_index ON public.model_has
 
 
 --
--- TOC entry 5298 (class 1259 OID 49687)
+-- TOC entry 5310 (class 1259 OID 49687)
 -- Name: model_has_roles_model_id_model_type_index; Type: INDEX; Schema: public; Owner: ict
 --
 
@@ -13510,7 +13684,7 @@ CREATE INDEX model_has_roles_model_id_model_type_index ON public.model_has_roles
 
 
 --
--- TOC entry 5317 (class 1259 OID 49688)
+-- TOC entry 5329 (class 1259 OID 49688)
 -- Name: personal_access_tokens_tokenable_type_tokenable_id_index; Type: INDEX; Schema: public; Owner: ict
 --
 
@@ -13518,7 +13692,7 @@ CREATE INDEX personal_access_tokens_tokenable_type_tokenable_id_index ON public.
 
 
 --
--- TOC entry 5344 (class 1259 OID 49689)
+-- TOC entry 5356 (class 1259 OID 49689)
 -- Name: sessions_last_activity_index; Type: INDEX; Schema: public; Owner: ict
 --
 
@@ -13526,7 +13700,7 @@ CREATE INDEX sessions_last_activity_index ON public.sessions USING btree (last_a
 
 
 --
--- TOC entry 5347 (class 1259 OID 49690)
+-- TOC entry 5359 (class 1259 OID 49690)
 -- Name: sessions_user_id_index; Type: INDEX; Schema: public; Owner: ict
 --
 
@@ -13534,7 +13708,7 @@ CREATE INDEX sessions_user_id_index ON public.sessions USING btree (user_id);
 
 
 --
--- TOC entry 5193 (class 1259 OID 49691)
+-- TOC entry 5205 (class 1259 OID 49691)
 -- Name: subject; Type: INDEX; Schema: public; Owner: ict
 --
 
@@ -13542,7 +13716,7 @@ CREATE INDEX subject ON public.activity_log USING btree (subject_type, subject_i
 
 
 --
--- TOC entry 5380 (class 2606 OID 49692)
+-- TOC entry 5398 (class 2606 OID 49692)
 -- Name: approval_cutis approval_cutis_cuti_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13551,7 +13725,7 @@ ALTER TABLE ONLY public.approval_cutis
 
 
 --
--- TOC entry 5381 (class 2606 OID 49697)
+-- TOC entry 5399 (class 2606 OID 49697)
 -- Name: attachment_ksk_details attachment_ksk_details_ksk_detail_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13560,7 +13734,7 @@ ALTER TABLE ONLY public.attachment_ksk_details
 
 
 --
--- TOC entry 5382 (class 2606 OID 49702)
+-- TOC entry 5400 (class 2606 OID 49702)
 -- Name: attachment_lemburs attachment_lemburs_lembur_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13569,7 +13743,7 @@ ALTER TABLE ONLY public.attachment_lemburs
 
 
 --
--- TOC entry 5383 (class 2606 OID 49707)
+-- TOC entry 5401 (class 2606 OID 49707)
 -- Name: attendance_devices attendance_devices_organisasi_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13578,7 +13752,7 @@ ALTER TABLE ONLY public.attendance_devices
 
 
 --
--- TOC entry 5384 (class 2606 OID 49712)
+-- TOC entry 5402 (class 2606 OID 49712)
 -- Name: attendance_gps attendance_gps_karyawan_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13587,7 +13761,7 @@ ALTER TABLE ONLY public.attendance_gps
 
 
 --
--- TOC entry 5385 (class 2606 OID 49717)
+-- TOC entry 5403 (class 2606 OID 49717)
 -- Name: attendance_gps attendance_gps_organisasi_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13596,7 +13770,7 @@ ALTER TABLE ONLY public.attendance_gps
 
 
 --
--- TOC entry 5386 (class 2606 OID 49722)
+-- TOC entry 5404 (class 2606 OID 49722)
 -- Name: attendance_karyawan_grup attendance_karyawan_grup_grup_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13605,7 +13779,7 @@ ALTER TABLE ONLY public.attendance_karyawan_grup
 
 
 --
--- TOC entry 5387 (class 2606 OID 49727)
+-- TOC entry 5405 (class 2606 OID 49727)
 -- Name: attendance_karyawan_grup attendance_karyawan_grup_organisasi_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13614,7 +13788,7 @@ ALTER TABLE ONLY public.attendance_karyawan_grup
 
 
 --
--- TOC entry 5388 (class 2606 OID 49732)
+-- TOC entry 5406 (class 2606 OID 49732)
 -- Name: attendance_scanlogs attendance_scanlogs_device_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13623,7 +13797,7 @@ ALTER TABLE ONLY public.attendance_scanlogs
 
 
 --
--- TOC entry 5389 (class 2606 OID 49737)
+-- TOC entry 5407 (class 2606 OID 49737)
 -- Name: attendance_scanlogs attendance_scanlogs_organisasi_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13632,7 +13806,7 @@ ALTER TABLE ONLY public.attendance_scanlogs
 
 
 --
--- TOC entry 5390 (class 2606 OID 49742)
+-- TOC entry 5408 (class 2606 OID 49742)
 -- Name: attendance_summaries attendance_summaries_karyawan_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13641,7 +13815,7 @@ ALTER TABLE ONLY public.attendance_summaries
 
 
 --
--- TOC entry 5391 (class 2606 OID 49747)
+-- TOC entry 5409 (class 2606 OID 49747)
 -- Name: attendance_summaries attendance_summaries_organisasi_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13650,7 +13824,7 @@ ALTER TABLE ONLY public.attendance_summaries
 
 
 --
--- TOC entry 5392 (class 2606 OID 49752)
+-- TOC entry 5410 (class 2606 OID 49752)
 -- Name: cleareance_details cleareance_details_cleareance_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13659,7 +13833,7 @@ ALTER TABLE ONLY public.cleareance_details
 
 
 --
--- TOC entry 5393 (class 2606 OID 49757)
+-- TOC entry 5411 (class 2606 OID 49757)
 -- Name: cleareance_details cleareance_details_organisasi_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13668,7 +13842,7 @@ ALTER TABLE ONLY public.cleareance_details
 
 
 --
--- TOC entry 5394 (class 2606 OID 49762)
+-- TOC entry 5412 (class 2606 OID 49762)
 -- Name: cleareance_settings cleareance_settings_organisasi_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13677,7 +13851,7 @@ ALTER TABLE ONLY public.cleareance_settings
 
 
 --
--- TOC entry 5395 (class 2606 OID 49767)
+-- TOC entry 5413 (class 2606 OID 49767)
 -- Name: cleareances cleareances_karyawan_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13686,7 +13860,7 @@ ALTER TABLE ONLY public.cleareances
 
 
 --
--- TOC entry 5396 (class 2606 OID 49772)
+-- TOC entry 5414 (class 2606 OID 49772)
 -- Name: cleareances cleareances_organisasi_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13695,7 +13869,7 @@ ALTER TABLE ONLY public.cleareances
 
 
 --
--- TOC entry 5397 (class 2606 OID 49777)
+-- TOC entry 5415 (class 2606 OID 49777)
 -- Name: cutis cutis_karyawan_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13704,7 +13878,7 @@ ALTER TABLE ONLY public.cutis
 
 
 --
--- TOC entry 5398 (class 2606 OID 49782)
+-- TOC entry 5416 (class 2606 OID 49782)
 -- Name: departemens departemens_divisi_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13713,7 +13887,7 @@ ALTER TABLE ONLY public.departemens
 
 
 --
--- TOC entry 5399 (class 2606 OID 49787)
+-- TOC entry 5417 (class 2606 OID 49787)
 -- Name: detail_lemburs detail_lemburs_karyawan_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13722,7 +13896,7 @@ ALTER TABLE ONLY public.detail_lemburs
 
 
 --
--- TOC entry 5400 (class 2606 OID 49792)
+-- TOC entry 5418 (class 2606 OID 49792)
 -- Name: detail_lemburs detail_lemburs_lembur_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13731,7 +13905,7 @@ ALTER TABLE ONLY public.detail_lemburs
 
 
 --
--- TOC entry 5401 (class 2606 OID 49797)
+-- TOC entry 5419 (class 2606 OID 49797)
 -- Name: detail_lemburs detail_lemburs_organisasi_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13740,7 +13914,7 @@ ALTER TABLE ONLY public.detail_lemburs
 
 
 --
--- TOC entry 5402 (class 2606 OID 49802)
+-- TOC entry 5420 (class 2606 OID 49802)
 -- Name: detail_millages detail_millages_millage_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13749,7 +13923,7 @@ ALTER TABLE ONLY public.detail_millages
 
 
 --
--- TOC entry 5403 (class 2606 OID 49807)
+-- TOC entry 5421 (class 2606 OID 49807)
 -- Name: detail_millages detail_millages_organisasi_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13758,7 +13932,7 @@ ALTER TABLE ONLY public.detail_millages
 
 
 --
--- TOC entry 5404 (class 2606 OID 49812)
+-- TOC entry 5422 (class 2606 OID 49812)
 -- Name: detail_tugasluars detail_tugasluars_karyawan_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13767,7 +13941,7 @@ ALTER TABLE ONLY public.detail_tugasluars
 
 
 --
--- TOC entry 5405 (class 2606 OID 49817)
+-- TOC entry 5423 (class 2606 OID 49817)
 -- Name: detail_tugasluars detail_tugasluars_organisasi_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13776,7 +13950,7 @@ ALTER TABLE ONLY public.detail_tugasluars
 
 
 --
--- TOC entry 5406 (class 2606 OID 49822)
+-- TOC entry 5424 (class 2606 OID 49822)
 -- Name: detail_tugasluars detail_tugasluars_tugasluar_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13785,7 +13959,7 @@ ALTER TABLE ONLY public.detail_tugasluars
 
 
 --
--- TOC entry 5407 (class 2606 OID 49827)
+-- TOC entry 5425 (class 2606 OID 49827)
 -- Name: export_slip_lemburs export_slip_lemburs_organisasi_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13794,7 +13968,7 @@ ALTER TABLE ONLY public.export_slip_lemburs
 
 
 --
--- TOC entry 5408 (class 2606 OID 49832)
+-- TOC entry 5426 (class 2606 OID 49832)
 -- Name: gaji_departemens gaji_departemens_departemen_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13803,7 +13977,7 @@ ALTER TABLE ONLY public.gaji_departemens
 
 
 --
--- TOC entry 5409 (class 2606 OID 49837)
+-- TOC entry 5427 (class 2606 OID 49837)
 -- Name: gaji_departemens gaji_departemens_organisasi_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13812,7 +13986,7 @@ ALTER TABLE ONLY public.gaji_departemens
 
 
 --
--- TOC entry 5410 (class 2606 OID 49842)
+-- TOC entry 5428 (class 2606 OID 49842)
 -- Name: grup_patterns grup_patterns_organisasi_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13821,7 +13995,7 @@ ALTER TABLE ONLY public.grup_patterns
 
 
 --
--- TOC entry 5411 (class 2606 OID 49847)
+-- TOC entry 5429 (class 2606 OID 49847)
 -- Name: izins izins_karyawan_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13830,7 +14004,7 @@ ALTER TABLE ONLY public.izins
 
 
 --
--- TOC entry 5412 (class 2606 OID 49852)
+-- TOC entry 5430 (class 2606 OID 49852)
 -- Name: izins izins_organisasi_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13839,7 +14013,7 @@ ALTER TABLE ONLY public.izins
 
 
 --
--- TOC entry 5413 (class 2606 OID 49857)
+-- TOC entry 5431 (class 2606 OID 49857)
 -- Name: karyawan_posisi karyawan_posisi_karyawan_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13848,7 +14022,7 @@ ALTER TABLE ONLY public.karyawan_posisi
 
 
 --
--- TOC entry 5414 (class 2606 OID 49862)
+-- TOC entry 5432 (class 2606 OID 49862)
 -- Name: karyawan_posisi karyawan_posisi_posisi_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13857,7 +14031,16 @@ ALTER TABLE ONLY public.karyawan_posisi
 
 
 --
--- TOC entry 5415 (class 2606 OID 49867)
+-- TOC entry 5464 (class 2606 OID 65599)
+-- Name: keluarga_karyawans keluarga_karyawans_karyawan_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: cybernova
+--
+
+ALTER TABLE ONLY public.keluarga_karyawans
+    ADD CONSTRAINT keluarga_karyawans_karyawan_id_foreign FOREIGN KEY (karyawan_id) REFERENCES public.karyawans(id_karyawan) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 5433 (class 2606 OID 49867)
 -- Name: kontraks kontraks_jenis_kontrak_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13866,7 +14049,7 @@ ALTER TABLE ONLY public.kontraks
 
 
 --
--- TOC entry 5416 (class 2606 OID 49872)
+-- TOC entry 5434 (class 2606 OID 49872)
 -- Name: kontraks kontraks_karyawan_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13875,7 +14058,7 @@ ALTER TABLE ONLY public.kontraks
 
 
 --
--- TOC entry 5418 (class 2606 OID 49877)
+-- TOC entry 5436 (class 2606 OID 49877)
 -- Name: ksk_change_histories ksk_change_histories_changed_by_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13884,7 +14067,7 @@ ALTER TABLE ONLY public.ksk_change_histories
 
 
 --
--- TOC entry 5419 (class 2606 OID 49882)
+-- TOC entry 5437 (class 2606 OID 49882)
 -- Name: ksk_change_histories ksk_change_histories_ksk_detail_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13893,7 +14076,7 @@ ALTER TABLE ONLY public.ksk_change_histories
 
 
 --
--- TOC entry 5420 (class 2606 OID 49887)
+-- TOC entry 5438 (class 2606 OID 49887)
 -- Name: ksk_details ksk_details_karyawan_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13902,7 +14085,7 @@ ALTER TABLE ONLY public.ksk_details
 
 
 --
--- TOC entry 5421 (class 2606 OID 49892)
+-- TOC entry 5439 (class 2606 OID 49892)
 -- Name: ksk_details ksk_details_ksk_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13911,7 +14094,7 @@ ALTER TABLE ONLY public.ksk_details
 
 
 --
--- TOC entry 5422 (class 2606 OID 49897)
+-- TOC entry 5440 (class 2606 OID 49897)
 -- Name: ksk_details ksk_details_organisasi_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13920,7 +14103,7 @@ ALTER TABLE ONLY public.ksk_details
 
 
 --
--- TOC entry 5417 (class 2606 OID 49902)
+-- TOC entry 5435 (class 2606 OID 49902)
 -- Name: ksk ksk_organisasi_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13929,7 +14112,7 @@ ALTER TABLE ONLY public.ksk
 
 
 --
--- TOC entry 5423 (class 2606 OID 49907)
+-- TOC entry 5441 (class 2606 OID 49907)
 -- Name: lembur_harians lembur_harians_organisasi_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13938,7 +14121,7 @@ ALTER TABLE ONLY public.lembur_harians
 
 
 --
--- TOC entry 5424 (class 2606 OID 49912)
+-- TOC entry 5442 (class 2606 OID 49912)
 -- Name: lemburs lemburs_organisasi_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13947,7 +14130,7 @@ ALTER TABLE ONLY public.lemburs
 
 
 --
--- TOC entry 5425 (class 2606 OID 49917)
+-- TOC entry 5443 (class 2606 OID 49917)
 -- Name: millages millages_karyawan_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13956,7 +14139,7 @@ ALTER TABLE ONLY public.millages
 
 
 --
--- TOC entry 5426 (class 2606 OID 49922)
+-- TOC entry 5444 (class 2606 OID 49922)
 -- Name: millages millages_organisasi_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13965,7 +14148,7 @@ ALTER TABLE ONLY public.millages
 
 
 --
--- TOC entry 5427 (class 2606 OID 49927)
+-- TOC entry 5445 (class 2606 OID 49927)
 -- Name: model_has_permissions model_has_permissions_permission_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13974,7 +14157,7 @@ ALTER TABLE ONLY public.model_has_permissions
 
 
 --
--- TOC entry 5428 (class 2606 OID 49932)
+-- TOC entry 5446 (class 2606 OID 49932)
 -- Name: model_has_roles model_has_roles_role_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13983,7 +14166,7 @@ ALTER TABLE ONLY public.model_has_roles
 
 
 --
--- TOC entry 5429 (class 2606 OID 49937)
+-- TOC entry 5447 (class 2606 OID 49937)
 -- Name: pajak_lemburs pajak_lemburs_karyawan_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -13992,7 +14175,7 @@ ALTER TABLE ONLY public.pajak_lemburs
 
 
 --
--- TOC entry 5430 (class 2606 OID 49942)
+-- TOC entry 5448 (class 2606 OID 49942)
 -- Name: pikets pikets_karyawan_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -14001,7 +14184,7 @@ ALTER TABLE ONLY public.pikets
 
 
 --
--- TOC entry 5431 (class 2606 OID 49947)
+-- TOC entry 5449 (class 2606 OID 49947)
 -- Name: pikets pikets_organisasi_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -14010,7 +14193,7 @@ ALTER TABLE ONLY public.pikets
 
 
 --
--- TOC entry 5432 (class 2606 OID 49952)
+-- TOC entry 5450 (class 2606 OID 49952)
 -- Name: posisis posisis_jabatan_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -14019,7 +14202,16 @@ ALTER TABLE ONLY public.posisis
 
 
 --
--- TOC entry 5433 (class 2606 OID 49957)
+-- TOC entry 5465 (class 2606 OID 65613)
+-- Name: rekap_manpower_histories rekap_manpower_histories_organisasi_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: cybernova
+--
+
+ALTER TABLE ONLY public.rekap_manpower_histories
+    ADD CONSTRAINT rekap_manpower_histories_organisasi_id_foreign FOREIGN KEY (organisasi_id) REFERENCES public.organisasis(id_organisasi) ON DELETE CASCADE;
+
+
+--
+-- TOC entry 5451 (class 2606 OID 49957)
 -- Name: role_has_permissions role_has_permissions_permission_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -14028,7 +14220,7 @@ ALTER TABLE ONLY public.role_has_permissions
 
 
 --
--- TOC entry 5434 (class 2606 OID 49962)
+-- TOC entry 5452 (class 2606 OID 49962)
 -- Name: role_has_permissions role_has_permissions_role_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -14037,7 +14229,7 @@ ALTER TABLE ONLY public.role_has_permissions
 
 
 --
--- TOC entry 5435 (class 2606 OID 49967)
+-- TOC entry 5453 (class 2606 OID 49967)
 -- Name: sakits sakits_karyawan_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -14046,7 +14238,7 @@ ALTER TABLE ONLY public.sakits
 
 
 --
--- TOC entry 5436 (class 2606 OID 49972)
+-- TOC entry 5454 (class 2606 OID 49972)
 -- Name: sakits sakits_organisasi_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -14055,7 +14247,7 @@ ALTER TABLE ONLY public.sakits
 
 
 --
--- TOC entry 5437 (class 2606 OID 49982)
+-- TOC entry 5455 (class 2606 OID 49982)
 -- Name: setting_lembur_karyawans setting_lembur_karyawans_jabatan_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -14064,7 +14256,7 @@ ALTER TABLE ONLY public.setting_lembur_karyawans
 
 
 --
--- TOC entry 5438 (class 2606 OID 49987)
+-- TOC entry 5456 (class 2606 OID 49987)
 -- Name: setting_lembur_karyawans setting_lembur_karyawans_karyawan_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -14073,7 +14265,7 @@ ALTER TABLE ONLY public.setting_lembur_karyawans
 
 
 --
--- TOC entry 5439 (class 2606 OID 49992)
+-- TOC entry 5457 (class 2606 OID 49992)
 -- Name: setting_lembur_karyawans setting_lembur_karyawans_organisasi_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -14082,7 +14274,7 @@ ALTER TABLE ONLY public.setting_lembur_karyawans
 
 
 --
--- TOC entry 5440 (class 2606 OID 49997)
+-- TOC entry 5458 (class 2606 OID 49997)
 -- Name: setting_lemburs setting_lemburs_organisasi_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -14091,7 +14283,7 @@ ALTER TABLE ONLY public.setting_lemburs
 
 
 --
--- TOC entry 5441 (class 2606 OID 50002)
+-- TOC entry 5459 (class 2606 OID 50002)
 -- Name: setting_tugasluars setting_tugasluars_organisasi_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -14100,7 +14292,7 @@ ALTER TABLE ONLY public.setting_tugasluars
 
 
 --
--- TOC entry 5442 (class 2606 OID 50007)
+-- TOC entry 5460 (class 2606 OID 50007)
 -- Name: sto_lines sto_lines_sto_header_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -14109,7 +14301,7 @@ ALTER TABLE ONLY public.sto_lines
 
 
 --
--- TOC entry 5443 (class 2606 OID 50012)
+-- TOC entry 5461 (class 2606 OID 50012)
 -- Name: tugasluars tugasluars_karyawan_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -14118,7 +14310,7 @@ ALTER TABLE ONLY public.tugasluars
 
 
 --
--- TOC entry 5444 (class 2606 OID 50017)
+-- TOC entry 5462 (class 2606 OID 50017)
 -- Name: tugasluars tugasluars_organisasi_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -14127,7 +14319,7 @@ ALTER TABLE ONLY public.tugasluars
 
 
 --
--- TOC entry 5445 (class 2606 OID 50022)
+-- TOC entry 5463 (class 2606 OID 50022)
 -- Name: turnovers turnovers_karyawan_id_foreign; Type: FK CONSTRAINT; Schema: public; Owner: ict
 --
 
@@ -14135,7 +14327,7 @@ ALTER TABLE ONLY public.turnovers
     ADD CONSTRAINT turnovers_karyawan_id_foreign FOREIGN KEY (karyawan_id) REFERENCES public.karyawans(id_karyawan) ON DELETE RESTRICT;
 
 
--- Completed on 2025-10-07 09:07:25
+-- Completed on 2025-10-07 09:55:31
 
 --
 -- PostgreSQL database dump complete
