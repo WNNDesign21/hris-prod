@@ -342,6 +342,48 @@ $(function () {
       });
     }
 
+
+    // tangguh buka
+    function totalDataKaryawanRekap() {
+    let filter = $('#filter_tingkat').val() || 'all';
+    let url = base_url + '/master-data/dashboard/get-total-karyawan-rekap?filter=' + filter;
+
+    $.ajax({
+        url: url,
+        method: 'GET',
+        success: function(response) {
+            let data = response.data;
+            $('#total_direct_indirect').text(data.direct_indirect);
+            $('#total_sinas').text(data.sinas);
+            $('#total_desa').text(data.desa);
+            $('#total_kec').text(data.kecamatan);
+            $('#total_kab').text(data.kabupaten);
+            $('#total_prov').text(data.provinsi);
+            $('#total_pkwtt').text(data.pkwtt);
+            $('#total_pkwt').text(data.pkwt);
+            $('#total_pk').text(data.pk);
+            $('#total_dalam_krw').text(data.dalam_karawang);
+            $('#total_luar_krw').text(data.luar_karawang);
+            $('#total_dalam_wb').text(data.dalam_warung_bambu);
+            $('#total_luar_wb').text(data.luar_warung_bambu);
+        },
+        error: function(error) {
+            console.error(error);
+        }
+    });
+}
+
+// jalankan saat halaman selesai load
+$('#filter_tingkat').on('change', function() {
+    totalDataKaryawanRekap();
+});
+
+totalDataKaryawanRekap();
+
+
+// tangguh tutup
+
+
     getDataKaryawan();
     turnoverChart();
     kontrakProgressChart();

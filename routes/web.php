@@ -77,28 +77,28 @@ Route::group(['middleware' => ['auth']], function () {
         return view('maintenance-mode');
     })->name('under-maintenance');
 
-     /** SUPERUSER */
-     Route::group(['prefix' => 'superuser', 'middleware' => ['role:super user']], function () {
-         /** SUPERUSER - STARTING */
-         Route::get('/starting', [SuperuserOrganisasiController::class, 'starting'])->name('superuser.starting');
+    /** SUPERUSER */
+    Route::group(['prefix' => 'superuser', 'middleware' => ['role:super user']], function () {
+        /** SUPERUSER - STARTING */
+        Route::get('/starting', [SuperuserOrganisasiController::class, 'starting'])->name('superuser.starting');
 
-         /** SUPERUSER - USER */
-         Route::post('/user/datatable', [UserController::class, 'datatable']);
-         Route::get('/user', [UserController::class, 'index'])->name('superuser.user');
-         Route::post('/user/store', [UserController::class, 'store'])->name('superuser.user.store');
-         Route::delete('/user/delete/{idUser}', [UserController::class, 'delete'])->name('superuser.user.delete');
-         Route::patch('/user/update/{idUser}', [UserController::class, 'update'])->name('superuser.user.update');
+        /** SUPERUSER - USER */
+        Route::post('/user/datatable', [UserController::class, 'datatable']);
+        Route::get('/user', [UserController::class, 'index'])->name('superuser.user');
+        Route::post('/user/store', [UserController::class, 'store'])->name('superuser.user.store');
+        Route::delete('/user/delete/{idUser}', [UserController::class, 'delete'])->name('superuser.user.delete');
+        Route::patch('/user/update/{idUser}', [UserController::class, 'update'])->name('superuser.user.update');
 
-          /** SUPERUSER - ACTIVITY LOG */
-          Route::post('/activity-log/datatable', [ActivityLogController::class, 'datatable']);
-          Route::post('/activity-log/causer', [ActivityLogController::class, 'causer']);
-          Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('superuser.activity-log');
+        /** SUPERUSER - ACTIVITY LOG */
+        Route::post('/activity-log/datatable', [ActivityLogController::class, 'datatable']);
+        Route::post('/activity-log/causer', [ActivityLogController::class, 'causer']);
+        Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('superuser.activity-log');
 
-          /** SUPERUSER - SETTINGS */
-          Route::get('/setting', [SettingController::class, 'index'])->name('superuser.setting');
-          Route::post('/setting/upload-logo', [SettingController::class, 'upload_logo'])->name('superuser.setting.upload-logo');
-          Route::get('/setting/reset-logo', [SettingController::class, 'reset_logo'])->name('superuser.setting.reset-logo');
-          Route::post('/setting/upload-icon', [SettingController::class, 'upload_icon'])->name('superuser.setting.upload-icon');
+        /** SUPERUSER - SETTINGS */
+        Route::get('/setting', [SettingController::class, 'index'])->name('superuser.setting');
+        Route::post('/setting/upload-logo', [SettingController::class, 'upload_logo'])->name('superuser.setting.upload-logo');
+        Route::get('/setting/reset-logo', [SettingController::class, 'reset_logo'])->name('superuser.setting.reset-logo');
+        Route::post('/setting/upload-icon', [SettingController::class, 'upload_icon'])->name('superuser.setting.upload-icon');
 
 
         /** SUPERUSER - ORGANISASI */
@@ -141,7 +141,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     //Generate System
     // Route::get('/generate-lembur-harian', [LembureController::class, 'generate_lembur_harian']);
-    Route::get('/generate-approval-cuti',[TestController::class, 'generate_approval_cuti']);
+    Route::get('/generate-approval-cuti', [TestController::class, 'generate_approval_cuti']);
     Route::post('/generate-qrcode', QrController::class);
     Route::delete('/delete-qrcode-img', DeleteQrImgController::class);
     Route::get('/upload-karyawan', [TestController::class, 'upload_karyawan_view']);
@@ -161,6 +161,14 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/add-whatsapp-user', [TestController::class, 'add_whatsapp_user']);
     Route::get('/add-whatsapp-device', [TestController::class, 'add_whatsapp_device']);
     Route::get('/start-whatsapp-client', [TestController::class, 'start_whatsapp_client']);
+
+
+
+    // tangguuh
+    Route::get('/master-data/dashboard/get-total-karyawan-rekap', [DashboardController::class, 'getTotalKaryawanRekap']);
+    Route::get('/dashboard/rekap-kontrak', [DashboardController::class, 'rekapKontrak']);
+    Route::get('/dashboard/rekap-wilayah', [DashboardController::class, 'rekapWilayah']);
+
 
     /** MASTER DATA - AJAX */
     Route::get('/master-data/posisi/get-data-by-jabatan/{idJabatan}', [PosisiController::class, 'get_data_by_jabatan']);
@@ -508,7 +516,7 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'role:atasan|member|persona
             Route::delete('/input-pajak-lembur/destroy/{id}', [LembureController::class, 'destroy_pajak_lembur'])->name('lembure.input-pajak-lembur.destroy');
         });
 
-        Route::group(['middleware' => ['role:personalia|personalia-lembur']], function (){
+        Route::group(['middleware' => ['role:personalia|personalia-lembur']], function () {
             // Bypass Lembur
             Route::get('/bypass-lembur', [LembureController::class, 'bypass_lembur_view'])->name('lembure.bypass-lembur');
             Route::post('/bypass-lembur/store', [LembureController::class, 'bypass_lembur_store'])->name('lembure.bypass-lembur.store');
@@ -571,7 +579,7 @@ Route::group(['middleware' => ['auth', 'notifikasi', 'role:atasan|member|persona
         });
     });
 
-      /** ATTENDANCE */
+    /** ATTENDANCE */
     Route::group(['prefix' => 'attendance'], function () {
         Route::group(['middleware' => ['role:personalia|admin-dept']], function () {
             Route::get('/dashboard', [AttendanceDashboardController::class, 'index'])->name('attendance.dashboard');

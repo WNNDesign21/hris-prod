@@ -135,4 +135,105 @@
             </div>
         </div>
     </div>
+
+    {{-- REKAP KONTRAK KARYAWAN --}}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="box">
+                <div class="box-header with-border d-flex justify-content-between align-items-center">
+                    <h4 class="box-title">Rekap Berdasarkan Kontrak</h4>
+                </div>
+                <div class="box-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Keterangan</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabel-rekap-kontrak">
+                                <tr>
+                                    <td>1</td>
+                                    <td>Total Karyawan Direct / Indirect</td>
+                                    <td id="total_direct_indirect"><i class="fas fa-sync-alt fa-spin"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>Total Karyawan PKWTT</td>
+                                    <td id="total_pkwtt"><i class="fas fa-sync-alt fa-spin"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>Total Karyawan PKWT</td>
+                                    <td id="total_pkwt"><i class="fas fa-sync-alt fa-spin"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>Total Karyawan PK</td>
+                                    <td id="total_pk"><i class="fas fa-sync-alt fa-spin"></i></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- REKAP WILAYAH KARYAWAN --}}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="box">
+                <div class="box-header with-border d-flex justify-content-between align-items-center">
+                    <h4 class="box-title">Rekap Berdasarkan Wilayah</h4>
+                </div>
+                <div class="box-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Keterangan</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabel-rekap-wilayah">
+                                <tr>
+                                    <td>1</td>
+                                    <td>Total Karyawan Dalam Karawang</td>
+                                    <td id="total_dalam_krw"><i class="fas fa-sync-alt fa-spin"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>Total Karyawan Luar Karawang</td>
+                                    <td id="total_luar_krw"><i class="fas fa-sync-alt fa-spin"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>Total Karyawan Dalam Desa Warung Bambu</td>
+                                    <td id="total_dalam_wb"><i class="fas fa-sync-alt fa-spin"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>Total Karyawan Luar Desa Warung Bambu</td>
+                                    <td id="total_luar_wb"><i class="fas fa-sync-alt fa-spin"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td>Total Provinsi Asal Karyawan</td>
+                                    <td id="total_provinsi"><i class="fas fa-sync-alt fa-spin"></i></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
 @endsection

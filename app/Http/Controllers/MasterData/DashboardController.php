@@ -76,7 +76,8 @@ class DashboardController extends Controller
         //
     }
 
-    public function get_data_karyawan_dashboard(){
+    public function get_data_karyawan_dashboard()
+    {
         $organisasi_id = auth()->user()->organisasi_id;
         $year = date('Y');
         $month = date('m');
@@ -85,7 +86,7 @@ class DashboardController extends Controller
         $mengundurkan_diri = Turnover::organisasi($organisasi_id)->where('status_karyawan', 'MD')->whereYear('tanggal_keluar', $year)->whereMonth('tanggal_keluar', $month)->count();
         $pensiun = Turnover::organisasi($organisasi_id)->where('status_karyawan', 'PS')->whereYear('tanggal_keluar', $year)->whereMonth('tanggal_keluar', $month)->count();
         $terminasi = Turnover::organisasi($organisasi_id)->where('status_karyawan', 'TM')->whereYear('tanggal_keluar', $year)->whereMonth('tanggal_keluar', $month)->count();
-        
+
         $data = [
             'aktif' => $aktif,
             'habis_kontrak' => $habis_kontrak,
@@ -94,10 +95,11 @@ class DashboardController extends Controller
             'terminasi' => $terminasi
         ];
 
-        return response()->json(['data' => $data],200);
+        return response()->json(['data' => $data], 200);
     }
 
-    public function get_data_turnover_monthly_dashboard(string $year = ''){
+    public function get_data_turnover_monthly_dashboard(string $year = '')
+    {
         $organisasi_id = auth()->user()->organisasi_id;
         //Data Turnover perbulan dalam tahun berjalan
         $query = "
@@ -147,10 +149,11 @@ class DashboardController extends Controller
             $results[$key]->turnover = number_format($value->turnover, 2);
             array_push($data, $results[$key]->turnover);
         }
-        return response()->json(['data' => $data],200);
+        return response()->json(['data' => $data], 200);
     }
 
-    public function get_data_turnover_detail_monthly_dashboard(string $year = ''){
+    public function get_data_turnover_detail_monthly_dashboard(string $year = '')
+    {
         //Data Turnover Detail perbulan dalam tahun berjalan
         $data['mengundurkan_diri'] = [];
         $data['habis_kontrak'] = [];
@@ -160,7 +163,7 @@ class DashboardController extends Controller
 
         $month = date('m');
         $year = date('Y');
-        $month_array = ['01','02','03','04','05','06','07','08','09','10','11','12'];
+        $month_array = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
 
         $organisasi_id = auth()->user()->organisasi_id;
 
@@ -194,10 +197,11 @@ class DashboardController extends Controller
             $data['masuk'][] = $masukCount;
         }
 
-        return response()->json(['data' => $data],200);
+        return response()->json(['data' => $data], 200);
     }
 
-    public function get_data_kontrak_progress_dashboard(){
+    public function get_data_kontrak_progress_dashboard()
+    {
         $organisasi_id = auth()->user()->organisasi_id;
         $total_kontrak = Kontrak::organisasi($organisasi_id)->count() > 0 ? Kontrak::organisasi($organisasi_id)->count() : 1;
         $kontrak_done = Kontrak::organisasi($organisasi_id)->where('status', 'DONE')->count();
@@ -210,7 +214,7 @@ class DashboardController extends Controller
     {
         $organisasi_id = auth()->user()->organisasi_id;
         $year = date('Y');
-         $query = "
+        $query = "
             WITH SemuaBulan AS (
                 SELECT generate_series(1, 12) AS bulan
             )
@@ -259,7 +263,8 @@ class DashboardController extends Controller
         return response()->json(['data' => $data], 200);
     }
 
-    public function get_total_data_karyawan_by_status_karyawan_dashboard(){
+    public function get_total_data_karyawan_by_status_karyawan_dashboard()
+    {
         $organisasi_id = auth()->user()->organisasi_id;
         $total_karyawan_reactive = Kontrak::organisasi($organisasi_id)->where('status', 'DONE')->where('isReactive', 'Y')->count();
         $total_karyawan_habis_kontrak = Turnover::organisasi($organisasi_id)->where('status_karyawan', 'HK')->count();
@@ -270,5 +275,71 @@ class DashboardController extends Controller
         $data = [$total_karyawan_reactive, $total_karyawan_habis_kontrak, $total_karyawan_mengundurkan_diri, $total_karyawan_pensiun, $total_karyawan_terminasi];
         return response()->json(['data' => $data], 200);
     }
+
+
+
+    // tangguuh buka
+    public function getTotalKaryawanRekap(Request $request)
+    {
+        $data = [
+            'total_semua' => DB::table('karyawans')->count(),
+            'aktif' => DB::table('karyawans')->where('status_karyawan', 'AT')->count(),
+            'pkwtt' => DB::table('karyawans')->where('jenis_kontrak', 'PKWTT')->count(),
+            'pkwt' => DB::table('karyawans')->where('jenis_kontrak', 'PKWT')->count(),
+            'nonaktif' => DB::table('karyawans')->whereNull('status_karyawan')->count(),
+        ];
+
+        return response()->json(['data' => $data]);
+    }
+    public function rekapKontrak()
+    {
+        $organisasi_id = auth()->user()->organisasi_id;
+
+        $data = [
+            'pkwtt' => DB::table('karyawan')
+                ->where('organisasi_id', $organisasi_id)
+                ->where('status_karyawan', 'PKWTT')
+                ->count(),
+            'pkwt' => DB::table('karyawan')
+                ->where('organisasi_id', $organisasi_id)
+                ->where('status_karyawan', 'PKWT')
+                ->count(),
+            'pk' => DB::table('karyawan')
+                ->where('organisasi_id', $organisasi_id)
+                ->where('status_karyawan', 'PK')
+                ->count(),
+            'direct_indirect' => DB::table('karyawan')
+                ->where('organisasi_id', $organisasi_id)
+                ->whereIn('tipe', ['Direct', 'Indirect'])
+                ->count(),
+        ];
+
+        return response()->json(['data' => $data], 200);
+    }
+
+    public function rekapWilayah()
+    {
+        $data = [
+            'dalam_karawang' => DB::table('karyawans')
+                ->whereRaw('LOWER(alamat) LIKE ?', ['%karawang%'])
+                ->count(),
+            'luar_karawang' => DB::table('karyawans')
+                ->whereRaw('LOWER(alamat) NOT LIKE ?', ['%karawang%'])
+                ->count(),
+            'dalam_warung_bambu' => DB::table('karyawans')
+                ->whereRaw('LOWER(alamat) LIKE ?', ['%warung bambu%'])
+                ->count(),
+            'luar_warung_bambu' => DB::table('karyawans')
+                ->whereRaw('LOWER(alamat) NOT LIKE ?', ['%warung bambu%'])
+                ->count(),
+            'provinsi' => DB::table('karyawans')
+                ->whereNotNull('provinsi')
+                ->distinct('provinsi')
+                ->count(),
+        ];
+
+        return response()->json(['data' => $data], 200);
+    }
+    // tangguuh tutup
 
 }
