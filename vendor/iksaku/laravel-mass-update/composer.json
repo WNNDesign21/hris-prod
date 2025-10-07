@@ -1,0 +1,54 @@
+{
+    "name": "iksaku/laravel-mass-update",
+    "description": "Update multiple Laravel Model records, each with different values, using a single query!",
+    "keywords": [
+        "iksaku",
+        "laravel",
+        "laravel-mass-update"
+    ],
+    "homepage": "https://github.com/iksaku/laravel-mass-update",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jorge González",
+            "email": "yo@jorgeglz.io",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "illuminate/database": "^11.0|^12.0",
+        "illuminate/support": "^11.0|^12.0"
+    },
+    "require-dev": {
+        "orchestra/testbench": "^8.0|^9.0|^10.0",
+        "pestphp/pest": "^1.19|^2.0|^3.7",
+        "vimeo/psalm": "^4.18|^5.6|^6.7"
+    },
+    "autoload": {
+        "psr-4": {
+            "Iksaku\\Laravel\\MassUpdate\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Iksaku\\Laravel\\MassUpdate\\Tests\\": "tests",
+            "Iksaku\\Laravel\\MassUpdate\\Tests\\App\\": "tests/app",
+            "Iksaku\\Laravel\\MassUpdate\\Tests\\Database\\": "tests/database",
+            "Iksaku\\Laravel\\MassUpdate\\Tests\\Database\\Factories\\": "tests/database/factories"
+        }
+    },
+    "scripts": {
+        "psalm": "vendor/bin/psalm",
+        "test": "vendor/bin/pest"
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "composer/package-versions-deprecated": true,
+            "pestphp/pest-plugin": true
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

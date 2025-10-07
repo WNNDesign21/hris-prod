@@ -1,0 +1,21 @@
+.mfp-bg{
+    z-index: 9998;
+ }
+
+.mfp-wrap{
+    z-index: 9999;
+}
+
+.mfp-container{
+    z-index: 10000;
+}
+
+#menu-calendar {
+    padding-top: 100px;
+}
+
+@media (min-width: 992px) {
+    #menu-calendar {
+        padding-top: 0px;
+    }
+}

@@ -1,0 +1,1 @@
+$(function(){$.ajaxSetup({headers:{"X-CSRF-TOKEN":$('meta[name="csrf-token"]').attr("content")}}),$.fn.modal.Constructor.prototype._enforceFocus=function(){},$("#departemen").select2({placeholder:"Pilih Departemen"}),$(".btnReset").on("click",function(){$("#departemen").val([]).trigger("change"),$("#start").val(""),$("#end").val("")})});

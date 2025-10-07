@@ -1,0 +1,138 @@
+<?php
+
+namespace App\Models\KSK;
+
+use App\Models\Divisi;
+use App\Models\Posisi;
+use App\Models\Jabatan;
+use App\Models\Karyawan;
+use App\Models\Departemen;
+use App\Models\Organisasi;
+use App\Models\KSK\DetailKSK;
+use Illuminate\Support\Facades\DB;
+use App\Models\KSK\CleareanceDetail;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
+class Cleareance extends Model
+{
+    use HasFactory, SoftDeletes;
+
+    protected $table = 'cleareances';
+    protected $primaryKey = 'id_cleareance';
+    public $incrementing = false;
+    protected $keyType = 'string';
+
+    protected $fillable = [
+        'id_cleareance',
+        'karyawan_id',
+        'organisasi_id',
+        'divisi_id',
+        'departemen_id',
+        'jabatan_id',
+        'posisi_id',
+        'nama_divisi',
+        'nama_departemen',
+        'nama_jabatan',
+        'nama_posisi',
+        'tanggal_akhir_bekerja',
+        'status',
+    ];
+
+    public function karyawan()
+    {
+        return $this->belongsTo(Karyawan::class, 'karyawan_id', 'id_karyawan');
+    }
+
+    public function organisasi()
+    {
+        return $this->belongsTo(Organisasi::class, 'organisasi_id', 'id_organisasi');
+    }
+
+    public function divisi()
+    {
+        return $this->belongsTo(Divisi::class, 'divisi_id', 'id_divisi');
+    }
+
+    public function departemen()
+    {
+        return $this->belongsTo(Departemen::class, 'departemen_id', 'id_departemen');
+    }
+
+    public function jabatan()
+    {
+        return $this->belongsTo(Jabatan::class, 'jabatan_id', 'id_jabatan');
+    }
+
+    public function posisi()
+    {
+        return $this->belongsTo(Posisi::class, 'posisi_id', 'id_posisi');
+    }
+
+    public function cleareanceDetail()
+    {
+        return $this->hasMany(CleareanceDetail::class, 'cleareance_id', 'id_cleareance');
+    }
+
+    public function detailKSK()
+    {
+        return $this->hasOne(DetailKSK::class, 'cleareance_id', 'id_cleareance');
+    }
+
+    private static function _query($dataFilter)
+    {
+
+        $data = self::select(
+            'cleareances.id_cleareance',
+            'cleareances.karyawan_id',
+            'cleareances.organisasi_id',
+            'cleareances.divisi_id',
+            'cleareances.departemen_id',
+            'cleareances.jabatan_id',
+            'cleareances.posisi_id',
+            'cleareances.nama_divisi',
+            'cleareances.nama_departemen',
+            'cleareances.nama_jabatan',
+            'cleareances.nama_posisi',
+            'cleareances.tanggal_akhir_bekerja',
+            'cleareances.status',
+            'karyawans.nama as nama_karyawan',
+            'karyawans.ni_karyawan',
+            DB::raw("(SELECT COUNT(*) FROM cleareance_details WHERE cleareance_id = cleareances.id_cleareance) as detail"),
+            DB::raw("(SELECT COUNT(*) FROM cleareance_details WHERE cleareance_id = cleareances.id_cleareance AND is_clear = 'N') as open"),
+            DB::raw("(SELECT COUNT(*) FROM cleareance_details WHERE cleareance_id = cleareances.id_cleareance AND is_clear = 'Y') as approved"),
+        );
+        $data->leftJoin('karyawans', 'karyawans.id_karyawan', 'cleareances.karyawan_id');
+
+        if (isset($dataFilter['search'])) {
+            $search = $dataFilter['search'];
+            $data->where(function ($query) use ($search) {
+                $query->where('cleareances.id_cleareance', 'LIKE', "%{$search}%")
+                    ->orWhere('cleareances.karyawan_id', 'LIKE', "%{$search}%")
+                    ->orWhere('cleareances.nama_divisi', 'LIKE', "%{$search}%")
+                    ->orWhere('cleareances.nama_departemen', 'LIKE', "%{$search}%")
+                    ->orWhere('cleareances.nama_jabatan', 'LIKE', "%{$search}%")
+                    ->orWhere('cleareances.nama_posisi', 'LIKE', "%{$search}%")
+                    ->orWhere('cleareances.tanggal_akhir_bekerja', 'LIKE', "%{$search}%")
+                    ->orWhere('cleareances.status', 'LIKE', "%{$search}%");
+            });
+        }
+
+        $result = $data;
+        return $result;
+    }
+
+    public static function getData($dataFilter, $settings)
+    {
+        return self::_query($dataFilter)->offset($settings['start'])
+            ->limit($settings['limit'])
+            ->orderBy($settings['order'], $settings['dir'])
+            ->get();
+    }
+
+    public static function countData($dataFilter)
+    {
+        return self::_query($dataFilter)->get()->count();
+    }
+}

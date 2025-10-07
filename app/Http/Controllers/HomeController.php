@@ -1,0 +1,1669 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Throwable;
+use Carbon\Carbon;
+use App\Models\Cutie;
+use App\Models\Izine;
+use App\Models\Sakite;
+use App\Models\Kontrak;
+use App\Models\KSK\KSK;
+use App\Models\Lembure;
+use App\Models\Karyawan;
+use App\Models\Departemen;
+use App\Helpers\Approval;
+use App\Models\Posisi;
+use App\Models\Divisi;
+use App\Models\ApprovalCuti;
+use App\Models\DetailLembur;
+use Illuminate\Http\Request;
+use App\Models\KSK\DetailKSK;
+use App\Models\SettingLembur;
+use App\Models\KSK\CleareanceDetail;
+use App\Models\TugasLuare\TugasLuar;
+use App\Models\SettingLemburKaryawan;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+
+
+class HomeController extends Controller
+{
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+
+        $this->middleware(function ($request, $next) {
+            if (auth()->user()->hasRole('security')) {
+                return redirect()->route('security.index');
+            }
+            return $next($request);
+        });
+    }
+
+    /**
+     * Show the application dashboard.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function index()
+    {
+        $profile = auth()->user()?->karyawan;
+        $dataProfile = [];
+        $dataKontrak = [];
+        $dataAgendaLembur = [];
+        $dataKSK = [];
+        if ($profile) {
+            if ($profile?->status_karyawan == 'AT') {
+                $status = 'AKTIF';
+            } elseif ($profile?->status_karyawan == 'MD') {
+                $status = 'MENGUNDURKAN DIRI';
+            } elseif ($profile?->status_karyawan == 'PS') {
+                $status = 'PENSIUN';
+            } elseif ($profile?->status_karyawan == 'HK') {
+                $status = 'HABIS KONTRAK';
+            } else {
+                $status = 'TERMINASI';
+            }
+
+            $dataProfile = [
+                'ni_karyawan' => $profile?->ni_karyawan,
+                'foto' => $profile?->foto ? asset('storage/' . $profile->foto) : asset('img/no-image.png'),
+                'nama' => $profile?->nama,
+                'no_kk' => $profile?->no_kk,
+                'nik' => $profile?->nik,
+                'tempat_lahir' => $profile?->tempat_lahir,
+                'tanggal_lahir' => $profile?->tanggal_lahir,
+                'jenis_kelamin' => $profile?->jenis_kelamin,
+                'agama' => $profile?->agama,
+                'gol_darah' => $profile?->gol_darah,
+                'status_keluarga' => $profile?->status_keluarga,
+                'kategori_keluarga' => $profile?->kategori_keluarga,
+                'alamat' => $profile?->alamat,
+                'domisili' => $profile?->domisili,
+                'no_telp' => $profile?->no_telp,
+                'no_telp_darurat' => $profile?->no_telp_darurat,
+                'email' => $profile?->email,
+                'npwp' => $profile?->npwp,
+                'no_bpjs_ks' => $profile?->no_bpjs_ks,
+                'no_bpjs_kt' => $profile?->no_bpjs_kt,
+                'no_rekening' => $profile?->no_rekening,
+                'nama_rekening' => $profile?->nama_rekening,
+                'nama_bank' => $profile?->nama_bank,
+                'nama_ibu_kandung' => $profile?->nama_ibu_kandung,
+                'jenjang_pendidikan' => $profile?->jenjang_pendidikan,
+                'jurusan_pendidikan' => $profile?->jurusan_pendidikan,
+                'jenis_kontrak' => $profile?->jenis_kontrak,
+                'status_karyawan' => $status,
+                'sisa_cuti_pribadi' => $profile?->sisa_cuti_pribadi,
+                'sisa_cuti_bersama' => $profile?->sisa_cuti_bersama,
+                'sisa_cuti_tahun_lalu' => $profile?->sisa_cuti_tahun_lalu,
+                'expired_date_cuti_tahun_lalu' => $profile?->expired_date_cuti_tahun_lalu,
+                'hutang_cuti' => $profile?->hutang_cuti,
+                'tanggal_mulai' => $profile?->tanggal_mulai,
+                'tanggal_selesai' => $profile?->tanggal_selesai,
+                'posisi' => $profile?->posisi()?->pluck('posisis.nama'),
+                'grup' => $profile?->grup?->nama,
+            ];
+
+            $kontrak = Kontrak::where('karyawan_id', auth()->user()->karyawan->id_karyawan)->orderBy('tanggal_mulai', 'DESC')->first();
+            if ($kontrak) {
+                if ($kontrak->status == 'DONE') {
+                    $badge = '<span class="badge badge-pill badge-success">SEDANG BERJALAN</span>';
+                } else {
+                    $badge = '<span class="badge badge-pill badge-warning">PROSES PERPANJANGAN</span>';
+                }
+                $dataKontrak[] = [
+                    'id_kontrak' => $kontrak->id_kontrak,
+                    'nama_posisi' => $kontrak->nama_posisi ? $kontrak->nama_posisi : ($kontrak->posisi->nama ? $kontrak->posisi->nama : null),
+                    'posisi_id' => $kontrak->posisi_id,
+                    'jenis' => $kontrak->jenis,
+                    'status' => $kontrak->status,
+                    'status_badge' => $badge,
+                    'issued_date' => $kontrak->issued_date,
+                    'issued_date_text' => Carbon::parse($kontrak->issued_date)->format('d M Y'),
+                    'tempat_administrasi' => $kontrak->tempat_administrasi,
+                    'durasi' => $kontrak->durasi,
+                    'no_surat' => $kontrak->no_surat,
+                    'salary' => 'Rp. ' . number_format($kontrak->salary, 0, ',', '.') . ' ,-',
+                    'deskripsi' => $kontrak->deskripsi,
+                    'tanggal_mulai' => Carbon::parse($kontrak->tanggal_mulai)->format('d M Y'),
+                    'tanggal_selesai' => $kontrak->tanggal_selesai !== null ? Carbon::parse($kontrak->tanggal_selesai)->format('d M Y') : 'Unknown',
+                    'attachment' => $kontrak->attachment ? asset('storage/' . $kontrak->attachment) : null
+                ];
+            }
+
+            $agenda_lembur = DetailLembur::where('karyawan_id', auth()->user()->karyawan->id_karyawan)
+                ->whereHas('lembur')
+                ->whereBetween('rencana_mulai_lembur', [
+                    Carbon::now()->subMonth()->startOfMonth()->toDateString(),
+                    Carbon::now()->endOfMonth()->toDateString()
+                ])
+                ->orderBy('rencana_mulai_lembur', 'DESC')
+                ->limit(30)
+                ->get();
+            if ($agenda_lembur) {
+                foreach ($agenda_lembur as $item) {
+
+                    if ($item->lembur->status == 'WAITING') {
+                        $formattedStatus = '<span class="badge badge-warning">WAITING</span>';
+                    } elseif ($item->lembur->status == 'PLANNED') {
+                        $formattedStatus = '<span class="badge badge-info">PLANNED</span>';
+                    } elseif ($item->lembur->status == 'COMPLETED') {
+                        $formattedStatus = '<span class="badge badge-success">COMPLETED</span>';
+                    } else {
+                        $formattedStatus = '<span class="badge badge-danger">REJECTED</span>';
+                    }
+
+                    $dataAgendaLembur[] = [
+                        'lembur_id' => $item->lembur_id,
+                        'rencana_mulai_lembur' => Carbon::parse($item->rencana_mulai_lembur)->format('d M Y H:i'),
+                        'rencana_selesai_lembur' => Carbon::parse($item->rencana_selesai_lembur)->format('d M Y H:i'),
+                        'total_durasi_lembur' => $item->total_durasi_lembur / 60 . ' Jam',
+                        'deskripsi_pekerjaan' => $item->deskripsi_pekerjaan,
+                        'status' => $formattedStatus,
+                    ];
+                }
+            }
+
+            $dataKSK = DetailKSK::with(['cleareance', 'kontrak'])->where('karyawan_id', auth()->user()->karyawan->id_karyawan)
+                ->where(function ($query) {
+                    $query->whereNotNull('cleareance_id')
+                        ->orWhereNotNull('kontrak_id');
+                })
+                ->orderBy('created_at', 'DESC')->get();
+        } else {
+            $dataProfile = [
+                'ni_karyawan' => null,
+                'foto' => asset('img/no-image.png'),
+                'nama' => null,
+                'no_kk' => null,
+                'nik' => null,
+                'tempat_lahir' => null,
+                'tanggal_lahir' => null,
+                'jenis_kelamin' => null,
+                'agama' => null,
+                'gol_darah' => null,
+                'status_keluarga' => null,
+                'kategori_keluarga' => null,
+                'alamat' => null,
+                'domisili' => null,
+                'no_telp' => null,
+                'no_telp_darurat' => null,
+                'email' => null,
+                'npwp' => null,
+                'no_bpjs_ks' => null,
+                'no_bpjs_kt' => null,
+                'no_rekening' => null,
+                'nama_rekening' => null,
+                'nama_bank' => null,
+                'nama_ibu_kandung' => null,
+                'jenjang_pendidikan' => null,
+                'jurusan_pendidikan' => null,
+                'jenis_kontrak' => null,
+                'status_karyawan' => null,
+                'sisa_cuti_pribadi' => null,
+                'sisa_cuti_bersama' => null,
+                'sisa_cuti_tahun_lalu' => null,
+                'expired_date_cuti_tahun_lalu' => null,
+                'hutang_cuti' => null,
+                'tanggal_mulai' => null,
+                'tanggal_selesai' => null,
+                'posisi' => null,
+                'grup' => null,
+            ];
+        }
+
+        $dataPage = [
+            'pageTitle' => "SuperApps - Menu",
+            'page' => 'menu',
+            'profile' => $dataProfile,
+            'kontrak' => $dataKontrak,
+            'agendaLembur' => $dataAgendaLembur,
+            'myKSK' => $dataKSK,
+        ];
+        return view('pages.menu.index', $dataPage);
+    }
+
+    public function get_planned_pengajuan_lembur_notification()
+    {
+        $pengajuan_lembur = 0;
+        if (auth()->user()->karyawan && auth()->user()->karyawan->posisi) {
+            $posisi = auth()->user()->karyawan->posisi;
+            $has_leader = $this->has_leader_head($posisi);
+            if (!$has_leader || auth()->user()->karyawan->posisi[0]->jabatan_id == 5) {
+                $pengajuan_lembur = Lembure::where('issued_by', auth()->user()->karyawan->id_karyawan)->where('status', 'PLANNED')->count();
+            }
+        }
+
+        $lembure = [
+            'pengajuan_lembur' => $pengajuan_lembur,
+        ];
+
+        $html = view('layouts.partials.notification-planned-pengajuan-lembur')->with(compact('lembure'))->render();
+        return response()->json(['data' => $html], 200);
+    }
+
+    public function get_pengajuan_izin_notification()
+    {
+        $user = auth()->user();
+        $pengajuan_izin = 0;
+
+        if ($user->karyawan && $user->karyawan->posisi) {
+            $pengajuan_izin = Izine::where('karyawan_id', $user->karyawan->id_karyawan)
+                ->where(function ($query) {
+                    $query->whereNull('rejected_by')->whereNotNull('legalized_by')
+                        ->where(function ($query) {
+                            $query->where(function ($query) {
+                                $query->whereIn('jenis_izin', ['TM', 'SH']);
+                                $query->whereNull('aktual_mulai_or_masuk');
+                                $query->whereNull('aktual_selesai_or_keluar');
+                            })->orWhere(function ($query) {
+                                $query->where('jenis_izin', 'KP');
+                                $query->whereNull('aktual_mulai_or_masuk');
+                            })->orWhere(function ($query) {
+                                $query->where('jenis_izin', 'PL');
+                                $query->whereNull('aktual_selesai_or_keluar');
+                            });
+                        });
+                })->count();
+        }
+
+        $izine = [
+            'pengajuan_izin' => $pengajuan_izin,
+        ];
+
+        $html = view('layouts.partials.notification-pengajuan-izin')->with(compact('izine'))->render();
+        return response()->json(['data' => $html], 200);
+    }
+
+    public function get_lapor_skd_notification()
+    {
+        $user = auth()->user();
+        $lapor_skd = 0;
+
+        if ($user->karyawan && $user->karyawan->posisi) {
+            $lapor_skd = Sakite::where('karyawan_id', $user->karyawan->id_karyawan)->whereNull('rejected_by')->whereNull('attachment')->count();
+        }
+
+        $izine = [
+            'lapor_skd' => $lapor_skd,
+        ];
+
+        $html = view('layouts.partials.notification-lapor-skd')->with(compact('izine'))->render();
+        return response()->json(['data' => $html], 200);
+    }
+
+    public function get_approval_izin_notification()
+    {
+        $user = auth()->user();
+        $has_leader = false;
+        $has_section_head = false;
+        $has_department_head = false;
+        $organisasi_id = $user->organisasi_id;
+        $approval_izin = 0;
+
+        //HRD
+        if ($user->hasRole('personalia')) {
+            $approval_izin = Izine::where('organisasi_id', $organisasi_id)->whereNull('rejected_by')->whereNull('legalized_by')->whereNotNull('approved_by')->count();
+        }
+
+        //leader
+        if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 5) {
+            $posisi = $user->karyawan->posisi;
+            $id_posisi_members = $this->get_member_posisi($posisi);
+
+            $approval_izin = Izine::leftJoin('karyawan_posisi', 'izins.karyawan_id', 'karyawan_posisi.karyawan_id')
+                ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                ->whereIn('posisis.id_posisi', $id_posisi_members)
+                ->whereNull('rejected_by')
+                ->whereNull('checked_by')
+                ->count();
+        }
+
+        //section head
+        if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 4) {
+            $posisi = $user->karyawan->posisi;
+            $my_posisi = $posisi[0]->jabatan_id;
+            $id_posisi_members = $this->get_member_posisi($posisi);
+
+            $izins = Izine::leftJoin('karyawan_posisi', 'izins.karyawan_id', 'karyawan_posisi.karyawan_id')
+                ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                ->whereIn('posisis.id_posisi', $id_posisi_members)
+                ->whereNull('rejected_by')
+                ->where(function ($query) {
+                    $query->whereNull('legalized_by')
+                        ->where(function ($query) {
+                            $query->whereNull('checked_by');
+                            $query->orWhereNull('approved_by');
+                        });
+                })->get();
+
+            foreach ($izins as $izin) {
+                $posisi = $izin->karyawan->posisi;
+                $has_leader = $this->has_leader($posisi);
+                $has_section_head = $this->has_section_head($posisi);
+                $has_department_head = $this->has_department_head($posisi);
+
+                if (!$has_leader) {
+                    $approval_izin++;
+                }
+
+                if ($has_leader && !$izin->approved_by) {
+                    $approval_izin++;
+                }
+            }
+        }
+
+        //department head
+        if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 3) {
+            $posisi = $user->karyawan->posisi;
+            $my_posisi = $posisi[0]->jabatan_id;
+            $id_posisi_members = $this->get_member_posisi($posisi);
+
+            $izins = Izine::leftJoin('karyawan_posisi', 'izins.karyawan_id', 'karyawan_posisi.karyawan_id')
+                ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                ->whereIn('posisis.id_posisi', $id_posisi_members)
+                ->whereNull('rejected_by')
+                ->where(function ($query) {
+                    $query->whereNull('legalized_by')
+                        ->where(function ($query) {
+                            $query->whereNull('checked_by');
+                            $query->orWhereNull('approved_by');
+                        });
+                })->get();
+
+            foreach ($izins as $izin) {
+                $posisi = $izin->karyawan->posisi;
+                $has_leader = $this->has_leader($posisi);
+                $has_section_head = $this->has_section_head($posisi);
+                $has_department_head = $this->has_department_head($posisi);
+
+                if (!$has_leader && !$has_section_head) {
+                    $approval_izin++;
+                }
+
+                if ($has_leader && !$has_section_head && !$izin->approved_by) {
+                    $approval_izin++;
+                }
+            }
+        }
+
+        //plant head
+        if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 2) {
+            $posisi = $user->karyawan->posisi;
+            $my_posisi = $posisi[0]->jabatan_id;
+            $id_posisi_members = $this->get_member_posisi($posisi);
+
+            $izins = Izine::leftJoin('karyawan_posisi', 'izins.karyawan_id', 'karyawan_posisi.karyawan_id')
+                ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                ->whereIn('posisis.id_posisi', $id_posisi_members)
+                ->whereNull('rejected_by')
+                ->where(function ($query) {
+                    $query->whereNull('legalized_by')
+                        ->where(function ($query) {
+                            $query->whereNull('checked_by');
+                            $query->orWhereNull('approved_by');
+                        });
+                })->get();
+
+            foreach ($izins as $izin) {
+                $posisi = $izin->karyawan->posisi;
+                $has_leader = $this->has_leader($posisi);
+                $has_section_head = $this->has_section_head($posisi);
+                $has_department_head = $this->has_department_head($posisi);
+
+                if (!$has_leader && !$has_section_head && !$has_department_head) {
+                    $approval_izin++;
+                }
+
+                if ($has_leader && !$has_section_head && !$has_department_head && !$izin->approved_by) {
+                    $approval_izin++;
+                }
+            }
+        }
+
+        $izine = [
+            'approval_izin' => $approval_izin,
+        ];
+
+        $html = view('layouts.partials.notification-approval-izin')->with(compact('izine'))->render();
+        return response()->json(['data' => $html], 200);
+    }
+
+    public function get_approval_skd_notification()
+    {
+        $user = auth()->user();
+        $has_leader = false;
+        $has_section_head = false;
+        $has_department_head = false;
+        $organisasi_id = $user->organisasi_id;
+        $approval_skd = 0;
+
+        //HRD
+        if ($user->hasRole('personalia')) {
+            $approval_skd = Sakite::where('organisasi_id', $organisasi_id)->whereNull('rejected_by')->whereNull('legalized_by')->whereNotNull('approved_by')->whereNotNull('attachment')->count();
+        }
+
+        //section head
+        if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 4) {
+            $posisi = $user->karyawan->posisi;
+            $id_posisi_members = $this->get_member_posisi($posisi);
+
+            $approval_skd = Sakite::leftJoin('karyawan_posisi', 'sakits.karyawan_id', 'karyawan_posisi.karyawan_id')
+                ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                ->whereIn('posisis.id_posisi', $id_posisi_members)
+                ->whereNull('rejected_by')
+                ->whereNull('approved_by')
+                // ->whereNotNull('attachment')
+                ->count();
+        }
+
+        //department head
+        if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 3) {
+            $posisi = $user->karyawan->posisi;
+            $id_posisi_members = $this->get_member_posisi($posisi);
+
+            $skds = Sakite::leftJoin('karyawan_posisi', 'sakits.karyawan_id', 'karyawan_posisi.karyawan_id')
+                ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                ->whereIn('posisis.id_posisi', $id_posisi_members)
+                ->whereNull('rejected_by')
+                ->whereNull('approved_by')
+                // ->whereNotNull('attachment')
+                ->get();
+
+            foreach ($skds as $skd) {
+                $posisi = $skd->karyawan->posisi;
+                $has_leader = $this->has_leader($posisi);
+                $has_section_head = $this->has_section_head($posisi);
+                $has_department_head = $this->has_department_head($posisi);
+
+                if (!$has_section_head) {
+                    $approval_skd++;
+                }
+            }
+        }
+
+        //plant head
+        if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 2) {
+            $posisi = $user->karyawan->posisi;
+            $id_posisi_members = $this->get_member_posisi($posisi);
+
+            $skds = Sakite::leftJoin('karyawan_posisi', 'sakits.karyawan_id', 'karyawan_posisi.karyawan_id')
+                ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')
+                ->whereIn('posisis.id_posisi', $id_posisi_members)
+                ->whereNull('rejected_by')
+                ->whereNull('approved_by')
+                // ->whereNotNull('attachment')
+                ->get();
+
+            foreach ($skds as $skd) {
+                $posisi = $skd->karyawan->posisi;
+                $has_leader = $this->has_leader($posisi);
+                $has_section_head = $this->has_section_head($posisi);
+                $has_department_head = $this->has_department_head($posisi);
+
+                if (!$has_section_head && !$has_department_head) {
+                    $approval_skd++;
+                }
+            }
+        }
+
+        $izine = [
+            'approval_skd' => $approval_skd,
+        ];
+
+        $html = view('layouts.partials.notification-approval-skd')->with(compact('izine'))->render();
+        return response()->json(['data' => $html], 200);
+    }
+
+    function has_leader_head($posisi)
+    {
+        $has_leader = false;
+        if ($posisi) {
+            foreach ($posisi as $pos) {
+                $parent_posisi_ids = $this->get_parent_posisi($pos);
+                if (!empty($parent_posisi_ids)) {
+                    foreach ($parent_posisi_ids as $parent_id) {
+                        if ($parent_id !== 0) {
+                            if (Posisi::where('id_posisi', $parent_id)->first()->jabatan_id == 5) {
+                                $has_leader = true;
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            return response()->json(['message' => 'Anda tidak memiliki posisi, silahkan hubungi HRD'], 200);
+        }
+
+        return $has_leader;
+    }
+
+    public function get_approval_lembur_notification()
+    {
+        $user = auth()->user();
+        $organisasi_id = $user->organisasi_id;
+        $approval_lembur = 0;
+        if ($user->hasAnyRole(['personalia', 'personalia-lembur', 'super-personalia'])) {
+            $approval_lembur = Lembure::where(function ($query) {
+                $query->where(function ($query) {
+                    $query->where('status', 'WAITING')
+                        ->whereNotNull('plan_approved_by')
+                        ->whereNotNull('plan_reviewed_by')
+                        ->whereNull('plan_legalized_by');
+                })->orWhere(function ($query) {
+                    $query->where('status', 'COMPLETED')
+                        ->whereNotNull('actual_approved_by')
+                        ->whereNotNull('actual_reviewed_by')
+                        ->whereNull('actual_legalized_by');
+                });
+            })->where('organisasi_id', $organisasi_id)->count();
+        } elseif ($user->karyawan && $user->karyawan->posisi[0]->jabatan_id == 2) {
+            if (auth()->user()->karyawan->posisi[0]->divisi_id == 3) {
+                $posisis_has_div_head = Posisi::where('jabatan_id', 2)
+                    ->whereHas('karyawan')
+                    ->whereNot('divisi_id', 3)
+                    ->where(function ($query) {
+                        $query->whereNull('organisasi_id')
+                            ->orWhere('organisasi_id', auth()->user()->organisasi_id);
+                    })
+                    ->distinct()
+                    ->pluck('divisi_id')
+                    ->toArray();
+                $divisis = Divisi::whereNotIn('id_divisi', $posisis_has_div_head)->pluck('id_divisi');
+                $approval_lembur = Lembure::where(function ($query) {
+                    $query->where(function ($query) {
+                        $query->where('status', 'WAITING')
+                            ->whereNotNull('plan_checked_by')
+                            ->whereNull('plan_approved_by');
+                    })->orWhere(function ($query) {
+                        $query->where('status', 'COMPLETED')
+                            ->whereNotNull('actual_checked_by')
+                            ->whereNull('actual_approved_by');
+                    });
+                })
+                    ->where('organisasi_id', $organisasi_id)
+                    ->whereIn('divisi_id', $divisis)
+                    ->count();
+            } else {
+                $posisi = $user->karyawan->posisi;
+                $member_posisi_ids = $this->get_member_posisi($posisi);
+                $approval_lembur = Lembure::leftJoin('karyawan_posisi', 'lemburs.issued_by', 'karyawan_posisi.karyawan_id')
+                    ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')->whereIn('posisis.id_posisi', $member_posisi_ids)
+                    ->where(function ($query) {
+                        $query->where(function ($query) {
+                            $query->where('status', 'WAITING')
+                                ->whereNotNull('plan_checked_by')
+                                ->whereNull('plan_approved_by');
+                        })->orWhere(function ($query) {
+                            $query->where('status', 'COMPLETED')
+                                ->whereNotNull('actual_checked_by')
+                                ->whereNull('actual_approved_by');
+                        });
+                    })->count();
+            }
+        } elseif ($user->karyawan->posisi[0]->jabatan_id == 4 || $user->karyawan->posisi[0]->jabatan_id == 3) {
+            $posisi = $user->karyawan->posisi;
+            $member_posisi_ids = $this->get_member_posisi($posisi);
+            $approval_lembur = Lembure::leftJoin('karyawan_posisi', 'lemburs.issued_by', 'karyawan_posisi.karyawan_id')
+                ->leftJoin('posisis', 'karyawan_posisi.posisi_id', 'posisis.id_posisi')->whereIn('posisis.id_posisi', $member_posisi_ids)
+                ->where(function ($query) {
+                    $query->where(function ($query) {
+                        $query->where('status', 'WAITING')
+                            ->whereNull('plan_checked_by');
+                    })->orWhere(function ($query) {
+                        $query->where('status', 'COMPLETED')
+                            ->whereNull('actual_checked_by');
+                    });
+                })->count();
+        }
+
+        $lembure = [
+            'approval_lembur' => $approval_lembur,
+        ];
+
+        $html = view('layouts.partials.notification-approval-lembur')->with(compact('lembure'))->render();
+        return response()->json(['data' => $html], 200);
+    }
+
+    public function get_review_lembur_notification()
+    {
+        $user = auth()->user();
+        $review_lembur = 0;
+        if ($user->hasRole('atasan') && $user->karyawan->posisi[0]->jabatan_id == 1) {
+            $posisi = auth()->user()->karyawan->posisi;
+            $departemen_ids = $this->get_member_departemen($posisi);
+
+            foreach ($posisi as $ps) {
+                $index = array_search($ps->departemen_id, $departemen_ids);
+                array_splice($departemen_ids, $index, 1);
+            }
+            array_push($departemen_ids, auth()->user()->karyawan->posisi[0]->departemen_id);
+            $departemen_ids = array_filter(array_unique($departemen_ids));
+            sort($departemen_ids);
+
+            $review_lembur = DetailLembur::selectRaw(
+                'detail_lemburs.organisasi_id',
+                'detail_lemburs.departemen_id',
+                'departemens.nama as departemen',
+                'divisis.nama as divisi',
+                'organisasis.nama as organisasi',
+                'detail_lemburs.divisi_id',
+                'CASE WHEN (lemburs.status = ' . "'WAITING'" . ' AND lemburs.plan_approved_by IS NOT NULL) THEN ' . "'PLANNING'" . ' ELSE ' . "'ACTUAL'" . ' END AS status',
+                'DATE(detail_lemburs.rencana_mulai_lembur) AS tanggal_lembur',
+                'SUM(detail_lemburs.nominal) as total_nominal_lembur',
+                'SUM(detail_lemburs.durasi) as total_durasi_lembur',
+                'COUNT(detail_lemburs.karyawan_id) as total_karyawan',
+                'COUNT(DISTINCT detail_lemburs.lembur_id) as total_dokumen
+            ')
+                ->leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')
+                ->leftJoin('departemens', 'departemens.id_departemen', 'detail_lemburs.departemen_id')
+                ->leftJoin('organisasis', 'organisasis.id_organisasi', 'detail_lemburs.organisasi_id')
+                ->leftJoin('divisis', 'divisis.id_divisi', 'detail_lemburs.divisi_id')
+                ->where(function ($query) {
+                    $query->where(function ($query) {
+                        $query->where('lemburs.status', 'WAITING');
+                        $query->whereNotNull('lemburs.plan_approved_by');
+                        $query->whereNull('lemburs.plan_reviewed_by');
+                        $query->whereNull('lemburs.plan_legalized_by');
+                    });
+                    $query->orWhere(function ($query) {
+                        $query->where('lemburs.status', 'COMPLETED');
+                        $query->whereNotNull('lemburs.actual_approved_by');
+                        $query->whereNull('lemburs.actual_reviewed_by');
+                        $query->whereNull('lemburs.actual_legalized_by');
+                    });
+                })
+                ->whereIn('detail_lemburs.departemen_id', $departemen_ids)
+                ->where('detail_lemburs.is_aktual_approved', 'Y')
+                ->groupBy('detail_lemburs.organisasi_id', 'detail_lemburs.departemen_id', 'detail_lemburs.divisi_id', 'departemens.nama', 'divisis.nama', 'organisasis.nama', 'tanggal_lembur', 'lemburs.plan_approved_by', 'lemburs.status')
+                ->get()
+                ->count();
+        }
+
+        $lembure = [
+            'review_lembur' => $review_lembur,
+        ];
+
+        $html = view('layouts.partials.notification-review-lembur')->with(compact('lembure'))->render();
+        return response()->json(['data' => $html], 200);
+    }
+
+    public function get_notification()
+    {
+        $notification = [];
+        $today = date('Y-m-d');
+        $user = auth()->user();
+        $tenggang_karyawans = [];
+
+        if ($user->hasRole('personalia') || $user->hasRole('super user')) {
+            $my_cutie = null;
+            $tenggang_karyawans = Karyawan::where('status_karyawan', 'AT')
+                ->leftJoin('users', 'karyawans.user_id', 'users.id')
+                ->where('users.organisasi_id', $user->organisasi_id)
+                ->whereRaw('(tanggal_selesai - ?) <= 30', [$today])
+                ->selectRaw('*, (tanggal_selesai - ?) as jumlah_hari', [$today])
+                ->get();
+
+            $cutie_approval = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari', [$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+                ->leftJoin('users', 'karyawans.user_id', 'users.id')
+                ->where('users.organisasi_id', $user->organisasi_id)
+                ->where('status_dokumen', 'WAITING')
+                ->where(function ($query) {
+                    $query->where('status_cuti', '!=', 'CANCELED')
+                        ->orWhereNull('status_cuti');
+                })
+                ->whereNotNull('approved_by')
+                ->whereNull('legalized_by')
+                ->get();
+
+            $rejected_cuti = [];
+
+        } elseif ($user->hasRole('atasan')) {
+            $me = auth()->user()->karyawan;
+            $posisi = $user->karyawan->posisi;
+
+            if ($posisi->count() > 1) {
+                $my_posisi = $posisi->pluck('id_posisi')->toArray();
+            } else {
+                $my_posisi = [$posisi->first()->id_posisi];
+            }
+
+            $id_posisi_members = $this->get_member_posisi($posisi);
+
+            foreach ($posisi as $ps) {
+                $index = array_search($ps->id_posisi, $id_posisi_members);
+                array_splice($id_posisi_members, $index, 1);
+            }
+
+            $members = $id_posisi_members;
+
+            $tenggang_karyawans = Karyawan::where('status_karyawan', 'AT')
+                ->whereRaw('(tanggal_selesai - ?) <= 30', [$today])
+                ->whereHas('posisi', function ($query) use ($members) {
+                    $query->whereIn('posisi_id', $members);
+                })
+                ->selectRaw('*, (tanggal_selesai - ?) as jumlah_hari', [$today])
+                ->get();
+            //My Cuti
+            $my_cutie = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari', [$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+                // ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
+                ->where('status_dokumen', 'WAITING')
+                ->where(function ($query) {
+                    $query->where('status_cuti', '!=', 'CANCELED')
+                        ->orWhereNull('status_cuti');
+                })
+                ->where('cutis.karyawan_id', $me->id_karyawan)
+                ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
+                ->get();
+
+            // Notif Approval
+            $cutie_approval = ApprovalCuti::selectRaw('approval_cutis.checked1_for, approval_cutis.checked2_for, approval_cutis.approved_for, approval_cutis.checked1_by as approval_checked1_by, approval_cutis.checked2_by as approval_checked2_by, approval_cutis.approved_by as approval_approved_by, cutis.* , karyawans.nama, (cutis.rencana_mulai_cuti - ?) as jumlah_hari', [$today])
+                ->leftJoin('cutis', 'approval_cutis.cuti_id', 'cutis.id_cuti')
+                ->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+                ->where('cutis.status_dokumen', 'WAITING')
+                ->where(function ($query) {
+                    $query->where('cutis.status_cuti', '!=', 'CANCELED')
+                        ->orWhereNull('cutis.status_cuti');
+                })
+                ->where(function ($query) use ($my_posisi) {
+                    $query->where(function ($query) use ($my_posisi) {
+                        $query->whereIn('approval_cutis.checked1_for', $my_posisi)
+                            ->whereNull('approval_cutis.checked1_by');
+                    })->orWhere(function ($query) use ($my_posisi) {
+                        $query->whereIn('approval_cutis.checked2_for', $my_posisi)
+                            ->whereNull('approval_cutis.checked2_by');
+                    })->orWhere(function ($query) use ($my_posisi) {
+                        $query->whereIn('approval_cutis.approved_for', $my_posisi)
+                            ->whereNull('approval_cutis.approved_by');
+                    });
+                })
+                ->get();
+
+
+            $rejected_cuti = Cutie::selectRaw('cutis.*, karyawans.nama')->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+                ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
+                ->where('status_dokumen', 'REJECTED')
+                ->where('cutis.karyawan_id', $me->id_karyawan)
+                ->whereRaw('DATE(rejected_at) <= (rencana_mulai_cuti + INTERVAL \'3 days\')')
+                ->get()->toArray();
+
+        } else {
+            $me = auth()->user()->karyawan;
+            $my_cutie = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari', [$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+                ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
+                ->where('status_dokumen', 'WAITING')
+                ->where(function ($query) {
+                    $query->where('status_cuti', '!=', 'CANCELED')
+                        ->orWhereNull('status_cuti');
+                })
+                ->where('cutis.karyawan_id', $me->id_karyawan)
+                ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
+                ->get();
+
+            $cutie_approval = null;
+
+            $rejected_cuti = Cutie::selectRaw('cutis.*, karyawans.nama')->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+                ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
+                ->where('status_dokumen', 'REJECTED')
+                ->where('cutis.karyawan_id', $me->id_karyawan)
+                ->whereRaw('DATE(rejected_at) <= (rencana_mulai_cuti + INTERVAL \'3 days\')')
+                ->get()->toArray();
+
+            $tenggang_karyawans = Karyawan::where('status_karyawan', 'AT')->where('id_karyawan', $user->karyawan->id_karyawan)
+                ->whereRaw('(tanggal_selesai - ?) <= 30', [$today])
+                ->selectRaw('*, (tanggal_selesai - ?) as jumlah_hari', [$today])
+                ->get();
+        }
+
+        $notification = [
+            'count_notif' => $tenggang_karyawans?->count() + $cutie_approval?->count() + count($rejected_cuti) + $my_cutie?->count(),
+            'list' => $tenggang_karyawans->toArray(),
+            'my_cutie' => $my_cutie ? $my_cutie->toArray() : [],
+            'cutie_approval' => $cutie_approval ? $cutie_approval->toArray() : [],
+            'rejected_cuti' => $rejected_cuti,
+            'count_my_cutie' => $my_cutie ? $my_cutie->count() : 0,
+            'count_cutie_approval' => $cutie_approval ? $cutie_approval->count() : 0,
+            'count_rejected_cuti' => count($rejected_cuti),
+        ];
+
+        $html = view('layouts.partials.notification')->with(compact('notification'))->render();
+        return response()->json(['data' => $html], 200);
+    }
+
+    public function get_pengajuan_cuti_notification()
+    {
+        $notification = $this->get_notification_cuti();
+        $html = view('layouts.partials.notification-pengajuan-cuti')->with(compact('notification'))->render();
+        return response()->json(['data' => $html], 200);
+    }
+
+    public function get_member_cuti_notification()
+    {
+        $notification = $this->get_notification_cuti();
+        $html = view('layouts.partials.notification-member-cuti')->with(compact('notification'))->render();
+        return response()->json(['data' => $html], 200);
+    }
+
+    public function get_approval_cuti_notification()
+    {
+        $notification = $this->get_notification_cuti();
+        $html = view('layouts.partials.notification-approval-cuti')->with(compact('notification'))->render();
+        return response()->json(['data' => $html], 200);
+    }
+
+    public function get_list_cuti_notification()
+    {
+        $notification = $this->get_notification_cuti();
+        $html = view('layouts.partials.notification-list-cuti')->with(compact('notification'))->render();
+        return response()->json(['data' => $html], 200);
+    }
+
+    function get_notification_cuti()
+    {
+        $notification = [];
+        $today = date('Y-m-d');
+        $user = auth()->user();
+        $tenggang_karyawans = [];
+
+        if ($user->hasRole('personalia') || $user->hasRole('super user')) {
+            $my_cutie = null;
+            $cutie_approval = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari', [$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+                ->leftJoin('users', 'karyawans.user_id', 'users.id')
+                ->where('users.organisasi_id', $user->organisasi_id)
+                ->where('status_dokumen', 'WAITING')
+                ->where(function ($query) {
+                    $query->where('status_cuti', '!=', 'CANCELED')
+                        ->orWhereNull('status_cuti');
+                })
+                ->whereNotNull('approved_by')
+                ->whereNull('legalized_by')
+                ->get();
+            $rejected_cuti = [];
+
+        } elseif ($user->hasRole('atasan')) {
+            $me = auth()->user()->karyawan;
+            $posisi = $user->karyawan->posisi;
+
+            if ($posisi->count() > 1) {
+                $my_posisi = $posisi->pluck('id_posisi')->toArray();
+            } else {
+                $my_posisi = [$posisi->first()->id_posisi];
+            }
+
+            $id_posisi_members = $this->get_member_posisi($posisi);
+
+            foreach ($posisi as $ps) {
+                $index = array_search($ps->id_posisi, $id_posisi_members);
+                array_splice($id_posisi_members, $index, 1);
+            }
+
+            $members = $id_posisi_members;
+
+            //My Cuti
+            $my_cutie = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari', [$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+                // ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
+                ->where('status_dokumen', 'WAITING')
+                ->where(function ($query) {
+                    $query->where('status_cuti', '!=', 'CANCELED')
+                        ->orWhereNull('status_cuti');
+                })
+                ->where('cutis.karyawan_id', $me->id_karyawan)
+                // ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
+                ->get();
+
+            // Notif Approval
+            $cutie_approval = ApprovalCuti::selectRaw('approval_cutis.checked1_for, approval_cutis.checked2_for, approval_cutis.approved_for, approval_cutis.checked1_by as approval_checked1_by, approval_cutis.checked2_by as approval_checked2_by, approval_cutis.approved_by as approval_approved_by, cutis.* , karyawans.nama, (cutis.rencana_mulai_cuti - ?) as jumlah_hari', [$today])
+                ->leftJoin('cutis', 'approval_cutis.cuti_id', 'cutis.id_cuti')
+                ->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+                ->where('cutis.status_dokumen', 'WAITING')
+                ->where(function ($query) {
+                    $query->where('cutis.status_cuti', '!=', 'CANCELED')
+                        ->orWhereNull('cutis.status_cuti');
+                })
+                ->where(function ($query) use ($my_posisi) {
+                    $query->where(function ($query) use ($my_posisi) {
+                        $query->whereIn('approval_cutis.checked1_for', $my_posisi)
+                            ->whereNull('approval_cutis.checked1_by');
+                    })->orWhere(function ($query) use ($my_posisi) {
+                        $query->whereIn('approval_cutis.checked2_for', $my_posisi)
+                            ->whereNull('approval_cutis.checked2_by');
+                    })->orWhere(function ($query) use ($my_posisi) {
+                        $query->whereIn('approval_cutis.approved_for', $my_posisi)
+                            ->whereNull('approval_cutis.approved_by');
+                    });
+                })
+                ->get();
+
+
+            $rejected_cuti = Cutie::selectRaw('cutis.*, karyawans.nama')->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+                ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
+                ->where('status_dokumen', 'REJECTED')
+                ->where('cutis.karyawan_id', $me->id_karyawan)
+                ->whereRaw('DATE(rejected_at) <= (rencana_mulai_cuti + INTERVAL \'3 days\')')
+                ->get()->toArray();
+
+        } else {
+            $me = auth()->user()->karyawan;
+            $my_cutie = Cutie::selectRaw('cutis.*, karyawans.nama, (rencana_mulai_cuti - ?) as jumlah_hari', [$today])->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+                ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
+                ->where('status_dokumen', 'WAITING')
+                ->where(function ($query) {
+                    $query->where('status_cuti', '!=', 'CANCELED')
+                        ->orWhereNull('status_cuti');
+                })
+                ->where('cutis.karyawan_id', $me->id_karyawan)
+                ->whereRaw('(rencana_mulai_cuti - ?) <= 7', [$today])
+                ->get();
+
+            $cutie_approval = null;
+
+            $rejected_cuti = Cutie::selectRaw('cutis.*, karyawans.nama')->leftJoin('karyawans', 'cutis.karyawan_id', 'karyawans.id_karyawan')
+                ->leftJoin('karyawan_posisi', 'cutis.karyawan_id', 'karyawan_posisi.karyawan_id')
+                ->where('status_dokumen', 'REJECTED')
+                ->where('cutis.karyawan_id', $me->id_karyawan)
+                ->whereRaw('DATE(rejected_at) <= (rencana_mulai_cuti + INTERVAL \'3 days\')')
+                ->get()->toArray();
+        }
+
+        $notification = [
+            'my_cutie' => $my_cutie ? $my_cutie->toArray() : [],
+            'cutie_approval' => $cutie_approval ? $cutie_approval->toArray() : [],
+            'rejected_cuti' => $rejected_cuti,
+            'count_my_cutie' => $my_cutie ? $my_cutie->count() : 0,
+            'count_cutie_approval' => $cutie_approval ? $cutie_approval->count() : 0,
+            'count_rejected_cuti' => count($rejected_cuti),
+        ];
+
+        return $notification;
+    }
+
+    function get_member_posisi($posisis)
+    {
+        $data = [];
+        foreach ($posisis as $ps) {
+            if ($ps->children) {
+                $data = array_merge($data, $this->get_member_posisi($ps->children));
+            }
+            $data[] = $ps->id_posisi;
+        }
+        return $data;
+    }
+
+    function get_member_departemen($posisis)
+    {
+        $data = [];
+        foreach ($posisis as $ps) {
+            if ($ps->children) {
+                $data = array_merge($data, $this->get_member_departemen($ps->children));
+            }
+            $data[] = $ps->departemen_id;
+        }
+        return $data;
+    }
+
+    public function export_slip_lembur(Request $request)
+    {
+        $organisasi_id = auth()->user()->organisasi_id;
+        $periode = $request->periode_slip;
+        $karyawan = auth()->user()->karyawan;
+        $id_karyawan = $karyawan->id_karyawan;
+
+        // Cek apakah sudah ada slip lembur yang di-lock
+        $slip = \DB::table('slip_lembur_karyawans')
+            ->where('karyawan_id', $id_karyawan)
+            ->where('organisasi_id', $organisasi_id)
+            ->where('periode', $periode)
+            ->first();
+
+        $is_locked = $slip && $slip->is_locked;
+
+        // Ambil setting PPH dari setting_lemburs (default 11 jika tidak ada)
+        $pph_setting = \App\Models\SettingLembur::where('organisasi_id', $organisasi_id)
+            ->where('setting_name', 'pajak_pph')
+            ->first();
+        $pph_persen = $is_locked ? ($slip->pph_persen ?? 11) : ($pph_setting ? (int) $pph_setting->value : 11);
+
+        // Ambil posisi karyawan menggunakan relasi
+        $posisi = $karyawan->posisi()->first();
+
+        if (!$posisi) {
+            return response()->json(['error' => 'Posisi karyawan tidak ditemukan!'], 404);
+        }
+
+        // Ambil departemen_id dari posisi
+        $departemen_id = $posisi->departemen_id;
+
+        // Cari departemen berdasarkan departemen_id
+        $departemen = Departemen::find($departemen_id);
+
+        if (!$departemen) {
+            return response()->json(['error' => 'Departemen tidak ditemukan!'], 404);
+        }
+
+        // Ambil nama departemen
+        $nama_departemen = $departemen->nama;
+
+        // Gaji Karyawan untuk Lembur
+        $setting_lembur_karyawan = \App\Models\SettingLemburKaryawan::where('karyawan_id', $id_karyawan)->first();
+        $gaji = $setting_lembur_karyawan ? $setting_lembur_karyawan->gaji : 0;
+
+        $pembagi_upah_lembur_harian_setting = \App\Models\SettingLembur::where('organisasi_id', $organisasi_id)
+            ->where('setting_name', 'pembagi_upah_lembur_harian')
+            ->first();
+        $pembagi_upah_lembur_harian = $pembagi_upah_lembur_harian_setting ? $pembagi_upah_lembur_harian_setting->value : 0;
+
+        $lembur_perjam = $pembagi_upah_lembur_harian > 0 ? $gaji / $pembagi_upah_lembur_harian : 0;
+
+
+        //CREATE EXCEL FILE
+        $spreadsheet = new Spreadsheet();
+
+        $fillStyle = [
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['argb' => 'FF000000'],
+                ],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'font' => [
+                'bold' => true,
+                'size' => 12,
+            ],
+        ];
+
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('SLIP LEMBUR');
+        $row = 1;
+        
+        $start = Carbon::createFromFormat('Y-m', $periode)->startOfMonth()->toDateString();
+        $end = Carbon::createFromFormat('Y-m', $periode)->endOfMonth()->toDateString();
+        $month = Carbon::createFromFormat('Y-m', $periode)->format('m');
+        $year = Carbon::createFromFormat('Y-m', $periode)->format('Y');
+
+        $columns = range('A', 'Q');
+        foreach ($columns as $column) {
+            $sheet->getColumnDimension($column)->setAutoSize(true);
+        }
+
+        $lembur_karyawan = DetailLembur::leftJoin('lemburs', 'lemburs.id_lembur', 'detail_lemburs.lembur_id')->where('detail_lemburs.karyawan_id', $id_karyawan)->whereMonth('detail_lemburs.aktual_mulai_lembur', $month)->whereYear('detail_lemburs.aktual_mulai_lembur', $year)->whereNotNull('lemburs.actual_legalized_by')
+            ->where('lemburs.status', 'COMPLETED')->first();
+        $setting_lembur_karyawan = SettingLemburKaryawan::where('karyawan_id', $id_karyawan)->first();
+        $pembagi_upah_lembur_harian = SettingLembur::where('organisasi_id', auth()->user()->organisasi_id)->where('setting_name', 'pembagi_upah_lembur_harian')->first()->value;
+        $upah_lembur_per_jam_setting = $lembur_karyawan ? $lembur_karyawan->gaji_lembur / $lembur_karyawan->pembagi_upah_lembur : ($setting_lembur_karyawan ? $setting_lembur_karyawan->gaji / $pembagi_upah_lembur_harian : 0);
+        // TEXT "SLIP LEMBUR BULAN INI"
+        $sheet->mergeCells('A' . $row . ':F' . $row + 1);
+        $sheet->setCellValue('A' . $row, 'SLIP LEMBUR BULAN ' . strtoupper(Carbon::createFromFormat('Y-m', $periode)->format('F Y')));
+        $sheet->getStyle('A' . $row . ':F' . $row + 1)->applyFromArray([
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => [
+                    'argb' => 'FF808080',
+                ],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'font' => [
+                'bold' => true,
+                'size' => 12,
+            ],
+        ]);
+
+        $row += 2;
+        // Menambahkan NAMA, NIK, dan DEPT
+        $sheet->setCellValue('B' . $row, 'NAMA');
+        $sheet->setCellValue('C' . $row, ':');
+        $sheet->setCellValue('D' . $row, $karyawan->nama);
+
+        $sheet->setCellValue('B' . ($row + 1), 'NIK');
+        $sheet->setCellValue('C' . ($row + 1), ':');
+        $sheet->setCellValue('D' . ($row + 1), $karyawan->ni_karyawan);
+
+        // Menambahkan DEPT
+        $sheet->setCellValue('B' . ($row + 2), 'DEPT');
+        $sheet->setCellValue('C' . ($row + 2), ':');
+        $sheet->setCellValue('D' . ($row + 2), $nama_departemen);
+
+        // Apply styles for columns B, C, and D for "NAMA", "NIK", and "DEPT"
+        $sheet->getStyle('B' . $row . ':B' . ($row + 2))->applyFromArray([
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_LEFT,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'font' => [
+                'bold' => true,
+                'size' => 12,
+            ],
+        ]);
+
+        $sheet->getStyle('C' . $row . ':C' . ($row + 2))->applyFromArray([
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'font' => [
+                'bold' => true,
+                'size' => 12,
+            ],
+        ]);
+
+        $sheet->getStyle('D' . $row . ':D' . ($row + 2))->applyFromArray([
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'font' => [
+                'bold' => true,
+                'size' => 12,
+            ],
+        ]);
+
+        $row += 3; // Move row for headers
+
+        // Menambahkan header untuk slip lembur
+        $row_header1 = $row;
+        $row_header2 = $row + 1;
+
+        $sheet->setCellValue('A' . $row_header1, 'NO')->mergeCells('A' . $row_header1 . ':A' . $row_header2);
+        $sheet->setCellValue('B' . $row_header1, 'HARI')->mergeCells('B' . $row_header1 . ':B' . $row_header2);
+        $sheet->setCellValue('C' . $row_header1, 'TANGGAL')->mergeCells('C' . $row_header1 . ':C' . $row_header2);
+        $sheet->setCellValue('D' . $row_header1, 'LEMBUR PERJAM')->mergeCells('D' . $row_header1 . ':D' . $row_header2);
+        $sheet->setCellValue('E' . $row_header1, 'Absensi')->mergeCells('E' . $row_header1 . ':F' . $row_header1);
+        $sheet->setCellValue('E' . $row_header2, 'Awal');
+        $sheet->setCellValue('F' . $row_header2, 'Akhir');
+        $sheet->setCellValue('G' . $row_header1, 'Over Time')->mergeCells('G' . $row_header1 . ':H' . $row_header1);
+        $sheet->setCellValue('G' . $row_header2, 'Awal');
+        $sheet->setCellValue('H' . $row_header2, 'Akhir');
+        $sheet->setCellValue('I' . $row_header1, 'JAM ISTIRAHAT')->mergeCells('I' . $row_header1 . ':I' . $row_header2);
+        $sheet->setCellValue('J' . $row_header1, 'JAM KELUAR SETELAH ISTIRAHAT')->mergeCells('J' . $row_header1 . ':J' . $row_header2);
+        $sheet->setCellValue('K' . $row_header1, 'TOTAL JAM')->mergeCells('K' . $row_header1 . ':K' . $row_header2);
+        $sheet->setCellValue('L' . $row_header1, 'KONVERSI JAM')->mergeCells('L' . $row_header1 . ':L' . $row_header2);
+        $sheet->setCellValue('M' . $row_header1, 'UPAH LEMBUR')->mergeCells('M' . $row_header1 . ':M' . $row_header2);
+        $sheet->setCellValue('N' . $row_header1, 'UANG MAKAN')->mergeCells('N' . $row_header1 . ':N' . $row_header2);
+        $sheet->setCellValue('O' . $row_header1, 'INSENTIF SHIFT')->mergeCells('O' . $row_header1 . ':O' . $row_header2);
+        $sheet->setCellValue('P' . $row_header1, 'INSENTIF LEMBUR')->mergeCells('P' . $row_header1 . ':P' . $row_header2);
+        $sheet->setCellValue('Q' . $row_header1, 'JUMLAH')->mergeCells('Q' . $row_header1 . ':Q' . $row_header2);
+        $sheet->getStyle('A' . $row_header1 . ':Q' . $row_header2)->applyFromArray($fillStyle);
+
+        $row += 2;
+        //LOOPING AWAL SAMPAI AKHIR BULAN
+        $total_jam = 0;
+        $total_konversi_jam = 0;
+        $total_uang_makan = 0;
+        $total_insentif_shift = 0;
+        $total_insentif_lembur = 0;
+        $total_spl = 0;
+        $total_upah_lembur = 0;
+        $total_jumlah = 0;
+        for ($i = 0; $i <= Carbon::parse($start)->diffInDays(Carbon::parse($end)); $i++) {
+            $date = Carbon::parse($start)->addDays($i)->toDateString();
+            
+            // Assuming \App\Models\Attendance\Attendance model and 'scan_date' column
+            $scans = \App\Models\Attendance\Scanlog::where('pin', $karyawan->pin)->whereDate('scan_date', $date)->orderBy('scan_date', 'asc')->get();
+            $absensi_awal = $scans->count() > 0 ? Carbon::parse($scans->first()->scan_date)->format('H:i') : '-';
+            $absensi_akhir = $scans->count() > 1 ? Carbon::parse($scans->last()->scan_date)->format('H:i') : '-';
+
+            $slipLemburs = DetailLembur::getSlipLemburPerDepartemen($id_karyawan, $date, $organisasi_id);
+            if ($slipLemburs->count() > 0) {
+                foreach ($slipLemburs as $index => $slipLembur) {
+                    $upah_lembur_per_jam = $slipLembur ? $slipLembur->gaji_lembur / $slipLembur->pembagi_upah_lembur : $upah_lembur_per_jam_setting;
+                    $upah_lembur = $slipLembur->durasi_konversi_lembur / 60 * $upah_lembur_per_jam;
+                    $insentif_shift = $slipLembur->insentif_shift ?? 0;
+                    $insentif_lembur = $slipLembur->insentif_lembur ?? 0;
+                    $jumlah = $upah_lembur + $slipLembur->uang_makan + $insentif_shift + $insentif_lembur;
+                    $total_jam += $slipLembur->durasi;
+                    $total_konversi_jam += $slipLembur->durasi_konversi_lembur;
+                    $total_uang_makan += $slipLembur->uang_makan;
+                    $total_insentif_shift += $insentif_shift;
+                    $total_insentif_lembur += $insentif_lembur;
+                    $total_upah_lembur += $upah_lembur;
+                    $total_jumlah += $jumlah;
+                    $sheet->setCellValue('A' . $row, $i + 1);
+                    $sheet->setCellValue('B' . $row, Carbon::parse($date)->locale('id')->translatedFormat('l'));
+
+                    //JIKA WEEKEND UBAH STYLE CELL
+                    if (Carbon::parse($date)->isWeekend()) {
+                        $sheet->getStyle('B' . $row)->applyFromArray([
+                            'fill' => [
+                                'fillType' => Fill::FILL_SOLID,
+                                'startColor' => [
+                                    'argb' => 'FFFF0000',
+                                ],
+                            ],
+                            'font' => [
+                                'color' => [
+                                    'argb' => 'FFFFFFFF',
+                                ],
+                            ],
+                        ]);
+                    }
+
+                    if ($slipLembur->keterangan) {
+                        if (substr($slipLembur->keterangan, 0, 6) === 'BYPASS') {
+                            $keterangan = substr($slipLembur->keterangan, 7);
+                        } else {
+                            $keterangan = '';
+                        }
+                    } else {
+                        $keterangan = '';
+                    }
+
+                    $sheet->setCellValue('C' . $row, Carbon::parse($date)->format('d-m-Y'));
+                    $sheet->setCellValue('D' . $row, 'Rp ' . number_format($lembur_perjam, 0, ',', '.'));
+                    $sheet->setCellValue('E' . $row, $absensi_awal);
+                    $sheet->setCellValue('F' . $row, $absensi_akhir);
+                    $sheet->setCellValue('G' . $row, Carbon::parse($slipLembur->aktual_mulai_lembur)->format('H:i'));
+                    $sheet->setCellValue('H' . $row, Carbon::parse($slipLembur->aktual_selesai_lembur)->format('H:i'));
+                    $sheet->setCellValue('I' . $row, number_format($slipLembur->durasi_istirahat / 100, 2));
+                    $sheet->setCellValue('J' . $row, Carbon::parse($slipLembur->aktual_selesai_lembur)->subMinutes($slipLembur->durasi_istirahat)->format('H:i'));
+                    $sheet->setCellValue('K' . $row, number_format($slipLembur->durasi / 60, 2));
+                    $sheet->setCellValue('L' . $row, number_format($slipLembur->durasi_konversi_lembur / 60, 2));
+                    
+                    if ($upah_lembur > 0) {
+                        $sheet->setCellValue('M' . $row, 'Rp ' . number_format($upah_lembur, 0, ',', '.'));
+                    } else {
+                        $sheet->setCellValue('M' . $row, 'Rp');
+                    }
+                    
+                    $sheet->setCellValue('N' . $row, $slipLembur->uang_makan > 0 ? 'Rp ' . number_format($slipLembur->uang_makan, 0, ',', '.') : 'Rp');
+                    $sheet->setCellValue('O' . $row, $insentif_shift > 0 ? 'Rp ' . number_format($insentif_shift, 0, ',', '.') : 'Rp');
+                    $sheet->setCellValue('P' . $row, $insentif_lembur > 0 ? 'Rp ' . number_format($insentif_lembur, 0, ',', '.') : 'Rp');
+                    
+                    if ($jumlah > 0) {
+                        $sheet->setCellValue('Q' . $row, 'Rp ' . number_format($jumlah, 0, ',', '.'));
+                    } else {
+                        $sheet->setCellValue('Q' . $row, 'Rp');
+                    }
+                    
+                    $sheet->getStyle('M' . $row)->applyFromArray([
+                        'font' => [
+                            'color' => ['argb' => 'FF000000'],
+                        ],
+                        'alignment' => [
+                            'horizontal' => Alignment::HORIZONTAL_LEFT,
+                            'vertical' => Alignment::VERTICAL_CENTER,
+                        ],
+                        'borders' => [
+                            'allBorders' => [
+                                'borderStyle' => Border::BORDER_THIN,
+                                'color' => ['argb' => 'FF000000'],
+                            ],
+                        ],
+                    ]);
+
+                    //STYLE CELL
+                    $sheet->getStyle('C' . $row)->applyFromArray([
+                        'alignment' => [
+                            'horizontal' => Alignment::HORIZONTAL_CENTER,
+                            'vertical' => Alignment::VERTICAL_CENTER,
+                        ],
+                    ]);
+                    $sheet->getStyle('A' . $row . ':P' . $row)->applyFromArray([
+                        'borders' => [
+                            'allBorders' => [
+                                'borderStyle' => Border::BORDER_THIN,
+                                'color' => ['argb' => 'FF000000'],
+                            ],
+                        ],
+                    ]);
+
+                    if ($slipLemburs->count() > 1 && $index == 0) {
+                        //STYLE CELL
+                        $sheet->getStyle('C' . $row)->applyFromArray([
+                            'alignment' => [
+                                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                                'vertical' => Alignment::VERTICAL_CENTER,
+                            ],
+                        ]);
+                        $sheet->getStyle('M' . $row . ':P' . $row)->applyFromArray([
+                            'font' => [
+                                'color' => [
+                                    'argb' => 'FF000000',
+                                ],
+                            ],
+                        ]);
+                        $sheet->getStyle('A' . $row . ':P' . $row)->applyFromArray([
+                            'borders' => [
+                                'allBorders' => [
+                                    'borderStyle' => Border::BORDER_THIN,
+                                    'color' => ['argb' => 'FF000000'],
+                                ],
+                            ],
+                        ]);
+
+                        $sheet->getStyle('N' . $row)->applyFromArray([
+                            'font' => [
+                                'color' => ['argb' => 'FF000000'],
+                            ],
+                            'alignment' => [
+                                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                                'vertical' => Alignment::VERTICAL_CENTER,
+                            ],
+                            'borders' => [
+                                'allBorders' => [
+                                    'borderStyle' => Border::BORDER_THIN,
+                                    'color' => ['argb' => 'FF000000'],
+                                ],
+                            ],
+                        ]);
+                        $row++;
+                    }
+                }
+
+            } else {
+                $sheet->setCellValue('A' . $row, $i + 1);
+                $sheet->setCellValue('B' . $row, Carbon::parse($date)->locale('id')->translatedFormat('l'));
+
+                if (Carbon::parse($date)->isWeekend()) {
+                    $sheet->getStyle('B' . $row)->applyFromArray([
+                        'fill' => [
+                            'fillType' => Fill::FILL_SOLID,
+                            'startColor' => [
+                                'argb' => 'FFFF0000',
+                            ],
+                        ],
+                        'font' => [
+                            'color' => [
+                                'argb' => 'FFFFFFFF',
+                            ],
+                        ],
+                    ]);
+                }
+
+                $sheet->setCellValue('C' . $row, Carbon::parse($date)->format('d-m-Y'));
+                $sheet->setCellValue('D' . $row, 'Rp ' . number_format($lembur_perjam, 0, ',', '.'));
+                $sheet->setCellValue('E' . $row, $absensi_awal);
+                $sheet->setCellValue('F' . $row, $absensi_akhir);
+                $sheet->setCellValue('G' . $row, '-');
+                $sheet->setCellValue('H' . $row, '-');
+                $sheet->setCellValue('I' . $row, '-');
+                $sheet->setCellValue('J' . $row, '-');
+                $sheet->setCellValue('K' . $row, '-');
+                $sheet->setCellValue('L' . $row, '-');
+                $sheet->setCellValue('M' . $row, 'Rp');
+                $sheet->setCellValue('N' . $row, 'Rp');
+                $sheet->setCellValue('O' . $row, 'Rp');
+                $sheet->setCellValue('P' . $row, 'Rp');
+                $sheet->setCellValue('Q' . $row, 'Rp');
+            }
+
+            //STYLE CELL
+            $sheet->getStyle('C' . $row)->applyFromArray([
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_CENTER,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+            ]);
+            
+            $sheet->getStyle('A' . $row . ':Q' . $row)->applyFromArray([
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_THIN,
+                        'color' => ['argb' => 'FF000000'],
+                    ],
+                ],
+            ]);
+            $sheet->getStyle('Q' . $row)->applyFromArray([
+                'font' => [
+                    'color' => ['argb' => 'FFFF0000'],
+                ],
+                'alignment' => [
+                    'horizontal' => Alignment::HORIZONTAL_LEFT,
+                    'vertical' => Alignment::VERTICAL_CENTER,
+                ],
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => Border::BORDER_THIN,
+                        'color' => ['argb' => 'FF000000'],
+                    ],
+                ],
+            ]);
+
+            $row++;
+        }
+
+        $sheet->setCellValue('K' . $row, number_format($total_jam / 60, 2));
+        $sheet->setCellValue('L' . $row, number_format($total_konversi_jam / 60, 2));
+        $sheet->setCellValue('M' . $row, 'Rp ' . number_format($total_upah_lembur, 0, ',', '.'));
+        $sheet->setCellValue('N' . $row, 'Rp ' . number_format($total_uang_makan, 0, ',', '.'));
+        $sheet->setCellValue('O' . $row, 'Rp ' . number_format($total_insentif_shift, 0, ',', '.'));
+        $sheet->setCellValue('P' . $row, 'Rp ' . number_format($total_insentif_lembur, 0, ',', '.'));
+        $sheet->setCellValue('Q' . $row, 'Rp ' . number_format($total_jumlah, 0, ',', '.'));
+        
+        $sheet->getStyle('M' . $row . ':P' . $row)->applyFromArray([
+            'font' => [
+                'color' => [
+                    'argb' => 'FF000000',
+                ],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['argb' => 'FF000000'],
+                ],
+            ],
+        ]);
+        
+        $sheet->getStyle('Q' . $row)->applyFromArray([
+            'font' => [
+                'color' => [
+                    'argb' => 'FFFF0000',
+                ],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['argb' => 'FF000000'],
+                ],
+            ],
+        ]);
+
+        // Hitung potongan pajak sesuai setting (atau slip jika sudah lock)
+        $potongan_pajak = $is_locked ? $slip->total_pph : ($total_jumlah * ($pph_persen / 100));
+        $total_setelah_pajak = $is_locked ? $slip->total_diterima : ($total_jumlah - $potongan_pajak);
+
+        $summaryRow = $row + 1;
+        $sheet->setCellValue('P' . $summaryRow, 'POTONGAN PPH');
+        $sheet->setCellValue('Q' . $summaryRow, 'Rp ' . number_format($potongan_pajak, 0, ',', '.'));
+        $sheet->getStyle('P' . $summaryRow . ':Q' . $summaryRow)->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'size' => 12,
+                'color' => ['argb' => 'FF000000'],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['argb' => 'FF000000'],
+                ],
+            ],
+        ]);
+        $summaryRow++;
+        $sheet->setCellValue('P' . $summaryRow, 'TOTAL DITERIMA');
+        $sheet->setCellValue('Q' . $summaryRow, 'Rp ' . number_format($total_setelah_pajak, 0, ',', '.'));
+        $sheet->getStyle('P' . $summaryRow . ':Q' . $summaryRow)->applyFromArray([
+            'font' => [
+                'bold' => true,
+                'size' => 12,
+                'color' => ['argb' => 'FF000000'],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['argb' => 'FF000000'],
+                ],
+            ],
+        ]);
+
+        if (!$is_locked) {
+            \DB::table('slip_lembur_karyawans')->updateOrInsert([
+                'karyawan_id' => $id_karyawan,
+                'organisasi_id' => $organisasi_id,
+                'periode' => $periode,
+            ], [
+                'total_lembur' => $total_spl,
+                'total_uang_makan' => $total_uang_makan,
+                'total_jam' => $total_jam / 60,
+                'total_konversi_jam' => $total_konversi_jam / 60,
+                'pph_persen' => $pph_persen,
+                'total_pph' => $potongan_pajak,
+                'total_diterima' => $total_setelah_pajak,
+                'is_locked' => false,
+                'updated_at' => now(),
+                'created_at' => $slip ? $slip->created_at : now(),
+            ]);
+        }
+
+        $sheet->getStyle('K' . $row . ':P' . $row)->applyFromArray([
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['argb' => 'FF000000'],
+                ],
+            ],
+            'font' => [
+                'bold' => true,
+                'size' => 12,
+            ]
+        ]);
+
+        $writer = new Xlsx($spreadsheet);
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment;filename="Slip Pembayaran Lembur - ' . Carbon::createFromFormat('Y-m', $periode)->format('F Y') . '.xlsx"');
+        header('Cache-Control: max-age=0');
+
+        $writer->save('php://output');
+        $spreadsheet->disconnectWorksheets();
+        unset($spreadsheet);
+        exit();
+    }
+
+    public function get_pengajuan_tugasluar_notification()
+    {
+        $pengajuan = 0;
+        $organisasi_id = auth()->user()->organisasi_id;
+
+        // PENGAJUAN
+        if (auth()->user()->hasRole('atasan') || auth()->user()->hasRole('member')) {
+            $dataFilter['karyawan_id'] = auth()->user()->karyawan->id_karyawan;
+            $pengajuan = TugasLuar::countDataMiddleware($dataFilter);
+        }
+
+        $tugasluare = [
+            'pengajuan' => $pengajuan,
+        ];
+
+        $html = view('layouts.partials.notification-pengajuan-tugasluar')->with(compact('tugasluare'))->render();
+        return response()->json(['data' => $html], 200);
+    }
+
+    public function get_approval_tugasluar_notification()
+    {
+        $approval = 0;
+        $organisasi_id = auth()->user()->organisasi_id;
+
+        // APPROVAL PERSONALIA
+        if (auth()->user()->hasRole('personalia')) {
+            $dataFilter['organisasi_id'] = $organisasi_id;
+            $dataFilter['must_legalized'] = true;
+            $approval = TugasLuar::countDataMiddleware($dataFilter);
+        }
+
+        // APPROVAL ATASAN
+        if (auth()->user()->hasRole('atasan')) {
+            $posisi = auth()->user()->karyawan->posisi;
+            $id_posisi_members = Approval::GetMemberPosisi($posisi);
+            $has_leader = Approval::HasLeader($posisi);
+            $has_section_head = Approval::HasSectionHead($posisi);
+            $has_department_head = Approval::HasDepartmentHead($posisi);
+
+            foreach ($posisi as $ps) {
+                $index = array_search($ps->id_posisi, $id_posisi_members);
+                array_splice($id_posisi_members, $index, 1);
+            }
+
+            $dataFilter['member_posisi_id'] = $id_posisi_members;
+            if (auth()->user()->karyawan->posisi[0]->jabatan_id == 5) {
+                if (!$has_section_head && !$has_department_head) {
+                    $dataFilter['must_checked'] = true;
+                }
+            } else {
+                $dataFilter['must_checked'] = true;
+            }
+
+            $approval = TugasLuar::countDataMiddleware($dataFilter);
+        }
+
+        $tugasluare = [
+            'approval' => $approval,
+        ];
+
+        $html = view('layouts.partials.notification-approval-tugasluar')->with(compact('tugasluare'))->render();
+        return response()->json(['data' => $html], 200);
+    }
+
+    public function get_ksk_notification()
+    {
+        try {
+            $total_release_ksk = 0;
+            $total_approval_ksk = 0;
+            $total_release_cleareance = 0;
+            $total_approval_cleareance = 0;
+            $total_tindak_lanjut = 0;
+
+            $dataFilter = [];
+            if (auth()->user()->hasRole('personalia')) {
+                $total_release_ksk = Karyawan::countDataKSK($dataFilter);
+                $total_release_cleareance = DetailKSK::where('organisasi_id', auth()->user()->organisasi_id)->where('status_ksk', 'PHK')->whereNull('cleareance_id')->count();
+                $total_tindak_lanjut = DetailKSK::countNeedAction($dataFilter);
+            } else {
+                $total_approval_cleareance = CleareanceDetail::where('confirmed_by_id', auth()->user()->karyawan->id_karyawan)->where('is_clear', 'N')->count();
+            }
+
+            $total_approval_ksk = KSK::countDataKSK($dataFilter);
+
+            $html_release = view('layouts.partials.ksk.notification-release')->with(compact('total_release_ksk'))->render();
+            $html_approval = view('layouts.partials.ksk.notification-approval')->with(compact('total_approval_ksk'))->render();
+            $html_release_cleareance = view('layouts.partials.ksk.cleareance.notification-release')->with(compact('total_release_cleareance'))->render();
+            $html_approval_cleareance = view('layouts.partials.ksk.cleareance.notification-approval')->with(compact('total_approval_cleareance'))->render();
+            $html_tindak_lanjut = view('layouts.partials.ksk.notification-tindak-lanjut')->with(compact('total_tindak_lanjut'))->render();
+
+            return response()->json(['html_release' => $html_release, 'html_approval' => $html_approval, 'html_release_cleareance' => $html_release_cleareance, 'html_approval_cleareance' => $html_approval_cleareance, 'html_tindak_lanjut' => $html_tindak_lanjut], 200);
+        } catch (Throwable $e) {
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+}
