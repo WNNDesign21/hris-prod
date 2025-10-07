@@ -13,9 +13,10 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Support\Facades\Log;
 use App\Models\Attendance\AttendanceSummary;
 
-class SummarizeAttendanceJob implements ShouldQueue
+class SummarizeAttendanceJob
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     protected $data, $organisasi_id, $user, $tanggal;
@@ -39,24 +40,31 @@ class SummarizeAttendanceJob implements ShouldQueue
      */
     public function handle(): void
     {
+        $row = 0;
+        $currentItemPin = null;
+        Log::info('[SummarizeAttendanceJob] Started for date: ' . $this->tanggal . ' with ' . count($this->data) . ' items.');
+
         DB::beginTransaction();
         try {
-            $row = 0;
-            // $summarize = [];
             $failedDatas = [];
             $formattedDate = Carbon::createFromFormat('Y-m-d', $this->tanggal);
             $karyawans = Karyawan::whereIn('pin', $this->data)
                 ->where('organisasi_id', $this->organisasi_id)
                 ->get();
 
-            if ($karyawans) {
+            if ($karyawans->isNotEmpty()) {
                 foreach ($karyawans as $item) {
                     $row++;
-                    $dataFilter = [];
-                    $dataFilter['organisasi_id'] = $this->organisasi_id;
-                    $dataFilter['karyawan_id'] = $item->id_karyawan;
-                    $dataFilter['pin'] = $item->pin;
-                    $dataFilter['tanggal'] = $this->tanggal;
+                    $currentItemPin = $item->pin;
+                    Log::info('[SummarizeAttendanceJob] Processing row: ' . $row . ', PIN: ' . $currentItemPin);
+
+                    $dataFilter = [
+                        'organisasi_id' => $this->organisasi_id,
+                        'karyawan_id' => $item->id_karyawan,
+                        'pin' => $item->pin,
+                        'tanggal' => $this->tanggal,
+                    ];
+
                     $finalSummary = ScanlogDetail::summarizePresensi($dataFilter);
                     $summaryExist = AttendanceSummary::where('karyawan_id', $item->id_karyawan)
                         ->where('organisasi_id', $this->organisasi_id)
@@ -67,23 +75,27 @@ class SummarizeAttendanceJob implements ShouldQueue
                     if ($summaryExist) {
                         if ($finalSummary) {
                             $keterlambatan = $finalSummary->in_selisih ? intval(Carbon::createFromFormat('H:i:s', $finalSummary->in_selisih)->minute) : 0;
-                            $summaryExist->update([
+                            $updateData = [
                                 "tanggal".$formattedDate->day."_status" => 'H',
                                 "tanggal".$formattedDate->day."_selisih" => $keterlambatan,
                                 "tanggal".$formattedDate->day."_in" => $finalSummary->in_time,
                                 "tanggal".$formattedDate->day."_out" => $finalSummary->out_time,
-                            ]);
+                            ];
+                            Log::info('[SummarizeAttendanceJob] Updating existing summary for PIN: ' . $currentItemPin, $updateData);
+                            $summaryExist->update($updateData);
+                            Log::info('[SummarizeAttendanceJob] Update successful for PIN: ' . $currentItemPin);
                         } else {
+                            Log::warning('[SummarizeAttendanceJob] Failed to get final summary for PIN: ' . $currentItemPin . '. Skipping.');
                             $failedDatas[] = [
                                 'row' => $row,
-                                'error' => 'Gagal merekap data presensi - ' . $item->pin . ' - ' . $item->nama. ' - ' . $item->tanggal .' - Silahkan cek kembali settingan shift & grup karyawan ini.',
+                                'error' => 'Gagal merekap data presensi - ' . $item->pin . ' - ' . $item->nama. ' - ' . $this->tanggal .' - Silahkan cek kembali settingan shift & grup karyawan ini.',
                             ];
                             continue;
                         }
                     } else {
                         if ($finalSummary) {
                             $keterlambatan = $finalSummary->in_selisih ? intval(Carbon::createFromFormat('H:i:s', $finalSummary->in_selisih)->minute) : 0;
-                            AttendanceSummary::create([
+                            $createData = [
                                 'karyawan_id' => $finalSummary->id_karyawan,
                                 'periode' => Carbon::createFromFormat('Y-m-d', $this->tanggal)->startOfMonth()->format('Y-m-d'),
                                 'pin' => $finalSummary->pin,
@@ -96,17 +108,22 @@ class SummarizeAttendanceJob implements ShouldQueue
                                 "tanggal".$formattedDate->day."_selisih" => $keterlambatan,
                                 "tanggal".$formattedDate->day."_in" => $finalSummary->in_time,
                                 "tanggal".$formattedDate->day."_out" => $finalSummary->out_time,
-                            ]);
+                            ];
+                            Log::info('[SummarizeAttendanceJob] Creating new summary for PIN: ' . $currentItemPin, $createData);
+                            AttendanceSummary::create($createData);
+                            Log::info('[SummarizeAttendanceJob] Create successful for PIN: ' . $currentItemPin);
                         } else {
+                            Log::warning('[SummarizeAttendanceJob] Failed to get final summary for new record. PIN: ' . $currentItemPin . '. Skipping.');
                             $failedDatas[] = [
                                 'row' => $row,
-                                'error' => 'Gagal merekap data presensi - ' . $item->pin . ' - ' . $item->nama. ' - ' . $item->tanggal .' - Silahkan cek kembali settingan shift & grup karyawan ini.',
+                                'error' => 'Gagal merekap data presensi - ' . $item->pin . ' - ' . $item->nama. ' - ' . $this->tanggal .' - Silahkan cek kembali settingan shift & grup karyawan ini.',
                             ];
                             continue;
                         }
                     }
                 }
             } else {
+                Log::warning('[SummarizeAttendanceJob] No employees found for the given PINs.');
                 $failedDatas[] = [
                     'row' => $row,
                     'error' => 'Gagal merekap data presensi - Karyawan tidak ditemukan.',
@@ -121,15 +138,25 @@ class SummarizeAttendanceJob implements ShouldQueue
                 }
             }
 
+            Log::info('[SummarizeAttendanceJob] Committing transaction.');
+            DB::commit();
+            Log::info('[SummarizeAttendanceJob] Finished successfully.');
             activity('job_summarize_attendance')
                 ->causedBy($this->user)
-                ->log('Summarize attendance - ' . count($this->data) . ' datas');
-            DB::commit();
+                ->log('Summarize attendance - ' . count($this->data) . ' datas processed.');
+
         } catch (Throwable $e) {
+            Log::error('[SummarizeAttendanceJob] Exception caught, rolling back transaction.', [
+                'error_message' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+                'processing_pin' => $currentItemPin,
+                'processing_row' => $row
+            ]);
             DB::rollBack();
             activity('error_job_summarize_attendance')
                 ->causedBy($this->user)
-                ->log('Summarize attendance -' . $e->getMessage() . ' - Baris' . $row);
+                ->log('Summarize attendance ERROR - PIN: ' . $currentItemPin . ' - Message: ' . $e->getMessage() . ' - Line: ' . $row);
         }
     }
 }
