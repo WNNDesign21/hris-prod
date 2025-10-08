@@ -1,0 +1,1 @@
+$(function(){$.ajaxSetup({headers:{"X-CSRF-TOKEN":$('meta[name="csrf-token"]').attr("content")}}),$("#departemen_id").select2(),$("#tahun").select2(),$("#bulan").select2(),$("#btnExport").on("click",function(){$("#form-export-cuti").submit()})});

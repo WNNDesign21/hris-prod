@@ -135,6 +135,7 @@
             </div>
         </div>
     </div>
+<<<<<<< HEAD
 
     {{-- REKAP KONTRAK KARYAWAN --}}
     <div class="row mt-4">
@@ -237,3 +238,6 @@
 
 
 @endsection
+=======
+@endsection
+>>>>>>> 48e12d6e2704084eb06af2f6b7647853c5985881
