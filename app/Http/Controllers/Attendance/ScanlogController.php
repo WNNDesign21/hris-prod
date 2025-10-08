@@ -211,7 +211,7 @@ class ScanlogController extends Controller
         $dataValidate = [
             'start_date' => ['required', 'date', 'date_format:Y-m-d', 'before_or_equal:end_date'],
             'end_date' => ['required', 'date', 'date_format:Y-m-d', 'after_or_equal:start_date'],
-            'device_id' => ['required', 'integer', 'exists:attendance_devices,id_device']
+            'device_id' => ['required', 'integer'] // 0 for all devices
         ];
 
         $validator = Validator::make(request()->all(), $dataValidate);
@@ -229,56 +229,71 @@ class ScanlogController extends Controller
         }
 
         try {
-            $device = Device::find($request->device_id);
             $organisasi_id = auth()->user()->organisasi_id;
-            $cloudId = $device->cloud_id;
+            $devices = [];
 
-            $diff_date = $startDate->diffInDays($endDate);
-
-            if ($diff_date <= 1) {
-                $this->get_att_scanlog(
-                    $organisasi_id,
-                    $request->device_id,
-                    $cloudId,
-                    $request->start_date . " 00:00:00",
-                    $request->end_date . " 23:59:59"
-                );
+            if ($request->device_id == 0) {
+                $devices = Device::where('organisasi_id', $organisasi_id)->get();
             } else {
-                $summarizeExists = AttendanceSummary::whereMonth('periode', $startDate->month)
-                    ->whereYear('periode', $startDate->year)
-                    ->exists();
+                $device = Device::find($request->device_id);
+                if ($device) {
+                    $devices[] = $device;
+                }
+            }
 
-                if (!$summarizeExists) {
+            if (empty($devices)) {
+                return response()->json(['message' => 'Device tidak ditemukan.'], 404);
+            }
+
+            foreach ($devices as $device) {
+                $cloudId = $device->cloud_id;
+                $diff_date = $startDate->diffInDays($endDate);
+
+                if ($diff_date <= 1) {
                     $this->get_att_scanlog(
                         $organisasi_id,
-                        $request->device_id,
-                        $cloudId,
-                        $startDate->format('Y-m-d'),
-                        $startDate->format('Y-m-d')
-                    );
-                }
-
-                $dateRanges = [];
-                for ($currentStartDate = $startDate->copy(); $currentStartDate->lte($endDate); $currentStartDate->addDays(2)) {
-                    $currentEndDate = $currentStartDate->copy()->addDay();
-                    if ($currentEndDate->gt($endDate)) {
-                        $currentEndDate = $endDate;
-                    }
-                    $dateRanges[] = [
-                        'start_date' => $currentStartDate->format('Y-m-d'),
-                        'end_date' => $currentEndDate->format('Y-m-d'),
-                    ];
-                }
-
-                foreach ($dateRanges as $dr) {
-                    DownloadScanlogJob::dispatch(
-                        $organisasi_id,
-                        $cloudId,
-                        $dr['start_date'],
-                        $dr['end_date'],
                         $device->id_device,
-                        auth()->user()
+                        $cloudId,
+                        $request->start_date . " 00:00:00",
+                        $request->end_date . " 23:59:59"
                     );
+                } else {
+                    $summarizeExists = AttendanceSummary::whereMonth('periode', $startDate->month)
+                        ->whereYear('periode', $startDate->year)
+                        ->exists();
+
+                    if (!$summarizeExists) {
+                        $this->get_att_scanlog(
+                            $organisasi_id,
+                            $device->id_device,
+                            $cloudId,
+                            $startDate->format('Y-m-d'),
+                            $startDate->format('Y-m-d')
+                        );
+                    }
+
+                    $dateRanges = [];
+                    for ($currentStartDate = $startDate->copy(); $currentStartDate->lte($endDate); $currentStartDate->addDays(2)) {
+                        $currentEndDate = $currentStartDate->copy()->addDay();
+                        if ($currentEndDate->gt($endDate)) {
+                            $currentEndDate = $endDate;
+                        }
+                        $dateRanges[] = [
+                            'start_date' => $currentStartDate->format('Y-m-d'),
+                            'end_date' => $currentEndDate->format('Y-m-d'),
+                        ];
+                    }
+
+                    foreach ($dateRanges as $dr) {
+                        DownloadScanlogJob::dispatch(
+                            $organisasi_id,
+                            $cloudId,
+                            $dr['start_date'],
+                            $dr['end_date'],
+                            $device->id_device,
+                            auth()->user()
+                        );
+                    }
                 }
             }
 
@@ -372,7 +387,7 @@ class ScanlogController extends Controller
         $dataValidate = [
             'start_date' => ['required', 'date', 'date_format:Y-m-d', 'before_or_equal:end_date'],
             'end_date' => ['required', 'date', 'date_format:Y-m-d', 'after_or_equal:start_date'],
-            'device_id' => ['required', 'integer', 'exists:attendance_devices,id_device'],
+            'device_id' => ['required', 'integer'], // 0 for all devices, specific ID must exist
             'format' => ['required', 'in:H,V'],
         ];
 
@@ -382,12 +397,25 @@ class ScanlogController extends Controller
             $errors = $validator->errors()->all();
             return response()->json(['message' => $errors], 402);
         }
+
+        // Custom validation for device_id
+        if ($request->device_id != 0 && !Device::where('id_device', $request->device_id)->exists()) {
+            return response()->json(['message' => ['The selected device id is invalid.']], 402);
+        }
+        
         try {
-            $device = Device::find($request->device_id);
+            $deviceName = '';
+            if ($request->device_id == 0) {
+                $deviceName = 'ALL-DEVICE';
+            } else {
+                $device = Device::find($request->device_id);
+                $deviceName = $device ? $device->device_name : 'UNKNOWN-DEVICE';
+            }
+            
             $organisasi_id = auth()->user()->organisasi_id;
 
             if ($request->format == 'V') {
-                $scanlogs = Scanlog::select(
+                $query = Scanlog::select(
                     'karyawans.nama as karyawan',
                     'karyawans.ni_karyawan as ni_karyawan',
                     'attendance_scanlogs.pin',
@@ -395,18 +423,19 @@ class ScanlogController extends Controller
                     'attendance_scanlogs.verify',
                 );
 
-                $scanlogs->leftJoin('karyawans', 'karyawans.pin', 'attendance_scanlogs.pin')->where('karyawans.organisasi_id', $organisasi_id);
-                $scanlogs->leftJoin('users', 'users.id', 'karyawans.user_id')->where('users.organisasi_id', $organisasi_id);
+                $query->leftJoin('karyawans', 'karyawans.pin', 'attendance_scanlogs.pin')->where('karyawans.organisasi_id', $organisasi_id);
+                $query->leftJoin('users', 'users.id', 'karyawans.user_id')->where('users.organisasi_id', $organisasi_id);
 
-                $scanlogs->where('attendance_scanlogs.organisasi_id', $organisasi_id);
-                $scanlogs->where('attendance_scanlogs.device_id', $request->device_id);
-                $scanlogs->whereBetween(DB::raw('DATE(attendance_scanlogs.scan_date)'), [$request->start_date, $request->end_date]);
-                // $scanlogs->where(function($query) use ($request){
-                //     $query->whereDate('attendance_scanlogs.scan_date', $request->start_date)
-                //         ->orWhereDate('attendance_scanlogs.scan_date', $request->end_date);
-                // });
-                $scanlogs->orderBy(DB::raw('karyawans.nama, DATE(attendance_scanlogs.scan_date)'), 'ASC');
-                $scanlogs = $scanlogs->get();
+                $query->where('attendance_scanlogs.organisasi_id', $organisasi_id);
+                
+                if ($request->device_id != 0) {
+                    $query->where('attendance_scanlogs.device_id', $request->device_id);
+                }
+
+                $query->whereBetween(DB::raw('DATE(attendance_scanlogs.scan_date)'), [$request->start_date, $request->end_date]);
+                $query->orderBy(DB::raw('karyawans.nama, DATE(attendance_scanlogs.scan_date)'), 'ASC');
+                
+                $scanlogs = $query->get();
 
                 $spreadsheet = new Spreadsheet();
 
@@ -502,7 +531,12 @@ class ScanlogController extends Controller
                         $row++;
                     }
                 }
-            } else {
+            } else { // Format 'H'
+                $deviceIdCondition = '';
+                if ($request->device_id != 0) {
+                    $deviceIdCondition = "AND attendance_scanlogs.device_id = " . intval($request->device_id);
+                }
+
                 $scanlogs = DB::select("
                     SELECT
                         s.pin,
@@ -530,8 +564,8 @@ class ScanlogController extends Controller
                             users ON users.id = k.user_id AND users.organisasi_id = $organisasi_id
                         WHERE
                             attendance_scanlogs.organisasi_id = $organisasi_id
-                            AND attendance_scanlogs.device_id = $request->device_id
                             AND DATE(attendance_scanlogs.scan_date) BETWEEN '$request->start_date' AND '$request->end_date'
+                            $deviceIdCondition
                     ) AS s
                     GROUP BY s.pin, DATE(s.scan_date), s.nama, s.ni_karyawan
                     ORDER BY s.nama, DATE(s.scan_date);
@@ -624,7 +658,7 @@ class ScanlogController extends Controller
 
             $writer = new Xlsx($spreadsheet);
 
-            $fileName = 'Scanlog-' . $device->device_name . '-' . $request->start_date . '-' . $request->end_date . '.xlsx';
+            $fileName = 'Scanlog-' . $deviceName . '-' . $request->start_date . '-' . $request->end_date . '.xlsx';
 
             return response()->streamDownload(function () use ($spreadsheet) {
                 $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
