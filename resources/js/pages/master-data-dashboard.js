@@ -342,7 +342,6 @@ $(function () {
       });
     }
 
-<<<<<<< HEAD
 
     // tangguh buka
     function totalDataKaryawanRekap() {
@@ -385,8 +384,6 @@ totalDataKaryawanRekap();
 // tangguh tutup
 
 
-=======
->>>>>>> 48e12d6e2704084eb06af2f6b7647853c5985881
     getDataKaryawan();
     turnoverChart();
     kontrakProgressChart();
