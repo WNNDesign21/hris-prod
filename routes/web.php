@@ -166,8 +166,7 @@ Route::group(['middleware' => ['auth']], function () {
 
     // tangguuh
     Route::get('/master-data/dashboard/get-total-karyawan-rekap', [DashboardController::class, 'getTotalKaryawanRekap']);
-    Route::get('/dashboard/rekap-kontrak', [DashboardController::class, 'rekapKontrak']);
-    Route::get('/dashboard/rekap-wilayah', [DashboardController::class, 'rekapWilayah']);
+    // Route::get('/dashboard/rekap-kontrak', [DashboardController::class, 'rekapKontrak']); // Contoh jika ingin dihapus juga
 
 
     /** MASTER DATA - AJAX */

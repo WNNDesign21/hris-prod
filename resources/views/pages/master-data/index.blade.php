@@ -135,7 +135,30 @@
             </div>
         </div>
     </div>
-    <<<<<<< HEAD {{-- REKAP KONTRAK KARYAWAN --}} <div class="row mt-4">
+    {{-- REKAP KONTRAK & WILAYAH --}}
+    <div class="row mt-4">
+        <div class="col-xl-6 col-12">
+            <div class="box">
+                <div class="box-header with-border">
+                    <h4 class="box-title">Rekap Berdasarkan Kontrak</h4>
+                </div>
+                <div class="box-body">
+                    <div id="rekap-kontrak-chart" style="min-height: 365px;"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-6 col-12">
+            <div class="box">
+                <div class="box-header with-border">
+                    <h4 class="box-title">Rekap Berdasarkan Wilayah</h4>
+                </div>
+                <div class="box-body">
+                    <div id="rekap-wilayah-chart" style="min-height: 365px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {{-- REKAP KONTRAK KARYAWAN --}} <div class="row mt-4 d-none">
         <div class="col-12">
             <div class="box">
                 <div class="box-header with-border d-flex justify-content-between align-items-center">
@@ -180,7 +203,7 @@
         </div>
         </div>
 
-        {{-- REKAP WILAYAH KARYAWAN --}}
+        <!-- {{-- REKAP WILAYAH KARYAWAN --}}
         <div class="row mt-4">
             <div class="col-12">
                 <div class="box">
@@ -229,9 +252,5 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-
-
-
+        </div> -->
 @endsection

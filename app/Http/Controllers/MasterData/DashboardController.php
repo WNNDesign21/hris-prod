@@ -281,40 +281,27 @@ class DashboardController extends Controller
     // tangguuh buka
     public function getTotalKaryawanRekap(Request $request)
     {
+        $query = Karyawan::query();
+
+        // Anda bisa menambahkan filter organisasi jika diperlukan di masa depan
+        // $organisasi_id = auth()->user()->organisasi_id;
+        // if ($organisasi_id) {
+        //     $query->where('organisasi_id', $organisasi_id);
+        // }
+
         $data = [
-            'total_semua' => DB::table('karyawans')->count(),
-            'aktif' => DB::table('karyawans')->where('status_karyawan', 'AT')->count(),
-            'pkwtt' => DB::table('karyawans')->where('jenis_kontrak', 'PKWTT')->count(),
-            'pkwt' => DB::table('karyawans')->where('jenis_kontrak', 'PKWT')->count(),
-            'nonaktif' => DB::table('karyawans')->whereNull('status_karyawan')->count(),
+            'direct_indirect' => $query->clone()->whereNotNull('direct')->orWhereNotNull('indirect')->count(),
+            'pkwtt' => $query->clone()->where('jenis_kontrak', 'PKWTT')->count(),
+            'pkwt' => $query->clone()->where('jenis_kontrak', 'PKWT')->count(),
+            'pk' => $query->clone()->where('jenis_kontrak', 'PENGKARYAAN')->count(),
+            'dalam_karawang' => $query->clone()->whereRaw('LOWER(alamat) LIKE ?', ['%karawang%'])->count(),
+            'luar_karawang' => $query->clone()->whereRaw('LOWER(alamat) NOT LIKE ?', ['%karawang%'])->count(),
+            'dalam_warung_bambu' => $query->clone()->whereRaw('LOWER(alamat) LIKE ?', ['%warung bambu%'])->count(),
+            'luar_warung_bambu' => $query->clone()->whereRaw('LOWER(alamat) NOT LIKE ?', ['%warung bambu%'])->count(),
+            'provinsi' => $query->clone()->whereNotNull('domisili')->distinct(DB::raw("split_part(domisili, ',', -1)"))->count(),
         ];
 
         return response()->json(['data' => $data]);
-    }
-    public function rekapKontrak()
-    {
-        $organisasi_id = auth()->user()->organisasi_id;
-
-        $data = [
-            'pkwtt' => DB::table('karyawan')
-                ->where('organisasi_id', $organisasi_id)
-                ->where('status_karyawan', 'PKWTT')
-                ->count(),
-            'pkwt' => DB::table('karyawan')
-                ->where('organisasi_id', $organisasi_id)
-                ->where('status_karyawan', 'PKWT')
-                ->count(),
-            'pk' => DB::table('karyawan')
-                ->where('organisasi_id', $organisasi_id)
-                ->where('status_karyawan', 'PK')
-                ->count(),
-            'direct_indirect' => DB::table('karyawan')
-                ->where('organisasi_id', $organisasi_id)
-                ->whereIn('tipe', ['Direct', 'Indirect'])
-                ->count(),
-        ];
-
-        return response()->json(['data' => $data], 200);
     }
 
     public function rekapWilayah()

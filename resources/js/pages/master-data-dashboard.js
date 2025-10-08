@@ -342,6 +342,73 @@ $(function () {
       });
     }
 
+    function renderRekapKontrakChart(seriesData) {
+        var options = {
+            series: seriesData,
+            chart: {
+                type: 'donut',
+                height: 350
+            },
+            labels: ['PKWTT', 'PKWT', 'Pengkaryaan'],
+            colors:['#6993ff', '#ff9920', '#04a08b'],
+            responsive: [{
+                breakpoint: 480,
+                options: {
+                    chart: {
+                        width: 200
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }],
+            legend: {
+                position: 'bottom',
+                horizontalAlign: 'center',
+            }
+        };
+
+        // Hancurkan chart lama jika ada untuk mencegah duplikasi
+        if (window.rekapKontrakChart) {
+            window.rekapKontrakChart.destroy();
+        }
+
+        window.rekapKontrakChart = new ApexCharts(document.querySelector("#rekap-kontrak-chart"), options);
+        window.rekapKontrakChart.render();
+    }
+
+    function renderRekapWilayahChart(seriesData) {
+        var options = {
+            series: seriesData,
+            chart: {
+                type: 'donut',
+                height: 350
+            },
+            labels: ['Dalam Karawang', 'Luar Karawang', 'Dalam Warung Bambu', 'Luar Warung Bambu'],
+            colors:['#007bff', '#6c757d'],
+            responsive: [{
+                breakpoint: 480,
+                options: {
+                    chart: {
+                        width: 200
+                    },
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }],
+            legend: {
+                position: 'bottom',
+                horizontalAlign: 'center',
+            }
+        };
+
+        if (window.rekapWilayahChart) {
+            window.rekapWilayahChart.destroy();
+        }
+        window.rekapWilayahChart = new ApexCharts(document.querySelector("#rekap-wilayah-chart"), options);
+        window.rekapWilayahChart.render();
+    }
 
     // tangguh buka
     function totalDataKaryawanRekap() {
@@ -353,6 +420,13 @@ $(function () {
         method: 'GET',
         success: function(response) {
             let data = response.data;
+
+            // Data untuk Chart
+            let kontrakData = [data.pkwtt, data.pkwt, data.pk];
+            let wilayahData = [data.dalam_karawang, data.luar_karawang, data.dalam_warung_bambu, data.luar_warung_bambu];
+            renderRekapKontrakChart(kontrakData);
+            renderRekapWilayahChart(wilayahData);
+
             $('#total_direct_indirect').text(data.direct_indirect);
             $('#total_sinas').text(data.sinas);
             $('#total_desa').text(data.desa);
