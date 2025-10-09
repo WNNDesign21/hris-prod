@@ -13,62 +13,62 @@
 @endsection
 
 @section('content')
-    {{-- JUMLAH DASHBOARD --}}
+    {{-- DASHBOARD MASTER DATA KARYAWAN --}}
     <div class="row">
         <div class="col-12">
             <div class="box no-shadow mb-0 bg-transparent">
                 <div class="box-header no-border px-0">
                     <h4 class="box-title">Dashboard Master Data Karyawan</h4>
-                    {{-- <ul class="box-controls pull-right d-md-flex d-none">
-                        <li>
-                            <button class="btn btn-primary-light px-10">View All</button>
-                        </li>
-                    </ul> --}}
                 </div>
             </div>
         </div>
+
+        {{-- DATA KARYAWAN --}}
         <div class="col-xl-4 col-12">
             <div class="box">
                 <div class="box-header with-border">
-                    <h4 class="box-title">Data Karyawan <br><small>{{ \Carbon\Carbon::now()->format('F Y') }}</small></h4>
+                    <h4 class="box-title">Data Karyawan <br>
+                        <small>{{ \Carbon\Carbon::now()->format('F Y') }}</small>
+                    </h4>
                 </div>
                 <div class="box-body px-0 pt-0">
                     <div class="media-list media-list-hover">
                         <a class="media media-single" href="#">
-                            <h4 class="w-20 text-gray fw-500" id="aktif_karyawan"><i
-                                    class="fas fa-sync-alt fa-spin fs-24"></i></h4>
+                            <h4 class="w-20 text-gray fw-500" id="aktif_karyawan">
+                                <i class="fas fa-sync-alt fa-spin fs-24"></i>
+                            </h4>
                             <div class="media-body ps-15 bs-5 rounded border-success">
                                 <h5>AKTIF</h5>
                             </div>
                         </a>
-
                         <a class="media media-single" href="#">
-                            <h4 class="w-20 text-gray fw-500" id="habis_kontrak_karyawan"><i
-                                    class="fas fa-sync-alt fa-spin fs-24"></i></h4>
+                            <h4 class="w-20 text-gray fw-500" id="habis_kontrak_karyawan">
+                                <i class="fas fa-sync-alt fa-spin fs-24"></i>
+                            </h4>
                             <div class="media-body ps-15 bs-5 rounded border-primary">
                                 <h5>HABIS KONTRAK</h5>
                             </div>
                         </a>
-
                         <a class="media media-single" href="#">
-                            <h4 class="w-20 text-gray fw-500" id="mengundurkan_diri_karyawan"><i
-                                    class="fas fa-sync-alt fa-spin fs-24"></i></h4>
+                            <h4 class="w-20 text-gray fw-500" id="mengundurkan_diri_karyawan">
+                                <i class="fas fa-sync-alt fa-spin fs-24"></i>
+                            </h4>
                             <div class="media-body ps-15 bs-5 rounded border-danger">
                                 <h5>MENGUNDURKAN DIRI</h5>
                             </div>
                         </a>
-
                         <a class="media media-single" href="#">
-                            <h4 class="w-20 text-gray fw-500" id="pensiun_karyawan"><i
-                                    class="fas fa-sync-alt fa-spin fs-24"></i></h4>
+                            <h4 class="w-20 text-gray fw-500" id="pensiun_karyawan">
+                                <i class="fas fa-sync-alt fa-spin fs-24"></i>
+                            </h4>
                             <div class="media-body ps-15 bs-5 rounded border-info">
                                 <h5>PENSIUN</h5>
                             </div>
                         </a>
-
                         <a class="media media-single" href="#">
-                            <h4 class="w-20 text-gray fw-500" id="terminasi_karyawan"><i
-                                    class="fas fa-sync-alt fa-spin fs-24"></i></h4>
+                            <h4 class="w-20 text-gray fw-500" id="terminasi_karyawan">
+                                <i class="fas fa-sync-alt fa-spin fs-24"></i>
+                            </h4>
                             <div class="media-body ps-15 bs-5 rounded border-warning">
                                 <h5>TERMINASI</h5>
                             </div>
@@ -77,32 +77,34 @@
                 </div>
             </div>
         </div>
+
+        {{-- TURNOVER --}}
         <div class="col-xl-8 col-12">
             <div class="box">
                 <div class="box-body">
                     <h3 class="mt-0 mb-5">Turnover Karyawan {{ date('Y') }}</h3>
                     <p class="text-fade">Total Karyawan Keluar : {{ $jumlah_karyawan_keluar }}</p>
                     <div style="min-height: 245px;">
-                        <div id="turnover-chart">
-                        </div>
+                        <div id="turnover-chart"></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-    {{-- GRAFIK DASHBOARD --}}
+
+    {{-- GRAFIK TAMBAHAN --}}
     <div class="row">
         <div class="col-xl-6 col-12">
             <div class="box">
                 <div class="box-body">
                     <h3 class="mt-0 mb-5">Turnover Detail {{ date('Y') }}</h3>
                     <div style="min-height: 198px;">
-                        <div id="turnover-detail-chart">
-                        </div>
+                        <div id="turnover-detail-chart"></div>
                     </div>
                 </div>
             </div>
         </div>
+
         <div class="col-xl-3 col-12">
             <div class="box">
                 <div class="box-header with-border">
@@ -113,19 +115,24 @@
                         <div id="kontrak-progress-chart"></div>
                     </div>
                     <div class="d-flex justify-content-center">
-                        <p class="d-flex align-items-center fw-600 mx-20"><span
-                                class="badge badge-xl badge-dot badge-warning me-20"></span> On Progress
+                        <p class="d-flex align-items-center fw-600 mx-20">
+                            <span class="badge badge-xl badge-dot badge-warning me-20"></span> On Progress
                         </p>
-                        <p class="d-flex align-items-center fw-600 mx-20"><span
-                                class="badge badge-xl badge-dot badge-primary me-20"></span> Done</p>
+                        <p class="d-flex align-items-center fw-600 mx-20">
+                            <span class="badge badge-xl badge-dot badge-primary me-20"></span> Done
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
+
         <div class="col-xl-3 col-12 mb-4">
             <div class="box">
                 <div class="box-header with-border">
-                    <h4 class="box-title">Total Data by Status <br><small>2017 - {{ date('Y') }}</small></h4>
+                    <h4 class="box-title">
+                        Total Data by Status <br>
+                        <small>2017 - {{ date('Y') }}</small>
+                    </h4>
                 </div>
                 <div class="box-body">
                     <div style="min-height: 198px;">
@@ -135,35 +142,24 @@
             </div>
         </div>
     </div>
-    {{-- REKAP KONTRAK & WILAYAH --}}
+
+    {{-- REKAP BERDASARKAN KONTRAK --}}
     <div class="row mt-4">
-        <div class="col-xl-6 col-12">
-            <div class="box">
-                <div class="box-header with-border">
-                    <h4 class="box-title">Rekap Berdasarkan Kontrak</h4>
-                </div>
-                <div class="box-body">
-                    <div id="rekap-kontrak-chart" style="min-height: 365px;"></div>
-                </div>
-            </div>
-        </div>
-        <div class="col-xl-6 col-12">
-            <div class="box">
-                <div class="box-header with-border">
-                    <h4 class="box-title">Rekap Berdasarkan Wilayah</h4>
-                </div>
-                <div class="box-body">
-                    <div id="rekap-wilayah-chart" style="min-height: 365px;"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-    {{-- REKAP KONTRAK KARYAWAN --}} <div class="row mt-4 d-none">
         <div class="col-12">
             <div class="box">
                 <div class="box-header with-border d-flex justify-content-between align-items-center">
                     <h4 class="box-title">Rekap Berdasarkan Kontrak</h4>
+                    <div>
+                        <select id="filter-kontrak" class="form-select form-select-sm">
+                            <option value="all">All</option>
+                            <option value="organisasi">By Organisasi</option>
+                            <option value="divisi">By Divisi</option>
+                            <option value="dept">By Dept</option>
+                            <option value="seksis">By Seksis</option>
+                        </select>
+                    </div>
                 </div>
+
                 <div class="box-body">
                     <div class="table-responsive">
                         <table class="table table-bordered">
@@ -182,75 +178,115 @@
                                 </tr>
                                 <tr>
                                     <td>2</td>
+                                    <td>Total Karyawan Sinas</td>
+                                    <td id="total_sinas"><i class="fas fa-sync-alt fa-spin"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
                                     <td>Total Karyawan PKWTT</td>
                                     <td id="total_pkwtt"><i class="fas fa-sync-alt fa-spin"></i></td>
                                 </tr>
                                 <tr>
-                                    <td>3</td>
+                                    <td>4</td>
                                     <td>Total Karyawan PKWT</td>
                                     <td id="total_pkwt"><i class="fas fa-sync-alt fa-spin"></i></td>
                                 </tr>
                                 <tr>
-                                    <td>4</td>
+                                    <td>5</td>
                                     <td>Total Karyawan PK</td>
                                     <td id="total_pk"><i class="fas fa-sync-alt fa-spin"></i></td>
                                 </tr>
                             </tbody>
                         </table>
                     </div>
-                </div>
-            </div>
-        </div>
-        </div>
 
-        <!-- {{-- REKAP WILAYAH KARYAWAN --}}
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="box">
-                    <div class="box-header with-border d-flex justify-content-between align-items-center">
-                        <h4 class="box-title">Rekap Berdasarkan Wilayah</h4>
-                    </div>
-                    <div class="box-body">
-                        <div class="table-responsive">
-                            <table class="table table-bordered">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>No</th>
-                                        <th>Keterangan</th>
-                                        <th>Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tabel-rekap-wilayah">
-                                    <tr>
-                                        <td>1</td>
-                                        <td>Total Karyawan Dalam Karawang</td>
-                                        <td id="total_dalam_krw"><i class="fas fa-sync-alt fa-spin"></i></td>
-                                    </tr>
-                                    <tr>
-                                        <td>2</td>
-                                        <td>Total Karyawan Luar Karawang</td>
-                                        <td id="total_luar_krw"><i class="fas fa-sync-alt fa-spin"></i></td>
-                                    </tr>
-                                    <tr>
-                                        <td>3</td>
-                                        <td>Total Karyawan Dalam Desa Warung Bambu</td>
-                                        <td id="total_dalam_wb"><i class="fas fa-sync-alt fa-spin"></i></td>
-                                    </tr>
-                                    <tr>
-                                        <td>4</td>
-                                        <td>Total Karyawan Luar Desa Warung Bambu</td>
-                                        <td id="total_luar_wb"><i class="fas fa-sync-alt fa-spin"></i></td>
-                                    </tr>
-                                    <tr>
-                                        <td>5</td>
-                                        <td>Total Provinsi Asal Karyawan</td>
-                                        <td id="total_provinsi"><i class="fas fa-sync-alt fa-spin"></i></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div class="mt-4">
+                        <h5 class="text-center mb-2">Grafik Rekap Berdasarkan Kontrak</h5>
+                        <div id="rekap-kontrak-chart" style="min-height: 350px;"></div>
                     </div>
                 </div>
             </div>
-        </div> -->
+        </div>
+    </div>
+
+    {{-- REKAP BERDASARKAN WILAYAH --}}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="box">
+                <div class="box-header with-border d-flex justify-content-between align-items-center">
+                    <h4 class="box-title">Rekap Berdasarkan Wilayah</h4>
+                    <div>
+                        <select id="filter-wilayah" class="form-select form-select-sm">
+                            <option value="all">All</option>
+                            <option value="organisasi">By Organisasi</option>
+                            <option value="divisi">By Divisi</option>
+                            <option value="dept">By Dept</option>
+                            <option value="seksis">By Seksis</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="box-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Keterangan</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabel-rekap-wilayah">
+                                <tr>
+                                    <td>1</td>
+                                    <td>Total Karyawan dari Desa</td>
+                                    <td id="total_desa"><i class="fas fa-sync-alt fa-spin"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>2</td>
+                                    <td>Total Karyawan dari Kec.</td>
+                                    <td id="total_kec"><i class="fas fa-sync-alt fa-spin"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>3</td>
+                                    <td>Total Karyawan dari Kab.</td>
+                                    <td id="total_kab"><i class="fas fa-sync-alt fa-spin"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>4</td>
+                                    <td>Total Karyawan dari Prov.</td>
+                                    <td id="total_prov"><i class="fas fa-sync-alt fa-spin"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>5</td>
+                                    <td>Total Karyawan Dalam Karawang</td>
+                                    <td id="total_dalam_krw"><i class="fas fa-sync-alt fa-spin"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>6</td>
+                                    <td>Total Karyawan Luar Karawang</td>
+                                    <td id="total_luar_krw"><i class="fas fa-sync-alt fa-spin"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>7</td>
+                                    <td>Total Karyawan Dalam Desa Warung Bambu</td>
+                                    <td id="total_dalam_wb"><i class="fas fa-sync-alt fa-spin"></i></td>
+                                </tr>
+                                <tr>
+                                    <td>8</td>
+                                    <td>Total Karyawan Luar Desa Warung Bambu</td>
+                                    <td id="total_luar_wb"><i class="fas fa-sync-alt fa-spin"></i></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-4">
+                        <h5 class="text-center mb-2">Grafik Rekap Berdasarkan Wilayah</h5>
+                        <div id="rekap-wilayah-chart" style="min-height: 350px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
