@@ -342,237 +342,79 @@ $(function () {
       });
     }
 
-  // === Render Chart Rekap Kontrak (5 bar vertikal) ===
-function renderRekapKontrakChart(seriesData) {
-    const total = seriesData.reduce((a, b) => a + b, 0);
+function rekapDesaTable() {
+  let url = base_url + '/master-data/dashboard/rekap-desa';
 
-    const options = {
-        series: [{
-            name: 'Jumlah Karyawan',
-            data: seriesData
-        }],
-        chart: {
-            type: 'bar',
-            height: 400,
-            toolbar: { show: false },
-            animations: { enabled: true, easing: 'easeinout', speed: 800 }
-        },
-        title: {
-            text: 'Grafik Rekap Berdasarkan Kontrak',
-            align: 'center',
-            style: { fontSize: '16px', fontWeight: 'bold' }
-        },
-        plotOptions: {
-            bar: {
-                horizontal: false,
-                columnWidth: '55%',
-                borderRadius: 10,
-                dataLabels: { position: 'top' }
-            }
-        },
-        dataLabels: {
-            enabled: true,
-            formatter: (val, opts) => {
-                const value = opts.w.config.series[0].data[opts.dataPointIndex];
-                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                return `${value} (${percentage}%)`;
-            },
-            offsetY: -20,
-            style: { fontSize: '12px', colors: ['#333'] }
-        },
-        xaxis: {
-            categories: [
-                'Direct/Indirect',
-                'Sinas',
-                'PKWTT',
-                'PKWT',
-                'PK'
-            ],
-            labels: { style: { fontSize: '13px', colors: '#333' } },
-            title: { text: 'Kategori Kontrak', style: { fontWeight: 'bold' } }
-        },
-        yaxis: {
-            title: { text: 'Jumlah Karyawan', style: { fontWeight: 'bold' } },
-            labels: { formatter: val => Math.round(val) }
-        },
-        colors: ['#008FFB', '#FEB019', '#00E396', '#775DD0', '#FF4560'],
-        grid: {
-            borderColor: '#e0e0e0',
-            row: { colors: ['#f9f9f9', 'transparent'], opacity: 0.5 }
-        },
-        tooltip: {
-            y: {
-                formatter: val => {
-                    const percentage = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
-                    return `${val} Orang (${percentage}%)`;
-                }
-            }
-        },
-        legend: { show: false }
-    };
+  $.ajax({
+    url: url,
+    method: 'GET',
+    success: function (response) {
+      const data = response.data;
+      let html = '';
+      let no = 1;
 
-    if (window.rekapKontrakChart) window.rekapKontrakChart.destroy();
+      if (data.length > 0) {
+        data.forEach(item => {
+          html += `
+            <tr>
+      
+              <td>${item.desa}</td>
+              <td>${item.total}</td>
+            </tr>
+          `;
+        });
+      } else {
+        html = `<tr><td colspan="3" class="text-center">Tidak ada data</td></tr>`;
+      }
+      $('#tabel-rekap-desa').html(html);
 
-    window.rekapKontrakChart = new ApexCharts(
-        document.querySelector("#rekap-kontrak-chart"),
-        options
-    );
-    window.rekapKontrakChart.render();
+    },
+    error: function (xhr) {
+      console.error('Gagal memuat data desa:', xhr);
+    }
+  });
 }
 
+function rekapKecamatanTable() {
+  let url = base_url + '/master-data/dashboard/rekap-kecamatan';
 
+  $.ajax({
+    url: url,
+    method: 'GET',
+    success: function (response) {
+      const data = response.data;
+      let html = '';
+      let no = 1;
 
-// === Render Chart Rekap Wilayah (8 bar vertikal) ===
-function renderRekapWilayahChart(seriesData) {
-    const total = seriesData.reduce((a, b) => a + b, 0);
+      if (data.length > 0) {
+        data.forEach(item => {
+          html += `
+            <tr>
+         
+              <td>${item.kecamatan}</td>
+              <td>${item.total}</td>
+            </tr>
+          `;
+        });
+      } else {
+        html = `<tr><td colspan="3" class="text-center">Tidak ada data</td></tr>`;
+      }
 
-    const options = {
-        series: [{
-            name: 'Jumlah Karyawan',
-            data: seriesData
-        }],
-        chart: {
-            type: 'bar',
-            height: 450,
-            toolbar: { show: false },
-            animations: { enabled: true, easing: 'easeinout', speed: 800 }
-        },
-        title: {
-            text: 'Grafik Rekap Berdasarkan Wilayah',
-            align: 'center',
-            style: { fontSize: '16px', fontWeight: 'bold' }
-        },
-        plotOptions: {
-            bar: {
-                horizontal: false,
-                columnWidth: '55%',
-                borderRadius: 10,
-                dataLabels: { position: 'top' }
-            }
-        },
-        dataLabels: {
-            enabled: true,
-            formatter: (val, opts) => {
-                const value = opts.w.config.series[0].data[opts.dataPointIndex];
-                const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-                return `${value} (${percentage}%)`;
-            },
-            offsetY: -20,
-            style: { fontSize: '12px', colors: ['#333'] }
-        },
-        xaxis: {
-            categories: [
-                'Dari Desa',
-                'Dari Kec.',
-                'Dari Kab.',
-                'Dari Prov.',
-                'Dalam Karawang',
-                'Luar Karawang',
-                'Dalam Warung Bambu',
-                'Luar Warung Bambu'
-            ],
-            labels: { style: { fontSize: '13px', colors: '#333' } },
-            title: { text: 'Wilayah Asal Karyawan', style: { fontWeight: 'bold' } }
-        },
-        yaxis: {
-            title: { text: 'Jumlah Karyawan', style: { fontWeight: 'bold' } },
-            labels: { formatter: val => Math.round(val) }
-        },
-        colors: ['#008FFB', '#00E396', '#FEB019', '#775DD0', '#FF4560', '#26A69A', '#FF9800', '#546E7A'],
-        grid: {
-            borderColor: '#e0e0e0',
-            row: { colors: ['#f9f9f9', 'transparent'], opacity: 0.5 }
-        },
-        tooltip: {
-            y: {
-                formatter: val => {
-                    const percentage = total > 0 ? ((val / total) * 100).toFixed(1) : 0;
-                    return `${val} Orang (${percentage}%)`;
-                }
-            }
-        },
-        legend: { show: false }
-    };
+      $('#tabel-rekap-kecamatan').html(html);
 
-    if (window.rekapWilayahChart) window.rekapWilayahChart.destroy();
-
-    window.rekapWilayahChart = new ApexCharts(
-        document.querySelector("#rekap-wilayah-chart"),
-        options
-    );
-    window.rekapWilayahChart.render();
+    },
+    error: function (xhr) {
+      console.error('Gagal memuat data kecamatan:', xhr);
+    }
+  });
 }
 
+//tangguh
+  rekapDesaTable();
+  rekapKecamatanTable();
+ //end tangguh 
+  
 
-
-// === Fetch Data dari Controller dan Render Tabel + Chart ===
-function totalDataKaryawanRekap() {
-    const filter = $('#filter_tingkat').val() || 'all';
-    const url = base_url + '/master-data/dashboard/get-total-karyawan-rekap?filter=' + filter;
-
-    $.ajax({
-        url: url,
-        method: 'GET',
-        success: function (response) {
-            const data = response.data;
-
-            // Data untuk Chart Kontrak (5 bar)
-            const kontrakData = [
-                data.direct_indirect || 0,
-                data.sinas || 0,
-                data.pkwtt || 0,
-                data.pkwt || 0,
-                data.pk || 0
-            ];
-
-            // Data untuk Chart Wilayah (8 bar)
-            const wilayahData = [
-                data.desa || 0,
-                data.kecamatan || 0,
-                data.kabupaten || 0,
-                data.provinsi || 0,
-                data.dalam_karawang || 0,
-                data.luar_karawang || 0,
-                data.dalam_warung_bambu || 0,
-                data.luar_warung_bambu || 0
-            ];
-
-            // Render Chart
-            renderRekapKontrakChart(kontrakData);
-            renderRekapWilayahChart(wilayahData);
-
-            // Update tabel
-            $('#total_direct_indirect').text(data.direct_indirect || 0);
-            $('#total_sinas').text(data.sinas || '-');
-            $('#total_desa').text(data.desa || '-');
-            $('#total_kec').text(data.kecamatan || '-');
-            $('#total_kab').text(data.kabupaten || '-');
-            $('#total_prov').text(data.provinsi || 0);
-            $('#total_pkwtt').text(data.pkwtt || 0);
-            $('#total_pkwt').text(data.pkwt || 0);
-            $('#total_pk').text(data.pk || 0);
-            $('#total_dalam_krw').text(data.dalam_karawang || 0);
-            $('#total_luar_krw').text(data.luar_karawang || 0);
-            $('#total_dalam_wb').text(data.dalam_warung_bambu || 0);
-            $('#total_luar_wb').text(data.luar_warung_bambu || 0);
-        },
-        error: function (error) {
-            console.error('Error fetching data:', error);
-        }
-    });
-}
-
-
-// === Event Filter ===
-$('#filter_tingkat').on('change', function () {
-    totalDataKaryawanRekap();
-});
-
-
-// === Load Awal ===
-$(document).ready(function () {
-    totalDataKaryawanRekap();
-});
 
     getDataKaryawan();
     turnoverChart();

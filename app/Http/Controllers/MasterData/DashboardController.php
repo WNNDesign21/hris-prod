@@ -279,53 +279,95 @@ class DashboardController extends Controller
 
 
     // tangguuh buka
-    public function getTotalKaryawanRekap(Request $request)
+   
+    private function pisahkanAlamat($alamat_string)
     {
-        $query = Karyawan::query();
+        $pattern = '/(DS\.|KEL\.)\s*(?<desa>[^,]+),?\s*' .
+            '(KEC\.)?\s*(?<kecamatan>[^,]*)?,?\s*' .
+            '(KAB\.|KOTA)?\s*(?<kabupaten>[^,]*)?,?\s*' .
+            '(?<provinsi>[^0-9,]*)?\s*(?<kodepos>\d{5})?/i';
 
-        // Anda bisa menambahkan filter organisasi jika diperlukan di masa depan
-        // $organisasi_id = auth()->user()->organisasi_id;
-        // if ($organisasi_id) {
-        //     $query->where('organisasi_id', $organisasi_id);
-        // }
-
-        $data = [
-            'direct_indirect' => $query->clone()->whereNotNull('direct')->orWhereNotNull('indirect')->count(),
-            'pkwtt' => $query->clone()->where('jenis_kontrak', 'PKWTT')->count(),
-            'pkwt' => $query->clone()->where('jenis_kontrak', 'PKWT')->count(),
-            'pk' => $query->clone()->where('jenis_kontrak', 'PENGKARYAAN')->count(),
-            'dalam_karawang' => $query->clone()->whereRaw('LOWER(alamat) LIKE ?', ['%karawang%'])->count(),
-            'luar_karawang' => $query->clone()->whereRaw('LOWER(alamat) NOT LIKE ?', ['%karawang%'])->count(),
-            'dalam_warung_bambu' => $query->clone()->whereRaw('LOWER(alamat) LIKE ?', ['%warung bambu%'])->count(),
-            'luar_warung_bambu' => $query->clone()->whereRaw('LOWER(alamat) NOT LIKE ?', ['%warung bambu%'])->count(),
-            'provinsi' => $query->clone()->whereNotNull('domisili')->distinct(DB::raw("split_part(domisili, ',', -1)"))->count(),
+        $hasil = [
+            'desa' => '',
+            'kecamatan' => '',
+            'kabupaten' => '',
+            'provinsi' => '',
+            'kodepos' => '',
         ];
 
-        return response()->json(['data' => $data]);
+        if (preg_match($pattern, strtoupper($alamat_string), $matches)) {
+            $hasil['desa'] = trim($matches['desa'] ?? '');
+            $hasil['kecamatan'] = trim($matches['kecamatan'] ?? '');
+            $hasil['kabupaten'] = trim($matches['kabupaten'] ?? '');
+            $hasil['provinsi'] = trim($matches['provinsi'] ?? '');
+            $hasil['kodepos'] = trim($matches['kodepos'] ?? '');
+        }
+
+        // Fallback jika tidak ditemukan pola regex "KEC."
+        if (empty($hasil['kecamatan'])) {
+            $parts = explode(',', $alamat_string);
+            if (count($parts) >= 2) {
+                $hasil['kecamatan'] = trim($parts[1]);
+            }
+        }
+
+        return $hasil;
     }
 
-    public function rekapWilayah()
-    {
-        $data = [
-            'dalam_karawang' => DB::table('karyawans')
-                ->whereRaw('LOWER(alamat) LIKE ?', ['%karawang%'])
-                ->count(),
-            'luar_karawang' => DB::table('karyawans')
-                ->whereRaw('LOWER(alamat) NOT LIKE ?', ['%karawang%'])
-                ->count(),
-            'dalam_warung_bambu' => DB::table('karyawans')
-                ->whereRaw('LOWER(alamat) LIKE ?', ['%warung bambu%'])
-                ->count(),
-            'luar_warung_bambu' => DB::table('karyawans')
-                ->whereRaw('LOWER(alamat) NOT LIKE ?', ['%warung bambu%'])
-                ->count(),
-            'provinsi' => DB::table('karyawans')
-                ->whereNotNull('provinsi')
-                ->distinct('provinsi')
-                ->count(),
-        ];
 
-        return response()->json(['data' => $data], 200);
+    public function rekapDesa()
+    {
+        $organisasi_id = auth()->user()->organisasi_id;
+
+        // Ambil semua domisili dari tabel karyawans
+        $karyawans = DB::table('karyawans')
+            ->select('domisili')
+            ->where('organisasi_id', $organisasi_id)
+            ->whereNotNull('domisili')
+            ->get();
+
+        // Gunakan Laravel Collection untuk memproses
+        $rekap = collect($karyawans)
+            ->map(function ($karyawan) {
+                $hasil = $this->pisahkanAlamat($karyawan->domisili);
+                return strtoupper($hasil['desa']); // hanya ambil nama desa
+            })
+            ->filter() // hapus kosong/null
+            ->countBy() // hitung jumlah masing-masing desa
+            ->map(function ($count, $desa) {
+                return ['desa' => $desa, 'total' => $count];
+            })
+            ->values();
+
+        return response()->json(['data' => $rekap], 200);
+    }
+
+    public function rekapKecamatan()
+    {
+        $organisasi_id = auth()->user()->organisasi_id;
+
+        // Ambil semua domisili dari tabel karyawans
+       $karyawans = DB::table('karyawans')
+    ->select('domisili')
+    ->where('organisasi_id', $organisasi_id)
+    ->whereNotNull('domisili')
+    ->get();
+
+
+        // Gunakan Laravel Collection untuk memproses
+        $rekap = collect($karyawans)
+            ->map(function ($karyawan) {
+                $hasil = $this->pisahkanAlamat($karyawan->domisili);
+                return strtoupper($hasil['kecamatan']); // hanya ambil nama kecamatan
+            })
+            ->filter() // hapus kosong/null
+            ->countBy() // hitung jumlah masing-masing kecamatan
+            ->map(function ($count, $kecamatan) {
+                return ['kecamatan' => $kecamatan, 'total' => $count];
+            })
+            ->values();
+
+        return response()->json(['data' => $rekap], 200);
     }
     // tangguuh tutup
 
