@@ -156,7 +156,7 @@
                         <table class="table table-bordered">
                             <thead class="table-light">
                                 <tr>
-                                    <!-- <th>No</th> -->
+                                    <th>No</th>
                                     <th>Desa/Kerlurahan</th>
                                     <th>Total</th>
                                 </tr>
@@ -180,7 +180,7 @@
                         <table class="table table-bordered">
                             <thead class="table-light">
                                 <tr>
-                                    <!-- <th>No</th> -->
+                                    <th>No</th>
                                     <th>Kecamatan</th>
                                     <th>Total</th>
                                 </tr>

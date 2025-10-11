@@ -357,7 +357,7 @@ function rekapDesaTable() {
         data.forEach(item => {
           html += `
             <tr>
-      
+              <td>${no++}</td>
               <td>${item.desa}</td>
               <td>${item.total}</td>
             </tr>
@@ -390,7 +390,7 @@ function rekapKecamatanTable() {
         data.forEach(item => {
           html += `
             <tr>
-         
+              <td>${no++}</td>
               <td>${item.kecamatan}</td>
               <td>${item.total}</td>
             </tr>
