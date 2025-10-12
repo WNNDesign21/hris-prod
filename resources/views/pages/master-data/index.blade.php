@@ -149,6 +149,15 @@
             <div class="box">
                 <div class="box-header with-border d-flex justify-content-between align-items-center">
                     <h4 class="box-title">Desa</h4>
+                    <div>
+                        <select id="filter-kontrak" class="form-select form-select-sm">
+                            <option value="all">All</option>
+                            <!-- <option value="organisasi">By Organisasi</option>
+                                                    <option value="divisi">By Divisi</option>
+                                                    <option value="dept">By Dept</option>
+                                                    <option value="seksis">By Seksis</option> -->
+                        </select>
+                    </div>
                 </div>
 
                 <div class="box-body">
@@ -166,13 +175,19 @@
                         </table>
                     </div>
                 </div>
-
-
-
             </div>
             <div class="box">
                 <div class="box-header with-border d-flex justify-content-between align-items-center">
                     <h4 class="box-title">Kecamatan</h4>
+                    <div>
+                        <select id="filter-kontrak" class="form-select form-select-sm">
+                            <option value="all">All</option>
+                            <!-- <option value="organisasi">By Organisasi</option>
+                                                    <option value="divisi">By Divisi</option>
+                                                    <option value="dept">By Dept</option>
+                                                    <option value="seksis">By Seksis</option> -->
+                        </select>
+                    </div>
                 </div>
 
                 <div class="box-body">
@@ -190,10 +205,153 @@
                         </table>
                     </div>
                 </div>
+                <div class="box">
+                    <div class="box-header with-border d-flex justify-content-between align-items-center">
+                        <h4 class="box-title">Kabupaten</h4>
+                        <div>
+                            <select id="filter-kontrak" class="form-select form-select-sm">
+                                <option value="all">All</option>
+                                <!-- <option value="organisasi">By Organisasi</option>
+                                                    <option value="divisi">By Divisi</option>
+                                                    <option value="dept">By Dept</option>
+                                                    <option value="seksis">By Seksis</option> -->
+                            </select>
+                        </div>
+                    </div>
 
+                    <div class="box-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Kabupaten</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabel-rekap-kabupaten">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="box">
+                    <div class="box-header with-border d-flex justify-content-between align-items-center">
+                        <h4 class="box-title">Provinsi</h4>
+                        <div>
+                            <select id="filter-kontrak" class="form-select form-select-sm">
+                                <option value="all">All</option>
+                                <!-- <option value="organisasi">By Organisasi</option>
+                                                    <option value="divisi">By Divisi</option>
+                                                    <option value="dept">By Dept</option>
+                                                    <option value="seksis">By Seksis</option> -->
+                            </select>
+                        </div>
+                    </div>
 
+                    <div class="box-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>No</th>
+                                        <th>Provinsi</th>
+                                        <th>Total</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tabel-rekap-provinsi">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                {{-- REKAP WILAYAH KARAWANG --}}
+                <div class="row mt-4">
+                    <div class="col-6">
+                        <div class="box">
+                            <div class="box-header with-border d-flex justify-content-between align-items-center">
+                                <h4 class="box-title">Dalam Karawang</h4>
+                            </div>
+                            <div class="box-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered datatable" id="tabel-dalam-karawang">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Alamat</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6">
+                        <div class="box">
+                            <div class="box-header with-border d-flex justify-content-between align-items-center">
+                                <h4 class="box-title">Luar Karawang</h4>
+                            </div>
+                            <div class="box-body">
+                                <div class="table-responsive">
+                                    <table class="table table-bordered datatable" id="tabel-luar-karawang">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Alamat</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
             </div>
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="box">
+                        <div class="box-header with-border d-flex justify-content-between align-items-center">
+                            <h4 class="box-title">Rekap Karyawan Berdasarkan Kontrak</h4>
+                            <div>
+                                <select id="filter-kontrak" class="form-select form-select-sm">
+                                    <option value="all">All</option>
+                                    <!-- <option value="organisasi">By Organisasi</option>
+                                                    <option value="divisi">By Divisi</option>
+                                                    <option value="dept">By Dept</option>
+                                                    <option value="seksis">By Seksis</option> -->
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="box-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Keterangan</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabel-rekap-kontrak">
+
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="mt-4">
+                                <h5 class="text-center mb-2">Grafik Rekap Berdasarkan Kontrak</h5>
+                                <div id="rekap-kontrak-chart" style="min-height: 350px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
 

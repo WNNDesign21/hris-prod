@@ -279,7 +279,7 @@ class DashboardController extends Controller
 
 
     // tangguuh buka
-   
+
     private function pisahkanAlamat($alamat_string)
     {
         $pattern = '/(DS\.|KEL\.)\s*(?<desa>[^,]+),?\s*' .
@@ -347,11 +347,11 @@ class DashboardController extends Controller
         $organisasi_id = auth()->user()->organisasi_id;
 
         // Ambil semua domisili dari tabel karyawans
-       $karyawans = DB::table('karyawans')
-    ->select('domisili')
-    ->where('organisasi_id', $organisasi_id)
-    ->whereNotNull('domisili')
-    ->get();
+        $karyawans = DB::table('karyawans')
+            ->select('domisili')
+            ->where('organisasi_id', $organisasi_id)
+            ->whereNotNull('domisili')
+            ->get();
 
 
         // Gunakan Laravel Collection untuk memproses
@@ -369,6 +369,133 @@ class DashboardController extends Controller
 
         return response()->json(['data' => $rekap], 200);
     }
+
+    public function rekapKabupaten()
+    {
+        $organisasi_id = auth()->user()->organisasi_id;
+
+        // Ambil semua domisili dari tabel karyawans
+        $karyawans = DB::table('karyawans')
+            ->select('domisili')
+            ->where('organisasi_id', $organisasi_id)
+            ->whereNotNull('domisili')
+            ->get();
+        // Gunakan Laravel Collection untuk memproses
+        $rekap = collect($karyawans)
+            ->map(function ($karyawan) {
+                $hasil = $this->pisahkanAlamat($karyawan->domisili);
+                return strtoupper($hasil['kabupaten']); // hanya ambil nama kabupaten
+            })
+            ->filter() // hapus kosong/null
+            ->countBy() // hitung jumlah masing-masing kabupaten
+            ->map(function ($count, $kabupaten) {
+                return ['kabupaten' => $kabupaten, 'total' => $count];
+            })
+            ->values();
+
+        return response()->json(['data' => $rekap], 200);
+    }
+
+    public function rekapProvinsi()
+    {
+        $organisasi_id = auth()->user()->organisasi_id;
+
+        // Ambil semua domisili dari tabel karyawans
+        $karyawans = DB::table('karyawans')
+            ->select('domisili')
+            ->where('organisasi_id', $organisasi_id)
+            ->whereNotNull('domisili')
+            ->get();
+        // Gunakan Laravel Collection untuk memproses
+        $rekap = collect($karyawans)
+            ->map(function ($karyawan) {
+                $hasil = $this->pisahkanAlamat($karyawan->domisili);
+                return strtoupper($hasil['provinsi']); // hanya ambil nama provinsi
+            })
+            ->filter() // hapus kosong/null
+            ->countBy() // hitung jumlah masing-masing provinsi
+            ->map(function ($count, $provinsi) {
+                return ['provinsi' => $provinsi, 'total' => $count];
+            })
+            ->values();
+        return response()->json(['data' => $rekap], 200);
+    }
+    public function rekapKarawang()
+    {
+        $organisasi_id = auth()->user()->organisasi_id;
+
+        $dalamKarawang = DB::table('karyawans')
+            ->select(DB::raw('UPPER(TRIM(alamat)) as alamat'))
+            ->where('organisasi_id', $organisasi_id)
+            ->whereNotNull('alamat')
+            ->whereRaw('LOWER(alamat) LIKE ?', ['%karawang%'])
+            ->get();
+
+        $luarKarawang = DB::table('karyawans')
+            ->select(DB::raw('UPPER(TRIM(alamat)) as alamat'))
+            ->where('organisasi_id', $organisasi_id)
+            ->whereNotNull('alamat')
+            ->whereRaw('LOWER(alamat) NOT LIKE ?', ['%karawang%'])
+            ->get();
+
+        return response()->json([
+            'dalam' => $dalamKarawang,
+            'luar' => $luarKarawang
+        ], 200);
+    }
+
+
+    public function rekapKontrak(Request $request)
+    {
+        $filter = $request->get('filter', 'all');
+        $organisasi_id = auth()->user()->organisasi_id;
+
+        $query = DB::table('karyawans')
+            ->select(
+                DB::raw("jenis_kontrak"),
+                DB::raw("COUNT(*) as total")
+            )
+            ->whereNotNull('jenis_kontrak');
+
+        // === Filter berdasarkan pilihan ===
+        switch ($filter) {
+            case 'organisasi':
+                $query->where('organisasi_id', $organisasi_id);
+                break;
+            case 'divisi':
+                if ($request->has('divisi_id')) {
+                    $query->where('divisi_id', $request->divisi_id);
+                }
+                break;
+            case 'dept':
+                if ($request->has('dept_id')) {
+                    $query->where('dept_id', $request->dept_id);
+                }
+                break;
+            case 'seksis':
+                if ($request->has('seksis_id')) {
+                    $query->where('seksis_id', $request->seksis_id);
+                }
+                break;
+            default:
+                // All → tidak filter apapun
+                break;
+        }
+
+        $data = $query->groupBy('jenis_kontrak')
+            ->orderBy('jenis_kontrak', 'asc')
+            ->get();
+
+        // Pastikan urutan tetap: PKWTT, PKWT, PK
+        $result = collect([
+            ['keterangan' => 'Total Karyawan PKWTT', 'total' => $data->where('jenis_kontrak', 'PKWTT')->sum('total')],
+            ['keterangan' => 'Total Karyawan PKWT', 'total' => $data->where('jenis_kontrak', 'PKWT')->sum('total')],
+            ['keterangan' => 'Total Karyawan PK', 'total' => $data->where('jenis_kontrak', 'PK')->sum('total')],
+        ]);
+
+        return response()->json(['data' => $result], 200);
+    }
+
     // tangguuh tutup
 
 }

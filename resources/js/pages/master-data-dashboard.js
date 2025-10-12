@@ -408,10 +408,219 @@ function rekapKecamatanTable() {
     }
   });
 }
+function rekapKabupatenTable() {
+  let url = base_url + '/master-data/dashboard/rekap-kabupaten';
+
+  $.ajax({
+    url: url,
+    method: 'GET',
+    success: function (response) {
+      const data = response.data;
+      let html = '';
+      let no = 1;
+
+      if (data.length > 0) {
+        data.forEach(item => {
+          html += `
+            <tr>
+              <td>${no++}</td>
+              <td>${item.kabupaten}</td>
+              <td>${item.total}</td>
+            </tr>
+          `;
+        });
+      } else {
+        html = `<tr><td colspan="3" class="text-center">Tidak ada data</td></tr>`;
+      }
+
+      $('#tabel-rekap-kabupaten').html(html);
+
+    },
+    error: function (xhr) {
+      console.error('Gagal memuat data kabupaten:', xhr);
+    }
+  });
+}
+function rekapProvinsiTable() {
+  let url = base_url + '/master-data/dashboard/rekap-provinsi';
+
+  $.ajax({
+    url: url,
+    method: 'GET',
+    success: function (response) {
+      const data = response.data;
+      let html = '';
+      let no = 1;
+
+      if (data.length > 0) {
+        data.forEach(item => {
+          html += `
+            <tr>
+              <td>${no++}</td>
+              <td>${item.provinsi}</td>
+              <td>${item.total}</td>
+            </tr>
+          `;
+        });
+      } else {
+        html = `<tr><td colspan="3" class="text-center">Tidak ada data</td></tr>`;
+      }
+
+      $('#tabel-rekap-provinsi').html(html);
+
+    },
+    error: function (xhr) {
+      console.error('Gagal memuat data provinsi:', xhr);
+    }
+  });
+}
+function rekapKarawangTable() {
+  let url = base_url + '/master-data/dashboard/rekap-karawang';
+  $.ajax({
+    url: url,
+    method: 'GET',
+    success: function(response) {
+      const dalam = response.dalam;
+      const luar = response.luar;
+
+      // === Dalam Karawang ===
+      let htmlDalam = '';
+      let noDalam = 1;
+      if (dalam.length > 0) {
+        dalam.forEach(item => {
+          htmlDalam += `
+            <tr>
+              <td>${noDalam++}</td>
+              <td>${item.alamat}</td>
+            </tr>`;
+        });
+      } else {
+        htmlDalam = `<tr><td colspan="2" class="text-center">Tidak ada data</td></tr>`;
+      }
+      $('#tabel-dalam-karawang tbody').html(htmlDalam);
+
+      // === Luar Karawang ===
+      let htmlLuar = '';
+      let noLuar = 1;
+      if (luar.length > 0) {
+        luar.forEach(item => {
+          htmlLuar += `
+            <tr>
+              <td>${noLuar++}</td>
+              <td>${item.alamat}</td>
+            </tr>`;
+        });
+      } else {
+        htmlLuar = `<tr><td colspan="2" class="text-center">Tidak ada data</td></tr>`;
+      }
+      $('#tabel-luar-karawang tbody').html(htmlLuar);
+
+      // === Init DataTable ===
+      ['tabel-dalam-karawang', 'tabel-luar-karawang'].forEach(id => {
+        if ($.fn.DataTable.isDataTable('#' + id)) {
+          $('#' + id).DataTable().destroy();
+        }
+        $('#' + id).DataTable({
+          pageLength: 5,
+          lengthChange: false,
+          searching: false,
+          info: true,
+          language: {
+            paginate: { previous: "←", next: "→" },
+            info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data"
+          }
+        });
+      });
+    },
+    error: function(xhr) {
+      console.error('Gagal memuat data Karawang:', xhr);
+    }
+  });
+}
+
+function rekapKontrakTable() {
+  const filter = $('#filter-kontrak').val() || 'all';
+  const url = base_url + '/master-data/dashboard/rekap-kontrak?filter=' + filter;
+
+  $.ajax({
+    url: url,
+    method: 'GET',
+    success: function (response) {
+      const data = response.data;
+      let html = '';
+      let no = 1;
+      const chartData = [];
+
+      if (data.length > 0) {
+        data.forEach(item => {
+          html += `
+            <tr>
+              <td>${no++}</td>
+              <td>${item.keterangan}</td>
+              <td>${item.total}</td>
+            </tr>
+          `;
+          chartData.push(item.total);
+        });
+      } else {
+        html = `<tr><td colspan="3" class="text-center">Tidak ada data</td></tr>`;
+      }
+
+      $('#tabel-rekap-kontrak').html(html);
+      renderRekapKontrakChart(chartData);
+    },
+    error: function (xhr) {
+      console.error('Gagal memuat data kontrak:', xhr);
+    }
+  });
+}
+
+function renderRekapKontrakChart(seriesData) {
+  const options = {
+    series: [{
+      name: 'Jumlah Karyawan',
+      data: seriesData
+    }],
+    chart: {
+      type: 'bar',
+      height: 350,
+      
+    },
+    plotOptions: {
+      bar: {
+        horizontal: false,
+        columnWidth: '45%',
+        borderRadius: 8,
+      },
+    },
+    dataLabels: { enabled: true },
+    xaxis: {
+      categories: ['PKWTT', 'PKWT', 'PK'],
+    },
+    colors: ['#008FFB', '#00E396', '#FEB019'],
+  };
+
+  if (window.rekapKontrakChart) window.rekapKontrakChart.destroy();
+
+  window.rekapKontrakChart = new ApexCharts(
+    document.querySelector("#rekap-kontrak-chart"),
+    options
+  );
+  window.rekapKontrakChart.render();
+}
+
+// Event filter
+$('#filter-kontrak').on('change', function () {
+  rekapKontrakTable();
+});
+
 
 //tangguh
   rekapDesaTable();
   rekapKecamatanTable();
+  rekapKabupatenTable();
+  rekapProvinsiTable();
+  rekapKontrakTable();
  //end tangguh 
   
 
