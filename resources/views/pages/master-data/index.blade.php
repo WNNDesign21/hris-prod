@@ -145,214 +145,245 @@
 
 
     <div class="row mt-4">
-        <div class="col-12">
+        {{-- ===================== DESA & KECAMATAN ===================== --}}
+        <div class="col-xl-6 col-12">
             <div class="box">
                 <div class="box-header with-border d-flex justify-content-between align-items-center">
-                    <h4 class="box-title">Desa</h4>
+                    <h4 class="box-title">Rekap Desa</h4>
                     <div>
-                        <select id="filter-kontrak" class="form-select form-select-sm">
+                        <select id="filter-desa" class="form-select form-select-sm">
                             <option value="all">All</option>
-                            <!-- <option value="organisasi">By Organisasi</option>
-                                                    <option value="divisi">By Divisi</option>
-                                                    <option value="dept">By Dept</option>
-                                                    <option value="seksis">By Seksis</option> -->
                         </select>
                     </div>
                 </div>
 
                 <div class="box-body">
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>No</th>
-                                    <th>Desa/Kerlurahan</th>
-                                    <th>Total</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabel-rekap-desa">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-            <div class="box">
-                <div class="box-header with-border d-flex justify-content-between align-items-center">
-                    <h4 class="box-title">Kecamatan</h4>
-                    <div>
-                        <select id="filter-kontrak" class="form-select form-select-sm">
-                            <option value="all">All</option>
-                            <!-- <option value="organisasi">By Organisasi</option>
-                                                    <option value="divisi">By Divisi</option>
-                                                    <option value="dept">By Dept</option>
-                                                    <option value="seksis">By Seksis</option> -->
-                        </select>
-                    </div>
-                </div>
-
-                <div class="box-body">
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>No</th>
-                                    <th>Kecamatan</th>
-                                    <th>Total</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabel-rekap-kecamatan">
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div class="box">
-                    <div class="box-header with-border d-flex justify-content-between align-items-center">
-                        <h4 class="box-title">Kabupaten</h4>
-                        <div>
-                            <select id="filter-kontrak" class="form-select form-select-sm">
-                                <option value="all">All</option>
-                                <!-- <option value="organisasi">By Organisasi</option>
-                                                    <option value="divisi">By Divisi</option>
-                                                    <option value="dept">By Dept</option>
-                                                    <option value="seksis">By Seksis</option> -->
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="box-body">
-                        <div class="table-responsive">
-                            <table class="table table-bordered">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>No</th>
-                                        <th>Kabupaten</th>
-                                        <th>Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tabel-rekap-kabupaten">
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <div class="box">
-                    <div class="box-header with-border d-flex justify-content-between align-items-center">
-                        <h4 class="box-title">Provinsi</h4>
-                        <div>
-                            <select id="filter-kontrak" class="form-select form-select-sm">
-                                <option value="all">All</option>
-                                <!-- <option value="organisasi">By Organisasi</option>
-                                                    <option value="divisi">By Divisi</option>
-                                                    <option value="dept">By Dept</option>
-                                                    <option value="seksis">By Seksis</option> -->
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="box-body">
-                        <div class="table-responsive">
-                            <table class="table table-bordered">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>No</th>
-                                        <th>Provinsi</th>
-                                        <th>Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tabel-rekap-provinsi">
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                {{-- REKAP WILAYAH KARAWANG --}}
-                <div class="row mt-4">
-                    <div class="col-6">
-                        <div class="box">
-                            <div class="box-header with-border d-flex justify-content-between align-items-center">
-                                <h4 class="box-title">Dalam Karawang</h4>
-                            </div>
-                            <div class="box-body">
-                                <div class="table-responsive">
-                                    <table class="table table-bordered datatable" id="tabel-dalam-karawang">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th>No</th>
-                                                <th>Alamat</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-6">
-                        <div class="box">
-                            <div class="box-header with-border d-flex justify-content-between align-items-center">
-                                <h4 class="box-title">Luar Karawang</h4>
-                            </div>
-                            <div class="box-body">
-                                <div class="table-responsive">
-                                    <table class="table table-bordered datatable" id="tabel-luar-karawang">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th>No</th>
-                                                <th>Alamat</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-            <div class="row mt-4">
-                <div class="col-12">
-                    <div class="box">
-                        <div class="box-header with-border d-flex justify-content-between align-items-center">
-                            <h4 class="box-title">Rekap Karyawan Berdasarkan Kontrak</h4>
-                            <div>
-                                <select id="filter-kontrak" class="form-select form-select-sm">
-                                    <option value="all">All</option>
-                                    <!-- <option value="organisasi">By Organisasi</option>
-                                                    <option value="divisi">By Divisi</option>
-                                                    <option value="dept">By Dept</option>
-                                                    <option value="seksis">By Seksis</option> -->
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="box-body">
+                    <div class="row align-items-center">
+                        <div class="col-lg-7 col-12">
                             <div class="table-responsive">
-                                <table class="table table-bordered">
+                                <table class="table table-bordered" id="table-desa">
                                     <thead class="table-light">
                                         <tr>
                                             <th>No</th>
-                                            <th>Keterangan</th>
+                                            <th>Desa/Kelurahan</th>
                                             <th>Total</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="tabel-rekap-kontrak">
-
-                                    </tbody>
+                                    <tbody id="tabel-rekap-desa"></tbody>
                                 </table>
                             </div>
+                        </div>
+                        <div class="col-lg-5 col-12 text-center">
 
-                            <div class="mt-4">
-                                <h5 class="text-center mb-2">Grafik Rekap Berdasarkan Kontrak</h5>
-                                <div id="rekap-kontrak-chart" style="min-height: 350px;"></div>
-                            </div>
+                            <div id="chart-desa" style="height:250px;"></div>
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
+
+        <div class="col-xl-6 col-12">
+            <div class="box">
+                <div class="box-header with-border d-flex justify-content-between align-items-center">
+                    <h4 class="box-title">Rekap Kecamatan</h4>
+                    <div>
+                        <select id="filter-kecamatan" class="form-select form-select-sm">
+                            <option value="all">All</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="box-body">
+                    <div class="row align-items-center">
+                        <div class="col-lg-7 col-12">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="table-kecamatan">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Kecamatan</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabel-rekap-kecamatan"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col-lg-5 col-12 text-center">
+
+                            <div id="chart-kecamatan" style="height:250px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        {{-- ===================== KABUPATEN & PROVINSI ===================== --}}
+        <div class="col-xl-6 col-12">
+            <div class="box">
+                <div class="box-header with-border d-flex justify-content-between align-items-center">
+                    <h4 class="box-title">Rekap Kabupaten</h4>
+                    <div>
+                        <select id="filter-kabupaten" class="form-select form-select-sm">
+                            <option value="all">All</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="box-body">
+                    <div class="row align-items-center">
+                        <div class="col-lg-7 col-12">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="table-kabupaten">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Kabupaten</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabel-rekap-kabupaten"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col-lg-5 col-12 text-center">
+
+                            <div id="chart-kabupaten" style="height:250px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-6 col-12">
+            <div class="box">
+                <div class="box-header with-border d-flex justify-content-between align-items-center">
+                    <h4 class="box-title">Rekap Provinsi</h4>
+                    <div>
+                        <select id="filter-provinsi" class="form-select form-select-sm">
+                            <option value="all">All</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="box-body">
+                    <div class="row align-items-center">
+                        <div class="col-lg-7 col-12">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" id="table-provinsi">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>No</th>
+                                            <th>Provinsi</th>
+                                            <th>Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabel-rekap-provinsi"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="col-lg-5 col-12 text-center">
+
+                            <div id="chart-provinsi" style="height:250px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    {{-- REKAP WILAYAH KARAWANG --}}
+    <div class="row mt-4">
+        <div class="col-6">
+            <div class="box">
+                <div class="box-header with-border d-flex justify-content-between align-items-center">
+                    <h4 class="box-title">Dalam Karawang</h4>
+                </div>
+                <div class="box-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered datatable" id="tabel-dalam-karawang">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Alamat</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-6">
+            <div class="box">
+                <div class="box-header with-border d-flex justify-content-between align-items-center">
+                    <h4 class="box-title">Luar Karawang</h4>
+                </div>
+                <div class="box-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered datatable" id="tabel-luar-karawang">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Alamat</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="box">
+                <div class="box-header with-border d-flex justify-content-between align-items-center">
+                    <h4 class="box-title">Rekap Karyawan Berdasarkan Kontrak</h4>
+                    <div>
+                        <select id="filter-kontrak" class="form-select form-select-sm">
+                            <option value="all">All</option>
+                            <!-- <option value="organisasi">By Organisasi</option>
+                                                                                                        <option value="divisi">By Divisi</option>
+                                                                                                        <option value="dept">By Dept</option>
+                                                                                                        <option value="seksis">By Seksis</option> -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="box-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>No</th>
+                                    <th>Keterangan</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabel-rekap-kontrak">
+
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="mt-4">
+                        <h5 class="text-center mb-2">Grafik Rekap Berdasarkan Kontrak</h5>
+                        <div id="rekap-kontrak-chart" style="min-height: 350px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    </div>
     </div>
 
 

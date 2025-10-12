@@ -1,634 +1,211 @@
 $(function () {
+  'use strict';
 
-    'use strict';
+  // ======================= GLOBAL VAR =======================
+  let loadingSwal;
 
-    let loadingSwal;
-    let turnoverRate;
-    function loadingSwalShow() {
-        loadingSwal = Swal.fire({
-            imageHeight: 300,
-            showConfirmButton: false,
-            title: '<i class="fas fa-sync-alt fa-spin fs-80"></i>',
-            allowOutsideClick: false,
-            background: 'rgba(0, 0, 0, 0)'
-          });
-    }
+  // ======================= SWEETALERT LOADING =======================
+  function loadingSwalShow() {
+    loadingSwal = Swal.fire({
+      imageHeight: 300,
+      showConfirmButton: false,
+      title: '<i class="fas fa-sync-alt fa-spin fs-80"></i>',
+      allowOutsideClick: false,
+      background: 'rgba(0, 0, 0, 0)',
+    });
+  }
 
-    function loadingSwalClose() {
-        loadingSwal.close();
-    }
+  function loadingSwalClose() {
+    if (loadingSwal) loadingSwal.close();
+  }
 
-    function getDataKaryawan(){
-      let url = base_url + '/master-data/dashboard/get-data-karyawan-dashboard';
-      $.ajax({
-          url: url,
-          method: 'GET',
-          success: function(response) {
-              let dataKaryawan = response.data;
-              $('#aktif_karyawan').text(dataKaryawan.aktif);
-              $('#habis_kontrak_karyawan').text(dataKaryawan.habis_kontrak);
-              $('#mengundurkan_diri_karyawan').text(dataKaryawan.mengundurkan_diri);
-              $('#pensiun_karyawan').text(dataKaryawan.pensiun);
-              $('#terminasi_karyawan').text(dataKaryawan.terminasi);
+  // ======================= DATA KARYAWAN =======================
+  function getDataKaryawan() {
+    $.get(base_url + '/master-data/dashboard/get-data-karyawan-dashboard', function (response) {
+      const d = response.data;
+      $('#aktif_karyawan').text(d.aktif);
+      $('#habis_kontrak_karyawan').text(d.habis_kontrak);
+      $('#mengundurkan_diri_karyawan').text(d.mengundurkan_diri);
+      $('#pensiun_karyawan').text(d.pensiun);
+      $('#terminasi_karyawan').text(d.terminasi);
+    });
+  }
+
+  // ======================= TURNOVER CHART =======================
+  function turnoverChart() {
+    $.get(base_url + '/master-data/dashboard/get-data-turnover-monthly-dashboard', function (response) {
+      const dataRate = response.data;
+      const options = {
+        series: [{ name: 'Turnover Rate (%)', data: dataRate }],
+        chart: { type: 'bar', height: '100%', stacked: true, toolbar: { show: true } },
+        colors: ['#6993ff'],
+        xaxis: { categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] },
+        plotOptions: { bar: { columnWidth: '30%', borderRadius: 4 } },
+        grid: { borderColor: '#f7f7f7' },
+      };
+      new ApexCharts(document.querySelector('#turnover-chart'), options).render();
+    });
+  }
+
+  // ======================= TURNOVER DETAIL CHART =======================
+  function turnoverDetailChart() {
+    $.get(base_url + '/master-data/dashboard/get-data-turnover-detail-monthly-dashboard', function (res) {
+      const d = res.data;
+      const options = {
+        series: [
+          { name: 'Masuk', data: d.masuk, color: '#007bff' },
+          { name: 'Habis Kontrak', data: d.habis_kontrak, color: '#dc3545' },
+          { name: 'Mengundurkan Diri', data: d.mengundurkan_diri, color: '#6c757d' },
+          { name: 'Pensiun', data: d.pensiun, color: '#28a745' },
+          { name: 'Terminasi', data: d.terminasi, color: '#9467bd' },
+        ],
+        chart: { type: 'line', height: 260, stacked: false, toolbar: { show: false } },
+        xaxis: { categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'] },
+      };
+      new ApexCharts(document.querySelector('#turnover-detail-chart'), options).render();
+    });
+  }
+
+  // ======================= KONTRAK PROGRESS =======================
+  function kontrakProgressChart() {
+    $.get(base_url + '/master-data/dashboard/get-data-kontrak-progress-dashboard', function (res) {
+      const d = res.data;
+      const options = {
+        chart: { height: 180, type: 'radialBar' },
+        series: [d],
+        colors: ['#0052cc'],
+        plotOptions: {
+          radialBar: {
+            hollow: { size: '70%' },
+            track: { background: '#ff9920' },
+            dataLabels: {
+              value: { fontSize: '30px', show: true },
+            },
           },
-          error: function(error) {
-              console.error(error);
-          }
+        },
+        labels: ['On Progress'],
+      };
+      new ApexCharts(document.querySelector('#kontrak-progress-chart'), options).render();
+    });
+  }
+
+  // ======================= TOTAL DATA STATUS =======================
+  function totalDataKaryawanByStatus() {
+    $.get(base_url + '/master-data/dashboard/get-total-data-karyawan-by-status-karyawan-dashboard', function (res) {
+      const d = res.data;
+      const options = {
+        series: d,
+        labels: ['Re-Active', 'Habis Kontrak', 'Mengundurkan Diri', 'Pensiun', 'Terminasi'],
+        chart: { height: 230, type: 'donut' },
+        colors: ['#04a08b', '#6993ff', '#ff9920', '#bac0c7', '#9467bd'],
+        legend: { position: 'bottom', horizontalAlign: 'center' },
+      };
+      new ApexCharts(document.querySelector('#total-data-by-status-chart'), options).render();
+    });
+  }
+
+  // ======================= REKAP KARAWANG =======================
+  function rekapKarawangTable() {
+    $.get(base_url + '/master-data/dashboard/rekap-karawang', function (res) {
+      const dalam = res.dalam, luar = res.luar;
+      const isiTabel = (data, id) => {
+        let html = '', no = 1;
+        if (data.length)
+          data.forEach(i => html += `<tr><td>${no++}</td><td>${i.alamat}</td></tr>`);
+        else html = `<tr><td colspan="2" class="text-center">Tidak ada data</td></tr>`;
+        $(`#${id} tbody`).html(html);
+      };
+      isiTabel(dalam, 'tabel-dalam-karawang');
+      isiTabel(luar, 'tabel-luar-karawang');
+    });
+  }
+
+  // ======================= FUNGSI UTAMA REKAP WILAYAH =======================
+  function rekapWilayah(jenis, kolom) {
+    let url = `${base_url}/master-data/dashboard/rekap-${jenis}`;
+    let tableId = `#table-${jenis}`;
+    let tbodyId = `#tabel-rekap-${jenis}`;
+    let chartId = `#chart-${jenis}`;
+    let chartKey = `chart${jenis.charAt(0).toUpperCase() + jenis.slice(1)}`;
+
+    $.get(url, function (res) {
+      const data = res.data;
+      let html = '', no = 1;
+      data.forEach(i => {
+        html += `<tr><td>${no++}</td><td>${i[kolom]}</td><td>${i.total}</td></tr>`;
       });
-    }
+      $(tbodyId).html(html);
 
-    function turnoverChart(){
-      let url = base_url + '/master-data/dashboard/get-data-turnover-monthly-dashboard';
-      $.ajax({
-          url: url,
-          method: 'GET',
-          success: function(response) {
-              let dataRate = response.data;
-              var options = {
-                series: [
-                  {
-                    name: 'Turnover Rate (%)',
-                    data: dataRate
-                  },
-                ],
-                chart: {
-                foreColor:"#bac0c7",
-                type: 'bar',
-                height: '100%',
-                stacked: true,
-                toolbar: {
-                  show: true
-                },
-                zoom: {
-                  enabled: true
-                },
-                export: {
-                  svg: {
-                    filename: undefined,
-                  },
-                  png: {
-                    filename: undefined,
-                  }
-                },
-              },
-              responsive: [{
-                breakpoint: 480,
-                options: {
-                  legend: {
-                    position: 'bottom',
-                    offsetX: -10,
-                    offsetY: 0
-                  }
-                }
-              }],		
-              grid: {
-                  show: true,
-                  borderColor: '#f7f7f7',      
-              },
-              colors:['#6993ff'],
-              plotOptions: {
-                bar: {
-                  horizontal: false,
-                  columnWidth: '30%',
-                    endingShape: 'rounded',
-                  colors: {
-                      backgroundBarColors: ['#f0f0f0'],
-                      backgroundBarOpacity: 0,
-                  },
-                },
-              },
-              dataLabels: {
-                enabled: false
-              },
-       
-              xaxis: {
-                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-              },
-              legend: {
-                show: true,
-              },
-              fill: {
-                opacity: 1
-              }
-              };
-      
-              var chart = new ApexCharts(document.querySelector("#turnover-chart"), options);
-              chart.render();
-              
-          },
-          error: function(error) {
-              console.error(error);
-          }
+      if ($.fn.DataTable.isDataTable(tableId)) $(tableId).DataTable().destroy();
+
+      const table = $(tableId).DataTable({
+        pageLength: 5, lengthChange: false, searching: false, ordering: true, info: true,
       });
-    }
 
-    function turnoverDetailChart(){
-      let url = base_url + '/master-data/dashboard/get-data-turnover-detail-monthly-dashboard';
-      $.ajax({
-          url: url,
-          method: 'GET',
-          success: function(response) {
-              let dataResponse = response.data;
-              let masuk = dataResponse.masuk;
-              let habis_kontrak = dataResponse.habis_kontrak;
-              let mengundurkan_diri = dataResponse.mengundurkan_diri;
-              let pensiun = dataResponse.pensiun;
-              let terminasi = dataResponse.terminasi;
+      const render = () => {
+        const rows = table.rows({ page: 'current' }).data().toArray();
+        renderWilayahChart(chartId, chartKey, rows);
+      };
+      render();
+      $(tableId).on('draw.dt', render);
+    });
+  }
 
-              var options = {
-                series: [
-                  {
-                    name: 'Masuk',
-                    data: masuk,
-                    color: '#007bff'
-                  },
-                  {
-                    name: 'Habis Kontrak',
-                    data: habis_kontrak,
-                    color: '#dc3545'
+  function renderWilayahChart(chartId, chartKey, pageData) {
+    if (!pageData.length) return;
+    const labels = pageData.map(i => i[1]);
+    const values = pageData.map(i => parseInt(i[2]));
+    const total = values.reduce((a, b) => a + b, 0);
 
-                  },
-                  {
-                    name: 'Mengundurkan Diri',
-                    data: mengundurkan_diri,
-                    color: '#6c757d'
-                  },
-                  {
-                    name: 'Pensiun',
-                    data: pensiun,
-                    color: '#28a745'
-                  },
-                  {
-                    name: 'Terminasi',
-                    data: terminasi,
-                    color: '#9467bd'
-                  },
-                ],
-                chart: {
-                  height: 260,
-                  type: 'line',
-                  stacked: false,
-                  toolbar: {
-                    show: true
-                  },
-                  zoom: {
-                    enabled: true
-                  },
-                  export: {
-                    svg: {
-                      filename: undefined,
-                    },
-                    png: {
-                      filename: undefined,
-                    }
-                  },
-                },
-              responsive: [{
-                breakpoint: 480,
-                options: {
-                  legend: {
-                    position: 'bottom',
-                    offsetX: -10,
-                    offsetY: 0
-                  }
-                }
-              }],		
-              grid: {
-                  show: true,
-                  borderColor: '#f7f7f7',      
-              },
-              plotOptions: {
-                bar: {
-                  horizontal: false,
-                  columnWidth: '30%',
-                    endingShape: 'rounded',
-                  colors: {
-                      backgroundBarColors: ['#f0f0f0'],
-                      backgroundBarOpacity: 0,
-                  },
-                },
-              },
-              dataLabels: {
-                enabled: false
-              },
-       
-              xaxis: {
-                categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-              },
-              legend: {
-                show: true,
-              },
-              fill: {
-                opacity: 1
-              }
-              };
-      
-              var chart = new ApexCharts(document.querySelector("#turnover-detail-chart"), options);
-              chart.render();
-              
-          },
-          error: function(error) {
-              console.error(error);
-          }
+    const opt = {
+      series: values,
+      labels,
+      chart: { type: 'donut', height: 280, animations: { enabled: true, easing: 'easeinout', speed: 500 } },
+      colors: ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0', '#546E7A'],
+      plotOptions: { pie: { donut: { size: '70%', labels: { show: true, total: { show: true, label: 'Total', formatter: () => total } } } } },
+      legend: { position: 'bottom', horizontalAlign: 'center' },
+    };
+
+    if (window[chartKey]) window[chartKey].destroy();
+    window[chartKey] = new ApexCharts(document.querySelector(chartId), opt);
+    window[chartKey].render();
+  }
+
+  // ======================= REKAP KONTRAK =======================
+  function rekapKontrakTable() {
+    const url = base_url + '/master-data/dashboard/rekap-kontrak';
+    $.get(url, function (res) {
+      const data = res.data;
+      let html = '', no = 1, chartData = [];
+      data.forEach(i => {
+        html += `<tr><td>${no++}</td><td>${i.keterangan}</td><td>${i.total}</td></tr>`;
+        chartData.push(i.total);
       });
-    }
-
-    function kontrakProgressChart()
-    {
-          let url = base_url + '/master-data/dashboard/get-data-kontrak-progress-dashboard';
-          $.ajax({
-              url: url,
-              method: 'GET',
-              success: function(response) {
-                  let dataKontrakProgress = response.data;
-                  var options = {
-                    chart: {
-                      height: 180,
-                      type: "radialBar",
-                      toolbar: {
-                        show: true
-                      },
-                    },
-                    series: [dataKontrakProgress],
-                      colors: ['#0052cc'],
-                    plotOptions: {
-                      radialBar: {
-                        hollow: {
-                          margin: 15,
-                          size: "70%"
-                        },
-                        track: {
-                          background: '#ff9920',
-                        },
-          
-                        dataLabels: {
-                          showOn: "always",
-                          name: {
-                            offsetY: -10,
-                            show: false,
-                            color: "#888",
-                            fontSize: "13px"
-                          },
-                          value: {
-                            color: "#111",
-                            fontSize: "30px",
-                            show: true
-                          }
-                        }
-                      }
-                    },
-          
-                    stroke: {
-                      lineCap: "round",
-                    },
-                    labels: ["On Progress"]
-                  };
-          
-                  var chart = new ApexCharts(document.querySelector("#kontrak-progress-chart"), options);
-                  chart.render();
-                  
-              },
-              error: function(error) {
-                  console.error(error);
-              }
-          });
-    }
-
-    function totalDataKaryawanByStatus(){
-      let url = base_url + '/master-data/dashboard/get-total-data-karyawan-by-status-karyawan-dashboard';
-      $.ajax({
-          url: url,
-          method: 'GET',
-          success: function(response) {
-              let dataTotalKaryawanByStatus = response.data;
-              var options = {
-                series: dataTotalKaryawanByStatus,
-                labels: ['Re-Active', 'Habis Kontrak', 'Mengundurkan Diri', 'Pensiun', 'Terminasi'],
-                chart: {
-                height:230,
-                type: 'donut',
-                toolbar: {
-                  show: true
-                },
-              },
-              dataLabels: {
-                enabled: false
-              },
-              responsive: [{
-                breakpoint: 480,
-                options: {
-                  chart: {
-                    width: 200
-                  },
-                  legend: {
-                    show: true
-                  }
-                }
-              }],
-              colors:['#04a08b', '#6993ff', '#ff9920', '#bac0c7', '#9467bd'],
-              legend: {
-                position: 'bottom',
-                  horizontalAlign: 'center',
-              }
-              };
-      
-              var chart = new ApexCharts(document.querySelector("#total-data-by-status-chart"), options);
-              chart.render();
-              
-          },
-          error: function(error) {
-              console.error(error);
-          }
-      });
-    }
-
-function rekapDesaTable() {
-  let url = base_url + '/master-data/dashboard/rekap-desa';
-
-  $.ajax({
-    url: url,
-    method: 'GET',
-    success: function (response) {
-      const data = response.data;
-      let html = '';
-      let no = 1;
-
-      if (data.length > 0) {
-        data.forEach(item => {
-          html += `
-            <tr>
-              <td>${no++}</td>
-              <td>${item.desa}</td>
-              <td>${item.total}</td>
-            </tr>
-          `;
-        });
-      } else {
-        html = `<tr><td colspan="3" class="text-center">Tidak ada data</td></tr>`;
-      }
-      $('#tabel-rekap-desa').html(html);
-
-    },
-    error: function (xhr) {
-      console.error('Gagal memuat data desa:', xhr);
-    }
-  });
-}
-
-function rekapKecamatanTable() {
-  let url = base_url + '/master-data/dashboard/rekap-kecamatan';
-
-  $.ajax({
-    url: url,
-    method: 'GET',
-    success: function (response) {
-      const data = response.data;
-      let html = '';
-      let no = 1;
-
-      if (data.length > 0) {
-        data.forEach(item => {
-          html += `
-            <tr>
-              <td>${no++}</td>
-              <td>${item.kecamatan}</td>
-              <td>${item.total}</td>
-            </tr>
-          `;
-        });
-      } else {
-        html = `<tr><td colspan="3" class="text-center">Tidak ada data</td></tr>`;
-      }
-
-      $('#tabel-rekap-kecamatan').html(html);
-
-    },
-    error: function (xhr) {
-      console.error('Gagal memuat data kecamatan:', xhr);
-    }
-  });
-}
-function rekapKabupatenTable() {
-  let url = base_url + '/master-data/dashboard/rekap-kabupaten';
-
-  $.ajax({
-    url: url,
-    method: 'GET',
-    success: function (response) {
-      const data = response.data;
-      let html = '';
-      let no = 1;
-
-      if (data.length > 0) {
-        data.forEach(item => {
-          html += `
-            <tr>
-              <td>${no++}</td>
-              <td>${item.kabupaten}</td>
-              <td>${item.total}</td>
-            </tr>
-          `;
-        });
-      } else {
-        html = `<tr><td colspan="3" class="text-center">Tidak ada data</td></tr>`;
-      }
-
-      $('#tabel-rekap-kabupaten').html(html);
-
-    },
-    error: function (xhr) {
-      console.error('Gagal memuat data kabupaten:', xhr);
-    }
-  });
-}
-function rekapProvinsiTable() {
-  let url = base_url + '/master-data/dashboard/rekap-provinsi';
-
-  $.ajax({
-    url: url,
-    method: 'GET',
-    success: function (response) {
-      const data = response.data;
-      let html = '';
-      let no = 1;
-
-      if (data.length > 0) {
-        data.forEach(item => {
-          html += `
-            <tr>
-              <td>${no++}</td>
-              <td>${item.provinsi}</td>
-              <td>${item.total}</td>
-            </tr>
-          `;
-        });
-      } else {
-        html = `<tr><td colspan="3" class="text-center">Tidak ada data</td></tr>`;
-      }
-
-      $('#tabel-rekap-provinsi').html(html);
-
-    },
-    error: function (xhr) {
-      console.error('Gagal memuat data provinsi:', xhr);
-    }
-  });
-}
-function rekapKarawangTable() {
-  let url = base_url + '/master-data/dashboard/rekap-karawang';
-  $.ajax({
-    url: url,
-    method: 'GET',
-    success: function(response) {
-      const dalam = response.dalam;
-      const luar = response.luar;
-
-      // === Dalam Karawang ===
-      let htmlDalam = '';
-      let noDalam = 1;
-      if (dalam.length > 0) {
-        dalam.forEach(item => {
-          htmlDalam += `
-            <tr>
-              <td>${noDalam++}</td>
-              <td>${item.alamat}</td>
-            </tr>`;
-        });
-      } else {
-        htmlDalam = `<tr><td colspan="2" class="text-center">Tidak ada data</td></tr>`;
-      }
-      $('#tabel-dalam-karawang tbody').html(htmlDalam);
-
-      // === Luar Karawang ===
-      let htmlLuar = '';
-      let noLuar = 1;
-      if (luar.length > 0) {
-        luar.forEach(item => {
-          htmlLuar += `
-            <tr>
-              <td>${noLuar++}</td>
-              <td>${item.alamat}</td>
-            </tr>`;
-        });
-      } else {
-        htmlLuar = `<tr><td colspan="2" class="text-center">Tidak ada data</td></tr>`;
-      }
-      $('#tabel-luar-karawang tbody').html(htmlLuar);
-
-      // === Init DataTable ===
-      ['tabel-dalam-karawang', 'tabel-luar-karawang'].forEach(id => {
-        if ($.fn.DataTable.isDataTable('#' + id)) {
-          $('#' + id).DataTable().destroy();
-        }
-        $('#' + id).DataTable({
-          pageLength: 5,
-          lengthChange: false,
-          searching: false,
-          info: true,
-          language: {
-            paginate: { previous: "←", next: "→" },
-            info: "Menampilkan _START_ sampai _END_ dari _TOTAL_ data"
-          }
-        });
-      });
-    },
-    error: function(xhr) {
-      console.error('Gagal memuat data Karawang:', xhr);
-    }
-  });
-}
-
-function rekapKontrakTable() {
-  const filter = $('#filter-kontrak').val() || 'all';
-  const url = base_url + '/master-data/dashboard/rekap-kontrak?filter=' + filter;
-
-  $.ajax({
-    url: url,
-    method: 'GET',
-    success: function (response) {
-      const data = response.data;
-      let html = '';
-      let no = 1;
-      const chartData = [];
-
-      if (data.length > 0) {
-        data.forEach(item => {
-          html += `
-            <tr>
-              <td>${no++}</td>
-              <td>${item.keterangan}</td>
-              <td>${item.total}</td>
-            </tr>
-          `;
-          chartData.push(item.total);
-        });
-      } else {
-        html = `<tr><td colspan="3" class="text-center">Tidak ada data</td></tr>`;
-      }
-
       $('#tabel-rekap-kontrak').html(html);
-      renderRekapKontrakChart(chartData);
-    },
-    error: function (xhr) {
-      console.error('Gagal memuat data kontrak:', xhr);
-    }
-  });
-}
 
-function renderRekapKontrakChart(seriesData) {
-  const options = {
-    series: [{
-      name: 'Jumlah Karyawan',
-      data: seriesData
-    }],
-    chart: {
-      type: 'bar',
-      height: 350,
-      
-    },
-    plotOptions: {
-      bar: {
-        horizontal: false,
-        columnWidth: '45%',
-        borderRadius: 8,
-      },
-    },
-    dataLabels: { enabled: true },
-    xaxis: {
-      categories: ['PKWTT', 'PKWT', 'PK'],
-    },
-    colors: ['#008FFB', '#00E396', '#FEB019'],
-  };
+      const opt = {
+        series: [{ name: 'Jumlah Karyawan', data: chartData }],
+        chart: { type: 'bar', height: 350 },
+        plotOptions: { bar: { columnWidth: '45%', borderRadius: 8 } },
+        xaxis: { categories: ['PKWTT', 'PKWT', 'PK'] },
+        colors: ['#008FFB', '#00E396', '#FEB019'],
+      };
+      if (window.rekapKontrakChart) window.rekapKontrakChart.destroy();
+      window.rekapKontrakChart = new ApexCharts(document.querySelector('#rekap-kontrak-chart'), opt);
+      window.rekapKontrakChart.render();
+    });
+  }
 
-  if (window.rekapKontrakChart) window.rekapKontrakChart.destroy();
-
-  window.rekapKontrakChart = new ApexCharts(
-    document.querySelector("#rekap-kontrak-chart"),
-    options
-  );
-  window.rekapKontrakChart.render();
-}
-
-// Event filter
-$('#filter-kontrak').on('change', function () {
+  // ======================= JALANKAN SEMUA =======================
+  getDataKaryawan();
+  turnoverChart();
+  turnoverDetailChart();
+  kontrakProgressChart();
+  totalDataKaryawanByStatus();
+  rekapWilayah('desa', 'desa');
+  rekapWilayah('kecamatan', 'kecamatan');
+  rekapWilayah('kabupaten', 'kabupaten');
+  rekapWilayah('provinsi', 'provinsi');
+  rekapKarawangTable();
   rekapKontrakTable();
 });
-
-
-//tangguh
-  rekapDesaTable();
-  rekapKecamatanTable();
-  rekapKabupatenTable();
-  rekapProvinsiTable();
-  rekapKontrakTable();
- //end tangguh 
-  
-
-
-    getDataKaryawan();
-    turnoverChart();
-    kontrakProgressChart();
-    totalDataKaryawanByStatus();
-    turnoverDetailChart();
-  }); // End of use strict
-  
