@@ -496,6 +496,40 @@ class DashboardController extends Controller
         return response()->json(['data' => $result], 200);
     }
 
-    // tangguuh tutup
+    public function rekapDirectIndirectSinas()
+    {
+        // Ambil total masing-masing kolom yang bernilai 1
+        $direct = DB::table('karyawan')->where('direct', 1)->count();
+        $indirect = DB::table('karyawan')->where('indirect', 1)->count();
+        $sinas = DB::table('karyawan')->where('sinas', 1)->count();
+
+        $data = collect([
+            ['kategori' => 'Direct', 'total' => $direct],
+            ['kategori' => 'Indirect', 'total' => $indirect],
+            ['kategori' => 'Sinas', 'total' => $sinas],
+        ]);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $data
+        ]);
+    }
+    public function rekapDesaWarungbambu()
+    {
+        $dalam = DB::table('karyawans')
+            ->whereRaw("LOWER(domisili) LIKE '%warung bambu%'")
+            ->count();
+
+        $luar = DB::table('karyawans')
+            ->whereRaw("LOWER(domisili) NOT LIKE '%warung bambu%'")
+            ->count();
+
+        return response()->json([
+            'dalam' => $dalam,
+            'luar' => $luar,
+        ]);
+    }
+
+   // tangguuh tutup
 
 }

@@ -104,22 +104,6 @@ $(function () {
     });
   }
 
-  // ======================= REKAP KARAWANG =======================
-  function rekapKarawangTable() {
-    $.get(base_url + '/master-data/dashboard/rekap-karawang', function (res) {
-      const dalam = res.dalam, luar = res.luar;
-      const isiTabel = (data, id) => {
-        let html = '', no = 1;
-        if (data.length)
-          data.forEach(i => html += `<tr><td>${no++}</td><td>${i.alamat}</td></tr>`);
-        else html = `<tr><td colspan="2" class="text-center">Tidak ada data</td></tr>`;
-        $(`#${id} tbody`).html(html);
-      };
-      isiTabel(dalam, 'tabel-dalam-karawang');
-      isiTabel(luar, 'tabel-luar-karawang');
-    });
-  }
-
   // ======================= FUNGSI UTAMA REKAP WILAYAH =======================
   function rekapWilayah(jenis, kolom) {
     let url = `${base_url}/master-data/dashboard/rekap-${jenis}`;
@@ -151,50 +135,294 @@ $(function () {
     });
   }
 
-  function renderWilayahChart(chartId, chartKey, pageData) {
-    if (!pageData.length) return;
-    const labels = pageData.map(i => i[1]);
-    const values = pageData.map(i => parseInt(i[2]));
-    const total = values.reduce((a, b) => a + b, 0);
+   // ======================= REKAP DALAM & LUAR KARAWANG =======================
+function rekapGabunganKarawang() {
+  const url = base_url + '/master-data/dashboard/rekap-karawang';
 
-    const opt = {
-      series: values,
-      labels,
-      chart: { type: 'donut', height: 280, animations: { enabled: true, easing: 'easeinout', speed: 500 } },
-      colors: ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0', '#546E7A'],
-      plotOptions: { pie: { donut: { size: '70%', labels: { show: true, total: { show: true, label: 'Total', formatter: () => total } } } } },
-      legend: { position: 'bottom', horizontalAlign: 'center' },
-    };
+  $.ajax({
+    url: url,
+    method: 'GET',
+    success: function (response) {
+      const dalam = response.dalam || [];
+      const luar = response.luar || [];
 
-    if (window[chartKey]) window[chartKey].destroy();
-    window[chartKey] = new ApexCharts(document.querySelector(chartId), opt);
-    window[chartKey].render();
-  }
+      // Gabung data
+      const data = [
+        { keterangan: 'Dalam Karawang', total: dalam.length },
+        { keterangan: 'Luar Karawang', total: luar.length },
+      ];
 
-  // ======================= REKAP KONTRAK =======================
-  function rekapKontrakTable() {
-    const url = base_url + '/master-data/dashboard/rekap-kontrak';
-    $.get(url, function (res) {
-      const data = res.data;
-      let html = '', no = 1, chartData = [];
-      data.forEach(i => {
-        html += `<tr><td>${no++}</td><td>${i.keterangan}</td><td>${i.total}</td></tr>`;
-        chartData.push(i.total);
+      // === Render tabel ===
+      let html = '';
+      let no = 1;
+      data.forEach(item => {
+        html += `
+          <tr>
+            <td>${no++}</td>
+            <td>${item.keterangan}</td>
+            <td>${item.total}</td>
+          </tr>`;
+      });
+      $('#tabel-rekap-karawang').html(html);
+
+      // === Inisialisasi DataTables ===
+      const tableId = '#table-karawang';
+      if ($.fn.DataTable.isDataTable(tableId)) $(tableId).DataTable().destroy();
+
+      const table = $(tableId).DataTable({
+        pageLength: 5,
+        lengthChange: false,
+        searching: false,
+        ordering: true,
+        info: true,
+      });
+
+      // === Render donut chart (seperti rekap lain) ===
+      const renderChart = () => {
+        const rows = table.rows({ page: 'current' }).data().toArray();
+        renderWilayahChart('#chart-karawang', 'chartKarawang', rows);
+      };
+
+      renderChart();
+      $(tableId).on('draw.dt', renderChart);
+    },
+    error: function (xhr) {
+      console.error('Gagal memuat data Karawang:', xhr);
+    }
+  });
+}
+
+// ======================= REKAP KONTRAK (TABEL + DONUT) =======================
+function rekapKontrakTable() {
+  const url = base_url + '/master-data/dashboard/rekap-kontrak';
+
+  $.ajax({
+    url: url,
+    method: 'GET',
+    success: function (response) {
+      const data = response.data || [];
+
+      // === Render tabel ===
+      let html = '';
+      let no = 1;
+      data.forEach(item => {
+        html += `
+          <tr>
+            <td>${no++}</td>
+            <td>${item.keterangan}</td>
+            <td>${item.total}</td>
+          </tr>`;
       });
       $('#tabel-rekap-kontrak').html(html);
 
-      const opt = {
-        series: [{ name: 'Jumlah Karyawan', data: chartData }],
-        chart: { type: 'bar', height: 350 },
-        plotOptions: { bar: { columnWidth: '45%', borderRadius: 8 } },
-        xaxis: { categories: ['PKWTT', 'PKWT', 'PK'] },
-        colors: ['#008FFB', '#00E396', '#FEB019'],
+      // === Inisialisasi DataTables ===
+      const tableId = '#table-kontrak';
+      if ($.fn.DataTable.isDataTable(tableId)) $(tableId).DataTable().destroy();
+
+      const table = $(tableId).DataTable({
+        pageLength: 5,
+        lengthChange: false,
+        searching: false,
+        ordering: true,
+        info: true,
+      });
+
+      // === Render donut chart (seragam) ===
+      const renderChart = () => {
+        const rows = table.rows({ page: 'current' }).data().toArray();
+        renderWilayahChart('#chart-kontrak', 'chartKontrak', rows);
       };
-      if (window.rekapKontrakChart) window.rekapKontrakChart.destroy();
-      window.rekapKontrakChart = new ApexCharts(document.querySelector('#rekap-kontrak-chart'), opt);
-      window.rekapKontrakChart.render();
-    });
-  }
+
+      renderChart();
+      $(tableId).on('draw.dt', renderChart);
+    },
+    error: function (xhr) {
+      console.error('Gagal memuat data Kontrak:', xhr);
+    }
+  });
+}
+
+// ======================= FUNGSI RENDER DONUT CHART (SAMA UNTUK SEMUA) =======================
+function renderWilayahChart(chartSelector, chartKey, pageData) {
+  if (!pageData || !pageData.length) return;
+
+  // DataTables mengembalikan array [No, Nama, Total]
+  const labels = pageData.map(r => Array.isArray(r) ? r[1] : r.keterangan);
+  const values = pageData.map(r => parseInt(Array.isArray(r) ? r[2] : r.total));
+  const total = values.reduce((a, b) => a + b, 0);
+
+  const options = {
+    series: values,
+    labels: labels,
+    chart: { type: 'donut', height: 280 },
+    colors: ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0', '#546E7A'],
+    plotOptions: {
+      pie: {
+        donut: {
+          size: '70%',
+          labels: {
+            show: true,
+            total: {
+              show: true,
+              label: 'Total',
+              formatter: () => total,
+            },
+          },
+        },
+      },
+    },
+    legend: { position: 'bottom', horizontalAlign: 'center' },
+  };
+
+  if (window[chartKey]) window[chartKey].destroy();
+  window[chartKey] = new ApexCharts(document.querySelector(chartSelector), options);
+  window[chartKey].render();
+}
+// ======================= REKAP DIRECT / INDIRECT =======================
+function rekapDirectIndirectTable() {
+  const url = base_url + '/master-data/dashboard/rekap-direct-indirect-sinas';
+
+  $.ajax({
+    url: url,
+    method: 'GET',
+    success: function (response) {
+      const data = response.data || [];
+
+      // === Render tabel ===
+      let html = '';
+      let no = 1;
+      data.forEach(item => {
+        html += `<tr>
+          <td>${no++}</td>
+          <td>${item.kategori}</td>
+          <td>${item.total}</td>
+        </tr>`;
+      });
+      $('#tabel-rekap-direct').html(html);
+
+      // === DataTables ===
+      const tableId = '#table-direct';
+      if ($.fn.DataTable.isDataTable(tableId)) $(tableId).DataTable().destroy();
+
+      const table = $(tableId).DataTable({
+        pageLength: 5,
+        lengthChange: false,
+        searching: false,
+        ordering: true,
+        info: true,
+      });
+
+      // === Chart ===
+      const renderChart = () => {
+        const rows = table.rows({ page: 'current' }).data().toArray();
+        renderWilayahChart('#chart-direct', 'chartDirect', rows);
+      };
+
+      renderChart();
+      $(tableId).on('draw.dt', renderChart);
+    },
+    error: function (xhr) {
+      console.error('Gagal memuat data Direct/Indirect/Sinas:', xhr);
+    }
+  });
+}
+
+function rekapWarungbambuTable() {
+  let url = base_url + '/master-data/dashboard/rekap-warungbambu';
+
+  $.ajax({
+    url: url,
+    method: 'GET',
+    success: function (response) {
+      const data = [
+        { keterangan: 'Dalam Desa Warung Bambu', total: response.dalam },
+        { keterangan: 'Luar Desa Warung Bambu', total: response.luar },
+      ];
+
+      // ==== RENDER TABEL ====
+      let html = '';
+      let no = 1;
+      data.forEach(item => {
+        html += `
+          <tr>
+            <td>${no++}</td>
+            <td>${item.keterangan}</td>
+            <td>${item.total}</td>
+          </tr>
+        `;
+      });
+      $('#tabel-rekap-warungbambu').html(html);
+
+      // ==== DATA TABLE PAGINATION ====
+      if ($.fn.DataTable.isDataTable('#table-warungbambu')) {
+        $('#table-warungbambu').DataTable().destroy();
+      }
+
+      const table = $('#table-warungbambu').DataTable({
+        pageLength: 5,
+        lengthChange: false,
+        searching: false,
+        ordering: true,
+        info: true,
+      });
+
+      // Render chart pertama kali (halaman awal)
+      renderWarungbambuChart(table.rows({ page: 'current' }).data().toArray());
+
+      // Update chart ketika ganti halaman
+      $('#table-warungbambu').on('draw.dt', function () {
+        const currentPageData = table.rows({ page: 'current' }).data().toArray();
+        renderWarungbambuChart(currentPageData);
+      });
+    },
+    error: function (xhr) {
+      console.error('Gagal memuat data Warung Bambu:', xhr);
+    }
+  });
+}
+
+// ==== FUNGSI RENDER DONUT ====
+function renderWarungbambuChart(pageData) {
+  if (!pageData.length) return;
+
+  const labels = pageData.map(i => i[1]);
+  const values = pageData.map(i => parseInt(i[2]));
+  const total = values.reduce((a, b) => a + b, 0);
+
+  const options = {
+    series: values,
+    labels: labels,
+    chart: { type: 'donut', height: 280 },
+    colors: ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0', '#546E7A'], // warna seragam
+    plotOptions: {
+      pie: {
+        donut: {
+          size: '70%',
+          labels: {
+            show: true,
+            total: {
+              show: true,
+              label: 'Total',
+              formatter: () => total,
+            }
+          }
+        }
+      }
+    },
+    legend: {
+      position: 'bottom',
+      horizontalAlign: 'center'
+    },
+  };
+
+  if (window.chartWarungbambu) window.chartWarungbambu.destroy();
+  window.chartWarungbambu = new ApexCharts(document.querySelector("#chart-warungbambu"), options);
+  window.chartWarungbambu.render();
+}
+
+
+
+
 
   // ======================= JALANKAN SEMUA =======================
   getDataKaryawan();
@@ -206,6 +434,8 @@ $(function () {
   rekapWilayah('kecamatan', 'kecamatan');
   rekapWilayah('kabupaten', 'kabupaten');
   rekapWilayah('provinsi', 'provinsi');
-  rekapKarawangTable();
+  rekapGabunganKarawang();
   rekapKontrakTable();
+  rekapDirectIndirectTable();
+  rekapWarungbambuTable();
 });
