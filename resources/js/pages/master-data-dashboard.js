@@ -410,6 +410,62 @@ function rekapWarungbambuTable() {
     }
   });
 }
+function rekapSinas() {
+        $.get(`${base_url}/master-data/dashboard/rekap-sinas`, function (res) {
+            const data = res.data || [];
+            let html = '', no = 1;
+            data.forEach(i => {
+                html += `<tr><td>${no++}</td><td>${i.sinas}</td><td>${i.total}</td></tr>`;
+            });
+            $('#tabel-rekap-sinas').html(html);
+
+            const table = $('#table-sinas').DataTable({
+                pageLength: 5,
+                lengthChange: false,
+                searching: false,
+                ordering: true,
+                destroy: true,
+                info: true
+            });
+
+            function renderChart() {
+                const rows = table.rows({ page: 'current' }).data().toArray();
+                const labels = rows.map(r => r[1]);
+                const totals = rows.map(r => parseInt(r[2]));
+                const total = totals.reduce((a, b) => a + b, 0);
+
+                const opt = {
+                    series: totals,
+                    labels: labels,
+                    chart: { type: 'donut', height: 280 },
+                    colors: ['#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0', '#546E7A'],
+                    plotOptions: {
+                        pie: {
+                            donut: {
+                                size: '70%',
+                                labels: {
+                                    show: true,
+                                    total: {
+                                        show: true,
+                                        label: 'Total',
+                                        formatter: () => total
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    legend: { position: 'bottom', horizontalAlign: 'center' }
+                };
+
+                if (window.chartSinas) window.chartSinas.destroy();
+                window.chartSinas = new ApexCharts(document.querySelector('#chart-sinas'), opt);
+                window.chartSinas.render();
+            }
+
+            renderChart();
+            $('#table-sinas').on('draw.dt', renderChart);
+        });
+    }
 
 // ==== FUNGSI RENDER DONUT ====
 function renderWarungbambuChart(pageData) {
@@ -449,11 +505,6 @@ function renderWarungbambuChart(pageData) {
   window.chartWarungbambu = new ApexCharts(document.querySelector("#chart-warungbambu"), options);
   window.chartWarungbambu.render();
 }
-
-
-
-
-
   // ======================= JALANKAN SEMUA =======================
   getDataKaryawan();
   turnoverChart();
@@ -467,6 +518,6 @@ function renderWarungbambuChart(pageData) {
   rekapGabunganKarawang();
   rekapKontrakTable();
   rekapDirectIndirectTable();
-  
+  rekapSinas();
   rekapWarungbambuTable();
 });

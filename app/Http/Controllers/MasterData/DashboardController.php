@@ -514,6 +514,20 @@ class DashboardController extends Controller
             'data' => $data
         ]);
     }
+    public function rekapSinas()
+    {
+        $data = DB::table('karyawans')
+            ->select('sinas', DB::raw('COUNT(*) as total'))
+            ->whereNotNull('sinas')
+            ->groupBy('sinas')
+            ->orderByDesc('total')
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $data
+        ]);
+    }
 
     public function rekapDesaWarungbambu()
     {
