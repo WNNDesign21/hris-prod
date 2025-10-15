@@ -280,31 +280,34 @@ function renderWilayahChart(chartSelector, chartKey, pageData) {
 }
 // ======================= REKAP DIRECT / INDIRECT =======================
 function rekapDirectIndirectTable() {
-  const url = base_url + '/master-data/dashboard/rekap-direct-indirect-sinas';
+  let url = base_url + '/master-data/dashboard/rekap-direct-indirect';
 
   $.ajax({
     url: url,
     method: 'GET',
     success: function (response) {
       const data = response.data || [];
+      let html = '', no = 1;
 
       // === Render tabel ===
-      let html = '';
-      let no = 1;
       data.forEach(item => {
-        html += `<tr>
-          <td>${no++}</td>
-          <td>${item.kategori}</td>
-          <td>${item.total}</td>
-        </tr>`;
+        html += `
+          <tr>
+            <td>${no++}</td>
+            <td>${item.kategori}</td>
+            <td>${item.total}</td>
+          </tr>
+        `;
       });
-      $('#tabel-rekap-direct').html(html);
 
-      // === DataTables ===
-      const tableId = '#table-direct';
-      if ($.fn.DataTable.isDataTable(tableId)) $(tableId).DataTable().destroy();
+      $('#tabel-rekap-direct-indirect').html(html);
 
-      const table = $(tableId).DataTable({
+      // === DataTables pagination ===
+      if ($.fn.DataTable.isDataTable('#table-direct-indirect')) {
+        $('#table-direct-indirect').DataTable().destroy();
+      }
+
+      const table = $('#table-direct-indirect').DataTable({
         pageLength: 5,
         lengthChange: false,
         searching: false,
@@ -312,20 +315,47 @@ function rekapDirectIndirectTable() {
         info: true,
       });
 
-      // === Chart ===
-      const renderChart = () => {
-        const rows = table.rows({ page: 'current' }).data().toArray();
-        renderWilayahChart('#chart-direct', 'chartDirect', rows);
+      // === Render chart ===
+      const total = data.reduce((a, b) => a + b.total, 0);
+      const options = {
+        series: data.map(i => i.total),
+        labels: data.map(i => i.kategori),
+        chart: { type: 'donut', height: 280 },
+        colors: ['#008FFB', '#FEB019'],
+        plotOptions: {
+          pie: {
+            donut: {
+              size: '70%',
+              labels: {
+                show: true,
+                total: {
+                  show: true,
+                  label: 'Total',
+                  formatter: () => total
+                }
+              }
+            }
+          }
+        },
+        legend: {
+          position: 'bottom',
+          horizontalAlign: 'center'
+        }
       };
 
-      renderChart();
-      $(tableId).on('draw.dt', renderChart);
+      if (window.chartDirectIndirect) window.chartDirectIndirect.destroy();
+      window.chartDirectIndirect = new ApexCharts(
+        document.querySelector("#chart-direct-indirect"),
+        options
+      );
+      window.chartDirectIndirect.render();
     },
     error: function (xhr) {
-      console.error('Gagal memuat data Direct/Indirect/Sinas:', xhr);
+      console.error('Gagal memuat data Direct/Indirect:', xhr);
     }
   });
 }
+
 
 function rekapWarungbambuTable() {
   let url = base_url + '/master-data/dashboard/rekap-warungbambu';
@@ -437,5 +467,6 @@ function renderWarungbambuChart(pageData) {
   rekapGabunganKarawang();
   rekapKontrakTable();
   rekapDirectIndirectTable();
+  
   rekapWarungbambuTable();
 });
