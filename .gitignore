@@ -18,3 +18,11 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+# Dependency Caches
+/node_modules
+
+# Vite Caches
+.vite/
+
+# File Vite yang sering menimbulkan masalah
+node_modules/.vite/

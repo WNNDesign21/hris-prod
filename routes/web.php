@@ -162,11 +162,18 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/add-whatsapp-device', [TestController::class, 'add_whatsapp_device']);
     Route::get('/start-whatsapp-client', [TestController::class, 'start_whatsapp_client']);
 
-
-
     // tangguuh
-    Route::get('/master-data/dashboard/get-total-karyawan-rekap', [DashboardController::class, 'getTotalKaryawanRekap']);
-    // Route::get('/dashboard/rekap-kontrak', [DashboardController::class, 'rekapKontrak']); // Contoh jika ingin dihapus juga
+    Route::get('/master-data/dashboard/rekap-desa', [DashboardController::class, 'rekapDesa']);
+    Route::get('/master-data/dashboard/rekap-kecamatan', [DashboardController::class, 'rekapKecamatan']);
+    Route::get('/master-data/dashboard/rekap-kabupaten', [DashboardController::class, 'rekapKabupaten']);
+    Route::get('/master-data/dashboard/rekap-provinsi', [DashboardController::class, 'rekapProvinsi']);
+    Route::get('/master-data/dashboard/rekap-kontrak', [DashboardController::class, 'rekapKontrak']);
+    Route::get('/master-data/dashboard/rekap-karawang', [DashboardController::class, 'rekapKarawang']);
+    Route::get('/master-data/dashboard/rekap-direct-indirect-sinas', [DashboardController::class, 'rekapDirectIndirectSinas']);
+    Route::get('/master-data/dashboard/rekap-warungbambu', [DashboardController::class, 'rekapDesaWarungbambu']);
+
+
+
 
 
     /** MASTER DATA - AJAX */
