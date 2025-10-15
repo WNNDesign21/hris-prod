@@ -169,10 +169,10 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/master-data/dashboard/rekap-provinsi', [DashboardController::class, 'rekapProvinsi']);
     Route::get('/master-data/dashboard/rekap-kontrak', [DashboardController::class, 'rekapKontrak']);
     Route::get('/master-data/dashboard/rekap-karawang', [DashboardController::class, 'rekapKarawang']);
-    Route::get('/master-data/dashboard/rekap-direct-indirect-sinas', [DashboardController::class, 'rekapDirectIndirectSinas']);
+  
+    Route::get('/master-data/dashboard/rekap-direct-indirect', [DashboardController::class, 'rekapDirectIndirect']);
+
     Route::get('/master-data/dashboard/rekap-warungbambu', [DashboardController::class, 'rekapDesaWarungbambu']);
-
-
 
 
 

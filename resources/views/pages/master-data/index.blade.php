@@ -169,7 +169,11 @@
                                             <th>Total</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="tabel-rekap-desa"></tbody>
+                                    <tbody id="tabel-rekap-desa">
+                                        <tr>
+                                            <td colspan="3" class="text-center text-muted">Memuat data...</td>
+                                        </tr>
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -205,7 +209,11 @@
                                             <th>Total</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="tabel-rekap-kecamatan"></tbody>
+                                    <tbody id="tabel-rekap-kecamatan">
+                                        <tr>
+                                            <td colspan="3" class="text-center text-muted">Memuat data...</td>
+                                        </tr>
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -244,7 +252,11 @@
                                             <th>Total</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="tabel-rekap-kabupaten"></tbody>
+                                    <tbody id="tabel-rekap-kabupaten">
+                                        <tr>
+                                            <td colspan="3" class="text-center text-muted">Memuat data...</td>
+                                        </tr>
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -280,7 +292,11 @@
                                             <th>Total</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="tabel-rekap-provinsi"></tbody>
+                                    <tbody id="tabel-rekap-provinsi">
+                                        <tr>
+                                            <td colspan="3" class="text-center text-muted">Memuat data...</td>
+                                        </tr>
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -323,7 +339,11 @@
                                             <th>Total</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="tabel-rekap-karawang"></tbody>
+                                    <tbody id="tabel-rekap-karawang">
+                                        <tr>
+                                            <td colspan="3" class="text-center text-muted">Memuat data...</td>
+                                        </tr>
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -360,7 +380,11 @@
                                             <th>Total</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="tabel-rekap-kontrak"></tbody>
+                                    <tbody id="tabel-rekap-kontrak">
+                                        <tr>
+                                            <td colspan="3" class="text-center text-muted">Memuat data...</td>
+                                        </tr>
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -377,9 +401,9 @@
         <div class="col-xl-6 col-12">
             <div class="box">
                 <div class="box-header with-border d-flex justify-content-between align-items-center">
-                    <h4 class="box-title">Rekap Direct & Indirect</h4>
+                    <h4 class="box-title">Rekap Karyawan Direct & Indirect</h4>
                     <div>
-                        <select id="filter-direct" class="form-select form-select-sm">
+                        <select id="filter-direct-indirect" class="form-select form-select-sm">
                             <option value="all">All</option>
                         </select>
                     </div>
@@ -389,7 +413,7 @@
                     <div class="row align-items-center">
                         <div class="col-lg-7 col-12">
                             <div class="table-responsive">
-                                <table class="table table-bordered" id="table-direct">
+                                <table class="table table-bordered" id="table-direct-indirect">
                                     <thead class="table-light">
                                         <tr>
                                             <th>No</th>
@@ -397,18 +421,23 @@
                                             <th>Total</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="tabel-rekap-direct"></tbody>
+                                    <tbody id="tabel-rekap-direct-indirect">
+                                        <tr>
+                                            <td colspan="3" class="text-center text-muted">Memuat data...</td>
+                                        </tr>
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
 
                         <div class="col-lg-5 col-12 text-center">
-                            <div id="chart-direct" style="height:250px;"></div>
+                            <div id="chart-direct-indirect" style="height:250px;"></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
 
         <div class="col-xl-6 col-12">
             <div class="box">
@@ -433,7 +462,11 @@
                                             <th>Total</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="tabel-rekap-sinas"></tbody>
+                                    <tbody id="tabel-rekap-sinas">
+                                        <tr>
+                                            <td colspan="3" class="text-center text-muted">Memuat data...</td>
+                                        </tr>
+                                    </tbody>
                                 </table>
                             </div>
                         </div>
@@ -464,7 +497,11 @@
                                         <th>Total</th>
                                     </tr>
                                 </thead>
-                                <tbody id="tabel-rekap-warungbambu"></tbody>
+                                <tbody id="tabel-rekap-warungbambu">
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted">Memuat data...</td>
+                                    </tr>
+                                </tbody>
                             </table>
                         </div>
                     </div>
