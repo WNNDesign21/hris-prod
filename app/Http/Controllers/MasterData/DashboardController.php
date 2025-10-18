@@ -9,6 +9,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 
+use Illuminate\Http\JsonResponse; // ← HARUS yang ini
+
+use Illuminate\Support\Facades\Auth;
+
+
 class DashboardController extends Controller
 {
     /**
@@ -17,16 +22,44 @@ class DashboardController extends Controller
     public function index()
     {
         $organisasi_id = auth()->user()->organisasi_id;
-        $jumlah_karyawan_keluar = Turnover::organisasi($organisasi_id)->whereIN('status_karyawan', ['MD', 'PS', 'HK', 'TM'])
+        $jumlah_karyawan_keluar = Turnover::organisasi($organisasi_id)
+            ->whereIN('status_karyawan', ['MD', 'PS', 'HK', 'TM'])
             ->whereYear('tanggal_keluar', date('Y'))
             ->count();
+
+        // 🔹 Ambil data domisili dan alamat unik
+        $domisili = DB::table('karyawans')
+            ->where('organisasi_id', $organisasi_id)
+            ->whereNotNull('domisili')
+            ->select('domisili')
+            ->distinct()
+            ->get();
+
+        $alamat = DB::table('karyawans')
+            ->where('organisasi_id', $organisasi_id)
+            ->whereNotNull('alamat')
+            ->select('alamat')
+            ->distinct()
+            ->get();
+
+        // 🔹 Ambil daftar departemen (tambahan penting)
+        $departemen = DB::table('departemens')
+            ->select('id_departemen', 'nama')
+            ->orderBy('nama', 'asc')
+            ->get();
+
         $dataPage = [
             'pageTitle' => "Master Data - Dashboard",
             'page' => 'masterdata-dashboard',
-            'jumlah_karyawan_keluar' => $jumlah_karyawan_keluar
+            'jumlah_karyawan_keluar' => $jumlah_karyawan_keluar,
+            'domisili' => $domisili,
+            'alamat' => $alamat,
+            'departemen' => $departemen, // 🔹 kirim ke view
         ];
+
         return view('pages.master-data.index', $dataPage);
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -341,6 +374,32 @@ class DashboardController extends Controller
 
         return response()->json(['data' => $rekap], 200);
     }
+    public function rekapDesaAlamat()
+    {
+        $organisasi_id = auth()->user()->organisasi_id;
+
+        // Ambil semua alamat dari tabel karyawans
+        $karyawans = DB::table('karyawans')
+            ->select('alamat')
+            ->where('organisasi_id', $organisasi_id)
+            ->whereNotNull('alamat')
+            ->get();
+
+        // Gunakan fungsi regex yang sama
+        $rekap = collect($karyawans)
+            ->map(function ($karyawan) {
+                $hasil = $this->pisahkanAlamat($karyawan->alamat);
+                return strtoupper($hasil['desa']); // hanya ambil nama desa
+            })
+            ->filter()
+            ->countBy()
+            ->map(function ($count, $desa) {
+                return ['desa' => $desa, 'total' => $count];
+            })
+            ->values();
+
+        return response()->json(['data' => $rekap], 200);
+    }
 
     public function rekapKecamatan()
     {
@@ -362,6 +421,32 @@ class DashboardController extends Controller
             })
             ->filter() // hapus kosong/null
             ->countBy() // hitung jumlah masing-masing kecamatan
+            ->map(function ($count, $kecamatan) {
+                return ['kecamatan' => $kecamatan, 'total' => $count];
+            })
+            ->values();
+
+        return response()->json(['data' => $rekap], 200);
+    }
+    public function rekapKecamatanAlamat()
+    {
+        $organisasi_id = auth()->user()->organisasi_id;
+
+        // Ambil semua alamat dari tabel karyawans
+        $karyawans = DB::table('karyawans')
+            ->select('alamat')
+            ->where('organisasi_id', $organisasi_id)
+            ->whereNotNull('alamat')
+            ->get();
+
+        // Gunakan fungsi regex yang sama
+        $rekap = collect($karyawans)
+            ->map(function ($karyawan) {
+                $hasil = $this->pisahkanAlamat($karyawan->alamat);
+                return strtoupper($hasil['kecamatan']);
+            })
+            ->filter()
+            ->countBy()
             ->map(function ($count, $kecamatan) {
                 return ['kecamatan' => $kecamatan, 'total' => $count];
             })
@@ -395,6 +480,30 @@ class DashboardController extends Controller
 
         return response()->json(['data' => $rekap], 200);
     }
+    public function rekapKabupatenAlamat()
+    {
+        $organisasi_id = auth()->user()->organisasi_id;
+
+        $karyawans = DB::table('karyawans')
+            ->select('alamat')
+            ->where('organisasi_id', $organisasi_id)
+            ->whereNotNull('alamat')
+            ->get();
+
+        $rekap = collect($karyawans)
+            ->map(function ($karyawan) {
+                $hasil = $this->pisahkanAlamat($karyawan->alamat);
+                return strtoupper($hasil['kabupaten']);
+            })
+            ->filter()
+            ->countBy()
+            ->map(function ($count, $kabupaten) {
+                return ['kabupaten' => $kabupaten, 'total' => $count];
+            })
+            ->values();
+
+        return response()->json(['data' => $rekap], 200);
+    }
 
     public function rekapProvinsi()
     {
@@ -420,7 +529,105 @@ class DashboardController extends Controller
             ->values();
         return response()->json(['data' => $rekap], 200);
     }
-    public function rekapKarawang()
+
+    public function rekapProvinsiAlamat()
+    {
+        $organisasi_id = auth()->user()->organisasi_id;
+
+        $karyawans = DB::table('karyawans')
+            ->select('alamat')
+            ->where('organisasi_id', $organisasi_id)
+            ->whereNotNull('alamat')
+            ->get();
+
+        $rekap = collect($karyawans)
+            ->map(function ($karyawan) {
+                $hasil = $this->pisahkanAlamat($karyawan->alamat);
+                return strtoupper($hasil['provinsi']);
+            })
+            ->filter()
+            ->countBy()
+            ->map(function ($count, $provinsi) {
+                return ['provinsi' => $provinsi, 'total' => $count];
+            })
+            ->values();
+
+        return response()->json(['data' => $rekap], 200);
+    }
+
+    // public function rekapKarawangAlamat()
+    // {
+    //     $organisasi_id = auth()->user()->organisasi_id;
+
+    //     $dalamKarawang = DB::table('karyawans')
+    //         ->select(DB::raw('UPPER(TRIM(alamat)) as alamat'))
+    //         ->where('organisasi_id', $organisasi_id)
+    //         ->whereNotNull('alamat')
+    //         ->whereRaw('LOWER(alamat) LIKE ?', ['%karawang%'])
+    //         ->get();
+
+    //     $luarKarawang = DB::table('karyawans')
+    //         ->select(DB::raw('UPPER(TRIM(alamat)) as alamat'))
+    //         ->where('organisasi_id', $organisasi_id)
+    //         ->whereNotNull('alamat')
+    //         ->whereRaw('LOWER(alamat) NOT LIKE ?', ['%karawang%'])
+    //         ->get();
+
+    //     return response()->json([
+    //         'dalam' => $dalamKarawang,
+    //         'luar' => $luarKarawang
+    //     ], 200);
+    // }
+
+    // public function rekapKarawang()
+    // {
+    //     $organisasi_id = auth()->user()->organisasi_id;
+
+    //     $dalamKarawang = DB::table('karyawans')
+    //         ->select(DB::raw('UPPER(TRIM(domisili)) as domisili'))
+    //         ->where('organisasi_id', $organisasi_id)
+    //         ->whereNotNull('domisili')
+    //         ->whereRaw('LOWER(domisili) LIKE ?', ['%karawang%'])
+    //         ->get();
+
+    //     $luarKarawang = DB::table('karyawans')
+    //         ->select(DB::raw('UPPER(TRIM(domisili)) as domisili'))
+    //         ->where('organisasi_id', $organisasi_id)
+    //         ->whereNotNull('domisili')
+    //         ->whereRaw('LOWER(domisili) NOT LIKE ?', ['%karawang%'])
+    //         ->get();
+
+    //     return response()->json([
+    //         'dalam' => $dalamKarawang,
+    //         'luar' => $luarKarawang
+    //     ], 200);
+    // }
+    public function rekapKarawang(): \Illuminate\Http\JsonResponse
+    {
+        $organisasi_id = auth()->user()->organisasi_id;
+
+        $dalamKarawang = DB::table('karyawans')
+            ->select(DB::raw('UPPER(TRIM(domisili)) as domisili'))
+            ->where('organisasi_id', $organisasi_id)
+            ->whereNotNull('domisili')
+            ->whereRaw('LOWER(domisili) LIKE ?', ['%karawang%'])
+            ->get();
+
+        $luarKarawang = DB::table('karyawans')
+            ->select(DB::raw('UPPER(TRIM(domisili)) as domisili'))
+            ->where('organisasi_id', $organisasi_id)
+            ->whereNotNull('domisili')
+            ->whereRaw('LOWER(domisili) NOT LIKE ?', ['%karawang%'])
+            ->get();
+
+        return response()->json([
+            'dalam' => $dalamKarawang,
+            'luar' => $luarKarawang,
+            'status' => 200,
+        ]);
+    }
+
+    public function rekapKarawangAlamat(): \Illuminate\Http\JsonResponse
     {
         $organisasi_id = auth()->user()->organisasi_id;
 
@@ -440,8 +647,9 @@ class DashboardController extends Controller
 
         return response()->json([
             'dalam' => $dalamKarawang,
-            'luar' => $luarKarawang
-        ], 200);
+            'luar' => $luarKarawang,
+            'status' => 200,
+        ]);
     }
 
 
@@ -529,19 +737,50 @@ class DashboardController extends Controller
         ]);
     }
 
-    public function rekapDesaWarungbambu()
+    public function rekapWarungbambu(): JsonResponse
     {
+        $organisasi_id = auth()->user()->organisasi_id;
+
         $dalam = DB::table('karyawans')
-            ->whereRaw("LOWER(domisili) LIKE '%warung bambu%'")
-            ->count();
+            ->where('organisasi_id', $organisasi_id)
+            ->whereNotNull('domisili')
+            ->whereRaw("LOWER(REPLACE(domisili, ' ', '')) LIKE ?", ['%warungbambu%'])
+            ->get();
 
         $luar = DB::table('karyawans')
-            ->whereRaw("LOWER(domisili) NOT LIKE '%warung bambu%'")
-            ->count();
+            ->where('organisasi_id', $organisasi_id)
+            ->whereNotNull('domisili')
+            ->whereRaw("LOWER(REPLACE(domisili, ' ', '')) NOT LIKE ?", ['%warungbambu%'])
+            ->get();
 
         return response()->json([
             'dalam' => $dalam,
             'luar' => $luar,
+            'status' => 200,
+        ]);
+    }
+
+
+    public function rekapWarungbambuAlamat(): JsonResponse
+    {
+        $organisasi_id = auth()->user()->organisasi_id;
+
+        $dalam = DB::table('karyawans')
+            ->where('organisasi_id', $organisasi_id)
+            ->whereNotNull('alamat')
+            ->whereRaw("LOWER(REPLACE(alamat, ' ', '')) LIKE ?", ['%warungbambu%'])
+            ->get();
+
+        $luar = DB::table('karyawans')
+            ->where('organisasi_id', $organisasi_id)
+            ->whereNotNull('alamat')
+            ->whereRaw("LOWER(REPLACE(alamat, ' ', '')) NOT LIKE ?", ['%warungbambu%'])
+            ->get();
+
+        return response()->json([
+            'dalam' => $dalam,
+            'luar' => $luar,
+            'status' => 200,
         ]);
     }
 

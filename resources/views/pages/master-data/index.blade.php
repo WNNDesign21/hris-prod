@@ -151,9 +151,9 @@
                 <div class="box-header with-border d-flex justify-content-between align-items-center">
                     <h4 class="box-title">Rekap Desa</h4>
                     <div>
-                        <select id="filter-desa" class="form-select form-select-sm">
-                            <option value="all">All</option>
-                        </select>
+                        <button class="btn btn-warning waves-effect btnFilterCurrent" data-title="Filter Desa">
+                            <i class="fas fa-filter"></i>
+                        </button>
                     </div>
                 </div>
 
@@ -191,9 +191,9 @@
                 <div class="box-header with-border d-flex justify-content-between align-items-center">
                     <h4 class="box-title">Rekap Kecamatan</h4>
                     <div>
-                        <select id="filter-kecamatan" class="form-select form-select-sm">
-                            <option value="all">All</option>
-                        </select>
+                        <button class="btn btn-warning waves-effect btnFilterCurrent" data-title="Filter Kecamatan">
+                            <i class="fas fa-filter"></i>
+                        </button>
                     </div>
                 </div>
 
@@ -234,9 +234,9 @@
                 <div class="box-header with-border d-flex justify-content-between align-items-center">
                     <h4 class="box-title">Rekap Kabupaten</h4>
                     <div>
-                        <select id="filter-kabupaten" class="form-select form-select-sm">
-                            <option value="all">All</option>
-                        </select>
+                        <button class="btn btn-warning waves-effect btnFilterCurrent" data-title="Filter Kabupaten">
+                            <i class="fas fa-filter"></i>
+                        </button>
                     </div>
                 </div>
 
@@ -274,9 +274,9 @@
                 <div class="box-header with-border d-flex justify-content-between align-items-center">
                     <h4 class="box-title">Rekap Provinsi</h4>
                     <div>
-                        <select id="filter-provinsi" class="form-select form-select-sm">
-                            <option value="all">All</option>
-                        </select>
+                        <button class="btn btn-warning waves-effect btnFilterCurrent" data-title="Filter Provinsi">
+                            <i class="fas fa-filter"></i>
+                        </button>
                     </div>
                 </div>
 
@@ -320,12 +320,12 @@
             <div class="box">
                 <div class="box-header with-border d-flex justify-content-between align-items-center">
                     <h4 class="box-title">Rekap Dalam & Luar Karawang</h4>
-                    <div>
-                        <select id="filter-karawang" class="form-select form-select-sm">
-                            <option value="all">All</option>
-                        </select>
-                    </div>
+                    <button type="button" class="btn btn-warning btnFilterCurrent" data-title="Filter Karawang">
+                        <i class="fas fa-filter"></i>
+                    </button>
                 </div>
+
+
 
                 <div class="box-body">
                     <div class="row align-items-center">
@@ -362,9 +362,10 @@
                 <div class="box-header with-border d-flex justify-content-between align-items-center">
                     <h4 class="box-title">Rekap Karyawan Berdasarkan Kontrak</h4>
                     <div>
-                        <select id="filter-kontrak" class="form-select form-select-sm">
-                            <option value="all">All</option>
-                        </select>
+                        <button type="button" class="btn btn-warning waves-effect btnFilterCurrent"
+                            data-title="Filter Karyawan Berdasarkan Kontrak">
+                            <i class="fas fa-filter"></i>
+                        </button>
                     </div>
                 </div>
 
@@ -403,9 +404,10 @@
                 <div class="box-header with-border d-flex justify-content-between align-items-center">
                     <h4 class="box-title">Rekap Karyawan Direct & Indirect</h4>
                     <div>
-                        <select id="filter-direct-indirect" class="form-select form-select-sm">
-                            <option value="all">All</option>
-                        </select>
+                        <button type="button" class="btn btn-warning waves-effect btnFilterCurrent"
+                            data-title="Filter Karyawan Direct & Indirect">
+                            <i class="fas fa-filter"></i>
+                        </button>
                     </div>
                 </div>
 
@@ -444,9 +446,10 @@
                 <div class="box-header with-border d-flex justify-content-between align-items-center">
                     <h4 class="box-title">Rekap Sinas</h4>
                     <div>
-                        <select id="filter-sinas" class="form-select form-select-sm">
-                            <option value="all">All</option>
-                        </select>
+                        <button type="button" class="btn btn-warning waves-effect btnFilterCurrent"
+                            data-title="Filter Sinas">
+                            <i class="fas fa-filter"></i>
+                        </button>
                     </div>
                 </div>
 
@@ -483,6 +486,12 @@
         <div class="box">
             <div class="box-header with-border d-flex justify-content-between align-items-center">
                 <h4 class="box-title">Rekap Karyawan Dalam & Luar Desa Warung Bambu</h4>
+                <div>
+                    <button class="btn btn-warning btnFilterCurrent" data-title="Filter Warungbambu">
+                        <i class="fas fa-filter"></i>
+                    </button>
+
+                </div>
             </div>
 
             <div class="box-body">
@@ -515,5 +524,5 @@
     </div>
 
 
-
+    @include('pages.master-data.modal-filter')
 @endsection
