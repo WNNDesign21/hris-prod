@@ -17,8 +17,17 @@
                         <option value="Alamat">Alamat</option>
                     </select>
                 </div>
-            </div>
+                <div class="form-group">
+                    <label for="filterDepartemen">Departemen</label>
+                    <select name="filterDepartemen" id="filterDepartemen" class="form-control" style="width: 100%;">
+                        <option value="">Semua Departemen</option>
+                        @foreach ($departemen as $dp)
+                            <option value="{{ $dp->id_departemen }}">{{ $dp->nama }}</option>
+                        @endforeach
+                    </select>
+                </div>
 
+            </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-danger btnResetFilterCurrent">
                     <i class="fas fa-undo"></i> Reset

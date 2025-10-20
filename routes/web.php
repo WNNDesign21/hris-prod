@@ -171,20 +171,19 @@ Route::group(['middleware' => ['auth']], function () {
     Route::get('/master-data/dashboard/rekap-karawang', [DashboardController::class, 'rekapKarawang']);
     Route::get('/master-data/dashboard/rekap-direct-indirect', [DashboardController::class, 'rekapDirectIndirect']);
     Route::get('/master-data/dashboard/rekap-sinas', [DashboardController::class, 'rekapSinas']);
-    Route::get('/master-data/dashboard/rekap-warungbambu', [DashboardController::class, 'rekapDesaWarungbambu']);
-    Route::get('/master-data/dashboard', [DashboardController::class, 'index'])->name('master-data.dashboard');
-    Route::post('/master-data/dashboard/filter-current', [DashboardController::class, 'filterCurrent'])->name('masterdata.dashboard.filter-current');
-    Route::post('/master-data/dashboard/rekap-desa/filter', [DashboardController::class, 'rekapDesaFilter'])
-        ->name('masterdata.dashboard.rekap-desa.filter');
+    Route::get('/master-data/dashboard/rekap-warungbambu', [DashboardController::class, 'rekapWarungbambu']);
 
+    
     Route::get('/master-data/dashboard/rekap-desa-alamat', [DashboardController::class, 'rekapDesaAlamat']);
     Route::get('/master-data/dashboard/rekap-kecamatan-alamat', [DashboardController::class, 'rekapKecamatanAlamat']);
     Route::get('/master-data/dashboard/rekap-kabupaten-alamat', [DashboardController::class, 'rekapKabupatenAlamat']);
     Route::get('/master-data/dashboard/rekap-provinsi-alamat', [DashboardController::class, 'rekapProvinsiAlamat']);
     Route::get('/master-data/dashboard/rekap-karawang-alamat', [DashboardController::class, 'rekapKarawangAlamat']);
     Route::get('/master-data/dashboard/rekap-karawang-alamat', [DashboardController::class, 'rekapKarawangAlamat']);
-    Route::get('/master-data/dashboard/rekap-warungbambu', [DashboardController::class, 'rekapWarungbambu']);
     Route::get('/master-data/dashboard/rekap-warungbambu-alamat', [DashboardController::class, 'rekapWarungbambuAlamat']);
+    Route::get('/master-data/dashboard/rekap-kontrak-alamat', [DashboardController::class, 'rekapKontrakAlamat']);
+    Route::get('/master-data/dashboard/rekap-direct-indirect-alamat', [DashboardController::class, 'rekapDirectIndirectAlamat']);
+    Route::get('/master-data/dashboard/rekap-sinas-alamat', [DashboardController::class, 'rekapSinasAlamat']);
 
 
     /** MASTER DATA - AJAX */

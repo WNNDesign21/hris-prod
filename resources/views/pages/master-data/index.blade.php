@@ -362,8 +362,7 @@
                 <div class="box-header with-border d-flex justify-content-between align-items-center">
                     <h4 class="box-title">Rekap Karyawan Berdasarkan Kontrak</h4>
                     <div>
-                        <button type="button" class="btn btn-warning waves-effect btnFilterCurrent"
-                            data-title="Filter Karyawan Berdasarkan Kontrak">
+                        <button class="btn btn-warning btnFilterCurrent" data-title="Filter Kontrak">
                             <i class="fas fa-filter"></i>
                         </button>
                     </div>
@@ -404,8 +403,7 @@
                 <div class="box-header with-border d-flex justify-content-between align-items-center">
                     <h4 class="box-title">Rekap Karyawan Direct & Indirect</h4>
                     <div>
-                        <button type="button" class="btn btn-warning waves-effect btnFilterCurrent"
-                            data-title="Filter Karyawan Direct & Indirect">
+                        <button class="btn btn-warning btnFilterCurrent" data-title="Filter Direct & Indirect">
                             <i class="fas fa-filter"></i>
                         </button>
                     </div>
@@ -446,8 +444,7 @@
                 <div class="box-header with-border d-flex justify-content-between align-items-center">
                     <h4 class="box-title">Rekap Sinas</h4>
                     <div>
-                        <button type="button" class="btn btn-warning waves-effect btnFilterCurrent"
-                            data-title="Filter Sinas">
+                        <button class="btn btn-warning btnFilterCurrent" data-title="Filter Sinas">
                             <i class="fas fa-filter"></i>
                         </button>
                     </div>
