@@ -13,6 +13,8 @@ use App\Helpers\Approval;
 use App\Models\Departemen;
 use Illuminate\Http\Request;
 use App\Models\Attendance\Scanlog;
+use App\Models\Attendance\Device;
+use App\Jobs\SummarizeAttendanceJob;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance\KaryawanGrup;
@@ -652,6 +654,92 @@ class PresensiController extends Controller
         } catch (Throwable $e) {
             DB::rollback();
             return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function checkLatest(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'startDate' => ['required', 'date_format:Y-m-d'],
+            'endDate' => ['required', 'date_format:Y-m-d', 'after_or_equal:startDate'],
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['message' => $validator->errors()->all()], 422);
+        }
+
+        $startDate = Carbon::parse($request->startDate);
+        $endDate = Carbon::parse($request->endDate);
+
+
+        try {
+            $organisasi_id = auth()->user()->organisasi_id;
+            $devices = Device::where('organisasi_id', $organisasi_id)->get();
+
+            if ($devices->isEmpty()) {
+                return response()->json(['message' => 'Tidak ada perangkat absensi yang terdaftar untuk organisasi Anda.'], 404);
+            }
+
+            $allNewData = collect();
+
+            // Loop untuk setiap hari dalam rentang tanggal yang dipilih
+            for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
+                foreach ($devices as $device) {
+                    $newData = $this->getAndProcessScanlog(
+                        $organisasi_id,
+                        $device->id_device,
+                        $device->device_sn,
+                        $date->format('Y-m-d') . " 00:00:00",
+                        $date->format('Y-m-d') . " 23:59:59"
+                    );
+                    if ($newData->isNotEmpty()) {
+                        $allNewData = $allNewData->merge($newData);
+                    }
+                }
+            }
+
+            if ($allNewData->isEmpty()) {
+                return response()->json(['message' => 'Tidak ada data presensi baru yang ditemukan.', 'data' => []], 200);
+            }
+
+            // Tambahkan nama karyawan ke data yang akan dikirim
+            $pins = $allNewData->pluck('BADGENUMBER')->unique();
+            $karyawanNames = Karyawan::whereIn('pin', $pins)->pluck('nama', 'pin');
+
+            $formattedData = $allNewData->map(function ($item) use ($karyawanNames) {
+                $item->nama_karyawan = $karyawanNames[$item->BADGENUMBER] ?? 'N/A';
+                $item->scan_time_formatted = Carbon::parse($item->CHECKTIME)->format('d M Y, H:i:s');
+                return $item;
+            })->sortBy('CHECKTIME');
+
+            return response()->json(['message' => 'Data presensi baru ditemukan!', 'data' => $formattedData->values()], 200);
+        } catch (Throwable $e) {
+            return response()->json(['message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
+        }
+    }
+
+    private function getAndProcessScanlog($organisasi_id, $device_id, $device_sn, $startDate, $endDate)
+    {
+        try {
+            $rawData = DB::connection('sqlsrv')
+                ->table('USERINFO')
+                ->join('CHECKINOUT', 'USERINFO.USERID', '=', 'CHECKINOUT.USERID')
+                ->select('USERINFO.BADGENUMBER', 'CHECKINOUT.CHECKTIME')
+                ->where('CHECKINOUT.sn', $device_sn)
+                ->whereBetween('CHECKINOUT.CHECKTIME', [$startDate, $endDate])
+                ->get();
+
+            if ($rawData->isNotEmpty()) {
+                $pins = $rawData->pluck('BADGENUMBER')->unique()->toArray();
+                // Jalankan job untuk memproses data yang baru diambil
+                SummarizeAttendanceJob::dispatch($pins, $organisasi_id, auth()->user(), Carbon::parse($startDate)->toDateString());
+                return $rawData;
+            }
+            return collect();
+        } catch (Throwable $e) {
+            // Log error jika koneksi atau query gagal, tapi jangan hentikan proses
+            activity('check_latest_error')->log('Gagal mengambil data dari perangkat SN: ' . $device_sn . '. Error: ' . $e->getMessage());
+            return collect();
         }
     }
 }

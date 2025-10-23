@@ -80,6 +80,8 @@
                                     class="fas fa-sync-alt"></i></button>
                             <button type="button" class="btn btn-warning waves-effect btnFilter"><i
                                     class="fas fa-filter"></i></button>
+                            <button type="button" class="btn btn-success waves-effect" id="btnSummarize" title="Rekapitulasi Ulang Presensi"><i
+                                    class="fas fa-check"></i></button>
                         </div>
                     </div>
                 </div>
@@ -114,4 +116,6 @@
     @include('pages.attendance-e.presensi.modal-filter-summary')
     @include('pages.attendance-e.presensi.modal-detail-summary')
     @include('pages.attendance-e.presensi.modal-check')
+    @include('pages.attendance-e.presensi.modal-new-scanlog')
+    @include('pages.attendance-e.presensi.modal-check-periode')
 @endsection
