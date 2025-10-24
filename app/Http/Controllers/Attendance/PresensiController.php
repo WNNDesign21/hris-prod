@@ -13,14 +13,15 @@ use App\Helpers\Approval;
 use App\Models\Departemen;
 use Illuminate\Http\Request;
 use App\Models\Attendance\Scanlog;
-use App\Models\Attendance\Device;
-use App\Jobs\SummarizeAttendanceJob;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance\KaryawanGrup;
 use App\Models\Attendance\ScanlogDetail;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Attendance\AttendanceSummary;
+use App\Jobs\SummarizeAttendanceJob;
+use App\Jobs\ProcessSummarizeRequestJob;
+use App\Models\Event;
 
 class PresensiController extends Controller
 {
@@ -136,30 +137,73 @@ class PresensiController extends Controller
                 $nestedData['menit_keterlambatan'] = $data?->menit_keterlambatan . ' Menit';
 
                 for ($i = 1; $i <= 28; $i++) {
+                    // Tentukan tanggal untuk memeriksa apakah hari libur
+                    $currentDate = Carbon::createFromFormat('Y-m', $dataFilter['periode'])->startOfMonth()->addDays($i - 1);
+                    $isWeekend = $currentDate->isWeekend();
+                    $isHoliday = Event::where('organisasi_id', auth()->user()->organisasi_id)
+                        ->where('tanggal_mulai', '<=', $currentDate->format('Y-m-d'))
+                        ->where('tanggal_selesai', '>=', $currentDate->format('Y-m-d'))
+                        ->whereIn('jenis_event', ['CB', 'LN'])
+                        ->exists();
+                    $isDayOff = $isWeekend || $isHoliday;
+                    $style = $isDayOff ? 'style="color:red;"' : '';
+                    
                     if ($data->{"tanggal{$i}_status"} == 'H') {
-                        $nestedData["in_$i"] = '<button class="btn btn-sm btn-success btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="IN">' . ($data?->{"tanggal{$i}_in"} ?? 'UNDEFINED') . '</button>';
-                        $nestedData["out_$i"] = '<button class="btn btn-sm btn-success btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="OUT">' . ($data?->{"tanggal{$i}_out"} ?? 'UNDEFINED') . '</button>';
+                        $nestedData["in_$i"] = '<button class="btn btn-sm btn-success btnCheck" ' . $style . ' data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="IN">' . ($data?->{"tanggal{$i}_in"} ?? 'UNDEFINED') . '</button>';
+                        $nestedData["out_$i"] = '<button class="btn btn-sm btn-success btnCheck" ' . $style . ' data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="OUT">' . ($data?->{"tanggal{$i}_out"} ?? 'UNDEFINED') . '</button>';
                     } elseif ($data->{"tanggal{$i}_status"} == 'S') {
-                        $nestedData["in_$i"] = '<button class="btn btn-sm btn-dark btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Sakit</button>';
-                        $nestedData["out_$i"] = '<button class="btn btn-sm btn-dark btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Sakit</button>';
+                        $nestedData["in_$i"] = '<button class="btn btn-sm btn-dark btnCheck" ' . $style . ' data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Sakit</button>';
+                        $nestedData["out_$i"] = '<button class="btn btn-sm btn-dark btnCheck" ' . $style . ' data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Sakit</button>';
                     } elseif ($data->{"tanggal{$i}_status"} == 'I') {
-                        $nestedData["in_$i"] = '<button class="btn btn-sm btn-primary btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Izin</button>';
-                        $nestedData["out_$i"] = '<button class="btn btn-sm btn-primary btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Izin</button>';
+                        $nestedData["in_$i"] = '<button class="btn btn-sm btn-primary btnCheck" ' . $style . ' data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Izin</button>';
+                        $nestedData["out_$i"] = '<button class="btn btn-sm btn-primary btnCheck" ' . $style . ' data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Izin</button>';
                     } elseif ($data->{"tanggal{$i}_status"} == 'C') {
-                        $nestedData["in_$i"] = '<button class="btn btn-sm btn-info btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Cuti</button>';
-                        $nestedData["out_$i"] = '<button class="btn btn-sm btn-info btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Cuti</button>';
+                        $nestedData["in_$i"] = '<button class="btn btn-sm btn-info btnCheck" ' . $style . ' data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Cuti</button>';
+                        $nestedData["out_$i"] = '<button class="btn btn-sm btn-info btnCheck" ' . $style . ' data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Cuti</button>';
+                    } elseif ($data->{"tanggal{$i}_status"} == 'L') {
+                        // Hari libur (akhir pekan) - jika ada presensi, anggap sebagai lembur
+                        if ($data?->{"tanggal{$i}_in"} && $data?->{"tanggal{$i}_out"}) {
+                            $nestedData["in_$i"] = '<button class="btn btn-sm btn-success btnCheck" ' . $style . ' data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="IN">' . ($data?->{"tanggal{$i}_in"} ?? 'UNDEFINED') . '</button>';
+                            $nestedData["out_$i"] = '<button class="btn btn-sm btn-success btnCheck" ' . $style . ' data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="OUT">' . ($data?->{"tanggal{$i}_out"} ?? 'UNDEFINED') . '</button>';
+                        } else {
+                            $nestedData["in_$i"] = '<button class="btn btn-sm btn-libur btnCheck" ' . $style . ' data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Libur</button>';
+                            $nestedData["out_$i"] = '<button class="btn btn-sm btn-libur btnCheck" ' . $style . ' data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Libur</button>';
+                        }
                     } else {
-                        $nestedData["in_$i"] = '<button class="btn btn-sm btn-danger btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="IN">Absen</button>';
-                        $nestedData["out_$i"] = '<button class="btn btn-sm btn-danger btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="OUT">Absen</button>';
+                        // Hari biasa tidak ada presensi
+                        if ($isDayOff) {
+                            // Akhir pekan tidak ada presensi = hari libur
+                            $nestedData["in_$i"] = '<button class="btn btn-sm btn-libur btnCheck" ' . $style . ' data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Libur</button>';
+                            $nestedData["out_$i"] = '<button class="btn btn-sm btn-libur btnCheck" ' . $style . ' data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Libur</button>';
+                        } else {
+                            // Hari kerja tidak ada presensi = absen
+                            $nestedData["in_$i"] = '<button class="btn btn-sm btn-danger btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="IN">Absen</button>';
+                            $nestedData["out_$i"] = '<button class="btn btn-sm btn-danger btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-' . str_pad($i, 2, '0', STR_PAD_LEFT) . '" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="OUT">Absen</button>';
+                        }
                     }
 
-                    $nestedData["in_status_$i"] = $data?->{"tanggal{$i}_selisih"} > 0 ? 'LATE' : '';
+                    if ($data->{"tanggal{$i}_status"} != 'L') {
+                        $nestedData["in_status_$i"] = $data?->{"tanggal{$i}_selisih"} > 0 ? 'LATE' : '';
+                    } else {
+                        $nestedData["in_status_$i"] = '';
+                    }
                     $nestedData["out_status_$i"] = $data?->{"tanggal{$i}_status"};
                 }
 
                 // KONDISI UNTUK BULAN YANG MEMILIKI TANGGAL 29, 30, 31
                 $daysInMonth = Carbon::createFromFormat('Y-m', $dataFilter['periode'])->daysInMonth;
                 if ($daysInMonth >= 29) {
+                    // Tentukan tanggal untuk memeriksa apakah hari libur
+                    $currentDate = Carbon::createFromFormat('Y-m', $dataFilter['periode'])->startOfMonth()->addDays(28);
+                    $isWeekend = $currentDate->isWeekend();
+                    $isHoliday = Event::where('organisasi_id', auth()->user()->organisasi_id)
+                        ->where('tanggal_mulai', '<=', $currentDate->format('Y-m-d'))
+                        ->where('tanggal_selesai', '>=', $currentDate->format('Y-m-d'))
+                        ->whereIn('jenis_event', ['CB', 'LN'])
+                        ->exists();
+                    $isDayOff = $isWeekend || $isHoliday;
+                    $style = $isDayOff ? 'style="color:red;"' : '';
+                    
                     if ($data->{"tanggal29_status"} == 'H') {
                         $nestedData["in_29"] = '<button class="btn btn-sm btn-success btnCheck" data-id="' . $data->id_att_summary . '"  data-date="' . $dataFilter['periode'] . '-29" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="IN">' . $data->tanggal29_in . '</button>';
                         $nestedData["out_29"] = '<button class="btn btn-sm btn-success btnCheck" data-id="' . $data->id_att_summary . '"  data-date="' . $dataFilter['periode'] . '-29" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="OUT">' . $data->tanggal29_out . '</button>';
@@ -172,12 +216,33 @@ class PresensiController extends Controller
                     } elseif ($data->{"tanggal29_status"} == 'C') {
                         $nestedData["in_29"] = '<button class="btn btn-sm btn-info btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-29" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Cuti</button>';
                         $nestedData["out_29"] = '<button class="btn btn-sm btn-info btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-29" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Cuti</button>';
+                    } elseif ($data->{"tanggal29_status"} == 'L') {
+                        // Hari libur (akhir pekan) - jika ada presensi, anggap sebagai lembur
+                        if ($data->tanggal29_in && $data->tanggal29_out) {
+                            $nestedData["in_29"] = '<button class="btn btn-sm btn-success btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-29" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="IN">' . $data->tanggal29_in . '</button>';
+                            $nestedData["out_29"] = '<button class="btn btn-sm btn-success btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-29" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="OUT">' . $data->tanggal29_out . '</button>';
+                        } else {
+                            $nestedData["in_29"] = '<button class="btn btn-sm btn-libur btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-29" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Libur</button>';
+                            $nestedData["out_29"] = '<button class="btn btn-sm btn-libur btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-29" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Libur</button>';
+                        }
                     } else {
-                        $nestedData["in_29"] = '<button class="btn btn-sm btn-danger btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-29" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="IN">Absen</button>';
-                        $nestedData["out_29"] = '<button class="btn btn-sm btn-danger btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-29" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="OUT">Absen</button>';
+                        // Hari biasa tidak ada presensi
+                        if ($isWeekend) {
+                            // Akhir pekan tidak ada presensi = hari libur
+                            $nestedData["in_29"] = '<button class="btn btn-sm btn-libur btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-29" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Libur</button>';
+                            $nestedData["out_29"] = '<button class="btn btn-sm btn-libur btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-29" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Libur</button>';
+                        } else {
+                            // Hari kerja tidak ada presensi = absen
+                            $nestedData["in_29"] = '<button class="btn btn-sm btn-danger btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-29" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="IN">Absen</button>';
+                            $nestedData["out_29"] = '<button class="btn btn-sm btn-danger btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-29" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="OUT">Absen</button>';
+                        }
                     }
 
-                    $nestedData["in_status_29"] = $data?->tanggal29_selisih > 0 ? 'LATE' : '';
+                    if ($data->{"tanggal29_status"} != 'L') {
+                        $nestedData["in_status_29"] = $data?->tanggal29_selisih > 0 ? 'LATE' : '';
+                    } else {
+                        $nestedData["in_status_29"] = '';
+                    }
                     $nestedData["out_status_29"] = $data?->tanggal29_status;
                 } else {
                     $nestedData['in_29'] = '';
@@ -187,6 +252,10 @@ class PresensiController extends Controller
                 }
 
                 if ($daysInMonth >= 30) {
+                    // Tentukan tanggal untuk memeriksa apakah hari libur
+                    $currentDate = Carbon::createFromFormat('Y-m', $dataFilter['periode'])->startOfMonth()->addDays(29);
+                    $isWeekend = $currentDate->isWeekend();
+                    
                     if ($data->{"tanggal30_status"} == 'H') {
                         $nestedData["in_30"] = '<button class="btn btn-sm btn-success btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-30" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="IN">' . $data->tanggal30_in . '</button>';
                         $nestedData["out_30"] = '<button class="btn btn-sm btn-success btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-30" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="OUT">' . $data->tanggal30_out . '</button>';
@@ -199,11 +268,32 @@ class PresensiController extends Controller
                     } elseif ($data->{"tanggal30_status"} == 'C') {
                         $nestedData["in_30"] = '<button class="btn btn-sm btn-info btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-30" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Cuti</button>';
                         $nestedData["out_30"] = '<button class="btn btn-sm btn-info btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-30" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Cuti</button>';
+                    } elseif ($data->{"tanggal30_status"} == 'L') {
+                        // Hari libur (akhir pekan) - jika ada presensi, anggap sebagai lembur
+                        if ($data->tanggal30_in && $data->tanggal30_out) {
+                            $nestedData["in_30"] = '<button class="btn btn-sm btn-success btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-30" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="IN">' . $data->tanggal30_in . '</button>';
+                            $nestedData["out_30"] = '<button class="btn btn-sm btn-success btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-30" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="OUT">' . $data->tanggal30_out . '</button>';
+                        } else {
+                            $nestedData["in_30"] = '<button class="btn btn-sm btn-libur btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-30" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Libur</button>';
+                            $nestedData["out_30"] = '<button class="btn btn-sm btn-libur btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-30" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Libur</button>';
+                        }
                     } else {
-                        $nestedData["in_30"] = '<button class="btn btn-sm btn-danger btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-30" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="IN">Absen</button>';
-                        $nestedData["out_30"] = '<button class="btn btn-sm btn-danger btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-30" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="OUT">Absen</button>';
+                        // Hari biasa tidak ada presensi
+                        if ($isWeekend) {
+                            // Akhir pekan tidak ada presensi = hari libur
+                            $nestedData["in_30"] = '<button class="btn btn-sm btn-libur btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-30" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Libur</button>';
+                            $nestedData["out_30"] = '<button class="btn btn-sm btn-libur btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-30" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Libur</button>';
+                        } else {
+                            // Hari kerja tidak ada presensi = absen
+                            $nestedData["in_30"] = '<button class="btn btn-sm btn-danger btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-30" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="IN">Absen</button>';
+                            $nestedData["out_30"] = '<button class="btn btn-sm btn-danger btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-30" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="OUT">Absen</button>';
+                        }
                     }
-                    $nestedData["in_status_30"] = $data?->tanggal30_selisih > 0 ? 'LATE' : '';
+                    if ($data->{"tanggal30_status"} != 'L') {
+                        $nestedData["in_status_30"] = $data?->tanggal30_selisih > 0 ? 'LATE' : '';
+                    } else {
+                        $nestedData["in_status_30"] = '';
+                    }
                     $nestedData["out_status_30"] = $data?->tanggal30_status;
                 } else {
                     $nestedData['in_30'] = '';
@@ -213,6 +303,10 @@ class PresensiController extends Controller
                 }
 
                 if ($daysInMonth == 31) {
+                    // Tentukan tanggal untuk memeriksa apakah hari libur
+                    $currentDate = Carbon::createFromFormat('Y-m', $dataFilter['periode'])->startOfMonth()->addDays(30);
+                    $isWeekend = $currentDate->isWeekend();
+                    
                     if ($data->{"tanggal31_status"} == 'H') {
                         $nestedData["in_31"] = '<button class="btn btn-sm btn-success btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-31" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="IN">' . $data->tanggal31_in . '</button>';
                         $nestedData["out_31"] = '<button class="btn btn-sm btn-success btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-31" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="OUT">' . $data->tanggal31_out . '</button>';
@@ -224,13 +318,34 @@ class PresensiController extends Controller
                         $nestedData["out_31"] = '<button class="btn btn-sm btn-primary btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-31" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Izin</button>';
                     } elseif ($data->{"tanggal31_status"} == 'C') {
                         $nestedData["in_31"] = '<button class="btn btn-sm btn-info btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-31" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Cuti</button>';
-                        $nestedData["out_31"] = '<button class="btn btn-sm btn-info btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-31" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Cuti</button>';
+                        $nestedData["out_31"] = '<button class="btn btn-sm btn-info btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-31" data-karyawan-id="' . $data?->karywan_id . '" data-pin="' . $data?->pin . '">Cuti</button>';
+                    } elseif ($data->{"tanggal31_status"} == 'L') {
+                        // Hari libur (akhir pekan) - jika ada presensi, anggap sebagai lembur
+                        if ($data->tanggal31_in && $data->tanggal31_out) {
+                            $nestedData["in_31"] = '<button class="btn btn-sm btn-success btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-31" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="IN">' . $data->tanggal31_in . '</button>';
+                            $nestedData["out_31"] = '<button class="btn btn-sm btn-success btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-31" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '" data-type="OUT">' . $data->tanggal31_out . '</button>';
+                        } else {
+                            $nestedData["in_31"] = '<button class="btn btn-sm btn-libur btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-31" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Libur</button>';
+                            $nestedData["out_31"] = '<button class="btn btn-sm btn-libur btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-31" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Libur</button>';
+                        }
                     } else {
-                        $nestedData["in_31"] = '<button class="btn btn-sm btn-danger btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-31" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Absen</button>';
-                        $nestedData["out_31"] = '<button class="btn btn-sm btn-danger btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-31" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Absen</button>';
+                        // Hari biasa tidak ada presensi
+                        if ($isWeekend) {
+                            // Akhir pekan tidak ada presensi = hari libur
+                            $nestedData["in_31"] = '<button class="btn btn-sm btn-libur btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-31" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Libur</button>';
+                            $nestedData["out_31"] = '<button class="btn btn-sm btn-libur btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-31" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Libur</button>';
+                        } else {
+                            // Hari kerja tidak ada presensi = absen
+                            $nestedData["in_31"] = '<button class="btn btn-sm btn-danger btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-31" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Absen</button>';
+                            $nestedData["out_31"] = '<button class="btn btn-sm btn-danger btnCheck" data-id="' . $data->id_att_summary . '" data-date="' . $dataFilter['periode'] . '-31" data-karyawan-id="' . $data?->karyawan_id . '" data-pin="' . $data?->pin . '">Absen</button>';
+                        }
                     }
 
-                    $nestedData["in_status_31"] = $data?->tanggal31_selisih > 0 ? 'LATE' : '';
+                    if ($data->{"tanggal31_status"} != 'L') {
+                        $nestedData["in_status_31"] = $data?->tanggal31_selisih > 0 ? 'LATE' : '';
+                    } else {
+                        $nestedData["in_status_31"] = '';
+                    }
                     $nestedData["out_status_31"] = $data?->tanggal31_status;
                 } else {
                     $nestedData['in_31'] = '';
@@ -657,89 +772,31 @@ class PresensiController extends Controller
         }
     }
 
-    public function checkLatest(Request $request)
+    public function summarize(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'startDate' => ['required', 'date_format:Y-m-d'],
-            'endDate' => ['required', 'date_format:Y-m-d', 'after_or_equal:startDate'],
-        ]);
+        $dataValidate = [
+            'periode' => ['required', 'date_format:Y-m'],
+            'departemen' => ['nullable', 'array'],
+        ];
+
+        $validator = Validator::make($request->all(), $dataValidate);
 
         if ($validator->fails()) {
             return response()->json(['message' => $validator->errors()->all()], 422);
         }
 
-        $startDate = Carbon::parse($request->startDate);
-        $endDate = Carbon::parse($request->endDate);
-
-
         try {
+            $periode = $request->periode;
+            $departemen = $request->departemen;
             $organisasi_id = auth()->user()->organisasi_id;
-            $devices = Device::where('organisasi_id', $organisasi_id)->get();
+            $user = auth()->user();
 
-            if ($devices->isEmpty()) {
-                return response()->json(['message' => 'Tidak ada perangkat absensi yang terdaftar untuk organisasi Anda.'], 404);
-            }
+            ProcessSummarizeRequestJob::dispatch($periode, $departemen, $organisasi_id, $user);
 
-            $allNewData = collect();
-
-            // Loop untuk setiap hari dalam rentang tanggal yang dipilih
-            for ($date = $startDate->copy(); $date->lte($endDate); $date->addDay()) {
-                foreach ($devices as $device) {
-                    $newData = $this->getAndProcessScanlog(
-                        $organisasi_id,
-                        $device->id_device,
-                        $device->device_sn,
-                        $date->format('Y-m-d') . " 00:00:00",
-                        $date->format('Y-m-d') . " 23:59:59"
-                    );
-                    if ($newData->isNotEmpty()) {
-                        $allNewData = $allNewData->merge($newData);
-                    }
-                }
-            }
-
-            if ($allNewData->isEmpty()) {
-                return response()->json(['message' => 'Tidak ada data presensi baru yang ditemukan.', 'data' => []], 200);
-            }
-
-            // Tambahkan nama karyawan ke data yang akan dikirim
-            $pins = $allNewData->pluck('BADGENUMBER')->unique();
-            $karyawanNames = Karyawan::whereIn('pin', $pins)->pluck('nama', 'pin');
-
-            $formattedData = $allNewData->map(function ($item) use ($karyawanNames) {
-                $item->nama_karyawan = $karyawanNames[$item->BADGENUMBER] ?? 'N/A';
-                $item->scan_time_formatted = Carbon::parse($item->CHECKTIME)->format('d M Y, H:i:s');
-                return $item;
-            })->sortBy('CHECKTIME');
-
-            return response()->json(['message' => 'Data presensi baru ditemukan!', 'data' => $formattedData->values()], 200);
+            return response()->json(['message' => 'Proses summarize presensi untuk periode ' . $periode . ' sedang berjalan.'], 200);
         } catch (Throwable $e) {
-            return response()->json(['message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
+            return response()->json(['message' => $e->getMessage()], 500);
         }
     }
 
-    private function getAndProcessScanlog($organisasi_id, $device_id, $device_sn, $startDate, $endDate)
-    {
-        try {
-            $rawData = DB::connection('sqlsrv')
-                ->table('USERINFO')
-                ->join('CHECKINOUT', 'USERINFO.USERID', '=', 'CHECKINOUT.USERID')
-                ->select('USERINFO.BADGENUMBER', 'CHECKINOUT.CHECKTIME')
-                ->where('CHECKINOUT.sn', $device_sn)
-                ->whereBetween('CHECKINOUT.CHECKTIME', [$startDate, $endDate])
-                ->get();
-
-            if ($rawData->isNotEmpty()) {
-                $pins = $rawData->pluck('BADGENUMBER')->unique()->toArray();
-                // Jalankan job untuk memproses data yang baru diambil
-                SummarizeAttendanceJob::dispatch($pins, $organisasi_id, auth()->user(), Carbon::parse($startDate)->toDateString());
-                return $rawData;
-            }
-            return collect();
-        } catch (Throwable $e) {
-            // Log error jika koneksi atau query gagal, tapi jangan hentikan proses
-            activity('check_latest_error')->log('Gagal mengambil data dari perangkat SN: ' . $device_sn . '. Error: ' . $e->getMessage());
-            return collect();
-        }
-    }
 }

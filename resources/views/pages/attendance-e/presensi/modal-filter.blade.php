@@ -25,7 +25,7 @@
                             @endif
                             <div class="form-group">
                                 <label for="filterPeriode">PERIODE</label>
-                                <input type="month" class="form-control" id="periode" name="filterPeriode">
+                                <input type="month" class="form-control" id="filterPeriode" name="filterPeriode">
                             </div>
                         </div>
                     </div>

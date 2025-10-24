@@ -15,6 +15,11 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Support\Facades\Log;
 use App\Models\Attendance\AttendanceSummary;
+use App\Models\Sakite;
+use App\Models\Cutie;
+use App\Models\Izine;
+use App\Models\DetailLembur;
+use App\Models\Event;
 
 class SummarizeAttendanceJob
 {
@@ -32,7 +37,7 @@ class SummarizeAttendanceJob
         $this->data = $data;
         $this->organisasi_id = $organisasi_id;
         $this->user = $user;
-        $this->tanggal = $tanggal;
+        $this->tanggal = Carbon::parse($tanggal)->format('Y-m-d');
     }
 
     /**
@@ -42,6 +47,7 @@ class SummarizeAttendanceJob
     {
         $row = 0;
         $currentItemPin = null;
+        $this->tanggal = Carbon::parse($this->tanggal)->format('Y-m-d');
         Log::info('[SummarizeAttendanceJob] Started for date: ' . $this->tanggal . ' with ' . count($this->data) . ' items.');
 
         DB::beginTransaction();
@@ -52,6 +58,9 @@ class SummarizeAttendanceJob
                 ->where('organisasi_id', $this->organisasi_id)
                 ->get();
 
+            // Cek jika tanggal ini adalah akhir pekan (Sabtu/Minggu)
+            $isWeekend = $formattedDate->isWeekend();
+            
             if ($karyawans->isNotEmpty()) {
                 foreach ($karyawans as $item) {
                     $row++;
@@ -65,18 +74,144 @@ class SummarizeAttendanceJob
                         'tanggal' => $this->tanggal,
                     ];
 
-                    $finalSummary = ScanlogDetail::summarizePresensi($dataFilter);
                     $summaryExist = AttendanceSummary::where('karyawan_id', $item->id_karyawan)
                         ->where('organisasi_id', $this->organisasi_id)
                         ->whereMonth('periode', $formattedDate->month)
                         ->whereYear('periode', $formattedDate->year)
                         ->first();
 
-                    if ($summaryExist) {
-                        if ($finalSummary) {
-                            $keterlambatan = $finalSummary->in_selisih ? intval(Carbon::createFromFormat('H:i:s', $finalSummary->in_selisih)->minute) : 0;
+                    $approvedSakit = Sakite::where('karyawan_id', $item->id_karyawan)
+                        ->where('organisasi_id', $this->organisasi_id)
+                        ->where('tanggal_mulai', '<=', $this->tanggal)
+                        ->where('tanggal_selesai', '>=', $this->tanggal)
+                        ->whereNotNull('legalized_by')
+                        ->whereNull('rejected_by')
+                        ->first();
+
+                    if ($approvedSakit) {
+                        if ($summaryExist) {
+                            $summaryExist->update([
+                                "tanggal".$formattedDate->day."_status" => 'S',
+                                "tanggal".$formattedDate->day."_selisih" => 0,
+                                "tanggal".$formattedDate->day."_in" => null,
+                                "tanggal".$formattedDate->day."_out" => null,
+                            ]);
+                        } else {
+                            $posisi = $item->posisi->first();
+                            AttendanceSummary::create([
+                                'karyawan_id' => $item->id_karyawan,
+                                'periode' => $formattedDate->copy()->startOfMonth()->format('Y-m-d'),
+                                'pin' => $item->pin,
+                                'organisasi_id' => $this->organisasi_id,
+                                'divisi_id' => $posisi?->divisi_id,
+                                'departemen_id' => $posisi?->departemen_id,
+                                'seksi_id' => $posisi?->seksi_id,
+                                'jabatan_id' => $posisi?->jabatan_id,
+                                "tanggal".$formattedDate->day."_status" => 'S',
+                                "tanggal".$formattedDate->day."_selisih" => 0,
+                                "tanggal".$formattedDate->day."_in" => null,
+                                "tanggal".$formattedDate->day."_out" => null,
+                            ]);
+                        }
+                        continue;
+                    }
+
+                    $approvedCuti = Cutie::where('karyawan_id', $item->id_karyawan)
+                        ->where('organisasi_id', $this->organisasi_id)
+                        ->where('rencana_mulai_cuti', '<=', $this->tanggal)
+                        ->where('rencana_selesai_cuti', '>=', $this->tanggal)
+                        ->whereNotNull('legalized_by')
+                        ->whereNull('rejected_by')
+                        ->first();
+
+                    if ($approvedCuti) {
+                        if ($summaryExist) {
+                            $summaryExist->update([
+                                "tanggal".$formattedDate->day."_status" => 'C',
+                                "tanggal".$formattedDate->day."_selisih" => 0,
+                                "tanggal".$formattedDate->day."_in" => null,
+                                "tanggal".$formattedDate->day."_out" => null,
+                            ]);
+                        } else {
+                            $posisi = $item->posisi->first();
+                            AttendanceSummary::create([
+                                'karyawan_id' => $item->id_karyawan,
+                                'periode' => $formattedDate->copy()->startOfMonth()->format('Y-m-d'),
+                                'pin' => $item->pin,
+                                'organisasi_id' => $this->organisasi_id,
+                                'divisi_id' => $posisi?->divisi_id,
+                                'departemen_id' => $posisi?->departemen_id,
+                                'seksi_id' => $posisi?->seksi_id,
+                                'jabatan_id' => $posisi?->jabatan_id,
+                                "tanggal".$formattedDate->day."_status" => 'C',
+                                "tanggal".$formattedDate->day."_selisih" => 0,
+                                "tanggal".$formattedDate->day."_in" => null,
+                                "tanggal".$formattedDate->day."_out" => null,
+                            ]);
+                        }
+                        continue;
+                    }
+                    
+                    $approvedIzin = Izine::where('karyawan_id', $item->id_karyawan)
+                        ->where('organisasi_id', $this->organisasi_id)
+                        ->whereDate('rencana_mulai_or_masuk', $this->tanggal)
+                        ->whereNotNull('legalized_by')
+                        ->whereNull('rejected_by')
+                        ->where('jenis_izin', 'TM')
+                        ->first();
+
+                    if ($approvedIzin) {
+                        if ($summaryExist) {
+                            $summaryExist->update([
+                                "tanggal".$formattedDate->day."_status" => 'I',
+                                "tanggal".$formattedDate->day."_selisih" => 0,
+                                "tanggal".$formattedDate->day."_in" => null,
+                                "tanggal".$formattedDate->day."_out" => null,
+                            ]);
+                        } else {
+                            $posisi = $item->posisi->first();
+                            AttendanceSummary::create([
+                                'karyawan_id' => $item->id_karyawan,
+                                'periode' => $formattedDate->copy()->startOfMonth()->format('Y-m-d'),
+                                'pin' => $item->pin,
+                                'organisasi_id' => $this->organisasi_id,
+                                'divisi_id' => $posisi?->divisi_id,
+                                'departemen_id' => $posisi?->departemen_id,
+                                'seksi_id' => $posisi?->seksi_id,
+                                'jabatan_id' => $posisi?->jabatan_id,
+                                "tanggal".$formattedDate->day."_status" => 'I',
+                                "tanggal".$formattedDate->day."_selisih" => 0,
+                                "tanggal".$formattedDate->day."_in" => null,
+                                "tanggal".$formattedDate->day."_out" => null,
+                            ]);
+                        }
+                        continue;
+                    }
+
+                    $finalSummary = ScanlogDetail::summarizePresensi($dataFilter);
+
+                    if ($finalSummary) {
+                        $approvedLembur = DetailLembur::where('karyawan_id', $item->id_karyawan)
+                            ->where('organisasi_id', $this->organisasi_id)
+                            ->whereDate('rencana_mulai_lembur', $this->tanggal)
+                            ->whereHas('lembur', function ($query) {
+                                $query->whereNotNull('actual_legalized_by')->whereNull('rejected_by');
+                            })
+                            ->first();
+
+                        $isHoliday = Event::where('organisasi_id', $this->organisasi_id)
+                            ->where('tanggal_mulai', '<=', $this->tanggal)
+                            ->where('tanggal_selesai', '>=', $this->tanggal)
+                            ->whereIn('jenis_event', ['CB', 'LN'])
+                            ->exists();
+
+                        $isLembur = $isWeekend || $approvedLembur || $isHoliday;
+                        $keterlambatan = ($isLembur || !$finalSummary->in_selisih) ? 0 : intval(Carbon::createFromFormat('H:i:s', $finalSummary->in_selisih)->minute);
+                        
+                        if ($summaryExist) {
+                            $status = $isLembur ? 'L' : 'H';
                             $updateData = [
-                                "tanggal".$formattedDate->day."_status" => 'H',
+                                "tanggal".$formattedDate->day."_status" => $status,
                                 "tanggal".$formattedDate->day."_selisih" => $keterlambatan,
                                 "tanggal".$formattedDate->day."_in" => $finalSummary->in_time,
                                 "tanggal".$formattedDate->day."_out" => $finalSummary->out_time,
@@ -85,16 +220,7 @@ class SummarizeAttendanceJob
                             $summaryExist->update($updateData);
                             Log::info('[SummarizeAttendanceJob] Update successful for PIN: ' . $currentItemPin);
                         } else {
-                            Log::warning('[SummarizeAttendanceJob] Failed to get final summary for PIN: ' . $currentItemPin . '. Skipping.');
-                            $failedDatas[] = [
-                                'row' => $row,
-                                'error' => 'Gagal merekap data presensi - ' . $item->pin . ' - ' . $item->nama. ' - ' . $this->tanggal .' - Silahkan cek kembali settingan shift & grup karyawan ini.',
-                            ];
-                            continue;
-                        }
-                    } else {
-                        if ($finalSummary) {
-                            $keterlambatan = $finalSummary->in_selisih ? intval(Carbon::createFromFormat('H:i:s', $finalSummary->in_selisih)->minute) : 0;
+                            $status = $isLembur ? 'L' : 'H';
                             $createData = [
                                 'karyawan_id' => $finalSummary->id_karyawan,
                                 'periode' => Carbon::createFromFormat('Y-m-d', $this->tanggal)->startOfMonth()->format('Y-m-d'),
@@ -104,7 +230,7 @@ class SummarizeAttendanceJob
                                 'departemen_id' => $finalSummary->departemen_id,
                                 'seksi_id' => $finalSummary->seksi_id,
                                 'jabatan_id' => $finalSummary->jabatan_id,
-                                "tanggal".$formattedDate->day."_status" => "H",
+                                "tanggal".$formattedDate->day."_status" => $status,
                                 "tanggal".$formattedDate->day."_selisih" => $keterlambatan,
                                 "tanggal".$formattedDate->day."_in" => $finalSummary->in_time,
                                 "tanggal".$formattedDate->day."_out" => $finalSummary->out_time,
@@ -112,14 +238,40 @@ class SummarizeAttendanceJob
                             Log::info('[SummarizeAttendanceJob] Creating new summary for PIN: ' . $currentItemPin, $createData);
                             AttendanceSummary::create($createData);
                             Log::info('[SummarizeAttendanceJob] Create successful for PIN: ' . $currentItemPin);
-                        } else {
-                            Log::warning('[SummarizeAttendanceJob] Failed to get final summary for new record. PIN: ' . $currentItemPin . '. Skipping.');
-                            $failedDatas[] = [
-                                'row' => $row,
-                                'error' => 'Gagal merekap data presensi - ' . $item->pin . ' - ' . $item->nama. ' - ' . $this->tanggal .' - Silahkan cek kembali settingan shift & grup karyawan ini.',
-                            ];
-                            continue;
                         }
+                    } else {
+                        $posisi = $item->posisi->first();
+                        // Jika akhir pekan, anggap sebagai hari libur, bukan alpa
+                        $status = $isWeekend ? 'L' : 'A';
+                        if ($summaryExist) {
+                            $summaryExist->update([
+                                "tanggal".$formattedDate->day."_status" => $status,
+                                "tanggal".$formattedDate->day."_selisih" => 0,
+                                "tanggal".$formattedDate->day."_in" => null,
+                                "tanggal".$formattedDate->day."_out" => null,
+                            ]);
+                        } else {
+                            AttendanceSummary::create([
+                                'karyawan_id' => $item->id_karyawan,
+                                'periode' => $formattedDate->copy()->startOfMonth()->format('Y-m-d'),
+                                'pin' => $item->pin,
+                                'organisasi_id' => $this->organisasi_id,
+                                'divisi_id' => $posisi?->divisi_id,
+                                'departemen_id' => $posisi?->departemen_id,
+                                'seksi_id' => $posisi?->seksi_id,
+                                'jabatan_id' => $posisi?->jabatan_id,
+                                "tanggal".$formattedDate->day."_status" => $status,
+                                "tanggal".$formattedDate->day."_selisih" => 0,
+                                "tanggal".$formattedDate->day."_in" => null,
+                                "tanggal".$formattedDate->day."_out" => null,
+                            ]);
+                        }
+                        Log::warning('[SummarizeAttendanceJob] Failed to get final summary for PIN: ' . $currentItemPin . '. Marked as ' . ($isWeekend ? 'Libur' : 'Absent') . '.');
+                        $failedDatas[] = [
+                            'row' => $row,
+                            'error' => 'Gagal merekap data presensi - ' . $item->pin . ' - ' . $item->nama. ' - ' . $this->tanggal .' - Silahkan cek kembali settingan shift & grup karyawan ini.',
+                        ];
+                        continue;
                     }
                 }
             } else {

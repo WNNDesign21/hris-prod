@@ -125,9 +125,9 @@ class ScanlogController extends Controller
 
     private function get_att_scanlog($organisasi_id, $device_id, $cloudId, $startDate, $endDate)
     {
-        DB::beginTransaction();
-
         try {
+            DB::beginTransaction();
+            
             // 0️⃣ Ambil device dari DB
             $device = Device::find($device_id);
             if (!$device || !$device->device_sn) {
@@ -136,13 +136,7 @@ class ScanlogController extends Controller
             }
             $device_sn = $device->device_sn;
 
-            // 1️⃣ Hapus data lama
-            Scanlog::where('device_id', $device_id)
-                ->whereBetween('scan_date', [$startDate, $endDate])
-                ->whereIn('verify', [0, 1, 2, 3, 4, 5, 6])
-                ->delete();
-
-            // 2️⃣ Ambil data dari SQL Server (mesin fingerprint)
+            // 1️⃣ Ambil data dari SQL Server (mesin fingerprint) TANPA MENGHAPUS DATA LAMA DULU
             $rawData = DB::connection('sqlsrv')
                 ->table('USERINFO')
                 ->join('CHECKINOUT', 'USERINFO.USERID', '=', 'CHECKINOUT.USERID')
@@ -163,7 +157,7 @@ class ScanlogController extends Controller
                 return false;
             }
 
-            // 3️⃣ Transform data siap insert
+            // 2️⃣ Transform data siap insert
             $dataToInsert = $rawData->map(function ($item) use ($device_id, $organisasi_id, $startDate, $endDate) {
                 return [
                     'pin' => $item->BADGENUMBER,
@@ -178,6 +172,12 @@ class ScanlogController extends Controller
                     'updated_at' => now(),
                 ];
             })->toArray();
+
+            // 3️⃣ HAPUS data lama hanya setelah berhasil mengambil data baru
+            Scanlog::where('device_id', $device_id)
+                ->whereBetween('scan_date', [$startDate, $endDate])
+                ->whereIn('verify', [0, 1, 2, 3, 4, 5, 6])
+                ->delete();
 
             // 4️⃣ Insert batch ke tabel Scanlog
             Scanlog::insert($dataToInsert);
@@ -249,7 +249,10 @@ class ScanlogController extends Controller
                 $cloudId = $device->cloud_id;
                 $diff_date = $startDate->diffInDays($endDate);
 
-                if ($diff_date <= 1) {
+                // Gunakan pendekatan yang konsisten untuk semua kasus
+                // Selalu gunakan DownloadScanlogJob dengan SQL Server
+                if ($diff_date < 1) {
+                    // Untuk 1 hari, gunakan pendekatan langsung
                     $this->get_att_scanlog(
                         $organisasi_id,
                         $device->id_device,
@@ -258,20 +261,8 @@ class ScanlogController extends Controller
                         $request->end_date . " 23:59:59"
                     );
                 } else {
-                    $summarizeExists = AttendanceSummary::whereMonth('periode', $startDate->month)
-                        ->whereYear('periode', $startDate->year)
-                        ->exists();
-
-                    if (!$summarizeExists) {
-                        $this->get_att_scanlog(
-                            $organisasi_id,
-                            $device->id_device,
-                            $cloudId,
-                            $startDate->format('Y-m-d'),
-                            $startDate->format('Y-m-d')
-                        );
-                    }
-
+                    // Untuk lebih dari 1 hari, gunakan job queue
+                    // Bagi rentang tanggal menjadi periode 2 hari
                     $dateRanges = [];
                     for ($currentStartDate = $startDate->copy(); $currentStartDate->lte($endDate); $currentStartDate->addDays(2)) {
                         $currentEndDate = $currentStartDate->copy()->addDay();
@@ -279,12 +270,13 @@ class ScanlogController extends Controller
                             $currentEndDate = $endDate;
                         }
                         $dateRanges[] = [
-                            'start_date' => $currentStartDate->format('Y-m-d'),
-                            'end_date' => $currentEndDate->format('Y-m-d'),
+                            'start_date' => $currentStartDate->format('Y-m-d') . ' 00:00:00',
+                            'end_date' => $currentEndDate->format('Y-m-d') . ' 23:59:59',
                         ];
                     }
 
                     foreach ($dateRanges as $dr) {
+                        // Gunakan DownloadScanlogJob yang telah diperbaiki
                         DownloadScanlogJob::dispatch(
                             $organisasi_id,
                             $cloudId,
@@ -300,7 +292,9 @@ class ScanlogController extends Controller
             return response()->json(['message' => 'Data Scanlog Berhasil Diunduh!'], 200);
 
         } catch (Throwable $e) {
-            DB::rollBack();
+            if (DB::transactionLevel() > 0) {
+                DB::rollBack();
+            }
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }
@@ -402,7 +396,7 @@ class ScanlogController extends Controller
         if ($request->device_id != 0 && !Device::where('id_device', $request->device_id)->exists()) {
             return response()->json(['message' => ['The selected device id is invalid.']], 402);
         }
-
+        
         try {
             $deviceName = '';
             if ($request->device_id == 0) {
@@ -411,7 +405,7 @@ class ScanlogController extends Controller
                 $device = Device::find($request->device_id);
                 $deviceName = $device ? $device->device_name : 'UNKNOWN-DEVICE';
             }
-
+            
             $organisasi_id = auth()->user()->organisasi_id;
 
             if ($request->format == 'V') {
@@ -427,14 +421,14 @@ class ScanlogController extends Controller
                 $query->leftJoin('users', 'users.id', 'karyawans.user_id')->where('users.organisasi_id', $organisasi_id);
 
                 $query->where('attendance_scanlogs.organisasi_id', $organisasi_id);
-
+                
                 if ($request->device_id != 0) {
                     $query->where('attendance_scanlogs.device_id', $request->device_id);
                 }
 
                 $query->whereBetween(DB::raw('DATE(attendance_scanlogs.scan_date)'), [$request->start_date, $request->end_date]);
                 $query->orderBy(DB::raw('karyawans.nama, DATE(attendance_scanlogs.scan_date)'), 'ASC');
-
+                
                 $scanlogs = $query->get();
 
                 $spreadsheet = new Spreadsheet();

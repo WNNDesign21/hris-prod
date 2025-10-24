@@ -196,9 +196,29 @@ $(function () {
                     $(this).addClass('bg-danger');
                 }
 
+                // Tambahkan penanganan untuk hari libur dan lembur
                 for (let i = 1; i <= 31; i++) {
-                    if (data[`in_status_${i}`] === 'LATE' && index === (i * 2 + 2)) {
-                        $(this).addClass('bg-warning');
+                    if (data[`status_${i}`] === 'LIBUR') {
+                        if (index === (i * 2 + 2)) { 
+                            $(this).addClass('text-danger');
+                        }
+                        if (index === (i * 2 + 3)) {
+                            $(this).addClass('text-danger');
+                        }
+                    }
+
+                    // Untuk tombol IN
+                    if (index === (i * 2 + 2)) { // Kolom IN
+                        if (data[`in_status_${i}`] === 'LATE') {
+                            $(this).addClass('bg-warning');
+                        }
+                    }
+                    
+                    // Untuk tombol OUT
+                    if (index === (i * 2 + 3)) { // Kolom OUT
+                        if (data[`out_status_${i}`] === 'LATE') {
+                            $(this).addClass('bg-warning');
+                        }
                     }
                 }
             });
@@ -218,6 +238,68 @@ $(function () {
     $('.btnReload').on("click", function (){
         refreshTable();
     })
+
+    $('.btnSummarize').on('click', function() {
+        var periode = $('#filterPeriode').val();
+        var departemen = $('#filterDepartemen').val();
+
+        if (!periode) {
+            Swal.fire({
+                title: 'Peringatan',
+                text: 'Silahkan pilih periode terlebih dahulu.',
+                icon: 'warning'
+            });
+            return;
+        }
+
+        Swal.fire({
+            title: 'Konfirmasi',
+            text: "Apakah Anda yakin ingin melakukan summarize presensi untuk periode " + periode + "? Proses ini mungkin memakan waktu beberapa saat.",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, Lanjutkan!',
+            cancelButtonText: 'Batal'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                loadingSwalShow();
+
+                $.ajax({
+                    url: base_url + "/attendance/presensi/summarize",
+                    type: 'POST',
+                    data: {
+                        periode: periode,
+                        departemen: departemen
+                    },
+                    success: function(response) {
+                        loadingSwalClose();
+                        Swal.fire({
+                            title: 'Proses Dimulai',
+                            text: response.message + ". Silahkan muat ulang data dalam beberapa menit untuk melihat hasilnya.",
+                            icon: 'info'
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        loadingSwalClose();
+                        var errorMessage = 'Terjadi kesalahan saat memproses permintaan.';
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            if(typeof xhr.responseJSON.message === 'object') {
+                                errorMessage = Object.values(xhr.responseJSON.message).join('\n');
+                            } else {
+                                errorMessage = xhr.responseJSON.message;
+                            }
+                        }
+                        Swal.fire({
+                            title: 'Gagal',
+                            text: errorMessage,
+                            icon: 'error'
+                        });
+                    }
+                });
+            }
+        });
+    });
 
     // PRESENSI
     var modalFilterOptions = {
@@ -628,103 +710,4 @@ $(function () {
             }
         })
     })
-
-    // Modal untuk memilih periode pengecekan
-    var modalCheckPeriode = new bootstrap.Modal(
-        document.getElementById("modal-check-periode"),
-        { backdrop: 'static', keyboard: false }
-    );
-
-    // Modal untuk menampilkan scanlog baru
-    var modalNewScanlog = new bootstrap.Modal(
-        document.getElementById("modal-new-scanlog"),
-        { backdrop: 'static', keyboard: false }
-    );
-
-    // Event ketika modal ditutup, reload datatable
-    $('#modal-new-scanlog').on('hidden.bs.modal', function () {
-        loadingSwalShow();
-        presensiTable.ajax.reload(function() {
-            loadingSwalClose();
-        });
-    });
-
-    // Event listener untuk tombol summarize
-    $('#btnSummarize').on('click', function() {
-        // Buka modal pemilihan periode
-        modalCheckPeriode.show();
-    });
-
-    // Event listener untuk tombol submit di modal pemilihan periode
-    $('#btnSubmitCheckPeriode').on('click', function() {
-        const startDate = $('#checkStartDate').val();
-        const endDate = $('#checkEndDate').val();
-
-        if (!startDate || !endDate) {
-            showToast({ icon: 'error', title: 'Tanggal mulai dan selesai harus diisi.' });
-            return;
-        }
-
-        if (new Date(startDate) > new Date(endDate)) {
-            showToast({ icon: 'error', title: 'Tanggal mulai tidak boleh lebih besar dari tanggal selesai.' });
-            return;
-        }
-
-        // Tutup modal periode dan jalankan AJAX
-        modalCheckPeriode.hide();
-        loadingSwalShow();
-
-                $.ajax({
-                    url: route('attendance.presensi.check-latest'),
-                    type: 'POST',
-                    data: {
-                        _token: $('meta[name="csrf-token"]').attr('content'),
-                        startDate: startDate,
-                        endDate: endDate
-                    },
-                    success: function(response) {
-                        loadingSwalClose();
-                        if (response.data && response.data.length > 0) {
-                            // Ada data baru, tampilkan di modal
-                            let tableContent = '';
-                            response.data.forEach(item => {
-                                tableContent += `
-                                    <tr>
-                                        <td>${item.nama_karyawan}</td>
-                                        <td>${item.BADGENUMBER}</td>
-                                        <td>${item.scan_time_formatted}</td> // Sudah diformat dari controller
-                                    </tr>
-                                `;
-                            });
-                            $('#new-scanlog-content').html(tableContent);
-                            modalNewScanlog.show();
-                        } else {
-                            // Tidak ada data baru, tampilkan toast
-                            Swal.fire({
-                                icon: 'success',
-                                title: 'Data Sinkron',
-                                text: 'Semua data presensi pada periode yang dipilih sudah up-to-date.',
-                                showConfirmButton: true,
-                            });
-                        }
-                    },
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        loadingSwalClose();
-                        let errorMessage = 'Terjadi kesalahan saat memproses permintaan.';
-                        if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
-                            if(Array.isArray(jqXHR.responseJSON.message)) {
-                                errorMessage = jqXHR.responseJSON.message.join('\n');
-                            } else {
-                                errorMessage = jqXHR.responseJSON.message;
-                            }
-                        }
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: errorMessage,
-                        });
-                    }
-                });
-    })
-
 });

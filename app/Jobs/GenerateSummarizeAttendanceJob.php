@@ -50,6 +50,16 @@ class GenerateSummarizeAttendanceJob implements ShouldQueue
                     foreach ($this->dates as $date) {
                         $row++;
                         $formattedDate = Carbon::createFromFormat('Y-m-d', $date);
+                        
+                        // Cek jika hari ini adalah akhir pekan (Sabtu/Minggu)
+                        if ($formattedDate->isWeekend()) {
+                            // Untuk akhir pekan, tetapkan status sebagai 'L' (Libur) bukan 'A' (Alpa)
+                            $status = 'L';
+                        } else {
+                            // Untuk hari kerja, gunakan tipe yang diberikan
+                            $status = $this->type;
+                        }
+                        
                         $summaryExist = AttendanceSummary::where('karyawan_id', $this->karyawan_id)
                             ->where('organisasi_id', $this->organisasi_id)
                             ->whereMonth('periode', $formattedDate->month)
@@ -58,7 +68,7 @@ class GenerateSummarizeAttendanceJob implements ShouldQueue
 
                         if ($summaryExist) {
                             $summaryExist->update([
-                                "tanggal".$formattedDate->day."_status" => $this->type,
+                                "tanggal".$formattedDate->day."_status" => $status,
                                 "tanggal".$formattedDate->day."_selisih" => 0,
                                 "tanggal".$formattedDate->day."_in" => '00:00',
                                 "tanggal".$formattedDate->day."_out" => '00:00',
@@ -74,7 +84,7 @@ class GenerateSummarizeAttendanceJob implements ShouldQueue
                                 'departemen_id' => $posisi?->departemen_id,
                                 'seksi_id' => $posisi?->seksi_id,
                                 'jabatan_id' => $posisi?->jabatan_id,
-                                "tanggal".$formattedDate->day."_status" => $this->type,
+                                "tanggal".$formattedDate->day."_status" => $status,
                                 "tanggal".$formattedDate->day."_selisih" => 0,
                                 "tanggal".$formattedDate->day."_in" => '00:00',
                                 "tanggal".$formattedDate->day."_out" => '00:00',

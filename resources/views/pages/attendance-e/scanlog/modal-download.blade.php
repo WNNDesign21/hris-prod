@@ -14,10 +14,7 @@
                         <label for="">Device</label>
                         <div class="input-group mb-2" style="width:100%;">
                             <select name="device_id" id="device_id" class="form-control" required style="width: 100%;">
-<<<<<<< HEAD
-=======
                                 <option value="0">All Device</option>
->>>>>>> 48e12d6e2704084eb06af2f6b7647853c5985881
                                 @foreach ($devices as $device)
                                     <option value="{{ $device->id_device }}">{{ $device->device_name }}</option>
                                 @endforeach
