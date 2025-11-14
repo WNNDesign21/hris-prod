@@ -246,16 +246,40 @@ class LembureController extends Controller
 
     public function setting_lembur_view()
     {
-        $setting_lembur = SettingLembur::where('organisasi_id', auth()->user()->organisasi_id)->get();
-        $data_setting_lembur = [];
-        foreach ($setting_lembur as $setting) {
-            $data_setting_lembur[$setting->setting_name] = $setting->value;
-        }
+        $db_settings = SettingLembur::where('organisasi_id', auth()->user()->organisasi_id)
+            ->get()
+            ->pluck('value', 'setting_name');
+
+        $default_settings = [
+            'onoff_batas_approval_lembur' => 'N',
+            'batas_approval_lembur' => '12:00',
+            'onoff_batas_pengajuan_lembur' => 'N',
+            'batas_pengajuan_lembur' => '12:00',
+            'pembagi_upah_lembur_harian' => 173,
+            'uang_makan' => 0,
+            'pajak_pph' => 0,
+            'jam_istirahat_mulai_1' => '12:00',
+            'jam_istirahat_selesai_1' => '13:00',
+            'jam_istirahat_mulai_2' => '17:00',
+            'jam_istirahat_selesai_2' => '18:00',
+            'jam_istirahat_mulai_3' => '00:00',
+            'jam_istirahat_selesai_3' => '00:00',
+            'jam_istirahat_mulai_jumat' => '11:30',
+            'jam_istirahat_selesai_jumat' => '13:00',
+            'insentif_section_head_3' => 0,
+            'insentif_section_head_4' => 0,
+            'insentif_section_head_gt_7' => 0,
+            'insentif_department_head_3' => 0,
+            'insentif_department_head_4' => 0,
+            'insentif_department_head_gt_7' => 0,
+        ];
+
+        $setting_lembur = collect($default_settings)->merge($db_settings);
 
         $dataPage = [
             'pageTitle' => "Lembur-E - Setting Lembur",
             'page' => 'lembure-setting-lembur',
-            'setting_lembur' => $data_setting_lembur
+            'setting_lembur' => $setting_lembur
         ];
         return view('pages.lembur-e.setting-lembur', $dataPage);
     }
